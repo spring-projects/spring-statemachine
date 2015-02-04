@@ -1,0 +1,16 @@
+[[appendices]]
+= Appendices
+
+:numbered!:
+
+[appendix]
+== State Machine Concepts
+This appendix provides generic information about state machines.
+
+=== Glossary
+
+state machine::
+machine of sort.
+
+state::
+a stage in a state machine.

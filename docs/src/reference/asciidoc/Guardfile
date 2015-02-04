@@ -1,0 +1,13 @@
+require 'asciidoctor'
+require 'erb'
+
+guard 'shell' do
+  watch(/^.*\.adoc$/) {|m|
+    Asciidoctor.render_file(m[0], :to_dir => "build/", :safe => Asciidoctor::SafeMode::UNSAFE, :attributes=> {'idprefix' => '', 'idseparator' => '-', 'copycss' => '', 'icons' => 'font', 'source-highlighter' => 'prettify', 'sectanchors' => '', 'doctype' => 'book','toc2' => '', 'spring-hadoop-version' => '2.1.0.BUILD-SNAPSHOT','spring-version' => '4.1.3.RELEASE', 'revnumber' => '2.1.0.BUILD-SNAPSHOT', 'numbered'=>'' })
+  }
+end
+
+guard 'livereload' do
+  watch(%r{build/.+\.(css|js|html)$})
+end
+

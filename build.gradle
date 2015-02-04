@@ -1,0 +1,178 @@
+buildscript {
+	repositories {
+		maven { url 'http://repo.springsource.org/libs-release'}
+		maven { url 'http://repo.springsource.org/plugins-release' }
+	}
+	dependencies {
+		classpath("org.springframework.build.gradle:propdeps-plugin:0.0.7")
+		classpath('org.asciidoctor:asciidoctor-gradle-plugin:1.5.2')
+		classpath("io.spring.gradle:docbook-reference-plugin:0.3.0")
+	}
+}
+
+configure(allprojects) {
+	apply plugin: 'java'
+	apply plugin: 'eclipse'
+	apply plugin: 'idea'
+	
+	sourceCompatibility = 1.6
+	targetCompatibility = 1.6
+
+	group = 'org.springframework.statemachine'
+	
+	[compileJava, compileTestJava]*.options*.compilerArgs = ['-Xlint:none']
+
+	repositories {
+		mavenCentral()
+		maven { url "http://repo.springsource.org/libs-release" }
+	}
+
+	task integrationTest(type: Test) {
+		include '**/*IntegrationTests.*'
+	}
+
+	test {
+		exclude '**/*IntegrationTests.*'
+	}
+    
+	// servlet-api (2.5) and tomcat-servlet-api (3.0) classpath entries should not be
+	// exported to dependent projects in Eclipse to avoid false compilation errors due
+	// to changing APIs across these versions
+	eclipse.classpath.file.whenMerged { classpath ->
+		classpath.entries.findAll { entry -> entry.path.contains('servlet-api') }*.exported = false
+	}
+}
+
+configure(subprojects) { subproject ->
+	apply from: "${rootProject.projectDir}/publish-maven.gradle"
+
+	jar {
+		manifest.attributes['Implementation-Title'] = subproject.name
+		manifest.attributes['Implementation-Version'] = subproject.version
+
+		from("${rootProject.projectDir}/src/dist") {
+			include "license.txt"
+			include "notice.txt"
+			into "META-INF"
+			expand(copyright: new Date().format('yyyy'), version: project.version)
+		}
+	}
+
+	javadoc {
+		// /config/configuration/StateMachineConfiguration.html...
+		// java.lang.ClassCastException: com.sun.tools.javadoc.MethodDocImpl cannot be cast
+		// to com.sun.tools.javadoc.AnnotationTypeElementDocImpl
+		// @Bean(name = StateMachineSystemConstants.DEFAULT_ID_STATEMACHINEFACTORY)
+		// vs.
+		// @Bean
+
+		enabled = false
+		options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
+		options.author = true
+		options.header = project.name
+		verbose = true
+	}
+
+	task sourcesJar(type: Jar, dependsOn:classes) {
+		classifier = 'sources'
+		from sourceSets.main.allJava
+	}
+
+	task javadocJar(type: Jar) {
+		classifier = 'javadoc'
+		from javadoc
+	}
+
+	artifacts {
+		archives sourcesJar
+		archives javadocJar
+	}
+}
+
+project('spring-statemachine-core') {
+	description = "Spring State Machine Core"
+    
+	dependencies {
+		compile "org.springframework:spring-messaging:$springVersion"
+
+		testCompile "org.springframework:spring-test:$springVersion"
+		testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"
+		testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
+		testCompile "junit:junit:$junitVersion"
+	}
+}
+
+configure(rootProject) {
+	description = 'Spring State Machine'
+
+	apply plugin: 'org.asciidoctor.gradle.asciidoctor'
+	apply plugin: "docbook-reference"
+
+	// don't publish the default jar for the root project
+	configurations.archives.artifacts.clear()
+
+	reference {
+		sourceDir = new File(asciidoctor.outputDir , 'docbook5')
+		pdfFilename = "spring-statemachine-reference.pdf"
+		epubFilename = "spring-statemachine-reference.epub"
+		expandPlaceholders = ""
+	}
+
+	afterEvaluate {
+		tasks.findAll { it.name.startsWith("reference") }.each{ it.dependsOn.add("asciidoctor") }
+	}
+
+	asciidoctorj {
+		version = '1.5.2'
+	}
+
+	asciidoctor {
+		sourceDir = file("docs/src/reference/asciidoc")
+		backends = ['docbook5']
+		options eruby: 'erubis'
+		attributes docinfo: '',
+			copycss : '',
+			icons : 'font',
+			'source-highlighter': 'prettify',
+			sectanchors : '',
+			toc2: '',
+			idprefix: '',
+			idseparator: '-',
+			doctype: 'book',
+			numbered: '',
+			'spring-hadoop-version' : project.version,
+			'spring-version' : springVersion,
+			revnumber : project.version
+	}
+
+	dependencies { // for integration tests
+	}
+    
+	task api(type: Javadoc) {
+		group = 'Documentation'
+		description = 'Generates aggregated Javadoc API documentation.'
+		title = "${rootProject.description} ${version} API"
+		options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
+		options.author = true
+		options.header = rootProject.description
+		options.overview = 'src/api/overview.html'
+		options.links(
+			'http://docs.jboss.org/jbossas/javadoc/4.0.5/connector'
+		)
+		source subprojects.collect { project ->
+			project.sourceSets.main.allJava
+		}
+		destinationDir = new File(buildDir, "api")
+		classpath = files(subprojects.collect { project ->
+			project.sourceSets.main.compileClasspath
+		})
+		maxMemory = '1024m'
+	}
+
+	task wrapper(type: Wrapper) {
+		description = 'Generates gradlew[.bat] scripts'
+		gradleVersion = '2.2.1'
+	}
+
+}
+

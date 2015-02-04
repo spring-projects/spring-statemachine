@@ -1,0 +1,4 @@
+[preface]
+== Preface
+Spring Statemachine is a framework for application developers to use
+state machine concepts with Spring.

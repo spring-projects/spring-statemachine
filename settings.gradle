@@ -1,0 +1,3 @@
+rootProject.name = 'spring-statemachine'
+
+include 'spring-statemachine-core'

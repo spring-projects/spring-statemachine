@@ -1,0 +1,4 @@
+SPRING STATEMACHINE CHANGELOG
+==================================
+http://projects.spring.io/spring-statemachine/
+

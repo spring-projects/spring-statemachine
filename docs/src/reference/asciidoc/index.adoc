@@ -1,0 +1,37 @@
+:hadoop-Configuration: http://hadoop.apache.org/docs/r{hadoop-version}/api/org/apache/hadoop/conf/Configuration.html
+:hadoop-FileSystem: http://hadoop.apache.org/docs/r{hadoop-version}/api/org/apache/hadoop/fs/FileSystem.html
+:hadoop-Security: http://hadoop.apache.org/docs/r{hadoop-version}/hadoop-project-dist/hadoop-common/SecureMode.html
+:hadoop-Streaming: http://hadoop.apache.org/docs/r{hadoop-version}/hadoop-mapreduce-client/hadoop-mapreduce-client-core/HadoopStreaming.html
+:hadoop-DistributedCache: http://hadoop.apache.org/docs/r{hadoop-version}/hadoop-mapreduce-client/hadoop-mapreduce-client-core/DistributedCacheDeploy.html
+:hadoop-WordCount: http://hadoop.apache.org/docs/r{hadoop-version}/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapReduceTutorial.html#Example:_WordCount_v1.0
+:hadoop-FileSystemShell: http://hadoop.apache.org/docs/r{hadoop-version}/hadoop-project-dist/hadoop-common/FileSystemShell.html
+:hadoop-WebHdfs: http://hadoop.apache.org/docs/r{hadoop-version}/hadoop-project-dist/hadoop-hdfs/WebHDFS.html
+:hadoop-Hftp: http://hadoop.apache.org/docs/r{hadoop-version}/hadoop-project-dist/hadoop-hdfs/Hftp.html
+:java-ClassLoader: http://docs.oracle.com/javase/7/docs/api/java/lang/ClassLoader.html
+:core-ApplicationContext: http://docs.spring.io/spring/docs/{spring-version}/javadoc-api/org/springframework/context/ApplicationContext.html
+:core-beans-factory-placeholderconfigurer: http://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/beans.html#beans-factory-placeholderconfigurer
+:core-beans-environment: http://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/beans.html#beans-environment
+:core-ResourcePatternResolver: http://docs.spring.io/spring/docs/{spring-version}/javadoc-api/org/springframework/core/io/support/ResourcePatternResolver.html
+:core-ref-util: http://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/xsd-config.html#xsd-config-body-schemas-util-properties
+:core-aop-schema-advisors: http://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/aop.html#aop-schema-advisors
+:core-dao: http://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/dao.html
+:core-dao-exceptions: http://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/dao.html#dao-exceptions
+:core-jdbc: http://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/jdbc.html
+:core-jdbc-JdbcTemplate: http://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/jdbc.html#jdbc-JdbcTemplate
+:shdp-FsShell: http://docs.spring.io/spring-hadoop/docs/{spring-hadoop-version}/api/org/springframework/data/hadoop/fs/FsShell.html
+:shdp-DistCp: http://docs.spring.io/spring-hadoop/docs/{spring-hadoop-version}/api/org/springframework/data/hadoop/fs/DistCp.html
+:shdp-HdfsResourceLoader: http://docs.spring.io/spring-hadoop/docs/{spring-hadoop-version}/api/org/springframework/data/hadoop/fs/HdfsResourceLoader.html
+:shdp-SpringDataStoreTextWriterConfigurerAdapter: http://docs.spring.io/spring-hadoop/docs/{spring-hadoop-version}/api/org/springframework/data/hadoop/store/config/annotation/SpringDataStoreTextWriterConfigurerAdapter.html
+:shdp-EnableDataStoreTextWriter: http://docs.spring.io/spring-hadoop/docs/{spring-hadoop-version}/api/org/springframework/data/hadoop/store/config/annotation/EnableDataStoreTextWriter.html
+:shdp-DataStoreTextWriterConfigurer: http://docs.spring.io/spring-hadoop/docs/{spring-hadoop-version}/api/org/springframework/data/hadoop/store/config/annotation/builders/DataStoreTextWriterConfigurer.html
+:shdp-DataStoreWriter: http://docs.spring.io/spring-hadoop/docs/{spring-hadoop-version}/api/org/springframework/data/hadoop/store/DataStoreWriter.html
+:spring-data-hadoop-boot-jar: spring-data-hadoop-boot-{spring-hadoop-version}.jar
+
+= Spring Statemachine - Reference Documentation
+
+include::preface.adoc[]
+include::introduction.adoc[]
+
+[[springandhadoop]]
+include::sm.adoc[]
+include::appendix.adoc[]

@@ -1,0 +1,60 @@
+apply plugin: 'maven'
+
+ext.optionalDeps = []
+ext.providedDeps = []
+
+ext.optional = { optionalDeps << it }
+ext.provided = { providedDeps << it }
+
+install {
+    repositories.mavenInstaller {
+        customizePom(pom, project)
+    }
+}
+
+def customizePom(pom, gradleProject) {
+    pom.whenConfigured { generatedPom ->
+        // respect 'optional' and 'provided' dependencies
+        gradleProject.optionalDeps.each { dep ->
+            generatedPom.dependencies.findAll { it.artifactId == dep.name }*.optional = true
+        }
+        gradleProject.providedDeps.each { dep ->
+            generatedPom.dependencies.findAll { it.artifactId == dep.name }*.scope = 'provided'
+        }
+
+        // eliminate test-scoped dependencies (no need in maven central poms)
+        generatedPom.dependencies.removeAll { dep ->
+            dep.scope == 'test'
+        }
+
+        // add all items necessary for maven central publication
+        generatedPom.project {
+            name = gradleProject.description
+            description = gradleProject.description
+            url = 'https://github.com/spring-projects/spring-statemachine'
+            organization {
+                name = 'SpringSource'
+                url = 'http://spring.io/spring-statemachine'
+            }
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    distribution 'repo'
+                }
+            }
+            scm {
+                url = 'https://github.com/spring-projects/spring-statemachine'
+                connection = 'scm:git:git://github.com/spring-projects/spring-statemachine'
+                developerConnection = 'scm:git:git://github.com/spring-projects/spring-statemachine'
+            }
+            developers {
+                developer {
+                    id = 'jvalkeal'
+                    name = 'Janne Valkealahti'
+                    email = 'janne.valkealahti@gmail.com'
+                }
+            }
+        }
+    }
+}
