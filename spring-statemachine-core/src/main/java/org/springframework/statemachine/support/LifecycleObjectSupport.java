@@ -41,7 +41,7 @@ public abstract class LifecycleObjectSupport implements InitializingBean, SmartL
 	private static final Log log = LogFactory.getLog(LifecycleObjectSupport.class);
 
 	// fields for lifecycle
-	private volatile boolean autoStartup = true;
+	private volatile boolean autoStartup = false;
 	private volatile int phase = 0;
 	private volatile boolean running;
 

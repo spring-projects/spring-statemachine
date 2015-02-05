@@ -45,6 +45,7 @@ import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.processor.StateMachineHandler;
 import org.springframework.statemachine.processor.StateMachineOnTransitionHandler;
 import org.springframework.statemachine.processor.StateMachineRuntime;
+import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionKind;
@@ -70,6 +71,8 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 
 	private final State<S,E> initialState;
 
+	private final Message<E> initialEvent;
+
 	private final ExtendedState extendedState;
 
 	private final Queue<Message<E>> eventQueue = new ConcurrentLinkedQueue<Message<E>>();
@@ -79,7 +82,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	private final CompositeStateMachineListener<S, E> stateListener = new CompositeStateMachineListener<S, E>();
 
 	private volatile State<S,E> currentState;
-	
+
 	private volatile Runnable task;
 
 	/**
@@ -93,7 +96,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			State<S, E> initialState) {
 		this(states, transitions, initialState, new DefaultExtendedState());
 	}
-	
+
 	/**
 	 * Instantiates a new abstract state machine.
 	 *
@@ -104,10 +107,25 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	 */
 	public AbstractStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
 			State<S, E> initialState, ExtendedState extendedState) {
+		this(states, transitions, initialState, null, extendedState);
+	}
+
+	/**
+	 * Instantiates a new abstract state machine.
+	 *
+	 * @param states the states of this machine
+	 * @param transitions the transitions of this machine
+	 * @param initialState the initial state of this machine
+	 * @param initialEvent the initial event of this machine
+	 * @param extendedState the extended state of this machine
+	 */
+	public AbstractStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
+			State<S, E> initialState, Message<E> initialEvent, ExtendedState extendedState) {
 		super();
 		this.states = states;
 		this.transitions = transitions;
 		this.initialState = initialState;
+		this.initialEvent = initialEvent;
 		this.extendedState = extendedState;
 	}
 
@@ -138,9 +156,18 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	}
 
 	@Override
+	protected void onInit() throws Exception {
+		super.onInit();
+		Assert.notNull(initialState, "Initial state must be set");		
+		Assert.state(initialState.getPseudoState() != null
+				&& initialState.getPseudoState().getKind() == PseudoStateKind.INITIAL,
+				"Initial state's pseudostate kind must be INITIAL");
+	}
+
+	@Override
 	protected void doStart() {
 		super.doStart();
-		switchToState(initialState, null);
+		switchToState(initialState, initialEvent);
 	}
 
 	@Override
@@ -157,7 +184,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	public Collection<State<S,E>> getStates() {
 		return Collections.unmodifiableCollection(states);
 	}
-	
+
 	private void switchToState(State<S,E> state, Message<E> event) {
 		log.info("Moving into state=" + state + " from " + currentState);
 				
@@ -205,7 +232,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			}
 		}
 	}
-	
+
 	private void processEventQueue() {
 		log.debug("Process event queue");
 		Message<E> queuedEvent = null;
@@ -269,7 +296,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			getTaskExecutor().execute(task);
 		}
 	}
-	
+
 	private void callHandlers(State<S,E> sourceState, State<S,E> targetState, Message<E> event) {
 		if (sourceState != null && targetState != null) {
 			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
@@ -279,8 +306,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		}
 		
 	}
-	
-		
+
 	private List<Object> getStateMachineHandlerResults(List<StateMachineHandler> stateMachineHandlers, final StateContext stateContext) {
 		StateMachineRuntime runtime = new StateMachineRuntime() {			
 			@Override
@@ -294,7 +320,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		}
 		return results;
 	}
-	
+
 	private List<StateMachineHandler> getStateMachineHandlers(State<S,E> sourceState, State<S,E> targetState) {
 		BeanFactory beanFactory = getBeanFactory();
 		

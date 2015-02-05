@@ -93,6 +93,7 @@ project('spring-statemachine-core') {
 	description = "Spring State Machine Core"
     
 	dependencies {
+		compile "org.springframework:spring-tx:$springVersion"
 		compile "org.springframework:spring-messaging:$springVersion"
 
 		testCompile "org.springframework:spring-test:$springVersion"

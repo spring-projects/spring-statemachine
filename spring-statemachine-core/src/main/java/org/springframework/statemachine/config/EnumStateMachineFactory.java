@@ -26,7 +26,10 @@ import org.springframework.statemachine.config.builders.StateMachineStates;
 import org.springframework.statemachine.config.builders.StateMachineTransitions;
 import org.springframework.statemachine.config.builders.StateMachineStates.StateData;
 import org.springframework.statemachine.config.builders.StateMachineTransitions.TransitionData;
+import org.springframework.statemachine.state.DefaultPseudoState;
 import org.springframework.statemachine.state.EnumState;
+import org.springframework.statemachine.state.PseudoState;
+import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
 import org.springframework.statemachine.transition.DefaultExternalTransition;
@@ -68,8 +71,14 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 	public StateMachine<State<S, E>, E> stateMachine() {
 		Map<S, State<S, E>> stateMap = new HashMap<S, State<S, E>>();
 		for (StateData<S, E> stateData : stateMachineStates.getStates()) {
+			
+			// TODO: doesn't feel right to tweak initial kind like this
+			PseudoState pseudoState = null;
+			if (stateData.getState() == stateMachineStates.getInitialState()) {
+				pseudoState = new DefaultPseudoState(PseudoStateKind.INITIAL);
+			}
 			stateMap.put(stateData.getState(), new EnumState<S, E>(stateData.getState(), stateData.getDeferred(),
-					stateData.getEntryActions(), stateData.getExitActions()));
+					stateData.getEntryActions(), stateData.getExitActions(), pseudoState));
 		}
 
 		Collection<Transition<S, E>> transitions = new ArrayList<Transition<S, E>>();

@@ -19,31 +19,88 @@ import java.util.Collection;
 
 import org.springframework.statemachine.action.Action;
 
+/**
+ * Base implementation of a {@link State}.
+ * 
+ * @author Janne Valkealahti
+ *
+ * @param <S> the type of state
+ * @param <E> the type of event
+ */
 public abstract class AbstractState<S, E> implements State<S, E> {
 
-	private S id;
-	private Collection<E> deferred;
-	private Collection<Action> entryActions;
-	private Collection<Action> exitActions;
+	private final S id;
+	private final PseudoState pseudoState;
+	private final Collection<E> deferred;
+	private final Collection<Action> entryActions;
+	private final Collection<Action> exitActions;
 
+	/**
+	 * Instantiates a new abstract state.
+	 *
+	 * @param id the id
+	 */
 	public AbstractState(S id) {
-		this(id, null);
+		this(id, null, null, null, null);
 	}
 
+	/**
+	 * Instantiates a new abstract state.
+	 *
+	 * @param id the id
+	 * @param pseudoState the pseudo state
+	 */
+	public AbstractState(S id, PseudoState pseudoState) {
+		this(id, null, null, null, pseudoState);
+	}
+	
+	/**
+	 * Instantiates a new abstract state.
+	 *
+	 * @param id the id
+	 * @param deferred the deferred
+	 */
 	public AbstractState(S id, Collection<E> deferred) {
 		this(id, deferred, null, null);
 	}
 
+	/**
+	 * Instantiates a new abstract state.
+	 *
+	 * @param id the id
+	 * @param deferred the deferred
+	 * @param entryActions the entry actions
+	 * @param exitActions the exit actions
+	 */
 	public AbstractState(S id, Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions) {
+		this(id, deferred, entryActions, exitActions, null);
+	}
+	
+	/**
+	 * Instantiates a new abstract state.
+	 *
+	 * @param id the id
+	 * @param deferred the deferred
+	 * @param entryActions the entry actions
+	 * @param exitActions the exit actions
+	 * @param pseudoState the pseudo state
+	 */
+	public AbstractState(S id, Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions, PseudoState pseudoState) {
 		this.id = id;
 		this.deferred = deferred;
 		this.entryActions = entryActions;
 		this.exitActions = exitActions;
+		this.pseudoState = pseudoState;
 	}
 	
 	@Override
 	public S getId() {
 		return id;
+	}
+	
+	@Override
+	public PseudoState getPseudoState() {
+		return pseudoState;
 	}
 
 	@Override
@@ -63,8 +120,8 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 
 	@Override
 	public String toString() {
-		return "AbstractState [id=" + id + ", deferred=" + deferred + ", entryActions=" + entryActions
-				+ ", exitActions=" + exitActions + "]";
+		return "AbstractState [id=" + id + ", pseudoState=" + pseudoState + ", deferred=" + deferred
+				+ ", entryActions=" + entryActions + ", exitActions=" + exitActions + "]";
 	}
-
+	
 }

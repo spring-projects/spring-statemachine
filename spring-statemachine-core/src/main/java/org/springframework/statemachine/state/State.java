@@ -37,6 +37,15 @@ public interface State<S, E> {
 	S getId();
 
 	/**
+	 * Gets a {@link PseudoState} attached to a {@code State}.
+	 * {@link PseudoState} is not required and thus this method return
+	 * {@code NULL} if it's not set.
+	 * 
+	 * @return pseudostate or null if state doesn't have one
+	 */
+	PseudoState getPseudoState();
+
+	/**
 	 * Gets the deferred events for this state.
 	 *
 	 * @return the state deferred events

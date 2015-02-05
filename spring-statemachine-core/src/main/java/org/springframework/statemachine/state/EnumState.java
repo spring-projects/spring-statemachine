@@ -25,12 +25,21 @@ public class EnumState<S extends Enum<S>, E extends Enum<E>> extends AbstractSta
 		super(id);
 	}
 
+	public EnumState(S id, PseudoState pseudoState) {
+		super(id, pseudoState);
+	}
+
 	public EnumState(S id, Collection<E> deferred) {
 		super(id, deferred);
 	}
 
 	public EnumState(S id, Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions) {
 		super(id, deferred, entryActions, exitActions);
+	}
+
+	public EnumState(S id, Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions,
+			PseudoState pseudoState) {
+		super(id, deferred, entryActions, exitActions, pseudoState);
 	}
 
 	@Override
