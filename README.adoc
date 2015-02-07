@@ -1,0 +1,10 @@
+= Spring Statemachine
+
+Spring Statemachine aims to provide a common infrastructure to work
+with statemachine concepts in Spring applications.
+
+= License
+
+Spring Session is Open Source software released under the
+http://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
+
