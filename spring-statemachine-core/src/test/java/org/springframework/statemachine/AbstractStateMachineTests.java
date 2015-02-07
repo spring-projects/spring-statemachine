@@ -58,10 +58,18 @@ public abstract class AbstractStateMachineTests {
 		SI,S1,S2,S3,S4
 	}
 
+	public enum TestSubStates {
+		SUBSI,SUBS1,SUBS2,SUBS3,SUBS4
+	}
+	
 	public enum TestEvents {
 		E1,E2,E3,E4
 	}
 
+	public enum TestSubEvents {
+		SUBE1,SUBE2,SUBE3,SUBE4
+	}
+	
 	@Configuration
 	public static class BaseConfig {
 

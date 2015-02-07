@@ -16,6 +16,7 @@
 package org.springframework.statemachine.guard;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -39,7 +40,6 @@ import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
-import org.springframework.statemachine.guard.SpelExpressionGuard;
 import org.springframework.statemachine.support.DefaultStateContext;
 
 /**
@@ -72,9 +72,9 @@ public class SpelExpressionGuardTests extends AbstractStateMachineTests {
 		EnumStateMachine<TestStates,TestEvents> machine =
 				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
 
-		assertThat(machine.getState().getId(), is(TestStates.S1));
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
-		assertThat(machine.getState().getId(), is(TestStates.S1));
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
 		ctx.close();
 	}
 	

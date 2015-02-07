@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine.listener;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -40,7 +41,6 @@ import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
-import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.state.State;
 
 /**
@@ -65,12 +65,12 @@ public class ListenerTests extends AbstractStateMachineTests {
 		assertThat(machine, notNullValue());
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("foo", "jee1").build());
 		assertThat(listener.states.size(), is(1));
-		assertThat(listener.states.get(0).from.getId(), is(TestStates.S1));
-		assertThat(listener.states.get(0).to.getId(), is(TestStates.S2));
+		assertThat(listener.states.get(0).from.getIds(), contains(TestStates.S1));
+		assertThat(listener.states.get(0).to.getIds(), contains(TestStates.S2));
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E2).setHeader("foo", "jee2").build());
 		assertThat(listener.states.size(), is(2));
-		assertThat(listener.states.get(1).from.getId(), is(TestStates.S2));
-		assertThat(listener.states.get(1).to.getId(), is(TestStates.S3));
+		assertThat(listener.states.get(1).from.getIds(), contains(TestStates.S2));
+		assertThat(listener.states.get(1).to.getIds(), contains(TestStates.S3));
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E4).setHeader("foo", "jee2").build());
 		assertThat(listener.states.size(), is(2));
 

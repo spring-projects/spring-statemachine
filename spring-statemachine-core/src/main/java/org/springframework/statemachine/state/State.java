@@ -30,11 +30,12 @@ import org.springframework.statemachine.action.Action;
 public interface State<S, E> {
 
 	/**
-	 * Gets the state identifier.
+	 * Gets the state identifiers. Usually returned collection contains only one
+	 * identifier except in a case where state is an orthogonal.
 	 *
-	 * @return the identifier
+	 * @return the state identifiers
 	 */
-	S getId();
+	Collection<S> getIds();
 
 	/**
 	 * Gets a {@link PseudoState} attached to a {@code State}.
@@ -65,5 +66,38 @@ public interface State<S, E> {
 	 * @return the state exit actions
 	 */
 	Collection<Action> getExitActions();
-	
+
+	/**
+	 * Checks if state is a simple state. A simple state does not have any
+	 * regions and it does not refer to any submachine state machine.
+	 *
+	 * @return true, if state is a simple state
+	 */
+	boolean isSimple();
+
+	/**
+	 * Checks if state is a composite state. A composite state is a state that
+	 * contains at least one region.
+	 *
+	 * @return true, if state is a composite state
+	 */
+	boolean isComposite();
+
+	/**
+	 * Checks if state is an orthogonal state. An orthogonal composite state
+	 * contains two or more regions. If this method returns {@code TRUE},
+	 * {@link #isComposite()} will also always return {@code TRUE}.
+	 *
+	 * @return true, if state is an orthogonal state
+	 */
+	boolean isOrthogonal();
+
+	/**
+	 * Checks if state is a submachine state. This kind of state refers to a
+	 * state machine(submachine).
+	 *
+	 * @return true, if state is a submachine state
+	 */
+	boolean isSubmachineState();
+
 }

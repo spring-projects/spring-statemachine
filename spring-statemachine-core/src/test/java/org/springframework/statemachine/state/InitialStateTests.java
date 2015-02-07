@@ -15,7 +15,7 @@
  */
 package org.springframework.statemachine.state;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -49,7 +49,7 @@ public class InitialStateTests extends AbstractStateMachineTests {
 		EnumStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
 
-		assertThat(machine.getState().getId(), is(TestStates.S1));
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
 	}
 	
 	@Test(expected = Exception.class)

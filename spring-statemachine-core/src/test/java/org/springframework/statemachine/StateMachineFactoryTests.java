@@ -15,7 +15,7 @@
  */
 package org.springframework.statemachine;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
@@ -30,7 +30,6 @@ import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter
 import org.springframework.statemachine.config.EnumStateMachineFactory;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
-import org.springframework.statemachine.state.State;
 
 public class StateMachineFactoryTests extends AbstractStateMachineTests {
 
@@ -41,11 +40,11 @@ public class StateMachineFactoryTests extends AbstractStateMachineTests {
 
 		EnumStateMachineFactory<TestStates, TestEvents> stateMachineFactory =
 				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINEFACTORY, EnumStateMachineFactory.class);
-		StateMachine<State<TestStates, TestEvents>, TestEvents> machine = stateMachineFactory.getStateMachine();
+		StateMachine<TestStates,TestEvents> machine = stateMachineFactory.getStateMachine();
 		
-		assertThat(machine.getState().getId(), is(TestStates.S1));
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
-		assertThat(machine.getState().getId(), is(TestStates.S2));
+		assertThat(machine.getState().getIds(), contains(TestStates.S2));
 		ctx.close();
 	}
 

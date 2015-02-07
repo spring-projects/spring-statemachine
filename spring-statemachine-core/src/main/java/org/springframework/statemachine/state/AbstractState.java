@@ -15,9 +15,13 @@
  */
 package org.springframework.statemachine.state;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
+import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.region.Region;
+import org.springframework.util.StringUtils;
 
 /**
  * Base implementation of a {@link State}.
@@ -29,74 +33,110 @@ import org.springframework.statemachine.action.Action;
  */
 public abstract class AbstractState<S, E> implements State<S, E> {
 
-	private final S id;
 	private final PseudoState pseudoState;
 	private final Collection<E> deferred;
 	private final Collection<Action> entryActions;
 	private final Collection<Action> exitActions;
+	private final Collection<Region<S, E>> regions = new ArrayList<Region<S, E>>();
+	private final StateMachine<S, E> submachine;
 
 	/**
 	 * Instantiates a new abstract state.
 	 *
-	 * @param id the id
-	 */
-	public AbstractState(S id) {
-		this(id, null, null, null, null);
-	}
-
-	/**
-	 * Instantiates a new abstract state.
-	 *
-	 * @param id the id
 	 * @param pseudoState the pseudo state
 	 */
-	public AbstractState(S id, PseudoState pseudoState) {
-		this(id, null, null, null, pseudoState);
+	public AbstractState(PseudoState pseudoState) {
+		this(null, null, null, pseudoState);
 	}
 	
 	/**
 	 * Instantiates a new abstract state.
 	 *
-	 * @param id the id
 	 * @param deferred the deferred
 	 */
-	public AbstractState(S id, Collection<E> deferred) {
-		this(id, deferred, null, null);
+	public AbstractState(Collection<E> deferred) {
+		this(deferred, null, null);
 	}
 
 	/**
 	 * Instantiates a new abstract state.
 	 *
-	 * @param id the id
 	 * @param deferred the deferred
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 */
-	public AbstractState(S id, Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions) {
-		this(id, deferred, entryActions, exitActions, null);
+	public AbstractState(Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions) {
+		this(deferred, entryActions, exitActions, null);
 	}
 	
 	/**
 	 * Instantiates a new abstract state.
 	 *
-	 * @param id the id
 	 * @param deferred the deferred
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 * @param pseudoState the pseudo state
 	 */
-	public AbstractState(S id, Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions, PseudoState pseudoState) {
-		this.id = id;
+	public AbstractState(Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions,
+			PseudoState pseudoState) {
+		this(deferred, entryActions, exitActions, pseudoState, null, null);
+	}
+
+	/**
+	 * Instantiates a new abstract state.
+	 *
+	 * @param deferred the deferred
+	 * @param entryActions the entry actions
+	 * @param exitActions the exit actions
+	 * @param pseudoState the pseudo state
+	 * @param submachine the submachine
+	 */
+	public AbstractState(Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions,
+			PseudoState pseudoState, StateMachine<S, E> submachine) {
+		this(deferred, entryActions, exitActions, pseudoState, null, submachine);
+	}
+
+	/**
+	 * Instantiates a new abstract state.
+	 *
+	 * @param deferred the deferred
+	 * @param entryActions the entry actions
+	 * @param exitActions the exit actions
+	 * @param pseudoState the pseudo state
+	 * @param regions the regions
+	 */
+	public AbstractState(Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions,
+			PseudoState pseudoState, Collection<Region<S, E>> regions) {
+		this(deferred, entryActions, exitActions, pseudoState, regions, null);
+	}
+	
+	/**
+	 * Instantiates a new abstract state.
+	 *
+	 * @param deferred the deferred
+	 * @param entryActions the entry actions
+	 * @param exitActions the exit actions
+	 * @param pseudoState the pseudo state
+	 * @param regions the regions
+	 * @param submachine the submachine
+	 */
+	private AbstractState(Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions,
+			PseudoState pseudoState, Collection<Region<S, E>> regions, StateMachine<S, E> submachine) {
 		this.deferred = deferred;
 		this.entryActions = entryActions;
 		this.exitActions = exitActions;
 		this.pseudoState = pseudoState;
+		
+		// use of private ctor should prevent user to
+		// add regions and a submachine which is not allowed.
+		if (regions != null) {
+			this.regions.addAll(regions);
+		}
+		this.submachine = submachine;
 	}
 	
 	@Override
-	public S getId() {
-		return id;
-	}
+	public abstract Collection<S> getIds();
 	
 	@Override
 	public PseudoState getPseudoState() {
@@ -107,21 +147,49 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	public Collection<E> getDeferredEvents() {
 		return deferred;
 	}
-	
+
 	@Override
 	public Collection<Action> getEntryActions() {
 		return entryActions;
 	}
-	
+
 	@Override
 	public Collection<Action> getExitActions() {
 		return exitActions;
 	}
 
 	@Override
-	public String toString() {
-		return "AbstractState [id=" + id + ", pseudoState=" + pseudoState + ", deferred=" + deferred
-				+ ", entryActions=" + entryActions + ", exitActions=" + exitActions + "]";
+	public boolean isComposite() {
+		return !regions.isEmpty();
+	}
+
+	@Override
+	public boolean isOrthogonal() {
+		return regions.size() > 1;
+	}
+
+	@Override
+	public boolean isSimple() {
+		return isSubmachineState() && isComposite();
+	}
+
+	@Override
+	public boolean isSubmachineState() {
+		return submachine != null;
 	}
 	
+	protected StateMachine<S, E> getSubmachine() {
+		return submachine;
+	}
+	
+	protected Collection<Region<S, E>> getRegions() {
+		return regions;
+	}
+
+	@Override
+	public String toString() {
+		return "AbstractState [ids=" + StringUtils.collectionToCommaDelimitedString(getIds()) + ", pseudoState=" + pseudoState + ", deferred=" + deferred
+				+ ", entryActions=" + entryActions + ", exitActions=" + exitActions + "]";
+	}
+
 }

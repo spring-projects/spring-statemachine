@@ -21,7 +21,6 @@ import org.springframework.statemachine.config.builders.StateMachineStates;
 import org.springframework.statemachine.config.builders.StateMachineTransitions;
 import org.springframework.statemachine.config.common.annotation.AbstractImportingAnnotationConfiguration;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurer;
-import org.springframework.statemachine.state.State;
 
 @Configuration
 public class StateMachineFactoryConfiguration<S extends Enum<S>, E extends Enum<E>> extends
@@ -43,7 +42,7 @@ public class StateMachineFactoryConfiguration<S extends Enum<S>, E extends Enum<
 	}
 
 	private static class StateMachineFactoryDelegatingFactoryBean<S extends Enum<S>, E extends Enum<E>> implements
-			FactoryBean<StateMachineFactory<State<S, E>, E>>, BeanFactoryAware, InitializingBean {
+			FactoryBean<StateMachineFactory<S, E>>, BeanFactoryAware, InitializingBean {
 
 		private final StateMachineConfigBuilder<S, E> builder;
 		
@@ -51,7 +50,7 @@ public class StateMachineFactoryConfiguration<S extends Enum<S>, E extends Enum<
 		
 		private BeanFactory beanFactory;
 		
-		private StateMachineFactory<State<S, E>, E> stateMachineFactory;
+		private StateMachineFactory<S, E> stateMachineFactory;
 		
 		@SuppressWarnings("unused")
 		public StateMachineFactoryDelegatingFactoryBean(StateMachineConfigBuilder<S, E> builder) {
@@ -59,7 +58,7 @@ public class StateMachineFactoryConfiguration<S extends Enum<S>, E extends Enum<
 		}
 		
 		@Override
-		public StateMachineFactory<State<S, E>, E> getObject() throws Exception {
+		public StateMachineFactory<S, E> getObject() throws Exception {
 			return stateMachineFactory;
 		}
 

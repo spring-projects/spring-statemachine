@@ -16,6 +16,7 @@
 package org.springframework.statemachine.guard;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
@@ -27,12 +28,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.statemachine.EnumStateMachine;
-import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.AbstractStateMachineTests.TestAction;
 import org.springframework.statemachine.AbstractStateMachineTests.TestEvents;
 import org.springframework.statemachine.AbstractStateMachineTests.TestGuard;
 import org.springframework.statemachine.AbstractStateMachineTests.TestStates;
+import org.springframework.statemachine.EnumStateMachine;
+import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
@@ -77,12 +78,12 @@ public class GuardTests {
 		assertThat(testAction, notNullValue());
 		
 		machine.start();
-		assertThat(machine.getState().getId(), is(TestStates.S1));
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
 		
 		machine.sendEvent(TestEvents.E1);		
 		assertThat(testGuard.onEvaluateLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testAction.onExecuteLatch.await(2, TimeUnit.SECONDS), is(false));
-		assertThat(machine.getState().getId(), is(TestStates.S1));
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
 		
 		ctx.close();
 	}

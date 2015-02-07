@@ -61,7 +61,7 @@ import org.springframework.util.Assert;
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport implements StateMachine<State<S,E>, E> {
+public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport implements StateMachine<S, E> {
 
 	private static final Log log = LogFactory.getLog(AbstractStateMachine.class);
 
@@ -180,9 +180,15 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	 * an unmodifiable copy because states in a state machine are immutable.
 	 *
 	 * @return immutable copy of existing states
-	 */
-	public Collection<State<S,E>> getStates() {
+	 */	
+	@Override
+	public Collection<State<S, E>> getStates() {
 		return Collections.unmodifiableCollection(states);
+	}
+	
+	@Override
+	public Collection<Transition<S, E>> getTransitions() {
+		return transitions;
 	}
 
 	private void switchToState(State<S,E> state, Message<E> event) {
@@ -337,8 +343,9 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			OnTransition annotation = entry.getValue().getAnnotation();
 			String source = annotation.source();
 			String target = annotation.target();
-			String s = sourceState.getId().toString();
-			String t = targetState.getId().toString();
+			// TODO: need major fixes
+			String s = sourceState.getIds().iterator().next().toString();
+			String t = targetState.getIds().iterator().next().toString();
 			if (s.equals(source) && t.equals(target)) {
 				handlersList.add(entry.getValue());
 			}

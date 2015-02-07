@@ -45,8 +45,8 @@ import org.springframework.statemachine.transition.TransitionKind;
  * @param <E> the type of event
  */
 public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> extends LifecycleObjectSupport implements
-		StateMachineFactory<State<S, E>, E> {
-
+		StateMachineFactory<S, E> {
+	
 	private final StateMachineTransitions<S, E> stateMachineTransitions;
 
 	private final StateMachineStates<S, E> stateMachineStates;
@@ -64,11 +64,11 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 	}
 
 	@Override
-	public StateMachine<State<S, E>, E> getStateMachine() {
+	public StateMachine<S, E> getStateMachine() {
 		return stateMachine();
 	}
 
-	public StateMachine<State<S, E>, E> stateMachine() {
+	public StateMachine<S, E> stateMachine() {
 		Map<S, State<S, E>> stateMap = new HashMap<S, State<S, E>>();
 		for (StateData<S, E> stateData : stateMachineStates.getStates()) {
 			

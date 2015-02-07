@@ -17,34 +17,108 @@ package org.springframework.statemachine.state;
 
 import java.util.Collection;
 
+import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.region.Region;
 
-public class EnumState<S extends Enum<S>, E extends Enum<E>> extends AbstractState<S, E> {
+/**
+ * A {@link State} implementation where state and event is enum based.
+ * 
+ * @author Janne Valkealahti
+ *
+ * @param <S> the type of state
+ * @param <E> the type of event
+ */
+public class EnumState<S extends Enum<S>, E extends Enum<E>> extends AbstractSimpleState<S, E> {
 
+	/**
+	 * Instantiates a new enum state.
+	 *
+	 * @param id the id
+	 */
 	public EnumState(S id) {
 		super(id);
 	}
 
+	/**
+	 * Instantiates a new enum state.
+	 *
+	 * @param id the id
+	 * @param pseudoState the pseudo state
+	 */
 	public EnumState(S id, PseudoState pseudoState) {
 		super(id, pseudoState);
 	}
 
+	/**
+	 * Instantiates a new enum state.
+	 *
+	 * @param id the id
+	 * @param deferred the deferred
+	 */
 	public EnumState(S id, Collection<E> deferred) {
 		super(id, deferred);
 	}
 
+	/**
+	 * Instantiates a new enum state.
+	 *
+	 * @param id the id
+	 * @param deferred the deferred
+	 * @param entryActions the entry actions
+	 * @param exitActions the exit actions
+	 */
 	public EnumState(S id, Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions) {
 		super(id, deferred, entryActions, exitActions);
 	}
 
+	/**
+	 * Instantiates a new enum state.
+	 *
+	 * @param id the id
+	 * @param deferred the deferred
+	 * @param entryActions the entry actions
+	 * @param exitActions the exit actions
+	 * @param pseudoState the pseudo state
+	 */
 	public EnumState(S id, Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions,
 			PseudoState pseudoState) {
 		super(id, deferred, entryActions, exitActions, pseudoState);
 	}
 
+	/**
+	 * Instantiates a new enum state.
+	 *
+	 * @param id the id
+	 * @param deferred the deferred
+	 * @param entryActions the entry actions
+	 * @param exitActions the exit actions
+	 * @param pseudoState the pseudo state
+	 * @param regions the regions
+	 */
+	public EnumState(S id, Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions,
+			PseudoState pseudoState, Collection<Region<S, E>> regions) {
+		super(id, deferred, entryActions, exitActions, pseudoState, regions);
+	}
+
+	/**
+	 * Instantiates a new enum state.
+	 *
+	 * @param id the id
+	 * @param deferred the deferred
+	 * @param entryActions the entry actions
+	 * @param exitActions the exit actions
+	 * @param pseudoState the pseudo state
+	 * @param submachine the submachine
+	 */
+	public EnumState(S id, Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions,
+			PseudoState pseudoState, StateMachine<S, E> submachine) {
+		super(id, deferred, entryActions, exitActions, pseudoState, submachine);
+	}
+
 	@Override
 	public String toString() {
-		return "EnumState [getId()=" + getId() + ", getClass()=" + getClass() + ", hashCode()=" + hashCode()
+		return "EnumState [getIds()=" + getIds() + ", getClass()=" + getClass() + ", hashCode()=" + hashCode()
 				+ ", toString()=" + super.toString() + "]";
 	}
 

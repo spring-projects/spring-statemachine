@@ -16,6 +16,7 @@
 package org.springframework.statemachine.transition;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -54,9 +55,9 @@ public class TransitionTests extends AbstractStateMachineTests {
 		EnumStateMachine<TestStates,TestEvents> machine =
 				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
 
-		assertThat(machine.getState().getId(), is(TestStates.S1));
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
-		assertThat(machine.getState().getId(), is(TestStates.S3));
+		assertThat(machine.getState().getIds(), contains(TestStates.S3));
 		ctx.close();
 
 	}
@@ -74,7 +75,7 @@ public class TransitionTests extends AbstractStateMachineTests {
 		TestAction externalTestAction = ctx.getBean("externalTestAction", TestAction.class);
 		TestAction internalTestAction = ctx.getBean("internalTestAction", TestAction.class);
 		
-		assertThat(machine.getState().getId(), is(TestStates.S1));		
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));		
 		assertThat(testExitAction.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));
 		assertThat(testEntryAction.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));		
 		
@@ -88,7 +89,7 @@ public class TransitionTests extends AbstractStateMachineTests {
 		assertThat(testEntryAction.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));		
 		assertThat(externalTestAction.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
 		
-		assertThat(machine.getState().getId(), is(TestStates.S2));
+		assertThat(machine.getState().getIds(), contains(TestStates.S2));
 		ctx.close();		
 	}
 

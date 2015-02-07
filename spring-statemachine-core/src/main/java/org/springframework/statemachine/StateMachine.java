@@ -17,6 +17,8 @@ package org.springframework.statemachine;
 
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.listener.StateMachineListener;
+import org.springframework.statemachine.region.Region;
+import org.springframework.statemachine.state.State;
 
 /**
  * {@code StateMachine} provides an APIs for generic finite state machine needed
@@ -27,21 +29,14 @@ import org.springframework.statemachine.listener.StateMachineListener;
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public interface StateMachine<S, E> {
+public interface StateMachine<S, E> extends Region<S, E> {
 
 	/**
 	 * Gets the initial state {@code S}.
 	 *
 	 * @return initial state
 	 */
-	S getInitialState();
-
-	/**
-	 * Gets the current state {@code S}.
-	 *
-	 * @return current state
-	 */
-	S getState();
+	State<S,E> getInitialState();
 
 	/**
 	 * Start the state machine.
@@ -68,6 +63,6 @@ public interface StateMachine<S, E> {
 	 *
 	 * @param listener the listener
 	 */
-	void addStateListener(StateMachineListener<S, E> listener);
+	void addStateListener(StateMachineListener<State<S,E>, E> listener);
 
 }

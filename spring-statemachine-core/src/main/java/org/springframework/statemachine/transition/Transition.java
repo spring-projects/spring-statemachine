@@ -33,16 +33,47 @@ import org.springframework.statemachine.trigger.Trigger;
  */
 public interface Transition<S, E> {
 
+	/**
+	 * Transit this transition with a give state context.
+	 *
+	 * @param context the state context
+	 * @return true, if transition happened, false otherwise
+	 */
 	boolean transit(StateContext context);
 	
+	/**
+	 * Gets the source state of this transition.
+	 *
+	 * @return the source state
+	 */
 	State<S,E> getSource();
 
+	/**
+	 * Gets the target state of this transition.
+	 *
+	 * @return the target state
+	 */
 	State<S,E> getTarget();
 
+	/**
+	 * Gets the transition actions.
+	 *
+	 * @return the transition actions
+	 */
 	Collection<Action> getActions();
 
+	/**
+	 * Gets the transition trigger.
+	 *
+	 * @return the transition trigger
+	 */
 	Trigger<S, E> getTrigger();
 
+	/**
+	 * Gets the transition kind.
+	 *
+	 * @return the transition kind
+	 */
 	TransitionKind getKind();
 
 }
