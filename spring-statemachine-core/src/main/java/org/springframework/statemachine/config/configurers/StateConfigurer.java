@@ -35,4 +35,6 @@ public interface StateConfigurer<S, E> extends
 
 	StateConfigurer<S, E> states(Set<S> states);
 
+	StateConfigurer<S, E> end(S end);
+
 }

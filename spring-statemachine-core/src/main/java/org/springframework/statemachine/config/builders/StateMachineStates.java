@@ -27,9 +27,12 @@ public class StateMachineStates<S, E> {
 
 	private final S initialState;
 
-	public StateMachineStates(S initialState, Collection<StateData<S, E>> states) {
+	private final S endState;
+	
+	public StateMachineStates(S initialState, S endState, Collection<StateData<S, E>> states) {
 		this.states = states;
 		this.initialState = initialState;
+		this.endState = endState;
 	}
 
 	public Collection<StateData<S, E>> getStates() {
@@ -40,6 +43,10 @@ public class StateMachineStates<S, E> {
 		return initialState;
 	}
 
+	public S getEndState() {
+		return endState;
+	}
+	
 	public static class StateData<S, E> {
 		private S state;
 		private Collection<E> deferred;

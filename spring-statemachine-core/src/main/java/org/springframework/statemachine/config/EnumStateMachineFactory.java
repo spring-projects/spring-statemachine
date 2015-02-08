@@ -99,7 +99,7 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 		}
 
 		EnumStateMachine<S, E> machine = new EnumStateMachine<S, E>(stateMap.values(), transitions,
-				stateMap.get(stateMachineStates.getInitialState()));
+				stateMap.get(stateMachineStates.getInitialState()), stateMap.get(stateMachineStates.getEndState()));
 		machine.afterPropertiesSet();
 		if (getBeanFactory() != null) {
 			machine.setBeanFactory(getBeanFactory());

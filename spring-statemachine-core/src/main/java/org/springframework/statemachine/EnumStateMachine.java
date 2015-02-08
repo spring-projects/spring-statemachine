@@ -40,8 +40,8 @@ public class EnumStateMachine<S extends Enum<S>, E extends Enum<E>> extends Abst
 	 * @param initialState the initial state
 	 */
 	public EnumStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
-			State<S, E> initialState) {
-		super(states, transitions, initialState);
+			State<S, E> initialState, State<S, E> endState) {
+		super(states, transitions, initialState, endState);
 	}
 
 }

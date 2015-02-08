@@ -53,4 +53,11 @@ public interface Region<S, E> {
 	 */
 	Collection<Transition<S,E>> getTransitions();
 	
+	/**
+	 * Checks if region complete. Region is considered to be completed if it has
+	 * reached its end state and no further event processing is happening.
+	 *
+	 * @return true, if complete
+	 */
+	boolean isComplete();
 }

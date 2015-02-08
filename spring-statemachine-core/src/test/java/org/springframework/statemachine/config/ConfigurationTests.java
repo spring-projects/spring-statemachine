@@ -30,6 +30,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.EnumStateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
+import org.springframework.statemachine.TestUtils;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
@@ -58,6 +59,20 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		ctx.close();
 	}
 
+	
+	@SuppressWarnings({ "unchecked" })
+	@Test
+	public void testEndState() throws Exception {
+		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config3.class);
+		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		EnumStateMachine<TestStates,TestEvents> machine =
+				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		assertThat(machine, notNullValue());
+		Object endState = TestUtils.readField("endState", machine);
+		assertThat(endState, notNullValue());
+		ctx.close();
+	}
+	
 	@Configuration
 	@EnableStateMachine
 	public static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
@@ -110,6 +125,21 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 			states
 				.withStates()
 					.initial(TestStates.S1)
+					.states(EnumSet.allOf(TestStates.class));
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config3 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.end(TestStates.SF)
 					.states(EnumSet.allOf(TestStates.class));
 		}
 

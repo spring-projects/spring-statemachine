@@ -30,6 +30,7 @@ public class StateMachineStateBuilder<S, E>
 
 	private Collection<StateData<S, E>> states = new ArrayList<StateData<S, E>>();
 	private S initialState;
+	private S endState;
 
 	public StateMachineStateBuilder() {
 		super();
@@ -46,7 +47,7 @@ public class StateMachineStateBuilder<S, E>
 
 	@Override
 	protected StateMachineStates<S, E> performBuild() throws Exception {
-		StateMachineStates<S, E> bean = new StateMachineStates<S, E>(initialState, states);
+		StateMachineStates<S, E> bean = new StateMachineStates<S, E>(initialState, endState, states);
 		return bean;
 	}
 
@@ -61,6 +62,10 @@ public class StateMachineStateBuilder<S, E>
 
 	public void setInitialState(S state) {
 		this.initialState = state;
+	}
+	
+	public void setEndState(S endState) {
+		this.endState = endState;
 	}
 
 }

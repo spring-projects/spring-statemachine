@@ -71,6 +71,8 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 
 	private final State<S,E> initialState;
 
+	private final State<S,E> endState;
+	
 	private final Message<E> initialEvent;
 
 	private final ExtendedState extendedState;
@@ -100,6 +102,19 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	/**
 	 * Instantiates a new abstract state machine.
 	 *
+	 * @param states the states
+	 * @param transitions the transitions
+	 * @param initialState the initial state
+	 * @param endState the end state
+	 */
+	public AbstractStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
+			State<S, E> initialState, State<S, E> endState) {
+		this(states, transitions, initialState, endState, null, null);
+	}
+	
+	/**
+	 * Instantiates a new abstract state machine.
+	 *
 	 * @param states the states of this machine
 	 * @param transitions the transitions of this machine
 	 * @param initialState the initial state of this machine
@@ -107,7 +122,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	 */
 	public AbstractStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
 			State<S, E> initialState, ExtendedState extendedState) {
-		this(states, transitions, initialState, null, extendedState);
+		this(states, transitions, initialState, null, null, extendedState);
 	}
 
 	/**
@@ -116,15 +131,17 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	 * @param states the states of this machine
 	 * @param transitions the transitions of this machine
 	 * @param initialState the initial state of this machine
+	 * @param endState the final state of this machine
 	 * @param initialEvent the initial event of this machine
 	 * @param extendedState the extended state of this machine
 	 */
 	public AbstractStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
-			State<S, E> initialState, Message<E> initialEvent, ExtendedState extendedState) {
+			State<S, E> initialState, State<S, E> endState, Message<E> initialEvent, ExtendedState extendedState) {
 		super();
 		this.states = states;
 		this.transitions = transitions;
 		this.initialState = initialState;
+		this.endState = endState;
 		this.initialEvent = initialEvent;
 		this.extendedState = extendedState;
 	}
@@ -141,6 +158,9 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 
 	@Override
 	public void sendEvent(Message<E> event) {
+		if (isComplete()) {
+			return;
+		}
 		// TODO: machine header looks weird!
 		event = MessageBuilder.fromMessage(event).setHeader("machine", this).build();
 		if (log.isDebugEnabled()) {
@@ -173,6 +193,11 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	@Override
 	public void addStateListener(StateMachineListener<State<S, E>, E> listener) {
 		stateListener.register(listener);
+	}
+	
+	@Override
+	public boolean isComplete() {
+		return (endState != null && endState.equals(currentState));
 	}
 
 	/**

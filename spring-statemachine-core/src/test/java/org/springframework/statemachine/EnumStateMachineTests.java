@@ -73,7 +73,7 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 		transitions.add(transitionFromS2ToS3);
 
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
-		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateSI);
+		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateSI, null);
 		machine.setTaskExecutor(taskExecutor);
 		machine.start();
 
@@ -144,7 +144,7 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 
 		// create machine
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
-		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateSI);
+		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateSI, null);
 //		StateMachine<State<TestStates, TestEvents>, TestEvents> machine2 = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateSI);
 		machine.setTaskExecutor(taskExecutor);
 		machine.start();
@@ -184,7 +184,7 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 		transitions.add(transitionInternalSI);
 
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
-		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateSI);
+		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateSI, null);
 		machine.setTaskExecutor(taskExecutor);
 		machine.start();
 

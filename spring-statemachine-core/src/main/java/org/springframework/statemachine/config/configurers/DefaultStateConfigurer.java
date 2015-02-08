@@ -34,15 +34,24 @@ public class DefaultStateConfigurer<S, E>
 
 	private S initial;
 
+	private S end;
+	
 	@Override
 	public void configure(StateMachineStateBuilder<S, E> builder) throws Exception {
 		builder.add(states);
 		builder.setInitialState(initial);
+		builder.setEndState(end);
 	}
 
 	@Override
 	public StateConfigurer<S, E> initial(S initial) {
 		this.initial = initial;
+		return this;
+	}
+	
+	@Override
+	public StateConfigurer<S, E> end(S end) {
+		this.end = end;
 		return this;
 	}
 
