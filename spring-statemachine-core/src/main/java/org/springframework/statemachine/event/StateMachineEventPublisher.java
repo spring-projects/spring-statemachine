@@ -13,23 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine;
+package org.springframework.statemachine.event;
+
+import org.springframework.statemachine.state.State;
 
 /**
- * Various constants used in state machine lib.
- * 
+ * Interface for publishing state machine based application events.
+ *
  * @author Janne Valkealahti
  *
  */
-public abstract class StateMachineSystemConstants {
+public interface StateMachineEventPublisher {
 
-	/** Default bean id for state machine. */
-	public static final String DEFAULT_ID_STATEMACHINE = "stateMachine";
-
-	/** Default bean id for state machine factory. */
-	public static final String DEFAULT_ID_STATEMACHINEFACTORY = "stateMachineFactory";
-
-	/** Default bean id for state machine event publisher. */
-	public static final String DEFAULT_ID_EVENT_PUBLISHER = "stateMachineEventPublisher";
-
+	/**
+	 * Publish a state changed event.
+	 *
+	 * @param source the component generated this event
+	 * @param sourceState the source state
+	 * @param targetState the target state
+	 */
+	void publishStateChanged(Object source, State<?, ?> sourceState, State<?, ?> targetState);
+	
 }

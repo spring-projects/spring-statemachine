@@ -13,23 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine;
+package org.springframework.statemachine.event;
+
+import org.springframework.context.ApplicationEvent;
 
 /**
- * Various constants used in state machine lib.
- * 
+ * Base {@link ApplicationEvent} class for leader based events. All custom event
+ * classes should be derived from this class.
+ *
  * @author Janne Valkealahti
  *
  */
-public abstract class StateMachineSystemConstants {
+@SuppressWarnings("serial")
+public abstract class AbstractStateMachineEvent extends ApplicationEvent {
 
-	/** Default bean id for state machine. */
-	public static final String DEFAULT_ID_STATEMACHINE = "stateMachine";
+	/**
+	 * Create a new ApplicationEvent.
+	 *
+	 * @param source the component that published the event (never {@code null})
+	 */
+	public AbstractStateMachineEvent(Object source) {
+		super(source);
+	}
 
-	/** Default bean id for state machine factory. */
-	public static final String DEFAULT_ID_STATEMACHINEFACTORY = "stateMachineFactory";
-
-	/** Default bean id for state machine event publisher. */
-	public static final String DEFAULT_ID_EVENT_PUBLISHER = "stateMachineEventPublisher";
+	@Override
+	public String toString() {
+		return "AbstractLeaderEvent [source=" + source + "]";
+	}
 
 }

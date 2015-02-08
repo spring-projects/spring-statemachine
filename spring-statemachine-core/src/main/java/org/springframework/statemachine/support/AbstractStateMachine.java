@@ -40,6 +40,7 @@ import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.annotation.OnTransition;
+import org.springframework.statemachine.event.StateMachineEventPublisher;
 import org.springframework.statemachine.listener.CompositeStateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.processor.StateMachineHandler;
@@ -215,12 +216,12 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	public Collection<Transition<S, E>> getTransitions() {
 		return transitions;
 	}
-
+	
 	private void switchToState(State<S,E> state, Message<E> event) {
 		log.info("Moving into state=" + state + " from " + currentState);
 				
 		exitFromState(currentState, event);
-		stateListener.stateChanged(currentState, state);
+		notifyStateChanged(currentState, state);
 		
 		callHandlers(currentState, state, event);
 		
@@ -381,4 +382,12 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		return handlersList;
 	}	
 
+	private void notifyStateChanged(State<S,E> source, State<S,E> target) {
+		stateListener.stateChanged(source, target);
+		StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
+		if (eventPublisher != null) {
+			eventPublisher.publishStateChanged(this, source, target);
+		}
+	}
+	
 }

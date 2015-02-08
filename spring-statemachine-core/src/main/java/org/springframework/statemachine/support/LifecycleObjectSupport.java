@@ -27,6 +27,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.statemachine.event.StateMachineEventPublisher;
 import org.springframework.util.Assert;
 
 /**
@@ -55,6 +56,9 @@ public abstract class LifecycleObjectSupport implements InitializingBean, SmartL
 	// to access bean factory
 	private volatile BeanFactory beanFactory;
 
+	/** Context application event publisher if exist */
+	private volatile StateMachineEventPublisher stateMachineEventPublisher;
+	
 	@Override
 	public final void afterPropertiesSet() {
 		try {
@@ -226,6 +230,31 @@ public abstract class LifecycleObjectSupport implements InitializingBean, SmartL
 		return taskExecutor;
 	}
 
+	/**
+	 * Gets the state machine event publisher.
+	 *
+	 * @return the state machine event publisher
+	 */
+	protected StateMachineEventPublisher getStateMachineEventPublisher() {
+		if(stateMachineEventPublisher == null && getBeanFactory() != null) {
+			if(log.isDebugEnabled()) {
+				log.debug("getting stateMachineEventPublisher service from bean factory " + getBeanFactory());
+			}
+			stateMachineEventPublisher = StateMachineContextUtils.getEventPublisher(getBeanFactory());
+		}
+		return stateMachineEventPublisher;
+	}
+
+	/**
+	 * Sets the state machine event publisher.
+	 *
+	 * @param stateMachineEventPublisher the new state machine event publisher
+	 */
+	public void setStateMachineEventPublisher(StateMachineEventPublisher stateMachineEventPublisher) {
+		Assert.notNull(stateMachineEventPublisher, "StateMachineEventPublisher cannot be null");
+		this.stateMachineEventPublisher = stateMachineEventPublisher;
+	}
+	
 	/**
 	 * Subclasses may implement this for initialization logic. Called
 	 * during the {@link InitializingBean} phase. Implementor should

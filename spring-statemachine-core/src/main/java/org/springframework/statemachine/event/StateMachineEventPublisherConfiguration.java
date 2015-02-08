@@ -13,23 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine;
+package org.springframework.statemachine.event;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.statemachine.StateMachineSystemConstants;
 
 /**
- * Various constants used in state machine lib.
+ * Configuration for common {@link StateMachineEventPublisher}.
  * 
  * @author Janne Valkealahti
  *
  */
-public abstract class StateMachineSystemConstants {
+@Configuration
+public class StateMachineEventPublisherConfiguration {
 
-	/** Default bean id for state machine. */
-	public static final String DEFAULT_ID_STATEMACHINE = "stateMachine";
-
-	/** Default bean id for state machine factory. */
-	public static final String DEFAULT_ID_STATEMACHINEFACTORY = "stateMachineFactory";
-
-	/** Default bean id for state machine event publisher. */
-	public static final String DEFAULT_ID_EVENT_PUBLISHER = "stateMachineEventPublisher";
-
+	@Bean(name = StateMachineSystemConstants.DEFAULT_ID_EVENT_PUBLISHER)
+	public StateMachineEventPublisher stateMachineEventPublisher() {
+		return new DefaultStateMachineEventPublisher();
+	}
+	
 }

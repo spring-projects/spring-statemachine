@@ -20,6 +20,8 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.statemachine.StateMachineSystemConstants;
+import org.springframework.statemachine.event.StateMachineEventPublisher;
 import org.springframework.util.Assert;
 
 /**
@@ -68,8 +70,7 @@ public class StateMachineContextUtils {
 	 * Return the {@link ConversionService} bean whose name is
 	 * "yarnConversionService" if available.
 	 *
-	 * @param beanFactory
-	 *            BeanFactory for lookup, must not be null.
+	 * @param beanFactory BeanFactory for lookup, must not be null.
 	 *
 	 * @return The {@link ConversionService} bean whose name is
 	 *         "yarnConversionService" if available.
@@ -91,6 +92,18 @@ public class StateMachineContextUtils {
 		return getBeanOfType(beanFactory, EVALUATION_CONTEXT_BEAN_NAME, StandardEvaluationContext.class);
 	}
 
+	/**
+	 * Return the {@link StateMachineEventPublisher} bean whose name is "stateMachineEventPublisher" if
+	 * available.
+	 *
+	 * @param beanFactory BeanFactory for lookup, must not be null.
+	 * @return state machine event publisher
+	 */
+	public static StateMachineEventPublisher getEventPublisher(BeanFactory beanFactory) {
+		return getBeanOfType(beanFactory, StateMachineSystemConstants.DEFAULT_ID_EVENT_PUBLISHER,
+				StateMachineEventPublisher.class);
+	}
+	
 	/**
 	 * Gets a bean from a factory with a given name and type.
 	 *
