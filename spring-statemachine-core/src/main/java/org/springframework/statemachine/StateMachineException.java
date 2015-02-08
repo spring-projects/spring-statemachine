@@ -16,7 +16,6 @@
 package org.springframework.statemachine;
 
 import java.io.IOException;
-import java.rmi.RemoteException;
 
 import org.springframework.dao.NonTransientDataAccessException;
 
@@ -33,7 +32,7 @@ public class StateMachineException extends NonTransientDataAccessException {
 	/**
 	 * Constructs a generic StateMachineException.
 	 *
-	 * @param e the {@link RemoteException}
+	 * @param e the {@link IOException}
 	 */
 	public StateMachineException(IOException e) {
 		super(e.getMessage(), e);
