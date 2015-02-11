@@ -24,8 +24,10 @@ import org.springframework.statemachine.config.common.annotation.AbstractConfigu
 import org.springframework.statemachine.config.common.annotation.ObjectPostProcessor;
 import org.springframework.statemachine.config.configurers.DefaultExternalTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultInternalTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.DefaultLocalTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.ExternalTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.InternalTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.LocalTransitionConfigurer;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.transition.TransitionKind;
 
@@ -64,8 +66,13 @@ public class StateMachineTransitionBuilder<S, E>
 	public InternalTransitionConfigurer<S, E> withInternal() throws Exception {
 		return apply(new DefaultInternalTransitionConfigurer<S, E>());
 	}
+	
+	@Override
+	public LocalTransitionConfigurer<S, E> withLocal() throws Exception {
+		return apply(new DefaultLocalTransitionConfigurer<S, E>());
+	}
 
-	public void add(S source, S target, E event, Collection<Action> actions, Guard guard, TransitionKind kind) {
+	public void add(S source, S target, E event, Collection<Action<S, E>> actions, Guard<S, E> guard, TransitionKind kind) {
 		transitionData.add(new TransitionData<S, E>(source, target, event, actions, guard, kind));
 	}
 

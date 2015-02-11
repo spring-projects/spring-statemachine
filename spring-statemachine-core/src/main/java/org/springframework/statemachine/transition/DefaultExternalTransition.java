@@ -23,7 +23,7 @@ import org.springframework.statemachine.state.State;
 
 public class DefaultExternalTransition<S, E> extends AbstractExternalTransition<S, E> {
 
-	public DefaultExternalTransition(State<S,E> source, State<S,E> target, Collection<Action> actions, E event, Guard guard) {
+	public DefaultExternalTransition(State<S,E> source, State<S,E> target, Collection<Action<S, E>> actions, E event, Guard<S, E> guard) {
 		super(source, target, actions, event, guard);
 	}
 

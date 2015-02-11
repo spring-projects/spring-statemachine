@@ -55,11 +55,11 @@ public class SpelExpressionGuardTests extends AbstractStateMachineTests {
 		SpelExpressionParser parser = new SpelExpressionParser(
 				new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
 		Expression expression = parser.parseExpression("messageHeaders.get('foo')=='bar'");
-		SpelExpressionGuard guard = new SpelExpressionGuard(expression);
+		SpelExpressionGuard<TestStates, TestEvents> guard = new SpelExpressionGuard<TestStates, TestEvents>(expression);
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("foo", "bar");
 		MessageHeaders headers = new MessageHeaders(map);
-		DefaultStateContext stateContext = new DefaultStateContext(headers, null);
+		DefaultStateContext<TestStates, TestEvents> stateContext = new DefaultStateContext<TestStates, TestEvents>(headers, null, null);
 		
 		assertThat(guard.evaluate(stateContext), is(true));
 	}

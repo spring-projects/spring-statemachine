@@ -55,7 +55,7 @@ public interface TransitionConfigurer<T, S, E> extends
 	 * @param action the action
 	 * @return configurer for chaining
 	 */
-	T action(Action action);
+	T action(Action<S, E> action);
 
 	/**
 	 * Specify a {@link Guard} for this {@link Transition}.
@@ -63,7 +63,7 @@ public interface TransitionConfigurer<T, S, E> extends
 	 * @param guard the guard
 	 * @return configurer for chaining
 	 */
-	T guard(Guard guard);
+	T guard(Guard<S, E> guard);
 
 	/**
 	 * Specify a {@link Guard} backed by a SpEL expression for this {@link Transition}.

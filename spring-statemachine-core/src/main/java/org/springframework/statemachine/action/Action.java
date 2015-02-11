@@ -22,15 +22,17 @@ import org.springframework.statemachine.StateContext;
  * events by executing an {@code Action} with a {@link StateContext}.
  * 
  * @author Janne Valkealahti
- *
+ * 
+ * @param <S> the type of state
+ * @param <E> the type of event
  */
-public interface Action {
+public interface Action<S, E> {
 
 	/**
 	 * Execute action with a {@link StateContext}.
 	 *
 	 * @param context the state context
 	 */
-	void execute(StateContext context);
+	void execute(StateContext<S, E> context);
 
 }

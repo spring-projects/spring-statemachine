@@ -23,7 +23,7 @@ import org.springframework.statemachine.state.State;
 
 public abstract class AbstractExternalTransition<S, E> extends AbstractTransition<S, E> implements Transition<S, E> {
 
-	public AbstractExternalTransition(State<S,E> source, State<S,E> target, Collection<Action> actions, E event, Guard guard) {
+	public AbstractExternalTransition(State<S,E> source, State<S,E> target, Collection<Action<S, E>> actions, E event, Guard<S, E> guard) {
 		super(source, target, actions, event, TransitionKind.EXTERNAL, guard);
 	}
 

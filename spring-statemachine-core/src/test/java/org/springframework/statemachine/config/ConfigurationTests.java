@@ -144,5 +144,34 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		}
 
 	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config4 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.end(TestStates.SF)
+					.states(EnumSet.allOf(TestStates.class));
+		}
+		
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.SI)
+					.target(TestStates.S1)
+					.event(TestEvents.E1)
+					.and()
+				.withLocal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E2);
+		}
+
+	}
 	
 }

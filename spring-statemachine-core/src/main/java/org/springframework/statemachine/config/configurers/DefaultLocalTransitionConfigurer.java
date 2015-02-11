@@ -31,16 +31,16 @@ import org.springframework.statemachine.guard.SpelExpressionGuard;
 import org.springframework.statemachine.transition.TransitionKind;
 
 /**
- * Default implementation of a {@link InternalTransitionConfigurer}.
+ * Default implementation of a {@link LocalTransitionConfigurer}.
  * 
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public class DefaultInternalTransitionConfigurer<S, E>
+public class DefaultLocalTransitionConfigurer<S, E>
 		extends AnnotationConfigurerAdapter<StateMachineTransitions<S, E>, StateMachineTransitionConfigurer<S, E>, StateMachineTransitionBuilder<S, E>>
-		implements InternalTransitionConfigurer<S, E> {
+		implements LocalTransitionConfigurer<S, E> {
 
 	private S source;
 
@@ -54,35 +54,41 @@ public class DefaultInternalTransitionConfigurer<S, E>
 
 	@Override
 	public void configure(StateMachineTransitionBuilder<S, E> builder) throws Exception {
-		builder.add(source, target, event, actions, guard, TransitionKind.INTERNAL);
+		builder.add(source, target, event, actions, guard, TransitionKind.LOCAL);
 	}
 
 	@Override
-	public InternalTransitionConfigurer<S, E> source(S source) {
+	public LocalTransitionConfigurer<S, E> source(S source) {
 		this.source = source;
 		return this;
 	}
 
 	@Override
-	public InternalTransitionConfigurer<S, E> event(E event) {
+	public LocalTransitionConfigurer<S, E> target(S target) {
+		this.target = target;
+		return this;
+	}
+
+	@Override
+	public LocalTransitionConfigurer<S, E> event(E event) {
 		this.event = event;
 		return this;
 	}
 
 	@Override
-	public InternalTransitionConfigurer<S, E> action(Action<S, E> action) {
+	public LocalTransitionConfigurer<S, E> action(Action<S, E> action) {
 		actions.add(action);
 		return this;
 	}
 	
 	@Override
-	public InternalTransitionConfigurer<S, E> guard(Guard<S, E> guard) {
+	public LocalTransitionConfigurer<S, E> guard(Guard<S, E> guard) {
 		this.guard = guard;
 		return this;
 	}
 	
 	@Override
-	public InternalTransitionConfigurer<S, E> guardExpression(String expression) {
+	public LocalTransitionConfigurer<S, E> guardExpression(String expression) {
 		SpelExpressionParser parser = new SpelExpressionParser(
 				new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
 		this.guard = new SpelExpressionGuard<S, E>(parser.parseExpression(expression));

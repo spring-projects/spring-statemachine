@@ -48,9 +48,9 @@ public class DefaultExternalTransitionConfigurer<S, E>
 
 	private E event;
 
-	private Collection<Action> actions = new ArrayList<Action>();
+	private Collection<Action<S, E>> actions = new ArrayList<Action<S, E>>();
 	
-	private Guard guard;
+	private Guard<S, E> guard;
 
 	@Override
 	public void configure(StateMachineTransitionBuilder<S, E> builder) throws Exception {
@@ -76,13 +76,13 @@ public class DefaultExternalTransitionConfigurer<S, E>
 	}
 
 	@Override
-	public ExternalTransitionConfigurer<S, E> action(Action action) {
+	public ExternalTransitionConfigurer<S, E> action(Action<S, E> action) {
 		actions.add(action);
 		return this;
 	}
 	
 	@Override
-	public ExternalTransitionConfigurer<S, E> guard(Guard guard) {
+	public ExternalTransitionConfigurer<S, E> guard(Guard<S, E> guard) {
 		this.guard = guard;
 		return this;
 	}
@@ -91,7 +91,7 @@ public class DefaultExternalTransitionConfigurer<S, E>
 	public ExternalTransitionConfigurer<S, E> guardExpression(String expression) {
 		SpelExpressionParser parser = new SpelExpressionParser(
 				new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
-		this.guard = new SpelExpressionGuard(parser.parseExpression(expression));
+		this.guard = new SpelExpressionGuard<S, E>(parser.parseExpression(expression));
 		return this;
 	}
 

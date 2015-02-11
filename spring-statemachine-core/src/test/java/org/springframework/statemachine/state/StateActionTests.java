@@ -71,8 +71,10 @@ public class StateActionTests extends AbstractStateMachineTests {
 
 		@Override
 		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
-			Collection<Action> entryActions = Arrays.asList(testEntryAction());
-			Collection<Action> exitActions = Arrays.asList(testExitAction());
+			@SuppressWarnings("unchecked")
+			Collection<Action<TestStates, TestEvents>> entryActions = Arrays.asList(testEntryAction());
+			@SuppressWarnings("unchecked")
+			Collection<Action<TestStates, TestEvents>> exitActions = Arrays.asList(testExitAction());
 			states
 				.withStates()
 					.initial(TestStates.S1)
@@ -90,12 +92,12 @@ public class StateActionTests extends AbstractStateMachineTests {
 		}
 
 		@Bean
-		public Action testEntryAction() {
+		public Action<TestStates, TestEvents> testEntryAction() {
 			return new TestEntryAction();
 		}
 
 		@Bean
-		public Action testExitAction() {
+		public Action<TestStates, TestEvents> testExitAction() {
 			return new TestExitAction();
 		}
 		

@@ -18,12 +18,13 @@ package org.springframework.statemachine.state;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.region.Region;
 
 /**
  * A {@link State} implementation where states are wrapped in a regions..
- * 
+ *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
@@ -59,7 +60,7 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 	public RegionState(Collection<Region<S, E>> regions, PseudoState pseudoState) {
 		super(null, null, null, pseudoState, regions);
 	}
-	
+
 	/**
 	 * Instantiates a new region state.
 	 *
@@ -69,7 +70,7 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 	 * @param exitActions the exit actions
 	 * @param pseudoState the pseudo state
 	 */
-	public RegionState(Collection<Region<S, E>> regions, Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions,
+	public RegionState(Collection<Region<S, E>> regions, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
 			PseudoState pseudoState) {
 		super(deferred, entryActions, exitActions, pseudoState, regions);
 	}
@@ -82,9 +83,21 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 */
-	public RegionState(Collection<Region<S, E>> regions, Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions) {
+	public RegionState(Collection<Region<S, E>> regions, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions) {
 		super(deferred, entryActions, exitActions, null, regions);
 	}
+
+	@Override
+	public void exit(E event, StateContext<S, E> context) {
+		// TODO Auto-generated method stub
+
+	}
+	@Override
+	public void entry(E event, StateContext<S, E> context) {
+		// TODO Auto-generated method stub
+
+	}
+
 
 	@Override
 	public Collection<S> getIds() {
@@ -94,5 +107,5 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 		}
 		return ids;
 	}
-	
+
 }

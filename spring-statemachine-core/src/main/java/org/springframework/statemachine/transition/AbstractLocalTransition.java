@@ -23,7 +23,7 @@ import org.springframework.statemachine.state.State;
 
 public class AbstractLocalTransition <S, E> extends AbstractTransition<S, E> implements Transition<S, E> {
 
-	public AbstractLocalTransition(State<S, E> source, State<S,E> target,Collection<Action> actions, E event, Guard guard) {
+	public AbstractLocalTransition(State<S, E> source, State<S,E> target,Collection<Action<S, E>> actions, E event, Guard<S, E> guard) {
 		super(source, target, actions, event, TransitionKind.LOCAL, guard);
 	}
 

@@ -13,29 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.guard;
+package org.springframework.statemachine.config.configurers;
 
-import org.springframework.statemachine.StateContext;
+import org.springframework.statemachine.transition.Transition;
 
 /**
- * {@code Guard}s are typically considered as guard conditions which affect the
- * behaviour of a state machine by enabling actions or transitions only when they
- * evaluate to {@code TRUE} and disabling them when they evaluate to
- * {@code FALSE}.
+ * {@code TransitionConfigurer} interface for configuring local {@link Transition}s.
  * 
  * @author Janne Valkealahti
- * 
+ *
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public interface Guard<S, E> {
-	
+public interface LocalTransitionConfigurer<S, E> extends
+		TransitionConfigurer<LocalTransitionConfigurer<S, E>, S, E> {
+
 	/**
-	 * Evaluate a guard condition.
+	 * Specify a target state {@code S} for this {@link Transition}.
 	 *
-	 * @param context the state context
-	 * @return true, if guard evaluation is successful, false otherwise.
+	 * @param target the target state {@code S}
+	 * @return configurer for chaining
 	 */
-	boolean evaluate(StateContext<S, E> context);
+	LocalTransitionConfigurer<S, E> target(S target);
 
 }

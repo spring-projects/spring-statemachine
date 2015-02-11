@@ -77,7 +77,7 @@ public class ListenerTests extends AbstractStateMachineTests {
 		ctx.close();
 	}
 
-	private static class LoggingAction implements Action {
+	private static class LoggingAction implements Action<TestStates, TestEvents> {
 
 		private static final Log log = LogFactory.getLog(LoggingAction.class);
 
@@ -88,7 +88,7 @@ public class ListenerTests extends AbstractStateMachineTests {
 		}
 
 		@Override
-		public void execute(StateContext context) {
+		public void execute(StateContext<TestStates, TestEvents> context) {
 			log.info("Hello from LoggingAction " + message + " foo=" + context.getMessageHeaders().get("foo"));
 		}
 

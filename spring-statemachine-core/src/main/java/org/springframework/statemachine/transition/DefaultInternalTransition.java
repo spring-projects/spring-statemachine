@@ -23,7 +23,7 @@ import org.springframework.statemachine.state.State;
 
 public class DefaultInternalTransition<S, E> extends AbstractInternalTransition<S, E> {
 
-	public DefaultInternalTransition(State<S, E> source, Collection<Action> actions, E event, Guard guard) {
+	public DefaultInternalTransition(State<S, E> source, Collection<Action<S, E>> actions, E event, Guard<S, E> guard) {
 		super(source, actions, event, guard);
 	}
 

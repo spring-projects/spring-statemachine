@@ -18,6 +18,7 @@ package org.springframework.statemachine.state;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.region.Region;
@@ -25,7 +26,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * Base implementation of a {@link State}.
- * 
+ *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
@@ -35,8 +36,8 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 
 	private final PseudoState pseudoState;
 	private final Collection<E> deferred;
-	private final Collection<Action> entryActions;
-	private final Collection<Action> exitActions;
+	private final Collection<Action<S, E>> entryActions;
+	private final Collection<Action<S, E>> exitActions;
 	private final Collection<Region<S, E>> regions = new ArrayList<Region<S, E>>();
 	private final StateMachine<S, E> submachine;
 
@@ -48,7 +49,7 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	public AbstractState(PseudoState pseudoState) {
 		this(null, null, null, pseudoState);
 	}
-	
+
 	/**
 	 * Instantiates a new abstract state.
 	 *
@@ -65,10 +66,10 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 */
-	public AbstractState(Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions) {
+	public AbstractState(Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions) {
 		this(deferred, entryActions, exitActions, null);
 	}
-	
+
 	/**
 	 * Instantiates a new abstract state.
 	 *
@@ -77,7 +78,7 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	 * @param exitActions the exit actions
 	 * @param pseudoState the pseudo state
 	 */
-	public AbstractState(Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions,
+	public AbstractState(Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
 			PseudoState pseudoState) {
 		this(deferred, entryActions, exitActions, pseudoState, null, null);
 	}
@@ -91,7 +92,7 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	 * @param pseudoState the pseudo state
 	 * @param submachine the submachine
 	 */
-	public AbstractState(Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions,
+	public AbstractState(Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
 			PseudoState pseudoState, StateMachine<S, E> submachine) {
 		this(deferred, entryActions, exitActions, pseudoState, null, submachine);
 	}
@@ -105,11 +106,11 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	 * @param pseudoState the pseudo state
 	 * @param regions the regions
 	 */
-	public AbstractState(Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions,
+	public AbstractState(Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
 			PseudoState pseudoState, Collection<Region<S, E>> regions) {
 		this(deferred, entryActions, exitActions, pseudoState, regions, null);
 	}
-	
+
 	/**
 	 * Instantiates a new abstract state.
 	 *
@@ -120,13 +121,13 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	 * @param regions the regions
 	 * @param submachine the submachine
 	 */
-	private AbstractState(Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions,
+	private AbstractState(Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
 			PseudoState pseudoState, Collection<Region<S, E>> regions, StateMachine<S, E> submachine) {
 		this.deferred = deferred;
 		this.entryActions = entryActions;
 		this.exitActions = exitActions;
 		this.pseudoState = pseudoState;
-		
+
 		// use of private ctor should prevent user to
 		// add regions and a submachine which is not allowed.
 		if (regions != null) {
@@ -134,10 +135,16 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 		}
 		this.submachine = submachine;
 	}
-	
+
+	@Override
+	public abstract void exit(E event, StateContext<S, E> context);
+
+	@Override
+	public abstract void entry(E event, StateContext<S, E> context);
+
 	@Override
 	public abstract Collection<S> getIds();
-	
+
 	@Override
 	public PseudoState getPseudoState() {
 		return pseudoState;
@@ -149,12 +156,12 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	}
 
 	@Override
-	public Collection<Action> getEntryActions() {
+	public Collection<Action<S, E>> getEntryActions() {
 		return entryActions;
 	}
 
 	@Override
-	public Collection<Action> getExitActions() {
+	public Collection<Action<S, E>> getExitActions() {
 		return exitActions;
 	}
 
@@ -177,11 +184,11 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	public boolean isSubmachineState() {
 		return submachine != null;
 	}
-	
+
 	protected StateMachine<S, E> getSubmachine() {
 		return submachine;
 	}
-	
+
 	protected Collection<Region<S, E>> getRegions() {
 		return regions;
 	}

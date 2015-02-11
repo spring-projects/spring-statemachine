@@ -29,7 +29,7 @@ public interface StateConfigurer<S, E> extends
 
 	StateConfigurer<S, E> state(S state);
 
-	StateConfigurer<S, E> state(S state, Collection<Action> entryActions, Collection<Action> exitActions);
+	StateConfigurer<S, E> state(S state, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions);
 	
 	StateConfigurer<S, E> state(S state, E... deferred);
 

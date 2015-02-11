@@ -32,7 +32,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.statemachine.config.common.annotation.simple.EnableSimpleTest2;
 import org.springframework.statemachine.config.common.annotation.simple.SimpleTestConfig;
 import org.springframework.statemachine.config.common.annotation.simple.SimpleTestConfigBeanABuilder;
-import org.springframework.statemachine.config.common.annotation.simple.SimpleTestConfigBeanB;
 import org.springframework.statemachine.config.common.annotation.simple.SimpleTestConfigBeanBConfigurer;
 import org.springframework.statemachine.config.common.annotation.simple.SimpleTestConfigBuilder;
 import org.springframework.statemachine.config.common.annotation.simple.SimpleTestConfigurerAdapter;

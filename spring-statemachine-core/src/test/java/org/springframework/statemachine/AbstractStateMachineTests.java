@@ -15,8 +15,12 @@
  */
 package org.springframework.statemachine;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -30,11 +34,13 @@ import org.springframework.statemachine.guard.Guard;
 
 /**
  * Base class for stace machine tests.
- * 
+ *
  * @author Janne Valkealahti
  *
  */
 public abstract class AbstractStateMachineTests {
+
+	private final static Log log = LogFactory.getLog(AbstractStateMachineTests.class);
 
 	protected AnnotationConfigApplicationContext context;
 
@@ -42,34 +48,27 @@ public abstract class AbstractStateMachineTests {
 	public void setup() {
 		context = buildContext();
 	}
-	
+
 	@After
 	public void clean() {
 		if (context != null) {
 			context.close();
 		}
 	}
-	
+
 	protected AnnotationConfigApplicationContext buildContext() {
 		return null;
 	}
-	
+
 	public enum TestStates {
-		SI,S1,S2,S3,S4,SF
+		SI,S1,S2,S3,S4,SF,
+		S11,S111,S21,S211
 	}
 
-	public enum TestSubStates {
-		SUBSI,SUBS1,SUBS2,SUBS3,SUBS4
-	}
-	
 	public enum TestEvents {
 		E1,E2,E3,E4,EF
 	}
 
-	public enum TestSubEvents {
-		SUBE1,SUBE2,SUBE3,SUBE4
-	}
-	
 	@Configuration
 	public static class BaseConfig {
 
@@ -77,46 +76,86 @@ public abstract class AbstractStateMachineTests {
 		public TaskExecutor taskExecutor() {
 			return new SyncTaskExecutor();
 		}
-		
+
 	}
 
 	public static class TestEntryAction extends AbstractTestAction {
+
+		public TestEntryAction() {
+			super();
+		}
+
+		public TestEntryAction(String message) {
+			super(message);
+		}
+
+		@Override
+		public String toString() {
+			return "TestEntryAction [message=" + message + "]";
+		}
+
 	}
 
 	public static class TestExitAction extends AbstractTestAction {
+
+		public TestExitAction() {
+			super();
+		}
+
+		public TestExitAction(String message) {
+			super(message);
+		}
+
+		@Override
+		public String toString() {
+			return "TestExitAction [message=" + message + "]";
+		}
+
 	}
 
 	public static class TestAction extends AbstractTestAction {
 	}
-	
-	public static class TestGuard implements Guard {
-		
+
+	public static class TestGuard implements Guard<TestStates, TestEvents> {
+
 		public CountDownLatch onEvaluateLatch = new CountDownLatch(1);
-		
 		boolean evaluationResult = true;
 
 		public TestGuard() {
 		}
-		
+
 		public TestGuard(boolean evaluationResult) {
 			this.evaluationResult = evaluationResult;
 		}
 
 		@Override
-		public boolean evaluate(StateContext context) {
+		public boolean evaluate(StateContext<TestStates, TestEvents> context) {
 			onEvaluateLatch.countDown();
 			return evaluationResult;
 		}
-	}	
+	}
 
-	protected static class AbstractTestAction implements Action {
+	protected static class AbstractTestAction implements Action<TestStates, TestEvents> {
 
+		protected String message = null;
 		public CountDownLatch onExecuteLatch = new CountDownLatch(1);
-		
+		public List<StateContext<TestStates, TestEvents>> stateContexts = new ArrayList<StateContext<TestStates, TestEvents>>();
+
+		public AbstractTestAction() {
+		}
+
+		public AbstractTestAction(String message) {
+			this.message = message;
+		}
+
 		@Override
-		public void execute(StateContext context) {
+		public void execute(StateContext<TestStates, TestEvents> context) {
+			if (message != null) {
+				log.info(this);
+			}
 			onExecuteLatch.countDown();
+			stateContexts.add(context);
 		}
 	}
-	
+
 }

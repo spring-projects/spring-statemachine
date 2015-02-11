@@ -28,9 +28,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.statemachine.EnumStateMachine;
-import org.springframework.statemachine.StateContext;
-import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
@@ -53,7 +50,7 @@ public class StateMachineTests extends AbstractStateMachineTests {
 		ctx.close();
 	}
 
-	private static class LoggingAction implements Action {
+	private static class LoggingAction implements Action<TestStates, TestEvents> {
 
 		private static final Log log = LogFactory.getLog(StateMachineTests.LoggingAction.class);
 
@@ -64,7 +61,7 @@ public class StateMachineTests extends AbstractStateMachineTests {
 		}
 
 		@Override
-		public void execute(StateContext context) {
+		public void execute(StateContext<TestStates, TestEvents> context) {
 			log.info("Hello from LoggingAction " + message + " foo=" + context.getMessageHeaders().get("foo"));
 		}
 

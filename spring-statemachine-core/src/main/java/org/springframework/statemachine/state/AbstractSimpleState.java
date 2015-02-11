@@ -52,7 +52,7 @@ public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 */
-	public AbstractSimpleState(S id, Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions) {
+	public AbstractSimpleState(S id, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions) {
 		this(id, deferred, entryActions, exitActions, null);
 	}
 
@@ -86,7 +86,7 @@ public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
 	 * @param pseudoState the pseudo state
 	 * @param regions the regions
 	 */
-	public AbstractSimpleState(S id, Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions,
+	public AbstractSimpleState(S id, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
 			PseudoState pseudoState, Collection<Region<S, E>> regions) {
 		super(deferred, entryActions, exitActions, pseudoState, regions);
 		this.ids = new ArrayList<S>();
@@ -103,7 +103,7 @@ public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
 	 * @param pseudoState the pseudo state
 	 * @param submachine the submachine
 	 */
-	public AbstractSimpleState(S id, Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions,
+	public AbstractSimpleState(S id, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
 			PseudoState pseudoState, StateMachine<S, E> submachine) {
 		super(deferred, entryActions, exitActions, pseudoState, submachine);
 		this.ids = new ArrayList<S>();
@@ -119,7 +119,7 @@ public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
 	 * @param exitActions the exit actions
 	 * @param pseudoState the pseudo state
 	 */
-	public AbstractSimpleState(S id, Collection<E> deferred, Collection<Action> entryActions, Collection<Action> exitActions,
+	public AbstractSimpleState(S id, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
 			PseudoState pseudoState) {
 		super(deferred, entryActions, exitActions, pseudoState);
 		this.ids = new ArrayList<S>();

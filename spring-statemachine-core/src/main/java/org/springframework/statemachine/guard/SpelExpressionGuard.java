@@ -26,7 +26,7 @@ import org.springframework.util.Assert;
  * @author Janne Valkealahti
  *
  */
-public class SpelExpressionGuard implements Guard {
+public class SpelExpressionGuard<S, E> implements Guard<S, E> {
 	
 	private final Expression expression;
 		
@@ -41,7 +41,7 @@ public class SpelExpressionGuard implements Guard {
 	}
 
 	@Override
-	public boolean evaluate(StateContext context) {
+	public boolean evaluate(StateContext<S, E> context) {
 		StandardEvaluationContext evaluationContext = new StandardEvaluationContext(context);
 		return expression.getValue(evaluationContext, Boolean.class);
 	}

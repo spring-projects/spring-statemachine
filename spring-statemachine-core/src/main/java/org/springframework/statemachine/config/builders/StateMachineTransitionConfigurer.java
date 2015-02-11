@@ -17,11 +17,14 @@ package org.springframework.statemachine.config.builders;
 
 import org.springframework.statemachine.config.configurers.ExternalTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.InternalTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.LocalTransitionConfigurer;
 
 public interface StateMachineTransitionConfigurer<S, E> {
 
 	ExternalTransitionConfigurer<S, E> withExternal() throws Exception;
 
 	InternalTransitionConfigurer<S, E> withInternal() throws Exception;
+
+	LocalTransitionConfigurer<S, E> withLocal() throws Exception;
 	
 }

@@ -26,8 +26,6 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.statemachine.EnumStateMachine;
-import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.state.EnumState;
 import org.springframework.statemachine.state.State;
@@ -53,17 +51,17 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 
 		Collection<Transition<TestStates,TestEvents>> transitions = new ArrayList<Transition<TestStates,TestEvents>>();
 
-		Collection<Action> actionsFromSIToS1 = new ArrayList<Action>();
+		Collection<Action<TestStates,TestEvents>> actionsFromSIToS1 = new ArrayList<Action<TestStates,TestEvents>>();
 		actionsFromSIToS1.add(new LoggingAction("actionsFromSIToS1"));
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromSIToS1 =
 				new DefaultExternalTransition<TestStates,TestEvents>(stateSI, stateS1, actionsFromSIToS1, TestEvents.E1, null);
 
-		Collection<Action> actionsFromS1ToS2 = new ArrayList<Action>();
+		Collection<Action<TestStates,TestEvents>> actionsFromS1ToS2 = new ArrayList<Action<TestStates,TestEvents>>();
 		actionsFromS1ToS2.add(new LoggingAction("actionsFromS1ToS2"));
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromS1ToS2 =
 				new DefaultExternalTransition<TestStates,TestEvents>(stateS1, stateS2, actionsFromS1ToS2, TestEvents.E2, null);
 
-		Collection<Action> actionsFromS2ToS3 = new ArrayList<Action>();
+		Collection<Action<TestStates,TestEvents>> actionsFromS2ToS3 = new ArrayList<Action<TestStates,TestEvents>>();
 		actionsFromS1ToS2.add(new LoggingAction("actionsFromS2ToS3"));
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromS2ToS3 =
 				new DefaultExternalTransition<TestStates,TestEvents>(stateS2, stateS3, actionsFromS2ToS3, TestEvents.E3, null);
@@ -123,17 +121,17 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 		// transitions
 		Collection<Transition<TestStates,TestEvents>> transitions = new ArrayList<Transition<TestStates,TestEvents>>();
 
-		Collection<Action> actionsFromSIToS1 = new ArrayList<Action>();
+		Collection<Action<TestStates,TestEvents>> actionsFromSIToS1 = new ArrayList<Action<TestStates,TestEvents>>();
 		actionsFromSIToS1.add(new LoggingAction("actionsFromSIToS1"));
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromSIToS1 =
 				new DefaultExternalTransition<TestStates,TestEvents>(stateSI, stateS1, actionsFromSIToS1, TestEvents.E1, null);
 
-		Collection<Action> actionsFromS1ToS2 = new ArrayList<Action>();
+		Collection<Action<TestStates,TestEvents>> actionsFromS1ToS2 = new ArrayList<Action<TestStates,TestEvents>>();
 		actionsFromS1ToS2.add(new LoggingAction("actionsFromS1ToS2"));
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromS1ToS2 =
 				new DefaultExternalTransition<TestStates,TestEvents>(stateS1, stateS2, actionsFromS1ToS2, TestEvents.E2, null);
 
-		Collection<Action> actionsFromS2ToS3 = new ArrayList<Action>();
+		Collection<Action<TestStates,TestEvents>> actionsFromS2ToS3 = new ArrayList<Action<TestStates,TestEvents>>();
 		actionsFromS1ToS2.add(new LoggingAction("actionsFromS2ToS3"));
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromS2ToS3 =
 				new DefaultExternalTransition<TestStates,TestEvents>(stateS2, stateS3, actionsFromS2ToS3, TestEvents.E3, null);
@@ -174,7 +172,7 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 		Collection<State<TestStates,TestEvents>> states = new ArrayList<State<TestStates,TestEvents>>();
 		states.add(stateSI);
 
-		Collection<Action> actionsInSI = new ArrayList<Action>();
+		Collection<Action<TestStates,TestEvents>> actionsInSI = new ArrayList<Action<TestStates,TestEvents>>();
 		actionsInSI.add(new LoggingAction("actionsInSI"));
 		DefaultInternalTransition<TestStates,TestEvents> transitionInternalSI =
 				new DefaultInternalTransition<TestStates,TestEvents>(stateSI, actionsInSI, TestEvents.E1, null);
@@ -191,7 +189,7 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
 	}
 
-	private static class LoggingAction implements Action {
+	private static class LoggingAction implements Action<TestStates, TestEvents> {
 
 		private static final Log log = LogFactory.getLog(LoggingAction.class);
 
@@ -202,7 +200,7 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 		}
 
 		@Override
-		public void execute(StateContext context) {
+		public void execute(StateContext<TestStates, TestEvents> context) {
 			log.info("Hello from LoggingAction " + message);
 		}
 

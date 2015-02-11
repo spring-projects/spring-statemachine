@@ -37,10 +37,10 @@ public class StateMachineTransitions<S, E> {
 		S source;
 		S target;
 		E event;
-		Collection<Action> actions;
-		Guard guard;
+		Collection<Action<S, E>> actions;
+		Guard<S, E> guard;
 		TransitionKind kind;
-		public TransitionData(S source, S target, E event, Collection<Action> actions, Guard guard, TransitionKind kind) {
+		public TransitionData(S source, S target, E event, Collection<Action<S, E>> actions, Guard<S, E> guard, TransitionKind kind) {
 			this.source = source;
 			this.target = target;
 			this.event = event;
@@ -57,10 +57,10 @@ public class StateMachineTransitions<S, E> {
 		public E getEvent() {
 			return event;
 		}
-		public Collection<Action> getActions() {
+		public Collection<Action<S, E>> getActions() {
 			return actions;
 		}
-		public Guard getGuard() {
+		public Guard<S, E> getGuard() {
 			return guard;
 		}
 		public TransitionKind getKind() {

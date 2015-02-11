@@ -18,16 +18,20 @@ package org.springframework.statemachine.support;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
+import org.springframework.statemachine.transition.Transition;
 
-public class DefaultStateContext implements StateContext {
+public class DefaultStateContext<S, E> implements StateContext<S, E> {
 	
 	private final MessageHeaders messageHeaders;
 	
 	private final ExtendedState extendedState;
+	
+	private final Transition<S,E> transition;
 
-	public DefaultStateContext(MessageHeaders messageHeaders, ExtendedState extendedState) {
+	public DefaultStateContext(MessageHeaders messageHeaders, ExtendedState extendedState, Transition<S,E> transition) {
 		this.messageHeaders = messageHeaders;
 		this.extendedState = extendedState;
+		this.transition = transition;
 	}
 
 	@Override
@@ -38,6 +42,11 @@ public class DefaultStateContext implements StateContext {
 	@Override
 	public ExtendedState getExtendedState() {
 		return extendedState;
+	}
+	
+	@Override
+	public Transition<S, E> getTransition() {
+		return transition;
 	}
 
 }

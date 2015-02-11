@@ -39,7 +39,7 @@ public interface Transition<S, E> {
 	 * @param context the state context
 	 * @return true, if transition happened, false otherwise
 	 */
-	boolean transit(StateContext context);
+	boolean transit(StateContext<S, E> context);
 	
 	/**
 	 * Gets the source state of this transition.
@@ -60,7 +60,7 @@ public interface Transition<S, E> {
 	 *
 	 * @return the transition actions
 	 */
-	Collection<Action> getActions();
+	Collection<Action<S, E>> getActions();
 
 	/**
 	 * Gets the transition trigger.

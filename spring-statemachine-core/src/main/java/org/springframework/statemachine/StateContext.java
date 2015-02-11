@@ -24,11 +24,11 @@ import org.springframework.statemachine.transition.Transition;
  * {@code StateContext} is representing a current context used in
  * {@link Transition}s, {@link Action}s and {@link Guard}s order to get access
  * to event headers and {@link ExtendedState}.
- * 
+ *
  * @author Janne Valkealahti
  *
  */
-public interface StateContext {
+public interface StateContext<S, E> {
 
 	/**
 	 * Gets the event message headers.
@@ -43,5 +43,12 @@ public interface StateContext {
 	 * @return the state machine extended state
 	 */
 	ExtendedState getExtendedState();
+
+	/**
+	 * Gets the transition.
+	 *
+	 * @return the transition
+	 */
+	Transition<S, E> getTransition();
 
 }

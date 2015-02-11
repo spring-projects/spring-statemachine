@@ -100,6 +100,7 @@ project('spring-statemachine-core') {
 		testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"
 		testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
 		testCompile "junit:junit:$junitVersion"
+		testRuntime("log4j:log4j:$log4jVersion")
 	}
 }
 

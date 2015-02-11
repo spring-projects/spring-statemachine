@@ -21,10 +21,15 @@ import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.state.State;
 
-public class AbstractInternalTransition <S, E> extends AbstractTransition<S, E> implements Transition<S, E> {
+public class DefaultLocalTransition<S, E> extends AbstractLocalTransition<S, E> {
 
-	public AbstractInternalTransition(State<S, E> source,Collection<Action<S, E>> actions, E event, Guard<S, E> guard) {
-		super(source, source, actions, event, TransitionKind.INTERNAL, guard);
+	public DefaultLocalTransition(State<S,E> source, State<S,E> target, Collection<Action<S, E>> actions, E event, Guard<S, E> guard) {
+		super(source, target, actions, event, guard);
+	}
+
+	@Override
+	public String toString() {
+		return "DefaultLocalTransition [getSource()=" + getSource() + ", getTarget()=" + getTarget() + "]";
 	}
 
 }

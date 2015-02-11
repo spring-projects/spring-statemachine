@@ -23,7 +23,7 @@ import org.springframework.statemachine.state.State;
 /**
  * {@code StateMachine} provides an APIs for generic finite state machine needed
  * for basic operations like working with states, events and a lifecycle.
- * 
+ *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
@@ -44,16 +44,21 @@ public interface StateMachine<S, E> extends Region<S, E> {
 	void start();
 
 	/**
+	 * Stop the state machine.
+	 */
+	void stop();
+
+	/**
 	 * Send an event {@code E} wrapped with a {@link Message} to the state
 	 * machine.
-	 * 
+	 *
 	 * @param event the wrapped event to send
 	 */
 	void sendEvent(Message<E> event);
 
 	/**
 	 * Send an event {@code E} to the state machine.
-	 * 
+	 *
 	 * @param event the event to send
 	 */
 	void sendEvent(E event);

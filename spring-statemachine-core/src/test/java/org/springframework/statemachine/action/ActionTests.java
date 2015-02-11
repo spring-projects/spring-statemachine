@@ -68,7 +68,7 @@ public class ActionTests extends AbstractStateMachineTests {
 
 	}
 
-	private static class TestCountAction implements Action {
+	private static class TestCountAction implements Action<TestStates, TestEvents> {
 
 		int count = 0;
 		
@@ -77,7 +77,7 @@ public class ActionTests extends AbstractStateMachineTests {
 		}
 
 		@Override
-		public void execute(StateContext context) {
+		public void execute(StateContext<TestStates, TestEvents> context) {
 			count++;
 		}
 

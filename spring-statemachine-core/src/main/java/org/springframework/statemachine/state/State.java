@@ -17,17 +17,34 @@ package org.springframework.statemachine.state;
 
 import java.util.Collection;
 
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 
 /**
  * {@code State} is an interface representing possible state in a state machine.
- * 
+ *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
  * @param <E> the type of event
  */
 public interface State<S, E> {
+
+	/**
+	 * Initiate an exit sequence for the state.
+	 *
+	 * @param event the event
+	 * @param context the context
+	 */
+	void exit(E event, StateContext<S, E> context);
+
+	/**
+	 * Initiate an entry sequence for the state.
+	 *
+	 * @param event the event
+	 * @param context the context
+	 */
+	void entry(E event, StateContext<S, E> context);
 
 	/**
 	 * Gets the state identifiers. Usually returned collection contains only one
@@ -41,7 +58,7 @@ public interface State<S, E> {
 	 * Gets a {@link PseudoState} attached to a {@code State}.
 	 * {@link PseudoState} is not required and thus this method return
 	 * {@code NULL} if it's not set.
-	 * 
+	 *
 	 * @return pseudostate or null if state doesn't have one
 	 */
 	PseudoState getPseudoState();
@@ -52,20 +69,20 @@ public interface State<S, E> {
 	 * @return the state deferred events
 	 */
 	Collection<E> getDeferredEvents();
-	
+
 	/**
 	 * Gets {@link Action}s executed entering in this state.
 	 *
 	 * @return the state entry actions
 	 */
-	Collection<Action> getEntryActions();
+	Collection<Action<S, E>> getEntryActions();
 
 	/**
 	 * Gets {@link Action}s executed exiting from this state.
 	 *
 	 * @return the state exit actions
 	 */
-	Collection<Action> getExitActions();
+	Collection<Action<S, E>> getExitActions();
 
 	/**
 	 * Checks if state is a simple state. A simple state does not have any
