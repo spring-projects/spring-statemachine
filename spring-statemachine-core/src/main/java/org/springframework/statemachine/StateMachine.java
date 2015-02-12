@@ -15,7 +15,6 @@
  */
 package org.springframework.statemachine;
 
-import org.springframework.messaging.Message;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.State;
@@ -37,31 +36,6 @@ public interface StateMachine<S, E> extends Region<S, E> {
 	 * @return initial state
 	 */
 	State<S,E> getInitialState();
-
-	/**
-	 * Start the state machine.
-	 */
-	void start();
-
-	/**
-	 * Stop the state machine.
-	 */
-	void stop();
-
-	/**
-	 * Send an event {@code E} wrapped with a {@link Message} to the state
-	 * machine.
-	 *
-	 * @param event the wrapped event to send
-	 */
-	void sendEvent(Message<E> event);
-
-	/**
-	 * Send an event {@code E} to the state machine.
-	 *
-	 * @param event the event to send
-	 */
-	void sendEvent(E event);
 
 	/**
 	 * Adds the state listener.

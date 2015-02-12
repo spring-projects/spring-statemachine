@@ -15,8 +15,8 @@
  */
 package org.springframework.statemachine;
 
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
@@ -31,7 +31,10 @@ import org.springframework.statemachine.AbstractStateMachineTests.TestExitAction
 import org.springframework.statemachine.AbstractStateMachineTests.TestStates;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.region.Region;
+import org.springframework.statemachine.state.DefaultPseudoState;
 import org.springframework.statemachine.state.EnumState;
+import org.springframework.statemachine.state.PseudoState;
+import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.RegionState;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.DefaultExternalTransition;
@@ -104,6 +107,99 @@ public class RegionMachineTests {
 		assertThat(exitActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(entryActionS1.stateContexts.size(), is(1));
 		assertThat(exitActionS1.stateContexts.size(), is(1));
+	}
+
+	@Test
+	public void testMultiRegion() throws Exception {
+		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
+		PseudoState pseudoState = new DefaultPseudoState(PseudoStateKind.INITIAL);
+		State<TestStates,TestEvents> stateSI = new EnumState<TestStates,TestEvents>(TestStates.SI);
+
+		TestEntryAction entryActionS111 = new TestEntryAction("S111");
+		TestExitAction exitActionS111 = new TestExitAction("S111");
+		Collection<Action<TestStates, TestEvents>> entryActionsS111 = new ArrayList<Action<TestStates, TestEvents>>();
+		entryActionsS111.add(entryActionS111);
+		Collection<Action<TestStates, TestEvents>> exitActionsS111 = new ArrayList<Action<TestStates, TestEvents>>();
+		exitActionsS111.add(exitActionS111);
+		State<TestStates,TestEvents> stateS111 = new EnumState<TestStates,TestEvents>(TestStates.S111, null, entryActionsS111, exitActionsS111, pseudoState);
+
+		TestEntryAction entryActionS112 = new TestEntryAction("S112");
+		TestExitAction exitActionS112 = new TestExitAction("S112");
+		Collection<Action<TestStates, TestEvents>> entryActionsS112 = new ArrayList<Action<TestStates, TestEvents>>();
+		entryActionsS112.add(entryActionS112);
+		Collection<Action<TestStates, TestEvents>> exitActionsS112 = new ArrayList<Action<TestStates, TestEvents>>();
+		exitActionsS112.add(exitActionS112);
+		State<TestStates,TestEvents> stateS112 = new EnumState<TestStates,TestEvents>(TestStates.S112, null, entryActionsS112, exitActionsS112);
+
+		TestEntryAction entryActionS121 = new TestEntryAction("S121");
+		TestExitAction exitActionS121 = new TestExitAction("S121");
+		Collection<Action<TestStates, TestEvents>> entryActionsS121 = new ArrayList<Action<TestStates, TestEvents>>();
+		entryActionsS111.add(entryActionS121);
+		Collection<Action<TestStates, TestEvents>> exitActionsS121 = new ArrayList<Action<TestStates, TestEvents>>();
+		exitActionsS111.add(exitActionS121);
+		State<TestStates,TestEvents> stateS121 = new EnumState<TestStates,TestEvents>(TestStates.S121, null, entryActionsS121, exitActionsS121, pseudoState);
+
+		Collection<State<TestStates,TestEvents>> states11 = new ArrayList<State<TestStates,TestEvents>>();
+		states11.add(stateSI);
+		states11.add(stateS111);
+		states11.add(stateS112);
+		Collection<Transition<TestStates,TestEvents>> transitions11 = new ArrayList<Transition<TestStates,TestEvents>>();
+		DefaultExternalTransition<TestStates,TestEvents> transitionFromS111ToS112 =
+				new DefaultExternalTransition<TestStates,TestEvents>(stateS111, stateS112, null, TestEvents.E2, null);
+		transitions11.add(transitionFromS111ToS112);
+		EnumStateMachine<TestStates, TestEvents> machine11 = new EnumStateMachine<TestStates, TestEvents>(states11, transitions11, stateS111, null);
+		machine11.setTaskExecutor(taskExecutor);
+		machine11.afterPropertiesSet();
+
+		Collection<State<TestStates,TestEvents>> states12 = new ArrayList<State<TestStates,TestEvents>>();
+		states12.add(stateSI);
+		states12.add(stateS121);
+		Collection<Transition<TestStates,TestEvents>> transitions12 = new ArrayList<Transition<TestStates,TestEvents>>();
+		DefaultExternalTransition<TestStates,TestEvents> transitionFromSIToS121 =
+				new DefaultExternalTransition<TestStates,TestEvents>(stateSI, stateS111, null, TestEvents.E3, null);
+		transitions12.add(transitionFromSIToS121);
+		EnumStateMachine<TestStates, TestEvents> machine12 = new EnumStateMachine<TestStates, TestEvents>(states12, transitions12, stateS121, null);
+		machine12.setTaskExecutor(taskExecutor);
+		machine12.afterPropertiesSet();
+
+		Collection<Region<TestStates,TestEvents>> regions = new ArrayList<Region<TestStates,TestEvents>>();
+		regions.add(machine11);
+		regions.add(machine12);
+		RegionState<TestStates,TestEvents> stateR = new RegionState<TestStates,TestEvents>(regions, null, null, null, pseudoState);
+
+		Collection<State<TestStates,TestEvents>> states = new ArrayList<State<TestStates,TestEvents>>();
+		states.add(stateR);
+		Collection<Transition<TestStates,TestEvents>> transitions = new ArrayList<Transition<TestStates,TestEvents>>();
+		DefaultExternalTransition<TestStates,TestEvents> transitionFromSIToRegionstate =
+				new DefaultExternalTransition<TestStates,TestEvents>(stateSI, stateR, null, TestEvents.E1, null);
+		transitions.add(transitionFromSIToRegionstate);
+		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateR, null);
+
+		machine.setTaskExecutor(taskExecutor);
+		machine.afterPropertiesSet();
+		machine.start();
+
+		assertThat(entryActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(exitActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(entryActionS121.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(exitActionS121.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));
+
+		assertThat(entryActionS111.stateContexts.size(), is(1));
+		assertThat(exitActionS111.stateContexts.size(), is(0));
+		assertThat(entryActionS121.stateContexts.size(), is(1));
+		assertThat(exitActionS121.stateContexts.size(), is(0));
+
+		machine.sendEvent(TestEvents.E2);
+
+		assertThat(entryActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(exitActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(entryActionS112.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(exitActionS112.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));
+
+		assertThat(entryActionS111.stateContexts.size(), is(1));
+		assertThat(exitActionS111.stateContexts.size(), is(1));
+		assertThat(entryActionS112.stateContexts.size(), is(1));
+		assertThat(exitActionS112.stateContexts.size(), is(0));
 	}
 
 }

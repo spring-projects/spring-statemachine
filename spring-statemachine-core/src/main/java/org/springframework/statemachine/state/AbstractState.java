@@ -18,6 +18,7 @@ package org.springframework.statemachine.state;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
@@ -134,6 +135,10 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 			this.regions.addAll(regions);
 		}
 		this.submachine = submachine;
+	}
+
+	@Override
+	public void sendEvent(Message<E> event) {
 	}
 
 	@Override

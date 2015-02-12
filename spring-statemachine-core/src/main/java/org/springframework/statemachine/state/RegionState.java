@@ -18,6 +18,7 @@ package org.springframework.statemachine.state;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.region.Region;
@@ -88,7 +89,20 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 	}
 
 	@Override
+	public void sendEvent(Message<E> event) {
+		if (getRegions() != null) {
+			for (Region<S, E> r : getRegions()) {
+				r.sendEvent(event);
+			}
+		}
+	}
+
+	@Override
 	public void exit(E event, StateContext<S, E> context) {
+		for (Region<S, E> region : getRegions()) {
+			region.getState().exit(event, context);
+			region.stop();
+		}
 		Collection<Action<S, E>> actions = getExitActions();
 		if (actions != null) {
 			for (Action<S, E> action : actions) {
@@ -105,13 +119,26 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 				action.execute(context);
 			}
 		}
+
+		if (getPseudoState() != null && getPseudoState().getKind() == PseudoStateKind.INITIAL) {
+			for (Region<S, E> region : getRegions()) {
+				region.start();
+			}
+		} else {
+			for (Region<S, E> region : getRegions()) {
+				region.getState().entry(event, context);
+			}
+		}
 	}
 
 	@Override
 	public Collection<S> getIds() {
 		ArrayList<S> ids = new ArrayList<S>();
 		for (Region<S, E> r : getRegions()) {
-			ids.addAll(r.getState().getIds());
+			State<S, E> s = r.getState();
+			if (s != null) {
+				ids.addAll(s.getIds());
+			}
 		}
 		return ids;
 	}

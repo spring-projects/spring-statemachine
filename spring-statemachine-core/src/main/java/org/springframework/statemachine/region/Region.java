@@ -17,13 +17,14 @@ package org.springframework.statemachine.region;
 
 import java.util.Collection;
 
+import org.springframework.messaging.Message;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 
 /**
  * A region is an orthogonal part of either a composite state or a state
  * machine. It contains states and transitions.
- * 
+ *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
@@ -32,27 +33,51 @@ import org.springframework.statemachine.transition.Transition;
 public interface Region<S, E> {
 
 	/**
+	 * Start the region.
+	 */
+	void start();
+
+	/**
+	 * Stop the region.
+	 */
+	void stop();
+
+	/**
+	 * Send an event {@code E} wrapped with a {@link Message} to the region.
+	 *
+	 * @param event the wrapped event to send
+	 */
+	void sendEvent(Message<E> event);
+
+	/**
+	 * Send an event {@code E} to the region.
+	 *
+	 * @param event the event to send
+	 */
+	void sendEvent(E event);
+
+	/**
 	 * Gets the current {@link State}.
 	 *
 	 * @return current state
 	 */
 	State<S,E> getState();
-	
+
 	/**
 	 * Gets the {@link State}s defined in this region. Returned collection is
 	 * an unmodifiable copy because states in a state machine are immutable.
 	 *
 	 * @return immutable copy of states
-	 */	
+	 */
 	Collection<State<S, E>> getStates();
-	
+
 	/**
 	 * Gets a {@link Transition}s for this region.
-	 * 
+	 *
 	 * @return immutable copy of transitions
 	 */
 	Collection<Transition<S,E>> getTransitions();
-	
+
 	/**
 	 * Checks if region complete. Region is considered to be completed if it has
 	 * reached its end state and no further event processing is happening.

@@ -17,6 +17,7 @@ package org.springframework.statemachine.state;
 
 import java.util.Collection;
 
+import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 
@@ -29,6 +30,13 @@ import org.springframework.statemachine.action.Action;
  * @param <E> the type of event
  */
 public interface State<S, E> {
+
+	/**
+	 * Send an event {@code E} wrapped with a {@link Message} to the state.
+	 *
+	 * @param event the wrapped event to send
+	 */
+	void sendEvent(Message<E> event);
 
 	/**
 	 * Initiate an exit sequence for the state.

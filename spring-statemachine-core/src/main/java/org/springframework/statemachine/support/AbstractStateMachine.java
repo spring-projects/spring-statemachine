@@ -166,6 +166,12 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		if (log.isDebugEnabled()) {
 			log.debug("Queue event " + event);
 		}
+
+		// TODO: should not do here
+		if (currentState != null) {
+			currentState.sendEvent(event);
+		}
+
 		eventQueue.add(event);
 		scheduleEventQueueProcessing();
 	}
