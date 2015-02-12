@@ -89,15 +89,23 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 
 	@Override
 	public void exit(E event, StateContext<S, E> context) {
-		// TODO Auto-generated method stub
-
+		Collection<Action<S, E>> actions = getExitActions();
+		if (actions != null) {
+			for (Action<S, E> action : actions) {
+				action.execute(context);
+			}
+		}
 	}
+
 	@Override
 	public void entry(E event, StateContext<S, E> context) {
-		// TODO Auto-generated method stub
-
+		Collection<Action<S, E>> actions = getEntryActions();
+		if (actions != null) {
+			for (Action<S, E> action : actions) {
+				action.execute(context);
+			}
+		}
 	}
-
 
 	@Override
 	public Collection<S> getIds() {
