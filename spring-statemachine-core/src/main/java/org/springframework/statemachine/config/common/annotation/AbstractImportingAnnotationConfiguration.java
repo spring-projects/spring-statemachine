@@ -65,7 +65,7 @@ public abstract class AbstractImportingAnnotationConfiguration<B extends Annotat
 
 		BeanDefinition beanDefinition;
 		try {
-			beanDefinition = buildBeanDefinition();
+			beanDefinition = buildBeanDefinition(importingClassMetadata);
 		} catch (Exception e) {
 			throw new RuntimeException("Error with onConfigurers", e);
 		}
@@ -83,63 +83,6 @@ public abstract class AbstractImportingAnnotationConfiguration<B extends Annotat
 		}
 	}
 
-	protected abstract static class BeanDelegatingFactoryBean<B extends AnnotationBuilder<O>, O>
-		implements FactoryBean<O>, InitializingBean {
-		
-		private final B builder;
-		
-		private O object;
-		
-		private List<AnnotationConfigurer<O, B>> configurers;
-		
-		public BeanDelegatingFactoryBean(B builder){
-			this.builder = builder;
-		}
-		
-		@Override
-		public abstract Class<O> getObjectType();
-		
-		@Override
-		public O getObject() throws Exception {
-			return object;
-		}
-		
-		@Override
-		public boolean isSingleton() {
-			return true;
-		}
-		
-//		@Override
-//		public void afterPropertiesSet() throws Exception {
-//			for (AnnotationConfigurer<O, B> configurer : configurers) {
-//				if (configurer.isAssignable(builder)) {
-//					// we need builder.apply(configurer);
-////					builder.
-//				}
-//			}
-//			// should be getOrBuild???
-//			object = builder.build();
-//		}
-		
-		@Autowired(required = false)
-		public void setConfigurers(List<AnnotationConfigurer<O, B>> configurers) {
-			this.configurers = configurers;
-		}
-		
-		public B getBuilder() {
-			return builder;
-		}
-				
-		public List<AnnotationConfigurer<O, B>> getConfigurers() {
-			return configurers;
-		}
-		
-		protected void setObject(O object) {
-			this.object = object;
-		}
-
-	}
-	
 	@Override
 	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
 		Assert.isInstanceOf(ListableBeanFactory.class, beanFactory,
@@ -158,7 +101,7 @@ public abstract class AbstractImportingAnnotationConfiguration<B extends Annotat
 	 * @return the bean definition to register
 	 * @throws Exception if error occurred
 	 */
-	protected abstract BeanDefinition buildBeanDefinition() throws Exception;
+	protected abstract BeanDefinition buildBeanDefinition(AnnotationMetadata importingClassMetadata) throws Exception;
 
 	/**
 	 * Gets the annotation specific for this configurer.
@@ -183,6 +126,67 @@ public abstract class AbstractImportingAnnotationConfiguration<B extends Annotat
 	 */
 	protected Environment getEnvironment() {
 		return environment;
+	}
+
+	protected abstract static class BeanDelegatingFactoryBean<T, B extends AnnotationBuilder<O>, O> implements
+			FactoryBean<T>, BeanFactoryAware, InitializingBean {
+
+		private final B builder;
+
+		private T object;
+
+		private List<AnnotationConfigurer<O, B>> configurers;
+
+		private BeanFactory beanFactory;
+
+		private Class<T> clazz;
+
+		public BeanDelegatingFactoryBean(B builder, Class<T> clazz) {
+			this.builder = builder;
+			this.clazz = clazz;
+		}
+
+		@Override
+		public Class<?> getObjectType() {
+			return clazz;
+		}
+
+		@Override
+		public T getObject() throws Exception {
+			return object;
+		}
+
+		@Override
+		public boolean isSingleton() {
+			return true;
+		}
+
+		@Autowired(required = false)
+		public void setConfigurers(List<AnnotationConfigurer<O, B>> configurers) {
+			this.configurers = configurers;
+		}
+
+		@Override
+		public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+			this.beanFactory = beanFactory;
+		}
+
+		public B getBuilder() {
+			return builder;
+		}
+
+		public List<AnnotationConfigurer<O, B>> getConfigurers() {
+			return configurers;
+		}
+
+		protected void setObject(T object) {
+			this.object = object;
+		}
+
+		protected BeanFactory getBeanFactory() {
+			return beanFactory;
+		}
+
 	}
 
 }

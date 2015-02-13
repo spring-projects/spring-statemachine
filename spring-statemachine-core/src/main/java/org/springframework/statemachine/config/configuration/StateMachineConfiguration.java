@@ -1,17 +1,28 @@
+/*
+ * Copyright 2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.springframework.statemachine.config.configuration;
 
 import java.lang.annotation.Annotation;
-import java.util.List;
 
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.FactoryBean;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.AnnotationAttributes;
+import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineFactory;
@@ -27,12 +38,21 @@ public class StateMachineConfiguration<S extends Enum<S>, E extends Enum<E>> ext
 		AbstractImportingAnnotationConfiguration<StateMachineConfigBuilder<S, E>, StateMachineConfig<S, E>> {
 
 	private final StateMachineConfigBuilder<S, E> builder = new StateMachineConfigBuilder<S, E>();
-	
+
 	@Override
-	protected BeanDefinition buildBeanDefinition() throws Exception {
+	protected BeanDefinition buildBeanDefinition(AnnotationMetadata importingClassMetadata) throws Exception {
+
+		Class<?> annotationType = getAnnotation();
+		AnnotationAttributes attributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(
+				annotationType.getName(), false));
+		String[] names = attributes.getStringArray("name");
+
+
 		BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
-				.rootBeanDefinition(StateMachineDelegatingFactoryBean.class);
+				.rootBeanDefinition(StateMachineDelegatingFactoryBean2.class);
 		beanDefinitionBuilder.addConstructorArgValue(builder);
+		beanDefinitionBuilder.addConstructorArgValue(StateMachine.class);
+		beanDefinitionBuilder.addConstructorArgValue(names);
 		return beanDefinitionBuilder.getBeanDefinition();
 	}
 
@@ -41,62 +61,35 @@ public class StateMachineConfiguration<S extends Enum<S>, E extends Enum<E>> ext
 		return EnableStateMachine.class;
 	}
 
-	private static class StateMachineDelegatingFactoryBean<S extends Enum<S>, E extends Enum<E>> implements
-			FactoryBean<StateMachine<S, E>>, BeanFactoryAware, InitializingBean {
+	private static class StateMachineDelegatingFactoryBean2<S extends Enum<S>, E extends Enum<E>>
+		extends BeanDelegatingFactoryBean<StateMachine<S, E>,StateMachineConfigBuilder<S, E>,StateMachineConfig<S, E>> {
 
-		private final StateMachineConfigBuilder<S, E> builder;
-		
-		private List<AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>>> configurers;
-		
-		private BeanFactory beanFactory;
-		
-		private StateMachine<S, E> stateMachine;
-		
-		@SuppressWarnings("unused")
-		public StateMachineDelegatingFactoryBean(StateMachineConfigBuilder<S, E> builder) {
-			this.builder = builder;
-		}
-		
-		@Override
-		public StateMachine<S, E> getObject() throws Exception {
-			return stateMachine;
-		}
+		private final String[] beanNames;
 
-		@Override
-		public Class<?> getObjectType() {
-			return StateMachine.class;
-		}
-
-		@Override
-		public boolean isSingleton() {
-			return true;
+		public StateMachineDelegatingFactoryBean2(StateMachineConfigBuilder<S, E> builder, Class<StateMachine<S, E>> clazz, String[] beanNames) {
+			super(builder, clazz);
+			this.beanNames = beanNames;
 		}
 
 		@Override
 		public void afterPropertiesSet() throws Exception {
-			for (AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>> configurer : configurers) {
-				builder.apply(configurer);
+			for (AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>> configurer : getConfigurers()) {
+				Class<?> clazz = configurer.getClass();
+				EnableStateMachine findAnnotation = AnnotationUtils.findAnnotation(clazz, EnableStateMachine.class);
+				String[] annonames = findAnnotation.name();
+				if (beanNames[0].equals(annonames[0])) {
+					getBuilder().apply(configurer);
+				}
 			}
-			StateMachineConfig<S, E> stateMachineConfig = builder.getOrBuild();
+			StateMachineConfig<S, E> stateMachineConfig = getBuilder().getOrBuild();
 			StateMachineTransitions<S, E> stateMachineTransitions = stateMachineConfig.getTransitions();
 			StateMachineStates<S, E> stateMachineStates = stateMachineConfig.getStates();
-			EnumStateMachineFactory<S,E> stateMachineFactory = new EnumStateMachineFactory<S, E>(stateMachineTransitions, stateMachineStates);
-			stateMachineFactory.setBeanFactory(beanFactory);
-			stateMachine = stateMachineFactory.getStateMachine();
+			EnumStateMachineFactory<S, E> stateMachineFactory = new EnumStateMachineFactory<S, E>(
+					stateMachineTransitions, stateMachineStates);
+			stateMachineFactory.setBeanFactory(getBeanFactory());
+			setObject(stateMachineFactory.getStateMachine());
 		}
 
-		@Override
-		public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-			this.beanFactory = beanFactory;
-		}
-
-		@Autowired(required=false)
-		protected void onConfigurers(
-				List<AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>>> configurers)
-				throws Exception {
-			this.configurers = configurers;
-		}
-		
 	}
 
 }

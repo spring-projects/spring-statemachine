@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineFactory;
 import org.springframework.statemachine.config.StateMachineConfig;
@@ -27,9 +28,9 @@ public class StateMachineFactoryConfiguration<S extends Enum<S>, E extends Enum<
 		AbstractImportingAnnotationConfiguration<StateMachineConfigBuilder<S, E>, StateMachineConfig<S, E>> {
 
 	private final StateMachineConfigBuilder<S, E> builder = new StateMachineConfigBuilder<S, E>();
-	
+
 	@Override
-	protected BeanDefinition buildBeanDefinition() throws Exception {
+	protected BeanDefinition buildBeanDefinition(AnnotationMetadata importingClassMetadata) throws Exception {
 		BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(StateMachineFactoryDelegatingFactoryBean.class);
 		beanDefinitionBuilder.addConstructorArgValue(builder);
@@ -45,18 +46,18 @@ public class StateMachineFactoryConfiguration<S extends Enum<S>, E extends Enum<
 			FactoryBean<StateMachineFactory<S, E>>, BeanFactoryAware, InitializingBean {
 
 		private final StateMachineConfigBuilder<S, E> builder;
-		
+
 		private List<AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>>> configurers;
-		
+
 		private BeanFactory beanFactory;
-		
+
 		private StateMachineFactory<S, E> stateMachineFactory;
-		
+
 		@SuppressWarnings("unused")
 		public StateMachineFactoryDelegatingFactoryBean(StateMachineConfigBuilder<S, E> builder) {
 			this.builder = builder;
 		}
-		
+
 		@Override
 		public StateMachineFactory<S, E> getObject() throws Exception {
 			return stateMachineFactory;
@@ -96,7 +97,7 @@ public class StateMachineFactoryConfiguration<S extends Enum<S>, E extends Enum<
 				throws Exception {
 			this.configurers = configurers;
 		}
-		
+
 	}
 
 }

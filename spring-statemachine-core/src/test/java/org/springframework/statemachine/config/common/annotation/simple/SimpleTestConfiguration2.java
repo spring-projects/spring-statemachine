@@ -20,6 +20,7 @@ import java.lang.annotation.Annotation;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.statemachine.config.common.annotation.AbstractImportingAnnotationConfiguration;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurer;
 
@@ -27,9 +28,9 @@ import org.springframework.statemachine.config.common.annotation.AnnotationConfi
 public class SimpleTestConfiguration2 extends AbstractImportingAnnotationConfiguration<SimpleTestConfigBuilder, SimpleTestConfig> {
 
 	private final SimpleTestConfigBuilder builder = new SimpleTestConfigBuilder();
-	
+
 	@Override
-	protected BeanDefinition buildBeanDefinition() throws Exception {
+	protected BeanDefinition buildBeanDefinition(AnnotationMetadata importingClassMetadata) throws Exception {
 		BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(SimpleTestConfigDelegatingFactoryBean.class);
 		beanDefinitionBuilder.addConstructorArgValue(builder);
@@ -41,17 +42,12 @@ public class SimpleTestConfiguration2 extends AbstractImportingAnnotationConfigu
 		return EnableSimpleTest2.class;
 	}
 
-	private static class SimpleTestConfigDelegatingFactoryBean extends BeanDelegatingFactoryBean<SimpleTestConfigBuilder, SimpleTestConfig> {
-		
+	private static class SimpleTestConfigDelegatingFactoryBean extends BeanDelegatingFactoryBean<SimpleTestConfig, SimpleTestConfigBuilder, SimpleTestConfig> {
+
 		public SimpleTestConfigDelegatingFactoryBean(SimpleTestConfigBuilder builder) {
-			super(builder);
+			super(builder, SimpleTestConfig.class);
 		}
 
-		@Override
-		public Class<SimpleTestConfig> getObjectType() {
-			return SimpleTestConfig.class;
-		}
-		
 		@Override
 		public void afterPropertiesSet() throws Exception {
 			for (AnnotationConfigurer<SimpleTestConfig, SimpleTestConfigBuilder> configurer : getConfigurers()) {
@@ -61,7 +57,7 @@ public class SimpleTestConfiguration2 extends AbstractImportingAnnotationConfigu
 			}
 			setObject(getBuilder().getOrBuild());
 		}
-		
+
 	}
-	
+
 }
