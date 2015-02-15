@@ -34,8 +34,8 @@ public class DefaultSubStateConfigurer<S, E>
 	private final Object parent;
 
 	private S initial;
-	private Collection<Action<S, E>> entryActions;
-	private Collection<Action<S, E>> exitActions;
+	private Collection<? extends Action<S, E>> entryActions;
+	private Collection<? extends Action<S, E>> exitActions;
 
 	private final Collection<StateData<S, E>> states = new ArrayList<StateData<S, E>>();
 
@@ -62,13 +62,13 @@ public class DefaultSubStateConfigurer<S, E>
 	}
 
 	@Override
-	public SubStateConfigurer<S, E> entry(Collection<Action<S, E>> entryActions) {
+	public SubStateConfigurer<S, E> entry(Collection<? extends Action<S, E>> entryActions) {
 		this.entryActions = entryActions;
 		return this;
 	}
 
 	@Override
-	public SubStateConfigurer<S, E> exit(Collection<Action<S, E>> exitActions) {
+	public SubStateConfigurer<S, E> exit(Collection<? extends Action<S, E>> exitActions) {
 		this.exitActions = exitActions;
 		return this;
 	}

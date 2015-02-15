@@ -26,8 +26,8 @@ public interface SubStateConfigurer<S, E> extends
 
 	SubStateConfigurer<S, E> initial(S initial);
 
-	SubStateConfigurer<S, E> entry(Collection<Action<S, E>> entryActions);
+	SubStateConfigurer<S, E> entry(Collection<? extends Action<S, E>> entryActions);
 
-	SubStateConfigurer<S, E> exit(Collection<Action<S, E>> exitActions);
+	SubStateConfigurer<S, E> exit(Collection<? extends Action<S, E>> exitActions);
 
 }

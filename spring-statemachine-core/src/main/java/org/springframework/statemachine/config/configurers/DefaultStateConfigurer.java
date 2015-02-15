@@ -68,7 +68,8 @@ public class DefaultStateConfigurer<S, E>
 	}
 
 	@Override
-	public StateConfigurer<S, E> state(S state, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions) {
+	public StateConfigurer<S, E> state(S state, Collection<? extends Action<S, E>> entryActions,
+			Collection<? extends Action<S, E>> exitActions) {
 		states.add(new StateData<S, E>(state, null, entryActions, exitActions));
 		return this;
 	}

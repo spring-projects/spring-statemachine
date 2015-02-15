@@ -19,6 +19,9 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 
 import org.junit.Test;
@@ -31,6 +34,7 @@ import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.EnumStateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.TestUtils;
+import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
@@ -195,5 +199,53 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 
 	}
 
+	@Configuration
+	@EnableStateMachine
+	public static class Config5 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			TestEntryAction action1 = action1();
+			Collection<TestEntryAction> actions1 = new ArrayList<TestEntryAction>();
+			actions1.add(action1);
+			Collection<Action<TestStates, TestEvents>> actions3 = new ArrayList<Action<TestStates,TestEvents>>();
+			actions3.add(action3());
+			states
+				.withSubStates(TestStates.S11, null)
+					.entry(actions1)
+					.exit(Arrays.asList(action2()))
+					.and()
+				.withStates(TestStates.S11)
+					.initial(TestStates.S111)
+					.state(TestStates.S111, actions3, Arrays.asList(action4()));
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S111)
+					.target(TestStates.S1)
+					.event(TestEvents.E1);
+		}
+
+		public TestEntryAction action1() {
+			return new TestEntryAction();
+		}
+
+		public Action<TestStates, TestEvents> action2() {
+			return new TestExitAction();
+		}
+
+		public Action<TestStates, TestEvents> action3() {
+			return new TestEntryAction();
+		}
+
+		public TestExitAction action4() {
+			return new TestExitAction();
+		}
+
+	}
 
 }

@@ -77,12 +77,12 @@ public class StateMachineStates<S, E> {
 	public static class StateData<S, E> {
 		private S state;
 		private Collection<E> deferred;
-		private Collection<Action<S, E>> entryActions;
-		private Collection<Action<S, E>> exitActions;
+		private Collection<? extends Action<S, E>> entryActions;
+		private Collection<? extends Action<S, E>> exitActions;
 		public StateData(S state, Collection<E> deferred) {
 			this(state, deferred, null, null);
 		}
-		public StateData(S state, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions) {
+		public StateData(S state, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions) {
 			this.state = state;
 			this.deferred = deferred;
 			this.entryActions = entryActions;
@@ -97,10 +97,10 @@ public class StateMachineStates<S, E> {
 		public Collection<E> getDeferred() {
 			return deferred;
 		}
-		public Collection<Action<S, E>> getEntryActions() {
+		public Collection<? extends Action<S, E>> getEntryActions() {
 			return entryActions;
 		}
-		public Collection<Action<S, E>> getExitActions() {
+		public Collection<? extends Action<S, E>> getExitActions() {
 			return exitActions;
 		}
 		@Override

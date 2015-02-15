@@ -90,14 +90,14 @@ public interface State<S, E> {
 	 *
 	 * @return the state entry actions
 	 */
-	Collection<Action<S, E>> getEntryActions();
+	Collection<? extends Action<S, E>> getEntryActions();
 
 	/**
 	 * Gets {@link Action}s executed exiting from this state.
 	 *
 	 * @return the state exit actions
 	 */
-	Collection<Action<S, E>> getExitActions();
+	Collection<? extends Action<S, E>> getExitActions();
 
 	/**
 	 * Checks if state is a simple state. A simple state does not have any

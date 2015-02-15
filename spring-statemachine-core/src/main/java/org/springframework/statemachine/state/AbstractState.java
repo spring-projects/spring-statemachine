@@ -37,8 +37,8 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	private final S id;
 	private final PseudoState pseudoState;
 	private final Collection<E> deferred;
-	private final Collection<Action<S, E>> entryActions;
-	private final Collection<Action<S, E>> exitActions;
+	private final Collection<? extends Action<S, E>> entryActions;
+	private final Collection<? extends Action<S, E>> exitActions;
 	private final Collection<Region<S, E>> regions = new ArrayList<Region<S, E>>();
 	private final StateMachine<S, E> submachine;
 
@@ -70,7 +70,7 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 */
-	public AbstractState(S id, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions) {
+	public AbstractState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions) {
 		this(id, deferred, entryActions, exitActions, null);
 	}
 
@@ -83,7 +83,7 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	 * @param exitActions the exit actions
 	 * @param pseudoState the pseudo state
 	 */
-	public AbstractState(S id, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
+	public AbstractState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
 			PseudoState pseudoState) {
 		this(id, deferred, entryActions, exitActions, pseudoState, null, null);
 	}
@@ -98,7 +98,7 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	 * @param pseudoState the pseudo state
 	 * @param submachine the submachine
 	 */
-	public AbstractState(S id, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
+	public AbstractState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
 			PseudoState pseudoState, StateMachine<S, E> submachine) {
 		this(id, deferred, entryActions, exitActions, pseudoState, null, submachine);
 	}
@@ -113,7 +113,7 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	 * @param pseudoState the pseudo state
 	 * @param regions the regions
 	 */
-	public AbstractState(S id, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
+	public AbstractState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
 			PseudoState pseudoState, Collection<Region<S, E>> regions) {
 		this(id, deferred, entryActions, exitActions, pseudoState, regions, null);
 	}
@@ -129,7 +129,7 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	 * @param regions the regions
 	 * @param submachine the submachine
 	 */
-	private AbstractState(S id, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
+	private AbstractState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
 			PseudoState pseudoState, Collection<Region<S, E>> regions, StateMachine<S, E> submachine) {
 		this.id = id;
 		this.deferred = deferred;
@@ -174,12 +174,12 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	}
 
 	@Override
-	public Collection<Action<S, E>> getEntryActions() {
+	public Collection<? extends Action<S, E>> getEntryActions() {
 		return entryActions;
 	}
 
 	@Override
-	public Collection<Action<S, E>> getExitActions() {
+	public Collection<? extends Action<S, E>> getExitActions() {
 		return exitActions;
 	}
 

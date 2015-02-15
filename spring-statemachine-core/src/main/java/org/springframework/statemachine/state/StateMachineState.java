@@ -84,7 +84,7 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 	 * @param exitActions the exit actions
 	 * @param pseudoState the pseudo state
 	 */
-	public StateMachineState(S id, StateMachine<S, E> submachine, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
+	public StateMachineState(S id, StateMachine<S, E> submachine, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
 			PseudoState pseudoState) {
 		super(id, deferred, entryActions, exitActions, pseudoState, submachine);
 		this.ids = new ArrayList<S>();
@@ -100,7 +100,7 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 */
-	public StateMachineState(S id, StateMachine<S, E> submachine, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions) {
+	public StateMachineState(S id, StateMachine<S, E> submachine, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions) {
 		super(id, deferred, entryActions, exitActions, null, submachine);
 		this.ids = new ArrayList<S>();
 		this.ids.add(id);
@@ -121,7 +121,7 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 	public void exit(E event, StateContext<S, E> context) {
 		getSubmachine().getState().exit(event, context);
 		getSubmachine().stop();
-		Collection<Action<S, E>> actions = getExitActions();
+		Collection<? extends Action<S, E>> actions = getExitActions();
 		if (actions != null && !isLocal(context)) {
 			for (Action<S, E> action : actions) {
 				action.execute(context);
@@ -131,7 +131,7 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 
 	@Override
 	public void entry(E event, StateContext<S, E> context) {
-		Collection<Action<S, E>> actions = getEntryActions();
+		Collection<? extends Action<S, E>> actions = getEntryActions();
 		if (actions != null && !isLocal(context)) {
 			for (Action<S, E> action : actions) {
 				action.execute(context);

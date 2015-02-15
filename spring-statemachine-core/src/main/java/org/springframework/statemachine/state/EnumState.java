@@ -24,7 +24,7 @@ import org.springframework.statemachine.region.Region;
 
 /**
  * A {@link State} implementation where state and event is enum based.
- * 
+ *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
@@ -69,7 +69,7 @@ public class EnumState<S extends Enum<S>, E extends Enum<E>> extends AbstractSim
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 */
-	public EnumState(S id, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions) {
+	public EnumState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions) {
 		super(id, deferred, entryActions, exitActions);
 	}
 
@@ -82,7 +82,7 @@ public class EnumState<S extends Enum<S>, E extends Enum<E>> extends AbstractSim
 	 * @param exitActions the exit actions
 	 * @param pseudoState the pseudo state
 	 */
-	public EnumState(S id, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
+	public EnumState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
 			PseudoState pseudoState) {
 		super(id, deferred, entryActions, exitActions, pseudoState);
 	}
@@ -97,7 +97,7 @@ public class EnumState<S extends Enum<S>, E extends Enum<E>> extends AbstractSim
 	 * @param pseudoState the pseudo state
 	 * @param regions the regions
 	 */
-	public EnumState(S id, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
+	public EnumState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
 			PseudoState pseudoState, Collection<Region<S, E>> regions) {
 		super(id, deferred, entryActions, exitActions, pseudoState, regions);
 	}
@@ -112,31 +112,31 @@ public class EnumState<S extends Enum<S>, E extends Enum<E>> extends AbstractSim
 	 * @param pseudoState the pseudo state
 	 * @param submachine the submachine
 	 */
-	public EnumState(S id, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
+	public EnumState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
 			PseudoState pseudoState, StateMachine<S, E> submachine) {
 		super(id, deferred, entryActions, exitActions, pseudoState, submachine);
 	}
 
 	@Override
 	public void exit(E event, StateContext<S, E> context) {
-		Collection<Action<S, E>> actions = getExitActions();
+		Collection<? extends Action<S, E>> actions = getExitActions();
 		if (actions != null) {
 			for (Action<S, E> action : actions) {
 				action.execute(context);
-			}			
+			}
 		}
 	}
-	
+
 	@Override
 	public void entry(E event, StateContext<S, E> context) {
-		Collection<Action<S, E>> actions = getEntryActions();
+		Collection<? extends Action<S, E>> actions = getEntryActions();
 		if (actions != null) {
 			for (Action<S, E> action : actions) {
 				action.execute(context);
-			}			
+			}
 		}
 	}
-	
+
 	@Override
 	public String toString() {
 		return "EnumState [getIds()=" + getIds() + ", getClass()=" + getClass() + ", hashCode()=" + hashCode()
