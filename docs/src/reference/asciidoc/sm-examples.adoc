@@ -1,0 +1,10 @@
+[[statemachine-examples]]
+= Statemachine Examples
+
+This part of the reference documentation explains the use of state
+machines as sample code together with a uml state charts.
+
+== Simple Statemachine
+
+TBD
+

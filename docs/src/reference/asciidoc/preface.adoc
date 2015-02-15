@@ -1,4 +1,31 @@
 [preface]
 == Preface
-Spring Statemachine is a framework for application developers to use
+Spring State Machine(SSM) is a framework for application developers to use
 state machine concepts with Spring.
+
+Concept of a state machine is most likely older that any of a reader
+of this reference documentation and definitely older than a Java
+language itself. Description of finite automate dates back to 1943
+when gentlements Warren McCulloch and Walter Pitts wrote a paper about
+it. Later George H. Mealy presented a state machine concept in 1955
+which is known as a Mealy Machine. A year later in 1956 Edward F.
+Moore presented another paper which is known as a Moore Machine. If
+you're ever read anything about state machines, names Mealy and Moore
+should have popped up at some point.
+
+Traditionally state machines are added to a existing project when
+developer realizes that code base is starting to look like a plate
+full of spaghetti. Spaghetti code looks like never ending hierarchical
+structure of IFs, ELSEs and BREAK clauses and probably compiler should
+ask developer to go home when things are starting to look too complex.
+
+This reference documentations contains following parts.
+
+<<introduction>> introduction to this reference documentation
+
+<<statemachine>> describes the usage of Spring State Machine(SSM)
+
+<<statemachine-examples>> more detailed state machine samples
+
+<<appendices>> generic info about used material and state machines
+

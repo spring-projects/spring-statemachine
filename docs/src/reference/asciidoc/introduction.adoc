@@ -2,4 +2,6 @@
 = Introduction
 
 == Requirements
-TBD
+
+Spring Statemachine {revnumber} is built and tested with JDK 7, Spring
+Framework {spring-version}.

@@ -1,5 +1,33 @@
 [[statemachine]]
-= State Machine
+= Spring and Statemachine
+
+This part of the reference documentation explains the core functionality
+that Spring Statemachine provides to any Spring based application.
+
+<<sm-config>> describes the generic configuration support.
+
+[[sm-config]]
+== Statemachine Configuration
+
+One of the common tasks when using a Statemachine is to design its
+runtime configuration. This chapter will focus on How Spring
+Statemachine is configured and how it leverages Spring's lightweight
+IoC containers to simplify the application internals to make it more
+manageable.
+
+=== Using the Spring Statemachine JavaConfig
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetA]
+----
+
+
+== Context Ingregration
+
 TBD
 
+=== Annotation Support
+
+TBD
 

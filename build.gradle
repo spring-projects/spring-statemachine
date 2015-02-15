@@ -149,7 +149,15 @@ configure(rootProject) {
 
 	dependencies { // for integration tests
 	}
-    
+
+	task copyDocsSamples(type: Copy) {
+		from 'spring-statemachine-core/src/test/java/org/springframework/statemachine/docs'
+		include '*.java'
+		into 'docs/src/reference/asciidoc/samples'
+	}
+
+	asciidoctor.dependsOn copyDocsSamples
+
 	task api(type: Javadoc) {
 		group = 'Documentation'
 		description = 'Generates aggregated Javadoc API documentation.'

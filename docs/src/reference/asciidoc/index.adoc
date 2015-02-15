@@ -32,6 +32,8 @@
 include::preface.adoc[]
 include::introduction.adoc[]
 
-[[springandhadoop]]
+[[springandsm]]
 include::sm.adoc[]
+
+include::sm-examples.adoc[]
 include::appendix.adoc[]
