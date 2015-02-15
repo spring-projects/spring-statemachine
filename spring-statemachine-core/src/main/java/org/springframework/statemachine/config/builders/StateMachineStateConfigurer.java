@@ -16,9 +16,14 @@
 package org.springframework.statemachine.config.builders;
 
 import org.springframework.statemachine.config.configurers.StateConfigurer;
+import org.springframework.statemachine.config.configurers.SubStateConfigurer;
 
 public interface StateMachineStateConfigurer<S, E> {
 
 	StateConfigurer<S, E> withStates() throws Exception;
+
+	StateConfigurer<S, E> withStates(Object parent) throws Exception;
+
+	SubStateConfigurer<S, E> withSubStates(S state, Object parent) throws Exception;
 
 }

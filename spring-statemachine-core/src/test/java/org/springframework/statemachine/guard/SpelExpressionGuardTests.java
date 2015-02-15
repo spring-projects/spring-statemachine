@@ -44,7 +44,7 @@ import org.springframework.statemachine.support.DefaultStateContext;
 
 /**
  * Tests for using spel expressions in guards.
- * 
+ *
  * @author Janne Valkealahti
  *
  */
@@ -60,10 +60,10 @@ public class SpelExpressionGuardTests extends AbstractStateMachineTests {
 		map.put("foo", "bar");
 		MessageHeaders headers = new MessageHeaders(map);
 		DefaultStateContext<TestStates, TestEvents> stateContext = new DefaultStateContext<TestStates, TestEvents>(headers, null, null);
-		
+
 		assertThat(guard.evaluate(stateContext), is(true));
 	}
-	
+
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testGuardDenyStateChange() throws Exception {
@@ -71,13 +71,14 @@ public class SpelExpressionGuardTests extends AbstractStateMachineTests {
 		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		EnumStateMachine<TestStates,TestEvents> machine =
 				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		machine.start();
 
 		assertThat(machine.getState().getIds(), contains(TestStates.S1));
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
 		assertThat(machine.getState().getIds(), contains(TestStates.S1));
 		ctx.close();
 	}
-	
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
@@ -99,7 +100,7 @@ public class SpelExpressionGuardTests extends AbstractStateMachineTests {
 					.event(TestEvents.E1)
 					.guardExpression("false");
 		}
-		
+
 	}
-	
+
 }

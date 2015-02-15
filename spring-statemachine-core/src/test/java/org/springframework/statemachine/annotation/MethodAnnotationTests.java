@@ -37,7 +37,7 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 import org.springframework.statemachine.processor.StateMachineAnnotationPostProcessor;
 
 public class MethodAnnotationTests extends AbstractStateMachineTests {
-	
+
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testMethodAnnotations() throws Exception {
@@ -46,24 +46,25 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		EnumStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
 		assertThat(context.containsBean("fooMachine"), is(true));
+		machine.start();
 
 		Bean1 bean1 = context.getBean(Bean1.class);
-		
+
 		// this event should cause 'method1' to get called
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
-		
+
 		assertThat(bean1.onMethod1Latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(bean1.onOnTransitionFromS2ToS3Latch.await(2, TimeUnit.SECONDS), is(false));
-		
+
 		context.close();
 	}
-		
+
 	@WithStateMachine(name = StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)
 	static class Bean1 {
-		
+
 		CountDownLatch onMethod1Latch = new CountDownLatch(1);
 		CountDownLatch onOnTransitionFromS2ToS3Latch = new CountDownLatch(1);
-		
+
 		@OnTransition(source = "S1", target = "S2")
 		public void method1() {
 			onMethod1Latch.countDown();
@@ -73,8 +74,8 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		public void onTransitionFromS2ToS3() {
 			onOnTransitionFromS2ToS3Latch.countDown();
 		}
-		
-		
+
+
 	}
 
 	@Configuration
@@ -84,20 +85,20 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		public Bean1 bean1() {
 			return new Bean1();
 		}
-		
+
 	}
-	
-	
+
+
 	@Configuration
 	static class AnnoConfig {
-		
+
 		@Bean(name="org.springframework.statemachine.internal.springStateMachineAnnotationPostProcessor")
 		public StateMachineAnnotationPostProcessor springStateMachineAnnotationPostProcessor() {
 			return new StateMachineAnnotationPostProcessor();
 		}
-		
+
 	}
-	
+
 	@Configuration
 	@EnableStateMachine(name = {StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, "fooMachine"})
 	static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
@@ -125,12 +126,12 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 					.target(TestStates.S3)
 					.event(TestEvents.E2);
 		}
-		
+
 		@Bean
 		public TestGuard testGuard() {
 			return new TestGuard();
 		}
-		
+
 		@Bean
 		public TestAction testAction() {
 			return new TestAction();

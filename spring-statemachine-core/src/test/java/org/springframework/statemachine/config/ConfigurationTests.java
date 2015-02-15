@@ -31,48 +31,62 @@ import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.EnumStateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.TestUtils;
-import org.springframework.statemachine.config.EnableStateMachine;
-import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
 /**
  * Tests for state machine configuration.
- * 
+ *
  * @author Janne Valkealahti
  *
  */
 public class ConfigurationTests extends AbstractStateMachineTests {
 
+	@Override
+	protected AnnotationConfigApplicationContext buildContext() {
+		return new AnnotationConfigApplicationContext();
+	}
+
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testStates() {
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config1.class);
-		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		context.register(Config1.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		EnumStateMachine<TestStates,TestEvents> machine =
-				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
 		assertThat(machine, notNullValue());
-		TestAction testAction = ctx.getBean("testAction", TestAction.class);
-		TestGuard testGuard = ctx.getBean("testGuard", TestGuard.class);
+		TestAction testAction = context.getBean("testAction", TestAction.class);
+		TestGuard testGuard = context.getBean("testGuard", TestGuard.class);
 		assertThat(testAction, notNullValue());
 		assertThat(testGuard, notNullValue());
-		ctx.close();
 	}
 
-	
+
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testEndState() throws Exception {
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config3.class);
-		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		context.register(Config3.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		EnumStateMachine<TestStates,TestEvents> machine =
-				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
 		assertThat(machine, notNullValue());
 		Object endState = TestUtils.readField("endState", machine);
 		assertThat(endState, notNullValue());
-		ctx.close();
 	}
-	
+
+	@SuppressWarnings({ "unchecked" })
+	@Test
+	public void testSimpleSubmachine() throws Exception {
+		context.register(Config4.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		EnumStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		assertThat(machine, notNullValue());
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
@@ -103,7 +117,7 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		public TestAction testAction() {
 			return new TestAction();
 		}
-		
+
 		@Bean
 		public TestGuard testGuard() {
 			return new TestGuard();
@@ -152,12 +166,15 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		@Override
 		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
 			states
-				.withStates()
+				.withSubStates(TestStates.S1, null)
+					.initial(TestStates.S1)
+					.and()
+				.withStates(TestStates.S1)
 					.initial(TestStates.S1)
 					.end(TestStates.SF)
 					.states(EnumSet.allOf(TestStates.class));
 		}
-		
+
 		@Override
 		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
 			transitions
@@ -169,9 +186,14 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 				.withLocal()
 					.source(TestStates.S1)
 					.target(TestStates.S2)
-					.event(TestEvents.E2);
+					.event(TestEvents.E2)
+					.and()
+				.withInternal()
+					.source(TestStates.S2)
+					.event(TestEvents.E3);
 		}
 
 	}
-	
+
+
 }

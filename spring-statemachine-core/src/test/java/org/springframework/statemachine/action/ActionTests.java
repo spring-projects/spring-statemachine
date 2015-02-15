@@ -37,7 +37,7 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 
 /**
  * Tests for state machine actions.
- * 
+ *
  * @author Janne Valkealahti
  *
  */
@@ -50,6 +50,7 @@ public class ActionTests extends AbstractStateMachineTests {
 		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		StateMachine<TestStates,TestEvents> machine =
 				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		machine.start();
 
 		TestCountAction testAction1 = ctx.getBean("testAction1", TestCountAction.class);
 		TestCountAction testAction2 = ctx.getBean("testAction2", TestCountAction.class);
@@ -71,7 +72,7 @@ public class ActionTests extends AbstractStateMachineTests {
 	private static class TestCountAction implements Action<TestStates, TestEvents> {
 
 		int count = 0;
-		
+
 		public TestCountAction() {
 			count = 0;
 		}

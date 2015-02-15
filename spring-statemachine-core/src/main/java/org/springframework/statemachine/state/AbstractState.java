@@ -23,7 +23,6 @@ import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.region.Region;
-import org.springframework.util.StringUtils;
 
 /**
  * Base implementation of a {@link State}.
@@ -35,6 +34,7 @@ import org.springframework.util.StringUtils;
  */
 public abstract class AbstractState<S, E> implements State<S, E> {
 
+	private final S id;
 	private final PseudoState pseudoState;
 	private final Collection<E> deferred;
 	private final Collection<Action<S, E>> entryActions;
@@ -45,76 +45,83 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	/**
 	 * Instantiates a new abstract state.
 	 *
+	 * @param id the state identifier
 	 * @param pseudoState the pseudo state
 	 */
-	public AbstractState(PseudoState pseudoState) {
-		this(null, null, null, pseudoState);
+	public AbstractState(S id, PseudoState pseudoState) {
+		this(id, null, null, null, pseudoState);
 	}
 
 	/**
 	 * Instantiates a new abstract state.
 	 *
+	 * @param id the state identifier
 	 * @param deferred the deferred
 	 */
-	public AbstractState(Collection<E> deferred) {
-		this(deferred, null, null);
+	public AbstractState(S id, Collection<E> deferred) {
+		this(id, deferred, null, null);
 	}
 
 	/**
 	 * Instantiates a new abstract state.
 	 *
+	 * @param id the state identifier
 	 * @param deferred the deferred
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 */
-	public AbstractState(Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions) {
-		this(deferred, entryActions, exitActions, null);
+	public AbstractState(S id, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions) {
+		this(id, deferred, entryActions, exitActions, null);
 	}
 
 	/**
 	 * Instantiates a new abstract state.
 	 *
+	 * @param id the state identifier
 	 * @param deferred the deferred
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 * @param pseudoState the pseudo state
 	 */
-	public AbstractState(Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
+	public AbstractState(S id, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
 			PseudoState pseudoState) {
-		this(deferred, entryActions, exitActions, pseudoState, null, null);
+		this(id, deferred, entryActions, exitActions, pseudoState, null, null);
 	}
 
 	/**
 	 * Instantiates a new abstract state.
 	 *
+	 * @param id the state identifier
 	 * @param deferred the deferred
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 * @param pseudoState the pseudo state
 	 * @param submachine the submachine
 	 */
-	public AbstractState(Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
+	public AbstractState(S id, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
 			PseudoState pseudoState, StateMachine<S, E> submachine) {
-		this(deferred, entryActions, exitActions, pseudoState, null, submachine);
+		this(id, deferred, entryActions, exitActions, pseudoState, null, submachine);
 	}
 
 	/**
 	 * Instantiates a new abstract state.
 	 *
+	 * @param id the state identifier
 	 * @param deferred the deferred
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 * @param pseudoState the pseudo state
 	 * @param regions the regions
 	 */
-	public AbstractState(Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
+	public AbstractState(S id, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
 			PseudoState pseudoState, Collection<Region<S, E>> regions) {
-		this(deferred, entryActions, exitActions, pseudoState, regions, null);
+		this(id, deferred, entryActions, exitActions, pseudoState, regions, null);
 	}
 
 	/**
 	 * Instantiates a new abstract state.
 	 *
+	 * @param id the state identifier
 	 * @param deferred the deferred
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
@@ -122,8 +129,9 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	 * @param regions the regions
 	 * @param submachine the submachine
 	 */
-	private AbstractState(Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
+	private AbstractState(S id, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
 			PseudoState pseudoState, Collection<Region<S, E>> regions, StateMachine<S, E> submachine) {
+		this.id = id;
 		this.deferred = deferred;
 		this.entryActions = entryActions;
 		this.exitActions = exitActions;
@@ -146,6 +154,11 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 
 	@Override
 	public abstract void entry(E event, StateContext<S, E> context);
+
+	@Override
+	public S getId() {
+		return id;
+	}
 
 	@Override
 	public abstract Collection<S> getIds();
@@ -200,8 +213,9 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 
 	@Override
 	public String toString() {
-		return "AbstractState [ids=" + StringUtils.collectionToCommaDelimitedString(getIds()) + ", pseudoState=" + pseudoState + ", deferred=" + deferred
-				+ ", entryActions=" + entryActions + ", exitActions=" + exitActions + "]";
+		return "AbstractState [id=" + id + ", pseudoState=" + pseudoState + ", deferred=" + deferred
+				+ ", entryActions=" + entryActions + ", exitActions=" + exitActions + ", regions=" + regions
+				+ ", submachine=" + submachine + "]";
 	}
 
 }

@@ -31,7 +31,7 @@ import org.springframework.statemachine.transition.Transition;
 
 /**
  * Tests for states using a submachine.
- * 
+ *
  * @author Janne Valkealahti
  *
  */
@@ -39,7 +39,7 @@ public class SubmachineStateTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testSimpleSubmachineState() {
-		
+
 		State<TestStates,TestEvents> stateSI = new EnumState<TestStates,TestEvents>(TestStates.SI);
 		State<TestStates,TestEvents> stateS1 = new EnumState<TestStates,TestEvents>(TestStates.S1);
 		State<TestStates,TestEvents> stateS2 = new EnumState<TestStates,TestEvents>(TestStates.S2);
@@ -70,18 +70,18 @@ public class SubmachineStateTests extends AbstractStateMachineTests {
 		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateSI, null);
 		machine.setTaskExecutor(taskExecutor);
 		machine.start();
-		
-		StateMachineState<TestStates,TestEvents> state = new StateMachineState<TestStates,TestEvents>(machine);
-		
+
+		StateMachineState<TestStates,TestEvents> state = new StateMachineState<TestStates,TestEvents>(TestStates.S4, machine);
+
 		assertThat(state.isSimple(), is(false));
 		assertThat(state.isComposite(), is(false));
 		assertThat(state.isOrthogonal(), is(false));
 		assertThat(state.isSubmachineState(), is(true));
-		
-		assertThat(state.getIds(), contains(TestStates.SI));
-		
-		
-		
+
+		assertThat(state.getIds(), contains(TestStates.S4, TestStates.SI));
+
+
+
 	}
-	
+
 }

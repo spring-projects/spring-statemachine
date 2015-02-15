@@ -36,56 +36,61 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 	/**
 	 * Instantiates a new region state.
 	 *
+	 * @param id the state identifier
 	 * @param regions the regions
 	 */
-	public RegionState(Collection<Region<S, E>> regions) {
-		super(null, null, null, null, regions);
+	public RegionState(S id, Collection<Region<S, E>> regions) {
+		super(id, null, null, null, null, regions);
 	}
 
 	/**
 	 * Instantiates a new region state.
 	 *
+	 * @param id the state identifier
 	 * @param regions the regions
 	 * @param deferred the deferred
 	 */
-	public RegionState(Collection<Region<S, E>> regions, Collection<E> deferred) {
-		super(deferred, null, null, null, regions);
+	public RegionState(S id, Collection<Region<S, E>> regions, Collection<E> deferred) {
+		super(id, deferred, null, null, null, regions);
 	}
 
 	/**
 	 * Instantiates a new region state.
 	 *
+	 * @param id the state identifier
 	 * @param regions the regions
 	 * @param pseudoState the pseudo state
 	 */
-	public RegionState(Collection<Region<S, E>> regions, PseudoState pseudoState) {
-		super(null, null, null, pseudoState, regions);
+	public RegionState(S id, Collection<Region<S, E>> regions, PseudoState pseudoState) {
+		super(id, null, null, null, pseudoState, regions);
 	}
 
 	/**
 	 * Instantiates a new region state.
 	 *
+	 * @param id the state identifier
 	 * @param regions the regions
 	 * @param deferred the deferred
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 * @param pseudoState the pseudo state
 	 */
-	public RegionState(Collection<Region<S, E>> regions, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
+	public RegionState(S id, Collection<Region<S, E>> regions, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
 			PseudoState pseudoState) {
-		super(deferred, entryActions, exitActions, pseudoState, regions);
+		super(id, deferred, entryActions, exitActions, pseudoState, regions);
 	}
 
 	/**
 	 * Instantiates a new region state.
 	 *
+	 * @param id the state identifier
 	 * @param regions the regions
 	 * @param deferred the deferred
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 */
-	public RegionState(Collection<Region<S, E>> regions, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions) {
-		super(deferred, entryActions, exitActions, null, regions);
+	public RegionState(S id, Collection<Region<S, E>> regions, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions) {
+		super(id, deferred, entryActions, exitActions, null, regions);
 	}
 
 	@Override

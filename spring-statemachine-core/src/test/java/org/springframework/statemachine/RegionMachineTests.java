@@ -91,7 +91,7 @@ public class RegionMachineTests {
 
 		Collection<Region<TestStates,TestEvents>> regions = new ArrayList<Region<TestStates,TestEvents>>();
 		regions.add(machine);
-		RegionState<TestStates,TestEvents> state = new RegionState<TestStates,TestEvents>(regions);
+		RegionState<TestStates,TestEvents> state = new RegionState<TestStates,TestEvents>(TestStates.S11, regions);
 
 		assertThat(state.isSimple(), is(false));
 		assertThat(state.isComposite(), is(true));
@@ -165,7 +165,7 @@ public class RegionMachineTests {
 		Collection<Region<TestStates,TestEvents>> regions = new ArrayList<Region<TestStates,TestEvents>>();
 		regions.add(machine11);
 		regions.add(machine12);
-		RegionState<TestStates,TestEvents> stateR = new RegionState<TestStates,TestEvents>(regions, null, null, null, pseudoState);
+		RegionState<TestStates,TestEvents> stateR = new RegionState<TestStates,TestEvents>(TestStates.S11, regions, null, null, null, pseudoState);
 
 		Collection<State<TestStates,TestEvents>> states = new ArrayList<State<TestStates,TestEvents>>();
 		states.add(stateR);

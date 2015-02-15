@@ -17,7 +17,6 @@ package org.springframework.statemachine.config.configurers;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Set;
 
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.builders.StateMachineStateBuilder;
@@ -26,64 +25,51 @@ import org.springframework.statemachine.config.builders.StateMachineStates;
 import org.springframework.statemachine.config.builders.StateMachineStates.StateData;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerAdapter;
 
-public class DefaultStateConfigurer<S, E>
+public class DefaultSubStateConfigurer<S, E>
 		extends AnnotationConfigurerAdapter<StateMachineStates<S, E>, StateMachineStateConfigurer<S, E>, StateMachineStateBuilder<S, E>>
-		implements StateConfigurer<S, E> {
+		implements SubStateConfigurer<S, E> {
 
+	private S state;
 	private final Object id;
-
 	private final Object parent;
+
+	private S initial;
+	private Collection<Action<S, E>> entryActions;
+	private Collection<Action<S, E>> exitActions;
 
 	private final Collection<StateData<S, E>> states = new ArrayList<StateData<S, E>>();
 
-	private S initial;
+	public DefaultSubStateConfigurer(S state, Object id) {
+		this(state, id, null);
+	}
 
-	private S end;
-
-	public DefaultStateConfigurer(Object id, Object parent) {
+	public DefaultSubStateConfigurer(S state, Object id, Object parent) {
+		this.state = state;
 		this.id = id;
 		this.parent = parent;
 	}
 
 	@Override
 	public void configure(StateMachineStateBuilder<S, E> builder) throws Exception {
-		builder.add(id, parent, states, initial, end);
+		states.add(new StateData<S, E>(state, null, entryActions, exitActions));
+		builder.add(id, parent, states, initial, null);
 	}
 
 	@Override
-	public StateConfigurer<S, E> initial(S initial) {
+	public SubStateConfigurer<S, E> initial(S initial) {
 		this.initial = initial;
 		return this;
 	}
 
 	@Override
-	public StateConfigurer<S, E> end(S end) {
-		this.end = end;
+	public SubStateConfigurer<S, E> entry(Collection<Action<S, E>> entryActions) {
+		this.entryActions = entryActions;
 		return this;
 	}
 
 	@Override
-	public StateConfigurer<S, E> state(S state) {
-		return state(state, (E[])null);
-	}
-
-	@Override
-	public StateConfigurer<S, E> state(S state, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions) {
-		states.add(new StateData<S, E>(state, null, entryActions, exitActions));
-		return this;
-	}
-
-	@Override
-	public StateConfigurer<S, E> state(S state, E... deferred) {
-		states.add(new StateData<S, E>(state, deferred));
-		return this;
-	}
-
-	@Override
-	public StateConfigurer<S, E> states(Set<S> states) {
-		for (S s : states) {
-			state(s);
-		}
+	public SubStateConfigurer<S, E> exit(Collection<Action<S, E>> exitActions) {
+		this.exitActions = exitActions;
 		return this;
 	}
 

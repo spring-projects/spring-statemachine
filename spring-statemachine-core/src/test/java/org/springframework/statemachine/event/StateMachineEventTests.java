@@ -40,7 +40,7 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 
 /**
  * Tests from state machine app context events.
- * 
+ *
  * @author Janne Valkealahti
  *
  */
@@ -50,7 +50,7 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 	protected AnnotationConfigApplicationContext buildContext() {
 		return new AnnotationConfigApplicationContext();
 	}
-	
+
 	@Test
 	public void testContextEvents() throws Exception {
 		context.register(BaseConfig.class, StateMachineEventPublisherConfiguration.class, Config1.class);
@@ -60,13 +60,14 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 		@SuppressWarnings("unchecked")
 		EnumStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		machine.start();
 		assertThat(machine, notNullValue());
 		machine.sendEvent(TestEvents.E1);
 		machine.sendEvent(TestEvents.E2);
 		machine.sendEvent(TestEvents.E3);
 		machine.sendEvent(TestEvents.E4);
 		machine.sendEvent(TestEvents.EF);
-		
+
 		// 6 events instead of 5, first one is initial transition
 		// to SI where source state is null
 		assertThat(listener.onEventLatch.await(5, TimeUnit.SECONDS), is(true));
@@ -119,9 +120,9 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 		public TestEventListener testEventListener() {
 			return new TestEventListener();
 		}
-		
+
 	}
-	
+
 	static class TestEventListener implements ApplicationListener<AbstractStateMachineEvent> {
 
 		CountDownLatch onEventLatch = new CountDownLatch(6);
@@ -134,6 +135,6 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 			onEventLatch.countDown();
 		}
 
-	}	
+	}
 
 }

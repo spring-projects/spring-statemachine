@@ -41,7 +41,7 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 
 /**
  * Tests for state machine transitions.
- * 
+ *
  * @author Janne Valkealahti
  *
  */
@@ -54,14 +54,14 @@ public class TransitionTests extends AbstractStateMachineTests {
 		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		EnumStateMachine<TestStates,TestEvents> machine =
 				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
-
+		machine.start();
 		assertThat(machine.getState().getIds(), contains(TestStates.S1));
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
 		assertThat(machine.getState().getIds(), contains(TestStates.S3));
 		ctx.close();
 
 	}
-	
+
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testInternalTransition() throws Exception {
@@ -69,28 +69,28 @@ public class TransitionTests extends AbstractStateMachineTests {
 		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		EnumStateMachine<TestStates,TestEvents> machine =
 				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
-		
+		machine.start();
 		TestExitAction testExitAction = ctx.getBean("testExitAction", TestExitAction.class);
 		TestEntryAction testEntryAction = ctx.getBean("testEntryAction", TestEntryAction.class);
 		TestAction externalTestAction = ctx.getBean("externalTestAction", TestAction.class);
 		TestAction internalTestAction = ctx.getBean("internalTestAction", TestAction.class);
-		
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));		
+
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
 		assertThat(testExitAction.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));
-		assertThat(testEntryAction.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));		
-		
+		assertThat(testEntryAction.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));
+
 		machine.sendEvent(TestEvents.E1);
 		assertThat(testExitAction.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));
-		assertThat(testEntryAction.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));		
+		assertThat(testEntryAction.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));
 		assertThat(internalTestAction.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		
+
 		machine.sendEvent(TestEvents.E2);
 		assertThat(testExitAction.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(testEntryAction.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));		
+		assertThat(testEntryAction.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(externalTestAction.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		
+
 		assertThat(machine.getState().getIds(), contains(TestStates.S2));
-		ctx.close();		
+		ctx.close();
 	}
 
 	@Configuration
@@ -151,7 +151,7 @@ public class TransitionTests extends AbstractStateMachineTests {
 					.event(TestEvents.E2)
 					.action(externalTestAction());
 		}
-		
+
 		@Bean
 		public Action<TestStates, TestEvents> testEntryAction() {
 			return new TestEntryAction();
@@ -161,7 +161,7 @@ public class TransitionTests extends AbstractStateMachineTests {
 		public Action<TestStates, TestEvents> testExitAction() {
 			return new TestExitAction();
 		}
-		
+
 		@Bean
 		public Action<TestStates, TestEvents> externalTestAction() {
 			return new TestAction();
@@ -171,7 +171,7 @@ public class TransitionTests extends AbstractStateMachineTests {
 		public Action<TestStates, TestEvents> internalTestAction() {
 			return new TestAction();
 		}
-		
+
 	}
-	
+
 }

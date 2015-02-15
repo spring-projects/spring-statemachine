@@ -34,7 +34,7 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 
 /**
  * Tests for functionality around state machine initial state.
- * 
+ *
  * @author Janne Valkealahti
  *
  */
@@ -48,10 +48,10 @@ public class InitialStateTests extends AbstractStateMachineTests {
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		EnumStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
-
+		machine.start();
 		assertThat(machine.getState().getIds(), contains(TestStates.S1));
 	}
-	
+
 	@Test(expected = Exception.class)
 	public void testInitialStateMissingFailure() throws Exception {
 		context.register(BaseConfig.class, Config2.class);
@@ -110,10 +110,10 @@ public class InitialStateTests extends AbstractStateMachineTests {
 		}
 
 	}
-	
+
 	@Override
 	protected AnnotationConfigApplicationContext buildContext() {
 		return new AnnotationConfigApplicationContext();
 	}
-	
+
 }

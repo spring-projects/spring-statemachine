@@ -15,8 +15,8 @@
  */
 package org.springframework.statemachine.state;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ import org.springframework.statemachine.transition.Transition;
 
 /**
  * Tests for states using a submachine.
- * 
+ *
  * @author Janne Valkealahti
  *
  */
@@ -40,7 +40,7 @@ public class RegionStateTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testSimpleRegionState() {
-		
+
 		State<TestStates,TestEvents> stateSI = new EnumState<TestStates,TestEvents>(TestStates.SI);
 		State<TestStates,TestEvents> stateS1 = new EnumState<TestStates,TestEvents>(TestStates.S1);
 		State<TestStates,TestEvents> stateS2 = new EnumState<TestStates,TestEvents>(TestStates.S2);
@@ -71,20 +71,20 @@ public class RegionStateTests extends AbstractStateMachineTests {
 		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateSI, null);
 		machine.setTaskExecutor(taskExecutor);
 		machine.start();
-		
+
 		Collection<Region<TestStates,TestEvents>> regions = new ArrayList<Region<TestStates,TestEvents>>();
 		regions.add(machine);
-		RegionState<TestStates,TestEvents> state = new RegionState<TestStates,TestEvents>(regions);
-		
+		RegionState<TestStates,TestEvents> state = new RegionState<TestStates,TestEvents>(TestStates.S11, regions);
+
 		assertThat(state.isSimple(), is(false));
 		assertThat(state.isComposite(), is(true));
 		assertThat(state.isOrthogonal(), is(false));
 		assertThat(state.isSubmachineState(), is(false));
-		
+
 		assertThat(state.getIds(), contains(TestStates.SI));
-		
-		
-		
+
+
+
 	}
-	
+
 }

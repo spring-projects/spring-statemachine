@@ -25,20 +25,20 @@ import org.springframework.statemachine.region.Region;
 
 /**
  * Base implementation of a {@link State} having a single state identifier.
- * 
+ *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
  * @param <E> the type of event
  */
 public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
-	
+
 	private final Collection<S> ids;
 
 	/**
 	 * Instantiates a new abstract simple state.
 	 *
-	 * @param id the id
+	 * @param id the state identifier
 	 */
 	public AbstractSimpleState(S id) {
 		this(id, null, null, null, null);
@@ -47,7 +47,7 @@ public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
 	/**
 	 * Instantiates a new abstract simple state.
 	 *
-	 * @param id the id
+	 * @param id the state identifier
 	 * @param deferred the deferred
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
@@ -59,7 +59,7 @@ public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
 	/**
 	 * Instantiates a new abstract simple state.
 	 *
-	 * @param id the id
+	 * @param id the state identifier
 	 * @param deferred the deferred
 	 */
 	public AbstractSimpleState(S id, Collection<E> deferred) {
@@ -69,17 +69,17 @@ public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
 	/**
 	 * Instantiates a new abstract simple state.
 	 *
-	 * @param id the id
+	 * @param id the state identifier
 	 * @param pseudoState the pseudo state
 	 */
 	public AbstractSimpleState(S id, PseudoState pseudoState) {
 		this(id, null, null, null, pseudoState);
 	}
-	
+
 	/**
 	 * Instantiates a new abstract simple state.
 	 *
-	 * @param id the id
+	 * @param id the state identifier
 	 * @param deferred the deferred
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
@@ -88,7 +88,7 @@ public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
 	 */
 	public AbstractSimpleState(S id, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
 			PseudoState pseudoState, Collection<Region<S, E>> regions) {
-		super(deferred, entryActions, exitActions, pseudoState, regions);
+		super(id, deferred, entryActions, exitActions, pseudoState, regions);
 		this.ids = new ArrayList<S>();
 		this.ids.add(id);
 	}
@@ -96,7 +96,7 @@ public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
 	/**
 	 * Instantiates a new abstract simple state.
 	 *
-	 * @param id the id
+	 * @param id the state identifier
 	 * @param deferred the deferred
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
@@ -105,7 +105,7 @@ public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
 	 */
 	public AbstractSimpleState(S id, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
 			PseudoState pseudoState, StateMachine<S, E> submachine) {
-		super(deferred, entryActions, exitActions, pseudoState, submachine);
+		super(id, deferred, entryActions, exitActions, pseudoState, submachine);
 		this.ids = new ArrayList<S>();
 		this.ids.add(id);
 	}
@@ -113,7 +113,7 @@ public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
 	/**
 	 * Instantiates a new abstract simple state.
 	 *
-	 * @param id the id
+	 * @param id the state identifier
 	 * @param deferred the deferred
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
@@ -121,7 +121,7 @@ public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
 	 */
 	public AbstractSimpleState(S id, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
 			PseudoState pseudoState) {
-		super(deferred, entryActions, exitActions, pseudoState);
+		super(id, deferred, entryActions, exitActions, pseudoState);
 		this.ids = new ArrayList<S>();
 		this.ids.add(id);
 	}

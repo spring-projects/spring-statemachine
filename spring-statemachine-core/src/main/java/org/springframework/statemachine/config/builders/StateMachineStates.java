@@ -18,35 +18,62 @@ package org.springframework.statemachine.config.builders;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 
 import org.springframework.statemachine.action.Action;
 
 public class StateMachineStates<S, E> {
 
-	private Collection<StateData<S, E>> states;
+	private final Map<Object, StateMachineStatesData<S, E>> states;
 
-	private final S initialState;
-
-	private final S endState;
-	
-	public StateMachineStates(S initialState, S endState, Collection<StateData<S, E>> states) {
+	public StateMachineStates(Map<Object, StateMachineStatesData<S, E>> states) {
 		this.states = states;
-		this.initialState = initialState;
-		this.endState = endState;
 	}
 
-	public Collection<StateData<S, E>> getStates() {
+	public Map<Object, StateMachineStatesData<S, E>> getStates() {
 		return states;
 	}
 
-	public S getInitialState() {
-		return initialState;
+	public static class StateMachineStatesData<S, E> {
+		private Collection<StateData<S, E>> states;
+
+		private final S initialState;
+
+		private final S endState;
+
+		private final Object parent;
+
+		public StateMachineStatesData(Collection<StateData<S, E>> states, S initialState, S endState, Object parent) {
+			this.states = states;
+			this.initialState = initialState;
+			this.endState = endState;
+			this.parent = parent;
+		}
+
+		public Collection<StateData<S, E>> getStates() {
+			return states;
+		}
+
+		public S getInitialState() {
+			return initialState;
+		}
+
+		public S getEndState() {
+			return endState;
+		}
+
+		public Object getParent() {
+			return parent;
+		}
+
+		@Override
+		public String toString() {
+			return "StateMachineStatesData [states=" + states + ", initialState=" + initialState + ", endState="
+					+ endState + ", parent=" + parent + "]";
+		}
+
 	}
 
-	public S getEndState() {
-		return endState;
-	}
-	
 	public static class StateData<S, E> {
 		private S state;
 		private Collection<E> deferred;
@@ -76,6 +103,12 @@ public class StateMachineStates<S, E> {
 		public Collection<Action<S, E>> getExitActions() {
 			return exitActions;
 		}
+		@Override
+		public String toString() {
+			return "StateData [state=" + state + ", deferred=" + deferred + ", entryActions=" + entryActions
+					+ ", exitActions=" + exitActions + "]";
+		}
+
 	}
 
 }

@@ -15,8 +15,8 @@
  */
 package org.springframework.statemachine.state;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
@@ -34,69 +34,87 @@ import org.springframework.statemachine.transition.TransitionKind;
  */
 public class StateMachineState<S, E> extends AbstractState<S, E> {
 
+	private final Collection<S> ids;
+
 	/**
 	 * Instantiates a new state machine state.
 	 *
+	 * @param id the state identifier
 	 * @param submachine the submachine
 	 */
-	public StateMachineState(StateMachine<S, E> submachine) {
-		super(null, null, null, null, submachine);
+	public StateMachineState(S id, StateMachine<S, E> submachine) {
+		super(id, null, null, null, null, submachine);
+		this.ids = new ArrayList<S>();
+		this.ids.add(id);
 	}
 
 	/**
 	 * Instantiates a new state machine state.
 	 *
+	 * @param id the state identifier
 	 * @param submachine the submachine
 	 * @param deferred the deferred
 	 */
-	public StateMachineState(StateMachine<S, E> submachine, Collection<E> deferred) {
-		super(deferred, null, null, null, submachine);
+	public StateMachineState(S id, StateMachine<S, E> submachine, Collection<E> deferred) {
+		super(id, deferred, null, null, null, submachine);
+		this.ids = new ArrayList<S>();
+		this.ids.add(id);
 	}
 
 	/**
 	 * Instantiates a new state machine state.
 	 *
+	 * @param id the state identifier
 	 * @param submachine the submachine
 	 * @param pseudoState the pseudo state
 	 */
-	public StateMachineState(StateMachine<S, E> submachine, PseudoState pseudoState) {
-		super(null, null, null, pseudoState, submachine);
+	public StateMachineState(S id, StateMachine<S, E> submachine, PseudoState pseudoState) {
+		super(id, null, null, null, pseudoState, submachine);
+		this.ids = new ArrayList<S>();
+		this.ids.add(id);
 	}
 
 	/**
 	 * Instantiates a new state machine state.
 	 *
+	 * @param id the state identifier
 	 * @param submachine the submachine
 	 * @param deferred the deferred
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 * @param pseudoState the pseudo state
 	 */
-	public StateMachineState(StateMachine<S, E> submachine, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
+	public StateMachineState(S id, StateMachine<S, E> submachine, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions,
 			PseudoState pseudoState) {
-		super(deferred, entryActions, exitActions, pseudoState, submachine);
+		super(id, deferred, entryActions, exitActions, pseudoState, submachine);
+		this.ids = new ArrayList<S>();
+		this.ids.add(id);
 	}
 
 	/**
 	 * Instantiates a new state machine state.
 	 *
+	 * @param id the state identifier
 	 * @param submachine the submachine
 	 * @param deferred the deferred
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 */
-	public StateMachineState(StateMachine<S, E> submachine, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions) {
-		super(deferred, entryActions, exitActions, null, submachine);
+	public StateMachineState(S id, StateMachine<S, E> submachine, Collection<E> deferred, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions) {
+		super(id, deferred, entryActions, exitActions, null, submachine);
+		this.ids = new ArrayList<S>();
+		this.ids.add(id);
 	}
 
 	@Override
 	public Collection<S> getIds() {
+
+		Collection<S> ret = new ArrayList<S>(ids);
 		State<S, E> state = getSubmachine().getState();
 		if (state != null) {
-			return state.getIds();
-		} else {
-			return Collections.emptyList();
+			ret.addAll(state.getIds());
 		}
+		return ret;
 	}
 
 	@Override
@@ -137,8 +155,8 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 
 	@Override
 	public String toString() {
-		return "StateMachineState [getIds()=" + getIds() + ", getClass()=" + getClass() + ", hashCode()=" + hashCode()
-				+ ", toString()=" + super.toString() + "]";
+		return "StateMachineState [getIds()=" + getIds() + ", toString()=" + super.toString() + ", getClass()="
+				+ getClass() + "]";
 	}
 
 }

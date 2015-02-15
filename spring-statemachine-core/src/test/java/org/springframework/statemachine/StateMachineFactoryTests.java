@@ -41,7 +41,8 @@ public class StateMachineFactoryTests extends AbstractStateMachineTests {
 		EnumStateMachineFactory<TestStates, TestEvents> stateMachineFactory =
 				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINEFACTORY, EnumStateMachineFactory.class);
 		StateMachine<TestStates,TestEvents> machine = stateMachineFactory.getStateMachine();
-		
+		machine.start();
+
 		assertThat(machine.getState().getIds(), contains(TestStates.S1));
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
 		assertThat(machine.getState().getIds(), contains(TestStates.S2));

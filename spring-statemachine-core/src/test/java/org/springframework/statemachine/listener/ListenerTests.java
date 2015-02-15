@@ -45,7 +45,7 @@ import org.springframework.statemachine.state.State;
 
 /**
  * Tests for state machine listener functionality.
- * 
+ *
  * @author Janne Valkealahti
  *
  */
@@ -58,6 +58,7 @@ public class ListenerTests extends AbstractStateMachineTests {
 		@SuppressWarnings("unchecked")
 		EnumStateMachine<TestStates,TestEvents> machine =
 				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		machine.start();
 
 		TestStateMachineListener listener = new TestStateMachineListener();
 		machine.addStateListener(listener);

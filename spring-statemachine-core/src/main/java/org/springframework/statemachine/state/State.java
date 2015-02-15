@@ -55,6 +55,13 @@ public interface State<S, E> {
 	void entry(E event, StateContext<S, E> context);
 
 	/**
+	 * Gets the state identifier.
+	 *
+	 * @return the state identifiers
+	 */
+	S getId();
+
+	/**
 	 * Gets the state identifiers. Usually returned collection contains only one
 	 * identifier except in a case where state is an orthogonal.
 	 *

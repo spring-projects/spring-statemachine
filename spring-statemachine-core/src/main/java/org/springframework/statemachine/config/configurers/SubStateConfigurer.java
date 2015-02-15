@@ -16,25 +16,18 @@
 package org.springframework.statemachine.config.configurers;
 
 import java.util.Collection;
-import java.util.Set;
 
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerBuilder;
 
-public interface StateConfigurer<S, E> extends
+public interface SubStateConfigurer<S, E> extends
 		AnnotationConfigurerBuilder<StateMachineStateConfigurer<S, E>> {
 
-	StateConfigurer<S, E> initial(S initial);
+	SubStateConfigurer<S, E> initial(S initial);
 
-	StateConfigurer<S, E> state(S state);
+	SubStateConfigurer<S, E> entry(Collection<Action<S, E>> entryActions);
 
-	StateConfigurer<S, E> state(S state, Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions);
-
-	StateConfigurer<S, E> state(S state, E... deferred);
-
-	StateConfigurer<S, E> states(Set<S> states);
-
-	StateConfigurer<S, E> end(S end);
+	SubStateConfigurer<S, E> exit(Collection<Action<S, E>> exitActions);
 
 }

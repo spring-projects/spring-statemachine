@@ -42,7 +42,7 @@ public class EndStateTests extends AbstractStateMachineTests {
 	protected AnnotationConfigApplicationContext buildContext() {
 		return new AnnotationConfigApplicationContext();
 	}
-	
+
 	@Test
 	public void testEndStateCompletes() {
 		context.register(Config1.class);
@@ -51,6 +51,7 @@ public class EndStateTests extends AbstractStateMachineTests {
 		@SuppressWarnings("unchecked")
 		EnumStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		machine.start();
 		assertThat(machine, notNullValue());
 		assertThat(machine.isComplete(), is(false));
 		machine.sendEvent(TestEvents.E1);
