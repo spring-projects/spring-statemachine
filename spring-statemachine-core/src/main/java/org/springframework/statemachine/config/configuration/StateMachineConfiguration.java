@@ -16,12 +16,12 @@
 package org.springframework.statemachine.config.configuration;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.AnnotationAttributes;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -32,6 +32,7 @@ import org.springframework.statemachine.config.builders.StateMachineStates;
 import org.springframework.statemachine.config.builders.StateMachineTransitions;
 import org.springframework.statemachine.config.common.annotation.AbstractImportingAnnotationConfiguration;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurer;
+import org.springframework.util.ClassUtils;
 
 @Configuration
 public class StateMachineConfiguration<S extends Enum<S>, E extends Enum<E>> extends
@@ -40,44 +41,39 @@ public class StateMachineConfiguration<S extends Enum<S>, E extends Enum<E>> ext
 	private final StateMachineConfigBuilder<S, E> builder = new StateMachineConfigBuilder<S, E>();
 
 	@Override
-	protected BeanDefinition buildBeanDefinition(AnnotationMetadata importingClassMetadata) throws Exception {
-
-		Class<?> annotationType = getAnnotation();
-		AnnotationAttributes attributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(
-				annotationType.getName(), false));
-		String[] names = attributes.getStringArray("name");
-
-
+	protected BeanDefinition buildBeanDefinition(AnnotationMetadata importingClassMetadata,
+			Class<? extends Annotation> namedAnnotation) throws Exception {
 		BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(StateMachineDelegatingFactoryBean2.class);
 		beanDefinitionBuilder.addConstructorArgValue(builder);
 		beanDefinitionBuilder.addConstructorArgValue(StateMachine.class);
-		beanDefinitionBuilder.addConstructorArgValue(names);
+		beanDefinitionBuilder.addConstructorArgValue(importingClassMetadata.getClassName());
 		return beanDefinitionBuilder.getBeanDefinition();
 	}
 
 	@Override
-	protected Class<? extends Annotation> getAnnotation() {
-		return EnableStateMachine.class;
+	protected List<Class<? extends Annotation>> getAnnotations() {
+		List<Class<? extends Annotation>> types = new ArrayList<Class<? extends Annotation>>();
+		types.add(EnableStateMachine.class);
+		return types;
 	}
 
 	private static class StateMachineDelegatingFactoryBean2<S extends Enum<S>, E extends Enum<E>>
 		extends BeanDelegatingFactoryBean<StateMachine<S, E>,StateMachineConfigBuilder<S, E>,StateMachineConfig<S, E>> {
 
-		private final String[] beanNames;
+		private String clazzName;
 
-		public StateMachineDelegatingFactoryBean2(StateMachineConfigBuilder<S, E> builder, Class<StateMachine<S, E>> clazz, String[] beanNames) {
+		public StateMachineDelegatingFactoryBean2(StateMachineConfigBuilder<S, E> builder, Class<StateMachine<S, E>> clazz,
+				String clazzName) {
 			super(builder, clazz);
-			this.beanNames = beanNames;
+			this.clazzName = clazzName;
 		}
 
 		@Override
 		public void afterPropertiesSet() throws Exception {
 			for (AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>> configurer : getConfigurers()) {
 				Class<?> clazz = configurer.getClass();
-				EnableStateMachine findAnnotation = AnnotationUtils.findAnnotation(clazz, EnableStateMachine.class);
-				String[] annonames = findAnnotation.name();
-				if (beanNames[0].equals(annonames[0])) {
+				if (ClassUtils.getUserClass(clazz).getName().equals(clazzName)) {
 					getBuilder().apply(configurer);
 				}
 			}

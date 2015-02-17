@@ -1,6 +1,7 @@
 package org.springframework.statemachine.config.configuration;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.BeansException;
@@ -30,16 +31,20 @@ public class StateMachineFactoryConfiguration<S extends Enum<S>, E extends Enum<
 	private final StateMachineConfigBuilder<S, E> builder = new StateMachineConfigBuilder<S, E>();
 
 	@Override
-	protected BeanDefinition buildBeanDefinition(AnnotationMetadata importingClassMetadata) throws Exception {
+	protected BeanDefinition buildBeanDefinition(AnnotationMetadata importingClassMetadata,
+			Class<? extends Annotation> namedAnnotation) throws Exception {
 		BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(StateMachineFactoryDelegatingFactoryBean.class);
 		beanDefinitionBuilder.addConstructorArgValue(builder);
 		return beanDefinitionBuilder.getBeanDefinition();
 	}
 
+
 	@Override
-	protected Class<? extends Annotation> getAnnotation() {
-		return EnableStateMachineFactory.class;
+	protected List<Class<? extends Annotation>> getAnnotations() {
+		List<Class<? extends Annotation>> types = new ArrayList<Class<? extends Annotation>>();
+		types.add(EnableStateMachineFactory.class);
+		return types;
 	}
 
 	private static class StateMachineFactoryDelegatingFactoryBean<S extends Enum<S>, E extends Enum<E>> implements

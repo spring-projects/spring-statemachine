@@ -16,6 +16,8 @@
 package org.springframework.statemachine.config.common.annotation.simple;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -30,7 +32,8 @@ public class SimpleTestConfiguration2 extends AbstractImportingAnnotationConfigu
 	private final SimpleTestConfigBuilder builder = new SimpleTestConfigBuilder();
 
 	@Override
-	protected BeanDefinition buildBeanDefinition(AnnotationMetadata importingClassMetadata) throws Exception {
+	protected BeanDefinition buildBeanDefinition(AnnotationMetadata importingClassMetadata,
+			Class<? extends Annotation> namedAnnotation) throws Exception {
 		BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(SimpleTestConfigDelegatingFactoryBean.class);
 		beanDefinitionBuilder.addConstructorArgValue(builder);
@@ -38,8 +41,10 @@ public class SimpleTestConfiguration2 extends AbstractImportingAnnotationConfigu
 	}
 
 	@Override
-	protected Class<? extends Annotation> getAnnotation() {
-		return EnableSimpleTest2.class;
+	protected List<Class<? extends Annotation>> getAnnotations() {
+		List<Class<? extends Annotation>> types = new ArrayList<Class<? extends Annotation>>();
+		types.add(EnableSimpleTest2.class);
+		return types;
 	}
 
 	private static class SimpleTestConfigDelegatingFactoryBean extends BeanDelegatingFactoryBean<SimpleTestConfig, SimpleTestConfigBuilder, SimpleTestConfig> {

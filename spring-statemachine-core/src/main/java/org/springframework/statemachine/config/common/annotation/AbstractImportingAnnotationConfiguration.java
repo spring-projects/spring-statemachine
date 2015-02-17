@@ -58,14 +58,24 @@ public abstract class AbstractImportingAnnotationConfiguration<B extends Annotat
 
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-		Class<?> annotationType = getAnnotation();
-		AnnotationAttributes attributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(
-				annotationType.getName(), false));
-		String[] names = attributes.getStringArray("name");
+		List<Class<? extends Annotation>> annotationTypes = getAnnotations();
+		Class<? extends Annotation> namedAnnotation = null;
+		String[] names = null;
+		if (annotationTypes != null) {
+			for (Class<? extends Annotation> annotationType : annotationTypes) {
+				AnnotationAttributes attributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(
+						annotationType.getName(), false));
+				if (attributes != null && attributes.containsKey("name")) {
+					names = attributes.getStringArray("name");
+					namedAnnotation = annotationType;
+					break;
+				}
+			}
+		}
 
 		BeanDefinition beanDefinition;
 		try {
-			beanDefinition = buildBeanDefinition(importingClassMetadata);
+			beanDefinition = buildBeanDefinition(importingClassMetadata, namedAnnotation);
 		} catch (Exception e) {
 			throw new RuntimeException("Error with onConfigurers", e);
 		}
@@ -98,17 +108,20 @@ public abstract class AbstractImportingAnnotationConfiguration<B extends Annotat
 	/**
 	 * Called to get a bean definition to register.
 	 *
+	 * @param importingClassMetadata annotation metadata of the importing class
+	 * @param namedAnnotation found annotations for bean names
 	 * @return the bean definition to register
 	 * @throws Exception if error occurred
 	 */
-	protected abstract BeanDefinition buildBeanDefinition(AnnotationMetadata importingClassMetadata) throws Exception;
+	protected abstract BeanDefinition buildBeanDefinition(AnnotationMetadata importingClassMetadata,
+			Class<? extends Annotation> namedAnnotation) throws Exception;
 
 	/**
-	 * Gets the annotation specific for this configurer.
+	 * Gets the annotations specific for this configurer.
 	 *
-	 * @return the annotation
+	 * @return the annotations
 	 */
-	protected abstract Class<? extends Annotation> getAnnotation();
+	protected abstract List<Class<? extends Annotation>> getAnnotations();
 
 	/**
 	 * Gets the bean factory.
