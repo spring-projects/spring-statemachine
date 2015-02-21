@@ -66,4 +66,22 @@ public class TreeTests {
 		}
 	}
 
+	@Test
+	public void testTree3() {
+		Tree<String> tree = new Tree<String>();
+		tree.add("S1", "S1", null);
+		tree.add("S2", "S2", null);
+
+		TreeTraverser<Node<String>> traverser = new TreeTraverser<Node<String>>() {
+		    @Override
+		    public Iterable<Node<String>> children(Node<String> root) {
+		        return root.getChildren();
+		    }
+		};
+
+		for (Node<String> node : traverser.postOrderTraversal(tree.getRoot())) {
+			System.out.println(node.getData());
+		}
+	}
+
 }

@@ -23,6 +23,8 @@ import java.util.Map;
 
 /**
  * Utility class which can be used to represent a tree based data structure.
+ * This tree utility is not very generic and needs to be used as it's meant to
+ * be.
  *
  * @author Janne Valkealahti
  *
@@ -30,12 +32,9 @@ import java.util.Map;
  */
 public class Tree<T> {
 
-	private Node<T> root;
+	private final Node<T> root = new Node<T>(null);
 	private final Map<Object, Node<T>> map = new HashMap<Object, Node<T>>();
 	private final List<DataWrap<T>> notMapped = new ArrayList<DataWrap<T>>();
-
-	public Tree() {
-	}
 
 	public Node<T> getRoot() {
 		return root;
@@ -54,7 +53,7 @@ public class Tree<T> {
 			if (next.parent == null) {
 				Node<T> n = new Node<T>(next.data);
 				map.put(next.id, n);
-				root = n;
+				root.getChildren().add(n);
 				iter.remove();
 			} else {
 				if (map.containsKey(next.parent)) {

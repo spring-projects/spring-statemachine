@@ -380,19 +380,19 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		@Override
 		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
 			states
-				.withSubStates(TestStates.S1, null)
-//					.initial(TestStates.S11)
-					.entry(Arrays.asList(entryActionS1()))
-					.exit(Arrays.asList(exitActionS1()))
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S1, Arrays.asList(entryActionS1()), Arrays.asList(exitActionS1()))
 					.and()
-				.withSubStates(TestStates.S11, TestStates.S1)
-//					.initial(TestStates.S111)
-					.entry(Arrays.asList(entryActionS11()))
-					.exit(Arrays.asList(exitActionS11()))
-					.and()
-				.withStates(TestStates.S11)
-					.initial(TestStates.S111)
-					.state(TestStates.S111, Arrays.asList(entryActionS111()), Arrays.asList(exitActionS111()));
+					.withStates()
+						.parent(TestStates.S1)
+						.initial(TestStates.S11)
+						.state(TestStates.S11, Arrays.asList(entryActionS11()), Arrays.asList(exitActionS11()))
+						.and()
+						.withStates()
+							.parent(TestStates.S11)
+							.initial(TestStates.S111)
+							.state(TestStates.S111, Arrays.asList(entryActionS111()), Arrays.asList(exitActionS111()));
 		}
 
 		@Override

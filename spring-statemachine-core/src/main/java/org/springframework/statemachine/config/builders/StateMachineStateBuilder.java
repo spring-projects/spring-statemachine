@@ -15,19 +15,15 @@
  */
 package org.springframework.statemachine.config.builders;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.springframework.statemachine.config.builders.StateMachineStates.StateData;
-import org.springframework.statemachine.config.builders.StateMachineStates.StateMachineStatesData;
+import org.springframework.statemachine.config.StateData;
 import org.springframework.statemachine.config.common.annotation.AbstractConfiguredAnnotationBuilder;
 import org.springframework.statemachine.config.common.annotation.AnnotationBuilder;
 import org.springframework.statemachine.config.common.annotation.ObjectPostProcessor;
 import org.springframework.statemachine.config.configurers.DefaultStateConfigurer;
-import org.springframework.statemachine.config.configurers.DefaultSubStateConfigurer;
 import org.springframework.statemachine.config.configurers.StateConfigurer;
-import org.springframework.statemachine.config.configurers.SubStateConfigurer;
 
 /**
  * {@link AnnotationBuilder} for {@link StateMachineStates}.
@@ -41,7 +37,7 @@ public class StateMachineStateBuilder<S, E>
 		extends AbstractConfiguredAnnotationBuilder<StateMachineStates<S, E>, StateMachineStateConfigurer<S, E>, StateMachineStateBuilder<S, E>>
 		implements StateMachineStateConfigurer<S, E> {
 
-	private final Map<Object, StateMachineStatesData<S, E>> data = new HashMap<Object, StateMachineStatesData<S,E>>();
+	private final Collection<StateData<S, E>> stateDatas = new ArrayList<StateData<S,E>>();
 
 	public StateMachineStateBuilder() {
 		super();
@@ -58,26 +54,16 @@ public class StateMachineStateBuilder<S, E>
 
 	@Override
 	protected StateMachineStates<S, E> performBuild() throws Exception {
-		return new StateMachineStates<S, E>(data);
+		return new StateMachineStates<S, E>(stateDatas);
 	}
 
 	@Override
 	public StateConfigurer<S, E> withStates() throws Exception {
-		return apply(new DefaultStateConfigurer<S, E>(null, null));
+		return apply(new DefaultStateConfigurer<S, E>());
 	}
 
-	@Override
-	public StateConfigurer<S, E> withStates(Object parent) throws Exception {
-		return apply(new DefaultStateConfigurer<S, E>(null, parent));
-	}
-
-	@Override
-	public SubStateConfigurer<S, E> withSubStates(S state, Object parent) throws Exception {
-		return apply(new DefaultSubStateConfigurer<S, E>(state, state, parent));
-	}
-
-	public void add(Object id, Object parent, Collection<StateData<S, E>> states, S initialState, S endState) {
-		data.put(id, new StateMachineStatesData<S, E>(states, initialState, endState, parent));
+	public void addStateData(Collection<StateData<S, E>> stateDatas) {
+		this.stateDatas.addAll(stateDatas);
 	}
 
 }

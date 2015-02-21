@@ -27,6 +27,8 @@ public interface StateConfigurer<S, E> extends
 
 	StateConfigurer<S, E> initial(S initial);
 
+	StateConfigurer<S, E> parent(S state);
+
 	StateConfigurer<S, E> state(S state);
 
 	StateConfigurer<S, E> state(S state, Collection<? extends Action<S, E>> entryActions,

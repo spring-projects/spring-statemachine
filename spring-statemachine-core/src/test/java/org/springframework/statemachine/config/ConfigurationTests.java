@@ -170,13 +170,17 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		@Override
 		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
 			states
-				.withSubStates(TestStates.S1, null)
+				.withStates()
 					.initial(TestStates.S1)
+					.state(TestStates.S1)
 					.and()
-				.withStates(TestStates.S1)
-					.initial(TestStates.S1)
-					.end(TestStates.SF)
-					.states(EnumSet.allOf(TestStates.class));
+					.withStates()
+						.parent(TestStates.S1)
+						.initial(TestStates.S2)
+						.end(TestStates.SF)
+						.state(TestStates.SI)
+						.state(TestStates.S2)
+						.state(TestStates.S3);
 		}
 
 		@Override
@@ -212,13 +216,14 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 			Collection<Action<TestStates, TestEvents>> actions3 = new ArrayList<Action<TestStates,TestEvents>>();
 			actions3.add(action3());
 			states
-				.withSubStates(TestStates.S11, null)
-					.entry(actions1)
-					.exit(Arrays.asList(action2()))
+				.withStates()
+					.initial(TestStates.S11)
+					.state(TestStates.S11, actions1, Arrays.asList(action2()))
 					.and()
-				.withStates(TestStates.S11)
-					.initial(TestStates.S111)
-					.state(TestStates.S111, actions3, Arrays.asList(action4()));
+					.withStates()
+						.parent(TestStates.S11)
+						.initial(TestStates.S111)
+						.state(TestStates.S111, actions3, Arrays.asList(action4()));
 		}
 
 		@Override
@@ -244,6 +249,105 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 
 		public TestExitAction action4() {
 			return new TestExitAction();
+		}
+
+	}
+/*
+//              +-----------------------------------------------------------------------------------------------------------------+
+//              |                                                       SM                                                        |
+//              +-----------------------------------------------------------------------------------------------------------------+
+//              |                                                        |                                                        |
+//              |       +---------------------------------------+        |       +---------------------------------------+        |
+//              |   *-->|                    S10                |        |   *-->|                    S20                |        |
+//              |       +---------------------------------------+        |       +---------------------------------------+        |
+//              |       | entry/                                |        |       | entry/                                |        |
+//              |       | exit/                                 |        |       | exit/                                 |        |
+//              |       |        +--------------------------+   |        |       |        +--------------------------+   |        |
+//              |       |    *-->|           S101           |   |        |       |    *-->|           S201           |   |        |
+//              |       |        +--------------------------+   |        |       |        +--------------------------+   |        |
+//              |       |        | entry/                   |   |        |       |        | entry/                   |   |        |
+//              |       |        | exit/                    |   |        |       |        | exit/                    |   |        |
+//              |       |        |        +-----------+     |   |        |       |        |        +-----------+     |   |        |
+//              |       |        |    *-->|   S1011   |     |   |        |       |        |    *-->|   S2011   |     |   |        |
+//              |       |        |        +-----------+     |   |        |       |        |        +-----------+     |   |        |
+//              |       |        |        | entry/    |     |   |        |       |        |        | entry/    |     |   |        |
+//              |       |        |        | exit/     |     |   |        |       |        |        | exit/     |     |   |        |
+//              |       |        |        |           |     |   |        |       |        |        |           |     |   |        |
+//              |       |        |        +-----------+     |   |        |       |        |        +-----------+     |   |        |
+//              |       |        |                          |   |        |       |        |                          |   |        |
+//              |       |        |                          |   |        |       |        |                          |   |        |
+//              |       |        |                          |   |        |       |        |                          |   |        |
+//              |       |        |        +-----------+     |   |        |       |        |        +-----------+     |   |        |
+//              |       |        |        |   S1012   |     |   |        |       |        |        |   S2012   |     |   |        |
+//              |       |        |        +-----------+     |   |        |       |        |        +-----------+     |   |        |
+//              |       |        |        | entry/    |     |   |        |       |        |        | entry/    |     |   |        |
+//              |       |        |        | exit/     |     |   |        |       |        |        | exit/     |     |   |        |
+//              |       |        |        |           |     |   |        |       |        |        |           |     |   |        |
+//              |       |        |        +-----------+     |   |        |       |        |        +-----------+     |   |        |
+//              |       |        |                          |   |        |       |        |                          |   |        |
+//              |       |        +--------------------------+   |        |       |        +--------------------------+   |        |
+//              |       |                                       |        |       |                                       |        |
+//              |       |                                       |        |       |                                       |        |
+//              |       +---------------------------------------+        |       +---------------------------------------+        |
+//              |                                                        |                                                        |
+//              |       +---------------------------------------+        |       +---------------------------------------+        |
+//              |       |                    S11                |        |       |                    S21                |        |
+//              |       +---------------------------------------+        |       +---------------------------------------+        |
+//              |       |  entry/                               |        |       |  entry/                               |        |
+//              |       |  exit/                                |        |       |  exit/                                |        |
+//              |       |                                       |        |       |                                       |        |
+//              |       +---------------------------------------+        |       +---------------------------------------+        |
+//              |                                                        |                                                        |
+//              +--------------------------------------------------------+--------------------------------------------------------+
+ */
+
+	@Configuration
+	@EnableStateMachine
+	static class Config6 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+			.withStates()
+				.initial(TestStates.S10)
+				.state(TestStates.S10)
+				.state(TestStates.S11)
+				.and()
+				.withStates()
+					.parent(TestStates.S10)
+					.initial(TestStates.S101)
+					.state(TestStates.S101)
+					.and()
+					.withStates()
+						.parent(TestStates.S101)
+						.initial(TestStates.S1011)
+						.state(TestStates.S1011)
+						.state(TestStates.S1012)
+						.and()
+			.withStates()
+				.initial(TestStates.S20)
+				.state(TestStates.S20)
+				.state(TestStates.S21)
+				.and()
+				.withStates()
+					.parent(TestStates.S20)
+					.initial(TestStates.S201)
+					.state(TestStates.S201)
+					.and()
+					.withStates()
+						.parent(TestStates.S201)
+						.initial(TestStates.S2011)
+						.state(TestStates.S2011)
+						.state(TestStates.S2012);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S111)
+					.target(TestStates.S1)
+					.event(TestEvents.E1);
 		}
 
 	}
