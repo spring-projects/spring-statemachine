@@ -32,7 +32,7 @@ import org.springframework.statemachine.transition.TransitionKind;
 
 /**
  * Default implementation of a {@link ExternalTransitionConfigurer}.
- * 
+ *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
@@ -46,15 +46,17 @@ public class DefaultExternalTransitionConfigurer<S, E>
 
 	private S target;
 
+	private S state;
+
 	private E event;
 
 	private Collection<Action<S, E>> actions = new ArrayList<Action<S, E>>();
-	
+
 	private Guard<S, E> guard;
 
 	@Override
 	public void configure(StateMachineTransitionBuilder<S, E> builder) throws Exception {
-		builder.add(source, target, event, actions, guard, TransitionKind.EXTERNAL);
+		builder.add(source, target, state, event, actions, guard, TransitionKind.EXTERNAL);
 	}
 
 	@Override
@@ -70,6 +72,12 @@ public class DefaultExternalTransitionConfigurer<S, E>
 	}
 
 	@Override
+	public ExternalTransitionConfigurer<S, E> state(S state) {
+		this.state = state;
+		return this;
+	}
+
+	@Override
 	public ExternalTransitionConfigurer<S, E> event(E event) {
 		this.event = event;
 		return this;
@@ -80,13 +88,13 @@ public class DefaultExternalTransitionConfigurer<S, E>
 		actions.add(action);
 		return this;
 	}
-	
+
 	@Override
 	public ExternalTransitionConfigurer<S, E> guard(Guard<S, E> guard) {
 		this.guard = guard;
 		return this;
 	}
-	
+
 	@Override
 	public ExternalTransitionConfigurer<S, E> guardExpression(String expression) {
 		SpelExpressionParser parser = new SpelExpressionParser(

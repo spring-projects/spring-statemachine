@@ -157,9 +157,9 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	}
 
 	@Override
-	public void sendEvent(Message<E> event) {
+	public boolean sendEvent(Message<E> event) {
 		if (isComplete()) {
-			return;
+			return false;
 		}
 		// TODO: machine header looks weird!
 		event = MessageBuilder.fromMessage(event).setHeader("machine", this).build();
@@ -167,18 +167,14 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			log.debug("Queue event " + event);
 		}
 
-		// TODO: should not do here
-		if (currentState != null) {
-			currentState.sendEvent(event);
-		}
-
-		eventQueue.add(event);
+		boolean accepted = acceptEvent(event);
 		scheduleEventQueueProcessing();
+		return accepted;
 	}
 
 	@Override
-	public void sendEvent(E event) {
-		sendEvent(MessageBuilder.withPayload(event).build());
+	public boolean sendEvent(E event) {
+		return sendEvent(MessageBuilder.withPayload(event).build());
 	}
 
 	@Override
@@ -226,6 +222,36 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	@Override
 	public Collection<Transition<S, E>> getTransitions() {
 		return transitions;
+	}
+
+	protected boolean acceptEvent(Message<E> event) {
+
+		boolean accepted = currentState.sendEvent(event);
+		if (accepted) {
+			return true;
+		}
+
+		Message<E> defer = null;
+		for (Transition<S,E> transition : transitions) {
+			State<S,E> source = transition.getSource();
+			Trigger<S, E> trigger = transition.getTrigger();
+
+			if (StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
+				if (trigger != null && trigger.evaluate(event.getPayload())) {
+					eventQueue.add(event);
+					return true;
+				} else if (source.getDeferredEvents() != null && source.getDeferredEvents().contains(event.getPayload())) {
+					defer = event;
+				}
+			}
+		}
+		if (defer != null) {
+			log.info("Deferring event " + defer);
+			deferList.addLast(defer);
+			return true;
+		}
+
+		return false;
 	}
 
 	private void switchToState(State<S,E> state, Message<E> event, Transition<S,E> transition) {

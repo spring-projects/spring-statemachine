@@ -36,13 +36,15 @@ public class StateMachineTransitions<S, E> {
 	public static class TransitionData<S, E> {
 		S source;
 		S target;
+		S state;
 		E event;
 		Collection<Action<S, E>> actions;
 		Guard<S, E> guard;
 		TransitionKind kind;
-		public TransitionData(S source, S target, E event, Collection<Action<S, E>> actions, Guard<S, E> guard, TransitionKind kind) {
+		public TransitionData(S source, S target, S state, E event, Collection<Action<S, E>> actions, Guard<S, E> guard, TransitionKind kind) {
 			this.source = source;
 			this.target = target;
+			this.state = state;
 			this.event = event;
 			this.actions = actions;
 			this.guard = guard;
@@ -53,6 +55,9 @@ public class StateMachineTransitions<S, E> {
 		}
 		public S getTarget() {
 			return target;
+		}
+		public S getState() {
+			return state;
 		}
 		public E getEvent() {
 			return event;

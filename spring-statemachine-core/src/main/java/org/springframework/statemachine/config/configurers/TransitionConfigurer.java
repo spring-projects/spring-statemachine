@@ -23,7 +23,7 @@ import org.springframework.statemachine.transition.Transition;
 
 /**
  * Base {@code TransitionConfigurer} interface for configuring {@link Transition}s.
- * 
+ *
  * @author Janne Valkealahti
  *
  * @param <T> the type of a transition configurer
@@ -41,9 +41,11 @@ public interface TransitionConfigurer<T, S, E> extends
 	 */
 	T source(S source);
 
+	T state(S state);
+
 	/**
 	 * Specify event {@code E} for this {@link Transition}.
-	 * 
+	 *
 	 * @param event the event for transition
 	 * @return configurer for chaining
 	 */
@@ -51,7 +53,7 @@ public interface TransitionConfigurer<T, S, E> extends
 
 	/**
 	 * Specify {@link Action} for this {@link Transition}.
-	 * 
+	 *
 	 * @param action the action
 	 * @return configurer for chaining
 	 */
@@ -59,7 +61,7 @@ public interface TransitionConfigurer<T, S, E> extends
 
 	/**
 	 * Specify a {@link Guard} for this {@link Transition}.
-	 * 
+	 *
 	 * @param guard the guard
 	 * @return configurer for chaining
 	 */
@@ -67,7 +69,7 @@ public interface TransitionConfigurer<T, S, E> extends
 
 	/**
 	 * Specify a {@link Guard} backed by a SpEL expression for this {@link Transition}.
-	 * 
+	 *
 	 * @param expression the SpEL expression
 	 * @return configurer for chaining
 	 */

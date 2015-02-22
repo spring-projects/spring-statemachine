@@ -32,7 +32,7 @@ import org.springframework.statemachine.transition.TransitionKind;
 
 /**
  * Default implementation of a {@link LocalTransitionConfigurer}.
- * 
+ *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
@@ -46,15 +46,17 @@ public class DefaultLocalTransitionConfigurer<S, E>
 
 	private S target;
 
+	private S state;
+
 	private E event;
 
 	private Collection<Action<S, E>> actions = new ArrayList<Action<S, E>>();
-	
+
 	private Guard<S, E> guard;
 
 	@Override
 	public void configure(StateMachineTransitionBuilder<S, E> builder) throws Exception {
-		builder.add(source, target, event, actions, guard, TransitionKind.LOCAL);
+		builder.add(source, target, state, event, actions, guard, TransitionKind.LOCAL);
 	}
 
 	@Override
@@ -70,6 +72,12 @@ public class DefaultLocalTransitionConfigurer<S, E>
 	}
 
 	@Override
+	public LocalTransitionConfigurer<S, E> state(S state) {
+		this.state = state;
+		return this;
+	}
+
+	@Override
 	public LocalTransitionConfigurer<S, E> event(E event) {
 		this.event = event;
 		return this;
@@ -80,13 +88,13 @@ public class DefaultLocalTransitionConfigurer<S, E>
 		actions.add(action);
 		return this;
 	}
-	
+
 	@Override
 	public LocalTransitionConfigurer<S, E> guard(Guard<S, E> guard) {
 		this.guard = guard;
 		return this;
 	}
-	
+
 	@Override
 	public LocalTransitionConfigurer<S, E> guardExpression(String expression) {
 		SpelExpressionParser parser = new SpelExpressionParser(

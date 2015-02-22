@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
@@ -98,7 +99,13 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 		// use two stack, first for states and second for machines
 		Stack<StateMachine<S, E>> machineStack = new Stack<StateMachine<S, E>>();
 		Stack<StateData<S, E>> stateStack = new Stack<StateData<S, E>>();
-		for (Node<StateData<S, E>> node : traverser.postOrderTraversal(tree.getRoot())) {
+
+		Iterable<Node<StateData<S, E>>> postOrderTraversal = traverser.postOrderTraversal(tree.getRoot());
+		Iterator<Node<StateData<S, E>>> iterator = postOrderTraversal.iterator();
+
+
+		while (iterator.hasNext()) {
+			Node<StateData<S, E>> node = iterator.next();
 			StateData<S, E> stateData = node.getData();
 			if (stateStack.isEmpty()) {
 				stateStack.push(stateData);
@@ -114,12 +121,20 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 						stateDatas.add(next);
 					}
 					stateStack.clear();
+
+					Collection<TransitionData<S, E>> transitionsData = null;
+					if (iterator.hasNext()) {
+						transitionsData = resolveTransitionData(stateMachineTransitions.getTransitions(), stateDatas);
+					} else {
+						transitionsData = resolveTransitionData2(stateMachineTransitions.getTransitions());
+					}
+
 					if (machineStack.isEmpty()) {
-						machine = buildSimpleMachinexxx(stateMap, stateDatas, stateMachineTransitions, getBeanFactory());
+						machine = buildSimpleMachine(stateMap, stateDatas, transitionsData, getBeanFactory());
 						machineStack.push(machine);
 					} else {
 						StateMachine<S, E> pop = machineStack.pop();
-						machine = buildSubMachinexxx(stateMap, pop, stateDatas, stateMachineTransitions, getBeanFactory());
+						machine = buildSubMachine(stateMap, pop, stateDatas, transitionsData, getBeanFactory());
 						machineStack.push(machine);
 					}
 					stateStack.push(stateData);
@@ -129,9 +144,37 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 		return machine;
 	}
 
-	private static <S extends Enum<S>, E extends Enum<E>> StateMachine<S, E> buildSimpleMachinexxx(
+	private Collection<TransitionData<S, E>> resolveTransitionData(Collection<TransitionData<S, E>> in, Collection<StateData<S, E>> stateDatas) {
+		ArrayList<TransitionData<S, E>> out = new ArrayList<TransitionData<S,E>>();
+
+		Collection<Object> states = new ArrayList<Object>();
+		for (StateData<S, E> stateData : stateDatas) {
+			states.add(stateData.getParent());
+		}
+
+		for (TransitionData<S, E> transitionData : in) {
+			S state = transitionData.getState();
+			if (state != null && states.contains(state)) {
+				out.add(transitionData);
+			}
+		}
+
+		return out;
+	}
+
+	private Collection<TransitionData<S, E>> resolveTransitionData2(Collection<TransitionData<S, E>> in) {
+		ArrayList<TransitionData<S, E>> out = new ArrayList<TransitionData<S,E>>();
+		for (TransitionData<S, E> transitionData : in) {
+			if (transitionData.getState() == null) {
+				out.add(transitionData);
+			}
+		}
+		return out;
+	}
+
+	private static <S extends Enum<S>, E extends Enum<E>> StateMachine<S, E> buildSimpleMachine(
 			Map<S, State<S, E>> stateMap, Collection<StateData<S, E>> stateDatas,
-			StateMachineTransitions<S, E> transitionsData, BeanFactory beanFactory) {
+			Collection<TransitionData<S, E>> transitionsData, BeanFactory beanFactory) {
 		State<S, E> initialState = null;
 		State<S, E> endState = null;
 		for (StateData<S, E> stateData : stateDatas) {
@@ -153,7 +196,7 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 		}
 
 		Collection<Transition<S, E>> transitions = new ArrayList<Transition<S, E>>();
-		for (TransitionData<S, E> transitionData : transitionsData.getTransitions()) {
+		for (TransitionData<S, E> transitionData : transitionsData) {
 			S source = transitionData.getSource();
 			S target = transitionData.getTarget();
 			E event = transitionData.getEvent();
@@ -178,9 +221,9 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 		return machine;
 	}
 
-	private static <S extends Enum<S>, E extends Enum<E>> StateMachine<S, E> buildSubMachinexxx(
+	private static <S extends Enum<S>, E extends Enum<E>> StateMachine<S, E> buildSubMachine(
 			Map<S, State<S, E>> stateMap, StateMachine<S, E> submachine, Collection<StateData<S, E>> stateDatas,
-			StateMachineTransitions<S, E> transitionsData, BeanFactory beanFactory) {
+			Collection<TransitionData<S, E>> transitionsData, BeanFactory beanFactory) {
 		Collection<State<S, E>> states = new ArrayList<State<S,E>>();
 		State<S, E> state = null;
 		for (StateData<S, E> stateData : stateDatas) {
@@ -192,7 +235,7 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 		}
 
 		Collection<Transition<S, E>> transitions = new ArrayList<Transition<S, E>>();
-		for (TransitionData<S, E> transitionData : transitionsData.getTransitions()) {
+		for (TransitionData<S, E> transitionData : transitionsData) {
 			S source = transitionData.getSource();
 			S target = transitionData.getTarget();
 			E event = transitionData.getEvent();

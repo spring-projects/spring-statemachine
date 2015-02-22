@@ -32,7 +32,7 @@ import org.springframework.statemachine.transition.TransitionKind;
 
 /**
  * Default implementation of a {@link InternalTransitionConfigurer}.
- * 
+ *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
@@ -46,20 +46,28 @@ public class DefaultInternalTransitionConfigurer<S, E>
 
 	private S target;
 
+	private S state;
+
 	private E event;
 
 	private Collection<Action<S, E>> actions = new ArrayList<Action<S, E>>();
-	
+
 	private Guard<S, E> guard;
 
 	@Override
 	public void configure(StateMachineTransitionBuilder<S, E> builder) throws Exception {
-		builder.add(source, target, event, actions, guard, TransitionKind.INTERNAL);
+		builder.add(source, target, state, event, actions, guard, TransitionKind.INTERNAL);
 	}
 
 	@Override
 	public InternalTransitionConfigurer<S, E> source(S source) {
 		this.source = source;
+		return this;
+	}
+
+	@Override
+	public InternalTransitionConfigurer<S, E> state(S state) {
+		this.state = state;
 		return this;
 	}
 
@@ -74,13 +82,13 @@ public class DefaultInternalTransitionConfigurer<S, E>
 		actions.add(action);
 		return this;
 	}
-	
+
 	@Override
 	public InternalTransitionConfigurer<S, E> guard(Guard<S, E> guard) {
 		this.guard = guard;
 		return this;
 	}
-	
+
 	@Override
 	public InternalTransitionConfigurer<S, E> guardExpression(String expression) {
 		SpelExpressionParser parser = new SpelExpressionParser(

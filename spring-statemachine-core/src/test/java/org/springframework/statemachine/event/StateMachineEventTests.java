@@ -16,6 +16,7 @@
 package org.springframework.statemachine.event;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -74,6 +75,22 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 		assertThat(listener.events.size(), is(6));
 	}
 
+	@Test
+	public void testSubmachineHandlesEvent() throws Exception {
+		context.register(BaseConfig.class, StateMachineEventPublisherConfiguration.class, Config2.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		@SuppressWarnings("unchecked")
+		EnumStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		machine.start();
+		assertThat(machine, notNullValue());
+
+		assertThat(machine.getState().getIds(), contains(TestStates.S1, TestStates.S10));
+		machine.sendEvent(TestEvents.E1);
+		assertThat(machine.getState().getIds(), contains(TestStates.S1, TestStates.S12));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
@@ -119,6 +136,49 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 		@Bean
 		public TestEventListener testEventListener() {
 			return new TestEventListener();
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config2 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S1)
+					.and()
+					.withStates()
+						.parent(TestStates.S1)
+						.initial(TestStates.S10)
+						.state(TestStates.S10)
+						.state(TestStates.S11)
+						.state(TestStates.S12)
+						.state(TestStates.S13);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S10)
+					.target(TestStates.S11)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.state(TestStates.S1)
+					.source(TestStates.S10)
+					.target(TestStates.S12)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.state(TestStates.S1)
+					.source(TestStates.S10)
+					.target(TestStates.S13)
+					.event(TestEvents.E2);
 		}
 
 	}

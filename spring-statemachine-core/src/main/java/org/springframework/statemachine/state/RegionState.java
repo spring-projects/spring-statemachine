@@ -94,12 +94,14 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 	}
 
 	@Override
-	public void sendEvent(Message<E> event) {
+	public boolean sendEvent(Message<E> event) {
 		if (getRegions() != null) {
 			for (Region<S, E> r : getRegions()) {
 				r.sendEvent(event);
 			}
+			return true;
 		}
+		return false;
 	}
 
 	@Override

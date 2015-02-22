@@ -18,6 +18,7 @@ package org.springframework.statemachine.state;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
@@ -142,6 +143,15 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 		} else {
 			getSubmachine().getState().entry(event, context);
 		}
+	}
+
+	@Override
+	public boolean sendEvent(Message<E> event) {
+		StateMachine<S, E> machine = getSubmachine();
+		if (machine != null) {
+			return machine.sendEvent(event);
+		}
+		return super.sendEvent(event);
 	}
 
 	private boolean isLocal(StateContext<S, E> context) {

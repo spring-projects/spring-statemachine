@@ -146,7 +146,8 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	}
 
 	@Override
-	public void sendEvent(Message<E> event) {
+	public boolean sendEvent(Message<E> event) {
+		return false;
 	}
 
 	@Override

@@ -35,8 +35,9 @@ public interface State<S, E> {
 	 * Send an event {@code E} wrapped with a {@link Message} to the state.
 	 *
 	 * @param event the wrapped event to send
+	 * @return true if event was accepted
 	 */
-	void sendEvent(Message<E> event);
+	boolean sendEvent(Message<E> event);
 
 	/**
 	 * Initiate an exit sequence for the state.

@@ -61,19 +61,19 @@ public class StateMachineTransitionBuilder<S, E>
 	public ExternalTransitionConfigurer<S, E> withExternal() throws Exception {
 		return apply(new DefaultExternalTransitionConfigurer<S, E>());
 	}
-	
+
 	@Override
 	public InternalTransitionConfigurer<S, E> withInternal() throws Exception {
 		return apply(new DefaultInternalTransitionConfigurer<S, E>());
 	}
-	
+
 	@Override
 	public LocalTransitionConfigurer<S, E> withLocal() throws Exception {
 		return apply(new DefaultLocalTransitionConfigurer<S, E>());
 	}
 
-	public void add(S source, S target, E event, Collection<Action<S, E>> actions, Guard<S, E> guard, TransitionKind kind) {
-		transitionData.add(new TransitionData<S, E>(source, target, event, actions, guard, kind));
+	public void add(S source, S target, S state, E event, Collection<Action<S, E>> actions, Guard<S, E> guard, TransitionKind kind) {
+		transitionData.add(new TransitionData<S, E>(source, target, state, event, actions, guard, kind));
 	}
 
 }

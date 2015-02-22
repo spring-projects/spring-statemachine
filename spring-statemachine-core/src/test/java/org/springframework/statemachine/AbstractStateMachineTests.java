@@ -62,7 +62,7 @@ public abstract class AbstractStateMachineTests {
 
 	public enum TestStates {
 		SI,S1,S2,S3,S4,SF,
-		S10,S11,S101,S111,S112,S12,S121,S122,
+		S10,S11,S101,S111,S112,S12,S121,S122,S13,
 		S20,S21,S201,S211,
 		S1011,S1012,S2011,S2012
 	}

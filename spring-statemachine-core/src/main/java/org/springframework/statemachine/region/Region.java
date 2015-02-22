@@ -46,15 +46,17 @@ public interface Region<S, E> {
 	 * Send an event {@code E} wrapped with a {@link Message} to the region.
 	 *
 	 * @param event the wrapped event to send
+	 * @return true if event was accepted
 	 */
-	void sendEvent(Message<E> event);
+	boolean sendEvent(Message<E> event);
 
 	/**
 	 * Send an event {@code E} to the region.
 	 *
 	 * @param event the event to send
+	 * @return true if event was accepted
 	 */
-	void sendEvent(E event);
+	boolean sendEvent(E event);
 
 	/**
 	 * Gets the current {@link State}.

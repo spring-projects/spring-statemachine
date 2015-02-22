@@ -27,7 +27,7 @@ import org.springframework.util.Assert;
 
 /**
  * Base implementation of a {@link Transition}.
- * 
+ *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
@@ -42,7 +42,7 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 	private final Collection<Action<S, E>> actions;
 
 	private final TransitionKind kind;
-	
+
 	private final Guard<S, E> guard;
 
 	private Trigger<S, E> trigger;
@@ -50,7 +50,6 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 	public AbstractTransition(State<S, E> source, State<S, E> target, Collection<Action<S, E>> actions, E event,
 			TransitionKind kind, Guard<S, E> guard) {
 		Assert.notNull(source, "Source must be set");
-//		Assert.notNull(target, "Target must be set");
 		Assert.notNull(kind, "Transition type must be set");
 		this.source = source;
 		this.target = target;
