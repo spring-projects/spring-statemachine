@@ -16,6 +16,8 @@
 package org.springframework.statemachine;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -34,6 +36,7 @@ import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.event.StateMachineEventPublisherConfiguration;
 import org.springframework.statemachine.state.DefaultPseudoState;
 import org.springframework.statemachine.state.EnumState;
 import org.springframework.statemachine.state.PseudoState;
@@ -371,6 +374,19 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 
 	}
 
+	@Test
+	public void testMixedStates() throws Exception {
+		context.register(BaseConfig.class, StateMachineEventPublisherConfiguration.class, Config2.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		@SuppressWarnings("unchecked")
+		EnumStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		machine.start();
+		assertThat(machine, notNullValue());
+
+		assertThat(machine.getState().getIds(), contains(TestStates.S1, TestStates.S10));
+	}
 
 	@Configuration
 	@EnableStateMachine
@@ -432,6 +448,26 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		@Bean(name = "exitActionS1")
 		public Action<TestStates, TestEvents> exitActionS1() {
 			return new TestExitAction("S1");
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config2 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S1)
+					.state(TestStates.S2)
+					.and()
+					.withStates()
+						.parent(TestStates.S1)
+						.initial(TestStates.S10)
+						.state(TestStates.S10);
 		}
 
 	}
