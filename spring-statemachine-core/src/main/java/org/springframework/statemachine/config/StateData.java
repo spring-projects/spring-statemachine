@@ -92,7 +92,7 @@ public class StateData<S, E> {
 	@Override
 	public String toString() {
 		return "StateData [parent=" + parent + ", state=" + state + ", deferred=" + deferred + ", entryActions="
-				+ entryActions + ", exitActions=" + exitActions + "]";
+				+ entryActions + ", exitActions=" + exitActions + ", initial=" + initial + ", end=" + end + "]";
 	}
 
 }

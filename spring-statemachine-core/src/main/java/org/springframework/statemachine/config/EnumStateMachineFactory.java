@@ -17,9 +17,9 @@ package org.springframework.statemachine.config;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -29,10 +29,12 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.builders.StateMachineStates;
 import org.springframework.statemachine.config.builders.StateMachineTransitions;
 import org.springframework.statemachine.config.builders.StateMachineTransitions.TransitionData;
+import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.DefaultPseudoState;
 import org.springframework.statemachine.state.EnumState;
 import org.springframework.statemachine.state.PseudoState;
 import org.springframework.statemachine.state.PseudoStateKind;
+import org.springframework.statemachine.state.RegionState;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.state.StateMachineState;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
@@ -43,6 +45,7 @@ import org.springframework.statemachine.transition.DefaultExternalTransition;
 import org.springframework.statemachine.transition.DefaultInternalTransition;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionKind;
+import org.springframework.util.ObjectUtils;
 
 /**
  * {@link StateMachineFactory} implementation using enums to build {@link StateMachine}s.
@@ -96,53 +99,76 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 		    }
 		};
 
-		// use two stack, first for states and second for machines
-		Stack<MachineStackItem<S, E>> machineStack = new Stack<MachineStackItem<S, E>>();
+		List<MachineStackItem<S, E>> regionStack = new ArrayList<MachineStackItem<S, E>>();
 		Stack<StateData<S, E>> stateStack = new Stack<StateData<S, E>>();
 
 		Iterable<Node<StateData<S, E>>> postOrderTraversal = traverser.postOrderTraversal(tree.getRoot());
 		Iterator<Node<StateData<S, E>>> iterator = postOrderTraversal.iterator();
 
+		Map<Object, StateMachine<S, E>> machineMap = new HashMap<Object, StateMachine<S,E>>();
 
 		while (iterator.hasNext()) {
 			Node<StateData<S, E>> node = iterator.next();
 			StateData<S, E> stateData = node.getData();
+			StateData<S, E> peek = stateStack.isEmpty() ? null : stateStack.peek();
+
+			// simply push and continue
 			if (stateStack.isEmpty()) {
 				stateStack.push(stateData);
-			} else {
-				StateData<S, E> peek = stateStack.peek();
-				if ((stateData != null) && ((peek.getParent() == null && stateData.getParent() == null) || peek.getParent().equals(stateData.getParent()))) {
-					stateStack.push(stateData);
-				} else {
-					Collection<StateData<S, E>> stateDatas = new ArrayList<StateData<S,E>>();
-					Enumeration<StateData<S, E>> elements = stateStack.elements();
-					while (elements.hasMoreElements()) {
-						StateData<S, E> next = elements.nextElement();
-						stateDatas.add(next);
-					}
-					stateStack.clear();
+				continue;
+			}
 
-					Collection<TransitionData<S, E>> transitionsData = null;
-					if (iterator.hasNext()) {
-						transitionsData = resolveTransitionData(stateMachineTransitions.getTransitions(), stateDatas);
-					} else {
-						transitionsData = resolveTransitionData2(stateMachineTransitions.getTransitions());
-					}
+			if (stateData != null && ObjectUtils.nullSafeEquals(peek.getParent(), stateData.getParent())) {
+				stateStack.push(stateData);
+				continue;
+			}
 
-					if (machineStack.isEmpty()) {
-						machine = buildSimpleMachine(stateMap, stateDatas, transitionsData, getBeanFactory());
-						machineStack.push(new MachineStackItem<S, E>(machine, peek.getParent()));
-					} else {
-						MachineStackItem<S, E> pop = machineStack.pop();
-						machine = buildSubMachine(stateMap, pop, stateDatas, transitionsData, getBeanFactory());
-						machineStack.push(new MachineStackItem<S, E>(machine, null));
-					}
-					stateStack.push(stateData);
-				}
+			Collection<StateData<S, E>> stateDatas = popSameParents(stateStack);
+			Collection<TransitionData<S, E>> transitionsData = getTransitionData(iterator.hasNext(), stateDatas);
+
+			machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, getBeanFactory());
+			machineMap.put(peek.getParent(), machine);
+			regionStack.add(new MachineStackItem<S, E>(machine, peek.getParent()));
+			stateStack.push(stateData);
+		}
+
+		Collection<Region<S, E>> regions = new ArrayList<Region<S,E>>();
+		for (MachineStackItem<S, E> si : regionStack) {
+			if (si.parent == null) {
+				regions.add(si.machine);
 			}
 		}
+
+		if (regions.size() > 1) {
+			RegionState<S, E> rstate = new RegionState<S, E>(null, regions);
+			Collection<State<S, E>> states = new ArrayList<State<S,E>>();
+			states.add(rstate);
+			machine = new EnumStateMachine<S, E>(states, null, rstate, null);
+		}
+
 		return machine;
 	}
+
+	private Collection<TransitionData<S, E>> getTransitionData(boolean roots, Collection<StateData<S, E>> stateDatas) {
+		if (roots) {
+			return resolveTransitionData(stateMachineTransitions.getTransitions(), stateDatas);
+		} else {
+			return resolveTransitionData2(stateMachineTransitions.getTransitions());
+		}
+	}
+
+	private static <S, E> Collection<StateData<S, E>> popSameParents(Stack<StateData<S, E>> stack) {
+		Collection<StateData<S, E>> data = new ArrayList<StateData<S, E>>();
+		Object parent = null;
+		if (!stack.isEmpty()) {
+			parent = stack.peek().getParent();
+		}
+		while (!stack.isEmpty() && ObjectUtils.nullSafeEquals(parent, stack.peek().getParent())) {
+			data.add(stack.pop());
+		}
+		return data;
+	}
+
 
 	private static class MachineStackItem<S, E> {
 
@@ -185,72 +211,41 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 		return out;
 	}
 
-	private static <S extends Enum<S>, E extends Enum<E>> StateMachine<S, E> buildSimpleMachine(
-			Map<S, State<S, E>> stateMap, Collection<StateData<S, E>> stateDatas,
+
+	private static <S extends Enum<S>, E extends Enum<E>> StateMachine<S, E> buildMachine(
+			Map<Object, StateMachine<S, E>> machineMap, Map<S, State<S, E>> stateMap, Collection<StateData<S, E>> stateDatas,
 			Collection<TransitionData<S, E>> transitionsData, BeanFactory beanFactory) {
-		State<S, E> initialState = null;
-		State<S, E> endState = null;
-		for (StateData<S, E> stateData : stateDatas) {
-
-			// TODO: doesn't feel right to tweak initial kind like this
-			PseudoState pseudoState = null;
-			if (stateData.isInitial()) {
-				pseudoState = new DefaultPseudoState(PseudoStateKind.INITIAL);
-			}
-			EnumState<S,E> state = new EnumState<S, E>(stateData.getState(), stateData.getDeferred(),
-					stateData.getEntryActions(), stateData.getExitActions(), pseudoState);
-			if (stateData.isInitial()) {
-				initialState = state;
-			}
-			if (stateData.isEnd()) {
-				endState = state;
-			}
-			stateMap.put(stateData.getState(), state);
-		}
-
-		Collection<Transition<S, E>> transitions = new ArrayList<Transition<S, E>>();
-		for (TransitionData<S, E> transitionData : transitionsData) {
-			S source = transitionData.getSource();
-			S target = transitionData.getTarget();
-			E event = transitionData.getEvent();
-			if (transitionData.getKind() == TransitionKind.EXTERNAL) {
-				DefaultExternalTransition<S, E> transition = new DefaultExternalTransition<S, E>(stateMap.get(source),
-						stateMap.get(target), transitionData.getActions(), event, transitionData.getGuard());
-				transitions.add(transition);
-
-			} else if (transitionData.getKind() == TransitionKind.INTERNAL) {
-				DefaultInternalTransition<S, E> transition = new DefaultInternalTransition<S, E>(stateMap.get(source),
-						transitionData.getActions(), event, transitionData.getGuard());
-				transitions.add(transition);
-			}
-		}
-
-		EnumStateMachine<S, E> machine = new EnumStateMachine<S, E>(stateMap.values(), transitions,
-				initialState, endState);
-		machine.afterPropertiesSet();
-		if (beanFactory != null) {
-			machine.setBeanFactory(beanFactory);
-		}
-		return machine;
-	}
-
-	private static <S extends Enum<S>, E extends Enum<E>> StateMachine<S, E> buildSubMachine(
-			Map<S, State<S, E>> stateMap, MachineStackItem<S, E> stackItem, Collection<StateData<S, E>> stateDatas,
-			Collection<TransitionData<S, E>> transitionsData, BeanFactory beanFactory) {
-		Collection<State<S, E>> states = new ArrayList<State<S,E>>();
 		State<S, E> state = null;
 		State<S, E> initialState = null;
+		State<S, E> endState = null;
+		Collection<State<S, E>> states = new ArrayList<State<S,E>>();
 		for (StateData<S, E> stateData : stateDatas) {
-			if (stackItem.parent == null || stateData.getState().equals(stackItem.parent)) {
-				state = new StateMachineState<S, E>(stateData.getState(), stackItem.machine, stateData.getDeferred(),
-						stateData.getEntryActions(), stateData.getExitActions(), new DefaultPseudoState(
-						PseudoStateKind.INITIAL));
+			StateMachine<S, E> stateMachine = machineMap.get(stateData.getState());
+			if (stateMachine != null) {
+				state = new StateMachineState<S, E>(stateData.getState(), stateMachine, stateData.getDeferred(),
+				stateData.getEntryActions(), stateData.getExitActions(), new DefaultPseudoState(
+				PseudoStateKind.INITIAL));
 				initialState = state;
+				states.add(state);
 			} else {
+				PseudoState pseudoState = null;
+				if (stateData.isInitial()) {
+					pseudoState = new DefaultPseudoState(PseudoStateKind.INITIAL);
+				}
 				state = new EnumState<S, E>(stateData.getState(), stateData.getDeferred(),
-						stateData.getEntryActions(), stateData.getExitActions(), null);
+						stateData.getEntryActions(), stateData.getExitActions(), pseudoState);
+				if (stateData.isInitial()) {
+					initialState = state;
+				}
+				if (stateData.isEnd()) {
+					endState = state;
+				}
+				states.add(state);
+
 			}
-			states.add(state);
+
+
+			// TODO: doesn't feel right to tweak initial kind like this
 			stateMap.put(stateData.getState(), state);
 		}
 
@@ -271,8 +266,8 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 			}
 		}
 
-		EnumStateMachine<S, E> machine = new EnumStateMachine<S, E>(states, transitions, initialState, null);
-
+		EnumStateMachine<S, E> machine = new EnumStateMachine<S, E>(/*stateMap.values()*/ states, transitions,
+				initialState, endState);
 		machine.afterPropertiesSet();
 		if (beanFactory != null) {
 			machine.setBeanFactory(beanFactory);

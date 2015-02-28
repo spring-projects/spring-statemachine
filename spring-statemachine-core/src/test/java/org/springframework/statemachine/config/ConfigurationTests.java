@@ -91,6 +91,39 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		assertThat(machine, notNullValue());
 	}
 
+	@SuppressWarnings({ "unchecked" })
+	@Test
+	public void testRegions() throws Exception {
+		context.register(Config6.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		EnumStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		assertThat(machine, notNullValue());
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	@Test
+	public void testSubmachineWithState() throws Exception {
+		context.register(Config7.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		EnumStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		assertThat(machine, notNullValue());
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	@Test
+	public void testSubmachineWithRegion() throws Exception {
+		context.register(Config8.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		EnumStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		assertThat(machine, notNullValue());
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
@@ -308,6 +341,57 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		@Override
 		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
 			states
+				.withStates()
+					.initial(TestStates.S10)
+					.state(TestStates.S10)
+					.state(TestStates.S11)
+					.and()
+					.withStates()
+						.parent(TestStates.S10)
+						.initial(TestStates.S101)
+						.state(TestStates.S101)
+						.and()
+						.withStates()
+							.parent(TestStates.S101)
+							.initial(TestStates.S1011)
+							.state(TestStates.S1011)
+							.state(TestStates.S1012)
+							.and()
+				.withStates()
+					.initial(TestStates.S20)
+					.state(TestStates.S20)
+					.state(TestStates.S21)
+					.and()
+					.withStates()
+						.parent(TestStates.S20)
+						.initial(TestStates.S201)
+						.state(TestStates.S201)
+						.and()
+						.withStates()
+							.parent(TestStates.S201)
+							.initial(TestStates.S2011)
+							.state(TestStates.S2011)
+							.state(TestStates.S2012);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1011)
+					.target(TestStates.S11)
+					.event(TestEvents.E1);
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config7 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
 			.withStates()
 				.initial(TestStates.S10)
 				.state(TestStates.S10)
@@ -322,32 +406,41 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 						.parent(TestStates.S101)
 						.initial(TestStates.S1011)
 						.state(TestStates.S1011)
-						.state(TestStates.S1012)
-						.and()
-			.withStates()
-				.initial(TestStates.S20)
-				.state(TestStates.S20)
-				.state(TestStates.S21)
-				.and()
-				.withStates()
-					.parent(TestStates.S20)
-					.initial(TestStates.S201)
-					.state(TestStates.S201)
-					.and()
-					.withStates()
-						.parent(TestStates.S201)
-						.initial(TestStates.S2011)
-						.state(TestStates.S2011)
-						.state(TestStates.S2012);
+						.state(TestStates.S1012);
 		}
 
 		@Override
 		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
 			transitions
 				.withExternal()
-					.source(TestStates.S111)
-					.target(TestStates.S1)
+					.source(TestStates.S1011)
+					.target(TestStates.S11)
 					.event(TestEvents.E1);
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config8 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S10)
+					.state(TestStates.S10)
+					.state(TestStates.S11)
+					.and()
+					.withStates()
+						.parent(TestStates.S10)
+						.initial(TestStates.S101)
+						.state(TestStates.S101)
+						.and()
+					.withStates()
+						.parent(TestStates.S10)
+						.initial(TestStates.S111)
+						.state(TestStates.S111);
 		}
 
 	}
