@@ -22,13 +22,13 @@ import org.springframework.util.StringUtils;
 
 /**
  * Simple {@link ApplicationListener} which logs all events
- * based on {@link AbstractStateMachineEvent} using a log level
+ * based on {@link StateMachineEvent} using a log level
  * set during the construction.
  *
  * @author Janne Valkealahti
  *
  */
-public class LoggingListener implements ApplicationListener<AbstractStateMachineEvent> {
+public class LoggingListener implements ApplicationListener<StateMachineEvent> {
 
 	private static final Log log = LogFactory.getLog(LoggingListener.class);
 
@@ -64,7 +64,7 @@ public class LoggingListener implements ApplicationListener<AbstractStateMachine
 	}
 
 	@Override
-	public void onApplicationEvent(AbstractStateMachineEvent event) {
+	public void onApplicationEvent(StateMachineEvent event) {
 		switch (this.level) {
 		case FATAL:
 			if (log.isFatalEnabled()) {

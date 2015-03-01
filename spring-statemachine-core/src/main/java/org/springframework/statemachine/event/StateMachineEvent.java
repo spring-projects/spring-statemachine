@@ -15,52 +15,30 @@
  */
 package org.springframework.statemachine.event;
 
-import org.springframework.statemachine.state.State;
+import org.springframework.context.ApplicationEvent;
 
 /**
- * Generic event representing that state has been changed.
+ * Base {@link ApplicationEvent} class for leader based events. All custom event
+ * classes should be derived from this class.
  *
  * @author Janne Valkealahti
  *
  */
 @SuppressWarnings("serial")
-public class OnStateChangedEvent extends StateMachineEvent {
-
-	private final State<?, ?> sourceState;
-	private final State<?, ?> targetState;
+public abstract class StateMachineEvent extends ApplicationEvent {
 
 	/**
-	 * Instantiates a new granted event.
+	 * Create a new ApplicationEvent.
 	 *
 	 * @param source the component that published the event (never {@code null})
 	 */
-	public OnStateChangedEvent(Object source, State<?, ?> sourceState, State<?, ?> targetState) {
+	public StateMachineEvent(Object source) {
 		super(source);
-		this.sourceState = sourceState;
-		this.targetState = targetState;
-	}
-
-	/**
-	 * Gets the source state for this event.
-	 *
-	 * @return the source state
-	 */
-	public State<?, ?> getSourceState() {
-		return sourceState;
-	}
-
-	/**
-	 * Gets the target state for this event.
-	 *
-	 * @return the target state
-	 */
-	public State<?, ?> getTargetState() {
-		return targetState;
 	}
 
 	@Override
 	public String toString() {
-		return "OnStateChangedEvent [sourceState=" + sourceState + ", targetState=" + targetState + "]";
+		return "AbstractStateMachineEvent [source=" + source + "]";
 	}
 
 }

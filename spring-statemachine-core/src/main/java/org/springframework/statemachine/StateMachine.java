@@ -42,6 +42,6 @@ public interface StateMachine<S, E> extends Region<S, E> {
 	 *
 	 * @param listener the listener
 	 */
-	void addStateListener(StateMachineListener<State<S,E>, E> listener);
+	void addStateListener(StateMachineListener<S, E> listener);
 
 }

@@ -16,6 +16,7 @@
 package org.springframework.statemachine.event;
 
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.transition.Transition;
 
 /**
  * Interface for publishing state machine based application events.
@@ -33,5 +34,29 @@ public interface StateMachineEventPublisher {
 	 * @param targetState the target state
 	 */
 	void publishStateChanged(Object source, State<?, ?> sourceState, State<?, ?> targetState);
-	
+
+	/**
+	 * Publish a transition start event.
+	 *
+	 * @param source the source
+	 * @param transition the transition
+	 */
+	void publishTransitionStart(Object source, Transition<?, ?> transition);
+
+	/**
+	 * Publish a transition end event.
+	 *
+	 * @param source the source
+	 * @param transition the transition
+	 */
+	void publishTransitionEnd(Object source, Transition<?, ?> transition);
+
+	/**
+	 * Publish a transition event.
+	 *
+	 * @param source the source
+	 * @param transition the transition
+	 */
+	void publishTransition(Object source, Transition<?, ?> transition);
+
 }

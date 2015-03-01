@@ -18,15 +18,48 @@ package org.springframework.statemachine.listener;
 import java.util.Iterator;
 
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.transition.Transition;
 
-public class CompositeStateMachineListener<S,E> extends AbstractCompositeListener<StateMachineListener<State<S,E>, E>> implements
-		StateMachineListener<State<S,E>, E> {
+/**
+ * Default {@link StateMachineListener} dispatcher.
+ *
+ * @author Janne Valkealahti
+ *
+ * @param <S> the type of state
+ * @param <E> the type of event
+ */
+public class CompositeStateMachineListener<S,E> extends AbstractCompositeListener<StateMachineListener<S,E>> implements
+		StateMachineListener<S, E> {
 
 	@Override
 	public void stateChanged(State<S, E> from, State<S, E> to) {
-		for (Iterator<StateMachineListener<State<S,E>, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
-			StateMachineListener<State<S,E>, E> listener = iterator.next();
+		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
+			StateMachineListener<S, E> listener = iterator.next();
 			listener.stateChanged(from, to);
+		}
+	}
+
+	@Override
+	public void transition(Transition<S, E> transition) {
+		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
+			StateMachineListener<S, E> listener = iterator.next();
+			listener.transition(transition);
+		}
+	}
+
+	@Override
+	public void transitionStarted(Transition<S, E> transition) {
+		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
+			StateMachineListener<S, E> listener = iterator.next();
+			listener.transitionStarted(transition);
+		}
+	}
+
+	@Override
+	public void transitionEnded(Transition<S, E> transition) {
+		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
+			StateMachineListener<S, E> listener = iterator.next();
+			listener.transitionEnded(transition);
 		}
 	}
 

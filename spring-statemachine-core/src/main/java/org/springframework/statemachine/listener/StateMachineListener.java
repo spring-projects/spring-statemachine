@@ -15,8 +15,46 @@
  */
 package org.springframework.statemachine.listener;
 
+import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.transition.Transition;
+
+/**
+ * {@code StateMachineListener} for various state machine events.
+ *
+ * @author Janne Valkealahti
+ *
+ * @param <S> the type of state
+ * @param <E> the type of event
+ */
 public interface StateMachineListener<S,E> {
 
-	void stateChanged(S from, S to);
+	/**
+	 * Notified when state is changed.
+	 *
+	 * @param from the source state
+	 * @param to the target state
+	 */
+	void stateChanged(State<S,E> from, State<S,E> to);
+
+	/**
+	 * Notified when transition happened.
+	 *
+	 * @param transition the transition
+	 */
+	void transition(Transition<S, E> transition);
+
+	/**
+	 * Notified when transition started.
+	 *
+	 * @param transition the transition
+	 */
+	void transitionStarted(Transition<S, E> transition);
+
+	/**
+	 * Notified when transition ended.
+	 *
+	 * @param transition the transition
+	 */
+	void transitionEnded(Transition<S, E> transition);
 
 }

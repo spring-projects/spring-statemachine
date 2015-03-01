@@ -18,10 +18,11 @@ package org.springframework.statemachine.event;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.transition.Transition;
 
 /**
  * Default implementation of {@link StateMachineEventPublisher}.
- * 
+ *
  * @author Janne Valkealahti
  *
  */
@@ -30,17 +31,22 @@ public class DefaultStateMachineEventPublisher implements StateMachineEventPubli
 	private ApplicationEventPublisher applicationEventPublisher;
 
 	/**
-	 * Instantiates a new leader event publisher.
+	 * Instantiates a new state machine event publisher.
 	 */
 	public DefaultStateMachineEventPublisher() {
 	}
 
 	/**
-	 * Instantiates a new leader event publisher.
-	 * 
+	 * Instantiates a new state machine event publisher.
+	 *
 	 * @param applicationEventPublisher the application event publisher
 	 */
 	public DefaultStateMachineEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+		this.applicationEventPublisher = applicationEventPublisher;
+	}
+
+	@Override
+	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
 		this.applicationEventPublisher = applicationEventPublisher;
 	}
 
@@ -52,8 +58,24 @@ public class DefaultStateMachineEventPublisher implements StateMachineEventPubli
 	}
 
 	@Override
-	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
-		this.applicationEventPublisher = applicationEventPublisher;
+	public void publishTransitionStart(Object source, Transition<?, ?> transition) {
+		if (applicationEventPublisher != null) {
+			applicationEventPublisher.publishEvent(new OnTransitionStartEvent(source, transition));
+		}
 	}
-	
+
+	@Override
+	public void publishTransitionEnd(Object source, Transition<?, ?> transition) {
+		if (applicationEventPublisher != null) {
+			applicationEventPublisher.publishEvent(new OnTransitionEndEvent(source, transition));
+		}
+	}
+
+	@Override
+	public void publishTransition(Object source, Transition<?, ?> transition) {
+		if (applicationEventPublisher != null) {
+			applicationEventPublisher.publishEvent(new OnTransitionEvent(source, transition));
+		}
+	}
+
 }

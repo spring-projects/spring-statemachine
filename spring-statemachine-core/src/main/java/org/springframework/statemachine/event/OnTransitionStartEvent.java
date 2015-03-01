@@ -15,30 +15,30 @@
  */
 package org.springframework.statemachine.event;
 
-import org.springframework.context.ApplicationEvent;
+import org.springframework.statemachine.transition.Transition;
 
 /**
- * Base {@link ApplicationEvent} class for leader based events. All custom event
- * classes should be derived from this class.
+ * Event representing that a {@link Transition} has started.
  *
  * @author Janne Valkealahti
  *
  */
 @SuppressWarnings("serial")
-public abstract class AbstractStateMachineEvent extends ApplicationEvent {
+public class OnTransitionStartEvent extends TransitionEvent {
 
 	/**
-	 * Create a new ApplicationEvent.
+	 * Instantiates a new on transition start event.
 	 *
-	 * @param source the component that published the event (never {@code null})
+	 * @param source the source
+	 * @param transition the transition
 	 */
-	public AbstractStateMachineEvent(Object source) {
-		super(source);
+	public OnTransitionStartEvent(Object source, Transition<?, ?> transition) {
+		super(source, transition);
 	}
 
 	@Override
 	public String toString() {
-		return "AbstractLeaderEvent [source=" + source + "]";
+		return "OnTransitionStartEvent [transition=" + getTransition() + "]";
 	}
 
 }

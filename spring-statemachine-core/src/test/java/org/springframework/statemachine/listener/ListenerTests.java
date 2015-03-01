@@ -42,6 +42,7 @@ import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.transition.Transition;
 
 /**
  * Tests for state machine listener functionality.
@@ -95,7 +96,7 @@ public class ListenerTests extends AbstractStateMachineTests {
 
 	}
 
-	private static class TestStateMachineListener implements StateMachineListener<State<TestStates, TestEvents>, TestEvents> {
+	private static class TestStateMachineListener implements StateMachineListener<TestStates, TestEvents> {
 
 		ArrayList<Holder> states = new ArrayList<Holder>();
 
@@ -111,6 +112,18 @@ public class ListenerTests extends AbstractStateMachineTests {
 				this.from = from;
 				this.to = to;
 			}
+		}
+
+		@Override
+		public void transition(Transition<TestStates, TestEvents> transition) {
+		}
+
+		@Override
+		public void transitionStarted(Transition<TestStates, TestEvents> transition) {
+		}
+
+		@Override
+		public void transitionEnded(Transition<TestStates, TestEvents> transition) {
 		}
 
 	}

@@ -158,7 +158,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 
 	@Override
 	public boolean sendEvent(Message<E> event) {
-		if (isComplete()) {
+		if (isComplete() || !isRunning()) {
 			return false;
 		}
 		// TODO: machine header looks weird!
@@ -199,7 +199,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	}
 
 	@Override
-	public void addStateListener(StateMachineListener<State<S, E>, E> listener) {
+	public void addStateListener(StateMachineListener<S, E> listener) {
 		stateListener.register(listener);
 	}
 
@@ -308,10 +308,13 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 				if (StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
 					if (trigger != null && trigger.evaluate(queuedEvent.getPayload())) {
 						StateContext<S, E> stateContext = new DefaultStateContext<S, E>(queuedEvent.getHeaders(), extendedState, transition);
+						notifyTransitionStart(transition);
 						boolean transit = transition.transit(stateContext);
 						if (transit && transition.getKind() != TransitionKind.INTERNAL) {
 							switchToState(target, queuedEvent, transition);
+							notifyTransition(transition);
 						}
+						notifyTransitionEnd(transition);
 						break;
 					} else if (source.getDeferredEvents() != null && source.getDeferredEvents().contains(queuedEvent.getPayload())) {
 						defer = queuedEvent;
@@ -420,6 +423,30 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 		if (eventPublisher != null) {
 			eventPublisher.publishStateChanged(this, source, target);
+		}
+	}
+
+	private void notifyTransitionStart(Transition<S,E> transition) {
+		stateListener.transitionStarted(transition);
+		StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
+		if (eventPublisher != null) {
+			eventPublisher.publishTransitionStart(this, transition);
+		}
+	}
+
+	private void notifyTransition(Transition<S,E> transition) {
+		stateListener.transition(transition);
+		StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
+		if (eventPublisher != null) {
+			eventPublisher.publishTransitionEnd(this, transition);
+		}
+	}
+
+	private void notifyTransitionEnd(Transition<S,E> transition) {
+		stateListener.transitionEnded(transition);
+		StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
+		if (eventPublisher != null) {
+			eventPublisher.publishTransition(this, transition);
 		}
 	}
 

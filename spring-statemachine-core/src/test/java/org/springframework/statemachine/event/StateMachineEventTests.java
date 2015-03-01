@@ -183,16 +183,18 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 
 	}
 
-	static class TestEventListener implements ApplicationListener<AbstractStateMachineEvent> {
+	static class TestEventListener implements ApplicationListener<StateMachineEvent> {
 
 		CountDownLatch onEventLatch = new CountDownLatch(6);
 
-		ArrayList<AbstractStateMachineEvent> events = new ArrayList<AbstractStateMachineEvent>();
+		ArrayList<StateMachineEvent> events = new ArrayList<StateMachineEvent>();
 
 		@Override
-		public void onApplicationEvent(AbstractStateMachineEvent event) {
-			events.add(event);
-			onEventLatch.countDown();
+		public void onApplicationEvent(StateMachineEvent event) {
+			if (event instanceof OnStateChangedEvent) {
+				events.add(event);
+				onEventLatch.countDown();
+			}
 		}
 
 	}
