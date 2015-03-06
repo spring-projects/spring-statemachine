@@ -1,7 +1,7 @@
 package org.springframework.statemachine.docs;
 
 //tag::snippetA[]
-public enum MyStates {
-    SI,S1,S2,S3,S4,SF
+public enum Events {
+    E1,E2,E3,E4,EF
 }
 //end::snippetA[]

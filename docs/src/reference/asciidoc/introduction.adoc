@@ -1,6 +1,9 @@
 [[introduction]]
 = Introduction
 
+Spring State Machine(SSM) is a framework for application developers to
+use state machine concepts with Spring.
+
 == Requirements
 
 Spring Statemachine {revnumber} is built and tested with JDK 7, Spring

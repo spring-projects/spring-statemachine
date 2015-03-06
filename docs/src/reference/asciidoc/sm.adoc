@@ -6,24 +6,93 @@ that Spring Statemachine provides to any Spring based application.
 
 <<sm-config>> describes the generic configuration support.
 
+<<sm-factories>> describes the generic state machine factory support.
+
+<<sm-listeners>> describes the generic state machine listener support.
+
+<<sm-context>> describes the generic Spring application context support.
+
 [[sm-config]]
 == Statemachine Configuration
 
 One of the common tasks when using a Statemachine is to design its
-runtime configuration. This chapter will focus on How Spring
+runtime configuration. This chapter will focus on how Spring
 Statemachine is configured and how it leverages Spring's lightweight
 IoC containers to simplify the application internals to make it more
 manageable.
 
-=== Using the Spring Statemachine JavaConfig
+=== Configuring States
+
+We'll get into more complex configuration examples a bit later but
+lets first start with a something simple. For most simple state
+machine you
 
 [source,java,indent=0]
 ----
 include::samples/DocsConfigurationSampleTests.java[tags=snippetA]
 ----
 
+=== Configuring Hierarchical States
 
-== Context Ingregration
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetB]
+----
+
+=== Configuring Transitions
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetC]
+----
+
+=== Configuring Guards
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetD]
+----
+
+=== Configuring Actions
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetE]
+----
+
+[[sm-factories]]
+== State Machine Factories
+There are use cases when state machine needs to be created dynamically
+instead of defining static configuration at compile time. For example
+if there are custom components which are using its own state machines
+and these components are created dynamically it is impossible to have
+a static state machined build during the application start. Internally
+state machines are always build via a factory interfaces and this then
+gives user an option to use this feature programmatically.
+Configuration for state machine factory is exactly same as you've seen
+in various examples in this document where state machine configuration
+is hard coded.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetF]
+----
+
+=== Factory Limitations
+
+xxx
+
+[[sm-listeners]]
+== State Machine Listeners
+
+There are use cases where you just want to know what is happening with
+a state machine, react to something or simply get logging for
+debugging purposes. SSM provides interfaces for adding listeners which
+then gives an option to get callback when various state changes,
+actions, etc are happening.
+
+[[sm-context]]
+== Context Integration
 
 TBD
 
@@ -31,3 +100,9 @@ TBD
 
 TBD
 
+=== Context Events
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetG]
+----

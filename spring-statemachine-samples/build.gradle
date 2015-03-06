@@ -1,0 +1,6 @@
+description = 'Spring State Machine Samples Common'
+
+project('spring-statemachine-samples-turnstile') {
+  description = 'Spring State Machine Turnstile Sample'
+}
+

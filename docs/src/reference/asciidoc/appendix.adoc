@@ -12,12 +12,12 @@ material in this reference documentation.
 
 [source,java,indent=0]
 ----
-include::samples/MyStates.java[tags=snippetA]
+include::samples/States.java[tags=snippetA]
 ----
 
 [source,java,indent=0]
 ----
-include::samples/MyEvents.java[tags=snippetA]
+include::samples/Events.java[tags=snippetA]
 ----
 
 [appendix]
@@ -28,55 +28,56 @@ This appendix provides generic information about state machines.
 [glossary]
 === Glossary
 
-State Machine::
+*State Machine*::
 Main entity driving a collection of states together with regions,
 transitions and events.
 
-State::
+*State*::
 A state models a situation during which some invariant condition
 holds. State is the main entity of a state machine where state changes
 are driven by an events.
 
-Transition::
+*Transition*::
 A transition is a relationship between a source state and a target
 state. It may be part of a compound transition, which takes the state
 machine from one state configuration to another, representing the complete
 response of the state machine to an occurrence of an event of a
 particular type.
 
-Event::
+*Event*::
 An entity which is send to a state machine which then drives a various
 state changes.
 
-Initial State::
+*Initial State*::
 A special state in which the state machine starts. Initial state is
 always bound to a particulal state machine or a region. A state
 machine with a multiple regions may have a multiple initial states.
 
-End State::
+*End State*::
 Also called as a final state is a special kind of state signifying
 that  the enclosing region is completed. If the enclosing region is
 directly contained in a state machine and all other regions in the
 state machine also are completed, then it means that the entire state
 machine is completed.
 
-Region::
+*Region*::
 A region is an orthogonal part of either a composite state or a state
 machine. It contains states and transitions.
 
-Guard::
+*Guard*::
 Is a boolean expression evaluated dynamically based on the value of
 extended state variables and event parameters. Guard conditions affect
 the behavior of a state machine by enabling actions or transitions
 only when they evaluate to TRUE and disabling them when they evaluate
 to FALSE.
 
-Action::
+*Action*::
 A action is a behaviour executed during the triggering of the
 transition.
 
 === A State Machines Crash Course
-TBD.
+This appendix provides generic crash course to a state machine
+concepts.
 
 ==== States
 TBD.

@@ -1,10 +1,77 @@
 [[statemachine-examples]]
-= Statemachine Examples
+= State Machine Examples
 
 This part of the reference documentation explains the use of state
-machines as sample code together with a uml state charts.
+machines as sample code together with a uml state charts. We do few
+shortcuts when representing relationship between a state chart, SSM
+configuration and what an application does with a state machine. For
+complete examples go and study the samples repository.
 
-== Simple Statemachine
+== Turnstile
 
-TBD
+Turnstile is a simple device which gives you an access if payment is
+made and is a very simple to model using a state machine. In its
+simples form there are only two states, `LOCKED` and `UNLOCKED`. Two
+events, `COIN` and `PUSH` can happen if you try to go through it or
+you make a payment.
+
+image::images/statechart1.png[]
+
+.States
+[source,java,indent=0]
+----
+include::samples/demo/turnstile/Application.java[tags=snippetB]
+----
+
+.Events
+[source,java,indent=0]
+----
+include::samples/demo/turnstile/Application.java[tags=snippetC]
+----
+
+.Configuration
+[source,java,indent=0]
+----
+include::samples/demo/turnstile/Application.java[tags=snippetA]
+----
+
+You can see how this sample state machine interacts with event by
+running `turnstile` sample.
+[source,text]
+----
+$ java -jar spring-statemachine-samples-turnstile-1.0.0.BUILD-SNAPSHOT.jar 
+
+sm>sm print
++----------------------------------------------------------------+
+|                              SM                                |
++----------------------------------------------------------------+
+|                                                                |
+|         +----------------+          +----------------+         |
+|     *-->|     LOCKED     |          |    UNLOCKED    |         |
+|         +----------------+          +----------------+         |
+|     +---| entry/         |          | entry/         |---+     |
+|     |   | exit/          |          | exit/          |   |     |
+|     |   |                |          |                |   |     |
+| PUSH|   |                |---COIN-->|                |   |COIN |
+|     |   |                |          |                |   |     |
+|     |   |                |          |                |   |     |
+|     |   |                |<--PUSH---|                |   |     |
+|     +-->|                |          |                |<--+     |
+|         |                |          |                |         |
+|         +----------------+          +----------------+         |
+|                                                                |
++----------------------------------------------------------------+
+
+sm>sm start
+State changed to LOCKED
+State machine started
+
+sm>sm event COIN
+State changed to UNLOCKED
+Event COIN send
+
+sm>sm event PUSH
+State changed to LOCKED
+Event PUSH send
+----
 

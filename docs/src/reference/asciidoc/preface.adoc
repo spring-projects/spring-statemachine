@@ -1,8 +1,5 @@
 [preface]
 == Preface
-Spring State Machine(SSM) is a framework for application developers to use
-state machine concepts with Spring.
-
 Concept of a state machine is most likely older that any of a reader
 of this reference documentation and definitely older than a Java
 language itself. Description of finite automate dates back to 1943

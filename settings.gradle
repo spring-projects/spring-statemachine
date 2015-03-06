@@ -1,3 +1,16 @@
 rootProject.name = 'spring-statemachine'
 
 include 'spring-statemachine-core'
+
+include 'spring-statemachine-samples'
+include 'spring-statemachine-samples:turnstile'
+
+rootProject.children.find {
+	if (it.name == 'spring-statemachine-samples') {
+		it.name = 'spring-statemachine-samples-common'
+		it.children.each {
+			it.name = 'spring-statemachine-samples-' + it.name
+		}
+	}
+}
+

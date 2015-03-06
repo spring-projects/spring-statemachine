@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%m%n</pattern>
+			<charset>utf8</charset>
+		</encoder>
+	</appender>
+
+    <root level="WARN">
+		<appender-ref ref="CONSOLE" />
+	</root>
+
+    <logger name="demo" level="INFO"/>
+
+</configuration>
