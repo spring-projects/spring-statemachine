@@ -127,7 +127,11 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 			Collection<TransitionData<S, E>> transitionsData = getTransitionData(iterator.hasNext(), stateDatas);
 
 			machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, getBeanFactory());
-			machineMap.put(peek.getParent(), machine);
+			// TODO: last part in if feels a bit hack
+			//       (!peek.isInitial() && !machineMap.containsKey(peek.getParent()))
+			if (peek.isInitial() || (!peek.isInitial() && !machineMap.containsKey(peek.getParent()))) {
+				machineMap.put(peek.getParent(), machine);
+			}
 			regionStack.add(new MachineStackItem<S, E>(machine, peek.getParent()));
 			stateStack.push(stateData);
 		}
