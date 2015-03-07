@@ -13,25 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.processor;
+package org.springframework.statemachine.annotation;
 
-import org.springframework.statemachine.StateContext;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-/**
- * A generic runtime representation of a state machine.
- *
- * @author Janne Valkealahti
- *
- * @param <S> the type of state
- * @param <E> the type of event
- */
-public interface StateMachineRuntime<S, E> {
-
-	/**
-	 * Gets the state context.
-	 *
-	 * @return the state context
-	 */
-	StateContext<S, E> getStateContext();
-
+@Target(ElementType.PARAMETER)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface EventHeaders {
 }

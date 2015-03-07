@@ -29,9 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
-import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.MethodParameter;
-import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.expression.EvaluationException;
@@ -39,7 +37,9 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.TypeConverter;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
+import org.springframework.statemachine.annotation.EventHeaders;
 import org.springframework.statemachine.support.AbstractExpressionEvaluator;
 import org.springframework.statemachine.support.AnnotatedMethodFilter;
 import org.springframework.statemachine.support.FixedMethodFilter;
@@ -56,7 +56,7 @@ import org.springframework.util.ReflectionUtils.MethodFilter;
  *
  * @param <T> the return type
  */
-public class StateMachineMethodInvokerHelper<T> extends AbstractExpressionEvaluator {
+public class StateMachineMethodInvokerHelper<T, S, E> extends AbstractExpressionEvaluator {
 
 	private static final String CANDIDATE_METHODS = "CANDIDATE_METHODS";
 
@@ -105,8 +105,8 @@ public class StateMachineMethodInvokerHelper<T> extends AbstractExpressionEvalua
 		this(targetObject, annotationType, (String) null, expectedType);
 	}
 
-	public T process(StateMachineRuntime stateMachineRuntime) throws Exception {
-		ParametersWrapper wrapper = new ParametersWrapper(stateMachineRuntime.getStateContext());
+	public T process(StateMachineRuntime<S, E> stateMachineRuntime) throws Exception {
+		ParametersWrapper<S, E> wrapper = new ParametersWrapper<S, E>(stateMachineRuntime.getStateContext());
 		return processInternal(wrapper);
 	}
 
@@ -214,7 +214,7 @@ public class StateMachineMethodInvokerHelper<T> extends AbstractExpressionEvalua
 		return false;
 	}
 
-	private T processInternal(ParametersWrapper parameters) throws Exception {
+	private T processInternal(ParametersWrapper<S, E> parameters) throws Exception {
 		HandlerMethod candidate = this.findHandlerMethodForParameters(parameters);
 		Assert.notNull(candidate, "No candidate methods found for messages.");
 		Expression expression = candidate.getExpression();
@@ -347,7 +347,7 @@ public class StateMachineMethodInvokerHelper<T> extends AbstractExpressionEvalua
 		return targetClass;
 	}
 
-	private HandlerMethod findHandlerMethodForParameters(ParametersWrapper parameters) {
+	private HandlerMethod findHandlerMethodForParameters(ParametersWrapper<S, E> parameters) {
 		if (this.handlerMethod != null) {
 			return this.handlerMethod;
 		} else {
@@ -378,7 +378,7 @@ public class StateMachineMethodInvokerHelper<T> extends AbstractExpressionEvalua
 
 		private static final SpelExpressionParser EXPRESSION_PARSER = new SpelExpressionParser();
 
-		private static final ParameterNameDiscoverer PARAMETER_NAME_DISCOVERER = new LocalVariableTableParameterNameDiscoverer();
+//		private static final ParameterNameDiscoverer PARAMETER_NAME_DISCOVERER = new LocalVariableTableParameterNameDiscoverer();
 
 		private final Method method;
 
@@ -429,19 +429,12 @@ public class StateMachineMethodInvokerHelper<T> extends AbstractExpressionEvalua
 				if (mappingAnnotation != null) {
 					Class<? extends Annotation> annotationType = mappingAnnotation.annotationType();
 
-//					if (annotationType.equals(YarnEnvironments.class)) {
-//						sb.append("environment");
-//					} else if (annotationType.equals(YarnEnvironment.class)) {
-//						YarnEnvironment headerAnnotation = (YarnEnvironment) mappingAnnotation;
-//						sb.append(this.determineEnvironmentExpression(headerAnnotation, methodParameter));
-//					} else if (annotationType.equals(YarnParameters.class)) {
-//						Assert.isTrue(Map.class.isAssignableFrom(parameterType),
-//								"The @YarnParameters annotation can only be applied to a Map-typed parameter.");
-//						sb.append("parameters");
-//					} else if (annotationType.equals(YarnParameter.class)) {
-//						YarnParameter headerAnnotation = (YarnParameter) mappingAnnotation;
-//						sb.append(this.determineParameterExpression(headerAnnotation, methodParameter));
-//					}
+					if (annotationType.equals(EventHeaders.class)) {
+						sb.append("headers");
+					}
+
+				} else if (ExtendedState.class.isAssignableFrom(parameterType)) {
+					sb.append("extendedState");
 				}
 			}
 			if (hasUnqualifiedMapParameter) {
@@ -465,89 +458,44 @@ public class StateMachineMethodInvokerHelper<T> extends AbstractExpressionEvalua
 			Annotation match = null;
 			for (Annotation annotation : annotations) {
 				Class<? extends Annotation> type = annotation.annotationType();
-//				if (type.equals(YarnParameters.class) || type.equals(YarnParameter.class)
-//						|| type.equals(YarnEnvironments.class) || type.equals(YarnEnvironment.class)) {
-//					if (match != null) {
-//						throw new IllegalArgumentException(
-//								"At most one parameter annotation can be provided for message mapping, "
-//										+ "but found two: [" + match.annotationType().getName() + "] and ["
-//										+ annotation.annotationType().getName() + "]");
-//					}
-//					match = annotation;
-//				}
+				if (type.equals(EventHeaders.class)) {
+					if (match != null) {
+						throw new IllegalArgumentException(
+								"At most one parameter annotation can be provided for message mapping, "
+										+ "but found two: [" + match.annotationType().getName() + "] and ["
+										+ annotation.annotationType().getName() + "]");
+					}
+					match = annotation;
+				}
 			}
 			return match;
 		}
-
-//		private String determineParameterExpression(YarnParameter parameterAnnotation, MethodParameter methodParameter) {
-//			methodParameter.initParameterNameDiscovery(PARAMETER_NAME_DISCOVERER);
-//			String headerName = null;
-//			String relativeExpression = "";
-//			String valueAttribute = parameterAnnotation.value();
-//			if (!StringUtils.hasText(valueAttribute)) {
-//				headerName = methodParameter.getParameterName();
-//			} else if (valueAttribute.indexOf('.') != -1) {
-//				String tokens[] = valueAttribute.split("\\.", 2);
-//				headerName = tokens[0];
-//				if (StringUtils.hasText(tokens[1])) {
-//					relativeExpression = "." + tokens[1];
-//				}
-//			} else {
-//				headerName = valueAttribute;
-//			}
-//			Assert.notNull(headerName, "Cannot determine parameter name. Possible reasons: -debug is "
-//					+ "disabled or header name is not explicitly provided via @YarnParameter annotation.");
-//			String headerRetrievalExpression = "parameters['" + headerName + "']";
-//			String fullHeaderExpression = headerRetrievalExpression + relativeExpression;
-//			String fallbackExpression = (parameterAnnotation.required()) ? "T(org.springframework.util.Assert).isTrue(false, 'required parameter not available:  "
-//					+ headerName + "')"
-//					: "null";
-//			return headerRetrievalExpression + " != null ? " + fullHeaderExpression + " : " + fallbackExpression;
-//		}
-
-//		private String determineEnvironmentExpression(YarnEnvironment environmentAnnotation, MethodParameter methodParameter) {
-//			methodParameter.initParameterNameDiscovery(PARAMETER_NAME_DISCOVERER);
-//			String headerName = null;
-//			String relativeExpression = "";
-//			String valueAttribute = environmentAnnotation.value();
-//			if (!StringUtils.hasText(valueAttribute)) {
-//				headerName = methodParameter.getParameterName();
-//			} else if (valueAttribute.indexOf('.') != -1) {
-//				String tokens[] = valueAttribute.split("\\.", 2);
-//				headerName = tokens[0];
-//				if (StringUtils.hasText(tokens[1])) {
-//					relativeExpression = "." + tokens[1];
-//				}
-//			} else {
-//				headerName = valueAttribute;
-//			}
-//			Assert.notNull(headerName, "Cannot determine parameter name. Possible reasons: -debug is "
-//					+ "disabled or header name is not explicitly provided via @YarnEnvironment annotation.");
-//			String headerRetrievalExpression = "environment['" + headerName + "']";
-//			String fullHeaderExpression = headerRetrievalExpression + relativeExpression;
-//			String fallbackExpression = (environmentAnnotation.required()) ? "T(org.springframework.util.Assert).isTrue(false, 'required parameter not available:  "
-//					+ headerName + "')"
-//					: "null";
-//			return headerRetrievalExpression + " != null ? " + fullHeaderExpression + " : " + fallbackExpression;
-//		}
 
 	}
 
 	/**
 	 * Wrapping everything we need to work with spel.
 	 */
-	public class ParametersWrapper {
+	public class ParametersWrapper<SS, EE> {
 
-		private final StateContext stateContext;
-		
-		public ParametersWrapper(StateContext stateContext) {
+		private final StateContext<SS, EE> stateContext;
+
+		public ParametersWrapper(StateContext<SS, EE> stateContext) {
 			this.stateContext = stateContext;
 		}
-		
-		public StateContext getStateContext() {
+
+		public StateContext<SS, EE> getStateContext() {
 			return stateContext;
 		}
-		
+
+		public Map<String, ?> getHeaders() {
+			return stateContext.getMessageHeaders();
+		}
+
+		public ExtendedState getExtendedState() {
+			return stateContext.getExtendedState();
+		}
+
 	}
 
 }

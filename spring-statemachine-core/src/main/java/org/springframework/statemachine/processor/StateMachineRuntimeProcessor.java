@@ -21,9 +21,11 @@ package org.springframework.statemachine.processor;
  *
  * @author Janne Valkealahti
  *
- * @param <T> type
+ * @param <T> the return type
+ * @param <S> the type of state
+ * @param <E> the type of event
  */
-public interface StateMachineRuntimeProcessor<T> {
+public interface StateMachineRuntimeProcessor<T, S, E> {
 
 	/**
 	 * Process the container based on information available
@@ -32,6 +34,6 @@ public interface StateMachineRuntimeProcessor<T> {
 	 * @param stateMachineRuntime the yarn container runtime
 	 * @return the result
 	 */
-	T process(StateMachineRuntime stateMachineRuntime);
+	T process(StateMachineRuntime<S, E> stateMachineRuntime);
 
 }

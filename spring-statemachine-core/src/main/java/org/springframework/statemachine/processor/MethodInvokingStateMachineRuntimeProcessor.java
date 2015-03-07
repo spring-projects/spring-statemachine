@@ -25,25 +25,27 @@ import java.lang.reflect.Method;
  * @author Janne Valkealahti
  *
  * @param <T> the return type
+ * @param <S> the type of state
+ * @param <E> the type of event
  */
-public class MethodInvokingStateMachineRuntimeProcessor<T> implements StateMachineRuntimeProcessor<T> {
+public class MethodInvokingStateMachineRuntimeProcessor<T, S, E> implements StateMachineRuntimeProcessor<T, S, E> {
 
-	private final StateMachineMethodInvokerHelper<T> delegate;
+	private final StateMachineMethodInvokerHelper<T, S, E> delegate;
 
 	public MethodInvokingStateMachineRuntimeProcessor(Object targetObject, Method method) {
-		delegate = new StateMachineMethodInvokerHelper<T>(targetObject, method);
+		delegate = new StateMachineMethodInvokerHelper<T, S, E>(targetObject, method);
 	}
 
 	public MethodInvokingStateMachineRuntimeProcessor(Object targetObject, String methodName) {
-		delegate = new StateMachineMethodInvokerHelper<T>(targetObject, methodName);
+		delegate = new StateMachineMethodInvokerHelper<T, S, E>(targetObject, methodName);
 	}
 
 	public MethodInvokingStateMachineRuntimeProcessor(Object targetObject, Class<? extends Annotation> annotationType) {
-		delegate = new StateMachineMethodInvokerHelper<T>(targetObject, annotationType);
+		delegate = new StateMachineMethodInvokerHelper<T, S, E>(targetObject, annotationType);
 	}
 
 	@Override
-	public T process(StateMachineRuntime stateMachineRuntime) {
+	public T process(StateMachineRuntime<S, E> stateMachineRuntime) {
 		try {
 			return delegate.process(stateMachineRuntime);
 		} catch (Exception e) {

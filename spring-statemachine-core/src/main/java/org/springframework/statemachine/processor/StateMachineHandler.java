@@ -28,21 +28,15 @@ import org.springframework.statemachine.annotation.WithStateMachine;
  *
  * @author Janne Valkealahti
  *
+ * @param <T> the return type
+ * @param <S> the type of state
+ * @param <E> the type of event
  */
-public class StateMachineHandler implements Ordered {
+public class StateMachineHandler<S, E> implements Ordered {
 
-	private final StateMachineRuntimeProcessor<?> processor;
+	private final StateMachineRuntimeProcessor<?, S, E> processor;
 
 	private int order = Ordered.LOWEST_PRECEDENCE;
-
-	/**
-	 * Instantiates a new container handler.
-	 *
-	 * @param target the target bean
-	 */
-//	public StateMachineHandler(Object target) {
-//		this(new MethodInvokingStateMachineRuntimeProcessor<Object>(target, OnTransition.class));
-//	}
 
 	/**
 	 * Instantiates a new container handler.
@@ -51,7 +45,7 @@ public class StateMachineHandler implements Ordered {
 	 * @param method the method
 	 */
 	public StateMachineHandler(Object target, Method method) {
-		this(new MethodInvokingStateMachineRuntimeProcessor<Object>(target, method));
+		this(new MethodInvokingStateMachineRuntimeProcessor<Object, S, E>(target, method));
 	}
 
 	/**
@@ -61,7 +55,7 @@ public class StateMachineHandler implements Ordered {
 	 * @param methodName the method name
 	 */
 	public StateMachineHandler(Object target, String methodName) {
-		this(new MethodInvokingStateMachineRuntimeProcessor<Object>(target, methodName));
+		this(new MethodInvokingStateMachineRuntimeProcessor<Object, S, E>(target, methodName));
 	}
 
 	/**
@@ -70,7 +64,7 @@ public class StateMachineHandler implements Ordered {
 	 * @param <T> the generic type
 	 * @param processor the processor
 	 */
-	public <T> StateMachineHandler(MethodInvokingStateMachineRuntimeProcessor<T> processor) {
+	public <T> StateMachineHandler(MethodInvokingStateMachineRuntimeProcessor<T, S, E> processor) {
 		this.processor = processor;
 	}
 
@@ -95,7 +89,7 @@ public class StateMachineHandler implements Ordered {
 	 * @param stateMachineRuntime the state machine runtime
 	 * @return the result value
 	 */
-	public Object handle(StateMachineRuntime stateMachineRuntime) {
+	public Object handle(StateMachineRuntime<S, E> stateMachineRuntime) {
 		return processor.process(stateMachineRuntime);
 	}
 

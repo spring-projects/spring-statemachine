@@ -16,9 +16,11 @@
 package org.springframework.statemachine.annotation;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -29,6 +31,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.EnumStateMachine;
+import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
@@ -59,6 +62,34 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		context.close();
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testMethodAnnotations2() throws Exception {
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(BaseConfig.class, AnnoConfig.class, BeanConfig2.class, Config1.class);
+
+		EnumStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		assertThat(context.containsBean("fooMachine"), is(true));
+		machine.start();
+
+		Bean2 bean2 = context.getBean(Bean2.class);
+
+		// this event should cause 'method1' to get called
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("foo", "jee").build());
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E2).build());
+
+		assertThat(bean2.onMethod1Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean2.headers, notNullValue());
+		assertThat((String)bean2.headers.get("foo"), is("jee"));
+		assertThat(bean2.extendedState, notNullValue());
+
+		assertThat(bean2.onMethod2Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean2.variable, notNullValue());
+		assertThat((String)bean2.variable, is("jee"));
+
+		context.close();
+	}
+
 	@WithStateMachine(name = StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)
 	static class Bean1 {
 
@@ -75,6 +106,30 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 			onOnTransitionFromS2ToS3Latch.countDown();
 		}
 
+	}
+
+	@WithStateMachine(name = StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)
+	static class Bean2 {
+
+		CountDownLatch onMethod1Latch = new CountDownLatch(1);
+		CountDownLatch onMethod2Latch = new CountDownLatch(1);
+		Map<String, Object> headers;
+		ExtendedState extendedState;
+		Object variable;
+
+		@OnTransition(source = "S1", target = "S2")
+		public void method1(@EventHeaders Map<String, Object> headers, ExtendedState extendedState) {
+			this.headers = headers;
+			extendedState.getVariables().put("foo", "jee");
+			this.extendedState = extendedState;
+			onMethod1Latch.countDown();
+		}
+
+		@OnTransition(source = "S2", target = "S3")
+		public void method2(@EventHeaders Map<String, Object> headers, ExtendedState extendedState) {
+			variable = extendedState.getVariables().get("foo");
+			onMethod2Latch.countDown();
+		}
 
 	}
 
@@ -88,6 +143,15 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 
 	}
 
+	@Configuration
+	static class BeanConfig2 {
+
+		@Bean
+		public Bean2 bean2() {
+			return new Bean2();
+		}
+
+	}
 
 	@Configuration
 	static class AnnoConfig {
@@ -124,7 +188,12 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 				.withExternal()
 					.source(TestStates.S2)
 					.target(TestStates.S3)
-					.event(TestEvents.E2);
+					.event(TestEvents.E2)
+					.and()
+				.withExternal()
+					.source(TestStates.S3)
+					.target(TestStates.S4)
+					.event(TestEvents.E3);
 		}
 
 		@Bean

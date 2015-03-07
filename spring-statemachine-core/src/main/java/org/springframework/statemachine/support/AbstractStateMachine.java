@@ -87,6 +87,10 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 
 	private volatile Runnable task;
 
+	private final Map<String, StateMachineOnTransitionHandler<S, E>> handlers = new HashMap<String, StateMachineOnTransitionHandler<S,E>>();
+
+	private volatile boolean handlersInitialized;
+
 	/**
 	 * Instantiates a new abstract state machine.
 	 *
@@ -109,7 +113,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	 */
 	public AbstractStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
 			State<S, E> initialState, State<S, E> endState) {
-		this(states, transitions, initialState, endState, null, null);
+		this(states, transitions, initialState, endState, null, new DefaultExtendedState());
 	}
 
 	/**
@@ -366,6 +370,9 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	}
 
 	private void callHandlers(State<S,E> sourceState, State<S,E> targetState, Message<E> event) {
+
+
+
 		if (sourceState != null && targetState != null) {
 			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
 					new HashMap<String, Object>());
@@ -375,21 +382,21 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 
 	}
 
-	private List<Object> getStateMachineHandlerResults(List<StateMachineHandler> stateMachineHandlers, final StateContext<S, E> stateContext) {
-		StateMachineRuntime runtime = new StateMachineRuntime() {
+	private List<Object> getStateMachineHandlerResults(List<StateMachineHandler<S, E>> stateMachineHandlers, final StateContext<S, E> stateContext) {
+		StateMachineRuntime<S, E> runtime = new StateMachineRuntime<S, E>() {
 			@Override
 			public StateContext<S, E> getStateContext() {
 				return stateContext;
 			}
 		};
 		List<Object> results = new ArrayList<Object>();
-		for (StateMachineHandler handler : stateMachineHandlers) {
+		for (StateMachineHandler<S, E> handler : stateMachineHandlers) {
 			results.add(handler.handle(runtime));
 		}
 		return results;
 	}
 
-	private List<StateMachineHandler> getStateMachineHandlers(State<S, E> sourceState, State<S, E> targetState) {
+	private synchronized List<StateMachineHandler<S, E>> getStateMachineHandlers(State<S, E> sourceState, State<S, E> targetState) {
 		BeanFactory beanFactory = getBeanFactory();
 
 		// TODO think how to handle null bf
@@ -397,11 +404,19 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			return Collections.emptyList();
 		}
 		Assert.state(beanFactory instanceof ListableBeanFactory, "Bean factory must be instance of ListableBeanFactory");
-		Map<String, StateMachineOnTransitionHandler> handlers = ((ListableBeanFactory) beanFactory)
-				.getBeansOfType(StateMachineOnTransitionHandler.class);
-		List<StateMachineHandler> handlersList = new ArrayList<StateMachineHandler>();
 
-		for (Entry<String, StateMachineOnTransitionHandler> entry : handlers.entrySet()) {
+		if (!handlersInitialized) {
+			Map<String, StateMachineOnTransitionHandler> handlersx = ((ListableBeanFactory) beanFactory)
+					.getBeansOfType(StateMachineOnTransitionHandler.class);
+			for (Entry<String, StateMachineOnTransitionHandler> entry : handlersx.entrySet()) {
+				handlers.put(entry.getKey(), entry.getValue());
+			}
+			handlersInitialized = true;
+		}
+
+		List<StateMachineHandler<S, E>> handlersList = new ArrayList<StateMachineHandler<S, E>>();
+
+		for (Entry<String, StateMachineOnTransitionHandler<S, E>> entry : handlers.entrySet()) {
 			OnTransition annotation = entry.getValue().getAnnotation();
 			String source = annotation.source();
 			String target = annotation.target();
