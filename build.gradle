@@ -115,6 +115,10 @@ configure(sampleProjects()) {
 	apply plugin: 'spring-boot'
 	dependencies {
 		compile project(":spring-statemachine-samples-common")
+		testCompile "org.springframework:spring-test:$springVersion"
+		testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"
+		testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
+		testCompile "junit:junit:$junitVersion"
 	}
 }
 
@@ -176,6 +180,7 @@ configure(rootProject) {
 		from 'spring-statemachine-core/src/test/java/org/springframework/statemachine/docs'
 		from 'spring-statemachine-samples/src/main/java/'
 		from 'spring-statemachine-samples/turnstile/src/main/java/'
+		from 'spring-statemachine-samples/showcase/src/main/java/'
 		include '**/*.java'
 		into 'docs/src/reference/asciidoc/samples'
 	}

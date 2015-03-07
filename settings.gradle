@@ -4,6 +4,7 @@ include 'spring-statemachine-core'
 
 include 'spring-statemachine-samples'
 include 'spring-statemachine-samples:turnstile'
+include 'spring-statemachine-samples:showcase'
 
 rootProject.children.find {
 	if (it.name == 'spring-statemachine-samples') {

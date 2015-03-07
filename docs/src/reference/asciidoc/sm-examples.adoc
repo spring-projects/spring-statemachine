@@ -75,3 +75,39 @@ State changed to LOCKED
 Event PUSH send
 ----
 
+== Showcase
+
+Showcase is a complex state machine showing all possible transition
+topologies up to four levels of state nesting.
+
+image::images/statechart2.png[]
+
+.States
+[source,java,indent=0]
+----
+include::samples/demo/showcase/Application.java[tags=snippetB]
+----
+
+.Events
+[source,java,indent=0]
+----
+include::samples/demo/showcase/Application.java[tags=snippetC]
+----
+
+.Configuration
+[source,java,indent=0]
+----
+include::samples/demo/showcase/Application.java[tags=snippetA]
+----
+
+.Guard
+[source,java,indent=0]
+----
+include::samples/demo/showcase/Application.java[tags=snippetD]
+----
+
+.Action
+[source,java,indent=0]
+----
+include::samples/demo/showcase/Application.java[tags=snippetE]
+----

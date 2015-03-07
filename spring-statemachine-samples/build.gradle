@@ -4,3 +4,6 @@ project('spring-statemachine-samples-turnstile') {
   description = 'Spring State Machine Turnstile Sample'
 }
 
+project('spring-statemachine-samples-showcase') {
+  description = 'Spring State Machine Showcase Sample'
+}
