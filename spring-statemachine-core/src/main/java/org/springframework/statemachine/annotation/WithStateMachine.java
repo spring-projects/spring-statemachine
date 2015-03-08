@@ -22,15 +22,30 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.springframework.context.annotation.Configuration;
+import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.stereotype.Component;
 
+/**
+ * Annotation which is marking a bean to be a candidate for participating with a
+ * state machine events.
+ *
+ * @author Janne Valkealahti
+ *
+ */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
 @Component
+@Configuration
 public @interface WithStateMachine {
 
-	String name() default "";
-	
+	/**
+	 * The name of a state machine which annotated bean should be associated.
+	 *
+	 * @return the state machine bean name
+	 */
+	String name() default StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE;
+
 }

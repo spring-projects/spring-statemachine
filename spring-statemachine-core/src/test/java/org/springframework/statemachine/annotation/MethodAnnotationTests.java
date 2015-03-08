@@ -37,14 +37,13 @@ import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
-import org.springframework.statemachine.processor.StateMachineAnnotationPostProcessor;
 
 public class MethodAnnotationTests extends AbstractStateMachineTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testMethodAnnotations() throws Exception {
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(BaseConfig.class, AnnoConfig.class, BeanConfig1.class, Config1.class);
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(BaseConfig.class, BeanConfig1.class, Config1.class);
 
 		EnumStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
@@ -65,7 +64,7 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testMethodAnnotations2() throws Exception {
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(BaseConfig.class, AnnoConfig.class, BeanConfig2.class, Config1.class);
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(BaseConfig.class, BeanConfig2.class, Config1.class);
 
 		EnumStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
@@ -90,7 +89,7 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		context.close();
 	}
 
-	@WithStateMachine(name = StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)
+	@WithStateMachine
 	static class Bean1 {
 
 		CountDownLatch onMethod1Latch = new CountDownLatch(1);
@@ -108,7 +107,7 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 
 	}
 
-	@WithStateMachine(name = StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)
+	@WithStateMachine
 	static class Bean2 {
 
 		CountDownLatch onMethod1Latch = new CountDownLatch(1);
@@ -149,16 +148,6 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		@Bean
 		public Bean2 bean2() {
 			return new Bean2();
-		}
-
-	}
-
-	@Configuration
-	static class AnnoConfig {
-
-		@Bean(name="org.springframework.statemachine.internal.springStateMachineAnnotationPostProcessor")
-		public StateMachineAnnotationPostProcessor springStateMachineAnnotationPostProcessor() {
-			return new StateMachineAnnotationPostProcessor();
 		}
 
 	}
