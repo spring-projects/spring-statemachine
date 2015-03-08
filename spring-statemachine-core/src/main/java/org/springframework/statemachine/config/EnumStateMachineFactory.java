@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -99,7 +98,7 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 		    }
 		};
 
-		List<MachineStackItem<S, E>> regionStack = new ArrayList<MachineStackItem<S, E>>();
+		Stack<MachineStackItem<S, E>> regionStack = new Stack<MachineStackItem<S, E>>();
 		Stack<StateData<S, E>> stateStack = new Stack<StateData<S, E>>();
 
 		Iterable<Node<StateData<S, E>>> postOrderTraversal = traverser.postOrderTraversal(tree.getRoot());
@@ -132,22 +131,45 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 			if (peek.isInitial() || (!peek.isInitial() && !machineMap.containsKey(peek.getParent()))) {
 				machineMap.put(peek.getParent(), machine);
 			}
-			regionStack.add(new MachineStackItem<S, E>(machine, peek.getParent()));
+			if (peek.getParent() == null) {
+				regionStack.push(new MachineStackItem<S, E>(machine, peek.getParent(), peek));
+			}
 			stateStack.push(stateData);
 		}
 
-		Collection<Region<S, E>> regions = new ArrayList<Region<S,E>>();
-		for (MachineStackItem<S, E> si : regionStack) {
-			if (si.parent == null) {
-				regions.add(si.machine);
+		// TODO: usage of initials is a temporary fix to workaround for missing
+		//       full support of regions
+		int initials = 0;
+		if (regionStack.size() > 1) {
+			Collection<TransitionData<S, E>> transitionsData = new ArrayList<TransitionData<S, E>>();
+			Collection<StateData<S, E>> stateDatas = new ArrayList<StateData<S, E>>();
+			Iterator<MachineStackItem<S, E>> i = regionStack.iterator();
+			while (i.hasNext()) {
+				MachineStackItem<S, E> next = i.next();
+				stateDatas.add(next.stateData);
+				if (next.stateData.isInitial()) {
+					initials++;
+				}
+			}
+
+			if (initials == 1) {
+				machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, getBeanFactory());
 			}
 		}
 
-		if (regions.size() > 1) {
-			RegionState<S, E> rstate = new RegionState<S, E>(null, regions);
-			Collection<State<S, E>> states = new ArrayList<State<S,E>>();
-			states.add(rstate);
-			machine = new EnumStateMachine<S, E>(states, null, rstate, null);
+		if (initials > 1) {
+			Collection<Region<S, E>> regions = new ArrayList<Region<S, E>>();
+			for (MachineStackItem<S, E> si : regionStack) {
+				if (si.parent == null) {
+					regions.add(si.machine);
+				}
+			}
+			if (regions.size() > 1) {
+				RegionState<S, E> rstate = new RegionState<S, E>(null, regions);
+				Collection<State<S, E>> states = new ArrayList<State<S, E>>();
+				states.add(rstate);
+				machine = new EnumStateMachine<S, E>(states, null, rstate, null);
+			}
 		}
 
 		return machine;
@@ -178,11 +200,13 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 
 		StateMachine<S, E> machine;
 		Object parent;
+		StateData<S, E> stateData;
 
-		public MachineStackItem(StateMachine<S, E> machine, Object parent) {
+		public MachineStackItem(StateMachine<S, E> machine, Object parent, StateData<S, E> stateData) {
 			super();
 			this.machine = machine;
 			this.parent = parent;
+			this.stateData = stateData;
 		}
 
 	}
@@ -229,7 +253,13 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 				state = new StateMachineState<S, E>(stateData.getState(), stateMachine, stateData.getDeferred(),
 				stateData.getEntryActions(), stateData.getExitActions(), new DefaultPseudoState(
 				PseudoStateKind.INITIAL));
-				initialState = state;
+				// TODO: below if/else doesn't feel right
+				if (stateDatas.size() > 1 && stateData.isInitial()) {
+					initialState = state;
+				} else if (stateDatas.size() == 1) {
+					initialState = state;
+				}
+//				initialState = state;
 				states.add(state);
 			} else {
 				PseudoState pseudoState = null;
