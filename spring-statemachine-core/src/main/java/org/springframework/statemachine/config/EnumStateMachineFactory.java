@@ -141,7 +141,7 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 		//       full support of regions
 		int initials = 0;
 		if (regionStack.size() > 1) {
-			Collection<TransitionData<S, E>> transitionsData = new ArrayList<TransitionData<S, E>>();
+			Collection<TransitionData<S, E>> transitionsData = resolveTransitionData2(stateMachineTransitions.getTransitions());
 			Collection<StateData<S, E>> stateDatas = new ArrayList<StateData<S, E>>();
 			Iterator<MachineStackItem<S, E>> i = regionStack.iterator();
 			while (i.hasNext()) {
