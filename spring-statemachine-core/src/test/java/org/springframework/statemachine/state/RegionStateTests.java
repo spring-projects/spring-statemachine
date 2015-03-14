@@ -29,6 +29,7 @@ import org.springframework.statemachine.EnumStateMachine;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.transition.DefaultExternalTransition;
 import org.springframework.statemachine.transition.Transition;
+import org.springframework.statemachine.trigger.EventTrigger;
 
 /**
  * Tests for states using a submachine.
@@ -55,13 +56,13 @@ public class RegionStateTests extends AbstractStateMachineTests {
 		Collection<Transition<TestStates,TestEvents>> transitions = new ArrayList<Transition<TestStates,TestEvents>>();
 
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromSIToS1 =
-				new DefaultExternalTransition<TestStates,TestEvents>(stateSI, stateS1, null, TestEvents.E1, null);
+				new DefaultExternalTransition<TestStates,TestEvents>(stateSI, stateS1, null, TestEvents.E1, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E1));
 
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromS1ToS2 =
-				new DefaultExternalTransition<TestStates,TestEvents>(stateS1, stateS2, null, TestEvents.E2, null);
+				new DefaultExternalTransition<TestStates,TestEvents>(stateS1, stateS2, null, TestEvents.E2, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E2));
 
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromS2ToS3 =
-				new DefaultExternalTransition<TestStates,TestEvents>(stateS2, stateS3, null, TestEvents.E3, null);
+				new DefaultExternalTransition<TestStates,TestEvents>(stateS2, stateS3, null, TestEvents.E3, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E3));
 
 		transitions.add(transitionFromSIToS1);
 		transitions.add(transitionFromS1ToS2);

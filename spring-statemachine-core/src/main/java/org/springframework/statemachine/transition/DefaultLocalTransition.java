@@ -20,11 +20,12 @@ import java.util.Collection;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.trigger.Trigger;
 
 public class DefaultLocalTransition<S, E> extends AbstractLocalTransition<S, E> {
 
-	public DefaultLocalTransition(State<S,E> source, State<S,E> target, Collection<Action<S, E>> actions, E event, Guard<S, E> guard) {
-		super(source, target, actions, event, guard);
+	public DefaultLocalTransition(State<S,E> source, State<S,E> target, Collection<Action<S, E>> actions, E event, Guard<S, E> guard, Trigger<S, E> trigger) {
+		super(source, target, actions, event, guard, trigger);
 	}
 
 	@Override

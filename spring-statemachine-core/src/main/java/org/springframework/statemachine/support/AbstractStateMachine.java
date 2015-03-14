@@ -49,6 +49,7 @@ import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionKind;
+import org.springframework.statemachine.trigger.DefaultTriggerContext;
 import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.util.Assert;
 
@@ -90,6 +91,10 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	private final Map<String, StateMachineOnTransitionHandler<S, E>> handlers = new HashMap<String, StateMachineOnTransitionHandler<S,E>>();
 
 	private volatile boolean handlersInitialized;
+
+	private final Queue<TriggerQueueItem> triggerQueue = new ConcurrentLinkedQueue<TriggerQueueItem>();
+
+	private final Map<Trigger<S, E>, Transition<S,E>> triggerToTransitionMap = new HashMap<Trigger<S,E>, Transition<S,E>>();
 
 	/**
 	 * Instantiates a new abstract state machine.
@@ -188,6 +193,12 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		Assert.state(initialState.getPseudoState() != null
 				&& initialState.getPseudoState().getKind() == PseudoStateKind.INITIAL,
 				"Initial state's pseudostate kind must be INITIAL");
+		for (Transition<S, E> transition : transitions) {
+			Trigger<S, E> trigger = transition.getTrigger();
+			if (trigger != null) {
+				triggerToTransitionMap.put(trigger, transition);
+			}
+		}
 	}
 
 	@Override
@@ -241,8 +252,8 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			Trigger<S, E> trigger = transition.getTrigger();
 
 			if (StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
-				if (trigger != null && trigger.evaluate(event.getPayload())) {
-					eventQueue.add(event);
+				if (trigger != null && trigger.evaluate(new DefaultTriggerContext<S, E>(event.getPayload()))) {
+					triggerQueue.add(new TriggerQueueItem(trigger, event));
 					return true;
 				} else if (source.getDeferredEvents() != null && source.getDeferredEvents().contains(event.getPayload())) {
 					defer = event;
@@ -306,20 +317,11 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			Message<E> defer = null;
 			for (Transition<S,E> transition : transitions) {
 				State<S,E> source = transition.getSource();
-				State<S,E> target = transition.getTarget();
 				Trigger<S, E> trigger = transition.getTrigger();
 
 				if (StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
-					if (trigger != null && trigger.evaluate(queuedEvent.getPayload())) {
-						StateContext<S, E> stateContext = new DefaultStateContext<S, E>(queuedEvent.getHeaders(), extendedState, transition);
-						notifyTransitionStart(transition);
-						boolean transit = transition.transit(stateContext);
-						if (transit && transition.getKind() != TransitionKind.INTERNAL) {
-							switchToState(target, queuedEvent, transition);
-							notifyTransition(transition);
-						}
-						notifyTransitionEnd(transition);
-						break;
+					if (trigger != null && trigger.evaluate(new DefaultTriggerContext<S, E>(queuedEvent.getPayload()))) {
+						triggerQueue.add(new TriggerQueueItem(trigger, queuedEvent));
 					} else if (source.getDeferredEvents() != null && source.getDeferredEvents().contains(queuedEvent.getPayload())) {
 						defer = queuedEvent;
 					}
@@ -332,27 +334,25 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		}
 	}
 
-	private void processDeferList() {
+	private boolean processDeferList() {
 		log.debug("Process defer list");
+		boolean triggered = false;
 		ListIterator<Message<E>> iterator = deferList.listIterator();
 		while (iterator.hasNext()) {
 			Message<E> event = iterator.next();
 			for (Transition<S,E> transition : transitions) {
 				State<S,E> source = transition.getSource();
-				State<S,E> target = transition.getTarget();
 				Trigger<S, E> trigger = transition.getTrigger();
 				if (source.equals(currentState)) {
-					if (trigger != null && trigger.evaluate(event.getPayload())) {
-						StateContext<S, E> stateContext = new DefaultStateContext<S, E>(event.getHeaders(), extendedState, transition);
-						boolean transit = transition.transit(stateContext);
-						if (transit && transition.getKind() != TransitionKind.INTERNAL) {
-							switchToState(target, event, transition);
-						}
+					if (trigger != null && trigger.evaluate(new DefaultTriggerContext<S, E>(event.getPayload()))) {
+						triggerQueue.add(new TriggerQueueItem(trigger, event));
 						iterator.remove();
+						triggered = true;
 					}
 				}
 			}
 		}
+		return triggered;
 	}
 
 	private void scheduleEventQueueProcessing() {
@@ -361,12 +361,38 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 				@Override
 				public void run() {
 					processEventQueue();
-					processDeferList();
+					processTriggerQueue();
+					while (processDeferList()) {
+						processTriggerQueue();
+					}
 					task = null;
 				}
 			};
 			getTaskExecutor().execute(task);
 		}
+	}
+
+	private void processTriggerQueue() {
+		log.debug("Process trigger queue");
+		TriggerQueueItem queueItem = null;
+		while ((queueItem = triggerQueue.poll()) != null) {
+			Message<E> queuedEvent = queueItem.message;
+			Transition<S, E> transition = triggerToTransitionMap.get(queueItem.trigger);
+			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(queuedEvent.getHeaders(), extendedState, transition);
+			notifyTransitionStart(transition);
+			if (transition == null) {
+				continue;
+			}
+			boolean transit = transition.transit(stateContext);
+			if (transit && transition.getKind() != TransitionKind.INTERNAL) {
+				switchToState(transition.getTarget(), queuedEvent, transition);
+				notifyTransition(transition);
+			}
+			notifyTransitionEnd(transition);
+
+
+		}
+
 	}
 
 	private void callHandlers(State<S,E> sourceState, State<S,E> targetState, Message<E> event) {
@@ -462,6 +488,15 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 		if (eventPublisher != null) {
 			eventPublisher.publishTransition(this, transition);
+		}
+	}
+
+	private class TriggerQueueItem {
+		Trigger<S, E> trigger;
+		Message<E> message;
+		public TriggerQueueItem(Trigger<S, E> trigger, Message<E> message) {
+			this.trigger = trigger;
+			this.message = message;
 		}
 	}
 

@@ -21,7 +21,6 @@ import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.state.State;
-import org.springframework.statemachine.trigger.EventTrigger;
 import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.util.Assert;
 
@@ -48,17 +47,15 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 	private Trigger<S, E> trigger;
 
 	public AbstractTransition(State<S, E> source, State<S, E> target, Collection<Action<S, E>> actions, E event,
-			TransitionKind kind, Guard<S, E> guard) {
+			TransitionKind kind, Guard<S, E> guard, Trigger<S, E> trigger) {
 		Assert.notNull(source, "Source must be set");
 		Assert.notNull(kind, "Transition type must be set");
 		this.source = source;
 		this.target = target;
 		this.actions = actions;
-		if (event != null) {
-			this.trigger = new EventTrigger<S, E>(event);
-		}
 		this.kind = kind;
 		this.guard = guard;
+		this.trigger = trigger;
 	}
 
 	@Override

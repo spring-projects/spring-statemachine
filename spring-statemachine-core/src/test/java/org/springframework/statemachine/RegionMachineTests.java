@@ -39,6 +39,7 @@ import org.springframework.statemachine.state.RegionState;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.DefaultExternalTransition;
 import org.springframework.statemachine.transition.Transition;
+import org.springframework.statemachine.trigger.EventTrigger;
 
 /**
  * Statemachine tests using regions.
@@ -50,6 +51,7 @@ public class RegionMachineTests {
 
 	@Test
 	public void testSimpleRegion() throws Exception {
+		PseudoState pseudoState = new DefaultPseudoState(PseudoStateKind.INITIAL);
 		TestEntryAction entryActionS1 = new TestEntryAction("S1");
 		TestExitAction exitActionS1 = new TestExitAction("S1");
 		Collection<Action<TestStates, TestEvents>> entryActionsS1 = new ArrayList<Action<TestStates, TestEvents>>();
@@ -58,7 +60,7 @@ public class RegionMachineTests {
 		exitActionsS1.add(exitActionS1);
 
 
-		State<TestStates,TestEvents> stateSI = new EnumState<TestStates,TestEvents>(TestStates.SI);
+		State<TestStates,TestEvents> stateSI = new EnumState<TestStates,TestEvents>(TestStates.SI, pseudoState);
 		State<TestStates,TestEvents> stateS1 = new EnumState<TestStates,TestEvents>(TestStates.S1, null, entryActionsS1, exitActionsS1);
 		State<TestStates,TestEvents> stateS2 = new EnumState<TestStates,TestEvents>(TestStates.S2);
 		State<TestStates,TestEvents> stateS3 = new EnumState<TestStates,TestEvents>(TestStates.S3);
@@ -72,13 +74,13 @@ public class RegionMachineTests {
 		Collection<Transition<TestStates,TestEvents>> transitions = new ArrayList<Transition<TestStates,TestEvents>>();
 
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromSIToS1 =
-				new DefaultExternalTransition<TestStates,TestEvents>(stateSI, stateS1, null, TestEvents.E1, null);
+				new DefaultExternalTransition<TestStates,TestEvents>(stateSI, stateS1, null, TestEvents.E1, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E1));
 
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromS1ToS2 =
-				new DefaultExternalTransition<TestStates,TestEvents>(stateS1, stateS2, null, TestEvents.E2, null);
+				new DefaultExternalTransition<TestStates,TestEvents>(stateS1, stateS2, null, TestEvents.E2, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E2));
 
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromS2ToS3 =
-				new DefaultExternalTransition<TestStates,TestEvents>(stateS2, stateS3, null, TestEvents.E3, null);
+				new DefaultExternalTransition<TestStates,TestEvents>(stateS2, stateS3, null, TestEvents.E3, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E3));
 
 		transitions.add(transitionFromSIToS1);
 		transitions.add(transitionFromS1ToS2);
@@ -87,6 +89,7 @@ public class RegionMachineTests {
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
 		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateSI, null);
 		machine.setTaskExecutor(taskExecutor);
+		machine.afterPropertiesSet();
 		machine.start();
 
 		Collection<Region<TestStates,TestEvents>> regions = new ArrayList<Region<TestStates,TestEvents>>();
@@ -145,7 +148,7 @@ public class RegionMachineTests {
 		states11.add(stateS112);
 		Collection<Transition<TestStates,TestEvents>> transitions11 = new ArrayList<Transition<TestStates,TestEvents>>();
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromS111ToS112 =
-				new DefaultExternalTransition<TestStates,TestEvents>(stateS111, stateS112, null, TestEvents.E2, null);
+				new DefaultExternalTransition<TestStates,TestEvents>(stateS111, stateS112, null, TestEvents.E2, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E2));
 		transitions11.add(transitionFromS111ToS112);
 		EnumStateMachine<TestStates, TestEvents> machine11 = new EnumStateMachine<TestStates, TestEvents>(states11, transitions11, stateS111, null);
 		machine11.setTaskExecutor(taskExecutor);
@@ -156,7 +159,7 @@ public class RegionMachineTests {
 		states12.add(stateS121);
 		Collection<Transition<TestStates,TestEvents>> transitions12 = new ArrayList<Transition<TestStates,TestEvents>>();
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromSIToS121 =
-				new DefaultExternalTransition<TestStates,TestEvents>(stateSI, stateS111, null, TestEvents.E3, null);
+				new DefaultExternalTransition<TestStates,TestEvents>(stateSI, stateS111, null, TestEvents.E3, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E3));
 		transitions12.add(transitionFromSIToS121);
 		EnumStateMachine<TestStates, TestEvents> machine12 = new EnumStateMachine<TestStates, TestEvents>(states12, transitions12, stateS121, null);
 		machine12.setTaskExecutor(taskExecutor);
@@ -171,7 +174,7 @@ public class RegionMachineTests {
 		states.add(stateR);
 		Collection<Transition<TestStates,TestEvents>> transitions = new ArrayList<Transition<TestStates,TestEvents>>();
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromSIToRegionstate =
-				new DefaultExternalTransition<TestStates,TestEvents>(stateSI, stateR, null, TestEvents.E1, null);
+				new DefaultExternalTransition<TestStates,TestEvents>(stateSI, stateR, null, TestEvents.E1, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E1));
 		transitions.add(transitionFromSIToRegionstate);
 		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateR, null);
 

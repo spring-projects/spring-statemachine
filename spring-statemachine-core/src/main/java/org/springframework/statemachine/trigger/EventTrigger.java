@@ -15,6 +15,8 @@
  */
 package org.springframework.statemachine.trigger;
 
+import org.springframework.util.ObjectUtils;
+
 public class EventTrigger<S, E> implements Trigger<S, E> {
 
 	private final E event;
@@ -24,8 +26,8 @@ public class EventTrigger<S, E> implements Trigger<S, E> {
 	}
 
 	@Override
-	public boolean evaluate(E event) {
-		return this.event.equals(event);
+	public boolean evaluate(TriggerContext<S, E> context) {
+		return ObjectUtils.nullSafeEquals(event, context.getEvent());
 	}
 
 }

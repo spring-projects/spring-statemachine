@@ -20,11 +20,12 @@ import java.util.Collection;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.trigger.Trigger;
 
 public abstract class AbstractExternalTransition<S, E> extends AbstractTransition<S, E> implements Transition<S, E> {
 
-	public AbstractExternalTransition(State<S,E> source, State<S,E> target, Collection<Action<S, E>> actions, E event, Guard<S, E> guard) {
-		super(source, target, actions, event, TransitionKind.EXTERNAL, guard);
+	public AbstractExternalTransition(State<S,E> source, State<S,E> target, Collection<Action<S, E>> actions, E event, Guard<S, E> guard, Trigger<S, E> trigger) {
+		super(source, target, actions, event, TransitionKind.EXTERNAL, guard, trigger);
 	}
 
 

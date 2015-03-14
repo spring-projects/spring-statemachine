@@ -44,6 +44,7 @@ import org.springframework.statemachine.transition.DefaultExternalTransition;
 import org.springframework.statemachine.transition.DefaultInternalTransition;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionKind;
+import org.springframework.statemachine.trigger.EventTrigger;
 import org.springframework.util.ObjectUtils;
 
 /**
@@ -290,12 +291,12 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 			E event = transitionData.getEvent();
 			if (transitionData.getKind() == TransitionKind.EXTERNAL) {
 				DefaultExternalTransition<S, E> transition = new DefaultExternalTransition<S, E>(stateMap.get(source),
-						stateMap.get(target), transitionData.getActions(), event, transitionData.getGuard());
+						stateMap.get(target), transitionData.getActions(), event, transitionData.getGuard(), event != null ? new EventTrigger<S, E>(event) : null);
 				transitions.add(transition);
 
 			} else if (transitionData.getKind() == TransitionKind.INTERNAL) {
 				DefaultInternalTransition<S, E> transition = new DefaultInternalTransition<S, E>(stateMap.get(source),
-						transitionData.getActions(), event, transitionData.getGuard());
+						transitionData.getActions(), event, transitionData.getGuard(), event != null ? new EventTrigger<S, E>(event) : null);
 				transitions.add(transition);
 			}
 		}

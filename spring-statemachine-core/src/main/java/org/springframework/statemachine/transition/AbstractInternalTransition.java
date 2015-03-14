@@ -20,11 +20,12 @@ import java.util.Collection;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.trigger.Trigger;
 
 public class AbstractInternalTransition <S, E> extends AbstractTransition<S, E> implements Transition<S, E> {
 
-	public AbstractInternalTransition(State<S, E> source,Collection<Action<S, E>> actions, E event, Guard<S, E> guard) {
-		super(source, source, actions, event, TransitionKind.INTERNAL, guard);
+	public AbstractInternalTransition(State<S, E> source,Collection<Action<S, E>> actions, E event, Guard<S, E> guard, Trigger<S, E> trigger) {
+		super(source, source, actions, event, TransitionKind.INTERNAL, guard, trigger);
 	}
 
 }

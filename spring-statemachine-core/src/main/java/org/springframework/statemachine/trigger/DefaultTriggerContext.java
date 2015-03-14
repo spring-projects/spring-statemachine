@@ -15,25 +15,17 @@
  */
 package org.springframework.statemachine.trigger;
 
-import org.springframework.statemachine.transition.Transition;
+public class DefaultTriggerContext<S, E> implements TriggerContext<S, E> {
 
-/**
- * {@code Trigger} is the cause of the {@link Transition}. Cause is usually an
- * event but can be some other signal or a change in some condition.
- *
- * @author Janne Valkealahti
- *
- * @param <S> the type of state
- * @param <E> the type of event
- */
-public interface Trigger<S,E> {
+	private final E event;
 
-	/**
-	 * Evaluate trigger.
-	 *
-	 * @param context the context
-	 * @return true, triggers is fired, false otherwise
-	 */
-	boolean evaluate(TriggerContext<S, E> context);
+	public DefaultTriggerContext(E event) {
+		this.event = event;
+	}
+
+	@Override
+	public E getEvent() {
+		return event;
+	}
 
 }

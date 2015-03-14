@@ -46,6 +46,7 @@ import org.springframework.statemachine.state.StateMachineState;
 import org.springframework.statemachine.transition.DefaultExternalTransition;
 import org.springframework.statemachine.transition.DefaultLocalTransition;
 import org.springframework.statemachine.transition.Transition;
+import org.springframework.statemachine.trigger.EventTrigger;
 
 public class SubStateMachineTests extends AbstractStateMachineTests {
 
@@ -122,7 +123,7 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		states.add(stateS1);
 		Collection<Transition<TestStates,TestEvents>> transitions = new ArrayList<Transition<TestStates,TestEvents>>();
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromS111ToS1 =
-				new DefaultExternalTransition<TestStates,TestEvents>(stateS111, stateS1, null, TestEvents.E1, null);
+				new DefaultExternalTransition<TestStates,TestEvents>(stateS111, stateS1, null, TestEvents.E1, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E1));
 		transitions.add(transitionFromS111ToS1);
 		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateS1, null);
 
@@ -212,7 +213,7 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		states.add(stateS1);
 		Collection<Transition<TestStates,TestEvents>> transitions = new ArrayList<Transition<TestStates,TestEvents>>();
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromS111ToS112 =
-				new DefaultExternalTransition<TestStates,TestEvents>(stateS111, stateS112, null, TestEvents.E1, null);
+				new DefaultExternalTransition<TestStates,TestEvents>(stateS111, stateS112, null, TestEvents.E1, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E1));
 		transitions.add(transitionFromS111ToS112);
 		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateS1, null);
 
@@ -309,7 +310,7 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		states.add(stateS1);
 		Collection<Transition<TestStates,TestEvents>> transitions = new ArrayList<Transition<TestStates,TestEvents>>();
 		DefaultLocalTransition<TestStates,TestEvents> transitionFromS11ToS1 =
-				new DefaultLocalTransition<TestStates,TestEvents>(stateS111, stateS1, null, TestEvents.E1, null);
+				new DefaultLocalTransition<TestStates,TestEvents>(stateS111, stateS1, null, TestEvents.E1, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E1));
 		transitions.add(transitionFromS11ToS1);
 		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateS1, null);
 
