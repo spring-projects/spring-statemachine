@@ -388,6 +388,9 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			}
 
 			State<S,E> source = transition.getSource();
+			if (source == null || currentState == null) {
+				continue;
+			}
 			if (!StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
 				continue;
 			}
