@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.context.Lifecycle;
 import org.springframework.core.OrderComparator;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
@@ -50,7 +51,9 @@ import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionKind;
 import org.springframework.statemachine.trigger.DefaultTriggerContext;
+import org.springframework.statemachine.trigger.TimerTrigger;
 import org.springframework.statemachine.trigger.Trigger;
+import org.springframework.statemachine.trigger.TriggerListener;
 import org.springframework.util.Assert;
 
 /**
@@ -204,6 +207,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	@Override
 	protected void doStart() {
 		super.doStart();
+		registerTriggerListener();
 		switchToState(initialState, initialEvent, null);
 	}
 
@@ -378,11 +382,17 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		while ((queueItem = triggerQueue.poll()) != null) {
 			Message<E> queuedEvent = queueItem.message;
 			Transition<S, E> transition = triggerToTransitionMap.get(queueItem.trigger);
-			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(queuedEvent.getHeaders(), extendedState, transition);
-			notifyTransitionStart(transition);
+			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(queuedEvent != null ? queuedEvent.getHeaders() : null, extendedState, transition);
 			if (transition == null) {
 				continue;
 			}
+
+			State<S,E> source = transition.getSource();
+			if (!StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
+				continue;
+			}
+
+			notifyTransitionStart(transition);
 			boolean transit = transition.transit(stateContext);
 			if (transit && transition.getKind() != TransitionKind.INTERNAL) {
 				switchToState(transition.getTarget(), queuedEvent, transition);
@@ -457,6 +467,24 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		OrderComparator comparator = new OrderComparator();
 		Collections.sort(handlersList, comparator);
 		return handlersList;
+	}
+
+	private void registerTriggerListener() {
+		for (final Trigger<S, E> trigger : triggerToTransitionMap.keySet()) {
+			if (trigger instanceof TimerTrigger) {
+				((TimerTrigger<?, ?>)trigger).addTriggerListener(new TriggerListener() {
+					@Override
+					public void triggered() {
+						log.debug("TimedTrigger triggered " + trigger);
+						triggerQueue.add(new TriggerQueueItem(trigger, null));
+						scheduleEventQueueProcessing();
+					}
+				});
+			}
+			if (trigger instanceof Lifecycle) {
+				((Lifecycle)trigger).start();
+			}
+		}
 	}
 
 	private void notifyStateChanged(State<S,E> source, State<S,E> target) {

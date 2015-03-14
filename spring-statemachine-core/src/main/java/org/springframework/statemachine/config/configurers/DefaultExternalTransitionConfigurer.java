@@ -50,13 +50,15 @@ public class DefaultExternalTransitionConfigurer<S, E>
 
 	private E event;
 
+	private Long period;
+
 	private Collection<Action<S, E>> actions = new ArrayList<Action<S, E>>();
 
 	private Guard<S, E> guard;
 
 	@Override
 	public void configure(StateMachineTransitionBuilder<S, E> builder) throws Exception {
-		builder.add(source, target, state, event, actions, guard, TransitionKind.EXTERNAL);
+		builder.add(source, target, state, event, period, actions, guard, TransitionKind.EXTERNAL);
 	}
 
 	@Override
@@ -80,6 +82,12 @@ public class DefaultExternalTransitionConfigurer<S, E>
 	@Override
 	public ExternalTransitionConfigurer<S, E> event(E event) {
 		this.event = event;
+		return this;
+	}
+
+	@Override
+	public ExternalTransitionConfigurer<S, E> timer(long period) {
+		this.period = period;
 		return this;
 	}
 

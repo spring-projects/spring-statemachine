@@ -72,8 +72,8 @@ public class StateMachineTransitionBuilder<S, E>
 		return apply(new DefaultLocalTransitionConfigurer<S, E>());
 	}
 
-	public void add(S source, S target, S state, E event, Collection<Action<S, E>> actions, Guard<S, E> guard, TransitionKind kind) {
-		transitionData.add(new TransitionData<S, E>(source, target, state, event, actions, guard, kind));
+	public void add(S source, S target, S state, E event, Long period, Collection<Action<S, E>> actions, Guard<S, E> guard, TransitionKind kind) {
+		transitionData.add(new TransitionData<S, E>(source, target, state, event, period, actions, guard, kind));
 	}
 
 }

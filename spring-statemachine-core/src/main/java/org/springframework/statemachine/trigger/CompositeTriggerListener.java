@@ -15,24 +15,24 @@
  */
 package org.springframework.statemachine.trigger;
 
-import org.springframework.util.ObjectUtils;
+import java.util.Iterator;
 
-public class EventTrigger<S, E> implements Trigger<S, E> {
+import org.springframework.statemachine.listener.AbstractCompositeListener;
 
-	private final E event;
-
-	public EventTrigger(E event) {
-		this.event = event;
-	}
-
-	@Override
-	public boolean evaluate(TriggerContext<S, E> context) {
-		return ObjectUtils.nullSafeEquals(event, context.getEvent());
-	}
+/**
+ * Default {@link TriggerListener} dispatcher.
+ *
+ * @author Janne Valkealahti
+ *
+ */
+public class CompositeTriggerListener extends AbstractCompositeListener<TriggerListener> implements TriggerListener {
 
 	@Override
-	public void addTriggerListener(TriggerListener listener) {
-		// no-opt
+	public void triggered() {
+		for (Iterator<TriggerListener> iterator = getListeners().reverse(); iterator.hasNext();) {
+			TriggerListener listener = iterator.next();
+			listener.triggered();
+		}
 	}
 
 }

@@ -36,4 +36,11 @@ public interface Trigger<S,E> {
 	 */
 	boolean evaluate(TriggerContext<S, E> context);
 
+	/**
+	 * Adds the trigger listener.
+	 *
+	 * @param listener the listener
+	 */
+	void addTriggerListener(TriggerListener listener);
+
 }

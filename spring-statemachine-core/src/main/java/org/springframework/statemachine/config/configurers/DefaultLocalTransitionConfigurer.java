@@ -50,13 +50,15 @@ public class DefaultLocalTransitionConfigurer<S, E>
 
 	private E event;
 
+	private Long period;
+
 	private Collection<Action<S, E>> actions = new ArrayList<Action<S, E>>();
 
 	private Guard<S, E> guard;
 
 	@Override
 	public void configure(StateMachineTransitionBuilder<S, E> builder) throws Exception {
-		builder.add(source, target, state, event, actions, guard, TransitionKind.LOCAL);
+		builder.add(source, target, state, event, period, actions, guard, TransitionKind.LOCAL);
 	}
 
 	@Override
@@ -80,6 +82,12 @@ public class DefaultLocalTransitionConfigurer<S, E>
 	@Override
 	public LocalTransitionConfigurer<S, E> event(E event) {
 		this.event = event;
+		return this;
+	}
+
+	@Override
+	public LocalTransitionConfigurer<S, E> timer(long period) {
+		this.period = period;
 		return this;
 	}
 

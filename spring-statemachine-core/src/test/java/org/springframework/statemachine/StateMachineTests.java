@@ -15,9 +15,12 @@
  */
 package org.springframework.statemachine;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,19 +39,65 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 
 public class StateMachineTests extends AbstractStateMachineTests {
 
+	@Override
+	protected AnnotationConfigApplicationContext buildContext() {
+		return new AnnotationConfigApplicationContext();
+	}
+
 	@Test
 	public void testLoggingEvents() {
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class);
-		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		context.register(Config1.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
 		EnumStateMachine<TestStates,TestEvents> machine =
-				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
 		assertThat(machine, notNullValue());
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("foo", "jee1").build());
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E2).setHeader("foo", "jee2").build());
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E4).setHeader("foo", "jee2").build());
-		ctx.close();
+	}
+
+	@Test
+	public void testTimerTransition() throws Exception {
+		context.register(BaseConfig.class, Config2.class);
+		context.refresh();
+
+		TestAction testAction1 = context.getBean("testAction1", TestAction.class);
+		TestAction testAction2 = context.getBean("testAction2", TestAction.class);
+		TestAction testAction3 = context.getBean("testAction3", TestAction.class);
+		TestAction testAction4 = context.getBean("testAction4", TestAction.class);
+
+		@SuppressWarnings("unchecked")
+		StateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+
+		machine.start();
+		Thread.sleep(2000);
+		assertThat(testAction2.stateContexts.size(), is(0));
+		machine.sendEvent(TestEvents.E1);
+		assertThat(testAction1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(testAction1.stateContexts.size(), is(1));
+		assertThat(testAction2.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
+
+		assertThat(testAction2.stateContexts.size(), is(1));
+
+		machine.sendEvent(TestEvents.E2);
+		assertThat(testAction3.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(testAction3.stateContexts.size(), is(1));
+
+		// timer still fires but should not cause transition anymore
+		// after we sleep and do next event
+		int timedTriggered = testAction2.stateContexts.size();
+		Thread.sleep(2000);
+		assertThat(testAction2.stateContexts.size(), is(timedTriggered));
+
+		machine.sendEvent(TestEvents.E3);
+		assertThat(testAction4.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(testAction4.stateContexts.size(), is(1));
+
+		assertThat(testAction2.stateContexts.size(), is(timedTriggered));
 	}
 
 	private static class LoggingAction implements Action<TestStates, TestEvents> {
@@ -70,7 +119,7 @@ public class StateMachineTests extends AbstractStateMachineTests {
 
 	@Configuration
 	@EnableStateMachine
-	static class Config extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+	static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
 
 		@Override
 		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
@@ -120,6 +169,70 @@ public class StateMachineTests extends AbstractStateMachineTests {
 		@Bean
 		public TaskExecutor taskExecutor() {
 			return new SyncTaskExecutor();
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config2 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S1)
+					.state(TestStates.S2)
+					.state(TestStates.S3)
+					.state(TestStates.S4);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.action(testAction1())
+					.and()
+				.withInternal()
+					.source(TestStates.S2)
+					.timer(1000)
+					.action(testAction2())
+					.and()
+				.withExternal()
+					.source(TestStates.S2)
+					.target(TestStates.S3)
+					.event(TestEvents.E2)
+					.action(testAction3())
+					.and()
+				.withExternal()
+					.source(TestStates.S3)
+					.target(TestStates.S4)
+					.event(TestEvents.E3)
+					.action(testAction4());
+		}
+
+		@Bean
+		public TestAction testAction1() {
+			return new TestAction();
+		}
+
+		@Bean
+		public TestAction testAction2() {
+			return new TestAction();
+		}
+
+		@Bean
+		public TestAction testAction3() {
+			return new TestAction();
+		}
+
+		@Bean
+		public TestAction testAction4() {
+			return new TestAction();
 		}
 
 	}

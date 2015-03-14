@@ -50,13 +50,15 @@ public class DefaultInternalTransitionConfigurer<S, E>
 
 	private E event;
 
+	private Long period;
+
 	private Collection<Action<S, E>> actions = new ArrayList<Action<S, E>>();
 
 	private Guard<S, E> guard;
 
 	@Override
 	public void configure(StateMachineTransitionBuilder<S, E> builder) throws Exception {
-		builder.add(source, target, state, event, actions, guard, TransitionKind.INTERNAL);
+		builder.add(source, target, state, event, period, actions, guard, TransitionKind.INTERNAL);
 	}
 
 	@Override
@@ -74,6 +76,12 @@ public class DefaultInternalTransitionConfigurer<S, E>
 	@Override
 	public InternalTransitionConfigurer<S, E> event(E event) {
 		this.event = event;
+		return this;
+	}
+
+	@Override
+	public InternalTransitionConfigurer<S, E> timer(long period) {
+		this.period = period;
 		return this;
 	}
 

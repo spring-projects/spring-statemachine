@@ -15,24 +15,17 @@
  */
 package org.springframework.statemachine.trigger;
 
-import org.springframework.util.ObjectUtils;
+/**
+ * {@code TriggerListener} for listening a {@link Trigger} events.
+ *
+ * @author Janne Valkealahti
+ *
+ */
+public interface TriggerListener {
 
-public class EventTrigger<S, E> implements Trigger<S, E> {
-
-	private final E event;
-
-	public EventTrigger(E event) {
-		this.event = event;
-	}
-
-	@Override
-	public boolean evaluate(TriggerContext<S, E> context) {
-		return ObjectUtils.nullSafeEquals(event, context.getEvent());
-	}
-
-	@Override
-	public void addTriggerListener(TriggerListener listener) {
-		// no-opt
-	}
+	/**
+	 * Notified when trigger has been triggered.
+	 */
+	void triggered();
 
 }

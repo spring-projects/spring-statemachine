@@ -28,6 +28,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
@@ -77,6 +79,11 @@ public abstract class AbstractStateMachineTests {
 		@Bean
 		public TaskExecutor taskExecutor() {
 			return new SyncTaskExecutor();
+		}
+
+		@Bean
+		public TaskScheduler taskScheduler() {
+			return new ConcurrentTaskScheduler();
 		}
 
 	}

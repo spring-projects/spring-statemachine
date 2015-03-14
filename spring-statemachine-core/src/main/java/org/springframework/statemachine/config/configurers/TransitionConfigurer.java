@@ -51,6 +51,8 @@ public interface TransitionConfigurer<T, S, E> extends
 	 */
 	T event(E event);
 
+	T timer(long period);
+
 	/**
 	 * Specify {@link Action} for this {@link Transition}.
 	 *
