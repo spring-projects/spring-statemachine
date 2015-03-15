@@ -7,3 +7,8 @@ project('spring-statemachine-samples-turnstile') {
 project('spring-statemachine-samples-showcase') {
   description = 'Spring State Machine Showcase Sample'
 }
+
+project('spring-statemachine-samples-cdplayer') {
+  description = 'Spring State Machine CD Player Sample'
+}
+

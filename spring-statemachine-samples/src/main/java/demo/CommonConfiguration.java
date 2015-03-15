@@ -13,6 +13,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.statemachine.event.OnStateChangedEvent;
 import org.springframework.statemachine.event.OnTransitionEvent;
 import org.springframework.statemachine.event.StateMachineEvent;
@@ -30,6 +32,11 @@ public class CommonConfiguration {
 		@Bean
 		public TaskExecutor taskExecutor() {
 			return new SyncTaskExecutor();
+		}
+
+		@Bean
+		public TaskScheduler taskScheduler() {
+			return new ConcurrentTaskScheduler();
 		}
 
 		@Bean
