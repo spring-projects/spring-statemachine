@@ -3,6 +3,11 @@
 Spring Statemachine aims to provide a common infrastructure to work
 with statemachine concepts in Spring applications.
 
+This project is currently in incubation and first milestone is
+released when project state is considered to be relatively stable, we
+have a good reference documentation and samples. Milestones will not
+be a feature complete.
+
 = License
 
 Spring Session is Open Source software released under the
