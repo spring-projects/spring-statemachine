@@ -490,7 +490,6 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 				}
 
 			}
-			System.out.println("XXX " + source + "/" + target + "/" +handle);
 			if (handle) {
 				handlersList.add(entry.getValue());
 			}
