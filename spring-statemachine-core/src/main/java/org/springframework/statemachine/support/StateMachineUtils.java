@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine.support;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -39,6 +40,32 @@ public abstract class StateMachineUtils {
 			return false;
 		}
 		for (S id : left) {
+			if (right.contains(id)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static <S> Collection<String> toStringCollection(Collection<S> collection) {
+		Collection<String> c = new ArrayList<String>();
+		for (S item : collection) {
+			c.add(item.toString());
+		}
+		return c;
+	}
+
+	public static boolean containsAtleastOneEqualString(Collection<String> left, String right) {
+		Collection<String> r = new ArrayList<String>(1);
+		r.add(right);
+		return containsAtleastOneEqualString(left, r);
+	}
+
+	public static boolean containsAtleastOneEqualString(Collection<String> left, Collection<String> right) {
+		if (left == null || right == null) {
+			return false;
+		}
+		for (String id : left) {
 			if (right.contains(id)) {
 				return true;
 			}

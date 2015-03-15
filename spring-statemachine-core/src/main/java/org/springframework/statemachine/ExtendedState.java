@@ -21,17 +21,17 @@ import java.util.Map;
  * Extended states are used to supplement state machine with a variables. If
  * extended state is used a complete condition of a state machine is a
  * combination of its state an extended state variables.
- * 
+ *
  * @author Janne Valkealahti
  *
  */
 public interface ExtendedState {
-	
+
 	/**
 	 * Gets the extended state variables.
 	 *
 	 * @return the extended state variables
 	 */
-	Map<String, Object> getVariables();
+	Map<Object, Object> getVariables();
 
 }

@@ -21,11 +21,11 @@ import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.transition.Transition;
 
 public class DefaultStateContext<S, E> implements StateContext<S, E> {
-	
+
 	private final MessageHeaders messageHeaders;
-	
+
 	private final ExtendedState extendedState;
-	
+
 	private final Transition<S,E> transition;
 
 	public DefaultStateContext(MessageHeaders messageHeaders, ExtendedState extendedState, Transition<S,E> transition) {
@@ -40,10 +40,20 @@ public class DefaultStateContext<S, E> implements StateContext<S, E> {
 	}
 
 	@Override
+	public Object getMessageHeader(Object header) {
+		if (header instanceof String) {
+			return messageHeaders.get((String)header);
+		} else if (header instanceof Enum<?>) {
+			return messageHeaders.get(((Enum<?>)header).toString());
+		}
+		return null;
+	}
+
+	@Override
 	public ExtendedState getExtendedState() {
 		return extendedState;
 	}
-	
+
 	@Override
 	public Transition<S, E> getTransition() {
 		return transition;

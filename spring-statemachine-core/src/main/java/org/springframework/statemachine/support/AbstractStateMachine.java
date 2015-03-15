@@ -56,6 +56,7 @@ import org.springframework.statemachine.trigger.TimerTrigger;
 import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.statemachine.trigger.TriggerListener;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Base implementation of a {@link StateMachine} loosely modelled from UML state
@@ -277,9 +278,6 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	private void switchToState(State<S,E> state, Message<E> event, Transition<S,E> transition) {
 		exitFromState(currentState, event, transition);
 		notifyStateChanged(currentState, state);
-
-		callHandlers(currentState, state, event);
-
 		setCurrentState(state, event, transition);
 
 		// TODO: should handle triggerles transition some how differently
@@ -411,6 +409,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			}
 
 			notifyTransitionStart(transition);
+			callHandlers(transition.getSource(), transition.getTarget(), queuedEvent);
 			boolean transit = transition.transit(stateContext);
 			if (transit && transition.getKind() != TransitionKind.INTERNAL) {
 				switchToState(transition.getTarget(), queuedEvent, transition);
@@ -424,16 +423,12 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	}
 
 	private void callHandlers(State<S,E> sourceState, State<S,E> targetState, Message<E> event) {
-
-
-
 		if (sourceState != null && targetState != null) {
 			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
 					new HashMap<String, Object>());
 			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(messageHeaders, extendedState, null);
 			getStateMachineHandlerResults(getStateMachineHandlers(sourceState, targetState), stateContext);
 		}
-
 	}
 
 	private List<Object> getStateMachineHandlerResults(List<StateMachineHandler<S, E>> stateMachineHandlers, final StateContext<S, E> stateContext) {
@@ -475,9 +470,28 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			String source = annotation.source();
 			String target = annotation.target();
 			// TODO: need major fixes
-			String s = sourceState.getIds().iterator().next().toString();
-			String t = targetState.getIds().iterator().next().toString();
-			if (s.equals(source) && t.equals(target)) {
+			boolean handle = false;
+			if (StringUtils.hasText(source) && StringUtils.hasText(target)) {
+				if (StateMachineUtils.containsAtleastOneEqualString(
+						StateMachineUtils.toStringCollection(sourceState.getIds()), source)
+						&& StateMachineUtils.containsAtleastOneEqualString(
+								StateMachineUtils.toStringCollection(targetState.getIds()), target)) {
+					handle = true;
+				}
+			} else if (StringUtils.hasText(source)) {
+				if (StateMachineUtils.containsAtleastOneEqualString(
+						StateMachineUtils.toStringCollection(sourceState.getIds()), source)) {
+					handle = true;
+				}
+			} else if (StringUtils.hasText(target)) {
+				if (StateMachineUtils.containsAtleastOneEqualString(
+						StateMachineUtils.toStringCollection(targetState.getIds()), target)) {
+					handle = true;
+				}
+
+			}
+			System.out.println("XXX " + source + "/" + target + "/" +handle);
+			if (handle) {
 				handlersList.add(entry.getValue());
 			}
 		}

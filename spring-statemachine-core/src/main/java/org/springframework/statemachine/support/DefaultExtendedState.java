@@ -22,23 +22,23 @@ import org.springframework.statemachine.ExtendedState;
 
 /**
  * Default implementation of a {@link ExtendedState}.
- * 
+ *
  * @author Janne Valkealahti
  *
  */
 public class DefaultExtendedState implements ExtendedState {
 
-	private final Map<String, Object> variables;
-	
+	private final Map<Object, Object> variables;
+
 	/**
 	 * Instantiates a new default extended state.
 	 */
 	public DefaultExtendedState() {
-		this.variables = new HashMap<String, Object>();
+		this.variables = new HashMap<Object, Object>();
 	}
-	
+
 	@Override
-	public Map<String, Object> getVariables() {
+	public Map<Object, Object> getVariables() {
 		return variables;
 	}
 

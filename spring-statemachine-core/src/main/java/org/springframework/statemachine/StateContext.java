@@ -38,6 +38,15 @@ public interface StateContext<S, E> {
 	MessageHeaders getMessageHeaders();
 
 	/**
+	 * Gets the message header. If header is not a {@code String} object's
+	 * {@link Object#toString()} method is used to resolve a key name.
+	 *
+	 * @param header the header
+	 * @return the message header
+	 */
+	Object getMessageHeader(Object header);
+
+	/**
 	 * Gets the state machine extended state.
 	 *
 	 * @return the state machine extended state
