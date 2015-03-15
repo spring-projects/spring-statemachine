@@ -121,7 +121,12 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 	@Override
 	public void exit(E event, StateContext<S, E> context) {
 		getSubmachine().getState().exit(event, context);
-		getSubmachine().stop();
+		// don't stop if it looks like we're coming back
+		// stop would cause start with entry which would
+		// enable default transition and state
+		if (context.getTransition().getSource().getId() != getSubmachine().getState().getId()) {
+			getSubmachine().stop();
+		}
 		Collection<? extends Action<S, E>> actions = getExitActions();
 		if (actions != null && !isLocal(context)) {
 			for (Action<S, E> action : actions) {

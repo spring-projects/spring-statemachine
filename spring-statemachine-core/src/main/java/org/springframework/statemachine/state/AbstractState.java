@@ -204,11 +204,21 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 		return submachine != null;
 	}
 
-	protected StateMachine<S, E> getSubmachine() {
+	/**
+	 * Gets the submachine.
+	 *
+	 * @return the submachine or null if not set
+	 */
+	public StateMachine<S, E> getSubmachine() {
 		return submachine;
 	}
 
-	protected Collection<Region<S, E>> getRegions() {
+	/**
+	 * Gets the regions.
+	 *
+	 * @return the regions or empty collection if no regions
+	 */
+	public Collection<Region<S, E>> getRegions() {
 		return regions;
 	}
 

@@ -73,6 +73,15 @@ public abstract class AbstractStateMachineTests {
 		E1,E2,E3,E4,EF
 	}
 
+	public static enum TestStates2 {
+	    BUSY, PLAYING, PAUSED,
+	    IDLE, CLOSED, OPEN
+	}
+
+	public static enum TestEvents2 {
+	    PLAY, STOP, PAUSE, EJECT, LOAD
+	}
+
 	@Configuration
 	public static class BaseConfig {
 

@@ -152,7 +152,7 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		assertThat(exitActionS1.stateContexts.size(), is(1));
 	}
 
-//	@Test
+	@Test
 	public void testExternalTransition2() throws Exception {
 
 		/**
@@ -190,7 +190,7 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		Collection<Action<TestStates, TestEvents>> entryActionsS112 = new ArrayList<Action<TestStates, TestEvents>>();
 		entryActionsS112.add(entryActionS112);
 		Collection<Action<TestStates, TestEvents>> exitActionsS112 = new ArrayList<Action<TestStates, TestEvents>>();
-		exitActionsS111.add(exitActionS112);
+		exitActionsS112.add(exitActionS112);
 		State<TestStates,TestEvents> stateS112 = new EnumState<TestStates,TestEvents>(TestStates.S112, null, entryActionsS112, exitActionsS112, null);
 
 		// submachine 1
@@ -231,14 +231,14 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		assertThat(entryActionS112.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(exitActionS112.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));
 		assertThat(entryActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(exitActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(exitActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
 
 		assertThat(entryActionS111.stateContexts.size(), is(1));
 		assertThat(exitActionS111.stateContexts.size(), is(1));
 		assertThat(entryActionS112.stateContexts.size(), is(1));
 		assertThat(exitActionS112.stateContexts.size(), is(0));
-		assertThat(entryActionS1.stateContexts.size(), is(1));
-		assertThat(exitActionS1.stateContexts.size(), is(0));
+		assertThat(entryActionS1.stateContexts.size(), is(2));
+		assertThat(exitActionS1.stateContexts.size(), is(1));
 	}
 
 
@@ -389,6 +389,21 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), contains(TestStates.S1, TestStates.S10));
 	}
 
+	@Test
+	public void testStateChangeWithinMachine() {
+		context.register(BaseConfig.class, StateMachineEventPublisherConfiguration.class, Config3.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		@SuppressWarnings("unchecked")
+		EnumStateMachine<TestStates2,TestEvents2> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		machine.start();
+		assertThat(machine, notNullValue());
+		assertThat(machine.getState().getIds(), contains(TestStates2.IDLE, TestStates2.CLOSED));
+		machine.sendEvent(TestEvents2.EJECT);
+		assertThat(machine.getState().getIds(), contains(TestStates2.IDLE, TestStates2.OPEN));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
@@ -469,6 +484,50 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 						.parent(TestStates.S1)
 						.initial(TestStates.S10)
 						.state(TestStates.S10);
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config3 extends EnumStateMachineConfigurerAdapter<TestStates2, TestEvents2> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates2, TestEvents2> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates2.IDLE)
+					.state(TestStates2.IDLE)
+					.and()
+					.withStates()
+						.parent(TestStates2.IDLE)
+						.initial(TestStates2.CLOSED)
+						.state(TestStates2.CLOSED)
+						.state(TestStates2.OPEN)
+						.and()
+				.withStates()
+					.state(TestStates2.BUSY)
+					.and()
+					.withStates()
+						.parent(TestStates2.BUSY)
+						.initial(TestStates2.PLAYING)
+						.state(TestStates2.PLAYING)
+						.state(TestStates2.PAUSED);
+
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates2, TestEvents2> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates2.CLOSED)
+					.target(TestStates2.OPEN)
+					.event(TestEvents2.EJECT)
+					.and()
+				.withExternal()
+					.source(TestStates2.OPEN)
+					.target(TestStates2.CLOSED)
+					.event(TestEvents2.EJECT);
 		}
 
 	}

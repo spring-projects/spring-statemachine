@@ -46,6 +46,7 @@ import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.processor.StateMachineHandler;
 import org.springframework.statemachine.processor.StateMachineOnTransitionHandler;
 import org.springframework.statemachine.processor.StateMachineRuntime;
+import org.springframework.statemachine.state.AbstractState;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
@@ -279,8 +280,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 
 		callHandlers(currentState, state, event);
 
-		currentState = state;
-		entryToState(state, event, transition);
+		setCurrentState(state, event, transition);
 
 		// TODO: should handle triggerles transition some how differently
 		for (Transition<S,E> t : transitions) {
@@ -292,6 +292,21 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 
 		}
 
+	}
+
+	void setCurrentState(State<S, E> state, Message<E> event, Transition<S, E> transition) {
+		if (states.contains(state)) {
+			currentState = state;
+			entryToState(state, event, transition);
+		} else if (currentState.isSubmachineState()) {
+			if (transition != null && transition.getKind() == TransitionKind.EXTERNAL) {
+				entryToState(currentState, event, transition);
+			}
+			// TODO: should find a better way to trick setting state for submachine
+			//       without a need to access package protected method via casting
+			StateMachine<S, E> submachine = ((AbstractState<S, E>)currentState).getSubmachine();
+			((AbstractStateMachine<S, E>)submachine).setCurrentState(state, event, transition);
+		}
 	}
 
 	private void exitFromState(State<S, E> state, Message<E> event, Transition<S, E> transition) {

@@ -127,6 +127,7 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 
 			Collection<StateData<S, E>> stateDatas = popSameParents(stateStack);
 			Collection<TransitionData<S, E>> transitionsData = getTransitionData(iterator.hasNext(), stateDatas);
+//			Collection<TransitionData<S, E>> transitionsData = getTransitionData(false, null);
 
 			machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, getBeanFactory());
 			// TODO: last part in if feels a bit hack
