@@ -88,6 +88,21 @@ public class DefaultStateConfigurer<S, E>
 	}
 
 	@Override
+	public StateConfigurer<S, E> state(S state, Action<S, E> entryAction, Action<S, E> exitAction) {
+		Collection<Action<S, E>> entryActions = null;
+		if (entryAction != null) {
+			entryActions = new ArrayList<Action<S, E>>(1);
+			entryActions.add(entryAction);
+		}
+		Collection<Action<S, E>> exitActions = null;
+		if (exitAction != null) {
+			exitActions = new ArrayList<Action<S, E>>(1);
+			exitActions.add(exitAction);
+		}
+		return state(state, entryActions, exitActions);
+	}
+
+	@Override
 	public StateConfigurer<S, E> state(S state, E... deferred) {
 		Collection<E> d = null;
 		if (deferred != null) {

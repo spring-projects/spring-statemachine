@@ -252,6 +252,7 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 				.withStates()
 					.initial(TestStates.S11)
 					.state(TestStates.S11, actions1, Arrays.asList(action2()))
+					.state(TestStates.S12, action1(), action2())
 					.and()
 					.withStates()
 						.parent(TestStates.S11)

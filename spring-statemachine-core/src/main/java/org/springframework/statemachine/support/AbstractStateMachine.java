@@ -312,7 +312,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			log.trace("Exit state=[" + state + "]");
 			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
 					new HashMap<String, Object>());
-			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(messageHeaders, extendedState, transition);
+			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(messageHeaders, extendedState, transition, this);
 			state.exit(event != null ? event.getPayload() : null, stateContext);
 		}
 	}
@@ -322,7 +322,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			log.trace("Enter state=[" + state + "]");
 			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
 					new HashMap<String, Object>());
-			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(messageHeaders, extendedState, transition);
+			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(messageHeaders, extendedState, transition, this);
 			state.entry(event != null ? event.getPayload() : null, stateContext);
 		}
 	}
@@ -395,7 +395,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		while ((queueItem = triggerQueue.poll()) != null) {
 			Message<E> queuedEvent = queueItem.message;
 			Transition<S, E> transition = triggerToTransitionMap.get(queueItem.trigger);
-			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(queuedEvent != null ? queuedEvent.getHeaders() : null, extendedState, transition);
+			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(queuedEvent != null ? queuedEvent.getHeaders() : null, extendedState, transition, this);
 			if (transition == null) {
 				continue;
 			}
@@ -426,7 +426,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		if (sourceState != null && targetState != null) {
 			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
 					new HashMap<String, Object>());
-			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(messageHeaders, extendedState, null);
+			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(messageHeaders, extendedState, null, this);
 			getStateMachineHandlerResults(getStateMachineHandlers(sourceState, targetState), stateContext);
 		}
 	}

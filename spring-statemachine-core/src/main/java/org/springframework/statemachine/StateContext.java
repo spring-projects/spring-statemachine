@@ -60,4 +60,11 @@ public interface StateContext<S, E> {
 	 */
 	Transition<S, E> getTransition();
 
+	/**
+	 * Gets the state machine.
+	 *
+	 * @return the state machine
+	 */
+	StateMachine<S, E> getStateMachine();
+
 }

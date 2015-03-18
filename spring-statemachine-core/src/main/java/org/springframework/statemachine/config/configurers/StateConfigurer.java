@@ -34,6 +34,8 @@ public interface StateConfigurer<S, E> extends
 	StateConfigurer<S, E> state(S state, Collection<? extends Action<S, E>> entryActions,
 			Collection<? extends Action<S, E>> exitActions);
 
+	StateConfigurer<S, E> state(S state, Action<S, E> entryAction, Action<S, E> exitAction);
+
 	StateConfigurer<S, E> state(S state, E... deferred);
 
 	StateConfigurer<S, E> states(Set<S> states);
