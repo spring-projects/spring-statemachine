@@ -105,6 +105,14 @@ public class ListenerTests extends AbstractStateMachineTests {
 			states.add(new Holder(from, to));
 		}
 
+		@Override
+		public void stateEntered(State<TestStates, TestEvents> state) {
+		}
+
+		@Override
+		public void stateExited(State<TestStates, TestEvents> state) {
+		}
+
 		static class Holder {
 			State<TestStates, TestEvents> from;
 			State<TestStates, TestEvents> to;

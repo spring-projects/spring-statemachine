@@ -37,6 +37,20 @@ public interface StateMachineListener<S,E> {
 	void stateChanged(State<S,E> from, State<S,E> to);
 
 	/**
+	 * Notified when state is entered.
+	 *
+	 * @param state the state
+	 */
+	void stateEntered(State<S,E> state);
+
+	/**
+	 * Notified when state is exited.
+	 *
+	 * @param state the state
+	 */
+	void stateExited(State<S,E> state);
+
+	/**
 	 * Notified when transition happened.
 	 *
 	 * @param transition the transition

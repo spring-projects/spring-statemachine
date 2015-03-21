@@ -18,49 +18,39 @@ package org.springframework.statemachine.event;
 import org.springframework.statemachine.state.State;
 
 /**
- * Generic event representing that state has been changed.
+ * Generic event representing that state has been entered.
  *
  * @author Janne Valkealahti
  *
  */
 @SuppressWarnings("serial")
-public class OnStateChangedEvent extends StateMachineEvent {
+public class OnStateEntryEvent extends StateMachineEvent {
 
-	private final State<?, ?> sourceState;
-	private final State<?, ?> targetState;
+	private final State<?, ?> state;
 
 	/**
-	 * Instantiates a new on state changed event.
+	 * Instantiates a new on state entry event.
 	 *
-	 * @param source the component that published the event (never {@code null})
+	 * @param source the source
+	 * @param state the state
 	 */
-	public OnStateChangedEvent(Object source, State<?, ?> sourceState, State<?, ?> targetState) {
+	public OnStateEntryEvent(Object source, State<?, ?> state) {
 		super(source);
-		this.sourceState = sourceState;
-		this.targetState = targetState;
+		this.state = state;
 	}
 
 	/**
-	 * Gets the source state for this event.
+	 * Gets the state.
 	 *
-	 * @return the source state
+	 * @return the state
 	 */
-	public State<?, ?> getSourceState() {
-		return sourceState;
-	}
-
-	/**
-	 * Gets the target state for this event.
-	 *
-	 * @return the target state
-	 */
-	public State<?, ?> getTargetState() {
-		return targetState;
+	public State<?, ?> getState() {
+		return state;
 	}
 
 	@Override
 	public String toString() {
-		return "OnStateChangedEvent [sourceState=" + sourceState + ", targetState=" + targetState + "]";
+		return "OnStateEntryEvent [state=" + state + "]";
 	}
 
 }

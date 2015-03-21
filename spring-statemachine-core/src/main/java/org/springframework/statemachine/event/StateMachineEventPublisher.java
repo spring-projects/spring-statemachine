@@ -36,6 +36,22 @@ public interface StateMachineEventPublisher {
 	void publishStateChanged(Object source, State<?, ?> sourceState, State<?, ?> targetState);
 
 	/**
+	 * Publish a state entered event.
+	 *
+	 * @param source the source
+	 * @param state the state
+	 */
+	void publishStateEntered(Object source, State<?, ?> state);
+
+	/**
+	 * Publish a state exited event.
+	 *
+	 * @param source the source
+	 * @param state the state
+	 */
+	void publishStateExited(Object source, State<?, ?> state);
+
+	/**
 	 * Publish a transition start event.
 	 *
 	 * @param source the source

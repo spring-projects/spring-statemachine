@@ -58,6 +58,20 @@ public class DefaultStateMachineEventPublisher implements StateMachineEventPubli
 	}
 
 	@Override
+	public void publishStateEntered(Object source, State<?, ?> state) {
+		if (applicationEventPublisher != null) {
+			applicationEventPublisher.publishEvent(new OnStateEntryEvent(source, state));
+		}
+	}
+
+	@Override
+	public void publishStateExited(Object source, State<?, ?> state) {
+		if (applicationEventPublisher != null) {
+			applicationEventPublisher.publishEvent(new OnStateExitEvent(source, state));
+		}
+	}
+
+	@Override
 	public void publishTransitionStart(Object source, Transition<?, ?> transition) {
 		if (applicationEventPublisher != null) {
 			applicationEventPublisher.publishEvent(new OnTransitionStartEvent(source, transition));

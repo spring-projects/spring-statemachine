@@ -316,6 +316,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 					new HashMap<String, Object>());
 			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(messageHeaders, extendedState, transition, this);
 			state.exit(event != null ? event.getPayload() : null, stateContext);
+			notifyStateExited(state);
 		}
 	}
 
@@ -326,6 +327,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 					new HashMap<String, Object>());
 			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(messageHeaders, extendedState, transition, this);
 			state.entry(event != null ? event.getPayload() : null, stateContext);
+			notifyStateEntered(state);
 		}
 	}
 
@@ -541,6 +543,22 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 		if (eventPublisher != null) {
 			eventPublisher.publishStateChanged(this, source, target);
+		}
+	}
+
+	private void notifyStateEntered(State<S,E> state) {
+		stateListener.stateEntered(state);
+		StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
+		if (eventPublisher != null) {
+			eventPublisher.publishStateEntered(this, state);
+		}
+	}
+
+	private void notifyStateExited(State<S,E> state) {
+		stateListener.stateExited(state);
+		StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
+		if (eventPublisher != null) {
+			eventPublisher.publishStateExited(this, state);
 		}
 	}
 
