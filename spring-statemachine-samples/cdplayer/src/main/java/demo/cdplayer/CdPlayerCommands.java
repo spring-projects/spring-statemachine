@@ -34,10 +34,11 @@ public class CdPlayerCommands implements CommandMarker {
 	public String load(@CliOption(key = {"", "index"}) int index) {
 		StringBuilder buf = new StringBuilder();
 		try {
-			cdPlayer.load(library.getCollection().get(index));
-			buf.append("Loading cd " + index);
+			Cd cd = library.getCollection().get(index);
+			cdPlayer.load(cd);
+			buf.append("Loading cd " + cd.getName());
 		} catch (Exception e) {
-			buf.append("Cd with index " + index + " not found");
+			buf.append("Cd with index " + index + " not found, check library");
 		}
 		return buf.toString();
 	}

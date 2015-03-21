@@ -1,11 +1,17 @@
 package demo.cdplayer;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.shell.Bootstrap;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.annotation.OnTransition;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
@@ -32,7 +38,7 @@ public class Application  {
 					.withStates()
 						.parent(States.IDLE)
 						.initial(States.CLOSED)
-						.state(States.CLOSED)
+						.state(States.CLOSED, closedEntryAction(), null)
 						.state(States.OPEN)
 						.and()
 				.withStates()
@@ -57,6 +63,9 @@ public class Application  {
 					.source(States.OPEN).target(States.CLOSED).event(Events.EJECT)
 					.and()
 				.withExternal()
+					.source(States.OPEN).target(States.CLOSED).event(Events.PLAY)
+					.and()
+				.withExternal()
 					.source(States.PLAYING).target(States.PAUSED).event(Events.PAUSE)
 					.and()
 				.withInternal()
@@ -76,6 +85,19 @@ public class Application  {
 					.and()
 				.withInternal()
 					.source(States.OPEN).event(Events.LOAD).action(loadAction());
+		}
+
+		@Bean
+		public Action<States, Events> closedEntryAction() {
+			return new Action<States, Events>() {
+				@Override
+				public void execute(StateContext<States, Events> context) {
+					if (context.getTransition() != null && context.getTransition().getSource().getId() == States.CLOSED
+							&& context.getMessageHeader(Variables.CD) != null) {
+						context.getStateMachine().sendEvent(Events.PLAY);
+					}
+				}
+			};
 		}
 
 		@Bean
@@ -150,6 +172,19 @@ public class Application  {
 		CD, TRACK, ELAPSEDTIME
 	}
 //end::snippetE[]
+
+//tag::snippetF[]
+	@Target(ElementType.METHOD)
+	@Retention(RetentionPolicy.RUNTIME)
+	@OnTransition
+	public static @interface StatesOnTransition {
+
+		States[] source() default {};
+
+		States[] target() default {};
+
+	}
+//end::snippetF[]
 
 	public static void main(String[] args) throws Exception {
 		Bootstrap.main(args);

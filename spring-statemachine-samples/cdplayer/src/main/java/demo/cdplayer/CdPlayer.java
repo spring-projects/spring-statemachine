@@ -12,6 +12,7 @@ import org.springframework.statemachine.annotation.WithStateMachine;
 
 import demo.cdplayer.Application.Events;
 import demo.cdplayer.Application.States;
+import demo.cdplayer.Application.StatesOnTransition;
 import demo.cdplayer.Application.Variables;
 
 @WithStateMachine
@@ -63,9 +64,8 @@ public class CdPlayer {
 		}
 	}
 
-	@OnTransition(target = "PLAYING")
+	@StatesOnTransition(target = States.PLAYING)
 	public void playing(ExtendedState extendedState) {
-		System.out.println("playing1");
 		Object object = extendedState.getVariables().get(Variables.ELAPSEDTIME);
 		if (object instanceof Long) {
 			long elapsed = ((Long)object) + 1000l;

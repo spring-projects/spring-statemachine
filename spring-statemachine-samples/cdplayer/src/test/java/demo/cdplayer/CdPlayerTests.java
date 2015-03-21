@@ -1,9 +1,9 @@
 package demo.cdplayer;
 
-import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 
 import org.junit.After;
@@ -36,19 +36,22 @@ public class CdPlayerTests {
 	}
 
 	@Test
-	public void testEjectTwice() {
+	public void testEjectTwice() throws Exception {
 		player.eject();
+		Thread.sleep(100);
 		assertThat(machine.getState().getIds(), contains(States.IDLE, States.OPEN));
 		player.eject();
+		Thread.sleep(100);
 		assertThat(machine.getState().getIds(), contains(States.IDLE, States.CLOSED));
 	}
 
 	@Test
-	public void testPlayWithCdLoaded() {
+	public void testPlayWithCdLoaded() throws Exception {
 		player.eject();
 		player.load(library.getCollection().get(0));
 		player.eject();
 		player.play();
+		Thread.sleep(100);
 		assertThat(machine.getState().getIds(), contains(States.BUSY, States.PLAYING));
 		assertLcdStatusContains("cd1");
 	}
@@ -82,6 +85,7 @@ public class CdPlayerTests {
 		player.load(library.getCollection().get(0));
 		player.eject();
 		player.play();
+		Thread.sleep(100);
 		assertThat(machine.getState().getIds(), contains(States.BUSY, States.PLAYING));
 		assertLcdStatusContains("cd1");
 		Thread.sleep(1000);
@@ -103,9 +107,18 @@ public class CdPlayerTests {
 		player.load(library.getCollection().get(0));
 		player.eject();
 		player.play();
+		Thread.sleep(100);
 		assertThat(machine.getState().getIds(), contains(States.BUSY, States.PLAYING));
 		player.stop();
+		Thread.sleep(100);
 		assertLcdStatusIs("cd1 ");
+	}
+
+	@Test
+	public void testPlayDeckOpenNoCd() throws Exception {
+		player.eject();
+		player.play();
+		assertThat(machine.getState().getIds(), contains(States.IDLE, States.CLOSED));
 	}
 
 	private void assertLcdStatusIs(String text) {
@@ -134,6 +147,7 @@ public class CdPlayerTests {
 
 	@After
 	public void clean() {
+		machine.stop();
 		context.close();
 		context = null;
 		machine = null;
