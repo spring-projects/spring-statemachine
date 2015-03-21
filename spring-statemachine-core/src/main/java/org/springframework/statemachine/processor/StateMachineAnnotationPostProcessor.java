@@ -122,7 +122,7 @@ public class StateMachineAnnotationPostProcessor implements BeanPostProcessor, B
 					Annotation metaAnnotation = null;
 					for (Class<? extends Annotation> ppa : postProcessors.keySet()) {
 						Annotation a = AnnotationUtils.getAnnotation(annotation,ppa);
-						if (annotation.getClass().equals(a.getClass())) {
+						if (a != null && annotation.getClass().equals(a.getClass())) {
 							metaAnnotation = a;
 						} else {
 							metaAnnotation = a;
