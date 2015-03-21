@@ -118,10 +118,22 @@ public class StateMachineAnnotationPostProcessor implements BeanPostProcessor, B
 				Annotation[] annotations = AnnotationUtils.getAnnotations(method);
 
 				for (Annotation annotation : annotations) {
-					MethodAnnotationPostProcessor postProcessor = postProcessors.get(annotation.annotationType());
+
+					Annotation metaAnnotation = null;
+					for (Class<? extends Annotation> ppa : postProcessors.keySet()) {
+						Annotation a = AnnotationUtils.getAnnotation(annotation,ppa);
+						if (annotation.getClass().equals(a.getClass())) {
+							metaAnnotation = a;
+						} else {
+							metaAnnotation = a;
+						}
+					}
+
+					MethodAnnotationPostProcessor postProcessor = metaAnnotation != null ? postProcessors
+							.get(metaAnnotation.annotationType()) : null;
 
 					if (postProcessor != null && shouldCreateHandler(annotation)) {
-						Object result = postProcessor.postProcess(bean, beanName, method, annotation);
+						Object result = postProcessor.postProcess(bean, beanName, method, metaAnnotation, annotation);
 
 						if (result != null && result instanceof StateMachineHandler) {
 							String endpointBeanName = generateBeanName(beanName, method, annotation.annotationType());

@@ -15,21 +15,18 @@
  */
 package org.springframework.statemachine.annotation;
 
-import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ ElementType.TYPE, ElementType.METHOD })
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@Inherited
-@Documented
-public @interface OnTransition {
+@OnTransition
+public @interface AnnoStatesOnTransition {
 
-	String[] source() default {};
+	AnnoStates[] source() default {};
 
-	String[] target() default {};
+	AnnoStates[] target() default {};
 
 }

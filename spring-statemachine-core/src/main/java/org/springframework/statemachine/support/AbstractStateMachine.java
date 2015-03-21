@@ -15,7 +15,9 @@
  */
 package org.springframework.statemachine.support;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,6 +35,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.context.Lifecycle;
 import org.springframework.core.OrderComparator;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.MessageBuilder;
@@ -56,7 +59,6 @@ import org.springframework.statemachine.trigger.TimerTrigger;
 import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.statemachine.trigger.TriggerListener;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 /**
  * Base implementation of a {@link StateMachine} loosely modelled from UML state
@@ -466,31 +468,10 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		List<StateMachineHandler<S, E>> handlersList = new ArrayList<StateMachineHandler<S, E>>();
 
 		for (Entry<String, StateMachineOnTransitionHandler<S, E>> entry : handlers.entrySet()) {
-			OnTransition annotation = entry.getValue().getAnnotation();
-			String source = annotation.source();
-			String target = annotation.target();
-			// TODO: need major fixes
-			boolean handle = false;
-			if (StringUtils.hasText(source) && StringUtils.hasText(target)) {
-				if (StateMachineUtils.containsAtleastOneEqualString(
-						StateMachineUtils.toStringCollection(sourceState.getIds()), source)
-						&& StateMachineUtils.containsAtleastOneEqualString(
-								StateMachineUtils.toStringCollection(targetState.getIds()), target)) {
-					handle = true;
-				}
-			} else if (StringUtils.hasText(source)) {
-				if (StateMachineUtils.containsAtleastOneEqualString(
-						StateMachineUtils.toStringCollection(sourceState.getIds()), source)) {
-					handle = true;
-				}
-			} else if (StringUtils.hasText(target)) {
-				if (StateMachineUtils.containsAtleastOneEqualString(
-						StateMachineUtils.toStringCollection(targetState.getIds()), target)) {
-					handle = true;
-				}
+			OnTransition metaAnnotation = entry.getValue().getMetaAnnotation();
+			Annotation annotation = entry.getValue().getAnnotation();
 
-			}
-			if (handle) {
+			if (transitionHandlerMatch(metaAnnotation, annotation, sourceState, targetState)) {
 				handlersList.add(entry.getValue());
 			}
 		}
@@ -498,6 +479,43 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		OrderComparator comparator = new OrderComparator();
 		Collections.sort(handlersList, comparator);
 		return handlersList;
+	}
+
+	private boolean transitionHandlerMatch(OnTransition metaAnnotation, Annotation annotation, State<S, E> sourceState, State<S, E> targetState) {
+		String[] msources = metaAnnotation.source();
+		String[] mtargets = metaAnnotation.target();
+
+		Map<String, Object> annotationAttributes = AnnotationUtils.getAnnotationAttributes(annotation);
+		Object source = annotationAttributes.get("source");
+		Object target = annotationAttributes.get("target");
+
+		Collection<String> scoll = StateMachineUtils.toStringCollection(source);
+		if (scoll.isEmpty()) {
+			scoll = Arrays.asList(msources);
+		}
+		Collection<String> tcoll = StateMachineUtils.toStringCollection(target);
+		if (tcoll.isEmpty()) {
+			tcoll = Arrays.asList(mtargets);
+		}
+
+		boolean handle = false;
+		if (!scoll.isEmpty() && !tcoll.isEmpty()) {
+			if (StateMachineUtils.containsAtleastOne(scoll, StateMachineUtils.toStringCollection(sourceState.getIds()))
+					&& StateMachineUtils.containsAtleastOne(tcoll,
+							StateMachineUtils.toStringCollection(targetState.getIds()))) {
+				handle = true;
+			}
+		} else if (!scoll.isEmpty()) {
+			if (StateMachineUtils.containsAtleastOne(scoll, StateMachineUtils.toStringCollection(sourceState.getIds()))) {
+				handle = true;
+			}
+		} else if (!tcoll.isEmpty()) {
+			if (StateMachineUtils.containsAtleastOne(tcoll, StateMachineUtils.toStringCollection(targetState.getIds()))) {
+				handle = true;
+			}
+		}
+
+		return handle;
 	}
 
 	private void registerTriggerListener() {

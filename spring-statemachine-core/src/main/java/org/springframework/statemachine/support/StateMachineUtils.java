@@ -18,6 +18,8 @@ package org.springframework.statemachine.support;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.springframework.util.ObjectUtils;
+
 /**
  * Various utility methods for state machine.
  *
@@ -51,6 +53,16 @@ public abstract class StateMachineUtils {
 		Collection<String> c = new ArrayList<String>();
 		for (S item : collection) {
 			c.add(item.toString());
+		}
+		return c;
+	}
+
+	public static Collection<String> toStringCollection(Object object) {
+		Collection<String> c = new ArrayList<String>();
+		if (ObjectUtils.isArray(object)) {
+			for (Object o : ObjectUtils.toObjectArray(object)) {
+				c.add(o.toString());
+			}
 		}
 		return c;
 	}

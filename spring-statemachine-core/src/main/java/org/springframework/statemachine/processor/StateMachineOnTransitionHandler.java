@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine.processor;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import org.springframework.statemachine.annotation.OnTransition;
@@ -29,18 +30,30 @@ import org.springframework.statemachine.annotation.OnTransition;
  */
 public class StateMachineOnTransitionHandler<S, E> extends StateMachineHandler<S, E> {
 
-	private final OnTransition annotation;
+	private final OnTransition metaAnnotation;
+	private final Annotation annotation;
 
 	/**
 	 * Instantiates a new state machine on transition handler.
 	 *
 	 * @param target the target
 	 * @param method the method
+	 * @param metaAnnotation the meta annotation
 	 * @param annotation the annotation
 	 */
-	public StateMachineOnTransitionHandler(Object target, Method method, OnTransition annotation) {
+	public StateMachineOnTransitionHandler(Object target, Method method, OnTransition metaAnnotation, Annotation annotation) {
 		super(target, method);
+		this.metaAnnotation = metaAnnotation;
 		this.annotation = annotation;
+	}
+
+	/**
+	 * Gets the meta annotation.
+	 *
+	 * @return the meta annotation
+	 */
+	public OnTransition getMetaAnnotation() {
+		return metaAnnotation;
 	}
 
 	/**
@@ -48,7 +61,7 @@ public class StateMachineOnTransitionHandler<S, E> extends StateMachineHandler<S
 	 *
 	 * @return the annotation
 	 */
-	public OnTransition getAnnotation() {
+	public Annotation getAnnotation() {
 		return annotation;
 	}
 

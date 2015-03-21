@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine.processor;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import org.springframework.beans.factory.BeanFactory;
@@ -39,8 +40,8 @@ public class StateMachineActivatorAnnotationPostProcessor implements MethodAnnot
 	}
 
 	@Override
-	public Object postProcess(Object bean, String beanName, Method method, OnTransition annotation) {
-		StateMachineHandler<Object, Object> handler = new StateMachineOnTransitionHandler<Object, Object>(bean, method, annotation);
+	public Object postProcess(Object bean, String beanName, Method method, OnTransition metaAnnotation, Annotation annotation) {
+		StateMachineHandler<Object, Object> handler = new StateMachineOnTransitionHandler<Object, Object>(bean, method, metaAnnotation, annotation);
 
 		Integer order = findOrder(bean, method);
 		if (order != null) {
