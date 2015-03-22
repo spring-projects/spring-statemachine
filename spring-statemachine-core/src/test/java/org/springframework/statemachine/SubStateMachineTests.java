@@ -231,14 +231,14 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		assertThat(entryActionS112.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(exitActionS112.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));
 		assertThat(entryActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(exitActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(exitActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));
 
 		assertThat(entryActionS111.stateContexts.size(), is(1));
 		assertThat(exitActionS111.stateContexts.size(), is(1));
 		assertThat(entryActionS112.stateContexts.size(), is(1));
 		assertThat(exitActionS112.stateContexts.size(), is(0));
-		assertThat(entryActionS1.stateContexts.size(), is(2));
-		assertThat(exitActionS1.stateContexts.size(), is(1));
+		assertThat(entryActionS1.stateContexts.size(), is(1));
+		assertThat(exitActionS1.stateContexts.size(), is(0));
 	}
 
 

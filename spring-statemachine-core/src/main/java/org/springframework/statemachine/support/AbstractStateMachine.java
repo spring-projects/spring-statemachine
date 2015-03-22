@@ -206,6 +206,12 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 				triggerToTransitionMap.put(trigger, transition);
 			}
 		}
+		for (State<S, E> state : states) {
+			if (state.isSubmachineState()) {
+				StateMachine<S, E> submachine = ((AbstractState<S, E>)state).getSubmachine();
+				submachine.addStateListener(new StateMachineListenerRelay());
+			}
+		}
 	}
 
 	@Override
@@ -278,8 +284,6 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	}
 
 	private void switchToState(State<S,E> state, Message<E> event, Transition<S,E> transition) {
-		exitFromState(currentState, event, transition);
-		notifyStateChanged(currentState, state);
 		setCurrentState(state, event, transition);
 
 		// TODO: should handle triggerles transition some how differently
@@ -289,19 +293,18 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			if (t.getTrigger() == null && source.equals(currentState)) {
 				switchToState(target, event, t);
 			}
-
 		}
 
 	}
 
 	void setCurrentState(State<S, E> state, Message<E> event, Transition<S, E> transition) {
 		if (states.contains(state)) {
+			exitFromState(currentState, event, transition);
+			State<S, E> notifyFrom = currentState;
 			currentState = state;
 			entryToState(state, event, transition);
+			notifyStateChanged(notifyFrom, state);
 		} else if (currentState.isSubmachineState()) {
-			if (transition != null && transition.getKind() == TransitionKind.EXTERNAL) {
-				entryToState(currentState, event, transition);
-			}
 			// TODO: should find a better way to trick setting state for submachine
 			//       without a need to access package protected method via casting
 			StateMachine<S, E> submachine = ((AbstractState<S, E>)currentState).getSubmachine();
@@ -315,8 +318,23 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
 					new HashMap<String, Object>());
 			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(messageHeaders, extendedState, transition, this);
+
+			// TODO: we use this trick not to double notify
+			State<S, E> toNotify = null;
+			if (state.isSubmachineState()) {
+				StateMachine<S, E> submachine = ((AbstractState<S, E>)state).getSubmachine();
+				if (((LifecycleObjectSupport)submachine).isRunning()) {
+					toNotify = submachine.getState();
+				}
+			}
+
+			if (toNotify != null) {
+				notifyStateExited(toNotify);
+			}
+
 			state.exit(event != null ? event.getPayload() : null, stateContext);
 			notifyStateExited(state);
+
 		}
 	}
 
@@ -326,8 +344,21 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
 					new HashMap<String, Object>());
 			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(messageHeaders, extendedState, transition, this);
-			state.entry(event != null ? event.getPayload() : null, stateContext);
 			notifyStateEntered(state);
+
+			// TODO: we use this trick not to double notify
+			State<S, E> toNotify = null;
+			if (state.isSubmachineState()) {
+				StateMachine<S, E> submachine = ((AbstractState<S, E>)state).getSubmachine();
+				if (((LifecycleObjectSupport)submachine).isRunning()) {
+					toNotify = submachine.getState();
+				}
+			}
+
+			state.entry(event != null ? event.getPayload() : null, stateContext);
+			if (toNotify != null) {
+				notifyStateEntered(toNotify);
+			}
 		}
 	}
 
@@ -593,6 +624,45 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			this.trigger = trigger;
 			this.message = message;
 		}
+	}
+
+	/**
+	 * This class is used to relay listener events from a submachines which works
+	 * as its own listener context. User only connects to main root machine and
+	 * expects to get events for all machines from there.
+	 */
+	private class StateMachineListenerRelay implements StateMachineListener<S,E> {
+
+		@Override
+		public void stateChanged(State<S, E> from, State<S, E> to) {
+			stateListener.stateChanged(from, to);
+		}
+
+		@Override
+		public void stateEntered(State<S, E> state) {
+			stateListener.stateEntered(state);
+		}
+
+		@Override
+		public void stateExited(State<S, E> state) {
+			stateListener.stateExited(state);
+		}
+
+		@Override
+		public void transition(Transition<S, E> transition) {
+			stateListener.transition(transition);
+		}
+
+		@Override
+		public void transitionStarted(Transition<S, E> transition) {
+			stateListener.transitionStarted(transition);
+		}
+
+		@Override
+		public void transitionEnded(Transition<S, E> transition) {
+			stateListener.transitionEnded(transition);
+		}
+
 	}
 
 }

@@ -120,14 +120,23 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 				continue;
 			}
 
-			if (stateData != null && ObjectUtils.nullSafeEquals(peek.getParent(), stateData.getParent())) {
+			boolean stackContainsSameParent = false;
+			Iterator<StateData<S, E>> ii = stateStack.iterator();
+			while (ii.hasNext()) {
+				StateData<S, E> sd = ii.next();
+				if (stateData != null && ObjectUtils.nullSafeEquals(stateData.getState(), sd.getParent())) {
+					stackContainsSameParent = true;
+					break;
+				}
+			}
+
+			if (stateData != null && !stackContainsSameParent) {
 				stateStack.push(stateData);
 				continue;
 			}
 
 			Collection<StateData<S, E>> stateDatas = popSameParents(stateStack);
 			Collection<TransitionData<S, E>> transitionsData = getTransitionData(iterator.hasNext(), stateDatas);
-//			Collection<TransitionData<S, E>> transitionsData = getTransitionData(false, null);
 
 			machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, getBeanFactory());
 			// TODO: last part in if feels a bit hack
@@ -263,7 +272,6 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 				} else if (stateDatas.size() == 1) {
 					initialState = state;
 				}
-//				initialState = state;
 				states.add(state);
 			} else {
 				PseudoState pseudoState = null;

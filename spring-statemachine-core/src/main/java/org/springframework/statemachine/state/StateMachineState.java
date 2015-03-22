@@ -22,6 +22,7 @@ import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.support.LifecycleObjectSupport;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionKind;
 
@@ -144,7 +145,11 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 			}
 		}
 		if (getPseudoState() != null && getPseudoState().getKind() == PseudoStateKind.INITIAL) {
-			getSubmachine().start();
+			if (((LifecycleObjectSupport)getSubmachine()).isRunning()) {
+				getSubmachine().getState().entry(event, context);
+			} else {
+				getSubmachine().start();
+			}
 		} else {
 			getSubmachine().getState().entry(event, context);
 		}
