@@ -177,12 +177,6 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		if (isComplete() || !isRunning()) {
 			return false;
 		}
-		// TODO: machine header looks weird!
-		event = MessageBuilder.fromMessage(event).setHeader("machine", this).build();
-		if (log.isDebugEnabled()) {
-			log.debug("Queue event " + event);
-		}
-
 		boolean accepted = acceptEvent(event);
 		scheduleEventQueueProcessing();
 		return accepted;
@@ -258,6 +252,10 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		boolean accepted = currentState.sendEvent(event);
 		if (accepted) {
 			return true;
+		}
+
+		if (log.isDebugEnabled()) {
+			log.debug("Queue event " + event);
 		}
 
 		Message<E> defer = null;
