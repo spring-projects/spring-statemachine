@@ -37,6 +37,7 @@ public class Application  {
 							.parent(States.S1)
 							.initial(States.S11)
 							.state(States.S11)
+							.state(States.S12)
 							.and()
 					.withStates()
 						.parent(States.S0)
@@ -96,7 +97,10 @@ public class Application  {
 					.and()
 				.withExternal()
 					.source(States.S21).target(States.S21).event(Events.H)
-					.guard(fooGuard());
+					.guard(fooGuard())
+					.and()
+				.withExternal()
+					.source(States.S11).target(States.S12).event(Events.I);
 
 		}
 
@@ -115,13 +119,13 @@ public class Application  {
 
 //tag::snippetB[]
 	public static enum States {
-	    S0, S1, S11, S2, S21, S211
+	    S0, S1, S11, S12, S2, S21, S211
 	}
 //end::snippetB[]
 
 //tag::snippetC[]
 	public static enum Events {
-	    A, B, C, D, E, F, G, H
+	    A, B, C, D, E, F, G, H, I
 	}
 //end::snippetC[]
 
