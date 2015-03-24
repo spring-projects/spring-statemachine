@@ -194,7 +194,6 @@ configure(rootProject) {
 		options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
 		options.author = true
 		options.header = rootProject.description
-		options.overview = 'src/api/overview.html'
 		options.links(
 			'http://docs.jboss.org/jbossas/javadoc/4.0.5/connector'
 		)
@@ -207,6 +206,60 @@ configure(rootProject) {
 		})
 		maxMemory = '1024m'
 	}
+
+	task docsZip(type: Zip) {
+		group = 'Distribution'
+		classifier = 'docs'
+		description = "Builds -${classifier} archive containing api and reference for deployment."
+		from('src/dist') {
+			include 'changelog.txt'
+		}
+		from (api) {
+			into 'api'
+		}
+		from (reference) {
+			into 'reference'
+		}
+	}
+
+	task distZip(type: Zip, dependsOn: [docsZip]) {
+		group = 'Distribution'
+		classifier = 'dist'
+		description = "Builds -${classifier} archive, containing all jars and docs, " +
+			"suitable for community download page."
+
+		ext.baseDir = "${project.name}-${project.version}";
+
+		from('src/dist') {
+			include 'readme.txt'
+			include 'license.txt'
+			include 'notice.txt'
+			into "${baseDir}"
+			expand(copyright: new Date().format('yyyy'), version: project.version)
+		}
+
+		from(zipTree(docsZip.archivePath)) {
+			into "${baseDir}/docs"
+		}
+
+		subprojects.each { subproject ->
+			into ("${baseDir}/libs") {
+				from subproject.jar
+				if (subproject.tasks.findByPath('sourcesJar')) {
+					from subproject.sourcesJar
+				}
+				if (subproject.tasks.findByPath('javadocJar')) {
+					from subproject.javadocJar
+				}
+			}
+		}
+	}
+
+	artifacts {
+		archives docsZip
+		archives distZip
+	}
+
 
 	task wrapper(type: Wrapper) {
 		description = 'Generates gradlew[.bat] scripts'
