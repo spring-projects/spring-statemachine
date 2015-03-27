@@ -35,7 +35,9 @@ public class DefaultStateConfigurer<S, E>
 
 	private final Collection<StateData<S, E>> incomplete = new ArrayList<StateData<S, E>>();
 
-	private S initial;
+	private S initialState;
+
+	private Action<S, E> initialAction;
 
 	private S end;
 
@@ -47,8 +49,9 @@ public class DefaultStateConfigurer<S, E>
 		for (StateData<S, E> s : incomplete) {
 			s.setParent(parent);
 			stateDatas.add(s);
-			if (s.getState() == initial) {
+			if (s.getState() == initialState) {
 				s.setInitial(true);
+				s.setInitialAction(initialAction);
 			}
 			if (s.getState() == end) {
 				s.setEnd(true);
@@ -59,8 +62,14 @@ public class DefaultStateConfigurer<S, E>
 
 	@Override
 	public StateConfigurer<S, E> initial(S initial) {
-		this.initial = initial;
+		this.initialState = initial;
 		return this;
+	}
+
+	@Override
+	public StateConfigurer<S, E> initial(S initial, Action<S, E> action) {
+		this.initialAction = action;
+		return initial(initial);
 	}
 
 	@Override

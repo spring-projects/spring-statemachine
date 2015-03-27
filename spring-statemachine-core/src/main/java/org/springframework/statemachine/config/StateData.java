@@ -38,6 +38,7 @@ public class StateData<S, E> {
 	private Collection<? extends Action<S, E>> entryActions;
 	private Collection<? extends Action<S, E>> exitActions;
 	private boolean initial = false;
+	private Action<S, E> initialAction;
 	private boolean end = false;
 
 	public StateData(Object parent, S state, Collection<E> deferred,
@@ -79,6 +80,14 @@ public class StateData<S, E> {
 
 	public void setInitial(boolean initial) {
 		this.initial = initial;
+	}
+
+	public void setInitialAction(Action<S, E> action) {
+		this.initialAction = action;
+	}
+
+	public Action<S, E> getInitialAction() {
+		return initialAction;
 	}
 
 	public boolean isEnd() {

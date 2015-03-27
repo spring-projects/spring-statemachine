@@ -17,6 +17,7 @@ package org.springframework.statemachine;
 
 import java.util.Collection;
 
+import org.springframework.messaging.Message;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.AbstractStateMachine;
 import org.springframework.statemachine.transition.Transition;
@@ -24,7 +25,7 @@ import org.springframework.statemachine.transition.Transition;
 /**
  * Specialisation of a {@link StateMachine} using enums
  * as its {@link State} and event types.
- * 
+ *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
@@ -42,6 +43,12 @@ public class EnumStateMachine<S extends Enum<S>, E extends Enum<E>> extends Abst
 	public EnumStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
 			State<S, E> initialState, State<S, E> endState) {
 		super(states, transitions, initialState, endState);
+	}
+
+	public EnumStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
+			State<S, E> initialState, Transition<S, E> initialTransition, State<S, E> endState,
+			Message<E> initialEvent, ExtendedState extendedState) {
+		super(states, transitions, initialState, initialTransition, endState, initialEvent, extendedState);
 	}
 
 }

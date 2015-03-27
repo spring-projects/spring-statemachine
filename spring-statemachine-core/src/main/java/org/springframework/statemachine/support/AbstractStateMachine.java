@@ -79,6 +79,8 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 
 	private final State<S,E> initialState;
 
+	private final Transition<S, E> initialTransition;
+
 	private final State<S,E> endState;
 
 	private final Message<E> initialEvent;
@@ -125,7 +127,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	 */
 	public AbstractStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
 			State<S, E> initialState, State<S, E> endState) {
-		this(states, transitions, initialState, endState, null, new DefaultExtendedState());
+		this(states, transitions, initialState, null, endState, null, new DefaultExtendedState());
 	}
 
 	/**
@@ -138,7 +140,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	 */
 	public AbstractStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
 			State<S, E> initialState, ExtendedState extendedState) {
-		this(states, transitions, initialState, null, null, extendedState);
+		this(states, transitions, initialState, null, null, null, extendedState);
 	}
 
 	/**
@@ -152,14 +154,15 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	 * @param extendedState the extended state of this machine
 	 */
 	public AbstractStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
-			State<S, E> initialState, State<S, E> endState, Message<E> initialEvent, ExtendedState extendedState) {
+			State<S, E> initialState, Transition<S, E> initialTransition, State<S, E> endState, Message<E> initialEvent, ExtendedState extendedState) {
 		super();
 		this.states = states;
 		this.transitions = transitions;
 		this.initialState = initialState;
+		this.initialTransition = initialTransition;
 		this.endState = endState;
 		this.initialEvent = initialEvent;
-		this.extendedState = extendedState;
+		this.extendedState = extendedState != null ? extendedState : new DefaultExtendedState();
 	}
 
 	@Override
@@ -213,6 +216,12 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		super.doStart();
 		registerTriggerListener();
 		switchToState(initialState, initialEvent, null);
+		// TODO: for now execute outside of switchToState
+		if (initialTransition != null) {
+			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(
+					initialEvent != null ? initialEvent.getHeaders() : null, extendedState, initialTransition, this);
+			initialTransition.transit(stateContext);
+		}
 	}
 
 	@Override
@@ -444,13 +453,13 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			notifyTransitionStart(transition);
 			callHandlers(transition.getSource(), transition.getTarget(), queuedEvent);
 			boolean transit = transition.transit(stateContext);
-			if (transit && transition.getKind() != TransitionKind.INTERNAL) {
-				switchToState(transition.getTarget(), queuedEvent, transition);
+			if (transit) {
+				if (transition.getKind() != TransitionKind.INTERNAL) {
+					switchToState(transition.getTarget(), queuedEvent, transition);
+				}
 				notifyTransition(transition);
 			}
 			notifyTransitionEnd(transition);
-
-
 		}
 
 	}

@@ -25,6 +25,7 @@ import java.util.Stack;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.statemachine.EnumStateMachine;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.builders.StateMachineStates;
 import org.springframework.statemachine.config.builders.StateMachineTransitions;
 import org.springframework.statemachine.config.builders.StateMachineTransitions.TransitionData;
@@ -42,6 +43,7 @@ import org.springframework.statemachine.support.tree.Tree.Node;
 import org.springframework.statemachine.support.tree.TreeTraverser;
 import org.springframework.statemachine.transition.DefaultExternalTransition;
 import org.springframework.statemachine.transition.DefaultInternalTransition;
+import org.springframework.statemachine.transition.InitialTransition;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionKind;
 import org.springframework.statemachine.trigger.EventTrigger;
@@ -258,6 +260,7 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 			Collection<TransitionData<S, E>> transitionsData, BeanFactory beanFactory) {
 		State<S, E> state = null;
 		State<S, E> initialState = null;
+		Action<S, E> initialAction = null;
 		State<S, E> endState = null;
 		Collection<State<S, E>> states = new ArrayList<State<S,E>>();
 		for (StateData<S, E> stateData : stateDatas) {
@@ -269,8 +272,10 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 				// TODO: below if/else doesn't feel right
 				if (stateDatas.size() > 1 && stateData.isInitial()) {
 					initialState = state;
+					initialAction = stateData.getInitialAction();
 				} else if (stateDatas.size() == 1) {
 					initialState = state;
+					initialAction = stateData.getInitialAction();
 				}
 				states.add(state);
 			} else {
@@ -282,6 +287,7 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 						stateData.getEntryActions(), stateData.getExitActions(), pseudoState);
 				if (stateData.isInitial()) {
 					initialState = state;
+					initialAction = stateData.getInitialAction();
 				}
 				if (stateData.isEnd()) {
 					endState = state;
@@ -325,8 +331,14 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 			}
 		}
 
-		EnumStateMachine<S, E> machine = new EnumStateMachine<S, E>(/*stateMap.values()*/ states, transitions,
-				initialState, endState);
+		// TODO: should make a proper transition
+		Transition<S, E> initialTransition = null;
+		if (initialAction != null) {
+			initialTransition = new InitialTransition<S, E>(initialState, initialAction);
+		}
+
+		EnumStateMachine<S, E> machine = new EnumStateMachine<S, E>(states, transitions, initialState,
+				initialTransition, endState, null, null);
 		machine.afterPropertiesSet();
 		if (beanFactory != null) {
 			machine.setBeanFactory(beanFactory);
