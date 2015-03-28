@@ -42,6 +42,11 @@ public class TimerTrigger<S, E> extends LifecycleObjectSupport implements Trigge
 	}
 
 	@Override
+	public E getEvent() {
+		return null;
+	}
+
+	@Override
 	protected void doStart() {
 		scheduled = getTaskScheduler().scheduleAtFixedRate(new Runnable() {
 

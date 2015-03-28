@@ -27,6 +27,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.logging.Log;
@@ -55,6 +56,7 @@ import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionKind;
 import org.springframework.statemachine.trigger.DefaultTriggerContext;
+import org.springframework.statemachine.trigger.EventTrigger;
 import org.springframework.statemachine.trigger.TimerTrigger;
 import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.statemachine.trigger.TriggerListener;
@@ -200,6 +202,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		for (Transition<S, E> transition : transitions) {
 			Trigger<S, E> trigger = transition.getTrigger();
 			if (trigger != null) {
+				// we have same triggers with different transitions
 				triggerToTransitionMap.put(trigger, transition);
 			}
 		}
@@ -435,31 +438,71 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		log.debug("Process trigger queue");
 		TriggerQueueItem queueItem = null;
 		while ((queueItem = triggerQueue.poll()) != null) {
+
+			if (currentState == null) {
+				continue;
+			}
+
 			Message<E> queuedEvent = queueItem.message;
-			Transition<S, E> transition = triggerToTransitionMap.get(queueItem.trigger);
-			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(queuedEvent != null ? queuedEvent.getHeaders() : null, extendedState, transition, this);
-			if (transition == null) {
-				continue;
-			}
+			E event = queuedEvent != null ? queuedEvent.getPayload() : null;
 
-			State<S,E> source = transition.getSource();
-			if (source == null || currentState == null) {
-				continue;
-			}
-			if (!StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
-				continue;
-			}
+			// need all transitions trigger could match, event trigger may match multiple
+			// need to go up from substates and ask if trigger transit, if not check super
+			ArrayList<Transition<S, E>> trans = new ArrayList<Transition<S,E>>();
 
-			notifyTransitionStart(transition);
-			callHandlers(transition.getSource(), transition.getTarget(), queuedEvent);
-			boolean transit = transition.transit(stateContext);
-			if (transit) {
-				if (transition.getKind() != TransitionKind.INTERNAL) {
-					switchToState(transition.getTarget(), queuedEvent, transition);
+			if (event != null) {
+				ArrayList<S> ids = new ArrayList<S>(currentState.getIds());
+				Collections.reverse(ids);
+				for (S id : ids) {
+					for (Entry<Trigger<S, E>, Transition<S, E>> e : triggerToTransitionMap.entrySet()) {
+						Trigger<S, E> tri = e.getKey();
+						E ee = tri.getEvent();
+						Transition<S, E> tra = e.getValue();
+						if (event == ee) {
+							if (tra.getSource().getId() == id && !trans.contains(tra)) {
+								trans.add(tra);
+								continue;
+							}
+						}
+					}
 				}
-				notifyTransition(transition);
 			}
-			notifyTransitionEnd(transition);
+
+			// most likely timer
+			if (trans.isEmpty()) {
+				trans.add(triggerToTransitionMap.get(queueItem.trigger));
+			}
+
+			// go through candidates and transit max one
+			for (Transition<S, E> t : trans) {
+				StateContext<S, E> stateContext = new DefaultStateContext<S, E>(
+						queuedEvent != null ? queuedEvent.getHeaders() : null, extendedState, t, this);
+				if (t == null) {
+					continue;
+				}
+				State<S,E> source = t.getSource();
+				if (source == null) {
+					continue;
+				}
+				if (!StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
+					continue;
+				}
+				boolean transit = t.transit(stateContext);
+				if (transit) {
+					// TODO: should change trasition api so that we can ask
+					//       if transition will transit so that we can post
+					//       accurate notifyTransitionStart
+					notifyTransitionStart(t);
+					callHandlers(t.getSource(), t.getTarget(), queuedEvent);
+					if (t.getKind() != TransitionKind.INTERNAL) {
+						switchToState(t.getTarget(), queuedEvent, t);
+					}
+					notifyTransition(t);
+					notifyTransitionEnd(t);
+					break;
+				}
+
+			}
 		}
 
 	}

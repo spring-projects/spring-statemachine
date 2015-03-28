@@ -43,4 +43,12 @@ public interface Trigger<S,E> {
 	 */
 	void addTriggerListener(TriggerListener listener);
 
+	/**
+	 * Gets the event associated with this trigger. It is possible that there
+	 * are no event association.
+	 *
+	 * @return the event
+	 */
+	E getEvent();
+
 }

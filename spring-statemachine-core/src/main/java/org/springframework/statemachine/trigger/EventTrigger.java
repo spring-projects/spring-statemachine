@@ -35,4 +35,9 @@ public class EventTrigger<S, E> implements Trigger<S, E> {
 		// no-opt
 	}
 
+	@Override
+	public E getEvent() {
+		return event;
+	}
+
 }
