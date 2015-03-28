@@ -10,12 +10,6 @@ Moore presented another paper which is known as a Moore Machine. If
 you're ever read anything about state machines, names Mealy and Moore
 should have popped up at some point.
 
-Traditionally state machines are added to a existing project when
-developer realizes that code base is starting to look like a plate
-full of spaghetti. Spaghetti code looks like never ending hierarchical
-structure of IFs, ELSEs and BREAK clauses and probably compiler should
-ask developer to go home when things are starting to look too complex.
-
 This reference documentations contains following parts.
 
 <<introduction>> introduction to this reference documentation

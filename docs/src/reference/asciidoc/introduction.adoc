@@ -1,10 +1,49 @@
 [[introduction]]
 = Introduction
-
 Spring State Machine(SSM) is a framework for application developers to
-use state machine concepts with Spring.
+use traditional state machine concepts with Spring applications.
+
+Before you continue it's worth to go through appendices <<glossary>>
+and <<crashcourse>> to get a generic idea of what state machines are
+mostly because rest of a documentation expects reader to be fairly
+familiar with state machine concepts.
 
 == Requirements
-
-Spring Statemachine {revnumber} is built and tested with JDK 7, Spring
+Spring Statemachine {revnumber} is built and tested with JDK 7 and Spring
 Framework {spring-version}.
+
+== Background
+State machines are powerful because behaviour is always supposed to be
+consistent and relatively easily debugged due to ways how operational
+rules are written in stone when machine is started. Idea is that your
+application is and may exist in a finite number of states and then something
+happens which takes your application from one state to the next.
+
+It is much easier to design high level logic outside of your
+application and then interact witha state machine with a various
+different ways.
+
+Traditionally state machines are added to a existing project when
+developer realizes that code base is starting to look like a plate
+full of spaghetti. Spaghetti code looks like never ending hierarchical
+structure of IFs, ELSEs and BREAK clauses and probably compiler should
+ask developer to go home when things are starting to look too complex.
+
+== Usage Scenarios
+
+Project is a good candiate to use state machines if:
+
+* Application or part of its structure can be represented as states.
+* You want to split complex logic into smaller manageable tasks.
+* Application is already suffering concurrency issues with i.e.
+  something happening asynchronously.
+
+You are already trying to implement a state machine if:
+
+* Use of boolean flags or enums to model situations.
+* Having variables which only have meaning for some part of your
+  application lifecycle.
+* Looping throught if/else structure and checking if particular flag or
+  enum is set and then making further exceptions what to do when certain
+  combination of your flags and enums exists or doesn't exist together.
+

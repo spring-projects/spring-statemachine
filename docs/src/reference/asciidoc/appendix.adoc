@@ -24,6 +24,17 @@ include::samples/Events.java[tags=snippetA]
 == State Machine Concepts
 This appendix provides generic information about state machines.
 
+=== Quick Example
+Assuming we have states _STATE1_, _STATE2_ and events _EVENT1_,
+_EVENT2_, logic of state machine can be defined as shown in below
+quick example.
+
+image::images/statechart0.png[]
+
+[source,java,indent=0]
+----
+include::samples/IntroSample.java[tags=snippetA]
+----
 
 [glossary]
 === Glossary
@@ -75,28 +86,77 @@ to FALSE.
 A action is a behaviour executed during the triggering of the
 transition.
 
+[[crashcourse]]
 === A State Machines Crash Course
 This appendix provides generic crash course to a state machine
 concepts.
 
 ==== States
-TBD.
+A state is a model which a state machine can be in. It is always
+easier to describe state as a real world example rather than trying to
+abstract concepts with a generic documentation. For example lets take
+a simple example of a keyboard most of use are using every single day.
+If you have a full keyboard which has normal keys on a left side and
+the numeric keypad on a right side you may have noticed that the
+numeric keypad may be in a two different stated depending whether
+numlock is activated or not. If it is not active then typing will
+result navigation using arrows, etc. If numpad is active then typing
+will result numbers to be used. Essentially numpad part of a keyboard
+can be in two different states.
+
+To relate state concept to programming it means that instead of using
+flags, nested if/else/break clauses or other impractical logic you
+simply rely on state, state variables or other interaction with a
+state machine.
 
 ==== Guard Conditions
-TBD.
+Guard conditions are expressions which evaluates either to *TRUE* or
+*FALSE* based on extended state variables and event parameters. Guards
+are used with actions and transitions to dynamically choose if
+particular action or transition should be executed. Aspects of guards,
+event parameters and extended state variables are simply to make state
+machine desing much more simple.
 
 ==== Events
-TBD.
+Event is the most used trigger behaviour to drive a state machine.
+There are other ways to trigger behaviour to happen in state machine
+like a timer but events are the ones which really allows user to
+interact with a state machine. Events are also called as signals to
+possibly alter a state machine state.
 
 ==== Transitions
-TBD.
+A transition is a relationship between a source state and a target
+state. A switch from a state to another is a _state transition_ caused
+by a _trigger_.
 
 ==== Actions
-TBD.
+Actions are the ones which really glues state machine state changes
+with a users own code. State machine can execute action on various
+changes and steps in a state machine like entering or exiting a state,
+or doing a state transition.
 
 ==== Hierarchical State Machines
-TBD.
+Concept of a hierarchical state machine is used to simplify state
+design when particular states can only exist together.
 
 ==== Regions
-TBD.
+Regions which are also called as orthogonal regions are usually viewed
+as exclusive OR operation applied to a states. Concept of a region in
+terms of a state machine is usually a little difficult to understang
+but things gets a little simpler with a simple example.
+
+Some of use have a full size keyboard with main keys on a left side and numeric
+keys on a right side. You've probably noticed that both sides really
+have their own state which you see if you press a numlock key which
+only alters behaviour of numbad itself. If you don't have a full size
+keyboard you can buy a simple external usb numbad having only numbad
+part of a keys. If left and right side can freely exist without the
+other they must have a totally different states which means they are
+operating on different state machines.
+
+It would be a little inconvenient to handle two different
+statemachines as totally separate entities because in a sense they are
+still working together in a sense. This is why orthogonal regios can
+combine together a multiple simultaneous states withing a single state
+in a state machine.
 

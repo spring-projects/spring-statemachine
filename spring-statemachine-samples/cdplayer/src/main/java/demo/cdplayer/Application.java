@@ -88,53 +88,28 @@ public class Application  {
 		}
 
 		@Bean
-		public Action<States, Events> closedEntryAction() {
-			return new Action<States, Events>() {
-				@Override
-				public void execute(StateContext<States, Events> context) {
-					if (context.getTransition() != null && context.getTransition().getSource().getId() == States.CLOSED
-							&& context.getMessageHeader(Variables.CD) != null) {
-						context.getStateMachine().sendEvent(Events.PLAY);
-					}
-				}
-			};
+		public ClosedEntryAction closedEntryAction() {
+			return new ClosedEntryAction();
 		}
 
 		@Bean
-		public Action<States, Events> loadAction() {
-			return new Action<States, Events>() {
-				@Override
-				public void execute(StateContext<States, Events> context) {
-					Object cd = context.getMessageHeader(Variables.CD);
-					context.getExtendedState().getVariables().put(Variables.CD, cd);
-				}
-			};
+		public LoadAction loadAction() {
+			return new LoadAction();
 		}
 
 		@Bean
-		public Action<States, Events> playAction() {
-			return new Action<States, Events>() {
-				@Override
-				public void execute(StateContext<States, Events> context) {
-					context.getExtendedState().getVariables().put(Variables.ELAPSEDTIME, 0l);
-				}
-			};
+		public PlayAction playAction() {
+			return new PlayAction();
 		}
 
 		@Bean
-		public Guard<States, Events> playGuard() {
-			return new Guard<States, Events>() {
-
-				@Override
-				public boolean evaluate(StateContext<States, Events> context) {
-					ExtendedState extendedState = context.getExtendedState();
-					return extendedState.getVariables().get(Variables.CD) != null;
-				}
-			};
+		public PlayGuard playGuard() {
+			return new PlayGuard();
 		}
 
 	}
 //end::snippetA[]
+
 
 //tag::snippetB[]
 	public static enum States {
@@ -185,6 +160,52 @@ public class Application  {
 
 	}
 //end::snippetF[]
+
+//tag::snippetG[]
+	public static class ClosedEntryAction implements Action<States, Events> {
+
+		@Override
+		public void execute(StateContext<States, Events> context) {
+			if (context.getTransition() != null
+					&& context.getTransition().getSource().getId() == States.CLOSED
+					&& context.getMessageHeader(Variables.CD) != null) {
+				context.getStateMachine().sendEvent(Events.PLAY);
+			}
+		}
+	}
+//end::snippetG[]
+
+//tag::snippetH[]
+	public static class LoadAction implements Action<States, Events> {
+
+		@Override
+		public void execute(StateContext<States, Events> context) {
+			Object cd = context.getMessageHeader(Variables.CD);
+			context.getExtendedState().getVariables().put(Variables.CD, cd);
+		}
+	}
+//end::snippetH[]
+
+//tag::snippetI[]
+	public static class PlayAction implements Action<States, Events> {
+
+		@Override
+		public void execute(StateContext<States, Events> context) {
+			context.getExtendedState().getVariables().put(Variables.ELAPSEDTIME, 0l);
+		}
+	}
+//end::snippetI[]
+
+//tag::snippetJ[]
+	public static class PlayGuard implements Guard<States, Events> {
+
+		@Override
+		public boolean evaluate(StateContext<States, Events> context) {
+			ExtendedState extendedState = context.getExtendedState();
+			return extendedState.getVariables().get(Variables.CD) != null;
+		}
+	}
+//end::snippetJ[]
 
 	public static void main(String[] args) throws Exception {
 		Bootstrap.main(args);

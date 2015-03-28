@@ -15,21 +15,34 @@
  */
 package org.springframework.statemachine.docs;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.EnumSet;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateContext;
+import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.annotation.AnnoStates;
+import org.springframework.statemachine.annotation.OnTransition;
+import org.springframework.statemachine.annotation.WithStateMachine;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.event.StateMachineEvent;
 import org.springframework.statemachine.guard.Guard;
+import org.springframework.statemachine.listener.StateMachineListenerAdapter;
+import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.transition.Transition;
 
 /**
  * Tests for state machine configuration.
@@ -185,12 +198,86 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 
 
 // tag::snippetG[]
-	static class StateMachineEventListener implements ApplicationListener<StateMachineEvent> {
+	static class StateMachineApplicationEventListener implements ApplicationListener<StateMachineEvent> {
 
 		@Override
 		public void onApplicationEvent(StateMachineEvent event) {
 		}
 	}
 // end::snippetG[]
+
+// tag::snippetH[]
+	static class StateMachineEventListener extends StateMachineListenerAdapter<States, Events> {
+
+		@Override
+		public void stateChanged(State<States, Events> from, State<States, Events> to) {
+		}
+
+		@Override
+		public void stateEntered(State<States, Events> state) {
+		}
+
+		@Override
+		public void stateExited(State<States, Events> state) {
+		}
+
+		@Override
+		public void transition(Transition<States, Events> transition) {
+		}
+
+		@Override
+		public void transitionStarted(Transition<States, Events> transition) {
+		}
+
+		@Override
+		public void transitionEnded(Transition<States, Events> transition) {
+		}
+	}
+// end::snippetH[]
+
+// tag::snippetI[]
+	@WithStateMachine
+	static class Bean1 {
+
+		@OnTransition(source = "S1", target = "S2")
+		public void fromS1ToS2() {
+		}
+	}
+// end::snippetI[]
+
+// tag::snippetJ[]
+	@Target(ElementType.METHOD)
+	@Retention(RetentionPolicy.RUNTIME)
+	@OnTransition
+	static @interface StatesOnTransition {
+
+		States[] source() default {};
+
+		States[] target() default {};
+	}
+// end::snippetJ[]
+
+// tag::snippetK[]
+	@WithStateMachine
+	static class Bean2 {
+
+		@StatesOnTransition(source = States.S1, target = States.S2)
+		public void fromS1ToS2() {
+		}
+	}
+// end::snippetK[]
+
+// tag::snippetL[]
+	static class Bean3 {
+
+		@Autowired
+		StateMachineFactory<States, Events> factory;
+
+		void method() {
+			StateMachine<States,Events> stateMachine = factory.getStateMachine();
+			stateMachine.start();
+		}
+	}
+// end::snippetL[]
 
 }

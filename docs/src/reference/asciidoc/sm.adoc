@@ -73,36 +73,115 @@ Configuration for state machine factory is exactly same as you've seen
 in various examples in this document where state machine configuration
 is hard coded.
 
+Actually creating a state machine using _@EnableStateMachine_ will
+work via factory so _@EnableStateMachineFactory_ is merely exposing
+that factory via its interface.
+
 [source,java,indent=0]
 ----
 include::samples/DocsConfigurationSampleTests.java[tags=snippetF]
 ----
 
-=== Factory Limitations
+Now that you've used _@EnableStateMachineFactory_ to create a factory
+instead of a state machine bean, it can be injected and used as is to
+request new state machines.
 
-xxx
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetL]
+----
+
+=== Factory Limitations
+Current limitation of factory is that all actions and guard it is
+associating with created state machine will share a same instances.
+This means that from your actions and guard you will need to
+specifially handle a case that same bean will be called by a different
+state machines. This limitation is something which will be resolved in
+future releases.
 
 [[sm-listeners]]
-== State Machine Listeners
-
+== Listening State Machine Events
 There are use cases where you just want to know what is happening with
 a state machine, react to something or simply get logging for
 debugging purposes. SSM provides interfaces for adding listeners which
 then gives an option to get callback when various state changes,
 actions, etc are happening.
 
-[[sm-context]]
-== Context Integration
+You basically have two options, either to listen Spring application
+context events or directly attach listener to a state machine. Both of
+these basically will provide same information where one is producing
+events as event classes and other producing callbacks via a listener
+interface. Both of these have pros and cons which will be discussed later.
 
-TBD
-
-=== Annotation Support
-
-TBD
-
-=== Context Events
+=== Application Context Events
+Application context events classes are _OnTransitionStartEvent_,
+_OnTransitionEvent_, _OnTransitionEndEvent_, _OnStateExitEvent_,
+_OnStateEntryEvent_ and _OnStateChangedEvent_. There can be used as is
+as spring typed _ApplicationListener_ class but all also share a
+common class _StateMachineEvent_ which can be used to get events for
+all.
 
 [source,java,indent=0]
 ----
 include::samples/DocsConfigurationSampleTests.java[tags=snippetG]
 ----
+
+=== State Machine Listener
+For using _StateMachineListener_ you can either extend it and
+implement all callback methods or use _StateMachineListenerAdapter_
+class which contains stub method implementations and choose which ones
+to override.
+
+=== Limitations and Problems
+TBD ctx events may create too much traffic, etc.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetH]
+----
+
+[[sm-context]]
+== Context Integration
+It is a little limited to do interaction with a state machine by
+either listening its events or using actions with states and
+transitions. Time to time this approach would be too limited and
+verbose to create interaction with the application a state machine is
+working with. For this specific use case we have made a spring style
+context intergration which easily attach state machine functionality
+into your beans.
+
+=== Annotation Support
+_@WithStateMachine_ annotation can be used to associate a state
+machine with a existing bean. Withing this annotation a propertys
+_source_ and _target_ can be used to qualify a transition 
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetI]
+----
+
+Default _@OnTransition_ annotation can't be used with a state and
+event enums user have created due to java language limitations, thus
+string representation have to be used.
+
+However if you want to have a type safe annotation it is possible to
+create a new annotation and use _@OnTransition_ as meta annotations.
+This user level annotation can make a reference to actual states and
+events enums and framework will try to match these in a same way.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetJ]
+----
+
+Above we created a _@StatesOnTransition_ annotation which defines
+`source` and `target` as a type safe manner.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetK]
+----
+
+In your own bean you can then use this _@StatesOnTransition_ as is and
+use type safe `source` and `target`.
+

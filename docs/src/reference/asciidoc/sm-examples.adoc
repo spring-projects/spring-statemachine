@@ -76,11 +76,10 @@ Event PUSH send
 ----
 
 == Showcase
-
 Showcase is a complex state machine showing all possible transition
 topologies up to four levels of state nesting.
 
-image::images/statechart2.png[]
+image::images/statechart2.png[width=200]
 
 .States
 [source,java,indent=0]
@@ -111,3 +110,122 @@ include::samples/demo/showcase/Application.java[tags=snippetD]
 ----
 include::samples/demo/showcase/Application.java[tags=snippetE]
 ----
+
+== CD Player
+CD Player is a sample which resembles better use case of most of use have
+used in a real world. CD Player itself is a really simple entity where
+user can open a deck, inser or change a disk, then drive player
+functionality by pressing various buttons like _eject_, _play_,
+_stop_, _pause_, _rewind_ and _backward_.
+
+How many of use have really given a thought of what it will take to
+make a code for a CD Player which interacts with a hardware. Yes,
+concept of a player is overly simple but if you look behind a scenes
+things actually get a bit convoluted.
+
+You've probably noticed that if your deck is open and you press play,
+deck will close and a song will start to play if CD was inserted in
+a first place. In a sense when deck is open you first need to close
+it and then try to start playing if cd is actually instered. Hopefully
+you have now realised that a simple CD Player is not anymore so simple.
+Sure you can wrap all this with a simple class with few boolean variables
+and probably few nested if/else clauses, that will do the job, but what
+about if you need to make all this behaviour much more complex, do you
+really want to keep adding more flags and if/else clauses.
+
+image::images/statechart3.png[]
+
+Lets go throught how this sample and its state machine is designed and
+how those two interacts with each other.
+
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetA]
+----
+
+What we did in above configuration:
+
+* We used EnumStateMachineConfigurerAdapter to configure states and
+  transitions.
+* States _CLOSED_ and _OPEN_ are defined as substates of _IDLE_,
+  states _PLAYING_ and _PAUSED_ are defined as substates of _BUSY_.
+* With state _CLOSED_ we added entry action as bean
+  _closedEntryAction_.
+* With transition we mostly mapped events to expected state
+  transitions like _EJECT_ closing and opening a deck, _PLAY_, _STOP_
+  and _PAUSE_ doing their natural transitions. Few words to mention
+  what we did for other transitions.
+** With source state _PLAYING_ we added a timer trigger which is
+needed to automatically track elapsed time within a playing track and
+to have facility to make a decision when to switch to next track.
+** With event _PLAY_ if source state is _IDLE_ and target state is
+  _BUSY_ we defined action _playAction_ and guard _playGuard_.
+** Lastly with event _LOAD_ and state _OPEN_ we defined internal
+transition with action _loadAction_ which will insert cd disc into
+extended state variables.
+
+This machine only have six states which are introduced as an enum.
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetB]
+----
+
+Events represent, in a sense in this example, what buttons user would
+press and if user loads a cd disc into a deck.
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetC]
+----
+
+Beans _cdPlayer_ and _library_ are just used with a sample to drive
+the application.
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetD]
+----
+
+We can define extended state variable key as simple enums.
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetE]
+----
+
+We wanted to make this samply type safe so we're defining our own
+annotation _@StatesOnTransition_ which have a mandatory meta
+annotation _@OnTransition_.
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetF]
+----
+
+_ClosedEntryAction_ is a entry action for state _CLOSED_ to simply
+send and _PLAY_ event to a statemachine if cd disc is present.
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetG]
+----
+
+_LoadAction_ is simply updating extended state variable if event
+headers contained information about a cd disc to load.
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetH]
+----
+
+_PlayAction_ is simply resetting player elapsed time which is kept as
+an extended state variable.
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetI]
+----
+
+_PlayGuard_ is used to guard transition from _IDLE_ to _BUSY_ with
+event _PLAY_ if extended state variable _CD_ doesn't indicate that cd
+disc has been loaded.
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetJ]
+----
+
+Now lets see how this cd player works and we can go a little deeper in
+its state machine logic.
