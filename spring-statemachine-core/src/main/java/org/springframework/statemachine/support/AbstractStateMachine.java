@@ -27,7 +27,6 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.logging.Log;
@@ -56,7 +55,6 @@ import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionKind;
 import org.springframework.statemachine.trigger.DefaultTriggerContext;
-import org.springframework.statemachine.trigger.EventTrigger;
 import org.springframework.statemachine.trigger.TimerTrigger;
 import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.statemachine.trigger.TriggerListener;
@@ -259,6 +257,19 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		return transitions;
 	}
 
+	@Override
+	public String toString() {
+		ArrayList<State<S, E>> all = new ArrayList<State<S,E>>();
+		for (State<S, E> s : states) {
+			all.addAll(s.getStates());
+		}
+		StringBuilder buf = new StringBuilder();
+		for (State<S, E> s : all) {
+			buf.append(s.getId() + " ");
+		}
+		return buf.toString();
+	}
+
 	protected boolean acceptEvent(Message<E> event) {
 
 		boolean accepted = currentState.sendEvent(event);
@@ -294,7 +305,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	}
 
 	private void switchToState(State<S,E> state, Message<E> event, Transition<S,E> transition) {
-		setCurrentState(state, event, transition);
+		setCurrentState(state, event, transition, true);
 
 		// TODO: should handle triggerles transition some how differently
 		for (Transition<S,E> t : transitions) {
@@ -307,19 +318,79 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 
 	}
 
-	void setCurrentState(State<S, E> state, Message<E> event, Transition<S, E> transition) {
+	private State<S, E> findDeepParent(State<S, E> state) {
+		for (State<S, E> s : states) {
+			if (s.getStates().contains(state)) {
+				return s;
+			}
+		}
+		return null;
+	}
+
+	void setCurrentState(State<S, E> statex, Message<E> event, Transition<S, E> transition, boolean exit) {
+
+		State<S, E> state = statex;
+		State<S, E> findDeep = findDeepParent(state);
+		boolean isTargetSubOf = false;
+		if (transition != null) {
+			isTargetSubOf = isSubstate(state, transition.getSource());
+			if (isTargetSubOf && currentState == transition.getTarget()) {
+				state = transition.getSource();
+			}
+		}
+
 		if (states.contains(state)) {
-			exitFromState(currentState, event, transition);
+			if (exit) {
+				exitCurrentState(state, event, transition);
+			}
 			State<S, E> notifyFrom = currentState;
 			currentState = state;
 			entryToState(state, event, transition);
 			notifyStateChanged(notifyFrom, state);
-		} else if (currentState.isSubmachineState()) {
-			// TODO: should find a better way to trick setting state for submachine
-			//       without a need to access package protected method via casting
-			StateMachine<S, E> submachine = ((AbstractState<S, E>)currentState).getSubmachine();
-			((AbstractStateMachine<S, E>)submachine).setCurrentState(state, event, transition);
+		} else if (currentState != null && currentState.isSubmachineState()) {
+			if (findDeep != null) {
+				if (exit) {
+					exitCurrentState(state, event, transition);
+				}
+				if (currentState == findDeep) {
+					StateMachine<S, E> submachine = ((AbstractState<S, E>)currentState).getSubmachine();
+					if (submachine.getState() == state) {
+						if (currentState == findDeep) {
+							if (isTargetSubOf) {
+								entryToState(currentState, event, transition);
+							}
+							currentState = findDeep;
+							((AbstractStateMachine<S, E>)submachine).setCurrentState(state, event, transition, false);
+							return;
+						}
+					}
+				}
+				currentState = findDeep;
+				entryToState(currentState, event, transition);
+				StateMachine<S, E> submachine = ((AbstractState<S, E>)currentState).getSubmachine();
+				((AbstractStateMachine<S, E>)submachine).setCurrentState(state, event, transition, false);
+			}
 		}
+
+	}
+
+	void exitCurrentState(State<S, E> state, Message<E> event, Transition<S, E> transition) {
+		if (currentState == null) {
+			return;
+		}
+		if (currentState.isSubmachineState()) {
+			StateMachine<S, E> submachine = ((AbstractState<S, E>)currentState).getSubmachine();
+			((AbstractStateMachine<S, E>)submachine).exitCurrentState(state, event, transition);
+			exitFromState(currentState, event, transition);
+		} else {
+			exitFromState(currentState, event, transition);
+		}
+	}
+
+	private boolean isSubstate(State<S, E> left, State<S, E> right) {
+		Collection<State<S, E>> c = left.getStates();
+		c.remove(left);
+		return c.contains(right);
 	}
 
 	private void exitFromState(State<S, E> state, Message<E> event, Transition<S, E> transition) {
@@ -329,22 +400,22 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 					new HashMap<String, Object>());
 			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(messageHeaders, extendedState, transition, this);
 
-			// TODO: we use this trick not to double notify
-			State<S, E> toNotify = null;
-			if (state.isSubmachineState()) {
-				StateMachine<S, E> submachine = ((AbstractState<S, E>)state).getSubmachine();
-				if (((LifecycleObjectSupport)submachine).isRunning()) {
-					toNotify = submachine.getState();
-				}
+			boolean isSubOfSource = isSubstate(transition.getSource(), currentState);
+			boolean isSubOfTarget = isSubstate(transition.getTarget(), currentState);
+			if (currentState == transition.getSource() && currentState == transition.getTarget()) {
+			} else if (!isSubOfSource && !isSubOfTarget && currentState == transition.getSource()) {
+			} else if (!isSubOfSource && !isSubOfTarget && currentState == transition.getTarget()) {
+			} else if (!isSubOfSource && !isSubOfTarget) {
+				return;
 			}
 
-			if (toNotify != null) {
-				notifyStateExited(toNotify);
+			boolean isTargetSubOfSource = isSubstate(transition.getSource(), transition.getTarget());
+			if (transition.getSource() == currentState && isTargetSubOfSource) {
+				return;
 			}
 
 			state.exit(event != null ? event.getPayload() : null, stateContext);
 			notifyStateExited(state);
-
 		}
 	}
 
@@ -354,21 +425,21 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
 					new HashMap<String, Object>());
 			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(messageHeaders, extendedState, transition, this);
-			notifyStateEntered(state);
 
-			// TODO: we use this trick not to double notify
-			State<S, E> toNotify = null;
-			if (state.isSubmachineState()) {
-				StateMachine<S, E> submachine = ((AbstractState<S, E>)state).getSubmachine();
-				if (((LifecycleObjectSupport)submachine).isRunning()) {
-					toNotify = submachine.getState();
+			if (transition != null) {
+				boolean isSubOfSource = isSubstate(transition.getSource(), currentState);
+				boolean isSubOfTarget = isSubstate(transition.getTarget(), currentState);
+				if (currentState == transition.getSource() && currentState == transition.getTarget()) {
+				} else if (!isSubOfSource && !isSubOfTarget && currentState == transition.getTarget()) {
+				} else if (isSubOfSource && !isSubOfTarget && currentState == transition.getTarget()) {
+					return;
+				} else if (!isSubOfSource && !isSubOfTarget) {
+					return;
 				}
 			}
 
+			notifyStateEntered(state);
 			state.entry(event != null ? event.getPayload() : null, stateContext);
-			if (toNotify != null) {
-				notifyStateEntered(toNotify);
-			}
 		}
 	}
 

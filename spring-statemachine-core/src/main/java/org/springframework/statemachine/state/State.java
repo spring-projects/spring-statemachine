@@ -71,6 +71,14 @@ public interface State<S, E> {
 	Collection<S> getIds();
 
 	/**
+	 * Gets all possible states this state knows about including itself
+	 * and substates.
+	 *
+	 * @return all state including itself and nested states
+	 */
+	Collection<State<S, E>> getStates();
+
+	/**
 	 * Gets a {@link PseudoState} attached to a {@code State}.
 	 * {@link PseudoState} is not required and thus this method return
 	 * {@code NULL} if it's not set.

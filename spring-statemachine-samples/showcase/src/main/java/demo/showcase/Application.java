@@ -25,7 +25,7 @@ public class Application  {
 				throws Exception {
 			states
 				.withStates()
-					.initial(States.S0)
+					.initial(States.S0, fooAction())
 					.state(States.S0)
 					.and()
 					.withStates()
@@ -95,9 +95,18 @@ public class Application  {
 				.withExternal()
 					.source(States.S211).target(States.S0).event(Events.G)
 					.and()
-				.withExternal()
-					.source(States.S21).target(States.S21).event(Events.H)
-					.guard(fooGuard())
+				.withInternal()
+					.source(States.S0).event(Events.H)
+					.guard(foo0Guard())
+					.action(fooAction())
+					.and()
+				.withInternal()
+					.source(States.S2).event(Events.H)
+					.guard(foo1Guard())
+					.action(fooAction())
+					.and()
+				.withInternal()
+					.source(States.S1).event(Events.H)
 					.and()
 				.withExternal()
 					.source(States.S11).target(States.S12).event(Events.I);
@@ -105,8 +114,13 @@ public class Application  {
 		}
 
 		@Bean
-		public FooGuard fooGuard() {
-			return new FooGuard();
+		public FooGuard foo0Guard() {
+			return new FooGuard(0);
+		}
+
+		@Bean
+		public FooGuard foo1Guard() {
+			return new FooGuard(1);
 		}
 
 		@Bean
@@ -134,7 +148,14 @@ public class Application  {
 
 		@Override
 		public void execute(StateContext<States, Events> context) {
-			context.getExtendedState().getVariables().put("foo", 1);
+			Object foo = context.getExtendedState().getVariables().get("foo");
+			if (foo instanceof Integer && ((Integer)foo) == 0) {
+				context.getExtendedState().getVariables().put("foo", 1);
+			} else if (foo instanceof Integer && ((Integer)foo) == 1) {
+				context.getExtendedState().getVariables().put("foo", 0);
+			} else {
+				context.getExtendedState().getVariables().put("foo", 0);
+			}
 		}
 	}
 
@@ -143,10 +164,16 @@ public class Application  {
 // tag::snippetE[]
 	private static class FooGuard implements Guard<States, Events> {
 
+		private final int match;
+
+		public FooGuard(int match) {
+			this.match = match;
+		}
+
 		@Override
 		public boolean evaluate(StateContext<States, Events> context) {
 			Object foo = context.getExtendedState().getVariables().get("foo");
-			return !(foo == null || !foo.equals(1));
+			return !(foo == null || !foo.equals(match));
 		}
 	}
 // end::snippetE[]

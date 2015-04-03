@@ -52,7 +52,8 @@ public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 */
-	public AbstractSimpleState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions) {
+	public AbstractSimpleState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions,
+			Collection<? extends Action<S, E>> exitActions) {
 		this(id, deferred, entryActions, exitActions, null);
 	}
 
@@ -86,8 +87,8 @@ public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
 	 * @param pseudoState the pseudo state
 	 * @param regions the regions
 	 */
-	public AbstractSimpleState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
-			PseudoState pseudoState, Collection<Region<S, E>> regions) {
+	public AbstractSimpleState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions,
+			Collection<? extends Action<S, E>> exitActions, PseudoState pseudoState, Collection<Region<S, E>> regions) {
 		super(id, deferred, entryActions, exitActions, pseudoState, regions);
 		this.ids = new ArrayList<S>();
 		this.ids.add(id);
@@ -103,8 +104,8 @@ public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
 	 * @param pseudoState the pseudo state
 	 * @param submachine the submachine
 	 */
-	public AbstractSimpleState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
-			PseudoState pseudoState, StateMachine<S, E> submachine) {
+	public AbstractSimpleState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions,
+			Collection<? extends Action<S, E>> exitActions, PseudoState pseudoState, StateMachine<S, E> submachine) {
 		super(id, deferred, entryActions, exitActions, pseudoState, submachine);
 		this.ids = new ArrayList<S>();
 		this.ids.add(id);
@@ -119,8 +120,8 @@ public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
 	 * @param exitActions the exit actions
 	 * @param pseudoState the pseudo state
 	 */
-	public AbstractSimpleState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
-			PseudoState pseudoState) {
+	public AbstractSimpleState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions,
+			Collection<? extends Action<S, E>> exitActions, PseudoState pseudoState) {
 		super(id, deferred, entryActions, exitActions, pseudoState);
 		this.ids = new ArrayList<S>();
 		this.ids.add(id);
@@ -129,6 +130,13 @@ public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
 	@Override
 	public Collection<S> getIds() {
 		return Collections.unmodifiableCollection(ids);
+	}
+
+	@Override
+	public Collection<State<S, E>> getStates() {
+		ArrayList<State<S, E>> states = new ArrayList<State<S, E>>();
+		states.add(this);
+		return states;
 	}
 
 }

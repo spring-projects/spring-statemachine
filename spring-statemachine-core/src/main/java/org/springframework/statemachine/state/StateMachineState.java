@@ -22,7 +22,6 @@ import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
-import org.springframework.statemachine.support.LifecycleObjectSupport;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionKind;
 
@@ -86,7 +85,8 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 	 * @param exitActions the exit actions
 	 * @param pseudoState the pseudo state
 	 */
-	public StateMachineState(S id, StateMachine<S, E> submachine, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
+	public StateMachineState(S id, StateMachine<S, E> submachine, Collection<E> deferred,
+			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
 			PseudoState pseudoState) {
 		super(id, deferred, entryActions, exitActions, pseudoState, submachine);
 		this.ids = new ArrayList<S>();
@@ -102,7 +102,8 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 */
-	public StateMachineState(S id, StateMachine<S, E> submachine, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions) {
+	public StateMachineState(S id, StateMachine<S, E> submachine, Collection<E> deferred,
+			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions) {
 		super(id, deferred, entryActions, exitActions, null, submachine);
 		this.ids = new ArrayList<S>();
 		this.ids.add(id);
@@ -120,12 +121,21 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 	}
 
 	@Override
+	public Collection<State<S, E>> getStates() {
+		ArrayList<State<S, E>> states = new ArrayList<State<S, E>>();
+		states.add(this);
+		for (State<S, E> s : getSubmachine().getStates()) {
+			states.addAll(s.getStates());
+		}
+		return states;
+	}
+
+	@Override
 	public void exit(E event, StateContext<S, E> context) {
-		getSubmachine().getState().exit(event, context);
 		// don't stop if it looks like we're coming back
 		// stop would cause start with entry which would
 		// enable default transition and state
-		if (context.getTransition().getSource().getId() != getSubmachine().getState().getId()) {
+		if (getSubmachine().getState() != null && context.getTransition().getSource().getId() != getSubmachine().getState().getId()) {
 			getSubmachine().stop();
 		}
 		Collection<? extends Action<S, E>> actions = getExitActions();
@@ -144,14 +154,9 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 				action.execute(context);
 			}
 		}
+
 		if (getPseudoState() != null && getPseudoState().getKind() == PseudoStateKind.INITIAL) {
-			if (((LifecycleObjectSupport)getSubmachine()).isRunning()) {
-				getSubmachine().getState().entry(event, context);
-			} else {
-				getSubmachine().start();
-			}
-		} else {
-			getSubmachine().getState().entry(event, context);
+			getSubmachine().start();
 		}
 	}
 
