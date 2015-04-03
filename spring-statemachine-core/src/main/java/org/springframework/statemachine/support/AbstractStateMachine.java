@@ -105,6 +105,8 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 
 	private final Map<Trigger<S, E>, Transition<S,E>> triggerToTransitionMap = new HashMap<Trigger<S,E>, Transition<S,E>>();
 
+	private boolean contextEventsEnabled = true;
+
 	/**
 	 * Instantiates a new abstract state machine.
 	 *
@@ -268,6 +270,17 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			buf.append(s.getId() + " ");
 		}
 		return buf.toString();
+	}
+
+	/**
+	 * Set if context application events are enabled. Events
+	 * are enabled by default. Set this to false if you don't
+	 * want state machine to send application context events.
+	 *
+	 * @param contextEventsEnabled the enabled flag
+	 */
+	public void setContextEventsEnabled(boolean contextEventsEnabled) {
+		this.contextEventsEnabled = contextEventsEnabled;
 	}
 
 	protected boolean acceptEvent(Message<E> event) {
@@ -692,49 +705,61 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 
 	private void notifyStateChanged(State<S,E> source, State<S,E> target) {
 		stateListener.stateChanged(source, target);
-		StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
-		if (eventPublisher != null) {
-			eventPublisher.publishStateChanged(this, source, target);
+		if (contextEventsEnabled) {
+			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
+			if (eventPublisher != null) {
+				eventPublisher.publishStateChanged(this, source, target);
+			}
 		}
 	}
 
 	private void notifyStateEntered(State<S,E> state) {
 		stateListener.stateEntered(state);
-		StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
-		if (eventPublisher != null) {
-			eventPublisher.publishStateEntered(this, state);
+		if (contextEventsEnabled) {
+			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
+			if (eventPublisher != null) {
+				eventPublisher.publishStateEntered(this, state);
+			}
 		}
 	}
 
 	private void notifyStateExited(State<S,E> state) {
 		stateListener.stateExited(state);
-		StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
-		if (eventPublisher != null) {
-			eventPublisher.publishStateExited(this, state);
+		if (contextEventsEnabled) {
+			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
+			if (eventPublisher != null) {
+				eventPublisher.publishStateExited(this, state);
+			}
 		}
 	}
 
 	private void notifyTransitionStart(Transition<S,E> transition) {
 		stateListener.transitionStarted(transition);
-		StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
-		if (eventPublisher != null) {
-			eventPublisher.publishTransitionStart(this, transition);
+		if (contextEventsEnabled) {
+			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
+			if (eventPublisher != null) {
+				eventPublisher.publishTransitionStart(this, transition);
+			}
 		}
 	}
 
 	private void notifyTransition(Transition<S,E> transition) {
 		stateListener.transition(transition);
-		StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
-		if (eventPublisher != null) {
-			eventPublisher.publishTransitionEnd(this, transition);
+		if (contextEventsEnabled) {
+			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
+			if (eventPublisher != null) {
+				eventPublisher.publishTransitionEnd(this, transition);
+			}
 		}
 	}
 
 	private void notifyTransitionEnd(Transition<S,E> transition) {
 		stateListener.transitionEnded(transition);
-		StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
-		if (eventPublisher != null) {
-			eventPublisher.publishTransition(this, transition);
+		if (contextEventsEnabled) {
+			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
+			if (eventPublisher != null) {
+				eventPublisher.publishTransition(this, transition);
+			}
 		}
 	}
 

@@ -21,7 +21,9 @@ import java.util.List;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -45,9 +47,14 @@ public class StateMachineConfiguration<S extends Enum<S>, E extends Enum<E>> ext
 			Class<? extends Annotation> namedAnnotation) throws Exception {
 		BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(StateMachineDelegatingFactoryBean2.class);
+		AnnotationAttributes attributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(
+				EnableStateMachine.class.getName(), false));
+		Boolean contextEvents = attributes.getBoolean("contextEvents");
+
 		beanDefinitionBuilder.addConstructorArgValue(builder);
 		beanDefinitionBuilder.addConstructorArgValue(StateMachine.class);
 		beanDefinitionBuilder.addConstructorArgValue(importingClassMetadata.getClassName());
+		beanDefinitionBuilder.addConstructorArgValue(contextEvents);
 		return beanDefinitionBuilder.getBeanDefinition();
 	}
 
@@ -62,11 +69,13 @@ public class StateMachineConfiguration<S extends Enum<S>, E extends Enum<E>> ext
 		extends BeanDelegatingFactoryBean<StateMachine<S, E>,StateMachineConfigBuilder<S, E>,StateMachineConfig<S, E>> {
 
 		private String clazzName;
+		private Boolean contextEvents;
 
 		public StateMachineDelegatingFactoryBean2(StateMachineConfigBuilder<S, E> builder, Class<StateMachine<S, E>> clazz,
-				String clazzName) {
+				String clazzName, Boolean contextEvents) {
 			super(builder, clazz);
 			this.clazzName = clazzName;
+			this.contextEvents = contextEvents;
 		}
 
 		@Override
@@ -83,6 +92,7 @@ public class StateMachineConfiguration<S extends Enum<S>, E extends Enum<E>> ext
 			EnumStateMachineFactory<S, E> stateMachineFactory = new EnumStateMachineFactory<S, E>(
 					stateMachineTransitions, stateMachineStates);
 			stateMachineFactory.setBeanFactory(getBeanFactory());
+			stateMachineFactory.setContextEventsEnabled(contextEvents);
 			setObject(stateMachineFactory.getStateMachine());
 		}
 

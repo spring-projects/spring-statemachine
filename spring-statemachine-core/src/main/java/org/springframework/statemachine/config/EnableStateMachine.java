@@ -53,4 +53,12 @@ public @interface EnableStateMachine {
 	 */
 	String[] name() default {StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE};
 
+	/**
+	 * Defines if application context events for a state machine are
+	 * enable or not. On default events are enabled.
+	 *
+	 * @return true, if events are enabled.
+	 */
+	boolean contextEvents() default true;
+
 }
