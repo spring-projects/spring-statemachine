@@ -345,9 +345,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		return null;
 	}
 
-	void setCurrentState(State<S, E> statex, Message<E> event, Transition<S, E> transition, boolean exit) {
-
-		State<S, E> state = statex;
+	void setCurrentState(State<S, E> state, Message<E> event, Transition<S, E> transition, boolean exit) {
 		State<S, E> findDeep = findDeepParent(state);
 		boolean isTargetSubOf = false;
 		if (transition != null) {
@@ -418,11 +416,15 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 					new HashMap<String, Object>());
 			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(messageHeaders, extendedState, transition, this);
 
+			State<S, E> findDeep = findDeepParent(transition.getTarget());
+			boolean isTargetSubOfOtherState = findDeep != null && findDeep != currentState;
+
 			boolean isSubOfSource = isSubstate(transition.getSource(), currentState);
 			boolean isSubOfTarget = isSubstate(transition.getTarget(), currentState);
 			if (currentState == transition.getSource() && currentState == transition.getTarget()) {
 			} else if (!isSubOfSource && !isSubOfTarget && currentState == transition.getSource()) {
 			} else if (!isSubOfSource && !isSubOfTarget && currentState == transition.getTarget()) {
+			} else if (isTargetSubOfOtherState) {
 			} else if (!isSubOfSource && !isSubOfTarget) {
 				return;
 			}
@@ -445,10 +447,15 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(messageHeaders, extendedState, transition, this);
 
 			if (transition != null) {
+				State<S, E> findDeep1 = findDeepParent(transition.getTarget());
+				State<S, E> findDeep2 = findDeepParent(transition.getSource());
+				boolean isComingFromOtherSubmachine = findDeep1 != null && findDeep2 != null && findDeep2 != currentState;
+
 				boolean isSubOfSource = isSubstate(transition.getSource(), currentState);
 				boolean isSubOfTarget = isSubstate(transition.getTarget(), currentState);
 				if (currentState == transition.getSource() && currentState == transition.getTarget()) {
 				} else if (!isSubOfSource && !isSubOfTarget && currentState == transition.getTarget()) {
+				} else if (isComingFromOtherSubmachine) {
 				} else if (isSubOfSource && !isSubOfTarget && currentState == transition.getTarget()) {
 					return;
 				} else if (!isSubOfSource && !isSubOfTarget) {

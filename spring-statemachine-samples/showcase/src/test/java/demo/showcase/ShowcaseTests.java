@@ -177,6 +177,26 @@ public class ShowcaseTests {
 		assertThat(listener.statesEntered.size(), is(3));
 	}
 
+	@Test
+	public void testF() throws Exception {
+		listener.reset(1, 4, 2, 0);
+		machine.sendEvent(Events.F);
+		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
+		assertThat(machine.getState().getIds(), contains(States.S0, States.S2, States.S21, States.S211));
+		assertThat(listener.statesExited.size(), is(2));
+		assertThat(listener.statesEntered.size(), is(4));
+	}
+
+	@Test
+	public void testG() throws Exception {
+		listener.reset(1, 4, 2, 0);
+		machine.sendEvent(Events.G);
+		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
+		assertThat(machine.getState().getIds(), contains(States.S0, States.S2, States.S21, States.S211));
+		assertThat(listener.statesExited.size(), is(2));
+		assertThat(listener.statesEntered.size(), is(4));
+	}
+
 	static class Config {
 
 		@Autowired
