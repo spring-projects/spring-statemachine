@@ -178,6 +178,11 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	}
 
 	@Override
+	public ExtendedState getExtendedState() {
+		return extendedState;
+	}
+
+	@Override
 	public boolean sendEvent(Message<E> event) {
 		if (isComplete() || !isRunning()) {
 			return false;

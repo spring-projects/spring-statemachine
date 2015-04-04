@@ -38,6 +38,13 @@ public interface StateMachine<S, E> extends Region<S, E> {
 	State<S,E> getInitialState();
 
 	/**
+	 * Gets the state machine extended state.
+	 *
+	 * @return extended state
+	 */
+	ExtendedState getExtendedState();
+
+	/**
 	 * Adds the state listener.
 	 *
 	 * @param listener the listener
