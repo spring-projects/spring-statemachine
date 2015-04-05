@@ -4,9 +4,11 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Map;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.shell.Bootstrap;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
@@ -70,7 +72,16 @@ public class Application  {
 					.and()
 				.withInternal()
 					.source(States.PLAYING)
+					.action(playingAction())
 					.timer(1000)
+					.and()
+				.withInternal()
+					.source(States.PLAYING).event(Events.BACK)
+					.action(trackAction())
+					.and()
+				.withInternal()
+					.source(States.PLAYING).event(Events.FORWARD)
+					.action(trackAction())
 					.and()
 				.withExternal()
 					.source(States.PAUSED).target(States.PLAYING).event(Events.PAUSE)
@@ -98,8 +109,18 @@ public class Application  {
 		}
 
 		@Bean
+		public TrackAction trackAction() {
+			return new TrackAction();
+		}
+
+		@Bean
 		public PlayAction playAction() {
 			return new PlayAction();
+		}
+
+		@Bean
+		public PlayingAction playingAction() {
+			return new PlayingAction();
 		}
 
 		@Bean
@@ -145,6 +166,10 @@ public class Application  {
 //tag::snippetE[]
 	public static enum Variables {
 		CD, TRACK, ELAPSEDTIME
+	}
+
+	public static enum Headers {
+		TRACKSHIFT
 	}
 //end::snippetE[]
 
@@ -192,6 +217,7 @@ public class Application  {
 		@Override
 		public void execute(StateContext<States, Events> context) {
 			context.getExtendedState().getVariables().put(Variables.ELAPSEDTIME, 0l);
+			context.getExtendedState().getVariables().put(Variables.TRACK, 0);
 		}
 	}
 //end::snippetI[]
@@ -206,6 +232,51 @@ public class Application  {
 		}
 	}
 //end::snippetJ[]
+
+//tag::snippetK[]
+	public static class PlayingAction implements Action<States, Events> {
+
+		@Override
+		public void execute(StateContext<States, Events> context) {
+			Map<Object, Object> variables = context.getExtendedState().getVariables();
+			Object elapsed = variables.get(Variables.ELAPSEDTIME);
+			Object cd = variables.get(Variables.CD);
+			Object track = variables.get(Variables.TRACK);
+			if (elapsed instanceof Long) {
+				long e = ((Long)elapsed) + 1000l;
+				if (e > ((Cd) cd).getTracks()[((Integer) track)].getLength()*1000) {
+					context.getStateMachine().sendEvent(MessageBuilder
+							.withPayload(Events.FORWARD)
+							.setHeader(Headers.TRACKSHIFT.toString(), 1).build());
+				} else {
+					variables.put(Variables.ELAPSEDTIME, e);
+				}
+			}
+		}
+	}
+//end::snippetK[]
+
+//tag::snippetL[]
+	public static class TrackAction implements Action<States, Events> {
+
+		@Override
+		public void execute(StateContext<States, Events> context) {
+			Map<Object, Object> variables = context.getExtendedState().getVariables();
+			Object trackshift = context.getMessageHeader(Headers.TRACKSHIFT.toString());
+			Object track = variables.get(Variables.TRACK);
+			Object cd = variables.get(Variables.CD);
+			if (trackshift instanceof Integer && track instanceof Integer && cd instanceof Cd) {
+				int next = ((Integer)track) + ((Integer)trackshift);
+				if (next >= 0 &&  ((Cd)cd).getTracks().length > next) {
+					variables.put(Variables.ELAPSEDTIME, 0l);
+					variables.put(Variables.TRACK, next);
+				} else if (((Cd)cd).getTracks().length <= next) {
+					context.getStateMachine().sendEvent(Events.STOP);
+				}
+			}
+		}
+	}
+//end::snippetL[]
 
 	public static void main(String[] args) throws Exception {
 		Bootstrap.main(args);

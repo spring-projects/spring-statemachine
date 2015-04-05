@@ -11,6 +11,7 @@ import org.springframework.statemachine.annotation.OnTransition;
 import org.springframework.statemachine.annotation.WithStateMachine;
 
 import demo.cdplayer.Application.Events;
+import demo.cdplayer.Application.Headers;
 import demo.cdplayer.Application.States;
 import demo.cdplayer.Application.StatesOnTransition;
 import demo.cdplayer.Application.Variables;
@@ -45,11 +46,17 @@ public class CdPlayer {
 	}
 
 	public void forward() {
-		stateMachine.sendEvent(Events.FORWARD);
+		stateMachine
+			.sendEvent(MessageBuilder
+					.withPayload(Events.FORWARD)
+					.setHeader(Headers.TRACKSHIFT.toString(), 1).build());
 	}
 
 	public void back() {
-		stateMachine.sendEvent(Events.BACK);
+		stateMachine
+			.sendEvent(MessageBuilder
+					.withPayload(Events.BACK)
+					.setHeader(Headers.TRACKSHIFT.toString(), -1).build());
 	}
 
 	public String getLdcStatus() {
@@ -66,14 +73,30 @@ public class CdPlayer {
 
 	@StatesOnTransition(target = States.PLAYING)
 	public void playing(ExtendedState extendedState) {
-		Object object = extendedState.getVariables().get(Variables.ELAPSEDTIME);
-		if (object instanceof Long) {
-			long elapsed = ((Long)object) + 1000l;
-			extendedState.getVariables().put(Variables.ELAPSEDTIME, elapsed);
+		Object elapsed = extendedState.getVariables().get(Variables.ELAPSEDTIME);
+		Object cd = extendedState.getVariables().get(Variables.CD);
+		Object track = extendedState.getVariables().get(Variables.TRACK);
+		if (elapsed instanceof Long && track instanceof Integer && cd instanceof Cd) {
 			SimpleDateFormat format = new SimpleDateFormat("mm:ss");
-			trackStatus = format.format(new Date(elapsed));
+			trackStatus = ((Cd) cd).getTracks()[((Integer) track)]
+					+ " " + format.format(new Date((Long) elapsed));
 		}
+	}
 
+	@StatesOnTransition(target = States.OPEN)
+	public void open(ExtendedState extendedState) {
+		cdStatus = "Open";
+	}
+
+	@StatesOnTransition(target = States.CLOSED)
+	public void closed(ExtendedState extendedState) {
+		Object cd = extendedState.getVariables().get(Variables.CD);
+		if (cd != null) {
+			cdStatus = ((Cd)cd).getName();
+		} else {
+			cdStatus = "No CD";
+		}
+		trackStatus = "";
 	}
 
 }

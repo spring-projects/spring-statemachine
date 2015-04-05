@@ -1,5 +1,8 @@
 package demo.cdplayer;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliCommand;
@@ -22,10 +25,15 @@ public class CdPlayerCommands implements CommandMarker {
 
 	@CliCommand(value = "cd library", help = "List user CD library")
 	public String library() {
+		SimpleDateFormat format = new SimpleDateFormat("mm:ss");
 		StringBuilder buf = new StringBuilder();
-		int index = 0;
+		int i1 = 0;
 		for (Cd cd : library.getCollection()) {
-			buf.append(index++ + ": " + cd.getName() + "\n");
+			buf.append(i1++ + ": " + cd.getName() + "\n");
+			int i2 = 0;
+			for (Track track : cd.getTracks()) {
+				buf.append("  " + i2++ + ": " + track.getName() + "  " + format.format(new Date(track.getLength()*1000)) + "\n");
+			}
 		}
 		return buf.toString();
 	}
@@ -36,7 +44,7 @@ public class CdPlayerCommands implements CommandMarker {
 		try {
 			Cd cd = library.getCollection().get(index);
 			cdPlayer.load(cd);
-			buf.append("Loading cd " + cd.getName());
+			buf.append("Loading cd " + cd);
 		} catch (Exception e) {
 			buf.append("Cd with index " + index + " not found, check library");
 		}

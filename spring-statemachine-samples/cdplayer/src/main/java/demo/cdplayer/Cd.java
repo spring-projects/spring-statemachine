@@ -18,4 +18,9 @@ public class Cd {
 		return tracks;
 	}
 
+	@Override
+	public String toString() {
+		return name;
+	}
+
 }

@@ -3,9 +3,9 @@ package demo.cdplayer;
 public class Track {
 
 	private final String name;
-	private final int length;
+	private final long length;
 
-	public Track(String name, int length) {
+	public Track(String name, long length) {
 		this.name = name;
 		this.length = length;
 	}
@@ -14,8 +14,13 @@ public class Track {
 		return name;
 	}
 
-	public int getLength() {
+	public long getLength() {
 		return length;
+	}
+
+	@Override
+	public String toString() {
+		return name;
 	}
 
 }
