@@ -14,12 +14,12 @@ import org.springframework.statemachine.guard.Guard;
 @Configuration
 public class Application  {
 
-//tag::snippetA[]
 	@Configuration
 	@EnableStateMachine
 	static class StateMachineConfig
 			extends EnumStateMachineConfigurerAdapter<States, Events> {
 
+//tag::snippetAA[]
 		@Override
 		public void configure(StateMachineStateConfigurer<States, Events> states)
 				throws Exception {
@@ -53,7 +53,9 @@ public class Application  {
 								.initial(States.S211)
 								.state(States.S211);
 		}
+//end::snippetAA[]
 
+//tag::snippetAB[]
 		@Override
 		public void configure(StateMachineTransitionConfigurer<States, Events> transitions)
 				throws Exception {
@@ -112,7 +114,9 @@ public class Application  {
 					.source(States.S11).target(States.S12).event(Events.I);
 
 		}
+//end::snippetAB[]
 
+//tag::snippetAC[]
 		@Bean
 		public FooGuard foo0Guard() {
 			return new FooGuard(0);
@@ -127,9 +131,9 @@ public class Application  {
 		public FooAction fooAction() {
 			return new FooAction();
 		}
+//end::snippetAC[]
 
 	}
-//end::snippetA[]
 
 //tag::snippetB[]
 	public static enum States {

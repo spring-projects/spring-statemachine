@@ -36,4 +36,5 @@ include::introduction.adoc[]
 include::sm.adoc[]
 
 include::sm-examples.adoc[]
+include::faq.adoc[]
 include::appendix.adoc[]

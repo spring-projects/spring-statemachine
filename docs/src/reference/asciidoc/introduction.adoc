@@ -10,18 +10,25 @@ familiar with state machine concepts.
 
 == Requirements
 Spring Statemachine {revnumber} is built and tested with JDK 7 and Spring
-Framework {spring-version}.
+Framework {spring-version} and doesn't require any other dependencies
+outside of Spring Framework. Samples will require spring-shell and
+spring-boot which will pull other dependencies beyond Framework
+itself.
 
 == Background
-State machines are powerful because behaviour is always supposed to be
+State machines are powerful because behaviour is always guaranteed to be
 consistent and relatively easily debugged due to ways how operational
 rules are written in stone when machine is started. Idea is that your
 application is and may exist in a finite number of states and then something
-happens which takes your application from one state to the next.
+happens which takes your application from one state to the next. What
+will drive a state machine are triggers which are either based on an
+events or timers.
 
 It is much easier to design high level logic outside of your
-application and then interact witha state machine with a various
-different ways.
+application and then interact with a state machine with a various
+different ways. You will simple send interact with a state machine by
+sending event, listening what a state machine does or simply request a
+current state.
 
 Traditionally state machines are added to a existing project when
 developer realizes that code base is starting to look like a plate
@@ -31,7 +38,7 @@ ask developer to go home when things are starting to look too complex.
 
 == Usage Scenarios
 
-Project is a good candiate to use state machines if:
+Project is a good candiate to use state machine if:
 
 * Application or part of its structure can be represented as states.
 * You want to split complex logic into smaller manageable tasks.
@@ -46,4 +53,13 @@ You are already trying to implement a state machine if:
 * Looping throught if/else structure and checking if particular flag or
   enum is set and then making further exceptions what to do when certain
   combination of your flags and enums exists or doesn't exist together.
+
+== Feature Limitations
+
+A lot of features are planned thus not all expected feature are ntot
+yet implemented:
+
+* Regions are not fully supported and currently contains many bugs.
+* Features around pseudo states are missing functionality like history
+  states, fork/join with regions, etc.
 

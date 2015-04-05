@@ -18,5 +18,7 @@ This reference documentations contains following parts.
 
 <<statemachine-examples>> more detailed state machine samples
 
+<<statemachine-faq>> frequently ask questions
+
 <<appendices>> generic info about used material and state machines
 

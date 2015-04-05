@@ -29,7 +29,7 @@ Assuming we have states _STATE1_, _STATE2_ and events _EVENT1_,
 _EVENT2_, logic of state machine can be defined as shown in below
 quick example.
 
-image::images/statechart0.png[]
+image::images/statechart0.png[width=500]
 
 [source,java,indent=0]
 ----
@@ -129,15 +129,52 @@ A transition is a relationship between a source state and a target
 state. A switch from a state to another is a _state transition_ caused
 by a _trigger_.
 
+===== Internal Transition
+Internal transition is used when action needs to be executed without
+causing a state transition. With internal transition source and target
+state is always a same and it is identical with self-transition in the
+absence of state entry and exit actions.
+
+===== External vs. Local Transition
+Most of the cases external and local transition are functionally
+equivalent expect in cases where transition is happening between super
+and sub states. Local transition doesn't cause exit and entry to
+source state if target state is a substate of a source state. Other
+way around, local transition doesn't cause exit and entry to target
+state if target is a superstate of a source state.
+
+image::images/statechart4.png[width=500]
+
+Above image shows a different between local and external transitions
+with a very simplistic super and sub states.
+
 ==== Actions
 Actions are the ones which really glues state machine state changes
 with a users own code. State machine can execute action on various
 changes and steps in a state machine like entering or exiting a state,
 or doing a state transition.
 
+Actions usually have access to a state context which gives running
+code a choice to interact with a state machine in a various ways.
+State context i.e. is exposing a whole state machine so user can
+access extended state variables, event headers if transition is based
+on an event, or actual transition where it is possible to see more
+detailed where this state change is coming from and where it is going.
+
 ==== Hierarchical State Machines
 Concept of a hierarchical state machine is used to simplify state
 design when particular states can only exist together.
+
+Hierarchical states are really an innovation in UML state machine over
+a traditional state machines like Mealy or Moore machines.
+Hierarchical states allows to define some level of abstraction is a
+sense how java developer would define a class structure with abstract
+classes. For example having a nested state machine user is able to
+define transition on a multiple level of states possibly with a
+different conditions. State machine will always try to see if current
+state is able to handle an event together with a transition guard
+conditions. If these conditions are not evaluated to true, state
+machine will simply see what a super state can handle.
 
 ==== Regions
 Regions which are also called as orthogonal regions are usually viewed

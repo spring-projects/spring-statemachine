@@ -23,12 +23,12 @@ import org.springframework.statemachine.guard.Guard;
 @Configuration
 public class Application  {
 
-//tag::snippetA[]
 	@Configuration
 	@EnableStateMachine
 	static class StateMachineConfig
 			extends EnumStateMachineConfigurerAdapter<States, Events> {
 
+//tag::snippetAA[]
 		@Override
 		public void configure(StateMachineStateConfigurer<States, Events> states)
 				throws Exception {
@@ -53,7 +53,9 @@ public class Application  {
 						.state(States.PAUSED);
 
 		}
+//end::snippetAA[]
 
+//tag::snippetAB[]
 		@Override
 		public void configure(StateMachineTransitionConfigurer<States, Events> transitions)
 				throws Exception {
@@ -97,7 +99,9 @@ public class Application  {
 				.withInternal()
 					.source(States.OPEN).event(Events.LOAD).action(loadAction());
 		}
+//end::snippetAB[]
 
+//tag::snippetAC[]
 		@Bean
 		public ClosedEntryAction closedEntryAction() {
 			return new ClosedEntryAction();
@@ -127,9 +131,9 @@ public class Application  {
 		public PlayGuard playGuard() {
 			return new PlayGuard();
 		}
+//end::snippetAC[]
 
 	}
-//end::snippetA[]
 
 
 //tag::snippetB[]

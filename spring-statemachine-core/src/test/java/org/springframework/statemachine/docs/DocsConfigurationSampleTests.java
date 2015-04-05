@@ -79,10 +79,10 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 			states
 				.withStates()
 					.initial(States.S1)
-					.end(States.SF)
-					.states(EnumSet.allOf(States.class))
+					.state(States.S1)
 					.and()
 					.withStates()
+						.parent(States.S1)
 						.initial(States.S2)
 						.state(States.S2);
 		}
@@ -100,22 +100,23 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 			states
 				.withStates()
 					.initial(States.S1)
-					.end(States.SF)
-					.states(EnumSet.allOf(States.class))
-					.and()
-					.withStates()
-						.initial(States.S2)
-						.state(States.S2);
+					.states(EnumSet.allOf(States.class));
 		}
 
 		@Override
 		public void configure(StateMachineTransitionConfigurer<States, Events> transitions) throws Exception {
 			transitions
 				.withExternal()
+					.source(States.S1).target(States.S2)
+					.event(Events.E1)
 					.and()
 				.withInternal()
+					.source(States.S2)
+					.event(Events.E2)
 					.and()
-				.withLocal();
+				.withLocal()
+					.source(States.S2).target(States.S3)
+					.event(Events.E3);
 		}
 
 	}
@@ -130,10 +131,15 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 		public void configure(StateMachineTransitionConfigurer<States, Events> transitions) throws Exception {
 			transitions
 				.withExternal()
-					.source(States.S1)
-					.target(States.S2)
+					.source(States.S1).target(States.S2)
 					.event(Events.E1)
-					.guard(guard());
+					.guard(guard())
+					.and()
+				.withExternal()
+					.source(States.S2).target(States.S3)
+					.event(Events.E2)
+					.guardExpression("true");
+
 		}
 
 		@Bean
@@ -279,5 +285,33 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 		}
 	}
 // end::snippetL[]
+
+// tag::snippetM[]
+	static class Config7 {
+
+		@Autowired
+		StateMachine<States, Events> stateMachine;
+
+		@Bean
+		public StateMachineEventListener stateMachineEventListener() {
+			StateMachineEventListener listener = new StateMachineEventListener();
+			stateMachine.addStateListener(listener);
+			return listener;
+		}
+
+	}
+// end::snippetM[]
+
+// tag::snippetN[]
+	@Configuration
+	@EnableStateMachine(contextEvents = false)
+	public static class Config8 extends EnumStateMachineConfigurerAdapter<States, Events> {
+	}
+
+	@Configuration
+	@EnableStateMachineFactory(contextEvents = false)
+	public static class Config9 extends EnumStateMachineConfigurerAdapter<States, Events> {
+	}
+// end::snippetN[]
 
 }

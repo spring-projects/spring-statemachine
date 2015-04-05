@@ -14,7 +14,6 @@ that Spring Statemachine provides to any Spring based application.
 
 [[sm-config]]
 == Statemachine Configuration
-
 One of the common tasks when using a Statemachine is to design its
 runtime configuration. This chapter will focus on how Spring
 Statemachine is configured and how it leverages Spring's lightweight
@@ -22,10 +21,10 @@ IoC containers to simplify the application internals to make it more
 manageable.
 
 === Configuring States
-
 We'll get into more complex configuration examples a bit later but
 lets first start with a something simple. For most simple state
-machine you
+machine you just use `EnumStateMachineConfigurerAdapter` and define
+possible states, choose initial and optional end state.
 
 [source,java,indent=0]
 ----
@@ -33,6 +32,9 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippetA]
 ----
 
 === Configuring Hierarchical States
+Hierarchical states can be defined by using multiple `withStates()`
+calls where `parent()` can be used to indicate that these
+particular states are sub-states of some other state.
 
 [source,java,indent=0]
 ----
@@ -40,6 +42,9 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippetB]
 ----
 
 === Configuring Transitions
+We support three different types of transitions, `external`,
+`internal` and `local`. Transitions are either triggered by a signal
+which is an event sent into a state machine or a timer.
 
 [source,java,indent=0]
 ----
@@ -47,13 +52,26 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippetC]
 ----
 
 === Configuring Guards
+Guards are used to protect state transitions. Interface _Guard_ is
+used to do an evaluation where method has access to _StateContext_.
 
 [source,java,indent=0]
 ----
 include::samples/DocsConfigurationSampleTests.java[tags=snippetD]
 ----
 
+In above two different types of guard configuration is used. Firstly a
+simply _Guard_ is created as a bean and attached to transition between
+states `S1` and `S2`.
+
+Secondly a simple spel expression can be used as a guard where
+expression must return a `Boolean` value. Behind a scenes this spel
+based guard is a _SpelExpressionGuard_. This was attached to
+transition between states `S2` and `S3`. Both guard in above sample
+always evaluate to true.
+
 === Configuring Actions
+Actions can be defined with various steps within a state transitions.
 
 [source,java,indent=0]
 ----
@@ -127,17 +145,42 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippetG]
 ----
 
 === State Machine Listener
-For using _StateMachineListener_ you can either extend it and
+Using _StateMachineListener_ you can either extend it and
 implement all callback methods or use _StateMachineListenerAdapter_
 class which contains stub method implementations and choose which ones
 to override.
 
-=== Limitations and Problems
-TBD ctx events may create too much traffic, etc.
-
 [source,java,indent=0]
 ----
 include::samples/DocsConfigurationSampleTests.java[tags=snippetH]
+----
+
+In above example we simply created our own listener class
+_StateMachineEventListener_ which extends
+_StateMachineListenerAdapter_.
+
+Once you have your own listener defined, it can be registered into a
+state machine via its interface as shown below. It's just a matter of
+flavour if it's hooked up within a spring configuration or done
+manually at any time of application life-cycle.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetM]
+----
+
+=== Limitations and Problems
+Spring application context is not a fastest event bus out there so it
+is advised to give some thought what is a rate of events state machine
+is sending. For better performance it may be better to use
+_StateMachineListener_ interface. For this specific reason it is
+possible to use `contextEvents` flag with _@EnableStateMachine_ and
+_@EnableStateMachineFactory_ to disable Spring application context
+events as shown above.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetN]
 ----
 
 [[sm-context]]

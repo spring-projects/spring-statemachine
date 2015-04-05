@@ -15,7 +15,7 @@ simples form there are only two states, `LOCKED` and `UNLOCKED`. Two
 events, `COIN` and `PUSH` can happen if you try to go through it or
 you make a payment.
 
-image::images/statechart1.png[]
+image::images/statechart1.png[width=500]
 
 .States
 [source,java,indent=0]
@@ -79,7 +79,7 @@ Event PUSH send
 Showcase is a complex state machine showing all possible transition
 topologies up to four levels of state nesting.
 
-image::images/statechart2.png[width=200]
+image::images/statechart2.png[width=500]
 
 .States
 [source,java,indent=0]
@@ -93,19 +93,31 @@ include::samples/demo/showcase/Application.java[tags=snippetB]
 include::samples/demo/showcase/Application.java[tags=snippetC]
 ----
 
-.Configuration
+.Configuration - states
 [source,java,indent=0]
 ----
-include::samples/demo/showcase/Application.java[tags=snippetA]
+include::samples/demo/showcase/Application.java[tags=snippetAA]
 ----
 
-.Guard
+.Configuration - transitions
+[source,java,indent=0]
+----
+include::samples/demo/showcase/Application.java[tags=snippetAB]
+----
+
+.Configuration - actions and guard
+[source,java,indent=0]
+----
+include::samples/demo/showcase/Application.java[tags=snippetAC]
+----
+
+.Action
 [source,java,indent=0]
 ----
 include::samples/demo/showcase/Application.java[tags=snippetD]
 ----
 
-.Action
+.Guard
 [source,java,indent=0]
 ----
 include::samples/demo/showcase/Application.java[tags=snippetE]
@@ -133,14 +145,25 @@ and probably few nested if/else clauses, that will do the job, but what
 about if you need to make all this behaviour much more complex, do you
 really want to keep adding more flags and if/else clauses.
 
-image::images/statechart3.png[]
+image::images/statechart3.png[width=500]
 
 Lets go throught how this sample and its state machine is designed and
-how those two interacts with each other.
+how those two interacts with each other. Below three config sections
+are used withing a _EnumStateMachineConfigurerAdapter_.
 
 [source,java,indent=0]
 ----
-include::samples/demo/cdplayer/Application.java[tags=snippetA]
+include::samples/demo/cdplayer/Application.java[tags=snippetAA]
+----
+
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetAB]
+----
+
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetAC]
 ----
 
 What we did in above configuration:
@@ -160,9 +183,14 @@ needed to automatically track elapsed time within a playing track and
 to have facility to make a decision when to switch to next track.
 ** With event _PLAY_ if source state is _IDLE_ and target state is
   _BUSY_ we defined action _playAction_ and guard _playGuard_.
-** Lastly with event _LOAD_ and state _OPEN_ we defined internal
+** With event _LOAD_ and state _OPEN_ we defined internal
 transition with action _loadAction_ which will insert cd disc into
 extended state variables.
+** _PLAYING_ state defined three internal transitions where one is
+triggered by a timer executing a _playingAction_ which updates
+extended state variables. Other two transitions are with _trackAction_
+with different events, _BACK_ and _FORWARD_ respectively which handles
+when user wants to go back or forward in tracks.
 
 This machine only have six states which are introduced as an enum.
 [source,java,indent=0]
@@ -227,5 +255,19 @@ disc has been loaded.
 include::samples/demo/cdplayer/Application.java[tags=snippetJ]
 ----
 
-Now lets see how this cd player works and we can go a little deeper in
-its state machine logic.
+_PlayingAction_ is updating extended state variable _ELAPSEDTIME_ which
+cd player itself can read and update lcd status. Action also handles
+track shift if user is going back or forward in tracks.
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetK]
+----
+
+_TrackAction_ handles track shift action if user is going back or forward
+in tracks. If it is a last track of a cd, playing is stopped and _STOP_
+event sent to a state machine.
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetL]
+----
+
