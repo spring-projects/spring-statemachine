@@ -1,0 +1,46 @@
+---
+# The name of your project
+title: Spring Statemachine
+
+badges:
+
+  # Customize your project's badges. Delete any entries that do not apply.
+  custom:
+    - name: Source (GitHub)
+      url:  https://github.com/spring-projects/spring-statemachine
+      icon: github
+
+---
+<!DOCTYPE HTML>
+<html lang="en-US">
+
+{% capture billboard_description %}
+
+Spring Statemachine is a framework for application developers to use state machine concepts with Spring.
+
+{% endcapture %}
+
+{% capture main_content %}
+
+State machines are powerful because behaviour is always guaranteed to be consistent and relatively easily debugged due to ways how operational rules are written in stone when machine is started. Idea is that your application is and may exist in a finite number of states and then something happens which takes your application from one state to the next. What will drive a state machine are triggers which are either based on an events or timers.
+
+It is much easier to design high level logic outside of your application and then interact with a state machine with a various different ways. You will simple send interact with a state machine by sending event, listening what a state machine does or simply request a current state.
+
+<span id="quick-start"></span>
+## Quick Start
+
+{% include download_widget.md %}
+
+{% endcapture %}
+
+{% capture related_resources %}
+
+### Resources
+
+* [Samples](https://github.com/spring-projects/spring-statemachine/tree/master/spring-statemachine-samples)
+
+{% endcapture %}
+
+
+{% include project_page.html %}
+</html>
