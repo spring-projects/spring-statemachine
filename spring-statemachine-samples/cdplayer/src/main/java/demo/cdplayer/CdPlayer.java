@@ -63,6 +63,7 @@ public class CdPlayer {
 		return cdStatus + " " + trackStatus;
 	}
 
+//tag::snippetA[]
 	@OnTransition(target = "BUSY")
 	public void busy(ExtendedState extendedState) {
 		Object cd = extendedState.getVariables().get(Variables.CD);
@@ -70,6 +71,7 @@ public class CdPlayer {
 			cdStatus = ((Cd)cd).getName();
 		}
 	}
+//end::snippetA[]
 
 	@StatesOnTransition(target = States.PLAYING)
 	public void playing(ExtendedState extendedState) {
@@ -88,6 +90,7 @@ public class CdPlayer {
 		cdStatus = "Open";
 	}
 
+//tag::snippetB[]
 	@StatesOnTransition(target = States.CLOSED)
 	public void closed(ExtendedState extendedState) {
 		Object cd = extendedState.getVariables().get(Variables.CD);
@@ -98,5 +101,6 @@ public class CdPlayer {
 		}
 		trackStatus = "";
 	}
+//end::snippetB[]
 
 }

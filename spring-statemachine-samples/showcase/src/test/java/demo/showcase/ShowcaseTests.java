@@ -49,6 +49,20 @@ public class ShowcaseTests {
 
 	@Test
 	public void testA() throws Exception {
+		listener.reset(1, 0, 0);
+		machine.sendEvent(Events.A);
+		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
+		assertThat(machine.getState().getIds(), contains(States.S0, States.S1, States.S11));
+	}
+
+	@Test
+	public void testCHCA() throws Exception {
+		listener.reset(3, 0, 0);
+		machine.sendEvent(Events.C);
+		machine.sendEvent(Events.H);
+		machine.sendEvent(Events.C);
+		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
+
 		listener.reset(1, 2, 2, 1);
 		machine.sendEvent(Events.A);
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
@@ -138,6 +152,19 @@ public class ShowcaseTests {
 	}
 
 	@Test
+	public void testII() throws Exception {
+		machine.sendEvent(Events.I);
+
+		listener.reset(1, 0, 0);
+		// TODO: should think if need to bypass
+		//       S211 as initial state and go directly
+		//       to S212.
+		machine.sendEvent(Events.I);
+		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
+		assertThat(machine.getState().getIds(), contains(States.S0, States.S2, States.S21, States.S212));
+	}
+
+	@Test
 	public void testH() throws Exception {
 		listener.reset(0, 0, 0, 1);
 		machine.sendEvent(Events.H);
@@ -164,7 +191,7 @@ public class ShowcaseTests {
 		machine.sendEvent(Events.H);
 		listener.transitionLatch.await(1, TimeUnit.SECONDS);
 		assertThat(listener.transitionCount, is(1));
-		assertThat(listener.transitions.get(0).getSource().getId(), is(States.S2));
+		assertThat(listener.transitions.get(0).getSource().getId(), is(States.S0));
 	}
 
 	@Test

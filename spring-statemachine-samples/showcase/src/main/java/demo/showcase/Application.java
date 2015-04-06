@@ -1,5 +1,9 @@
 package demo.showcase;
 
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.shell.Bootstrap;
@@ -13,6 +17,8 @@ import org.springframework.statemachine.guard.Guard;
 
 @Configuration
 public class Application  {
+
+	private final static Log log = LogFactory.getLog(Application.class);
 
 	@Configuration
 	@EnableStateMachine
@@ -51,7 +57,8 @@ public class Application  {
 							.withStates()
 								.parent(States.S21)
 								.initial(States.S211)
-								.state(States.S211);
+								.state(States.S211)
+								.state(States.S212);
 		}
 //end::snippetAA[]
 
@@ -62,7 +69,7 @@ public class Application  {
 			transitions
 				.withExternal()
 					.source(States.S1).target(States.S1).event(Events.A)
-					.action(fooAction())
+					.guard(foo1Guard())
 					.and()
 				.withExternal()
 					.source(States.S1).target(States.S11).event(Events.B)
@@ -111,7 +118,13 @@ public class Application  {
 					.source(States.S1).event(Events.H)
 					.and()
 				.withExternal()
-					.source(States.S11).target(States.S12).event(Events.I);
+					.source(States.S11).target(States.S12).event(Events.I)
+					.and()
+				.withExternal()
+					.source(States.S211).target(States.S212).event(Events.I)
+					.and()
+				.withExternal()
+					.source(States.S12).target(States.S212).event(Events.I);
 
 		}
 //end::snippetAB[]
@@ -137,7 +150,7 @@ public class Application  {
 
 //tag::snippetB[]
 	public static enum States {
-	    S0, S1, S11, S12, S2, S21, S211
+	    S0, S1, S11, S12, S2, S21, S211, S212
 	}
 //end::snippetB[]
 
@@ -152,13 +165,17 @@ public class Application  {
 
 		@Override
 		public void execute(StateContext<States, Events> context) {
-			Object foo = context.getExtendedState().getVariables().get("foo");
+			Map<Object, Object> variables = context.getExtendedState().getVariables();
+			Object foo = variables.get("foo");
 			if (foo instanceof Integer && ((Integer)foo) == 0) {
-				context.getExtendedState().getVariables().put("foo", 1);
+				log.info("Switch foo to 1");
+				variables.put("foo", 1);
 			} else if (foo instanceof Integer && ((Integer)foo) == 1) {
-				context.getExtendedState().getVariables().put("foo", 0);
+				log.info("Switch foo to 0");
+				variables.put("foo", 0);
 			} else {
-				context.getExtendedState().getVariables().put("foo", 0);
+				log.info("Init foo to 0");
+				variables.put("foo", 0);
 			}
 		}
 	}

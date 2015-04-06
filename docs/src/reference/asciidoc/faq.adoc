@@ -21,12 +21,6 @@ There are few choices a state machine developer can choose.
   state transition into a next state when state has entry and its
   actions has been completed.
 
-.How do I defer an event
-
-{zwsp} +
-
-For more complete example and explanation, see cdplayer sample.
-
 == Extented State
 
 .How I can initialise variables on state machine start

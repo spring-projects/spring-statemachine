@@ -123,6 +123,72 @@ include::samples/demo/showcase/Application.java[tags=snippetD]
 include::samples/demo/showcase/Application.java[tags=snippetE]
 ----
 
+Lets go throught what this state machine do when it's executed and we
+send various event to it.
+
+[source,text]
+----
+sm>sm start
+Entry state S0
+Entry state S1
+Entry state S11
+Init foo to 0
+State machine started
+
+sm>sm event A
+Event A send
+
+sm>sm event C
+Exit state S11
+Exit state S1
+Entry state S2
+Entry state S21
+Entry state S211
+Event C send
+
+sm>sm event H
+Switch foo to 1
+Event H send
+
+sm>sm event C
+Exit state S211
+Exit state S21
+Exit state S2
+Entry state S1
+Entry state S11
+Event C send
+
+sm>sm event A
+Exit state S11
+Exit state S1
+Entry state S1
+Entry state S11
+Event A send
+----
+
+What happens in above sample:
+
+* State machine is started which takes it to its initial state _S11_
+  via superstates _S1_ and _S0_. Also extended state variable `foo` is
+  init to `0`.
+* We try to execute self transition in state _S1_ with event _A_ but
+  nothing happens because transition is guarded by variable `foo` to
+  be `1`.
+* We send event _C_ which takes us to other state machine where
+  initial state _S211_ and its superstates are entered. In there we
+  can use event _H_ which does a simple internal transition to flip
+  variable `foo`. Then we simply go back using event _C_.
+* Event _A_ is sent again and now _S1_ does a self transition because
+  guard evaluates true.
+* It's also worth to pay attention to how event _H_ is handled in
+  different states _S0_, _S1_ and _S2_. This is a good example of how
+  hierarchical states and their event handling works. If state _S2_ is
+  unable to handle event _H_ due to guard condition, its parent is
+  checked next. This guarantees that while on state _S2_, `foo` flag
+  is always flipped around. However in state _S1_ event _H_ always
+  match to its dummy transtion without guard or action, not never
+  happens.
+
 == CD Player
 CD Player is a sample which resembles better use case of most of use have
 used in a real world. CD Player itself is a really simple entity where
@@ -270,4 +336,31 @@ event sent to a state machine.
 ----
 include::samples/demo/cdplayer/Application.java[tags=snippetL]
 ----
+
+One other important aspect of a state machines is that they have their
+own responsibilies mostly around handling states and all application
+level logic should be kept outside. This means that application needs
+to have a ways to interact with a state machine and below sample is
+how cdplayer does it order to update lcd status. Also pay attention
+that we annotated _CdPlayer_ with _@WithStateMachine_ which instructs
+state machine to find methods from your pojo which are then called
+with various transitions.
+
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/CdPlayer.java[tags=snippetA]
+----
+
+In above example we use _@OnTransition_ annotation to hook a callback
+when transition happens with a target state _BUSY_.
+
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/CdPlayer.java[tags=snippetB]
+----
+
+_@OnTransition_ we used above can only be used with strings which are
+matched from enums. _@StatesOnTransition_ is then something what user
+can create into his own application to get a type safe annotation where
+a real enums can be used.
 
