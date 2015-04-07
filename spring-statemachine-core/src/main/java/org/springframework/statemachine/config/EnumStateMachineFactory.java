@@ -37,6 +37,7 @@ import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.RegionState;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.state.StateMachineState;
+import org.springframework.statemachine.support.DefaultExtendedState;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
 import org.springframework.statemachine.support.tree.Tree;
 import org.springframework.statemachine.support.tree.Tree.Node;
@@ -82,6 +83,10 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 
 	@Override
 	public StateMachine<S, E> getStateMachine() {
+
+		// shared
+		DefaultExtendedState defaultExtendedState = new DefaultExtendedState();
+
 		StateMachine<S, E> machine = null;
 
 		// we store mappings from state id's to states which gets
@@ -142,7 +147,7 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 			Collection<StateData<S, E>> stateDatas = popSameParents(stateStack);
 			Collection<TransitionData<S, E>> transitionsData = getTransitionData(iterator.hasNext(), stateDatas);
 
-			machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, getBeanFactory(), contextEvents);
+			machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, getBeanFactory(), contextEvents, defaultExtendedState);
 			// TODO: last part in if feels a bit hack
 			//       (!peek.isInitial() && !machineMap.containsKey(peek.getParent()))
 			if (peek.isInitial() || (!peek.isInitial() && !machineMap.containsKey(peek.getParent()))) {
@@ -170,7 +175,7 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 			}
 
 			if (initials == 1) {
-				machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, getBeanFactory(), contextEvents);
+				machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, getBeanFactory(), contextEvents, defaultExtendedState);
 			}
 		}
 
@@ -185,7 +190,8 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 				RegionState<S, E> rstate = new RegionState<S, E>(null, regions);
 				Collection<State<S, E>> states = new ArrayList<State<S, E>>();
 				states.add(rstate);
-				EnumStateMachine<S, E> m = new EnumStateMachine<S, E>(states, null, rstate, null);
+				EnumStateMachine<S, E> m = new EnumStateMachine<S, E>(states, null, rstate,
+						null, null, null, defaultExtendedState);
 				if (contextEvents != null) {
 					m.setContextEventsEnabled(contextEvents);
 				}
@@ -266,8 +272,9 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 
 
 	private static <S extends Enum<S>, E extends Enum<E>> StateMachine<S, E> buildMachine(
-			Map<Object, StateMachine<S, E>> machineMap, Map<S, State<S, E>> stateMap, Collection<StateData<S, E>> stateDatas,
-			Collection<TransitionData<S, E>> transitionsData, BeanFactory beanFactory, Boolean contextEvents) {
+			Map<Object, StateMachine<S, E>> machineMap, Map<S, State<S, E>> stateMap,
+			Collection<StateData<S, E>> stateDatas, Collection<TransitionData<S, E>> transitionsData,
+			BeanFactory beanFactory, Boolean contextEvents, DefaultExtendedState defaultExtendedState) {
 		State<S, E> state = null;
 		State<S, E> initialState = null;
 		Action<S, E> initialAction = null;
@@ -348,7 +355,7 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 		}
 
 		EnumStateMachine<S, E> machine = new EnumStateMachine<S, E>(states, transitions, initialState,
-				initialTransition, endState, null, null);
+				initialTransition, endState, null, defaultExtendedState);
 		if (contextEvents != null) {
 			machine.setContextEventsEnabled(contextEvents);
 		}

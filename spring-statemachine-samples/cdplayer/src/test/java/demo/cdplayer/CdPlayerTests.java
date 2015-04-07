@@ -78,6 +78,18 @@ public class CdPlayerTests {
 	}
 
 	@Test
+	public void testPlayWithCdLoadedDeckOpen() throws Exception {
+		listener.reset(3, 0, 0);
+		player.eject();
+		player.load(library.getCollection().get(0));
+		player.play();
+		listener.stateChangedLatch.await(5, TimeUnit.SECONDS);
+		assertThat(listener.stateChangedCount, is(4));
+		assertThat(machine.getState().getIds(), contains(States.BUSY, States.PLAYING));
+		assertLcdStatusContains("cd1");
+	}
+
+	@Test
 	public void testPlayWithNoCdLoaded() throws Exception {
 		listener.reset(0, 0, 0);
 		player.play();

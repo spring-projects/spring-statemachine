@@ -223,7 +223,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	protected void doStart() {
 		super.doStart();
 		registerTriggerListener();
-		switchToState(initialState, initialEvent, null);
+		switchToState(initialState, initialEvent, null, this);
 		// TODO: for now execute outside of switchToState
 		if (initialTransition != null) {
 			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(
@@ -322,15 +322,15 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		return false;
 	}
 
-	private void switchToState(State<S,E> state, Message<E> event, Transition<S,E> transition) {
-		setCurrentState(state, event, transition, true);
+	private void switchToState(State<S,E> state, Message<E> event, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
+		setCurrentState(state, event, transition, true, stateMachine);
 
 		// TODO: should handle triggerles transition some how differently
 		for (Transition<S,E> t : transitions) {
 			State<S,E> source = t.getSource();
 			State<S,E> target = t.getTarget();
 			if (t.getTrigger() == null && source.equals(currentState)) {
-				switchToState(target, event, t);
+				switchToState(target, event, t, stateMachine);
 			}
 		}
 
@@ -345,7 +345,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		return null;
 	}
 
-	void setCurrentState(State<S, E> state, Message<E> event, Transition<S, E> transition, boolean exit) {
+	void setCurrentState(State<S, E> state, Message<E> event, Transition<S, E> transition, boolean exit, StateMachine<S, E> stateMachine) {
 		State<S, E> findDeep = findDeepParent(state);
 		boolean isTargetSubOf = false;
 		if (transition != null) {
@@ -357,49 +357,49 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 
 		if (states.contains(state)) {
 			if (exit) {
-				exitCurrentState(state, event, transition);
+				exitCurrentState(state, event, transition, stateMachine);
 			}
 			State<S, E> notifyFrom = currentState;
 			currentState = state;
-			entryToState(state, event, transition);
+			entryToState(state, event, transition, stateMachine);
 			notifyStateChanged(notifyFrom, state);
 		} else if (currentState != null && currentState.isSubmachineState()) {
 			if (findDeep != null) {
 				if (exit) {
-					exitCurrentState(state, event, transition);
+					exitCurrentState(state, event, transition, stateMachine);
 				}
 				if (currentState == findDeep) {
 					StateMachine<S, E> submachine = ((AbstractState<S, E>)currentState).getSubmachine();
 					if (submachine.getState() == state) {
 						if (currentState == findDeep) {
 							if (isTargetSubOf) {
-								entryToState(currentState, event, transition);
+								entryToState(currentState, event, transition, stateMachine);
 							}
 							currentState = findDeep;
-							((AbstractStateMachine<S, E>)submachine).setCurrentState(state, event, transition, false);
+							((AbstractStateMachine<S, E>)submachine).setCurrentState(state, event, transition, false, stateMachine);
 							return;
 						}
 					}
 				}
 				currentState = findDeep;
-				entryToState(currentState, event, transition);
+				entryToState(currentState, event, transition, stateMachine);
 				StateMachine<S, E> submachine = ((AbstractState<S, E>)currentState).getSubmachine();
-				((AbstractStateMachine<S, E>)submachine).setCurrentState(state, event, transition, false);
+				((AbstractStateMachine<S, E>)submachine).setCurrentState(state, event, transition, false, stateMachine);
 			}
 		}
 
 	}
 
-	void exitCurrentState(State<S, E> state, Message<E> event, Transition<S, E> transition) {
+	void exitCurrentState(State<S, E> state, Message<E> event, Transition<S, E> transition, StateMachine<S, E> stateMachine) {
 		if (currentState == null) {
 			return;
 		}
 		if (currentState.isSubmachineState()) {
 			StateMachine<S, E> submachine = ((AbstractState<S, E>)currentState).getSubmachine();
-			((AbstractStateMachine<S, E>)submachine).exitCurrentState(state, event, transition);
-			exitFromState(currentState, event, transition);
+			((AbstractStateMachine<S, E>)submachine).exitCurrentState(state, event, transition, stateMachine);
+			exitFromState(currentState, event, transition, stateMachine);
 		} else {
-			exitFromState(currentState, event, transition);
+			exitFromState(currentState, event, transition, stateMachine);
 		}
 	}
 
@@ -409,12 +409,12 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		return c.contains(right);
 	}
 
-	private void exitFromState(State<S, E> state, Message<E> event, Transition<S, E> transition) {
+	private void exitFromState(State<S, E> state, Message<E> event, Transition<S, E> transition, StateMachine<S, E> stateMachine) {
 		if (state != null) {
 			log.trace("Exit state=[" + state + "]");
 			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
 					new HashMap<String, Object>());
-			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(messageHeaders, extendedState, transition, this);
+			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(messageHeaders, extendedState, transition, stateMachine);
 
 			State<S, E> findDeep = findDeepParent(transition.getTarget());
 			boolean isTargetSubOfOtherState = findDeep != null && findDeep != currentState;
@@ -439,12 +439,12 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		}
 	}
 
-	private void entryToState(State<S, E> state, Message<E> event, Transition<S, E> transition) {
+	private void entryToState(State<S, E> state, Message<E> event, Transition<S, E> transition, StateMachine<S, E> stateMachine) {
 		if (state != null) {
 			log.trace("Enter state=[" + state + "]");
 			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
 					new HashMap<String, Object>());
-			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(messageHeaders, extendedState, transition, this);
+			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(messageHeaders, extendedState, transition, stateMachine);
 
 			if (transition != null) {
 				State<S, E> findDeep1 = findDeepParent(transition.getTarget());
@@ -591,7 +591,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 					notifyTransitionStart(t);
 					callHandlers(t.getSource(), t.getTarget(), queuedEvent);
 					if (t.getKind() != TransitionKind.INTERNAL) {
-						switchToState(t.getTarget(), queuedEvent, t);
+						switchToState(t.getTarget(), queuedEvent, t, this);
 					}
 					notifyTransition(t);
 					notifyTransitionEnd(t);
