@@ -219,7 +219,7 @@ public class CdPlayerTests {
 
 	@SuppressWarnings("unchecked")
 	@Before
-	public void setup() {
+	public void setup() throws Exception {
 		context = new AnnotationConfigApplicationContext();
 		context.register(CommonConfiguration.class, Application.class, TestConfig.class);
 		context.refresh();
@@ -228,6 +228,8 @@ public class CdPlayerTests {
 		library = context.getBean(Library.class);
 		listener = context.getBean(TestListener.class);
 		machine.start();
+		// lets do a little sleep to wait sm to start
+		Thread.sleep(1000);
 	}
 
 	@After
