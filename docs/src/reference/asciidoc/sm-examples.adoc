@@ -364,3 +364,68 @@ matched from enums. _@StatesOnTransition_ is then something what user
 can create into his own application to get a type safe annotation where
 a real enums can be used.
 
+Lets see an example how this state machine actually works.
+
+[source,text]
+----
+sm>sm start
+Entry state IDLE
+Entry state CLOSED
+State machine started
+
+sm>cd lcd
+No CD
+
+sm>cd library
+0: Greatest Hits
+  0: Bohemian Rhapsody  05:56
+  1: Another One Bites the Dust  03:36
+1: Greatest Hits II
+  0: A Kind of Magic  04:22
+  1: Under Pressure  04:08
+
+sm>cd eject
+Exit state CLOSED
+Entry state OPEN
+
+sm>cd load 0
+Loading cd Greatest Hits
+
+sm>cd play
+Exit state OPEN
+Entry state CLOSED
+Exit state CLOSED
+Exit state IDLE
+Entry state BUSY
+Entry state PLAYING
+
+sm>cd lcd
+Greatest Hits Bohemian Rhapsody 00:03
+
+sm>cd forward
+
+sm>cd lcd
+Greatest Hits Another One Bites the Dust 00:04
+
+sm>cd stop
+Exit state PLAYING
+Exit state BUSY
+Entry state IDLE
+Entry state CLOSED
+
+sm>cd lcd
+Greatest Hits
+----
+
+What happened in above run:
+
+* State machine is started which causes machine to get initialized.
+* CD Player lcd screen status is printed.
+* CD Library is printed.
+* CD Player deck is opened.
+* CD with index 0 is loaded into a deck.
+* Play is causing deck to get closed and immediate playing because cd
+  was inserted.
+* We print lcd status and request next track.
+* We stop playing.
+

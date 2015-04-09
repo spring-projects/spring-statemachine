@@ -117,6 +117,35 @@ specifially handle a case that same bean will be called by a different
 state machines. This limitation is something which will be resolved in
 future releases.
 
+[[sm-triggers]]
+== Triggering Transitions
+Driving a statemachine is done via transitions which are triggerred
+by triggers. Currently supported triggers are _EventTrigger_ and
+_TimerTrigger_.
+
+=== EventTrigger
+_EventTrigger_ is the most useful trigger because it allows user to
+directly interact with a state machine by sending events to it. These
+events are also called signals. Trigger is added to a transition simply
+by associating a state to it during a configuration.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetO]
+----
+In above example we send an event using two different ways. Firstly we
+simply sent a type safe event using state machine api method
+`sendEvent(E event)`. Secondly we send event wrapped in a Spring
+messaging _Message_ using api method `sendEvent(Message<E> message)`
+with a custom event headers. This allows user to add arbitrary extra
+information with an event which is then visible to _StateContext_ when
+for example user is implementing actions.
+
+=== TimerTrigger
+_TimerTrigger_ is useful when something needs to be triggered
+automatically without any user interaction. Trigger is added to a
+transition by associating a timer to it during a configuration.
+
 [[sm-listeners]]
 == Listening State Machine Events
 There are use cases where you just want to know what is happening with

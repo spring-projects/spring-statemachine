@@ -1,7 +1,18 @@
 [[introduction]]
 = Introduction
 Spring State Machine(SSM) is a framework for application developers to
-use traditional state machine concepts with Spring applications.
+use traditional state machine concepts with Spring applications. SSM
+aims to provide following features:
+
+* Easy to use flat one level state machine for simple use cases.
+* Hierarchical state machine structure to ease complex state
+  configuration.
+* State machine regions to provide even more complex state
+  configurations.
+* Usage of triggers, transitions, guards and actions.
+* Type safe configuration adapter.
+* State machine event listeners.
+* Spring IOC integration to associate beans with a state machine.
 
 Before you continue it's worth to go through appendices <<glossary>>
 and <<crashcourse>> to get a generic idea of what state machines are

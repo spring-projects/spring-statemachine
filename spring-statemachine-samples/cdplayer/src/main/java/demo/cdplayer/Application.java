@@ -196,6 +196,7 @@ public class Application  {
 		@Override
 		public void execute(StateContext<States, Events> context) {
 			if (context.getTransition() != null
+					&& context.getEvent() == Events.PLAY
 					&& context.getTransition().getTarget().getId() == States.CLOSED
 					&& context.getExtendedState().getVariables().get(Variables.CD) != null) {
 				context.getStateMachine().sendEvent(Events.PLAY);

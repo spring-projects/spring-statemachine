@@ -91,7 +91,7 @@ public class CdPlayer {
 	}
 
 //tag::snippetB[]
-	@StatesOnTransition(target = States.CLOSED)
+	@StatesOnTransition(target = {States.CLOSED, States.IDLE})
 	public void closed(ExtendedState extendedState) {
 		Object cd = extendedState.getVariables().get(Variables.CD);
 		if (cd != null) {
