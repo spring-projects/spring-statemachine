@@ -113,6 +113,7 @@ project('spring-statemachine-core') {
 
 configure(sampleProjects()) {
 	apply plugin: 'spring-boot'
+	configurations.archives.artifacts.removeAll { it.archiveTask.is jar }
 	dependencies {
 		compile project(":spring-statemachine-samples-common")
 		testCompile "org.springframework:spring-test:$springVersion"
@@ -123,6 +124,7 @@ configure(sampleProjects()) {
 }
 
 project('spring-statemachine-samples-common') {
+	configurations.archives.artifacts.removeAll { it.archiveTask.is jar }
 	dependencies {
 		compile project(":spring-statemachine-core")
 		compile "org.springframework.shell:spring-shell:1.1.0.RELEASE"
@@ -198,13 +200,21 @@ configure(rootProject) {
 		options.links(
 			'http://docs.jboss.org/jbossas/javadoc/4.0.5/connector'
 		)
-		source subprojects.collect { project ->
+
+		// disable javadocs for samples
+		source subprojects
+		.findAll { project ->
+			!project.name.contains('samples')
+		}
+		.collect { project ->
 			project.sourceSets.main.allJava
 		}
+
 		destinationDir = new File(buildDir, "api")
 		classpath = files(subprojects.collect { project ->
 			project.sourceSets.main.compileClasspath
 		})
+		verbose = true
 		maxMemory = '1024m'
 	}
 
@@ -215,8 +225,12 @@ configure(rootProject) {
 		from('src/dist') {
 			include 'changelog.txt'
 		}
-		from (api) {
-			into 'api'
+		// disable api for jdk8 because we have
+		// some trouble with javadocs
+		if (!JavaVersion.current().isJava8Compatible()) {
+			from (api) {
+				into 'api'
+			}
 		}
 		from (reference) {
 			into 'reference'

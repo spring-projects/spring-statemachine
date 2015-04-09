@@ -28,7 +28,6 @@ import org.springframework.statemachine.annotation.WithStateMachine;
  *
  * @author Janne Valkealahti
  *
- * @param <T> the return type
  * @param <S> the type of state
  * @param <E> the type of event
  */

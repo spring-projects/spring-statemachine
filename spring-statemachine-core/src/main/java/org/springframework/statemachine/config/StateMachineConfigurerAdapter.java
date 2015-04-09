@@ -24,6 +24,14 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 import org.springframework.statemachine.config.common.annotation.AnnotationBuilder;
 import org.springframework.statemachine.config.common.annotation.ObjectPostProcessor;
 
+/**
+ * Adapter implementation for {@link StateMachineConfigurer}.
+ * 
+ * @author Janne Valkealahti
+ *
+ * @param <S> the type of state
+ * @param <E> the type of event
+ */
 public class StateMachineConfigurerAdapter<S, E> implements StateMachineConfigurer<S, E> {
 
 	private StateMachineTransitionBuilder<S, E> transitionBuilder;

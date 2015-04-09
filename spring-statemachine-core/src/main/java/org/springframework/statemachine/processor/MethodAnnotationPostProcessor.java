@@ -37,7 +37,7 @@ public interface MethodAnnotationPostProcessor<T extends Annotation> {
 	 * @param bean the bean
 	 * @param beanName the bean name
 	 * @param method the method
-	 * @param annotation the meta annotation
+	 * @param metaAnnotation the meta annotation
 	 * @param annotation the annotation
 	 * @return the post processed object
 	 */

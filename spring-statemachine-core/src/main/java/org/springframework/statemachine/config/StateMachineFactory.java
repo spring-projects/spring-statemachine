@@ -17,8 +17,21 @@ package org.springframework.statemachine.config;
 
 import org.springframework.statemachine.StateMachine;
 
+/**
+ * {@code StateMachineFactory} is a strategy interface building {@link StateMachine}s.
+ * 
+ * @author Janne Valkealahti
+ *
+ * @param <S> the type of state
+ * @param <E> the type of event
+ */
 public interface StateMachineFactory<S, E> {
 
+	/**
+	 * Build a new {@link StateMachine} instance.
+	 * 
+	 * @return a new state machine instance.
+	 */
 	StateMachine<S, E> getStateMachine();
 
 }

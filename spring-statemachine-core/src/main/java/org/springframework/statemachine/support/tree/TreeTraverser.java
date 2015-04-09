@@ -24,6 +24,9 @@ public abstract class TreeTraverser<T> {
 
 	/**
 	 * Returns the children of the specified node. Must not contain null.
+	 * 
+	 * @param root the node
+	 * @return child iterables
 	 */
 	public abstract Iterable<T> children(T root);
 

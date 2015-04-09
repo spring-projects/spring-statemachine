@@ -18,11 +18,31 @@ package org.springframework.statemachine.config.builders;
 import org.springframework.statemachine.config.StateMachineConfig;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurer;
 
+/**
+ * {@link AnnotationConfigurer} exposing configurers for states and transitions.
+ * 
+ * @author Janne Valkealahti
+ *
+ * @param <S> the type of state
+ * @param <E> the type of event
+ */
 public interface StateMachineConfigurer<S, E> extends
 		AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>> {
 
-	void configure(StateMachineStateConfigurer<S, E> transitions) throws Exception;
+	/**
+	 * Callback for {@link StateMachineStateConfigurer}.
+	 * 
+	 * @param states the {@link StateMachineStateConfigurer}
+	 * @throws Exception if configuration error happens
+	 */
+	void configure(StateMachineStateConfigurer<S, E> states) throws Exception;
 
+	/**
+	 * Callback for {@link StateMachineTransitionConfigurer}.
+	 * 
+	 * @param transitions the {@link StateMachineTransitionConfigurer}
+	 * @throws Exception if configuration error happens
+	 */
 	void configure(StateMachineTransitionConfigurer<S, E> transitions) throws Exception;
 
 }

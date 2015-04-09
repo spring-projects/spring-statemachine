@@ -17,8 +17,22 @@ package org.springframework.statemachine.config.builders;
 
 import org.springframework.statemachine.config.configurers.StateConfigurer;
 
+/**
+ * Configurer interface exposing states.
+ * 
+ * @author Janne Valkealahti
+ *
+ * @param <S> the type of state
+ * @param <E> the type of event
+ */
 public interface StateMachineStateConfigurer<S, E> {
 
+	/**
+	 * Gets a configurer for states.
+	 * 
+	 * @return {@link StateConfigurer} for chaining
+	 * @throws Exception if configuration error happens
+	 */
 	StateConfigurer<S, E> withStates() throws Exception;
 
 }

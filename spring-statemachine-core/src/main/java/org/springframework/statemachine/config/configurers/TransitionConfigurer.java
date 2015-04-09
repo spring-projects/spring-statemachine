@@ -41,16 +41,29 @@ public interface TransitionConfigurer<T, S, E> extends
 	 */
 	T source(S source);
 
+	/**
+	 * Specify a state this transition should belong to.
+	 * 
+	 * @param state the state {@code S}
+	 * @return configurer for chaining
+	 */
 	T state(S state);
 
 	/**
-	 * Specify event {@code E} for this {@link Transition}.
+	 * Specify event {@code E} for this {@link Transition} which will be triggered
+	 * by a event trigger.
 	 *
 	 * @param event the event for transition
 	 * @return configurer for chaining
 	 */
 	T event(E event);
 
+	/**
+	 * Specify that this transition is triggered by a time.
+	 * 
+	 * @param period timer period in millis
+	 * @return configurer for chaining
+	 */
 	T timer(long period);
 
 	/**
