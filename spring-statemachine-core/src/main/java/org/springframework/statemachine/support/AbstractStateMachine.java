@@ -226,7 +226,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		switchToState(initialState, initialEvent, null, this);
 		// TODO: for now execute outside of switchToState
 		if (initialTransition != null) {
-			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(
+			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(initialEvent != null ? initialEvent.getPayload() : null,
 					initialEvent != null ? initialEvent.getHeaders() : null, extendedState, initialTransition, this);
 			initialTransition.transit(stateContext);
 		}
@@ -414,7 +414,8 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			log.trace("Exit state=[" + state + "]");
 			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
 					new HashMap<String, Object>());
-			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(messageHeaders, extendedState, transition, stateMachine);
+			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(event != null ? event.getPayload() : null,
+					messageHeaders, extendedState, transition, stateMachine);
 
 			State<S, E> findDeep = findDeepParent(transition.getTarget());
 			boolean isTargetSubOfOtherState = findDeep != null && findDeep != currentState;
@@ -444,7 +445,8 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			log.trace("Enter state=[" + state + "]");
 			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
 					new HashMap<String, Object>());
-			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(messageHeaders, extendedState, transition, stateMachine);
+			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(event != null ? event.getPayload() : null,
+					messageHeaders, extendedState, transition, stateMachine);
 
 			if (transition != null) {
 				State<S, E> findDeep1 = findDeepParent(transition.getTarget());
@@ -571,7 +573,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 
 			// go through candidates and transit max one
 			for (Transition<S, E> t : trans) {
-				StateContext<S, E> stateContext = new DefaultStateContext<S, E>(
+				StateContext<S, E> stateContext = new DefaultStateContext<S, E>(queuedEvent != null ? queuedEvent.getPayload() : null,
 						queuedEvent != null ? queuedEvent.getHeaders() : null, extendedState, t, this);
 				if (t == null) {
 					continue;
@@ -607,7 +609,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		if (sourceState != null && targetState != null) {
 			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
 					new HashMap<String, Object>());
-			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(messageHeaders, extendedState, null, this);
+			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(event != null ? event.getPayload() : null, messageHeaders, extendedState, null, this);
 			getStateMachineHandlerResults(getStateMachineHandlers(sourceState, targetState), stateContext);
 		}
 	}

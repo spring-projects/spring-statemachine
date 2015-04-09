@@ -25,6 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
@@ -313,5 +315,24 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 	public static class Config9 extends EnumStateMachineConfigurerAdapter<States, Events> {
 	}
 // end::snippetN[]
+	
+	static class DummyShowSendEvent {
+		
+// tag::snippetO[]
+		@Autowired
+		StateMachine<States, Events> stateMachine;
+		
+		void signalMachine() {
+			stateMachine.sendEvent(Events.E1);
+			
+			Message<Events> message = MessageBuilder
+					.withPayload(Events.E2)
+					.setHeader("foo", "bar")
+					.build();
+			stateMachine.sendEvent(message);
+		}
+// end::snippetO[]
+		
+	}
 
 }

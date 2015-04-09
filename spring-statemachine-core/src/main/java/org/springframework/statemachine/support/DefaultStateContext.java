@@ -23,6 +23,8 @@ import org.springframework.statemachine.transition.Transition;
 
 public class DefaultStateContext<S, E> implements StateContext<S, E> {
 
+	private final E event;
+	
 	private final MessageHeaders messageHeaders;
 
 	private final ExtendedState extendedState;
@@ -31,11 +33,17 @@ public class DefaultStateContext<S, E> implements StateContext<S, E> {
 
 	private final StateMachine<S, E> stateMachine;
 
-	public DefaultStateContext(MessageHeaders messageHeaders, ExtendedState extendedState, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
+	public DefaultStateContext(E event, MessageHeaders messageHeaders, ExtendedState extendedState, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
+		this.event = event;
 		this.messageHeaders = messageHeaders;
 		this.extendedState = extendedState;
 		this.transition = transition;
 		this.stateMachine = stateMachine;
+	}
+	
+	@Override
+	public E getEvent() {
+		return event;
 	}
 
 	@Override

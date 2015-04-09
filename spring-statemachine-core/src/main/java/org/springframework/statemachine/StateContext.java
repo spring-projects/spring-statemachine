@@ -31,6 +31,14 @@ import org.springframework.statemachine.transition.Transition;
 public interface StateContext<S, E> {
 
 	/**
+	 * Gets the event associated with a context. Event may be null if transition
+	 * is not triggered by a signal.
+	 * 
+	 * @return the event
+	 */
+	E getEvent();
+	
+	/**
 	 * Gets the event message headers.
 	 *
 	 * @return the event message headers
