@@ -16,11 +16,21 @@ badges:
 
 {% capture billboard_description %}
 
-Spring Statemachine is a framework for application developers to use state machine concepts with Spring.
+Spring Statemachine is a framework for application developers to use state machine concepts with Spring applications.
 
 {% endcapture %}
 
 {% capture main_content %}
+
+Spring Statemachine aims to provide following features:
+
+* Easy to use flat one level state machine for simple use cases.
+* Hierarchical state machine structure to ease complex state configuration.
+* State machine regions to provide even more complex state configurations.
+* Usage of triggers, transitions, guards and actions.
+* Type safe configuration adapter.
+* State machine event listeners.
+* Spring IOC integration to associate beans with a state machine.
 
 State machines are powerful because behaviour is always guaranteed to be consistent and relatively easily debugged due to ways how operational rules are written in stone when machine is started. Idea is that your application is and may exist in a finite number of states and then something happens which takes your application from one state to the next. What will drive a state machine are triggers which are either based on an events or timers.
 
@@ -30,6 +40,76 @@ It is much easier to design high level logic outside of your application and the
 ## Quick Start
 
 {% include download_widget.md %}
+
+Following sample should give an idea how statemachine is configured and used. Assuming we have states **STATE1**, **STATE2** and events **EVENT1**, **EVENT2**.
+
+<img class="styled-image" src="img/statechart0.png" alt="Statechart" title="Statechart"/>
+
+```java
+static enum States {
+    STATE1, STATE2
+}
+
+static enum Events {
+    EVENT1, EVENT2
+}
+```
+
+```java
+@Configuration
+@EnableStateMachine
+static class Config1 extends EnumStateMachineConfigurerAdapter<States, Events> {
+
+    @Override
+    public void configure(StateMachineStateConfigurer<States, Events> states)
+            throws Exception {
+        states
+            .withStates()
+                .initial(States.STATE1)
+                .states(EnumSet.allOf(States.class));
+    }
+
+    @Override
+    public void configure(StateMachineTransitionConfigurer<States, Events> transitions)
+            throws Exception {
+        transitions
+            .withExternal()
+                .source(States.STATE1).target(States.STATE2)
+                .event(Events.EVENT1)
+                .and()
+            .withExternal()
+                .source(States.STATE2).target(States.STATE1)
+                .event(Events.EVENT2);
+    }
+}
+```
+
+```java
+@WithStateMachine
+static class MyBean {
+
+    @OnTransition(target = "STATE1")
+    void toState1() {
+    }
+
+    @OnTransition(target = "STATE2")
+    void toState2() {
+    }
+}
+```
+
+```java
+static class MyApp {
+
+    @Autowired
+    StateMachine<States, Events> stateMachine;
+
+    void doSignals() {
+        stateMachine.sendEvent(Events.EVENT1);
+        stateMachine.sendEvent(Events.EVENT2);
+    }
+}
+```
 
 {% endcapture %}
 
