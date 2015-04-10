@@ -34,4 +34,13 @@ public interface ExtendedState {
 	 */
 	Map<Object, Object> getVariables();
 
+	/**
+	 * Gets a variable which is automatically casted into a type.
+	 *
+	 * @param key the variable key
+	 * @param type the variable type
+	 * @return the variable
+	 */
+	<T> T get(Object key, Class<T> type);
+
 }

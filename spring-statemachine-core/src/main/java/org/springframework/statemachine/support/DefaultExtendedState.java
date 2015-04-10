@@ -42,4 +42,18 @@ public class DefaultExtendedState implements ExtendedState {
 		return variables;
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T get(Object key, Class<T> type) {
+		Object value = this.variables.get(key);
+		if (value == null) {
+			return null;
+		}
+		if (!type.isAssignableFrom(value.getClass())) {
+			throw new IllegalArgumentException("Incorrect type specified for variable '" +
+					key + "'. Expected [" + type + "] but actual type is [" + value.getClass() + "]");
+		}
+		return (T) value;
+	}
+
 }
