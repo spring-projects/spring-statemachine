@@ -8,8 +8,65 @@ released when project state is considered to be relatively stable, we
 have a good reference documentation and samples. Milestones will not
 be a feature complete.
 
-= License
+== Downloading Artifacts
+See
+https://github.com/spring-projects/spring-framework/wiki/Downloading-Spring-artifacts[downloading
+Spring artifacts] for Maven repository information.
 
-Spring Session is Open Source software released under the
+== Documentation
+http://projects.spring.io/spring-statemachine/[Spring
+Statemachine Project Page] contains links to currently available
+JavaDoc and Reference Documentation for particular releases and
+versions.
+
+== Samples
+Samples can be found under `spring-statemachine-samples`. Check
+the reference documentation more about what those do.
+
+== Building from Source
+Spring Security Kerberos uses a http://gradle.org[Gradle]-based build
+system.
+In the instructions below, http://vimeo.com/34436402[`./gradlew`] is
+invoked from the root of the source tree and serves as
+a cross-platform, self-contained bootstrap mechanism for the build.
+
+=== Prerequisites
+http://help.github.com/set-up-git-redirect[Git] and the
+http://www.oracle.com/technetwork/java/javase/downloads[JDK7 build].
+
+Be sure that your `JAVA_HOME` environment variable points to the
+`jdk1.7.0` folder extracted from the JDK download.
+
+=== Check out sources
+[indent=0]
+----
+git clone git@github.com:spring-projects/spring-statemachine.git
+----
+
+=== Install all spring-\* jars into your local Maven cache
+[indent=0]
+----
+./gradlew install
+----
+
+=== Compile and test; build all jars, distribution zips, and docs
+[indent=0]
+----
+./gradlew build
+----
+
+Discover more commands with `./gradlew tasks`.
+See also the
+https://github.com/spring-projects/spring-framework/wiki/Gradle-build-and-release-FAQ[Gradle
+build and release FAQ].
+
+== Contributing
+http://help.github.com/send-pull-requests[Pull requests] are welcome;
+see the
+https://github.com/spring-projects/spring-statemachine/blob/master/CONTRIBUTING.md[contributor
+guidelines] for details.
+
+== License
+Spring Statemachine is Open Source software released under the
 http://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
 
