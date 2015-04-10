@@ -17,7 +17,9 @@ package org.springframework.statemachine.docs;
 
 import java.util.EnumSet;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.annotation.OnTransition;
 import org.springframework.statemachine.annotation.WithStateMachine;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -35,7 +37,9 @@ public class IntroSample {
 	static enum Events {
 		EVENT1, EVENT2
 	}
+// end::snippetA[]
 
+// tag::snippetB[]
 	@Configuration
 	@EnableStateMachine
 	static class Config1 extends EnumStateMachineConfigurerAdapter<States, Events> {
@@ -62,7 +66,9 @@ public class IntroSample {
 					.event(Events.EVENT2);
 		}
 	}
+// end::snippetB[]
 
+// tag::snippetC[]
 	@WithStateMachine
 	static class MyBean {
 
@@ -74,6 +80,19 @@ public class IntroSample {
 		void toState2() {
 		}
 	}
-// end::snippetA[]
+// end::snippetC[]
+
+// tag::snippetD[]
+	static class MyApp {
+
+		@Autowired
+		StateMachine<States, Events> stateMachine;
+
+		void doSignals() {
+			stateMachine.sendEvent(Events.EVENT1);
+			stateMachine.sendEvent(Events.EVENT2);
+		}
+	}
+// end::snippetD[]
 
 }

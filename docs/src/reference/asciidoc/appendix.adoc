@@ -36,6 +36,21 @@ image::images/statechart0.png[width=500]
 include::samples/IntroSample.java[tags=snippetA]
 ----
 
+[source,java,indent=0]
+----
+include::samples/IntroSample.java[tags=snippetB]
+----
+
+[source,java,indent=0]
+----
+include::samples/IntroSample.java[tags=snippetC]
+----
+
+[source,java,indent=0]
+----
+include::samples/IntroSample.java[tags=snippetD]
+----
+
 [glossary]
 === Glossary
 
