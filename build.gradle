@@ -214,7 +214,6 @@ configure(rootProject) {
 		classpath = files(subprojects.collect { project ->
 			project.sourceSets.main.compileClasspath
 		})
-		verbose = true
 		maxMemory = '1024m'
 	}
 
