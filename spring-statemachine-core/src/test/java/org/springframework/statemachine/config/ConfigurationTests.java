@@ -33,7 +33,6 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.EnumStateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
-import org.springframework.statemachine.TestUtils;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
@@ -64,20 +63,6 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		TestGuard testGuard = context.getBean("testGuard", TestGuard.class);
 		assertThat(testAction, notNullValue());
 		assertThat(testGuard, notNullValue());
-	}
-
-
-	@SuppressWarnings({ "unchecked" })
-	@Test
-	public void testEndState() throws Exception {
-		context.register(Config3.class);
-		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
-		assertThat(machine, notNullValue());
-		Object endState = TestUtils.readField("endState", machine);
-		assertThat(endState, notNullValue());
 	}
 
 	@SuppressWarnings({ "unchecked" })

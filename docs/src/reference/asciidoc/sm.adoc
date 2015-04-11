@@ -163,10 +163,11 @@ interface. Both of these have pros and cons which will be discussed later.
 === Application Context Events
 Application context events classes are _OnTransitionStartEvent_,
 _OnTransitionEvent_, _OnTransitionEndEvent_, _OnStateExitEvent_,
-_OnStateEntryEvent_ and _OnStateChangedEvent_. There can be used as is
-as spring typed _ApplicationListener_ class but all also share a
-common class _StateMachineEvent_ which can be used to get events for
-all.
+_OnStateEntryEvent_, _OnStateChangedEvent_, _OnStateMachineStart_ and
+_OnStateMachineStop_. These can be used as is with spring typed
+_ApplicationListener_ class but they also share a common class
+_StateMachineEvent_ which can be used to get statemachine related
+events.
 
 [source,java,indent=0]
 ----

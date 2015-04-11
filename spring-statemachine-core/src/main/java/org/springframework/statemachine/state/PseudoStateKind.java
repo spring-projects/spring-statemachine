@@ -18,13 +18,16 @@ package org.springframework.statemachine.state;
 /**
  * Defines enumeration of a {@link PseudoState} kind. This is uses within a
  * transitive states indicating its kind.
- * 
+ *
  * @author Janne Valkealahti
  *
  */
 public enum PseudoStateKind {
 
 	/** Indicates an initial kind. */
-	INITIAL
-	
+	INITIAL,
+
+	/** End or terminate kind */
+	END
+
 }

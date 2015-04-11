@@ -22,6 +22,8 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,6 +37,7 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.EnumStateMachine;
 import org.springframework.statemachine.StateContext;
+import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -54,7 +57,7 @@ public class ListenerTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testStateEvents() {
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class);
+		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config1.class);
 		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
 		EnumStateMachine<TestStates,TestEvents> machine =
@@ -79,6 +82,26 @@ public class ListenerTests extends AbstractStateMachineTests {
 		ctx.close();
 	}
 
+	@Test
+	public void testStartEndEvents() throws Exception {
+		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config2.class);
+		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		@SuppressWarnings("unchecked")
+		EnumStateMachine<TestStates,TestEvents> machine =
+				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+
+		TestStateMachineListener listener = new TestStateMachineListener();
+		machine.addStateListener(listener);
+
+		machine.start();
+		machine.sendEvent(TestEvents.E1);
+		machine.sendEvent(TestEvents.E2);
+		assertThat(listener.stopLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.started, is(1));
+		assertThat(listener.stopped, is(1));
+		ctx.close();
+	}
+
 	private static class LoggingAction implements Action<TestStates, TestEvents> {
 
 		private static final Log log = LogFactory.getLog(LoggingAction.class);
@@ -99,6 +122,9 @@ public class ListenerTests extends AbstractStateMachineTests {
 	private static class TestStateMachineListener implements StateMachineListener<TestStates, TestEvents> {
 
 		ArrayList<Holder> states = new ArrayList<Holder>();
+		volatile int started = 0;
+		volatile int stopped = 0;
+		CountDownLatch stopLatch = new CountDownLatch(1);
 
 		@Override
 		public void stateChanged(State<TestStates, TestEvents> from, State<TestStates, TestEvents> to) {
@@ -134,11 +160,22 @@ public class ListenerTests extends AbstractStateMachineTests {
 		public void transitionEnded(Transition<TestStates, TestEvents> transition) {
 		}
 
+		@Override
+		public void stateMachineStarted(StateMachine<TestStates, TestEvents> stateMachine) {
+			started++;
+		}
+
+		@Override
+		public void stateMachineStopped(StateMachine<TestStates, TestEvents> stateMachine) {
+			stopped++;
+			stopLatch.countDown();
+		}
+
 	}
 
 	@Configuration
 	@EnableStateMachine
-	static class Config extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+	static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
 
 		@Override
 		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
@@ -183,6 +220,42 @@ public class ListenerTests extends AbstractStateMachineTests {
 		@Bean
 		public LoggingAction loggingAction() {
 			return new LoggingAction("as bean");
+		}
+
+		@Bean
+		public TaskExecutor taskExecutor() {
+			return new SyncTaskExecutor();
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config2 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.end(TestStates.S3)
+					.state(TestStates.S1)
+					.state(TestStates.S2)
+					.state(TestStates.S3);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S2)
+					.target(TestStates.S3)
+					.event(TestEvents.E2);
 		}
 
 		@Bean

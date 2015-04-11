@@ -17,6 +17,7 @@ package org.springframework.statemachine.event;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 
@@ -89,6 +90,20 @@ public class DefaultStateMachineEventPublisher implements StateMachineEventPubli
 	public void publishTransition(Object source, Transition<?, ?> transition) {
 		if (applicationEventPublisher != null) {
 			applicationEventPublisher.publishEvent(new OnTransitionEvent(source, transition));
+		}
+	}
+
+	@Override
+	public void publishStateMachineStart(Object source, StateMachine<?, ?> stateMachine) {
+		if (applicationEventPublisher != null) {
+			applicationEventPublisher.publishEvent(new OnStateMachineStart(source, stateMachine));
+		}
+	}
+
+	@Override
+	public void publishStateMachineStop(Object source, StateMachine<?, ?> stateMachine) {
+		if (applicationEventPublisher != null) {
+			applicationEventPublisher.publishEvent(new OnStateMachineStop(source, stateMachine));
 		}
 	}
 

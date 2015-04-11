@@ -87,7 +87,7 @@ public class RegionMachineTests {
 		transitions.add(transitionFromS2ToS3);
 
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
-		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateSI, null);
+		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateSI);
 		machine.setTaskExecutor(taskExecutor);
 		machine.afterPropertiesSet();
 		machine.start();
@@ -150,7 +150,7 @@ public class RegionMachineTests {
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromS111ToS112 =
 				new DefaultExternalTransition<TestStates,TestEvents>(stateS111, stateS112, null, TestEvents.E2, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E2));
 		transitions11.add(transitionFromS111ToS112);
-		EnumStateMachine<TestStates, TestEvents> machine11 = new EnumStateMachine<TestStates, TestEvents>(states11, transitions11, stateS111, null);
+		EnumStateMachine<TestStates, TestEvents> machine11 = new EnumStateMachine<TestStates, TestEvents>(states11, transitions11, stateS111);
 		machine11.setTaskExecutor(taskExecutor);
 		machine11.afterPropertiesSet();
 
@@ -161,7 +161,7 @@ public class RegionMachineTests {
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromSIToS121 =
 				new DefaultExternalTransition<TestStates,TestEvents>(stateSI, stateS111, null, TestEvents.E3, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E3));
 		transitions12.add(transitionFromSIToS121);
-		EnumStateMachine<TestStates, TestEvents> machine12 = new EnumStateMachine<TestStates, TestEvents>(states12, transitions12, stateS121, null);
+		EnumStateMachine<TestStates, TestEvents> machine12 = new EnumStateMachine<TestStates, TestEvents>(states12, transitions12, stateS121);
 		machine12.setTaskExecutor(taskExecutor);
 		machine12.afterPropertiesSet();
 
@@ -176,7 +176,7 @@ public class RegionMachineTests {
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromSIToRegionstate =
 				new DefaultExternalTransition<TestStates,TestEvents>(stateSI, stateR, null, TestEvents.E1, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E1));
 		transitions.add(transitionFromSIToRegionstate);
-		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateR, null);
+		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateR);
 
 		machine.setTaskExecutor(taskExecutor);
 		machine.afterPropertiesSet();

@@ -17,6 +17,7 @@ package org.springframework.statemachine.listener;
 
 import java.util.Iterator;
 
+import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 
@@ -76,6 +77,22 @@ public class CompositeStateMachineListener<S,E> extends AbstractCompositeListene
 		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
 			StateMachineListener<S, E> listener = iterator.next();
 			listener.transitionEnded(transition);
+		}
+	}
+
+	@Override
+	public void stateMachineStarted(StateMachine<S, E> stateMachine) {
+		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
+			StateMachineListener<S, E> listener = iterator.next();
+			listener.stateMachineStarted(stateMachine);
+		}
+	}
+
+	@Override
+	public void stateMachineStopped(StateMachine<S, E> stateMachine) {
+		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
+			StateMachineListener<S, E> listener = iterator.next();
+			listener.stateMachineStopped(stateMachine);
 		}
 	}
 

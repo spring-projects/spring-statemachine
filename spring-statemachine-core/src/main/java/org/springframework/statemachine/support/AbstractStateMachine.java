@@ -81,8 +81,6 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 
 	private final Transition<S, E> initialTransition;
 
-	private final State<S,E> endState;
-
 	private final Message<E> initialEvent;
 
 	private final ExtendedState extendedState;
@@ -122,19 +120,6 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	/**
 	 * Instantiates a new abstract state machine.
 	 *
-	 * @param states the states
-	 * @param transitions the transitions
-	 * @param initialState the initial state
-	 * @param endState the end state
-	 */
-	public AbstractStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
-			State<S, E> initialState, State<S, E> endState) {
-		this(states, transitions, initialState, null, endState, null, new DefaultExtendedState());
-	}
-
-	/**
-	 * Instantiates a new abstract state machine.
-	 *
 	 * @param states the states of this machine
 	 * @param transitions the transitions of this machine
 	 * @param initialState the initial state of this machine
@@ -142,7 +127,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	 */
 	public AbstractStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
 			State<S, E> initialState, ExtendedState extendedState) {
-		this(states, transitions, initialState, null, null, null, extendedState);
+		this(states, transitions, initialState, null, null, extendedState);
 	}
 
 	/**
@@ -151,18 +136,16 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	 * @param states the states of this machine
 	 * @param transitions the transitions of this machine
 	 * @param initialState the initial state of this machine
-	 * @param endState the final state of this machine
 	 * @param initialEvent the initial event of this machine
 	 * @param extendedState the extended state of this machine
 	 */
 	public AbstractStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
-			State<S, E> initialState, Transition<S, E> initialTransition, State<S, E> endState, Message<E> initialEvent, ExtendedState extendedState) {
+			State<S, E> initialState, Transition<S, E> initialTransition, Message<E> initialEvent, ExtendedState extendedState) {
 		super();
 		this.states = states;
 		this.transitions = transitions;
 		this.initialState = initialState;
 		this.initialTransition = initialTransition;
-		this.endState = endState;
 		this.initialEvent = initialEvent;
 		this.extendedState = extendedState != null ? extendedState : new DefaultExtendedState();
 	}
@@ -222,6 +205,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	@Override
 	protected void doStart() {
 		super.doStart();
+		notifyStateMachineStarted(this);
 		registerTriggerListener();
 		switchToState(initialState, initialEvent, null, this);
 		// TODO: for now execute outside of switchToState
@@ -235,6 +219,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	@Override
 	protected void doStop() {
 		super.doStop();
+		notifyStateMachineStopped(this);
 		currentState = null;
 	}
 
@@ -245,7 +230,12 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 
 	@Override
 	public boolean isComplete() {
-		return (endState != null && endState.equals(currentState));
+		if (currentState == null) {
+			return !isRunning();
+		} else {
+			return currentState != null && currentState.getPseudoState() != null
+					&& currentState.getPseudoState().getKind() == PseudoStateKind.END;
+		}
 	}
 
 	/**
@@ -333,7 +323,9 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 				switchToState(target, event, t, stateMachine);
 			}
 		}
-
+		if (isComplete()) {
+			stop();
+		}
 	}
 
 	private State<S, E> findDeepParent(State<S, E> state) {
@@ -777,6 +769,26 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		}
 	}
 
+	private void notifyStateMachineStarted(StateMachine<S, E> stateMachine) {
+		stateListener.stateMachineStarted(stateMachine);
+		if (contextEventsEnabled) {
+			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
+			if (eventPublisher != null) {
+				eventPublisher.publishStateMachineStart(this, stateMachine);
+			}
+		}
+	}
+
+	private void notifyStateMachineStopped(StateMachine<S, E> stateMachine) {
+		stateListener.stateMachineStopped(stateMachine);
+		if (contextEventsEnabled) {
+			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
+			if (eventPublisher != null) {
+				eventPublisher.publishStateMachineStop(this, stateMachine);
+			}
+		}
+	}
+
 	private class TriggerQueueItem {
 		Trigger<S, E> trigger;
 		Message<E> message;
@@ -821,6 +833,16 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		@Override
 		public void transitionEnded(Transition<S, E> transition) {
 			stateListener.transitionEnded(transition);
+		}
+
+		@Override
+		public void stateMachineStarted(StateMachine<S, E> stateMachine) {
+			stateListener.stateMachineStarted(stateMachine);
+		}
+
+		@Override
+		public void stateMachineStopped(StateMachine<S, E> stateMachine) {
+			stateListener.stateMachineStopped(stateMachine);
 		}
 
 	}

@@ -191,7 +191,7 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 				Collection<State<S, E>> states = new ArrayList<State<S, E>>();
 				states.add(rstate);
 				EnumStateMachine<S, E> m = new EnumStateMachine<S, E>(states, null, rstate,
-						null, null, null, defaultExtendedState);
+						null, null, defaultExtendedState);
 				if (contextEvents != null) {
 					m.setContextEventsEnabled(contextEvents);
 				}
@@ -278,7 +278,6 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 		State<S, E> state = null;
 		State<S, E> initialState = null;
 		Action<S, E> initialAction = null;
-		State<S, E> endState = null;
 		Collection<State<S, E>> states = new ArrayList<State<S,E>>();
 		for (StateData<S, E> stateData : stateDatas) {
 			StateMachine<S, E> stateMachine = machineMap.get(stateData.getState());
@@ -299,15 +298,14 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 				PseudoState pseudoState = null;
 				if (stateData.isInitial()) {
 					pseudoState = new DefaultPseudoState(PseudoStateKind.INITIAL);
+				} else if (stateData.isEnd()) {
+					pseudoState = new DefaultPseudoState(PseudoStateKind.END);
 				}
 				state = new EnumState<S, E>(stateData.getState(), stateData.getDeferred(),
 						stateData.getEntryActions(), stateData.getExitActions(), pseudoState);
 				if (stateData.isInitial()) {
 					initialState = state;
 					initialAction = stateData.getInitialAction();
-				}
-				if (stateData.isEnd()) {
-					endState = state;
 				}
 				states.add(state);
 
@@ -355,7 +353,7 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 		}
 
 		EnumStateMachine<S, E> machine = new EnumStateMachine<S, E>(states, transitions, initialState,
-				initialTransition, endState, null, defaultExtendedState);
+				initialTransition, null, defaultExtendedState);
 		if (contextEvents != null) {
 			machine.setContextEventsEnabled(contextEvents);
 		}

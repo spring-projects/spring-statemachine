@@ -41,14 +41,24 @@ public class EnumStateMachine<S extends Enum<S>, E extends Enum<E>> extends Abst
 	 * @param initialState the initial state
 	 */
 	public EnumStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
-			State<S, E> initialState, State<S, E> endState) {
-		super(states, transitions, initialState, endState);
+			State<S, E> initialState) {
+		super(states, transitions, initialState);
 	}
 
+	/**
+	 * Instantiates a new enum state machine.
+	 *
+	 * @param states the states
+	 * @param transitions the transitions
+	 * @param initialState the initial state
+	 * @param initialTransition the initial transition
+	 * @param initialEvent the initial event
+	 * @param extendedState the extended state
+	 */
 	public EnumStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
-			State<S, E> initialState, Transition<S, E> initialTransition, State<S, E> endState,
+			State<S, E> initialState, Transition<S, E> initialTransition,
 			Message<E> initialEvent, ExtendedState extendedState) {
-		super(states, transitions, initialState, initialTransition, endState, initialEvent, extendedState);
+		super(states, transitions, initialState, initialTransition, initialEvent, extendedState);
 	}
 
 }

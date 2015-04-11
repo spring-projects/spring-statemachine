@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine.listener;
 
+import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 
@@ -70,5 +71,19 @@ public interface StateMachineListener<S,E> {
 	 * @param transition the transition
 	 */
 	void transitionEnded(Transition<S, E> transition);
+
+	/**
+	 * Notified when statemachine starts
+	 *
+	 * @param stateMachine the statemachine
+	 */
+	void stateMachineStarted(StateMachine<S, E> stateMachine);
+
+	/**
+	 * Notified when statemachine stops
+	 *
+	 * @param stateMachine the statemachine
+	 */
+	void stateMachineStopped(StateMachine<S, E> stateMachine);
 
 }

@@ -31,7 +31,6 @@ import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
-import org.springframework.statemachine.annotation.AnnoStates;
 import org.springframework.statemachine.annotation.OnTransition;
 import org.springframework.statemachine.annotation.WithStateMachine;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -240,6 +239,14 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 		@Override
 		public void transitionEnded(Transition<States, Events> transition) {
 		}
+
+		@Override
+		public void stateMachineStarted(StateMachine<States, Events> stateMachine) {
+		}
+
+		@Override
+		public void stateMachineStopped(StateMachine<States, Events> stateMachine) {
+		}
 	}
 // end::snippetH[]
 
@@ -315,16 +322,16 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 	public static class Config9 extends EnumStateMachineConfigurerAdapter<States, Events> {
 	}
 // end::snippetN[]
-	
+
 	static class DummyShowSendEvent {
-		
+
 // tag::snippetO[]
 		@Autowired
 		StateMachine<States, Events> stateMachine;
-		
+
 		void signalMachine() {
 			stateMachine.sendEvent(Events.E1);
-			
+
 			Message<Events> message = MessageBuilder
 					.withPayload(Events.E2)
 					.setHeader("foo", "bar")
@@ -332,7 +339,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 			stateMachine.sendEvent(message);
 		}
 // end::snippetO[]
-		
+
 	}
 
 }

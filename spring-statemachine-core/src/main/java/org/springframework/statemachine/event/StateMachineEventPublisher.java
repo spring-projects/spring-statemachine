@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine.event;
 
+import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 
@@ -74,5 +75,21 @@ public interface StateMachineEventPublisher {
 	 * @param transition the transition
 	 */
 	void publishTransition(Object source, Transition<?, ?> transition);
+
+	/**
+	 * Publish a statemachine start event.
+	 *
+	 * @param source the source
+	 * @param stateMachine the statemachine
+	 */
+	void publishStateMachineStart(Object source, StateMachine<?, ?> stateMachine);
+
+	/**
+	 * Publish a statemachine stop event.
+	 *
+	 * @param source the source
+	 * @param stateMachine the statemachine
+	 */
+	void publishStateMachineStop(Object source, StateMachine<?, ?> stateMachine);
 
 }
