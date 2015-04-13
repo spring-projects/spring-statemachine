@@ -1,6 +1,6 @@
 [[introduction]]
 = Introduction
-Spring State Machine(SSM) is a framework for application developers to
+Spring Statemachine(SSM) is a framework for application developers to
 use traditional state machine concepts with Spring applications. SSM
 aims to provide following features:
 
@@ -22,8 +22,8 @@ familiar with state machine concepts.
 == Requirements
 Spring Statemachine {revnumber} is built and tested with JDK 7 and Spring
 Framework {spring-version} and doesn't require any other dependencies
-outside of Spring Framework. Samples will require spring-shell and
-spring-boot which will pull other dependencies beyond Framework
+outside of Spring Framework. Samples require spring-shell and
+spring-boot which pulls other dependencies beyond framework
 itself.
 
 == Background
@@ -32,12 +32,12 @@ consistent and relatively easily debugged due to ways how operational
 rules are written in stone when machine is started. Idea is that your
 application is and may exist in a finite number of states and then something
 happens which takes your application from one state to the next. What
-will drive a state machine are triggers which are either based on an
+will drive a state machine are triggers which are either based on
 events or timers.
 
 It is much easier to design high level logic outside of your
 application and then interact with a state machine with a various
-different ways. You will simple send interact with a state machine by
+different ways. You can simply interact with a state machine by
 sending event, listening what a state machine does or simply request a
 current state.
 
@@ -67,7 +67,7 @@ You are already trying to implement a state machine if:
 
 == Feature Limitations
 
-A lot of features are planned thus not all expected feature are ntot
+A lot of features are planned for future releases thus some are not
 yet implemented:
 
 * Regions are not fully supported and currently contains many bugs.

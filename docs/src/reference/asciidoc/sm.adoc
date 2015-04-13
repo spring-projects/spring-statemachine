@@ -8,7 +8,9 @@ that Spring Statemachine provides to any Spring based application.
 
 <<sm-factories>> describes the generic state machine factory support.
 
-<<sm-listeners>> describes the generic state machine listener support.
+<<sm-triggers>> describes the use of triggers.
+
+<<sm-listeners>> describes the use of state machine listeners.
 
 <<sm-context>> describes the generic Spring application context support.
 
@@ -53,15 +55,15 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippetC]
 
 === Configuring Guards
 Guards are used to protect state transitions. Interface _Guard_ is
-used to do an evaluation where method has access to _StateContext_.
+used to do an evaluation where method has access to a _StateContext_.
 
 [source,java,indent=0]
 ----
 include::samples/DocsConfigurationSampleTests.java[tags=snippetD]
 ----
 
-In above two different types of guard configuration is used. Firstly a
-simply _Guard_ is created as a bean and attached to transition between
+In above two different types of guard configurations are used. Firstly a
+simple _Guard_ is created as a bean and attached to transition between
 states `S1` and `S2`.
 
 Secondly a simple spel expression can be used as a guard where
@@ -238,7 +240,7 @@ event enums user have created due to java language limitations, thus
 string representation have to be used.
 
 However if you want to have a type safe annotation it is possible to
-create a new annotation and use _@OnTransition_ as meta annotations.
+create a new annotation and use _@OnTransition_ as meta annotation.
 This user level annotation can make a reference to actual states and
 events enums and framework will try to match these in a same way.
 

@@ -59,7 +59,8 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 	public static class Config1 extends EnumStateMachineConfigurerAdapter<States, Events> {
 
 		@Override
-		public void configure(StateMachineStateConfigurer<States, Events> states) throws Exception {
+		public void configure(StateMachineStateConfigurer<States, Events> states)
+				throws Exception {
 			states
 				.withStates()
 					.initial(States.S1)
@@ -76,7 +77,8 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 	public static class Config2 extends EnumStateMachineConfigurerAdapter<States, Events> {
 
 		@Override
-		public void configure(StateMachineStateConfigurer<States, Events> states) throws Exception {
+		public void configure(StateMachineStateConfigurer<States, Events> states)
+				throws Exception {
 			states
 				.withStates()
 					.initial(States.S1)
@@ -97,7 +99,8 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 	public static class Config3 extends EnumStateMachineConfigurerAdapter<States, Events> {
 
 		@Override
-		public void configure(StateMachineStateConfigurer<States, Events> states) throws Exception {
+		public void configure(StateMachineStateConfigurer<States, Events> states)
+				throws Exception {
 			states
 				.withStates()
 					.initial(States.S1)
@@ -105,7 +108,8 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 		}
 
 		@Override
-		public void configure(StateMachineTransitionConfigurer<States, Events> transitions) throws Exception {
+		public void configure(StateMachineTransitionConfigurer<States, Events> transitions)
+				throws Exception {
 			transitions
 				.withExternal()
 					.source(States.S1).target(States.S2)
@@ -129,7 +133,8 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 	public static class Config4 extends EnumStateMachineConfigurerAdapter<States, Events> {
 
 		@Override
-		public void configure(StateMachineTransitionConfigurer<States, Events> transitions) throws Exception {
+		public void configure(StateMachineTransitionConfigurer<States, Events> transitions)
+				throws Exception {
 			transitions
 				.withExternal()
 					.source(States.S1).target(States.S2)
@@ -163,7 +168,8 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 	public static class Config5 extends EnumStateMachineConfigurerAdapter<States, Events> {
 
 		@Override
-		public void configure(StateMachineTransitionConfigurer<States, Events> transitions) throws Exception {
+		public void configure(StateMachineTransitionConfigurer<States, Events> transitions)
+				throws Exception {
 			transitions
 				.withExternal()
 					.source(States.S1)
@@ -189,10 +195,12 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // tag::snippetF[]
 	@Configuration
 	@EnableStateMachineFactory
-	public static class Config6 extends EnumStateMachineConfigurerAdapter<States, Events> {
+	public static class Config6
+		extends EnumStateMachineConfigurerAdapter<States, Events> {
 
 		@Override
-		public void configure(StateMachineStateConfigurer<States, Events> states) throws Exception {
+		public void configure(StateMachineStateConfigurer<States, Events> states)
+				throws Exception {
 			states
 				.withStates()
 					.initial(States.S1)
@@ -205,7 +213,8 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 
 
 // tag::snippetG[]
-	static class StateMachineApplicationEventListener implements ApplicationListener<StateMachineEvent> {
+	static class StateMachineApplicationEventListener
+		implements ApplicationListener<StateMachineEvent> {
 
 		@Override
 		public void onApplicationEvent(StateMachineEvent event) {
@@ -214,7 +223,8 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // end::snippetG[]
 
 // tag::snippetH[]
-	static class StateMachineEventListener extends StateMachineListenerAdapter<States, Events> {
+	static class StateMachineEventListener
+		extends StateMachineListenerAdapter<States, Events> {
 
 		@Override
 		public void stateChanged(State<States, Events> from, State<States, Events> to) {
@@ -314,12 +324,14 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // tag::snippetN[]
 	@Configuration
 	@EnableStateMachine(contextEvents = false)
-	public static class Config8 extends EnumStateMachineConfigurerAdapter<States, Events> {
+	public static class Config8
+		extends EnumStateMachineConfigurerAdapter<States, Events> {
 	}
 
 	@Configuration
 	@EnableStateMachineFactory(contextEvents = false)
-	public static class Config9 extends EnumStateMachineConfigurerAdapter<States, Events> {
+	public static class Config9
+		extends EnumStateMachineConfigurerAdapter<States, Events> {
 	}
 // end::snippetN[]
 

@@ -2,10 +2,23 @@
 = State Machine Examples
 
 This part of the reference documentation explains the use of state
-machines as sample code together with a uml state charts. We do few
+machines together with a sample code and a uml state charts. We do few
 shortcuts when representing relationship between a state chart, SSM
 configuration and what an application does with a state machine. For
 complete examples go and study the samples repository.
+
+Samples are build directly from a main source distribution during a
+normal build cycle.
+
+[source,text]
+----
+./gradlew clean build -x test
+----
+
+Every sample is located in its own directory under
+`spring-statemachine-samples`. Samples are based on spring-boot and
+spring-shell and you will find usual boot fat jars under every sample
+projects `build/libs` directory.
 
 == Turnstile
 
