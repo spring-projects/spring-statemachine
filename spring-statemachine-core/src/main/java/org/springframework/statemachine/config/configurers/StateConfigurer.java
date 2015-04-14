@@ -70,7 +70,7 @@ public interface StateConfigurer<S, E> extends
 	StateConfigurer<S, E> state(S state);
 
 	/**
-	 * Specify a state {@code S} with entry and exit {@link Actions}s.
+	 * Specify a state {@code S} with entry and exit {@link Action}s.
 	 *
 	 * @param state the state
 	 * @param entryActions the state entry actions
@@ -81,7 +81,7 @@ public interface StateConfigurer<S, E> extends
 			Collection<? extends Action<S, E>> exitActions);
 
 	/**
-	 * Specify a state {@code S} with entry and exit {@link Actions}.
+	 * Specify a state {@code S} with entry and exit {@link Action}.
 	 *
 	 * @param state the state
 	 * @param entryAction the state entry action
