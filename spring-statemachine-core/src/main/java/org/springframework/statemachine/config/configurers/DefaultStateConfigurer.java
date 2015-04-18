@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.StateData;
@@ -27,11 +28,21 @@ import org.springframework.statemachine.config.builders.StateMachineStateConfigu
 import org.springframework.statemachine.config.builders.StateMachineStates;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerAdapter;
 
+/**
+ * Default implementation of a {@link StateConfigurer}.
+ *
+ * @author Janne Valkealahti
+ *
+ * @param <S> the type of state
+ * @param <E> the type of event
+ */
 public class DefaultStateConfigurer<S, E>
 		extends AnnotationConfigurerAdapter<StateMachineStates<S, E>, StateMachineStateConfigurer<S, E>, StateMachineStateBuilder<S, E>>
 		implements StateConfigurer<S, E> {
 
 	private Object parent;
+
+	private final Object region = UUID.randomUUID().toString();
 
 	private final Collection<StateData<S, E>> incomplete = new ArrayList<StateData<S, E>>();
 
@@ -131,7 +142,7 @@ public class DefaultStateConfigurer<S, E>
 
 	private void addIncomplete(Object parent, S state, Collection<E> deferred,
 			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions) {
-		incomplete.add(new StateData<S, E>(parent, state, deferred, entryActions, exitActions));
+		incomplete.add(new StateData<S, E>(parent, region, state, deferred, entryActions, exitActions));
 	}
 
 }

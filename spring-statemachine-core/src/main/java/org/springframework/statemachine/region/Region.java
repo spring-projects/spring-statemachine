@@ -18,6 +18,7 @@ package org.springframework.statemachine.region;
 import java.util.Collection;
 
 import org.springframework.messaging.Message;
+import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 
@@ -87,4 +88,12 @@ public interface Region<S, E> {
 	 * @return true, if complete
 	 */
 	boolean isComplete();
+
+	/**
+	 * Adds the state listener.
+	 *
+	 * @param listener the listener
+	 */
+	void addStateListener(StateMachineListener<S, E> listener);
+
 }

@@ -134,7 +134,9 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 			}
 		} else {
 			for (Region<S, E> region : getRegions()) {
-				region.getState().entry(event, context);
+				if (region.getState() != null) {
+					region.getState().entry(event, context);
+				}
 			}
 		}
 	}

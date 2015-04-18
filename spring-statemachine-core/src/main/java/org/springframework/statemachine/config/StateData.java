@@ -33,6 +33,7 @@ import org.springframework.statemachine.state.State;
 public class StateData<S, E> {
 
 	private Object parent;
+	private Object region;
 	private S state;
 	private Collection<E> deferred;
 	private Collection<? extends Action<S, E>> entryActions;
@@ -41,13 +42,14 @@ public class StateData<S, E> {
 	private Action<S, E> initialAction;
 	private boolean end = false;
 
-	public StateData(Object parent, S state, Collection<E> deferred,
+	public StateData(Object parent, Object region, S state, Collection<E> deferred,
 			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions) {
 		this.state = state;
 		this.deferred = deferred;
 		this.entryActions = entryActions;
 		this.exitActions = exitActions;
 		this.parent = parent;
+		this.region = region;
 	}
 
 	public S getState() {
@@ -72,6 +74,14 @@ public class StateData<S, E> {
 
 	public void setParent(Object parent) {
 		this.parent = parent;
+	}
+
+	public Object getRegion() {
+		return region;
+	}
+
+	public void setRegion(Object region) {
+		this.region = region;
 	}
 
 	public boolean isInitial() {
@@ -100,8 +110,9 @@ public class StateData<S, E> {
 
 	@Override
 	public String toString() {
-		return "StateData [parent=" + parent + ", state=" + state + ", deferred=" + deferred + ", entryActions="
-				+ entryActions + ", exitActions=" + exitActions + ", initial=" + initial + ", end=" + end + "]";
+		return "StateData [parent=" + parent + ", region=" + region + ", state=" + state + ", deferred=" + deferred
+				+ ", entryActions=" + entryActions + ", exitActions=" + exitActions + ", initial=" + initial + ", end="
+				+ end + "]";
 	}
 
 }

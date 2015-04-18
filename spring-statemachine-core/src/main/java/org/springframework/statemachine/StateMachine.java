@@ -15,7 +15,6 @@
  */
 package org.springframework.statemachine;
 
-import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.State;
 
@@ -43,12 +42,5 @@ public interface StateMachine<S, E> extends Region<S, E> {
 	 * @return extended state
 	 */
 	ExtendedState getExtendedState();
-
-	/**
-	 * Adds the state listener.
-	 *
-	 * @param listener the listener
-	 */
-	void addStateListener(StateMachineListener<S, E> listener);
 
 }

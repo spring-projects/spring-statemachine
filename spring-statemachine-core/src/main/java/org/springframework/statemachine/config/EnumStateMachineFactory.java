@@ -94,30 +94,11 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 		// find a correct mappings because they use state id's, not actual
 		// states.
 		final Map<S, State<S, E>> stateMap = new HashMap<S, State<S, E>>();
-
-		Tree<StateData<S, E>> tree = new Tree<StateData<S, E>>();
-
-		for (StateData<S, E> stateData : stateMachineStates.getStateDatas()) {
-			Object id = stateData.getState();
-			Object parent = stateData.getParent();
-			tree.add(stateData, id, parent);
-		}
-
-		TreeTraverser<Node<StateData<S, E>>> traverser = new TreeTraverser<Node<StateData<S, E>>>() {
-		    @Override
-		    public Iterable<Node<StateData<S, E>>> children(Node<StateData<S, E>> root) {
-		        return root.getChildren();
-		    }
-		};
-
 		Stack<MachineStackItem<S, E>> regionStack = new Stack<MachineStackItem<S, E>>();
 		Stack<StateData<S, E>> stateStack = new Stack<StateData<S, E>>();
-
-		Iterable<Node<StateData<S, E>>> postOrderTraversal = traverser.postOrderTraversal(tree.getRoot());
-		Iterator<Node<StateData<S, E>>> iterator = postOrderTraversal.iterator();
-
 		Map<Object, StateMachine<S, E>> machineMap = new HashMap<Object, StateMachine<S,E>>();
 
+		Iterator<Node<StateData<S, E>>> iterator = buildStateDataIterator();
 		while (iterator.hasNext()) {
 			Node<StateData<S, E>> node = iterator.next();
 			StateData<S, E> stateData = node.getData();
@@ -145,58 +126,48 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 			}
 
 			Collection<StateData<S, E>> stateDatas = popSameParents(stateStack);
+			int initialCount = getInitialCount(stateDatas);
+			Collection<Collection<StateData<S, E>>> regionsStateDatas = splitIntoRegions(stateDatas);
 			Collection<TransitionData<S, E>> transitionsData = getTransitionData(iterator.hasNext(), stateDatas);
 
-			machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, getBeanFactory(), contextEvents, defaultExtendedState);
-			// TODO: last part in if feels a bit hack
-			//       (!peek.isInitial() && !machineMap.containsKey(peek.getParent()))
-			if (peek.isInitial() || (!peek.isInitial() && !machineMap.containsKey(peek.getParent()))) {
-				machineMap.put(peek.getParent(), machine);
-			}
-			if (peek.getParent() == null) {
-				regionStack.push(new MachineStackItem<S, E>(machine, peek.getParent(), peek));
-			}
-			stateStack.push(stateData);
-		}
-
-		// TODO: usage of initials is a temporary fix to workaround for missing
-		//       full support of regions
-		int initials = 0;
-		if (regionStack.size() > 1) {
-			Collection<TransitionData<S, E>> transitionsData = resolveTransitionData2(stateMachineTransitions.getTransitions());
-			Collection<StateData<S, E>> stateDatas = new ArrayList<StateData<S, E>>();
-			Iterator<MachineStackItem<S, E>> i = regionStack.iterator();
-			while (i.hasNext()) {
-				MachineStackItem<S, E> next = i.next();
-				stateDatas.add(next.stateData);
-				if (next.stateData.isInitial()) {
-					initials++;
+			if (initialCount > 1) {
+				for (Collection<StateData<S, E>> regionStateDatas : regionsStateDatas) {
+					machine = buildMachine(machineMap, stateMap, regionStateDatas, transitionsData, getBeanFactory(),
+							contextEvents, defaultExtendedState);
+					if (peek.isInitial() || (!peek.isInitial() && !machineMap.containsKey(peek.getParent()))) {
+						machineMap.put(peek.getParent(), machine);
+					}
+					regionStack.push(new MachineStackItem<S, E>(machine, peek.getParent(), peek));
 				}
-			}
 
-			if (initials == 1) {
-				machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, getBeanFactory(), contextEvents, defaultExtendedState);
-			}
-		}
-
-		if (initials > 1) {
-			Collection<Region<S, E>> regions = new ArrayList<Region<S, E>>();
-			for (MachineStackItem<S, E> si : regionStack) {
-				if (si.parent == null) {
+				Collection<Region<S, E>> regions = new ArrayList<Region<S, E>>();
+				for (MachineStackItem<S, E> si : regionStack) {
 					regions.add(si.machine);
 				}
-			}
-			if (regions.size() > 1) {
-				RegionState<S, E> rstate = new RegionState<S, E>(null, regions);
+				RegionState<S, E> rstate = new RegionState<S, E>(null, regions, null, null, null, new DefaultPseudoState(PseudoStateKind.INITIAL));
 				Collection<State<S, E>> states = new ArrayList<State<S, E>>();
 				states.add(rstate);
-				EnumStateMachine<S, E> m = new EnumStateMachine<S, E>(states, null, rstate,
+				EnumStateMachine<S, E> m = new EnumStateMachine<S, E>(states, new ArrayList<Transition<S, E>>(), rstate,
 						null, null, defaultExtendedState);
 				if (contextEvents != null) {
 					m.setContextEventsEnabled(contextEvents);
 				}
+				if (getBeanFactory() != null) {
+					m.setBeanFactory(getBeanFactory());
+				}
+				m.afterPropertiesSet();
+
 				machine = m;
+
+
+			} else {
+				machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, getBeanFactory(), contextEvents, defaultExtendedState);
+				if (peek.isInitial() || (!peek.isInitial() && !machineMap.containsKey(peek.getParent()))) {
+					machineMap.put(peek.getParent(), machine);
+				}
 			}
+
+			stateStack.push(stateData);
 		}
 
 		return machine;
@@ -204,6 +175,29 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 
 	public void setContextEventsEnabled(Boolean contextEvents) {
 		this.contextEvents = contextEvents;
+	}
+
+	private int getInitialCount(Collection<StateData<S, E>> stateDatas) {
+		int count = 0;
+		for (StateData<S, E> stateData : stateDatas) {
+			if (stateData.isInitial()) {
+				count++;
+			}
+		}
+		return count;
+	}
+
+	private Collection<Collection<StateData<S, E>>> splitIntoRegions(Collection<StateData<S, E>> stateDatas) {
+		Map<Object, Collection<StateData<S, E>>> map = new HashMap<Object, Collection<StateData<S, E>>>();
+		for (StateData<S, E> stateData : stateDatas) {
+			Collection<StateData<S, E>> c = map.get(stateData.getRegion());
+			if (c == null) {
+				c = new ArrayList<StateData<S,E>>();
+			}
+			c.add(stateData);
+			map.put(stateData.getRegion(), c);
+		}
+		return map.values();
 	}
 
 	private Collection<TransitionData<S, E>> getTransitionData(boolean roots, Collection<StateData<S, E>> stateDatas) {
@@ -335,6 +329,10 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 			}
 
 			if (transitionData.getKind() == TransitionKind.EXTERNAL) {
+				// TODO can we do this?
+				if (stateMap.get(source) == null && stateMap.get(target) == null) {
+					continue;
+				}
 				DefaultExternalTransition<S, E> transition = new DefaultExternalTransition<S, E>(stateMap.get(source),
 						stateMap.get(target), transitionData.getActions(), event, transitionData.getGuard(), trigger);
 				transitions.add(transition);
@@ -362,6 +360,27 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 			machine.setBeanFactory(beanFactory);
 		}
 		return machine;
+	}
+
+	private Iterator<Node<StateData<S, E>>> buildStateDataIterator() {
+		Tree<StateData<S, E>> tree = new Tree<StateData<S, E>>();
+
+		for (StateData<S, E> stateData : stateMachineStates.getStateDatas()) {
+			Object id = stateData.getState();
+			Object parent = stateData.getParent();
+			tree.add(stateData, id, parent);
+		}
+
+		TreeTraverser<Node<StateData<S, E>>> traverser = new TreeTraverser<Node<StateData<S, E>>>() {
+		    @Override
+		    public Iterable<Node<StateData<S, E>>> children(Node<StateData<S, E>> root) {
+		        return root.getChildren();
+		    }
+		};
+
+		Iterable<Node<StateData<S, E>>> postOrderTraversal = traverser.postOrderTraversal(tree.getRoot());
+		Iterator<Node<StateData<S, E>>> iterator = postOrderTraversal.iterator();
+		return iterator;
 	}
 
 }

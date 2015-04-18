@@ -17,19 +17,28 @@ package org.springframework.statemachine;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.statemachine.AbstractStateMachineTests.TestEntryAction;
-import org.springframework.statemachine.AbstractStateMachineTests.TestEvents;
-import org.springframework.statemachine.AbstractStateMachineTests.TestExitAction;
-import org.springframework.statemachine.AbstractStateMachineTests.TestStates;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.config.EnableStateMachine;
+import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
+import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.event.StateMachineEventPublisherConfiguration;
+import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.DefaultPseudoState;
 import org.springframework.statemachine.state.EnumState;
@@ -47,10 +56,15 @@ import org.springframework.statemachine.trigger.EventTrigger;
  * @author Janne Valkealahti
  *
  */
-public class RegionMachineTests {
+public class RegionMachineTests extends AbstractStateMachineTests {
+
+	@Override
+	protected AnnotationConfigApplicationContext buildContext() {
+		return new AnnotationConfigApplicationContext();
+	}
 
 	@Test
-	public void testSimpleRegion() throws Exception {
+	public void testSimpleRegionBuildRaw() throws Exception {
 		PseudoState pseudoState = new DefaultPseudoState(PseudoStateKind.INITIAL);
 		TestEntryAction entryActionS1 = new TestEntryAction("S1");
 		TestExitAction exitActionS1 = new TestExitAction("S1");
@@ -113,7 +127,7 @@ public class RegionMachineTests {
 	}
 
 	@Test
-	public void testMultiRegion() throws Exception {
+	public void testMultiRegionBuildRaw() throws Exception {
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
 		PseudoState pseudoState = new DefaultPseudoState(PseudoStateKind.INITIAL);
 		State<TestStates,TestEvents> stateSI = new EnumState<TestStates,TestEvents>(TestStates.SI);
@@ -203,6 +217,108 @@ public class RegionMachineTests {
 		assertThat(exitActionS111.stateContexts.size(), is(1));
 		assertThat(entryActionS112.stateContexts.size(), is(1));
 		assertThat(exitActionS112.stateContexts.size(), is(0));
+	}
+
+	@Test
+	public void testMultiRegion() throws Exception {
+		context.register(BaseConfig.class, StateMachineEventPublisherConfiguration.class, Config1.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		@SuppressWarnings("unchecked")
+		EnumStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		assertThat(machine, notNullValue());
+		TestStateMachineListener listener = context.getBean(TestStateMachineListener.class);
+		machine.addStateListener(listener);
+		machine.start();
+		assertThat(listener.stateMachineStartedLatch.await(5, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S10, TestStates.S20));
+
+		listener.reset(2, 0);
+		machine.sendEvent(TestEvents.E1);
+		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S11, TestStates.S21));
+
+		listener.reset(1, 0);
+		machine.sendEvent(TestEvents.E2);
+		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S10, TestStates.S21));
+
+		listener.reset(1, 0);
+		machine.sendEvent(TestEvents.E3);
+		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S10, TestStates.S20));
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S10)
+					.state(TestStates.S10)
+					.state(TestStates.S11)
+					.and()
+				.withStates()
+					.initial(TestStates.S20)
+					.state(TestStates.S20)
+					.state(TestStates.S21);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S10)
+					.target(TestStates.S11)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S11)
+					.target(TestStates.S10)
+					.event(TestEvents.E2)
+					.and()
+				.withExternal()
+					.source(TestStates.S20)
+					.target(TestStates.S21)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S21)
+					.target(TestStates.S20)
+					.event(TestEvents.E3);
+		}
+
+		@Bean
+		public TestStateMachineListener testStateMachineListener() {
+			return new TestStateMachineListener();
+		}
+
+	}
+
+	private static class TestStateMachineListener extends StateMachineListenerAdapter<TestStates, TestEvents> {
+
+		volatile CountDownLatch stateChangedLatch = new CountDownLatch(0);
+		volatile CountDownLatch stateMachineStartedLatch = new CountDownLatch(3);
+
+		@Override
+		public void stateChanged(State<TestStates, TestEvents> from, State<TestStates, TestEvents> to) {
+			stateChangedLatch.countDown();
+		}
+
+		@Override
+		public void stateMachineStarted(StateMachine<TestStates, TestEvents> stateMachine) {
+			stateMachineStartedLatch.countDown();
+		}
+
+		void reset(int c1, int c2) {
+			stateChangedLatch = new CountDownLatch(c1);
+			stateMachineStartedLatch = new CountDownLatch(c2);
+		}
+
 	}
 
 }

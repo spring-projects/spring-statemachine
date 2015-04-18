@@ -49,6 +49,7 @@ import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.processor.StateMachineHandler;
 import org.springframework.statemachine.processor.StateMachineOnTransitionHandler;
 import org.springframework.statemachine.processor.StateMachineRuntime;
+import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.AbstractState;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.State;
@@ -198,6 +199,11 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			if (state.isSubmachineState()) {
 				StateMachine<S, E> submachine = ((AbstractState<S, E>)state).getSubmachine();
 				submachine.addStateListener(new StateMachineListenerRelay());
+			} else if (state.isOrthogonal()) {
+				Collection<Region<S, E>> regions = ((AbstractState<S, E>)state).getRegions();
+				for (Region<S, E> region : regions) {
+					region.addStateListener(new StateMachineListenerRelay());
+				}
 			}
 		}
 	}
@@ -205,7 +211,6 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	@Override
 	protected void doStart() {
 		super.doStart();
-		notifyStateMachineStarted(this);
 		registerTriggerListener();
 		switchToState(initialState, initialEvent, null, this);
 		// TODO: for now execute outside of switchToState
@@ -214,6 +219,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 					initialEvent != null ? initialEvent.getHeaders() : null, extendedState, initialTransition, this);
 			initialTransition.transit(stateContext);
 		}
+		notifyStateMachineStarted(this);
 	}
 
 	@Override
