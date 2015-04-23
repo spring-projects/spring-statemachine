@@ -15,37 +15,57 @@
  */
 package org.springframework.statemachine.state;
 
+import java.util.List;
+
 import org.springframework.statemachine.StateContext;
+import org.springframework.statemachine.guard.Guard;
 
 /**
- * Base implementation of a {@link PseudoState}.
+ * Choice implementation of a {@link PseudoState}.
  *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public abstract class AbstractPseudoState<S, E> implements PseudoState<S, E> {
+public class ChoicePseudoState<S, E> implements PseudoState<S, E> {
 
-	private final PseudoStateKind kind;
+	private List<ChoiceStateData<S, E>> choices;
 
-	/**
-	 * Instantiates a new abstract pseudo state.
-	 *
-	 * @param kind the kind
-	 */
-	public AbstractPseudoState(PseudoStateKind kind) {
-		this.kind = kind;
+	public ChoicePseudoState(List<ChoiceStateData<S, E>> choices) {
+		this.choices = choices;
 	}
 
 	@Override
 	public PseudoStateKind getKind() {
-		return kind;
+		return PseudoStateKind.CHOICE;
 	}
 
 	@Override
 	public State<S, E> entry(E event, StateContext<S, E> context) {
-		return null;
+		State<S, E> s = null;
+		for (ChoiceStateData<S, E> c : choices) {
+			s = c.getState();
+			if (c.guard != null && c.guard.evaluate(context)) {
+				break;
+			}
+		}
+		return s;
+	}
+
+	public static class ChoiceStateData<S, E> {
+		private final State<S, E> state;
+		private final Guard<S, E> guard;
+		public ChoiceStateData(State<S, E> state, Guard<S, E> guard) {
+			this.state = state;
+			this.guard = guard;
+		}
+		public State<S, E> getState() {
+			return state;
+		}
+		public Guard<S, E> getGuard() {
+			return guard;
+		}
 	}
 
 }

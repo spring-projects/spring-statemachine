@@ -73,7 +73,7 @@ public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
 	 * @param id the state identifier
 	 * @param pseudoState the pseudo state
 	 */
-	public AbstractSimpleState(S id, PseudoState pseudoState) {
+	public AbstractSimpleState(S id, PseudoState<S, E> pseudoState) {
 		this(id, null, null, null, pseudoState);
 	}
 
@@ -88,7 +88,7 @@ public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
 	 * @param regions the regions
 	 */
 	public AbstractSimpleState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions,
-			Collection<? extends Action<S, E>> exitActions, PseudoState pseudoState, Collection<Region<S, E>> regions) {
+			Collection<? extends Action<S, E>> exitActions, PseudoState<S, E> pseudoState, Collection<Region<S, E>> regions) {
 		super(id, deferred, entryActions, exitActions, pseudoState, regions);
 		this.ids = new ArrayList<S>();
 		this.ids.add(id);
@@ -105,7 +105,7 @@ public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
 	 * @param submachine the submachine
 	 */
 	public AbstractSimpleState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions,
-			Collection<? extends Action<S, E>> exitActions, PseudoState pseudoState, StateMachine<S, E> submachine) {
+			Collection<? extends Action<S, E>> exitActions, PseudoState<S, E> pseudoState, StateMachine<S, E> submachine) {
 		super(id, deferred, entryActions, exitActions, pseudoState, submachine);
 		this.ids = new ArrayList<S>();
 		this.ids.add(id);
@@ -121,7 +121,7 @@ public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
 	 * @param pseudoState the pseudo state
 	 */
 	public AbstractSimpleState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions,
-			Collection<? extends Action<S, E>> exitActions, PseudoState pseudoState) {
+			Collection<? extends Action<S, E>> exitActions, PseudoState<S, E> pseudoState) {
 		super(id, deferred, entryActions, exitActions, pseudoState);
 		this.ids = new ArrayList<S>();
 		this.ids.add(id);

@@ -85,7 +85,7 @@ public interface State<S, E> {
 	 *
 	 * @return pseudostate or null if state doesn't have one
 	 */
-	PseudoState getPseudoState();
+	PseudoState<S, E> getPseudoState();
 
 	/**
 	 * Gets the deferred events for this state.

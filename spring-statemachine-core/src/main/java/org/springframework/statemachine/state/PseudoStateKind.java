@@ -28,6 +28,9 @@ public enum PseudoStateKind {
 	INITIAL,
 
 	/** End or terminate kind */
-	END
+	END,
+
+	/** Choice kind */
+	CHOICE
 
 }

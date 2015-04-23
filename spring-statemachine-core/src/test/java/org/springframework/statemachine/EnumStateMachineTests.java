@@ -41,7 +41,7 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testSimpleStateSwitch() {
-		PseudoState pseudoState = new DefaultPseudoState(PseudoStateKind.INITIAL);
+		PseudoState<TestStates,TestEvents> pseudoState = new DefaultPseudoState<TestStates,TestEvents>(PseudoStateKind.INITIAL);
 		State<TestStates,TestEvents> stateSI = new EnumState<TestStates,TestEvents>(TestStates.SI, pseudoState);
 		State<TestStates,TestEvents> stateS1 = new EnumState<TestStates,TestEvents>(TestStates.S1);
 		State<TestStates,TestEvents> stateS2 = new EnumState<TestStates,TestEvents>(TestStates.S2);
@@ -106,7 +106,7 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testDeferredEvents() {
-		PseudoState pseudoState = new DefaultPseudoState(PseudoStateKind.INITIAL);
+		PseudoState<TestStates,TestEvents> pseudoState = new DefaultPseudoState<TestStates,TestEvents>(PseudoStateKind.INITIAL);
 
 		Collection<TestEvents> deferred = new ArrayList<TestEvents>();
 		deferred.add(TestEvents.E2);

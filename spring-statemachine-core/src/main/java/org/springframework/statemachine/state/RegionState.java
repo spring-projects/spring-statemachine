@@ -61,7 +61,7 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 	 * @param regions the regions
 	 * @param pseudoState the pseudo state
 	 */
-	public RegionState(S id, Collection<Region<S, E>> regions, PseudoState pseudoState) {
+	public RegionState(S id, Collection<Region<S, E>> regions, PseudoState<S, E> pseudoState) {
 		super(id, null, null, null, pseudoState, regions);
 	}
 
@@ -76,7 +76,7 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 	 * @param pseudoState the pseudo state
 	 */
 	public RegionState(S id, Collection<Region<S, E>> regions, Collection<E> deferred,
-			Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions, PseudoState pseudoState) {
+			Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions, PseudoState<S, E> pseudoState) {
 		super(id, deferred, entryActions, exitActions, pseudoState, regions);
 	}
 

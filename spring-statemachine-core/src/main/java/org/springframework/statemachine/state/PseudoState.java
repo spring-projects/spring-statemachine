@@ -15,21 +15,25 @@
  */
 package org.springframework.statemachine.state;
 
+import org.springframework.statemachine.StateContext;
+
 /**
  * A {@code PseudoState} is an abstraction that encompasses different types of
  * transient states or vertices in the state machine.
- * 
+ *
  * <p>
  * Pseudostates are typically used to connect multiple transitions into more
  * complex state transitions paths. For example, by combining a transition
  * entering a fork pseudostate with a set of transitions exiting the fork
  * pseudostate, we get a compound transition that leads to a set of orthogonal
  * target states.
- * 
+ *
  * @author Janne Valkealahti
  *
+ * @param <S> the type of state
+ * @param <E> the type of event
  */
-public interface PseudoState {
+public interface PseudoState<S, E> {
 
 	/**
 	 * Gets the pseudostate kind.
@@ -37,5 +41,15 @@ public interface PseudoState {
 	 * @return the pseudostate kind
 	 */
 	PseudoStateKind getKind();
+
+	/**
+	 * Initiate an entry sequence for the state and return a next
+	 * state where state machine should go.
+	 *
+	 * @param event the event
+	 * @param context the context
+	 * @return the next state or null
+	 */
+	State<S, E> entry(E event, StateContext<S, E> context);
 
 }

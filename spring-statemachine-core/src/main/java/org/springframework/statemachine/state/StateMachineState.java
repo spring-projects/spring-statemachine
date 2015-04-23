@@ -69,7 +69,7 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 	 * @param submachine the submachine
 	 * @param pseudoState the pseudo state
 	 */
-	public StateMachineState(S id, StateMachine<S, E> submachine, PseudoState pseudoState) {
+	public StateMachineState(S id, StateMachine<S, E> submachine, PseudoState<S, E> pseudoState) {
 		super(id, null, null, null, pseudoState, submachine);
 		this.ids = new ArrayList<S>();
 		this.ids.add(id);
@@ -87,7 +87,7 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 	 */
 	public StateMachineState(S id, StateMachine<S, E> submachine, Collection<E> deferred,
 			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
-			PseudoState pseudoState) {
+			PseudoState<S, E> pseudoState) {
 		super(id, deferred, entryActions, exitActions, pseudoState, submachine);
 		this.ids = new ArrayList<S>();
 		this.ids.add(id);

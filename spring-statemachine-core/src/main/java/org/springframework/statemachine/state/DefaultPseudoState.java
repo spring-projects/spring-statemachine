@@ -18,11 +18,13 @@ package org.springframework.statemachine.state;
 /**
  * Default implementation of a {@link PseudoState} which is a simple passthrough
  * via {@link AbstractPseudoState}.
- * 
+ *
  * @author Janne Valkealahti
  *
+ * @param <S> the type of state
+ * @param <E> the type of event
  */
-public class DefaultPseudoState extends AbstractPseudoState {
+public class DefaultPseudoState<S, E> extends AbstractPseudoState<S, E> {
 
 	/**
 	 * Instantiates a new default pseudo state.

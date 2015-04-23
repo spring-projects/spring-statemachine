@@ -80,7 +80,7 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		 *          |                                           |
 		 *          +-------------------------------------------+
 		 */
-		PseudoState pseudoState = new DefaultPseudoState(PseudoStateKind.INITIAL);
+		PseudoState<TestStates,TestEvents> pseudoState = new DefaultPseudoState<TestStates,TestEvents>(PseudoStateKind.INITIAL);
 
 		TestEntryAction entryActionS111 = new TestEntryAction("S111");
 		TestExitAction exitActionS111 = new TestExitAction("S111");
@@ -175,7 +175,7 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		 */
 
 
-		PseudoState pseudoState = new DefaultPseudoState(PseudoStateKind.INITIAL);
+		PseudoState<TestStates,TestEvents> pseudoState = new DefaultPseudoState<TestStates,TestEvents>(PseudoStateKind.INITIAL);
 
 		TestEntryAction entryActionS111 = new TestEntryAction("S111");
 		TestExitAction exitActionS111 = new TestExitAction("S111");
@@ -267,7 +267,7 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		 *          |                                           |
 		 *          +-------------------------------------------+
 		 */
-		PseudoState pseudoState = new DefaultPseudoState(PseudoStateKind.INITIAL);
+		PseudoState<TestStates,TestEvents> pseudoState = new DefaultPseudoState<TestStates,TestEvents>(PseudoStateKind.INITIAL);
 
 		TestEntryAction entryActionS111 = new TestEntryAction("S111");
 		TestExitAction exitActionS111 = new TestExitAction("S111");

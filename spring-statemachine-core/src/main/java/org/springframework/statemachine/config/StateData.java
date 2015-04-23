@@ -18,6 +18,7 @@ package org.springframework.statemachine.config;
 import java.util.Collection;
 
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.State;
 
 /**
@@ -41,6 +42,7 @@ public class StateData<S, E> {
 	private boolean initial = false;
 	private Action<S, E> initialAction;
 	private boolean end = false;
+	private PseudoStateKind pseudoStateKind;
 
 	public StateData(Object parent, Object region, S state, Collection<E> deferred,
 			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions) {
@@ -108,11 +110,19 @@ public class StateData<S, E> {
 		this.end = end;
 	}
 
+	public PseudoStateKind getPseudoStateKind() {
+		return pseudoStateKind;
+	}
+
+	public void setPseudoStateKind(PseudoStateKind pseudoStateKind) {
+		this.pseudoStateKind = pseudoStateKind;
+	}
+
 	@Override
 	public String toString() {
 		return "StateData [parent=" + parent + ", region=" + region + ", state=" + state + ", deferred=" + deferred
-				+ ", entryActions=" + entryActions + ", exitActions=" + exitActions + ", initial=" + initial + ", end="
-				+ end + "]";
+				+ ", entryActions=" + entryActions + ", exitActions=" + exitActions + ", initial=" + initial
+				+ ", initialAction=" + initialAction + ", end=" + end + ", pseudoStateKind=" + pseudoStateKind + "]";
 	}
 
 }

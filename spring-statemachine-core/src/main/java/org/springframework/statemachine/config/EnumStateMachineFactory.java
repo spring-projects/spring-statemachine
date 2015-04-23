@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -28,8 +29,10 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.builders.StateMachineStates;
 import org.springframework.statemachine.config.builders.StateMachineTransitions;
+import org.springframework.statemachine.config.builders.StateMachineTransitions.ChoiceData;
 import org.springframework.statemachine.config.builders.StateMachineTransitions.TransitionData;
 import org.springframework.statemachine.region.Region;
+import org.springframework.statemachine.state.ChoicePseudoState;
 import org.springframework.statemachine.state.DefaultPseudoState;
 import org.springframework.statemachine.state.EnumState;
 import org.springframework.statemachine.state.PseudoState;
@@ -37,6 +40,7 @@ import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.RegionState;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.state.StateMachineState;
+import org.springframework.statemachine.state.ChoicePseudoState.ChoiceStateData;
 import org.springframework.statemachine.support.DefaultExtendedState;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
 import org.springframework.statemachine.support.tree.Tree;
@@ -133,7 +137,7 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 			if (initialCount > 1) {
 				for (Collection<StateData<S, E>> regionStateDatas : regionsStateDatas) {
 					machine = buildMachine(machineMap, stateMap, regionStateDatas, transitionsData, getBeanFactory(),
-							contextEvents, defaultExtendedState);
+							contextEvents, defaultExtendedState, stateMachineTransitions);
 					if (peek.isInitial() || (!peek.isInitial() && !machineMap.containsKey(peek.getParent()))) {
 						machineMap.put(peek.getParent(), machine);
 					}
@@ -161,7 +165,8 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 
 
 			} else {
-				machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, getBeanFactory(), contextEvents, defaultExtendedState);
+				machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, getBeanFactory(),
+						contextEvents, defaultExtendedState, stateMachineTransitions);
 				if (peek.isInitial() || (!peek.isInitial() && !machineMap.containsKey(peek.getParent()))) {
 					machineMap.put(peek.getParent(), machine);
 				}
@@ -268,11 +273,16 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 	private static <S extends Enum<S>, E extends Enum<E>> StateMachine<S, E> buildMachine(
 			Map<Object, StateMachine<S, E>> machineMap, Map<S, State<S, E>> stateMap,
 			Collection<StateData<S, E>> stateDatas, Collection<TransitionData<S, E>> transitionsData,
-			BeanFactory beanFactory, Boolean contextEvents, DefaultExtendedState defaultExtendedState) {
+			BeanFactory beanFactory, Boolean contextEvents, DefaultExtendedState defaultExtendedState,
+			StateMachineTransitions<S, E> stateMachineTransitions) {
 		State<S, E> state = null;
 		State<S, E> initialState = null;
 		Action<S, E> initialAction = null;
 		Collection<State<S, E>> states = new ArrayList<State<S,E>>();
+
+		// for now loop twice and build states for
+		// non initial/end pseudostates last
+
 		for (StateData<S, E> stateData : stateDatas) {
 			StateMachine<S, E> stateMachine = machineMap.get(stateData.getState());
 			if (stateMachine != null) {
@@ -289,11 +299,13 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 				}
 				states.add(state);
 			} else {
-				PseudoState pseudoState = null;
+				PseudoState<S, E> pseudoState = null;
 				if (stateData.isInitial()) {
-					pseudoState = new DefaultPseudoState(PseudoStateKind.INITIAL);
+					pseudoState = new DefaultPseudoState<S, E>(PseudoStateKind.INITIAL);
 				} else if (stateData.isEnd()) {
-					pseudoState = new DefaultPseudoState(PseudoStateKind.END);
+					pseudoState = new DefaultPseudoState<S, E>(PseudoStateKind.END);
+				} else if (stateData.getPseudoStateKind() == PseudoStateKind.CHOICE) {
+					continue;
 				}
 				state = new EnumState<S, E>(stateData.getState(), stateData.getDeferred(),
 						stateData.getEntryActions(), stateData.getExitActions(), pseudoState);
@@ -304,10 +316,23 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 				states.add(state);
 
 			}
-
-
-			// TODO: doesn't feel right to tweak initial kind like this
 			stateMap.put(stateData.getState(), state);
+		}
+
+		for (StateData<S, E> stateData : stateDatas) {
+			if (stateData.getPseudoStateKind() == PseudoStateKind.CHOICE) {
+				S s = stateData.getState();
+				List<ChoiceData<S, E>> list = stateMachineTransitions.getChoices().get(s);
+				List<ChoiceStateData<S, E>> choices = new ArrayList<ChoiceStateData<S, E>>();
+				for (ChoiceData<S, E> c : list) {
+					choices.add(new ChoiceStateData<S, E>(stateMap.get(c.getTarget()), c.getGuard()));
+				}
+				PseudoState<S, E> pseudoState = new ChoicePseudoState<S, E>(choices);
+				state = new EnumState<S, E>(stateData.getState(), stateData.getDeferred(),
+						stateData.getEntryActions(), stateData.getExitActions(), pseudoState);
+				states.add(state);
+				stateMap.put(stateData.getState(), state);
+			}
 		}
 
 		Collection<Transition<S, E>> transitions = new ArrayList<Transition<S, E>>();

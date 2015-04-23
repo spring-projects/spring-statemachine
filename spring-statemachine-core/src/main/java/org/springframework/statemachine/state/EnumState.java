@@ -47,7 +47,7 @@ public class EnumState<S extends Enum<S>, E extends Enum<E>> extends AbstractSim
 	 * @param id the id
 	 * @param pseudoState the pseudo state
 	 */
-	public EnumState(S id, PseudoState pseudoState) {
+	public EnumState(S id, PseudoState<S, E> pseudoState) {
 		super(id, pseudoState);
 	}
 
@@ -83,7 +83,7 @@ public class EnumState<S extends Enum<S>, E extends Enum<E>> extends AbstractSim
 	 * @param pseudoState the pseudo state
 	 */
 	public EnumState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
-			PseudoState pseudoState) {
+			PseudoState<S, E> pseudoState) {
 		super(id, deferred, entryActions, exitActions, pseudoState);
 	}
 
@@ -98,7 +98,7 @@ public class EnumState<S extends Enum<S>, E extends Enum<E>> extends AbstractSim
 	 * @param regions the regions
 	 */
 	public EnumState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
-			PseudoState pseudoState, Collection<Region<S, E>> regions) {
+			PseudoState<S, E> pseudoState, Collection<Region<S, E>> regions) {
 		super(id, deferred, entryActions, exitActions, pseudoState, regions);
 	}
 
@@ -113,7 +113,7 @@ public class EnumState<S extends Enum<S>, E extends Enum<E>> extends AbstractSim
 	 * @param submachine the submachine
 	 */
 	public EnumState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
-			PseudoState pseudoState, StateMachine<S, E> submachine) {
+			PseudoState<S, E> pseudoState, StateMachine<S, E> submachine) {
 		super(id, deferred, entryActions, exitActions, pseudoState, submachine);
 	}
 

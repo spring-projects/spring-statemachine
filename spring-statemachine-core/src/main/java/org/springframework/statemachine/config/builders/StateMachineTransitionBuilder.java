@@ -17,11 +17,18 @@ package org.springframework.statemachine.config.builders;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.config.builders.StateMachineTransitions.ChoiceData;
 import org.springframework.statemachine.config.builders.StateMachineTransitions.TransitionData;
 import org.springframework.statemachine.config.common.annotation.AbstractConfiguredAnnotationBuilder;
+import org.springframework.statemachine.config.common.annotation.AnnotationBuilder;
 import org.springframework.statemachine.config.common.annotation.ObjectPostProcessor;
+import org.springframework.statemachine.config.configurers.ChoiceTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.DefaultChoiceTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultExternalTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultInternalTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultLocalTransitionConfigurer;
@@ -31,12 +38,21 @@ import org.springframework.statemachine.config.configurers.LocalTransitionConfig
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.transition.TransitionKind;
 
+/**
+ * {@link AnnotationBuilder} for {@link StateMachineTransitions}.
+ *
+ * @author Janne Valkealahti
+ *
+ * @param <S> the type of state
+ * @param <E> the type of event
+ */
 public class StateMachineTransitionBuilder<S, E>
 		extends
 		AbstractConfiguredAnnotationBuilder<StateMachineTransitions<S, E>, StateMachineTransitionConfigurer<S, E>, StateMachineTransitionBuilder<S, E>>
 		implements StateMachineTransitionConfigurer<S, E> {
 
-	private Collection<TransitionData<S, E>> transitionData = new ArrayList<TransitionData<S, E>>();
+	private final Collection<TransitionData<S, E>> transitionData = new ArrayList<TransitionData<S, E>>();
+	private final Map<S, List<ChoiceData<S, E>>> choices = new HashMap<S, List<ChoiceData<S, E>>>();
 
 	public StateMachineTransitionBuilder() {
 		super();
@@ -53,8 +69,7 @@ public class StateMachineTransitionBuilder<S, E>
 
 	@Override
 	protected StateMachineTransitions<S, E> performBuild() throws Exception {
-		StateMachineTransitions<S, E> bean = new StateMachineTransitions<S, E>(transitionData);
-		return bean;
+		return new StateMachineTransitions<S, E>(transitionData, choices);
 	}
 
 	@Override
@@ -72,8 +87,18 @@ public class StateMachineTransitionBuilder<S, E>
 		return apply(new DefaultLocalTransitionConfigurer<S, E>());
 	}
 
-	public void add(S source, S target, S state, E event, Long period, Collection<Action<S, E>> actions, Guard<S, E> guard, TransitionKind kind) {
+	@Override
+	public ChoiceTransitionConfigurer<S, E> withChoice() throws Exception {
+		return apply(new DefaultChoiceTransitionConfigurer<S, E>());
+	}
+
+	public void add(S source, S target, S state, E event, Long period, Collection<Action<S, E>> actions,
+			Guard<S, E> guard, TransitionKind kind) {
 		transitionData.add(new TransitionData<S, E>(source, target, state, event, period, actions, guard, kind));
+	}
+
+	public void add(S source, List<ChoiceData<S, E>> choices) {
+		this.choices.put(source, choices);
 	}
 
 }

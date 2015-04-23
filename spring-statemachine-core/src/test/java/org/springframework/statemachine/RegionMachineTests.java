@@ -65,7 +65,7 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testSimpleRegionBuildRaw() throws Exception {
-		PseudoState pseudoState = new DefaultPseudoState(PseudoStateKind.INITIAL);
+		PseudoState<TestStates,TestEvents> pseudoState = new DefaultPseudoState<TestStates,TestEvents>(PseudoStateKind.INITIAL);
 		TestEntryAction entryActionS1 = new TestEntryAction("S1");
 		TestExitAction exitActionS1 = new TestExitAction("S1");
 		Collection<Action<TestStates, TestEvents>> entryActionsS1 = new ArrayList<Action<TestStates, TestEvents>>();
@@ -129,7 +129,7 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 	@Test
 	public void testMultiRegionBuildRaw() throws Exception {
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
-		PseudoState pseudoState = new DefaultPseudoState(PseudoStateKind.INITIAL);
+		PseudoState<TestStates,TestEvents> pseudoState = new DefaultPseudoState<TestStates,TestEvents>(PseudoStateKind.INITIAL);
 		State<TestStates,TestEvents> stateSI = new EnumState<TestStates,TestEvents>(TestStates.SI);
 
 		TestEntryAction entryActionS111 = new TestEntryAction("S111");

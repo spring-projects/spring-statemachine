@@ -16,21 +16,37 @@
 package org.springframework.statemachine.config.builders;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.transition.TransitionKind;
 
+/**
+ * Data object for transitions.
+ *
+ * @author Janne Valkealahti
+ *
+ * @param <S> the type of state
+ * @param <E> the type of event
+ */
 public class StateMachineTransitions<S, E> {
 
 	private Collection<TransitionData<S, E>> transitions;
+	private Map<S, List<ChoiceData<S, E>>> choices;
 
-	public StateMachineTransitions(Collection<TransitionData<S, E>> transitions) {
+	public StateMachineTransitions(Collection<TransitionData<S, E>> transitions, Map<S, List<ChoiceData<S, E>>> choices) {
 		this.transitions = transitions;
+		this.choices = choices;
 	}
 
 	public Collection<TransitionData<S, E>> getTransitions() {
 		return transitions;
+	}
+
+	public Map<S, List<ChoiceData<S, E>>> getChoices() {
+		return choices;
 	}
 
 	public static class TransitionData<S, E> {
@@ -77,5 +93,26 @@ public class StateMachineTransitions<S, E> {
 			return kind;
 		}
 	}
+
+	public static class ChoiceData<S, E> {
+		private final S source;
+		private final S target;
+		private final Guard<S, E> guard;
+		public ChoiceData(S source, S target, Guard<S, E> guard) {
+			this.source = source;
+			this.target = target;
+			this.guard = guard;
+		}
+		public S getSource() {
+			return source;
+		}
+		public S getTarget() {
+			return target;
+		}
+		public Guard<S, E> getGuard() {
+			return guard;
+		}
+	}
+
 
 }

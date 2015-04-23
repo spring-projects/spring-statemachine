@@ -319,7 +319,18 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	}
 
 	private void switchToState(State<S,E> state, Message<E> event, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
-		setCurrentState(state, event, transition, true, stateMachine);
+		// TODO: need to make below more clear when
+		//       we figure out rest of a pseudostates
+		if (state.getPseudoState() != null && state.getPseudoState().getKind() == PseudoStateKind.CHOICE) {
+			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
+					new HashMap<String, Object>());
+			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(event != null ? event.getPayload() : null,
+					messageHeaders, extendedState, transition, stateMachine);
+			State<S, E> entry = state.getPseudoState().entry(event.getPayload(), stateContext);
+			setCurrentState(entry, event, transition, true, stateMachine);
+		} else {
+			setCurrentState(state, event, transition, true, stateMachine);
+		}
 
 		// TODO: should handle triggerles transition some how differently
 		for (Transition<S,E> t : transitions) {
@@ -343,7 +354,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		return null;
 	}
 
-	void setCurrentState(State<S, E> state, Message<E> event, Transition<S, E> transition, boolean exit, StateMachine<S, E> stateMachine) {
+	public void setCurrentState(State<S, E> state, Message<E> event, Transition<S, E> transition, boolean exit, StateMachine<S, E> stateMachine) {
 		State<S, E> findDeep = findDeepParent(state);
 		boolean isTargetSubOf = false;
 		if (transition != null) {

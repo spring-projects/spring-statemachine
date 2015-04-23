@@ -27,6 +27,7 @@ import org.springframework.statemachine.config.builders.StateMachineStateBuilder
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStates;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerAdapter;
+import org.springframework.statemachine.state.PseudoStateKind;
 
 /**
  * Default implementation of a {@link StateConfigurer}.
@@ -52,6 +53,8 @@ public class DefaultStateConfigurer<S, E>
 
 	private S end;
 
+	private final Collection<S> choices = new ArrayList<S>();
+
 	@Override
 	public void configure(StateMachineStateBuilder<S, E> builder) throws Exception {
 		// before passing state datas to builder, update structure
@@ -66,6 +69,9 @@ public class DefaultStateConfigurer<S, E>
 			}
 			if (s.getState() == end) {
 				s.setEnd(true);
+			}
+			if (choices.contains(s.getState())) {
+				s.setPseudoStateKind(PseudoStateKind.CHOICE);
 			}
 		}
 		builder.addStateData(stateDatas);
@@ -137,6 +143,12 @@ public class DefaultStateConfigurer<S, E>
 		for (S s : states) {
 			state(s);
 		}
+		return this;
+	}
+
+	@Override
+	public StateConfigurer<S, E> choice(S choice) {
+		choices.add(choice);
 		return this;
 	}
 

@@ -15,13 +15,14 @@
  */
 package org.springframework.statemachine.config.builders;
 
+import org.springframework.statemachine.config.configurers.ChoiceTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.ExternalTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.InternalTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.LocalTransitionConfigurer;
 
 /**
  * Configurer interface exposing different type of transitions.
- * 
+ *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
@@ -30,8 +31,8 @@ import org.springframework.statemachine.config.configurers.LocalTransitionConfig
 public interface StateMachineTransitionConfigurer<S, E> {
 
 	/**
-	 * Gets a configurer for external transition. 
-	 * 
+	 * Gets a configurer for external transition.
+	 *
 	 * @return {@link ExternalTransitionConfigurer} for chaining
 	 * @throws Exception if configuration error happens
 	 * @see #withLocal()
@@ -44,7 +45,7 @@ public interface StateMachineTransitionConfigurer<S, E> {
 	 * internal transition source and target state is always a same and it is
 	 * identical with self-transition in the absence of state entry and exit
 	 * actions.
-	 * 
+	 *
 	 * @return {@link InternalTransitionConfigurer} for chaining
 	 * @throws Exception if configuration error happens
 	 */
@@ -55,10 +56,18 @@ public interface StateMachineTransitionConfigurer<S, E> {
 	 * exit and entry to source state if target state is a substate of a source
 	 * state. Other way around, local transition doesn’t cause exit and entry to
 	 * target state if target is a superstate of a source state.
-	 * 
+	 *
 	 * @return {@link LocalTransitionConfigurer} for chaining
 	 * @throws Exception if configuration error happens
 	 */
 	LocalTransitionConfigurer<S, E> withLocal() throws Exception;
-	
+
+	/**
+	 * Gets a configurer for transition from a choice pseudostate.
+	 *
+	 * @return {@link LocalTransitionConfigurer} for chaining
+	 * @throws Exception if configuration error happens
+	 */
+	ChoiceTransitionConfigurer<S, E> withChoice() throws Exception;
+
 }

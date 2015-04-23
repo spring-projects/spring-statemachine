@@ -115,4 +115,12 @@ public interface StateConfigurer<S, E> extends
 	 */
 	StateConfigurer<S, E> end(S end);
 
+	/**
+	 * Specify a state {@code S} to be choice pseudo state.
+	 *
+	 * @param choice the choice pseudo state
+	 * @return configurer for chaining
+	 */
+	StateConfigurer<S, E> choice(S choice);
+
 }
