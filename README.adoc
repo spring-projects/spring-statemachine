@@ -24,7 +24,7 @@ Samples can be found under `spring-statemachine-samples`. Check
 the reference documentation more about what those do.
 
 == Building from Source
-Spring Security Kerberos uses a http://gradle.org[Gradle]-based build
+Spring Statemachine uses a http://gradle.org[Gradle]-based build
 system.
 In the instructions below, http://vimeo.com/34436402[`./gradlew`] is
 invoked from the root of the source tree and serves as
