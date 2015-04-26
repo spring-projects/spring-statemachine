@@ -43,8 +43,6 @@ import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.annotation.OnTransition;
-import org.springframework.statemachine.event.StateMachineEventPublisher;
-import org.springframework.statemachine.listener.CompositeStateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.processor.StateMachineHandler;
 import org.springframework.statemachine.processor.StateMachineOnTransitionHandler;
@@ -72,7 +70,7 @@ import org.springframework.util.Assert;
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport implements StateMachine<S, E> {
+public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSupport<S, E> implements StateMachine<S, E> {
 
 	private static final Log log = LogFactory.getLog(AbstractStateMachine.class);
 
@@ -92,8 +90,6 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 
 	private final LinkedList<Message<E>> deferList = new LinkedList<Message<E>>();
 
-	private final CompositeStateMachineListener<S, E> stateListener = new CompositeStateMachineListener<S, E>();
-
 	private volatile State<S,E> currentState;
 
 	private volatile PseudoState<S, E> history;
@@ -107,8 +103,6 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	private final Queue<TriggerQueueItem> triggerQueue = new ConcurrentLinkedQueue<TriggerQueueItem>();
 
 	private final Map<Trigger<S, E>, Transition<S,E>> triggerToTransitionMap = new HashMap<Trigger<S,E>, Transition<S,E>>();
-
-	private boolean contextEventsEnabled = true;
 
 	/**
 	 * Instantiates a new abstract state machine.
@@ -231,8 +225,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		switchToState(initialState, initialEvent, null, this);
 		// TODO: for now execute outside of switchToState
 		if (initialTransition != null) {
-			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(initialEvent != null ? initialEvent.getPayload() : null,
-					initialEvent != null ? initialEvent.getHeaders() : null, extendedState, initialTransition, this);
+			StateContext<S, E> stateContext = buildStateContext(initialEvent, initialTransition, this);
 			initialTransition.transit(stateContext);
 		}
 		notifyStateMachineStarted(this);
@@ -246,7 +239,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 
 	@Override
 	public void addStateListener(StateMachineListener<S, E> listener) {
-		stateListener.register(listener);
+		getStateListener().register(listener);
 	}
 
 	@Override
@@ -288,26 +281,15 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		return buf.toString();
 	}
 
-	/**
-	 * Set if context application events are enabled. Events
-	 * are enabled by default. Set this to false if you don't
-	 * want state machine to send application context events.
-	 *
-	 * @param contextEventsEnabled the enabled flag
-	 */
-	public void setContextEventsEnabled(boolean contextEventsEnabled) {
-		this.contextEventsEnabled = contextEventsEnabled;
-	}
+	protected boolean acceptEvent(Message<E> message) {
 
-	protected boolean acceptEvent(Message<E> event) {
-
-		boolean accepted = currentState.sendEvent(event);
+		boolean accepted = currentState.sendEvent(message);
 		if (accepted) {
 			return true;
 		}
 
 		if (log.isDebugEnabled()) {
-			log.debug("Queue event " + event);
+			log.debug("Queue event " + message);
 		}
 
 		Message<E> defer = null;
@@ -316,11 +298,11 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			Trigger<S, E> trigger = transition.getTrigger();
 
 			if (StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
-				if (trigger != null && trigger.evaluate(new DefaultTriggerContext<S, E>(event.getPayload()))) {
-					triggerQueue.add(new TriggerQueueItem(trigger, event));
+				if (trigger != null && trigger.evaluate(new DefaultTriggerContext<S, E>(message.getPayload()))) {
+					triggerQueue.add(new TriggerQueueItem(trigger, message));
 					return true;
-				} else if (source.getDeferredEvents() != null && source.getDeferredEvents().contains(event.getPayload())) {
-					defer = event;
+				} else if (source.getDeferredEvents() != null && source.getDeferredEvents().contains(message.getPayload())) {
+					defer = message;
 				}
 			}
 		}
@@ -333,32 +315,17 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		return false;
 	}
 
-	private void switchToState(State<S,E> state, Message<E> event, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
+	private void switchToState(State<S,E> state, Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
 		// TODO: need to make below more clear when
 		//       we figure out rest of a pseudostates
-		if (state.getPseudoState() != null && state.getPseudoState().getKind() == PseudoStateKind.CHOICE) {
-			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
-					new HashMap<String, Object>());
-			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(event != null ? event.getPayload() : null,
-					messageHeaders, extendedState, transition, stateMachine);
-			State<S, E> entry = state.getPseudoState().entry(event.getPayload(), stateContext);
-			setCurrentState(entry, event, transition, true, stateMachine);
-		} else if (state.getPseudoState() != null && state.getPseudoState().getKind() == PseudoStateKind.HISTORY_SHALLOW) {
-			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
-					new HashMap<String, Object>());
-			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(event != null ? event.getPayload() : null,
-					messageHeaders, extendedState, transition, stateMachine);
-			State<S, E> entry = state.getPseudoState().entry(event.getPayload(), stateContext);
-			setCurrentState(entry, event, transition, true, stateMachine);
-		} else if (state.getPseudoState() != null && state.getPseudoState().getKind() == PseudoStateKind.HISTORY_DEEP) {
-			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
-					new HashMap<String, Object>());
-			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(event != null ? event.getPayload() : null,
-					messageHeaders, extendedState, transition, stateMachine);
-			State<S, E> entry = state.getPseudoState().entry(event.getPayload(), stateContext);
-			setCurrentState(entry, event, transition, true, stateMachine);
+		PseudoStateKind kind = state.getPseudoState() != null ? state.getPseudoState().getKind() : null;
+		if (kind == PseudoStateKind.CHOICE || kind == PseudoStateKind.HISTORY_SHALLOW
+				|| kind == PseudoStateKind.HISTORY_DEEP) {
+			StateContext<S, E> stateContext = buildStateContext(message, transition, stateMachine);
+			State<S, E> toState = state.getPseudoState().entry(message.getPayload(), stateContext);
+			setCurrentState(toState, message, transition, true, stateMachine);
 		} else {
-			setCurrentState(state, event, transition, true, stateMachine);
+			setCurrentState(state, message, transition, true, stateMachine);
 		}
 
 		// TODO: should handle triggerles transition some how differently
@@ -366,12 +333,19 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			State<S,E> source = t.getSource();
 			State<S,E> target = t.getTarget();
 			if (t.getTrigger() == null && source.equals(currentState)) {
-				switchToState(target, event, t, stateMachine);
+				switchToState(target, message, t, stateMachine);
 			}
 		}
 		if (isComplete()) {
 			stop();
 		}
+	}
+
+	private StateContext<S, E> buildStateContext(Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
+		E event = message != null ? message.getPayload() : null;
+		MessageHeaders messageHeaders = message != null ? message.getHeaders() : new MessageHeaders(
+				new HashMap<String, Object>());
+		return new DefaultStateContext<S, E>(event, messageHeaders, extendedState, transition, stateMachine);
 	}
 
 	private State<S, E> findDeepParent(State<S, E> state) {
@@ -383,11 +357,11 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		return null;
 	}
 
-	void setCurrentState(State<S, E> state, Message<E> event, Transition<S, E> transition, boolean exit, StateMachine<S, E> stateMachine) {
+	void setCurrentState(State<S, E> state, Message<E> message, Transition<S, E> transition, boolean exit, StateMachine<S, E> stateMachine) {
 		State<S, E> findDeep = findDeepParent(state);
 		boolean isTargetSubOf = false;
 		if (transition != null) {
-			isTargetSubOf = isSubstate(state, transition.getSource());
+			isTargetSubOf = StateMachineUtils.isSubstate(state, transition.getSource());
 			if (isTargetSubOf && currentState == transition.getTarget()) {
 				state = transition.getSource();
 			}
@@ -395,37 +369,37 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 
 		if (states.contains(state)) {
 			if (exit) {
-				exitCurrentState(state, event, transition, stateMachine);
+				exitCurrentState(state, message, transition, stateMachine);
 			}
 			State<S, E> notifyFrom = currentState;
 			currentState = state;
 			if (!isRunning()) {
 				start();
 			}
-			entryToState(state, event, transition, stateMachine);
+			entryToState(state, message, transition, stateMachine);
 			notifyStateChanged(notifyFrom, state);
 		} else if (currentState != null) {
 			if (findDeep != null) {
 				if (exit) {
-					exitCurrentState(state, event, transition, stateMachine);
+					exitCurrentState(state, message, transition, stateMachine);
 				}
 				if (currentState == findDeep) {
 					StateMachine<S, E> submachine = ((AbstractState<S, E>)currentState).getSubmachine();
 					if (submachine.getState() == state) {
 						if (currentState == findDeep) {
 							if (isTargetSubOf) {
-								entryToState(currentState, event, transition, stateMachine);
+								entryToState(currentState, message, transition, stateMachine);
 							}
 							currentState = findDeep;
-							((AbstractStateMachine<S, E>)submachine).setCurrentState(state, event, transition, false, stateMachine);
+							((AbstractStateMachine<S, E>)submachine).setCurrentState(state, message, transition, false, stateMachine);
 							return;
 						}
 					}
 				}
 				currentState = findDeep;
-				entryToState(currentState, event, transition, stateMachine);
+				entryToState(currentState, message, transition, stateMachine);
 				StateMachine<S, E> submachine = ((AbstractState<S, E>)currentState).getSubmachine();
-				((AbstractStateMachine<S, E>)submachine).setCurrentState(state, event, transition, false, stateMachine);
+				((AbstractStateMachine<S, E>)submachine).setCurrentState(state, message, transition, false, stateMachine);
 			}
 		}
 		if (history != null) {
@@ -437,86 +411,81 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		}
 	}
 
-	void exitCurrentState(State<S, E> state, Message<E> event, Transition<S, E> transition, StateMachine<S, E> stateMachine) {
+	void exitCurrentState(State<S, E> state, Message<E> message, Transition<S, E> transition, StateMachine<S, E> stateMachine) {
 		if (currentState == null) {
 			return;
 		}
 		if (currentState.isSubmachineState()) {
 			StateMachine<S, E> submachine = ((AbstractState<S, E>)currentState).getSubmachine();
-			((AbstractStateMachine<S, E>)submachine).exitCurrentState(state, event, transition, stateMachine);
-			exitFromState(currentState, event, transition, stateMachine);
+			((AbstractStateMachine<S, E>)submachine).exitCurrentState(state, message, transition, stateMachine);
+			exitFromState(currentState, message, transition, stateMachine);
 		} else {
-			exitFromState(currentState, event, transition, stateMachine);
+			exitFromState(currentState, message, transition, stateMachine);
 		}
 	}
 
-	private boolean isSubstate(State<S, E> left, State<S, E> right) {
-		Collection<State<S, E>> c = left.getStates();
-		c.remove(left);
-		return c.contains(right);
+	private void exitFromState(State<S, E> state, Message<E> message, Transition<S, E> transition, StateMachine<S, E> stateMachine) {
+		if (state == null) {
+			return;
+		}
+		log.trace("Trying Exit state=[" + state + "]");
+		StateContext<S, E> stateContext = buildStateContext(message, transition, stateMachine);
+
+		State<S, E> findDeep = findDeepParent(transition.getTarget());
+		boolean isTargetSubOfOtherState = findDeep != null && findDeep != currentState;
+		boolean isTargetSubOfSource = StateMachineUtils.isSubstate(transition.getSource(), transition.getTarget());
+		boolean isSubOfSource = StateMachineUtils.isSubstate(transition.getSource(), currentState);
+		boolean isSubOfTarget = StateMachineUtils.isSubstate(transition.getTarget(), currentState);
+
+		// TODO: this and entry below should be done via a separate
+		//       voter of some sort which would reveal transition path
+		//       we could make a choice on.
+		if (currentState == transition.getSource() && currentState == transition.getTarget()) {
+		} else if (!isSubOfSource && !isSubOfTarget && currentState == transition.getSource()) {
+		} else if (!isSubOfSource && !isSubOfTarget && currentState == transition.getTarget()) {
+		} else if (isTargetSubOfOtherState) {
+		} else if (!isSubOfSource && !isSubOfTarget && findDeep == null) {
+		} else if (!isSubOfSource && !isSubOfTarget) {
+			return;
+		}
+
+		if (transition.getSource() == currentState && isTargetSubOfSource) {
+			return;
+		}
+
+		log.debug("Exit state=[" + state + "]");
+		state.exit(stateContext);
+		notifyStateExited(state);
 	}
 
-	private void exitFromState(State<S, E> state, Message<E> event, Transition<S, E> transition, StateMachine<S, E> stateMachine) {
-		if (state != null) {
-			log.trace("Exit state=[" + state + "]");
-			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
-					new HashMap<String, Object>());
-			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(event != null ? event.getPayload() : null,
-					messageHeaders, extendedState, transition, stateMachine);
+	private void entryToState(State<S, E> state, Message<E> message, Transition<S, E> transition, StateMachine<S, E> stateMachine) {
+		if (state == null) {
+			return;
+		}
+		log.trace("Trying Enter state=[" + state + "]");
+		StateContext<S, E> stateContext = buildStateContext(message, transition, stateMachine);
 
-			State<S, E> findDeep = findDeepParent(transition.getTarget());
-			boolean isTargetSubOfOtherState = findDeep != null && findDeep != currentState;
+		if (transition != null) {
+			State<S, E> findDeep1 = findDeepParent(transition.getTarget());
+			State<S, E> findDeep2 = findDeepParent(transition.getSource());
+			boolean isComingFromOtherSubmachine = findDeep1 != null && findDeep2 != null && findDeep2 != currentState;
 
-			boolean isSubOfSource = isSubstate(transition.getSource(), currentState);
-			boolean isSubOfTarget = isSubstate(transition.getTarget(), currentState);
+			boolean isSubOfSource = StateMachineUtils.isSubstate(transition.getSource(), currentState);
+			boolean isSubOfTarget = StateMachineUtils.isSubstate(transition.getTarget(), currentState);
 			if (currentState == transition.getSource() && currentState == transition.getTarget()) {
-			} else if (!isSubOfSource && !isSubOfTarget && currentState == transition.getSource()) {
 			} else if (!isSubOfSource && !isSubOfTarget && currentState == transition.getTarget()) {
-			} else if (isTargetSubOfOtherState) {
-			} else if (!isSubOfSource && !isSubOfTarget && findDeep == null) {
+			} else if (isComingFromOtherSubmachine) {
+			} else if (!isSubOfSource && !isSubOfTarget && findDeep2 == null) {
+			} else if (isSubOfSource && !isSubOfTarget && currentState == transition.getTarget()) {
+				return;
 			} else if (!isSubOfSource && !isSubOfTarget) {
 				return;
 			}
-
-			boolean isTargetSubOfSource = isSubstate(transition.getSource(), transition.getTarget());
-			if (transition.getSource() == currentState && isTargetSubOfSource) {
-				return;
-			}
-
-			state.exit(event != null ? event.getPayload() : null, stateContext);
-			notifyStateExited(state);
 		}
-	}
 
-	private void entryToState(State<S, E> state, Message<E> event, Transition<S, E> transition, StateMachine<S, E> stateMachine) {
-		if (state != null) {
-			log.trace("Enter state=[" + state + "]");
-			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
-					new HashMap<String, Object>());
-			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(event != null ? event.getPayload() : null,
-					messageHeaders, extendedState, transition, stateMachine);
-
-			if (transition != null) {
-				State<S, E> findDeep1 = findDeepParent(transition.getTarget());
-				State<S, E> findDeep2 = findDeepParent(transition.getSource());
-				boolean isComingFromOtherSubmachine = findDeep1 != null && findDeep2 != null && findDeep2 != currentState;
-
-				boolean isSubOfSource = isSubstate(transition.getSource(), currentState);
-				boolean isSubOfTarget = isSubstate(transition.getTarget(), currentState);
-				if (currentState == transition.getSource() && currentState == transition.getTarget()) {
-				} else if (!isSubOfSource && !isSubOfTarget && currentState == transition.getTarget()) {
-				} else if (isComingFromOtherSubmachine) {
-				} else if (!isSubOfSource && !isSubOfTarget && findDeep2 == null) {
-				} else if (isSubOfSource && !isSubOfTarget && currentState == transition.getTarget()) {
-					return;
-				} else if (!isSubOfSource && !isSubOfTarget) {
-					return;
-				}
-			}
-
-			notifyStateEntered(state);
-			state.entry(event != null ? event.getPayload() : null, stateContext);
-		}
+		notifyStateEntered(state);
+		log.debug("Enter state=[" + state + "]");
+		state.entry(stateContext);
 	}
 
 	private void processEventQueue() {
@@ -590,8 +559,8 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 				continue;
 			}
 
-			Message<E> queuedEvent = queueItem.message;
-			E event = queuedEvent != null ? queuedEvent.getPayload() : null;
+			Message<E> queuedMessage = queueItem.message;
+			E event = queuedMessage != null ? queuedMessage.getPayload() : null;
 
 			// need all transitions trigger could match, event trigger may match multiple
 			// need to go up from substates and ask if trigger transit, if not check super
@@ -622,8 +591,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 
 			// go through candidates and transit max one
 			for (Transition<S, E> t : trans) {
-				StateContext<S, E> stateContext = new DefaultStateContext<S, E>(queuedEvent != null ? queuedEvent.getPayload() : null,
-						queuedEvent != null ? queuedEvent.getHeaders() : null, extendedState, t, this);
+				StateContext<S, E> stateContext = buildStateContext(queuedMessage, t, this);
 				if (t == null) {
 					continue;
 				}
@@ -640,9 +608,9 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 					//       if transition will transit so that we can post
 					//       accurate notifyTransitionStart
 					notifyTransitionStart(t);
-					callHandlers(t.getSource(), t.getTarget(), queuedEvent);
+					callHandlers(t.getSource(), t.getTarget(), queuedMessage);
 					if (t.getKind() != TransitionKind.INTERNAL) {
-						switchToState(t.getTarget(), queuedEvent, t, this);
+						switchToState(t.getTarget(), queuedMessage, t, this);
 					}
 					notifyTransition(t);
 					notifyTransitionEnd(t);
@@ -654,16 +622,15 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 
 	}
 
-	private void callHandlers(State<S,E> sourceState, State<S,E> targetState, Message<E> event) {
+	private void callHandlers(State<S,E> sourceState, State<S,E> targetState, Message<E> message) {
 		if (sourceState != null && targetState != null) {
-			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
-					new HashMap<String, Object>());
-			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(event != null ? event.getPayload() : null, messageHeaders, extendedState, null, this);
+			StateContext<S, E> stateContext = buildStateContext(message, null, this);
 			getStateMachineHandlerResults(getStateMachineHandlers(sourceState, targetState), stateContext);
 		}
 	}
 
-	private List<Object> getStateMachineHandlerResults(List<StateMachineHandler<S, E>> stateMachineHandlers, final StateContext<S, E> stateContext) {
+	private List<Object> getStateMachineHandlerResults(List<StateMachineHandler<S, E>> stateMachineHandlers,
+			final StateContext<S, E> stateContext) {
 		StateMachineRuntime<S, E> runtime = new StateMachineRuntime<S, E>() {
 			@Override
 			public StateContext<S, E> getStateContext() {
@@ -677,7 +644,8 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		return results;
 	}
 
-	private synchronized List<StateMachineHandler<S, E>> getStateMachineHandlers(State<S, E> sourceState, State<S, E> targetState) {
+	private synchronized List<StateMachineHandler<S, E>> getStateMachineHandlers(State<S, E> sourceState,
+			State<S, E> targetState) {
 		BeanFactory beanFactory = getBeanFactory();
 
 		// TODO think how to handle null bf
@@ -766,86 +734,6 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		}
 	}
 
-	private void notifyStateChanged(State<S,E> source, State<S,E> target) {
-		stateListener.stateChanged(source, target);
-		if (contextEventsEnabled) {
-			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
-			if (eventPublisher != null) {
-				eventPublisher.publishStateChanged(this, source, target);
-			}
-		}
-	}
-
-	private void notifyStateEntered(State<S,E> state) {
-		stateListener.stateEntered(state);
-		if (contextEventsEnabled) {
-			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
-			if (eventPublisher != null) {
-				eventPublisher.publishStateEntered(this, state);
-			}
-		}
-	}
-
-	private void notifyStateExited(State<S,E> state) {
-		stateListener.stateExited(state);
-		if (contextEventsEnabled) {
-			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
-			if (eventPublisher != null) {
-				eventPublisher.publishStateExited(this, state);
-			}
-		}
-	}
-
-	private void notifyTransitionStart(Transition<S,E> transition) {
-		stateListener.transitionStarted(transition);
-		if (contextEventsEnabled) {
-			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
-			if (eventPublisher != null) {
-				eventPublisher.publishTransitionStart(this, transition);
-			}
-		}
-	}
-
-	private void notifyTransition(Transition<S,E> transition) {
-		stateListener.transition(transition);
-		if (contextEventsEnabled) {
-			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
-			if (eventPublisher != null) {
-				eventPublisher.publishTransitionEnd(this, transition);
-			}
-		}
-	}
-
-	private void notifyTransitionEnd(Transition<S,E> transition) {
-		stateListener.transitionEnded(transition);
-		if (contextEventsEnabled) {
-			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
-			if (eventPublisher != null) {
-				eventPublisher.publishTransition(this, transition);
-			}
-		}
-	}
-
-	private void notifyStateMachineStarted(StateMachine<S, E> stateMachine) {
-		stateListener.stateMachineStarted(stateMachine);
-		if (contextEventsEnabled) {
-			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
-			if (eventPublisher != null) {
-				eventPublisher.publishStateMachineStart(this, stateMachine);
-			}
-		}
-	}
-
-	private void notifyStateMachineStopped(StateMachine<S, E> stateMachine) {
-		stateListener.stateMachineStopped(stateMachine);
-		if (contextEventsEnabled) {
-			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
-			if (eventPublisher != null) {
-				eventPublisher.publishStateMachineStop(this, stateMachine);
-			}
-		}
-	}
-
 	private class TriggerQueueItem {
 		Trigger<S, E> trigger;
 		Message<E> message;
@@ -853,55 +741,6 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			this.trigger = trigger;
 			this.message = message;
 		}
-	}
-
-	/**
-	 * This class is used to relay listener events from a submachines which works
-	 * as its own listener context. User only connects to main root machine and
-	 * expects to get events for all machines from there.
-	 */
-	private class StateMachineListenerRelay implements StateMachineListener<S,E> {
-
-		@Override
-		public void stateChanged(State<S, E> from, State<S, E> to) {
-			stateListener.stateChanged(from, to);
-		}
-
-		@Override
-		public void stateEntered(State<S, E> state) {
-			stateListener.stateEntered(state);
-		}
-
-		@Override
-		public void stateExited(State<S, E> state) {
-			stateListener.stateExited(state);
-		}
-
-		@Override
-		public void transition(Transition<S, E> transition) {
-			stateListener.transition(transition);
-		}
-
-		@Override
-		public void transitionStarted(Transition<S, E> transition) {
-			stateListener.transitionStarted(transition);
-		}
-
-		@Override
-		public void transitionEnded(Transition<S, E> transition) {
-			stateListener.transitionEnded(transition);
-		}
-
-		@Override
-		public void stateMachineStarted(StateMachine<S, E> stateMachine) {
-			stateListener.stateMachineStarted(stateMachine);
-		}
-
-		@Override
-		public void stateMachineStopped(StateMachine<S, E> stateMachine) {
-			stateListener.stateMachineStopped(stateMachine);
-		}
-
 	}
 
 }

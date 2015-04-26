@@ -42,18 +42,16 @@ public interface State<S, E> {
 	/**
 	 * Initiate an exit sequence for the state.
 	 *
-	 * @param event the event
-	 * @param context the context
+	 * @param context the state context
 	 */
-	void exit(E event, StateContext<S, E> context);
+	void exit(StateContext<S, E> context);
 
 	/**
 	 * Initiate an entry sequence for the state.
 	 *
-	 * @param event the event
-	 * @param context the context
+	 * @param context the state context
 	 */
-	void entry(E event, StateContext<S, E> context);
+	void entry(StateContext<S, E> context);
 
 	/**
 	 * Gets the state identifier.

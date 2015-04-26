@@ -106,9 +106,9 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 	}
 
 	@Override
-	public void exit(E event, StateContext<S, E> context) {
+	public void exit(StateContext<S, E> context) {
 		for (Region<S, E> region : getRegions()) {
-			region.getState().exit(event, context);
+			region.getState().exit(context);
 			region.stop();
 		}
 		Collection<? extends Action<S, E>> actions = getExitActions();
@@ -120,7 +120,7 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 	}
 
 	@Override
-	public void entry(E event, StateContext<S, E> context) {
+	public void entry(StateContext<S, E> context) {
 		Collection<? extends Action<S, E>> actions = getEntryActions();
 		if (actions != null) {
 			for (Action<S, E> action : actions) {
@@ -135,7 +135,7 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 		} else {
 			for (Region<S, E> region : getRegions()) {
 				if (region.getState() != null) {
-					region.getState().entry(event, context);
+					region.getState().entry(context);
 				}
 			}
 		}

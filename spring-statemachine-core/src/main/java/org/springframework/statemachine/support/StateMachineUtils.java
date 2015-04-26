@@ -18,6 +18,7 @@ package org.springframework.statemachine.support;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.springframework.statemachine.state.State;
 import org.springframework.util.ObjectUtils;
 
 /**
@@ -27,6 +28,19 @@ import org.springframework.util.ObjectUtils;
  *
  */
 public abstract class StateMachineUtils {
+
+	/**
+	 * Checks if right hand side is a substate of a left hand side.
+	 *
+	 * @param left the super state
+	 * @param right the sub state
+	 * @return if sub is child of super
+	 */
+	public static <S, E> boolean isSubstate(State<S, E> left, State<S, E> right) {
+		Collection<State<S, E>> c = left.getStates();
+		c.remove(left);
+		return c.contains(right);
+	}
 
 	/**
 	 * Checks if right hand collection has atleast one same item as left hand

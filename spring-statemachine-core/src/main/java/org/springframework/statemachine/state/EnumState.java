@@ -118,7 +118,7 @@ public class EnumState<S extends Enum<S>, E extends Enum<E>> extends AbstractSim
 	}
 
 	@Override
-	public void exit(E event, StateContext<S, E> context) {
+	public void exit(StateContext<S, E> context) {
 		Collection<? extends Action<S, E>> actions = getExitActions();
 		if (actions != null) {
 			for (Action<S, E> action : actions) {
@@ -128,7 +128,7 @@ public class EnumState<S extends Enum<S>, E extends Enum<E>> extends AbstractSim
 	}
 
 	@Override
-	public void entry(E event, StateContext<S, E> context) {
+	public void entry(StateContext<S, E> context) {
 		Collection<? extends Action<S, E>> actions = getEntryActions();
 		if (actions != null) {
 			for (Action<S, E> action : actions) {

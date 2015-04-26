@@ -22,6 +22,7 @@ import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.support.StateMachineUtils;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionKind;
 
@@ -131,13 +132,15 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 	}
 
 	@Override
-	public void exit(E event, StateContext<S, E> context) {
+	public void exit(StateContext<S, E> context) {
 		// don't stop if it looks like we're coming back
 		// stop would cause start with entry which would
 		// enable default transition and state
-		if (getSubmachine().getState() != null && context.getTransition().getSource().getId() != getSubmachine().getState().getId()) {
+		if (getSubmachine().getState() != null
+				&& context.getTransition().getSource().getId() != getSubmachine().getState().getId()) {
 			getSubmachine().stop();
-		} else if (!isSubstate(context.getTransition().getTarget(), context.getTransition().getSource())) {
+		} else if (!StateMachineUtils.isSubstate(context.getTransition().getTarget(), context.getTransition()
+				.getSource())) {
 			getSubmachine().stop();
 		}
 		Collection<? extends Action<S, E>> actions = getExitActions();
@@ -149,7 +152,7 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 	}
 
 	@Override
-	public void entry(E event, StateContext<S, E> context) {
+	public void entry(StateContext<S, E> context) {
 		Collection<? extends Action<S, E>> actions = getEntryActions();
 		if (actions != null && !isLocal(context)) {
 			for (Action<S, E> action : actions) {
@@ -178,12 +181,6 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 		} else {
 			return false;
 		}
-	}
-
-	private boolean isSubstate(State<S, E> left, State<S, E> right) {
-		Collection<State<S, E>> c = left.getStates();
-		c.remove(left);
-		return c.contains(right);
 	}
 
 	@Override

@@ -153,10 +153,10 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	}
 
 	@Override
-	public abstract void exit(E event, StateContext<S, E> context);
+	public abstract void exit(StateContext<S, E> context);
 
 	@Override
-	public abstract void entry(E event, StateContext<S, E> context);
+	public abstract void entry(StateContext<S, E> context);
 
 	@Override
 	public S getId() {
