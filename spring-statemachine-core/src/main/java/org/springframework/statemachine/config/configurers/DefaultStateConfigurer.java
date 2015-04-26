@@ -53,6 +53,10 @@ public class DefaultStateConfigurer<S, E>
 
 	private S end;
 
+	private S history;
+
+	private History historyType;
+
 	private final Collection<S> choices = new ArrayList<S>();
 
 	@Override
@@ -72,6 +76,13 @@ public class DefaultStateConfigurer<S, E>
 			}
 			if (choices.contains(s.getState())) {
 				s.setPseudoStateKind(PseudoStateKind.CHOICE);
+			}
+			if (s.getState() == history) {
+				if (History.SHALLOW == historyType) {
+					s.setPseudoStateKind(PseudoStateKind.HISTORY_SHALLOW);
+				} else if (History.DEEP == historyType) {
+					s.setPseudoStateKind(PseudoStateKind.HISTORY_DEEP);
+				}
 			}
 		}
 		builder.addStateData(stateDatas);
@@ -149,6 +160,14 @@ public class DefaultStateConfigurer<S, E>
 	@Override
 	public StateConfigurer<S, E> choice(S choice) {
 		choices.add(choice);
+		return this;
+	}
+
+	@Override
+	public StateConfigurer<S, E> history(S history, History type) {
+		this.history = history;
+		this.historyType = type;
+		state(history);
 		return this;
 	}
 

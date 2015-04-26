@@ -35,6 +35,7 @@ import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.ChoicePseudoState;
 import org.springframework.statemachine.state.DefaultPseudoState;
 import org.springframework.statemachine.state.EnumState;
+import org.springframework.statemachine.state.HistoryPseudoState;
 import org.springframework.statemachine.state.PseudoState;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.RegionState;
@@ -148,7 +149,8 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 				for (MachineStackItem<S, E> si : regionStack) {
 					regions.add(si.machine);
 				}
-				RegionState<S, E> rstate = new RegionState<S, E>(null, regions, null, null, null, new DefaultPseudoState(PseudoStateKind.INITIAL));
+				RegionState<S, E> rstate = new RegionState<S, E>(null, regions, null, null, null,
+						new DefaultPseudoState<S, E>(PseudoStateKind.INITIAL));
 				Collection<State<S, E>> states = new ArrayList<State<S, E>>();
 				states.add(rstate);
 				EnumStateMachine<S, E> m = new EnumStateMachine<S, E>(states, new ArrayList<Transition<S, E>>(), rstate,
@@ -277,6 +279,7 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 			StateMachineTransitions<S, E> stateMachineTransitions) {
 		State<S, E> state = null;
 		State<S, E> initialState = null;
+		PseudoState<S, E> historyState = null;
 		Action<S, E> initialAction = null;
 		Collection<State<S, E>> states = new ArrayList<State<S,E>>();
 
@@ -287,7 +290,7 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 			StateMachine<S, E> stateMachine = machineMap.get(stateData.getState());
 			if (stateMachine != null) {
 				state = new StateMachineState<S, E>(stateData.getState(), stateMachine, stateData.getDeferred(),
-				stateData.getEntryActions(), stateData.getExitActions(), new DefaultPseudoState(
+				stateData.getEntryActions(), stateData.getExitActions(), new DefaultPseudoState<S, E>(
 				PseudoStateKind.INITIAL));
 				// TODO: below if/else doesn't feel right
 				if (stateDatas.size() > 1 && stateData.isInitial()) {
@@ -304,6 +307,12 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 					pseudoState = new DefaultPseudoState<S, E>(PseudoStateKind.INITIAL);
 				} else if (stateData.isEnd()) {
 					pseudoState = new DefaultPseudoState<S, E>(PseudoStateKind.END);
+				} else if (stateData.getPseudoStateKind() == PseudoStateKind.HISTORY_SHALLOW) {
+					pseudoState = new HistoryPseudoState<S, E>(PseudoStateKind.HISTORY_SHALLOW);
+					historyState = pseudoState;
+				} else if (stateData.getPseudoStateKind() == PseudoStateKind.HISTORY_DEEP) {
+					pseudoState = new HistoryPseudoState<S, E>(PseudoStateKind.HISTORY_DEEP);
+					historyState = pseudoState;
 				} else if (stateData.getPseudoStateKind() == PseudoStateKind.CHOICE) {
 					continue;
 				}
@@ -377,6 +386,7 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 
 		EnumStateMachine<S, E> machine = new EnumStateMachine<S, E>(states, transitions, initialState,
 				initialTransition, null, defaultExtendedState);
+		machine.setHistoryState(historyState);
 		if (contextEvents != null) {
 			machine.setContextEventsEnabled(contextEvents);
 		}

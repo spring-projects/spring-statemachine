@@ -51,6 +51,8 @@ import org.springframework.statemachine.processor.StateMachineOnTransitionHandle
 import org.springframework.statemachine.processor.StateMachineRuntime;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.AbstractState;
+import org.springframework.statemachine.state.HistoryPseudoState;
+import org.springframework.statemachine.state.PseudoState;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
@@ -93,6 +95,8 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 	private final CompositeStateMachineListener<S, E> stateListener = new CompositeStateMachineListener<S, E>();
 
 	private volatile State<S,E> currentState;
+
+	private volatile PseudoState<S, E> history;
 
 	private volatile Runnable task;
 
@@ -166,6 +170,10 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		return extendedState;
 	}
 
+	public void setHistoryState(PseudoState<S, E> history) {
+		this.history = history;
+	}
+
 	@Override
 	public boolean sendEvent(Message<E> event) {
 		if (isComplete() || !isRunning()) {
@@ -205,12 +213,20 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 					region.addStateListener(new StateMachineListenerRelay());
 				}
 			}
+			if (state.getPseudoState() != null
+					&& (state.getPseudoState().getKind() == PseudoStateKind.HISTORY_DEEP || state.getPseudoState()
+							.getKind() == PseudoStateKind.HISTORY_DEEP)) {
+				history = state.getPseudoState();
+			}
 		}
 	}
 
 	@Override
 	protected void doStart() {
-		super.doStart();
+		// if state is set assume nothing to do
+		if (currentState != null) {
+			return;
+		}
 		registerTriggerListener();
 		switchToState(initialState, initialEvent, null, this);
 		// TODO: for now execute outside of switchToState
@@ -224,7 +240,6 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 
 	@Override
 	protected void doStop() {
-		super.doStop();
 		notifyStateMachineStopped(this);
 		currentState = null;
 	}
@@ -328,6 +343,20 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 					messageHeaders, extendedState, transition, stateMachine);
 			State<S, E> entry = state.getPseudoState().entry(event.getPayload(), stateContext);
 			setCurrentState(entry, event, transition, true, stateMachine);
+		} else if (state.getPseudoState() != null && state.getPseudoState().getKind() == PseudoStateKind.HISTORY_SHALLOW) {
+			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
+					new HashMap<String, Object>());
+			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(event != null ? event.getPayload() : null,
+					messageHeaders, extendedState, transition, stateMachine);
+			State<S, E> entry = state.getPseudoState().entry(event.getPayload(), stateContext);
+			setCurrentState(entry, event, transition, true, stateMachine);
+		} else if (state.getPseudoState() != null && state.getPseudoState().getKind() == PseudoStateKind.HISTORY_DEEP) {
+			MessageHeaders messageHeaders = event != null ? event.getHeaders() : new MessageHeaders(
+					new HashMap<String, Object>());
+			StateContext<S, E> stateContext = new DefaultStateContext<S, E>(event != null ? event.getPayload() : null,
+					messageHeaders, extendedState, transition, stateMachine);
+			State<S, E> entry = state.getPseudoState().entry(event.getPayload(), stateContext);
+			setCurrentState(entry, event, transition, true, stateMachine);
 		} else {
 			setCurrentState(state, event, transition, true, stateMachine);
 		}
@@ -354,7 +383,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 		return null;
 	}
 
-	public void setCurrentState(State<S, E> state, Message<E> event, Transition<S, E> transition, boolean exit, StateMachine<S, E> stateMachine) {
+	void setCurrentState(State<S, E> state, Message<E> event, Transition<S, E> transition, boolean exit, StateMachine<S, E> stateMachine) {
 		State<S, E> findDeep = findDeepParent(state);
 		boolean isTargetSubOf = false;
 		if (transition != null) {
@@ -370,9 +399,12 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			}
 			State<S, E> notifyFrom = currentState;
 			currentState = state;
+			if (!isRunning()) {
+				start();
+			}
 			entryToState(state, event, transition, stateMachine);
 			notifyStateChanged(notifyFrom, state);
-		} else if (currentState != null && currentState.isSubmachineState()) {
+		} else if (currentState != null) {
 			if (findDeep != null) {
 				if (exit) {
 					exitCurrentState(state, event, transition, stateMachine);
@@ -396,7 +428,13 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 				((AbstractStateMachine<S, E>)submachine).setCurrentState(state, event, transition, false, stateMachine);
 			}
 		}
-
+		if (history != null) {
+			if (history.getKind() == PseudoStateKind.HISTORY_SHALLOW) {
+				((HistoryPseudoState<S, E>)history).setState(findDeep);
+			} else if (history.getKind() == PseudoStateKind.HISTORY_DEEP){
+				((HistoryPseudoState<S, E>)history).setState(state);
+			}
+		}
 	}
 
 	void exitCurrentState(State<S, E> state, Message<E> event, Transition<S, E> transition, StateMachine<S, E> stateMachine) {
@@ -435,6 +473,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 			} else if (!isSubOfSource && !isSubOfTarget && currentState == transition.getSource()) {
 			} else if (!isSubOfSource && !isSubOfTarget && currentState == transition.getTarget()) {
 			} else if (isTargetSubOfOtherState) {
+			} else if (!isSubOfSource && !isSubOfTarget && findDeep == null) {
 			} else if (!isSubOfSource && !isSubOfTarget) {
 				return;
 			}
@@ -467,6 +506,7 @@ public abstract class AbstractStateMachine<S, E> extends LifecycleObjectSupport 
 				if (currentState == transition.getSource() && currentState == transition.getTarget()) {
 				} else if (!isSubOfSource && !isSubOfTarget && currentState == transition.getTarget()) {
 				} else if (isComingFromOtherSubmachine) {
+				} else if (!isSubOfSource && !isSubOfTarget && findDeep2 == null) {
 				} else if (isSubOfSource && !isSubOfTarget && currentState == transition.getTarget()) {
 					return;
 				} else if (!isSubOfSource && !isSubOfTarget) {

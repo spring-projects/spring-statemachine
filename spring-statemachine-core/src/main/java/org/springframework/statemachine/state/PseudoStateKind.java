@@ -16,7 +16,7 @@
 package org.springframework.statemachine.state;
 
 /**
- * Defines enumeration of a {@link PseudoState} kind. This is uses within a
+ * Defines enumeration of a {@link PseudoState} kind. This is used within a
  * transitive states indicating its kind.
  *
  * @author Janne Valkealahti
@@ -31,6 +31,12 @@ public enum PseudoStateKind {
 	END,
 
 	/** Choice kind */
-	CHOICE
+	CHOICE,
+
+	/** History deep kind */
+	HISTORY_DEEP,
+
+	/** History shallow kind */
+	HISTORY_SHALLOW
 
 }

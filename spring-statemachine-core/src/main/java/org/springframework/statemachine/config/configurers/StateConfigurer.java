@@ -123,4 +123,31 @@ public interface StateConfigurer<S, E> extends
 	 */
 	StateConfigurer<S, E> choice(S choice);
 
+	/**
+	 * Specify a state {@code S} to be history pseudo state.
+	 *
+	 * @param history the history pseudo state
+	 * @param type the history pseudo state type
+	 * @return configurer for chaining
+	 */
+	StateConfigurer<S, E> history(S history, History type);
+
+	/**
+	 * Enumeration of a possible history pseudostate type.
+	 */
+	public enum History {
+
+		/**
+		 * Shallow history is a pseudo state representing the most
+		 * recent substate of a submachine.
+		 */
+		SHALLOW,
+
+		/**
+		 * Deep history is a shallow history recursively reactivating
+		 * the substates of the most recent substate.
+		 */
+		DEEP
+	}
+
 }

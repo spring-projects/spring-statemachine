@@ -137,6 +137,8 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 		// enable default transition and state
 		if (getSubmachine().getState() != null && context.getTransition().getSource().getId() != getSubmachine().getState().getId()) {
 			getSubmachine().stop();
+		} else if (!isSubstate(context.getTransition().getTarget(), context.getTransition().getSource())) {
+			getSubmachine().stop();
 		}
 		Collection<? extends Action<S, E>> actions = getExitActions();
 		if (actions != null && !isLocal(context)) {
@@ -176,6 +178,12 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 		} else {
 			return false;
 		}
+	}
+
+	private boolean isSubstate(State<S, E> left, State<S, E> right) {
+		Collection<State<S, E>> c = left.getStates();
+		c.remove(left);
+		return c.contains(right);
 	}
 
 	@Override
