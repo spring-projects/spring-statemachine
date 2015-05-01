@@ -250,6 +250,19 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S10, TestStates.S20));
 	}
 
+	@Test
+	public void testRegionsInNestedState() throws Exception {
+		context.register(BaseConfig.class, StateMachineEventPublisherConfiguration.class, Config2.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		EnumStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		assertThat(machine, notNullValue());
+		machine.start();
+		machine.sendEvent(TestEvents.E1);
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
@@ -298,6 +311,44 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 		}
 
 	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config2 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.SI)
+					.state(TestStates.SI)
+					.state(TestStates.S2)
+					.end(TestStates.SF)
+					.and()
+					.withStates()
+						.parent(TestStates.S2)
+						.initial(TestStates.S20)
+						.state(TestStates.S20)
+						.state(TestStates.S21)
+						.and()
+					.withStates()
+						.parent(TestStates.S2)
+						.initial(TestStates.S30)
+						.state(TestStates.S30)
+						.state(TestStates.S31);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.SI)
+					.target(TestStates.S2)
+					.event(TestEvents.E1);
+		}
+
+	}
+
 
 	private static class TestStateMachineListener extends StateMachineListenerAdapter<TestStates, TestEvents> {
 

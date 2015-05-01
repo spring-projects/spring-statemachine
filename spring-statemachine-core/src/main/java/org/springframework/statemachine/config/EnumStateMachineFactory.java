@@ -162,10 +162,8 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 					m.setBeanFactory(getBeanFactory());
 				}
 				m.afterPropertiesSet();
-
 				machine = m;
-
-
+				machineMap.put(peek.getParent(), machine);
 			} else {
 				machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, getBeanFactory(),
 						contextEvents, defaultExtendedState, stateMachineTransitions);
