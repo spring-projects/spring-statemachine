@@ -15,7 +15,7 @@
  */
 package org.springframework.statemachine.state;
 
-import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -82,7 +82,7 @@ public class RegionStateTests extends AbstractStateMachineTests {
 		assertThat(state.isOrthogonal(), is(false));
 		assertThat(state.isSubmachineState(), is(false));
 
-		assertThat(state.getIds(), contains(TestStates.SI));
+		assertThat(state.getIds(), containsInAnyOrder(TestStates.SI, TestStates.S11));
 
 
 

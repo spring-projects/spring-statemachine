@@ -139,9 +139,6 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 				for (Collection<StateData<S, E>> regionStateDatas : regionsStateDatas) {
 					machine = buildMachine(machineMap, stateMap, regionStateDatas, transitionsData, getBeanFactory(),
 							contextEvents, defaultExtendedState, stateMachineTransitions);
-					if (peek.isInitial() || (!peek.isInitial() && !machineMap.containsKey(peek.getParent()))) {
-						machineMap.put(peek.getParent(), machine);
-					}
 					regionStack.push(new MachineStackItem<S, E>(machine, peek.getParent(), peek));
 				}
 
@@ -149,21 +146,13 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 				for (MachineStackItem<S, E> si : regionStack) {
 					regions.add(si.machine);
 				}
-				RegionState<S, E> rstate = new RegionState<S, E>(null, regions, null, null, null,
+				@SuppressWarnings("unchecked")
+				S parent = (S)peek.getParent();
+				RegionState<S, E> rstate = new RegionState<S, E>(parent, regions, null, null, null,
 						new DefaultPseudoState<S, E>(PseudoStateKind.INITIAL));
-				Collection<State<S, E>> states = new ArrayList<State<S, E>>();
-				states.add(rstate);
-				EnumStateMachine<S, E> m = new EnumStateMachine<S, E>(states, new ArrayList<Transition<S, E>>(), rstate,
-						null, null, defaultExtendedState);
-				if (contextEvents != null) {
-					m.setContextEventsEnabled(contextEvents);
+				if (stateData != null) {
+					stateMap.put(stateData.getState(), rstate);
 				}
-				if (getBeanFactory() != null) {
-					m.setBeanFactory(getBeanFactory());
-				}
-				m.afterPropertiesSet();
-				machine = m;
-				machineMap.put(peek.getParent(), machine);
 			} else {
 				machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, getBeanFactory(),
 						contextEvents, defaultExtendedState, stateMachineTransitions);
@@ -286,6 +275,12 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 
 		for (StateData<S, E> stateData : stateDatas) {
 			StateMachine<S, E> stateMachine = machineMap.get(stateData.getState());
+			state = stateMap.get(stateData.getState());
+			if (state != null) {
+				states.add(state);
+				initialState = state;
+				continue;
+			}
 			if (stateMachine != null) {
 				state = new StateMachineState<S, E>(stateData.getState(), stateMachine, stateData.getDeferred(),
 				stateData.getEntryActions(), stateData.getExitActions(), new DefaultPseudoState<S, E>(

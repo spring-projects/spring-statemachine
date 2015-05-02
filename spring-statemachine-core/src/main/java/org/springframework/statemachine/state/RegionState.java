@@ -144,6 +144,7 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 	@Override
 	public Collection<S> getIds() {
 		ArrayList<S> ids = new ArrayList<S>();
+		ids.add(getId());
 		for (Region<S, E> r : getRegions()) {
 			State<S, E> s = r.getState();
 			if (s != null) {
