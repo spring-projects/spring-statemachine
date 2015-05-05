@@ -59,6 +59,10 @@ public class DefaultStateConfigurer<S, E>
 
 	private final Collection<S> choices = new ArrayList<S>();
 
+	private final Collection<S> forks = new ArrayList<S>();
+
+	private final Collection<S> joins = new ArrayList<S>();
+
 	@Override
 	public void configure(StateMachineStateBuilder<S, E> builder) throws Exception {
 		// before passing state datas to builder, update structure
@@ -76,6 +80,10 @@ public class DefaultStateConfigurer<S, E>
 			}
 			if (choices.contains(s.getState())) {
 				s.setPseudoStateKind(PseudoStateKind.CHOICE);
+			} else if (forks.contains(s.getState())) {
+				s.setPseudoStateKind(PseudoStateKind.FORK);
+			} else if (joins.contains(s.getState())) {
+				s.setPseudoStateKind(PseudoStateKind.JOIN);
 			}
 			if (s.getState() == history) {
 				if (History.SHALLOW == historyType) {
@@ -160,6 +168,20 @@ public class DefaultStateConfigurer<S, E>
 	@Override
 	public StateConfigurer<S, E> choice(S choice) {
 		choices.add(choice);
+		return this;
+	}
+
+	@Override
+	public StateConfigurer<S, E> fork(S fork) {
+		state(fork);
+		forks.add(fork);
+		return this;
+	}
+
+	@Override
+	public StateConfigurer<S, E> join(S join) {
+		state(join);
+		joins.add(join);
 		return this;
 	}
 

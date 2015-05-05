@@ -35,10 +35,15 @@ public class StateMachineTransitions<S, E> {
 
 	private Collection<TransitionData<S, E>> transitions;
 	private Map<S, List<ChoiceData<S, E>>> choices;
+	private Map<S, List<S>> forks;
+	private Map<S, List<S>> joins;
 
-	public StateMachineTransitions(Collection<TransitionData<S, E>> transitions, Map<S, List<ChoiceData<S, E>>> choices) {
+	public StateMachineTransitions(Collection<TransitionData<S, E>> transitions,
+			Map<S, List<ChoiceData<S, E>>> choices, Map<S, List<S>> forks, Map<S, List<S>> joins) {
 		this.transitions = transitions;
 		this.choices = choices;
+		this.forks = forks;
+		this.joins = joins;
 	}
 
 	public Collection<TransitionData<S, E>> getTransitions() {
@@ -47,6 +52,14 @@ public class StateMachineTransitions<S, E> {
 
 	public Map<S, List<ChoiceData<S, E>>> getChoices() {
 		return choices;
+	}
+
+	public Map<S, List<S>> getForks() {
+		return forks;
+	}
+
+	public Map<S, List<S>> getJoins() {
+		return joins;
 	}
 
 	public static class TransitionData<S, E> {

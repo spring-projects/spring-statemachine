@@ -16,33 +16,21 @@
 package org.springframework.statemachine.state;
 
 /**
- * Defines enumeration of a {@link PseudoState} kind. This is used within a
- * transitive states indicating its kind.
+ * {@code PseudoStateListener} for various pseudo state events.
  *
  * @author Janne Valkealahti
  *
+ * @param <S> the type of state
+ * @param <E> the type of event
  */
-public enum PseudoStateKind {
+public interface PseudoStateListener<S, E> {
 
-	/** Indicates an initial kind. */
-	INITIAL,
-
-	/** End or terminate kind */
-	END,
-
-	/** Choice kind */
-	CHOICE,
-
-	/** History deep kind */
-	HISTORY_DEEP,
-
-	/** History shallow kind */
-	HISTORY_SHALLOW,
-
-	/** Fork kind */
-	FORK,
-
-	/** Join kind */
-	JOIN
+	/**
+	 * Called when {@link PseudoState} want to notify of
+	 * a new {@link PseudoStateContext}.
+	 *
+	 * @param context the context
+	 */
+	void onContext(PseudoStateContext<S, E> context);
 
 }

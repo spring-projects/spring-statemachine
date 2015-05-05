@@ -219,9 +219,7 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 		assertThat(exitActionS112.stateContexts.size(), is(0));
 	}
 
-	// effectively broken now until we get more fixes
-	// due to work with region fork/join
-	//@Test
+	@Test
 	public void testMultiRegion() throws Exception {
 		context.register(BaseConfig.class, StateMachineEventPublisherConfiguration.class, Config1.class);
 		context.refresh();

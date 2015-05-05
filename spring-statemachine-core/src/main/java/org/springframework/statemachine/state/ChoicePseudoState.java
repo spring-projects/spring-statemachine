@@ -42,7 +42,7 @@ public class ChoicePseudoState<S, E> implements PseudoState<S, E> {
 	}
 
 	@Override
-	public State<S, E> entry(E event, StateContext<S, E> context) {
+	public State<S, E> entry(StateContext<S, E> context) {
 		State<S, E> s = null;
 		for (ChoiceStateData<S, E> c : choices) {
 			s = c.getState();
@@ -51,6 +51,14 @@ public class ChoicePseudoState<S, E> implements PseudoState<S, E> {
 			}
 		}
 		return s;
+	}
+	
+	@Override
+	public void exit(StateContext<S, E> context) {
+	}
+
+	@Override
+	public void addPseudoStateListener(PseudoStateListener<S, E> listener) {
 	}
 
 	public static class ChoiceStateData<S, E> {

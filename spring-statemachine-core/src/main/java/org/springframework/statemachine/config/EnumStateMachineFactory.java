@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Stack;
 
 import org.springframework.beans.factory.BeanFactory;
@@ -33,15 +34,17 @@ import org.springframework.statemachine.config.builders.StateMachineTransitions.
 import org.springframework.statemachine.config.builders.StateMachineTransitions.TransitionData;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.ChoicePseudoState;
+import org.springframework.statemachine.state.ChoicePseudoState.ChoiceStateData;
 import org.springframework.statemachine.state.DefaultPseudoState;
 import org.springframework.statemachine.state.EnumState;
+import org.springframework.statemachine.state.ForkPseudoState;
 import org.springframework.statemachine.state.HistoryPseudoState;
+import org.springframework.statemachine.state.JoinPseudoState;
 import org.springframework.statemachine.state.PseudoState;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.RegionState;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.state.StateMachineState;
-import org.springframework.statemachine.state.ChoicePseudoState.ChoiceStateData;
 import org.springframework.statemachine.support.DefaultExtendedState;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
 import org.springframework.statemachine.support.tree.Tree;
@@ -152,6 +155,20 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 						new DefaultPseudoState<S, E>(PseudoStateKind.INITIAL));
 				if (stateData != null) {
 					stateMap.put(stateData.getState(), rstate);
+				} else {
+					// TODO: don't like that we create a last machine here
+					Collection<State<S, E>> states = new ArrayList<State<S, E>>();
+					states.add(rstate);
+					EnumStateMachine<S, E> m = new EnumStateMachine<S, E>(states, new ArrayList<Transition<S, E>>(), rstate,
+							null, null, defaultExtendedState);
+					if (contextEvents != null) {
+						m.setContextEventsEnabled(contextEvents);
+					}
+					if (getBeanFactory() != null) {
+						m.setBeanFactory(getBeanFactory());
+					}
+					m.afterPropertiesSet();
+					machine = m;
 				}
 			} else {
 				machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, getBeanFactory(),
@@ -306,6 +323,10 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 				} else if (stateData.getPseudoStateKind() == PseudoStateKind.HISTORY_DEEP) {
 					pseudoState = new HistoryPseudoState<S, E>(PseudoStateKind.HISTORY_DEEP);
 					historyState = pseudoState;
+				} else if (stateData.getPseudoStateKind() == PseudoStateKind.JOIN) {
+					continue;
+				} else if (stateData.getPseudoStateKind() == PseudoStateKind.FORK) {
+					continue;
 				} else if (stateData.getPseudoStateKind() == PseudoStateKind.CHOICE) {
 					continue;
 				}
@@ -334,6 +355,41 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 						stateData.getEntryActions(), stateData.getExitActions(), pseudoState);
 				states.add(state);
 				stateMap.put(stateData.getState(), state);
+			} else if (stateData.getPseudoStateKind() == PseudoStateKind.FORK) {
+				S s = stateData.getState();
+				List<S> list = stateMachineTransitions.getForks().get(s);
+				List<State<S, E>> forks = new ArrayList<State<S,E>>();
+				for (S fs : list) {
+					forks.add(stateMap.get(fs));
+				}
+				PseudoState<S, E> pseudoState = new ForkPseudoState<S, E>(forks);
+				state = new EnumState<S, E>(stateData.getState(), stateData.getDeferred(),
+						stateData.getEntryActions(), stateData.getExitActions(), pseudoState);
+				states.add(state);
+				stateMap.put(stateData.getState(), state);
+			} else if (stateData.getPseudoStateKind() == PseudoStateKind.JOIN) {
+				S s = stateData.getState();
+				List<S> list = stateMachineTransitions.getJoins().get(s);
+				List<State<S, E>> joins = new ArrayList<State<S,E>>();
+				for (S fs : list) {
+					joins.add(stateMap.get(fs));
+				}
+				JoinPseudoState<S, E> pseudoState = new JoinPseudoState<S, E>(joins);
+				state = new EnumState<S, E>(stateData.getState(), stateData.getDeferred(),
+						stateData.getEntryActions(), stateData.getExitActions(), pseudoState);
+				states.add(state);
+				stateMap.put(stateData.getState(), state);
+
+				// find joins sources and associate
+				for (Entry<S, State<S, E>> e : stateMap.entrySet()) {
+					State<S, E> value = e.getValue();
+					if (value.isOrthogonal()) {
+						Collection<State<S, E>> states2 = value.getStates();
+						if (states2.containsAll(joins)) {
+							((RegionState<S, E>)value).setJoin(pseudoState);
+						}
+					}
+				}
 			}
 		}
 

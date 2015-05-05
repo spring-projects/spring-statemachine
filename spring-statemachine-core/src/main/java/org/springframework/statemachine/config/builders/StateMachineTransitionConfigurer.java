@@ -17,7 +17,9 @@ package org.springframework.statemachine.config.builders;
 
 import org.springframework.statemachine.config.configurers.ChoiceTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.ExternalTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.ForkTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.InternalTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.JoinTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.LocalTransitionConfigurer;
 
 /**
@@ -65,9 +67,25 @@ public interface StateMachineTransitionConfigurer<S, E> {
 	/**
 	 * Gets a configurer for transition from a choice pseudostate.
 	 *
-	 * @return {@link LocalTransitionConfigurer} for chaining
+	 * @return {@link ChoiceTransitionConfigurer} for chaining
 	 * @throws Exception if configuration error happens
 	 */
 	ChoiceTransitionConfigurer<S, E> withChoice() throws Exception;
+
+	/**
+	 * Gets a configurer for transition from a fork pseudostate.
+	 *
+	 * @return {@link ForkTransitionConfigurer} for chaining
+	 * @throws Exception if configuration error happens
+	 */
+	ForkTransitionConfigurer<S, E> withFork() throws Exception;
+
+	/**
+	 * Gets a configurer for transition from a join pseudostate.
+	 *
+	 * @return {@link JoinTransitionConfigurer} for chaining
+	 * @throws Exception if configuration error happens
+	 */
+	JoinTransitionConfigurer<S, E> withJoin() throws Exception;
 
 }

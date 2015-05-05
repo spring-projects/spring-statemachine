@@ -52,8 +52,8 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	 */
 	protected StateMachineEventPublisher getStateMachineEventPublisher() {
 		if(stateMachineEventPublisher == null && getBeanFactory() != null) {
-			if(log.isDebugEnabled()) {
-				log.debug("getting stateMachineEventPublisher service from bean factory " + getBeanFactory());
+			if(log.isTraceEnabled()) {
+				log.trace("getting stateMachineEventPublisher service from bean factory " + getBeanFactory());
 			}
 			stateMachineEventPublisher = StateMachineContextUtils.getEventPublisher(getBeanFactory());
 		}

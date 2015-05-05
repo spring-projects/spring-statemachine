@@ -15,34 +15,19 @@
  */
 package org.springframework.statemachine.state;
 
-/**
- * Defines enumeration of a {@link PseudoState} kind. This is used within a
- * transitive states indicating its kind.
- *
- * @author Janne Valkealahti
- *
- */
-public enum PseudoStateKind {
+import java.util.Iterator;
 
-	/** Indicates an initial kind. */
-	INITIAL,
+import org.springframework.statemachine.listener.AbstractCompositeListener;
 
-	/** End or terminate kind */
-	END,
+public class CompositePseudoStateListener<S, E> extends AbstractCompositeListener<PseudoStateListener<S, E>> implements
+		PseudoStateListener<S, E> {
 
-	/** Choice kind */
-	CHOICE,
-
-	/** History deep kind */
-	HISTORY_DEEP,
-
-	/** History shallow kind */
-	HISTORY_SHALLOW,
-
-	/** Fork kind */
-	FORK,
-
-	/** Join kind */
-	JOIN
+	@Override
+	public void onContext(PseudoStateContext<S, E> context) {
+		for (Iterator<PseudoStateListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
+			PseudoStateListener<S, E> listener = iterator.next();			
+			listener.onContext(context);
+		}		
+	}
 
 }

@@ -15,57 +15,34 @@
  */
 package org.springframework.statemachine.state;
 
+import java.util.List;
+
 import org.springframework.statemachine.StateContext;
 
 /**
- * Base implementation of a {@link PseudoState}.
+ * Fork implementation of a {@link PseudoState}.
  *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public abstract class AbstractPseudoState<S, E> implements PseudoState<S, E> {
+public class ForkPseudoState<S, E> extends AbstractPseudoState<S, E> {
 
-	private final PseudoStateKind kind;
+	private final List<State<S, E>> forks;
 
-	private final CompositePseudoStateListener<S, E> pseudoStateListener = new CompositePseudoStateListener<S, E>();
-
-	/**
-	 * Instantiates a new abstract pseudo state.
-	 *
-	 * @param kind the kind
-	 */
-	public AbstractPseudoState(PseudoStateKind kind) {
-		this.kind = kind;
-	}
-
-	@Override
-	public PseudoStateKind getKind() {
-		return kind;
+	public ForkPseudoState(List<State<S, E>> forks) {
+		super(PseudoStateKind.FORK);
+		this.forks = forks;
 	}
 
 	@Override
 	public State<S, E> entry(StateContext<S, E> context) {
 		return null;
 	}
-	
-	@Override
-	public void exit(StateContext<S, E> context) {
-	}
 
-	@Override
-	public void addPseudoStateListener(PseudoStateListener<S, E> listener) {
-		pseudoStateListener.register(listener);
-	}
-	
-	/**
-	 * Notify all {@link PseudoStateListener}s of a new context.
-	 *
-	 * @param context the new context
-	 */
-	protected void notifyContext(PseudoStateContext<S, E> context) {
-		pseudoStateListener.onContext(context);
+	public List<State<S, E>> getForks() {
+		return forks;
 	}
 
 }

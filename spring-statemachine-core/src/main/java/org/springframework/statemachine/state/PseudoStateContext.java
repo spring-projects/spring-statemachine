@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,33 +16,37 @@
 package org.springframework.statemachine.state;
 
 /**
- * Defines enumeration of a {@link PseudoState} kind. This is used within a
- * transitive states indicating its kind.
- *
+ * Context object using in {@link PseudoStateListener}.
+ * 
  * @author Janne Valkealahti
  *
+ * @param <S> the type of state
+ * @param <E> the type of event
  */
-public enum PseudoStateKind {
+public interface PseudoStateContext<S, E> {
 
-	/** Indicates an initial kind. */
-	INITIAL,
+	/**
+	 * Gets the pseudo state.
+	 *
+	 * @return the pseudo state
+	 */
+	PseudoState<S, E> getPseudoState();
+	
+	/**
+	 * Gets the pseudo action.
+	 *
+	 * @return the pseudo action
+	 */
+	PseudoAction getPseudoAction();
 
-	/** End or terminate kind */
-	END,
-
-	/** Choice kind */
-	CHOICE,
-
-	/** History deep kind */
-	HISTORY_DEEP,
-
-	/** History shallow kind */
-	HISTORY_SHALLOW,
-
-	/** Fork kind */
-	FORK,
-
-	/** Join kind */
-	JOIN
-
+	/**
+	 * The PseudoAction enumeration.
+	 */
+	public enum PseudoAction {
+		
+		/**
+		 * Indication that states has been joined.
+		 */
+		JOIN_COMPLETED;
+	}
 }

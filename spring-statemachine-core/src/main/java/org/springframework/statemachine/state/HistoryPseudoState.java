@@ -41,6 +41,11 @@ public class HistoryPseudoState<S, E> extends AbstractPseudoState<S, E> {
 				"Pseudo state must be either shallow or deep");
 	}
 
+	@Override
+	public State<S, E> entry(StateContext<S, E> context) {
+		return state;
+	}
+	
 	/**
 	 * Sets the current recorded state.
 	 *
@@ -56,11 +61,6 @@ public class HistoryPseudoState<S, E> extends AbstractPseudoState<S, E> {
 	 * @return the current recorded state.
 	 */
 	public State<S, E> getState() {
-		return state;
-	}
-
-	@Override
-	public State<S, E> entry(E event, StateContext<S, E> context) {
 		return state;
 	}
 

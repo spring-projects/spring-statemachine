@@ -49,9 +49,12 @@ import org.springframework.statemachine.processor.StateMachineOnTransitionHandle
 import org.springframework.statemachine.processor.StateMachineRuntime;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.AbstractState;
+import org.springframework.statemachine.state.ForkPseudoState;
 import org.springframework.statemachine.state.HistoryPseudoState;
 import org.springframework.statemachine.state.PseudoState;
+import org.springframework.statemachine.state.PseudoStateContext;
 import org.springframework.statemachine.state.PseudoStateKind;
+import org.springframework.statemachine.state.PseudoStateListener;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionKind;
@@ -60,6 +63,7 @@ import org.springframework.statemachine.trigger.TimerTrigger;
 import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.statemachine.trigger.TriggerListener;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Base implementation of a {@link StateMachine} loosely modelled from UML state
@@ -222,6 +226,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			return;
 		}
 		registerTriggerListener();
+		registerPseudoStateListener();
 		switchToState(initialState, initialEvent, null, this);
 		// TODO: for now execute outside of switchToState
 		if (initialTransition != null) {
@@ -278,6 +283,10 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		for (State<S, E> s : all) {
 			buf.append(s.getId() + " ");
 		}
+		buf.append(" / ");
+		if (currentState != null) {
+			buf.append(StringUtils.collectionToCommaDelimitedString(currentState.getIds()));
+		}
 		return buf.toString();
 	}
 
@@ -322,8 +331,13 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		if (kind == PseudoStateKind.CHOICE || kind == PseudoStateKind.HISTORY_SHALLOW
 				|| kind == PseudoStateKind.HISTORY_DEEP) {
 			StateContext<S, E> stateContext = buildStateContext(message, transition, stateMachine);
-			State<S, E> toState = state.getPseudoState().entry(message.getPayload(), stateContext);
+			State<S, E> toState = state.getPseudoState().entry(stateContext);
 			setCurrentState(toState, message, transition, true, stateMachine);
+		} else if (kind == PseudoStateKind.FORK) {
+			ForkPseudoState<S, E> fps = (ForkPseudoState<S, E>) state.getPseudoState();
+			for (State<S, E> ss : fps.getForks()) {
+				setCurrentState(ss, message, transition, false, stateMachine);
+			}
 		} else {
 			setCurrentState(state, message, transition, true, stateMachine);
 		}
@@ -339,6 +353,32 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		if (isComplete()) {
 			stop();
 		}
+	}
+
+	private void registerPseudoStateListener() {
+		for (State<S, E> state : states) {
+			PseudoState<S, E> p = state.getPseudoState();
+			if (p != null) {
+				p.addPseudoStateListener(new PseudoStateListener<S, E>() {
+					@Override
+					public void onContext(PseudoStateContext<S, E> context) {
+						PseudoState<S, E> pseudoState = context.getPseudoState();
+						State<S, E> toState = findStateWithPseudoState(pseudoState);
+						pseudoState.exit(null);
+						switchToState(toState, null, null, AbstractStateMachine.this);
+					}
+				});
+			}
+		}
+	}
+	
+	private State<S, E> findStateWithPseudoState(PseudoState<S, E> pseudoState) {
+		for (State<S, E> s : states) {
+			if (s.getPseudoState() == pseudoState) {
+				return s;
+			}
+		}
+		return null;
 	}
 
 	private StateContext<S, E> buildStateContext(Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
@@ -384,22 +424,48 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 					exitCurrentState(state, message, transition, stateMachine);
 				}
 				if (currentState == findDeep) {
-					StateMachine<S, E> submachine = ((AbstractState<S, E>)currentState).getSubmachine();
-					if (submachine.getState() == state) {
-						if (currentState == findDeep) {
-							if (isTargetSubOf) {
-								entryToState(currentState, message, transition, stateMachine);
+
+					if (currentState.isSubmachineState()) {
+						StateMachine<S, E> submachine = ((AbstractState<S, E>)currentState).getSubmachine();
+						if (submachine.getState() == state) {
+							if (currentState == findDeep) {
+								if (isTargetSubOf) {
+									entryToState(currentState, message, transition, stateMachine);
+								}
+								currentState = findDeep;
+								((AbstractStateMachine<S, E>)submachine).setCurrentState(state, message, transition, false, stateMachine);
+								return;
 							}
-							currentState = findDeep;
-							((AbstractStateMachine<S, E>)submachine).setCurrentState(state, message, transition, false, stateMachine);
-							return;
+						}
+					} else if (currentState.isOrthogonal()) {
+						Collection<Region<S, E>> regions = ((AbstractState<S, E>)currentState).getRegions();
+						for (Region<S, E> region : regions) {
+							if (region.getState() == state) {
+								if (currentState == findDeep) {
+									if (isTargetSubOf) {
+										entryToState(currentState, message, transition, stateMachine);
+									}
+									currentState = findDeep;
+									((AbstractStateMachine<S, E>)region).setCurrentState(state, message, transition, false, stateMachine);
+									return;
+								}
+							}
+
 						}
 					}
 				}
 				currentState = findDeep;
 				entryToState(currentState, message, transition, stateMachine);
-				StateMachine<S, E> submachine = ((AbstractState<S, E>)currentState).getSubmachine();
-				((AbstractStateMachine<S, E>)submachine).setCurrentState(state, message, transition, false, stateMachine);
+
+				if (currentState.isSubmachineState()) {
+					StateMachine<S, E> submachine = ((AbstractState<S, E>)currentState).getSubmachine();
+					((AbstractStateMachine<S, E>)submachine).setCurrentState(state, message, transition, false, stateMachine);
+				} else if (currentState.isOrthogonal()) {
+					Collection<Region<S, E>> regions = ((AbstractState<S, E>)currentState).getRegions();
+					for (Region<S, E> region : regions) {
+						((AbstractStateMachine<S, E>)region).setCurrentState(state, message, transition, false, stateMachine);
+					}
+				}
 			}
 		}
 		if (history != null) {
@@ -424,33 +490,38 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		}
 	}
 
-	private void exitFromState(State<S, E> state, Message<E> message, Transition<S, E> transition, StateMachine<S, E> stateMachine) {
+	private void exitFromState(State<S, E> state, Message<E> message, Transition<S, E> transition,
+			StateMachine<S, E> stateMachine) {
 		if (state == null) {
 			return;
 		}
 		log.trace("Trying Exit state=[" + state + "]");
 		StateContext<S, E> stateContext = buildStateContext(message, transition, stateMachine);
 
-		State<S, E> findDeep = findDeepParent(transition.getTarget());
-		boolean isTargetSubOfOtherState = findDeep != null && findDeep != currentState;
-		boolean isTargetSubOfSource = StateMachineUtils.isSubstate(transition.getSource(), transition.getTarget());
-		boolean isSubOfSource = StateMachineUtils.isSubstate(transition.getSource(), currentState);
-		boolean isSubOfTarget = StateMachineUtils.isSubstate(transition.getTarget(), currentState);
+		if (transition != null) {
 
-		// TODO: this and entry below should be done via a separate
-		//       voter of some sort which would reveal transition path
-		//       we could make a choice on.
-		if (currentState == transition.getSource() && currentState == transition.getTarget()) {
-		} else if (!isSubOfSource && !isSubOfTarget && currentState == transition.getSource()) {
-		} else if (!isSubOfSource && !isSubOfTarget && currentState == transition.getTarget()) {
-		} else if (isTargetSubOfOtherState) {
-		} else if (!isSubOfSource && !isSubOfTarget && findDeep == null) {
-		} else if (!isSubOfSource && !isSubOfTarget) {
-			return;
-		}
+			State<S, E> findDeep = findDeepParent(transition.getTarget());
+			boolean isTargetSubOfOtherState = findDeep != null && findDeep != currentState;
+			boolean isTargetSubOfSource = StateMachineUtils.isSubstate(transition.getSource(), transition.getTarget());
+			boolean isSubOfSource = StateMachineUtils.isSubstate(transition.getSource(), currentState);
+			boolean isSubOfTarget = StateMachineUtils.isSubstate(transition.getTarget(), currentState);
 
-		if (transition.getSource() == currentState && isTargetSubOfSource) {
-			return;
+			// TODO: this and entry below should be done via a separate
+			// voter of some sort which would reveal transition path
+			// we could make a choice on.
+			if (currentState == transition.getSource() && currentState == transition.getTarget()) {
+			} else if (!isSubOfSource && !isSubOfTarget && currentState == transition.getSource()) {
+			} else if (!isSubOfSource && !isSubOfTarget && currentState == transition.getTarget()) {
+			} else if (isTargetSubOfOtherState) {
+			} else if (!isSubOfSource && !isSubOfTarget && findDeep == null) {
+			} else if (!isSubOfSource && !isSubOfTarget) {
+				return;
+			}
+
+			if (transition.getSource() == currentState && isTargetSubOfSource) {
+				return;
+			}
+
 		}
 
 		log.debug("Exit state=[" + state + "]");

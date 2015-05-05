@@ -46,10 +46,23 @@ public interface PseudoState<S, E> {
 	 * Initiate an entry sequence for the state and return a next
 	 * state where state machine should go.
 	 *
-	 * @param event the event
 	 * @param context the context
 	 * @return the next state or null
 	 */
-	State<S, E> entry(E event, StateContext<S, E> context);
+	State<S, E> entry(StateContext<S, E> context);
+
+	/**
+	 * Initiate an exit sequence for the state.
+	 *
+	 * @param context the context
+	 */
+	void exit(StateContext<S, E> context);
+	
+	/**
+	 * Registers a new {@link PseudoStateListener}.
+	 *
+	 * @param listener the listener
+	 */
+	void addPseudoStateListener(PseudoStateListener<S, E> listener);
 
 }

@@ -33,6 +33,8 @@ import org.springframework.statemachine.region.Region;
  */
 public class RegionState<S, E> extends AbstractState<S, E> {
 
+	private JoinPseudoState<S, E> join;
+
 	/**
 	 * Instantiates a new region state.
 	 *
@@ -96,13 +98,13 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 
 	@Override
 	public boolean sendEvent(Message<E> event) {
+		boolean accept = false;
 		if (getRegions() != null) {
 			for (Region<S, E> r : getRegions()) {
-				r.sendEvent(event);
+				accept |= r.sendEvent(event);
 			}
-			return true;
 		}
-		return false;
+		return accept;
 	}
 
 	@Override
@@ -121,6 +123,9 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 
 	@Override
 	public void entry(StateContext<S, E> context) {
+		if (join != null) {
+			join.entry(context);
+		}
 		Collection<? extends Action<S, E>> actions = getEntryActions();
 		if (actions != null) {
 			for (Action<S, E> action : actions) {
@@ -144,7 +149,9 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 	@Override
 	public Collection<S> getIds() {
 		ArrayList<S> ids = new ArrayList<S>();
-		ids.add(getId());
+		if (getId() != null) {
+			ids.add(getId());
+		}
 		for (Region<S, E> r : getRegions()) {
 			State<S, E> s = r.getState();
 			if (s != null) {
@@ -162,6 +169,16 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 			states.addAll(r.getStates());
 		}
 		return states;
+	}
+
+	public void setJoin(JoinPseudoState<S, E> join) {
+		this.join = join;
+	}
+
+	@Override
+	public String toString() {
+		return "RegionState [getIds()=" + getIds() + ", getClass()=" + getClass() + ", hashCode()=" + hashCode()
+				+ ", toString()=" + super.toString() + "]";
 	}
 
 }
