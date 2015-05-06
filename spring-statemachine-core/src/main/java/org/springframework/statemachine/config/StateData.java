@@ -61,13 +61,25 @@ public class StateData<S, E> {
 	public Collection<E> getDeferred() {
 		return deferred;
 	}
+	
+	public void setDeferred(Collection<E> deferred) {
+		this.deferred = deferred;
+	}
 
 	public Collection<? extends Action<S, E>> getEntryActions() {
 		return entryActions;
 	}
+	
+	public void setEntryActions(Collection<? extends Action<S, E>> entryActions) {
+		this.entryActions = entryActions;
+	}
 
 	public Collection<? extends Action<S, E>> getExitActions() {
 		return exitActions;
+	}
+	
+	public void setExitActions(Collection<? extends Action<S, E>> exitActions) {
+		this.exitActions = exitActions;
 	}
 
 	public Object getParent() {

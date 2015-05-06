@@ -18,6 +18,8 @@ package org.springframework.statemachine.config.configurers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -45,7 +47,7 @@ public class DefaultStateConfigurer<S, E>
 
 	private final Object region = UUID.randomUUID().toString();
 
-	private final Collection<StateData<S, E>> incomplete = new ArrayList<StateData<S, E>>();
+	private final Map<S, StateData<S, E>> incomplete = new HashMap<S, StateData<S, E>>();
 
 	private S initialState;
 
@@ -68,7 +70,7 @@ public class DefaultStateConfigurer<S, E>
 		// before passing state datas to builder, update structure
 		// for missing parent, initial and end state infos.
 		Collection<StateData<S, E>> stateDatas = new ArrayList<StateData<S, E>>();
-		for (StateData<S, E> s : incomplete) {
+		for (StateData<S, E> s : incomplete.values()) {
 			s.setParent(parent);
 			stateDatas.add(s);
 			if (s.getState() == initialState) {
@@ -99,6 +101,7 @@ public class DefaultStateConfigurer<S, E>
 	@Override
 	public StateConfigurer<S, E> initial(S initial) {
 		this.initialState = initial;
+		state(initial);
 		return this;
 	}
 
@@ -195,7 +198,26 @@ public class DefaultStateConfigurer<S, E>
 
 	private void addIncomplete(Object parent, S state, Collection<E> deferred,
 			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions) {
-		incomplete.add(new StateData<S, E>(parent, region, state, deferred, entryActions, exitActions));
+		StateData<S, E> stateData = incomplete.get(state);
+		if (stateData == null) {
+			stateData = new StateData<S, E>(parent, region, state, deferred, entryActions, exitActions);
+			incomplete.put(state, stateData);
+		}
+		if (stateData.getParent() == null) {
+			stateData.setParent(parent);
+		}
+		if (stateData.getRegion() == null) {
+			stateData.setRegion(region);
+		}
+		if (stateData.getDeferred() == null) {
+			stateData.setDeferred(deferred);
+		}
+		if (stateData.getEntryActions() == null) {
+			stateData.setEntryActions(entryActions);
+		}
+		if (stateData.getExitActions() == null) {
+			stateData.setExitActions(exitActions);
+		}
 	}
 
 }
