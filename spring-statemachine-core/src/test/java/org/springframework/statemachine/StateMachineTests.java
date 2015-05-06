@@ -41,6 +41,7 @@ import org.springframework.statemachine.config.builders.StateMachineStateConfigu
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.transition.Transition;
 
 public class StateMachineTests extends AbstractStateMachineTests {
 
@@ -77,18 +78,26 @@ public class StateMachineTests extends AbstractStateMachineTests {
 		@SuppressWarnings("unchecked")
 		StateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
-
+		TestListener listener = new TestListener();
+		machine.addStateListener(listener);
+		listener.reset(1);
 		machine.start();
-		Thread.sleep(2000);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
 		assertThat(testAction2.stateContexts.size(), is(0));
+
+
+		listener.reset(0, 1);
 		machine.sendEvent(TestEvents.E1);
+		assertThat(listener.transitionLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testAction1.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testAction1.stateContexts.size(), is(1));
 		assertThat(testAction2.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
-
 		assertThat(testAction2.stateContexts.size(), is(1));
 
+		listener.reset(0, 1);
 		machine.sendEvent(TestEvents.E2);
+		assertThat(listener.transitionLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testAction3.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testAction3.stateContexts.size(), is(1));
 
@@ -98,10 +107,11 @@ public class StateMachineTests extends AbstractStateMachineTests {
 		Thread.sleep(2000);
 		assertThat(testAction2.stateContexts.size(), is(timedTriggered));
 
+		listener.reset(0, 1);
 		machine.sendEvent(TestEvents.E3);
+		assertThat(listener.transitionLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testAction4.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testAction4.stateContexts.size(), is(1));
-
 		assertThat(testAction2.stateContexts.size(), is(timedTriggered));
 	}
 
@@ -346,6 +356,7 @@ public class StateMachineTests extends AbstractStateMachineTests {
 	private static class TestListener extends StateMachineListenerAdapter<TestStates, TestEvents> {
 
 		volatile CountDownLatch stateChangedLatch = new CountDownLatch(1);
+		volatile CountDownLatch transitionLatch = new CountDownLatch(0);
 		volatile int stateChangedCount = 0;
 
 		@Override
@@ -354,8 +365,18 @@ public class StateMachineTests extends AbstractStateMachineTests {
 			stateChangedLatch.countDown();
 		}
 
+		@Override
+		public void transition(Transition<TestStates, TestEvents> transition) {
+			transitionLatch.countDown();
+		}
+
 		public void reset(int c1) {
+			reset(c1, 0);
+		}
+
+		public void reset(int c1, int c2) {
 			stateChangedLatch = new CountDownLatch(c1);
+			transitionLatch = new CountDownLatch(c2);
 			stateChangedCount = 0;
 		}
 
