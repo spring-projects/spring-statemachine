@@ -15,12 +15,14 @@
  */
 package org.springframework.statemachine;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
@@ -37,6 +39,8 @@ import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.listener.StateMachineListenerAdapter;
+import org.springframework.statemachine.state.State;
 
 public class StateMachineTests extends AbstractStateMachineTests {
 
@@ -78,14 +82,14 @@ public class StateMachineTests extends AbstractStateMachineTests {
 		Thread.sleep(2000);
 		assertThat(testAction2.stateContexts.size(), is(0));
 		machine.sendEvent(TestEvents.E1);
-		assertThat(testAction1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(testAction1.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testAction1.stateContexts.size(), is(1));
-		assertThat(testAction2.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(testAction2.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
 
 		assertThat(testAction2.stateContexts.size(), is(1));
 
 		machine.sendEvent(TestEvents.E2);
-		assertThat(testAction3.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(testAction3.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testAction3.stateContexts.size(), is(1));
 
 		// timer still fires but should not cause transition anymore
@@ -95,7 +99,7 @@ public class StateMachineTests extends AbstractStateMachineTests {
 		assertThat(testAction2.stateContexts.size(), is(timedTriggered));
 
 		machine.sendEvent(TestEvents.E3);
-		assertThat(testAction4.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(testAction4.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testAction4.stateContexts.size(), is(1));
 
 		assertThat(testAction2.stateContexts.size(), is(timedTriggered));
@@ -103,22 +107,41 @@ public class StateMachineTests extends AbstractStateMachineTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void testForkJoin() {
+	public void testForkJoin() throws Exception {
 		context.register(BaseConfig.class, Config3.class);
 		context.refresh();
 		EnumStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		TestListener listener = new TestListener();
+		machine.addStateListener(listener);
+
 		assertThat(machine, notNullValue());
+
+		listener.reset(1);
 		machine.start();
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.SI));	
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+		assertThat(machine.getState().getIds(), contains(TestStates.SI));
+
+		listener.reset(3);
 		machine.sendEvent(TestEvents.E1);
+		assertThat(listener.stateChangedLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(3));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+
+		listener.reset(1);
 		machine.sendEvent(TestEvents.E2);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+
+		listener.reset(3);
 		machine.sendEvent(TestEvents.E3);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(3));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S4));
 	}
-	
+
 	private static class LoggingAction implements Action<TestStates, TestEvents> {
 
 		private static final Log log = LogFactory.getLog(StateMachineTests.LoggingAction.class);
@@ -319,5 +342,23 @@ public class StateMachineTests extends AbstractStateMachineTests {
 		}
 
 	}
-	
+
+	private static class TestListener extends StateMachineListenerAdapter<TestStates, TestEvents> {
+
+		volatile CountDownLatch stateChangedLatch = new CountDownLatch(1);
+		volatile int stateChangedCount = 0;
+
+		@Override
+		public void stateChanged(State<TestStates, TestEvents> from, State<TestStates, TestEvents> to) {
+			stateChangedCount++;
+			stateChangedLatch.countDown();
+		}
+
+		public void reset(int c1) {
+			stateChangedLatch = new CountDownLatch(c1);
+			stateChangedCount = 0;
+		}
+
+	}
+
 }

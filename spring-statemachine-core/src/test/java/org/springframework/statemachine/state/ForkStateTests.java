@@ -21,6 +21,9 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -33,6 +36,7 @@ import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 
 public class ForkStateTests extends AbstractStateMachineTests {
 
@@ -43,18 +47,26 @@ public class ForkStateTests extends AbstractStateMachineTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void testForkEventPassed() {
+	public void testForkEventPassed() throws Exception {
 		context.register(BaseConfig.class, Config1.class);
 		context.refresh();
 		EnumStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		TestListener listener = new TestListener();
+		machine.addStateListener(listener);
+
 		TestEntryAction s20EntryAction = context.getBean("s20EntryAction", TestEntryAction.class);
 		TestEntryAction s21EntryAction = context.getBean("s21EntryAction", TestEntryAction.class);
 		TestEntryAction s30EntryAction = context.getBean("s30EntryAction", TestEntryAction.class);
 		TestEntryAction s31EntryAction = context.getBean("s31EntryAction", TestEntryAction.class);
 		assertThat(machine, notNullValue());
 		machine.start();
+
+		listener.reset(4);
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("foo", "bar").build());
+
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(4));
 
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S31));
 		assertThat(s20EntryAction.stateContexts.size(), is(1));
@@ -126,6 +138,24 @@ public class ForkStateTests extends AbstractStateMachineTests {
 		@Bean
 		public TestEntryAction s31EntryAction() {
 			return new TestEntryAction();
+		}
+
+	}
+
+	static class TestListener extends StateMachineListenerAdapter<TestStates, TestEvents> {
+
+		volatile CountDownLatch stateChangedLatch = new CountDownLatch(1);
+		volatile int stateChangedCount = 0;
+
+		@Override
+		public void stateChanged(State<TestStates, TestEvents> from, State<TestStates, TestEvents> to) {
+			stateChangedLatch.countDown();
+			stateChangedCount++;
+		}
+
+		public void reset(int c1) {
+			stateChangedLatch = new CountDownLatch(c1);
+			stateChangedCount = 0;
 		}
 
 	}
