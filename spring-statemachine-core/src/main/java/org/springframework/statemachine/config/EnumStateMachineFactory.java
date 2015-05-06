@@ -295,7 +295,9 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 			state = stateMap.get(stateData.getState());
 			if (state != null) {
 				states.add(state);
-				initialState = state;
+				if (stateData.isInitial()) {
+					initialState = state;					
+				}
 				continue;
 			}
 			if (stateMachine != null) {
