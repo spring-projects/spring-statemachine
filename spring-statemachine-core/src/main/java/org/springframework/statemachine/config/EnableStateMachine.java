@@ -28,7 +28,9 @@ import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.common.annotation.EnableAnnotationConfiguration;
 import org.springframework.statemachine.config.common.annotation.configuration.ObjectPostProcessorConfiguration;
 import org.springframework.statemachine.config.configuration.StateMachineAnnotationPostProcessorConfiguration;
+import org.springframework.statemachine.config.configuration.StateMachineCommonConfiguration;
 import org.springframework.statemachine.config.configuration.StateMachineConfiguration;
+import org.springframework.statemachine.config.configuration.StateMachineConfigurationImportSelector;
 
 /**
  * Example annotation which imports @{@link Configuration}s.
@@ -40,7 +42,8 @@ import org.springframework.statemachine.config.configuration.StateMachineConfigu
 @Target(ElementType.TYPE)
 @Documented
 @EnableAnnotationConfiguration
-@Import({ StateMachineConfiguration.class, ObjectPostProcessorConfiguration.class,
+@Import({ StateMachineConfigurationImportSelector.class, StateMachineCommonConfiguration.class,
+		StateMachineConfiguration.class, ObjectPostProcessorConfiguration.class,
 		StateMachineAnnotationPostProcessorConfiguration.class })
 public @interface EnableStateMachine {
 

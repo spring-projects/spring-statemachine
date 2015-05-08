@@ -27,6 +27,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.common.annotation.EnableAnnotationConfiguration;
 import org.springframework.statemachine.config.common.annotation.configuration.ObjectPostProcessorConfiguration;
+import org.springframework.statemachine.config.configuration.StateMachineAnnotationPostProcessorConfiguration;
+import org.springframework.statemachine.config.configuration.StateMachineCommonConfiguration;
+import org.springframework.statemachine.config.configuration.StateMachineConfigurationImportSelector;
 import org.springframework.statemachine.config.configuration.StateMachineFactoryConfiguration;
 
 /**
@@ -39,7 +42,9 @@ import org.springframework.statemachine.config.configuration.StateMachineFactory
 @Target(ElementType.TYPE)
 @Documented
 @EnableAnnotationConfiguration
-@Import({StateMachineFactoryConfiguration.class,ObjectPostProcessorConfiguration.class})
+@Import({ StateMachineConfigurationImportSelector.class, StateMachineCommonConfiguration.class,
+		StateMachineFactoryConfiguration.class, ObjectPostProcessorConfiguration.class,
+		StateMachineAnnotationPostProcessorConfiguration.class })
 public @interface EnableStateMachineFactory {
 
 	/**
