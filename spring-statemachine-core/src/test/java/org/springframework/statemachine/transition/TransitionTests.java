@@ -91,6 +91,20 @@ public class TransitionTests extends AbstractStateMachineTests {
 
 	@SuppressWarnings({ "unchecked" })
 	@Test
+	public void testTriggerlessTransitionInRegions() throws Exception {
+		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(BaseConfig.class, Config5.class);
+		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		EnumStateMachine<TestStates,TestEvents> machine =
+				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		machine.start();
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
+		assertThat(machine.getState().getIds(), contains(TestStates.S2));
+		ctx.close();
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	@Test
 	public void testInternalTransition() throws Exception {
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(BaseConfig.class, Config2.class);
 		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
@@ -242,6 +256,51 @@ public class TransitionTests extends AbstractStateMachineTests {
 				.withExternal()
 					.source(TestStates.S1)
 					.target(TestStates.SF);
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config5 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S2)
+					.and()
+					.withStates()
+						.parent(TestStates.S2)
+						.initial(TestStates.S20)
+						.state(TestStates.S201)
+						.end(TestStates.S201)
+						.and()
+					.withStates()
+						.parent(TestStates.S2)
+						.initial(TestStates.S21)
+						.state(TestStates.S211)
+						.end(TestStates.S211);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.state(TestStates.S2)
+					.source(TestStates.S20)
+					.target(TestStates.S201)
+					.and()
+				.withExternal()
+					.state(TestStates.S2)
+					.source(TestStates.S21)
+					.target(TestStates.S211);
 		}
 
 	}
