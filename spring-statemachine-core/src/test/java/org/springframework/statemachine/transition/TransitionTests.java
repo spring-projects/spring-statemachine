@@ -17,6 +17,7 @@ package org.springframework.statemachine.transition;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -59,7 +60,33 @@ public class TransitionTests extends AbstractStateMachineTests {
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
 		assertThat(machine.getState().getIds(), contains(TestStates.S3));
 		ctx.close();
+	}
 
+	@SuppressWarnings({ "unchecked" })
+	@Test
+	public void testTriggerlessTransitionFromInitial() throws Exception {
+		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(BaseConfig.class, Config3.class);
+		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		EnumStateMachine<TestStates,TestEvents> machine =
+				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		machine.start();
+		assertThat(machine.getState().getIds(), contains(TestStates.S2));
+		ctx.close();
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	@Test
+	public void testTriggerlessTransitionFromInitialToEnd() throws Exception {
+		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(BaseConfig.class, Config4.class);
+		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		EnumStateMachine<TestStates,TestEvents> machine =
+				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		machine.start();
+		// end state terminates sm so state is null
+		assertThat(machine.getState(), nullValue());
+		assertThat(machine.isComplete(), is(true));
+		assertThat(machine.isRunning(), is(false));
+		ctx.close();
 	}
 
 	@SuppressWarnings({ "unchecked" })
@@ -170,6 +197,51 @@ public class TransitionTests extends AbstractStateMachineTests {
 		@Bean
 		public Action<TestStates, TestEvents> internalTestAction() {
 			return new TestAction();
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config3 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.states(EnumSet.allOf(TestStates.class));
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2);
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config4 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.SF)
+					.end(TestStates.SF);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.SF);
 		}
 
 	}

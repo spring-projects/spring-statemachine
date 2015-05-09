@@ -371,7 +371,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			}
 		}
 	}
-	
+
 	private State<S, E> findStateWithPseudoState(PseudoState<S, E> pseudoState) {
 		for (State<S, E> s : states) {
 			if (s.getPseudoState() == pseudoState) {

@@ -101,8 +101,8 @@ public abstract class LifecycleObjectSupport implements InitializingBean, SmartL
 		this.lifecycleLock.lock();
 		try {
 			if (!this.running) {
-				this.doStart();
 				this.running = true;
+				this.doStart();
 				if (log.isInfoEnabled()) {
 					log.info("started " + this);
 				} else {
