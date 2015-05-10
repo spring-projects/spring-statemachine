@@ -201,7 +201,7 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 
 	@Override
 	public boolean isSimple() {
-		return isSubmachineState() && isComposite();
+		return !isSubmachineState() && !isComposite();
 	}
 
 	@Override
