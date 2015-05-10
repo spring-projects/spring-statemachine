@@ -68,7 +68,7 @@ public class DefaultStateConfigurerTests {
 		assertThat(builder.data.size(), is(1));
 		assertThat(builder.data.iterator().next().getState(), is(TestStates.SI));
 	}
-	
+
 	@Test
 	public void testParentSet() throws Exception {
 		DefaultStateConfigurer<TestStates, TestEvents> configurer = new DefaultStateConfigurer<TestStates, TestEvents>();
@@ -81,12 +81,12 @@ public class DefaultStateConfigurerTests {
 		assertThat(builder.data.iterator().next().getState(), is(TestStates.S1));
 		assertThat((TestStates)builder.data.iterator().next().getParent(), is(TestStates.SI));
 	}
-	
+
 	@Test
 	public void testActionsInitialFirst() throws Exception {
 		@SuppressWarnings("unchecked")
 		Collection<Action<TestStates, TestEvents>> exitActions = Arrays.asList(testExitAction());
-		
+
 		DefaultStateConfigurer<TestStates, TestEvents> configurer = new DefaultStateConfigurer<TestStates, TestEvents>();
 		TestStateMachineStateBuilder builder = new TestStateMachineStateBuilder();
 		configurer.initial(TestStates.S1);
@@ -94,7 +94,7 @@ public class DefaultStateConfigurerTests {
 		configurer.configure(builder);
 		assertThat(builder.data, notNullValue());
 		assertThat(builder.data.size(), is(1));
-		
+
 		assertThat(builder.data.iterator().next().getState(), is(TestStates.S1));
 		assertThat(builder.data.iterator().next().getEntryActions(), nullValue());
 		assertThat(builder.data.iterator().next().getExitActions(), notNullValue());
@@ -104,27 +104,50 @@ public class DefaultStateConfigurerTests {
 	public void testActionsJustState() throws Exception {
 		@SuppressWarnings("unchecked")
 		Collection<Action<TestStates, TestEvents>> entryActions = Arrays.asList(testEntryAction());
-		
+
 		DefaultStateConfigurer<TestStates, TestEvents> configurer = new DefaultStateConfigurer<TestStates, TestEvents>();
 		TestStateMachineStateBuilder builder = new TestStateMachineStateBuilder();
 		configurer.state(TestStates.S2, entryActions, null);
 		configurer.configure(builder);
 		assertThat(builder.data, notNullValue());
 		assertThat(builder.data.size(), is(1));
-		
+
 		assertThat(builder.data.iterator().next().getState(), is(TestStates.S2));
 		assertThat(builder.data.iterator().next().getExitActions(), nullValue());
 		assertThat(builder.data.iterator().next().getEntryActions(), notNullValue());
 	}
-	
+
+	@Test
+	public void testEndStateNoState() throws Exception {
+		DefaultStateConfigurer<TestStates, TestEvents> configurer = new DefaultStateConfigurer<TestStates, TestEvents>();
+		TestStateMachineStateBuilder builder = new TestStateMachineStateBuilder();
+		configurer.end(TestStates.SF);
+		configurer.configure(builder);
+		assertThat(builder.data, notNullValue());
+		assertThat(builder.data.size(), is(1));
+		assertThat(builder.data.iterator().next().getState(), is(TestStates.SF));
+	}
+
+	@Test
+	public void testEndStateAsState() throws Exception {
+		DefaultStateConfigurer<TestStates, TestEvents> configurer = new DefaultStateConfigurer<TestStates, TestEvents>();
+		TestStateMachineStateBuilder builder = new TestStateMachineStateBuilder();
+		configurer.state(TestStates.SF);
+		configurer.end(TestStates.SF);
+		configurer.configure(builder);
+		assertThat(builder.data, notNullValue());
+		assertThat(builder.data.size(), is(1));
+		assertThat(builder.data.iterator().next().getState(), is(TestStates.SF));
+	}
+
 	private static class TestStateMachineStateBuilder extends StateMachineStateBuilder<TestStates, TestEvents> {
-		
+
 		Collection<StateData<TestStates, TestEvents>> data;
-		
+
 		@Override
 		public void addStateData(Collection<StateData<TestStates, TestEvents>> stateDatas) {
 			this.data = stateDatas;
-		}		
+		}
 	}
 
 	private Action<TestStates, TestEvents> testEntryAction() {
@@ -134,5 +157,5 @@ public class DefaultStateConfigurerTests {
 	private Action<TestStates, TestEvents> testExitAction() {
 		return new TestExitAction();
 	}
-	
+
 }

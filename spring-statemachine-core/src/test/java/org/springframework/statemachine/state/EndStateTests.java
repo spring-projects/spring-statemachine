@@ -160,19 +160,16 @@ public class EndStateTests extends AbstractStateMachineTests {
 					.withStates()
 						.parent(TestStates3.TASKS)
 						.initial(TestStates3.T1)
-						.state(TestStates3.T1E)
 						.end(TestStates3.T1E)
 						.and()
 					.withStates()
 						.parent(TestStates3.TASKS)
 						.initial(TestStates3.T2)
-						.state(TestStates3.T2E)
 						.end(TestStates3.T2E)
 						.and()
 					.withStates()
 						.parent(TestStates3.TASKS)
 						.initial(TestStates3.T3)
-						.state(TestStates3.T3E)
 						.end(TestStates3.T3E);
 		}
 

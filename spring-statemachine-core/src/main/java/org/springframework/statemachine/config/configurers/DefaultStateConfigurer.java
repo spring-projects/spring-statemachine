@@ -120,6 +120,7 @@ public class DefaultStateConfigurer<S, E>
 	@Override
 	public StateConfigurer<S, E> end(S end) {
 		this.end = end;
+		state(end);
 		return this;
 	}
 

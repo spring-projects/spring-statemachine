@@ -259,8 +259,8 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
 		assertThat(machine, notNullValue());
 		Collection<Object> states = TestUtils.readField("states", machine);
-		assertThat(states.size(), is(2));
-		assertThat(states, containsInAnyOrder(instanceOf(EnumState.class), instanceOf(RegionState.class)));
+		assertThat(states.size(), is(3));
+		assertThat(states, containsInAnyOrder(instanceOf(EnumState.class), instanceOf(EnumState.class), instanceOf(RegionState.class)));
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
