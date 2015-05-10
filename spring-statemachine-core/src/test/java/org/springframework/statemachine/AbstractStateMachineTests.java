@@ -79,6 +79,12 @@ public abstract class AbstractStateMachineTests {
 	    IDLE, CLOSED, OPEN
 	}
 
+	public static enum TestStates3 {
+	    READY,
+	    FORK, JOIN,
+	    TASKS, T1, T1E, T2, T2E, T3, T3E
+	}
+
 	public static enum TestEvents2 {
 	    PLAY, STOP, PAUSE, EJECT, LOAD
 	}

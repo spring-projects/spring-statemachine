@@ -15,8 +15,9 @@
  */
 package org.springframework.statemachine.transition;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -24,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
@@ -39,6 +41,8 @@ import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.listener.StateMachineListenerAdapter;
+import org.springframework.statemachine.state.State;
 
 /**
  * Tests for state machine transitions.
@@ -48,73 +52,103 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
  */
 public class TransitionTests extends AbstractStateMachineTests {
 
+	@Override
+	protected AnnotationConfigApplicationContext buildContext() {
+		return new AnnotationConfigApplicationContext();
+	}
+
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testTriggerlessTransition() throws Exception {
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(BaseConfig.class, Config1.class);
-		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		context.register(BaseConfig.class, Config1.class);
+		context.refresh();
+
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		EnumStateMachine<TestStates,TestEvents> machine =
-				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+
+		TestListener listener = new TestListener();
+		machine.addStateListener(listener);
+
 		machine.start();
 		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+
+		listener.reset(2);
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(2));
 		assertThat(machine.getState().getIds(), contains(TestStates.S3));
-		ctx.close();
 	}
 
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testTriggerlessTransitionFromInitial() throws Exception {
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(BaseConfig.class, Config3.class);
-		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		context.register(BaseConfig.class, Config3.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		EnumStateMachine<TestStates,TestEvents> machine =
-				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
 		machine.start();
 		assertThat(machine.getState().getIds(), contains(TestStates.S2));
-		ctx.close();
 	}
 
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testTriggerlessTransitionFromInitialToEnd() throws Exception {
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(BaseConfig.class, Config4.class);
-		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		context.register(BaseConfig.class, Config4.class);
+		context.refresh();
+
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		EnumStateMachine<TestStates,TestEvents> machine =
-				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
 		machine.start();
 		// end state terminates sm so state is null
 		assertThat(machine.getState(), nullValue());
 		assertThat(machine.isComplete(), is(true));
 		assertThat(machine.isRunning(), is(false));
-		ctx.close();
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	@Test
+	public void testTriggerlessTransitionInRegionsDefinedInSubStates() throws Exception {
+		context.register(BaseConfig.class, Config5.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		EnumStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		machine.start();
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S201, TestStates.S211));
 	}
 
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testTriggerlessTransitionInRegions() throws Exception {
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(BaseConfig.class, Config5.class);
-		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		context.register(BaseConfig.class, Config6.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		EnumStateMachine<TestStates,TestEvents> machine =
-				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
 		machine.start();
 		assertThat(machine.getState().getIds(), contains(TestStates.S1));
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
-		assertThat(machine.getState().getIds(), contains(TestStates.S2));
-		ctx.close();
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S201, TestStates.S211));
 	}
 
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testInternalTransition() throws Exception {
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(BaseConfig.class, Config2.class);
-		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		context.register(BaseConfig.class, Config2.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		EnumStateMachine<TestStates,TestEvents> machine =
-				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
 		machine.start();
-		TestExitAction testExitAction = ctx.getBean("testExitAction", TestExitAction.class);
-		TestEntryAction testEntryAction = ctx.getBean("testEntryAction", TestEntryAction.class);
-		TestAction externalTestAction = ctx.getBean("externalTestAction", TestAction.class);
-		TestAction internalTestAction = ctx.getBean("internalTestAction", TestAction.class);
+		TestExitAction testExitAction = context.getBean("testExitAction", TestExitAction.class);
+		TestEntryAction testEntryAction = context.getBean("testEntryAction", TestEntryAction.class);
+		TestAction externalTestAction = context.getBean("externalTestAction", TestAction.class);
+		TestAction internalTestAction = context.getBean("internalTestAction", TestAction.class);
 
 		assertThat(machine.getState().getIds(), contains(TestStates.S1));
 		assertThat(testExitAction.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));
@@ -131,7 +165,6 @@ public class TransitionTests extends AbstractStateMachineTests {
 		assertThat(externalTestAction.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
 
 		assertThat(machine.getState().getIds(), contains(TestStates.S2));
-		ctx.close();
 	}
 
 	@Configuration
@@ -275,13 +308,11 @@ public class TransitionTests extends AbstractStateMachineTests {
 						.parent(TestStates.S2)
 						.initial(TestStates.S20)
 						.state(TestStates.S201)
-						.end(TestStates.S201)
 						.and()
 					.withStates()
 						.parent(TestStates.S2)
 						.initial(TestStates.S21)
-						.state(TestStates.S211)
-						.end(TestStates.S211);
+						.state(TestStates.S211);
 		}
 
 		@Override
@@ -301,6 +332,65 @@ public class TransitionTests extends AbstractStateMachineTests {
 					.state(TestStates.S2)
 					.source(TestStates.S21)
 					.target(TestStates.S211);
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config6 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S2)
+					.and()
+					.withStates()
+						.parent(TestStates.S2)
+						.initial(TestStates.S20)
+						.state(TestStates.S201)
+						.and()
+					.withStates()
+						.parent(TestStates.S2)
+						.initial(TestStates.S21)
+						.state(TestStates.S211);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S20)
+					.target(TestStates.S201)
+					.and()
+				.withExternal()
+					.source(TestStates.S21)
+					.target(TestStates.S211);
+		}
+
+	}
+
+	static class TestListener extends StateMachineListenerAdapter<TestStates, TestEvents> {
+
+		volatile CountDownLatch stateChangedLatch = new CountDownLatch(1);
+		volatile int stateChangedCount = 0;
+
+		@Override
+		public void stateChanged(State<TestStates, TestEvents> from, State<TestStates, TestEvents> to) {
+			stateChangedLatch.countDown();
+			stateChangedCount++;
+		}
+
+		public void reset(int c1) {
+			stateChangedLatch = new CountDownLatch(c1);
+			stateChangedCount = 0;
 		}
 
 	}

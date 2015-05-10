@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,6 +37,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.context.Lifecycle;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.MessageBuilder;
@@ -100,6 +102,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	private volatile Runnable task;
 
+	private final AtomicBoolean requestTask = new AtomicBoolean(false);
+
 	private final Map<String, StateMachineOnTransitionHandler<S, E>> handlers = new HashMap<String, StateMachineOnTransitionHandler<S,E>>();
 
 	private volatile boolean handlersInitialized;
@@ -107,6 +111,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	private final Queue<TriggerQueueItem> triggerQueue = new ConcurrentLinkedQueue<TriggerQueueItem>();
 
 	private final Map<Trigger<S, E>, Transition<S,E>> triggerToTransitionMap = new HashMap<Trigger<S,E>, Transition<S,E>>();
+
+	private final List<Transition<S, E>> triggerlessTransitions = new ArrayList<Transition<S,E>>();
 
 	/**
 	 * Instantiates a new abstract state machine.
@@ -199,6 +205,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			if (trigger != null) {
 				// we have same triggers with different transitions
 				triggerToTransitionMap.put(trigger, transition);
+			} else {
+				triggerlessTransitions.add(transition);
 			}
 		}
 		for (State<S, E> state : states) {
@@ -342,14 +350,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			setCurrentState(state, message, transition, true, stateMachine);
 		}
 
-		// TODO: should handle triggerles transition some how differently
-		for (Transition<S,E> t : transitions) {
-			State<S,E> source = t.getSource();
-			State<S,E> target = t.getTarget();
-			if (t.getTrigger() == null && source.equals(currentState)) {
-				switchToState(target, message, t, stateMachine);
-			}
-		}
+		scheduleEventQueueProcessing();
 		if (isComplete()) {
 			stop();
 		}
@@ -605,6 +606,10 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	private void scheduleEventQueueProcessing() {
+		TaskExecutor executor = getTaskExecutor();
+		if (executor == null) {
+			return;
+		}
 		if (task == null) {
 			task = new Runnable() {
 				@Override
@@ -615,9 +620,14 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 						processTriggerQueue();
 					}
 					task = null;
+					if (requestTask.getAndSet(false)) {
+						scheduleEventQueueProcessing();
+					}
 				}
 			};
-			getTaskExecutor().execute(task);
+			executor.execute(task);
+		} else {
+			requestTask.set(true);
 		}
 	}
 
@@ -661,34 +671,42 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			}
 
 			// go through candidates and transit max one
-			for (Transition<S, E> t : trans) {
-				StateContext<S, E> stateContext = buildStateContext(queuedMessage, t, this);
-				if (t == null) {
-					continue;
-				}
-				State<S,E> source = t.getSource();
-				if (source == null) {
-					continue;
-				}
-				if (!StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
-					continue;
-				}
-				boolean transit = t.transit(stateContext);
-				if (transit) {
-					// TODO: should change trasition api so that we can ask
-					//       if transition will transit so that we can post
-					//       accurate notifyTransitionStart
-					notifyTransitionStart(t);
-					callHandlers(t.getSource(), t.getTarget(), queuedMessage);
-					if (t.getKind() != TransitionKind.INTERNAL) {
-						switchToState(t.getTarget(), queuedMessage, t, this);
-					}
-					notifyTransition(t);
-					notifyTransitionEnd(t);
-					break;
-				}
+			handleTriggerTrans(trans, queuedMessage);
+		}
+		if (currentState != null) {
+			// handle triggerless transitions
+			handleTriggerTrans(triggerlessTransitions, null);
+		}
+	}
 
+	private void handleTriggerTrans(List<Transition<S, E>> trans, Message<E> queuedMessage) {
+		for (Transition<S, E> t : trans) {
+			StateContext<S, E> stateContext = buildStateContext(queuedMessage, t, this);
+			if (t == null) {
+				continue;
 			}
+			State<S,E> source = t.getSource();
+			if (source == null) {
+				continue;
+			}
+			if (!StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
+				continue;
+			}
+			boolean transit = t.transit(stateContext);
+			if (transit) {
+				// TODO: should change trasition api so that we can ask
+				//       if transition will transit so that we can post
+				//       accurate notifyTransitionStart
+				notifyTransitionStart(t);
+				callHandlers(t.getSource(), t.getTarget(), queuedMessage);
+				if (t.getKind() != TransitionKind.INTERNAL) {
+					switchToState(t.getTarget(), queuedMessage, t, this);
+				}
+				notifyTransition(t);
+				notifyTransitionEnd(t);
+				break;
+			}
+
 		}
 
 	}
