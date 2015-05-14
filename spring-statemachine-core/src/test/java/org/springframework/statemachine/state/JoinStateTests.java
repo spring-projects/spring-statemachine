@@ -53,6 +53,22 @@ public class JoinStateTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), contains(TestStates.S4));
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testJoinSuper() {
+		context.register(BaseConfig.class, Config2.class);
+		context.refresh();
+		EnumStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		assertThat(machine, notNullValue());
+		machine.start();
+		machine.sendEvent(TestEvents.E1);
+		machine.sendEvent(TestEvents.E2);
+		machine.sendEvent(TestEvents.E3);
+
+		assertThat(machine.getState().getIds(), contains(TestStates.S4));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
@@ -102,6 +118,63 @@ public class JoinStateTests extends AbstractStateMachineTests {
 				.withJoin()
 					.source(TestStates.S21)
 					.source(TestStates.S31)
+					.target(TestStates.S3)
+					.and()
+				.withExternal()
+					.source(TestStates.S3)
+					.target(TestStates.S4);
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config2 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.SI)
+					.state(TestStates.SI)
+					.state(TestStates.S2)
+					.end(TestStates.SF)
+					.join(TestStates.S3)
+					.state(TestStates.S4)
+					.and()
+					.withStates()
+						.parent(TestStates.S2)
+						.initial(TestStates.S20)
+						.state(TestStates.S20)
+						.state(TestStates.S21)
+						.and()
+					.withStates()
+						.parent(TestStates.S2)
+						.initial(TestStates.S30)
+						.state(TestStates.S30)
+						.state(TestStates.S31);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.SI)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S20)
+					.target(TestStates.S21)
+					.event(TestEvents.E2)
+					.and()
+				.withExternal()
+					.source(TestStates.S30)
+					.target(TestStates.S31)
+					.event(TestEvents.E3)
+					.and()
+				.withJoin()
+					.source(TestStates.S2)
 					.target(TestStates.S3)
 					.and()
 				.withExternal()
