@@ -80,8 +80,7 @@ public class EndStateTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), contains(TestStates3.READY));
 	}
 
-	// disable for now, fix in other ticket
-	//@Test
+	@Test
 	public void testEndStatesWithRegionsDefinedInStates() throws InterruptedException {
 		context.register(Config3.class);
 		context.refresh();

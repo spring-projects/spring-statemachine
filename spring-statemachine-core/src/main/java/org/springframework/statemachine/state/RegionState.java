@@ -110,7 +110,9 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 	@Override
 	public void exit(StateContext<S, E> context) {
 		for (Region<S, E> region : getRegions()) {
-			region.getState().exit(context);
+			if (region.getState() != null) {
+				region.getState().exit(context);
+			}
 			region.stop();
 		}
 		Collection<? extends Action<S, E>> actions = getExitActions();
