@@ -171,6 +171,7 @@ public class DefaultStateConfigurer<S, E>
 
 	@Override
 	public StateConfigurer<S, E> choice(S choice) {
+		state(choice);
 		choices.add(choice);
 		return this;
 	}

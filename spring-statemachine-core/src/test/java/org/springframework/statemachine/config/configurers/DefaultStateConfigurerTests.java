@@ -31,6 +31,7 @@ import org.springframework.statemachine.AbstractStateMachineTests.TestStates;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.StateData;
 import org.springframework.statemachine.config.builders.StateMachineStateBuilder;
+import org.springframework.statemachine.state.PseudoStateKind;
 
 public class DefaultStateConfigurerTests {
 
@@ -138,6 +139,18 @@ public class DefaultStateConfigurerTests {
 		assertThat(builder.data, notNullValue());
 		assertThat(builder.data.size(), is(1));
 		assertThat(builder.data.iterator().next().getState(), is(TestStates.SF));
+	}
+
+	@Test
+	public void testChoiceStateNoState() throws Exception {
+		DefaultStateConfigurer<TestStates, TestEvents> configurer = new DefaultStateConfigurer<TestStates, TestEvents>();
+		TestStateMachineStateBuilder builder = new TestStateMachineStateBuilder();
+		configurer.choice(TestStates.S1);
+		configurer.configure(builder);
+		assertThat(builder.data, notNullValue());
+		assertThat(builder.data.size(), is(1));
+		assertThat(builder.data.iterator().next().getState(), is(TestStates.S1));
+		assertThat(builder.data.iterator().next().getPseudoStateKind(), is(PseudoStateKind.CHOICE));
 	}
 
 	private static class TestStateMachineStateBuilder extends StateMachineStateBuilder<TestStates, TestEvents> {
