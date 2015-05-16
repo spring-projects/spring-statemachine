@@ -236,6 +236,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		registerTriggerListener();
 		registerPseudoStateListener();
 		switchToState(initialState, initialEvent, null, this);
+		// TODO: it is a bit off to call handlers after switchToState for initial state
+		callHandlers(null, initialState, initialEvent);
 		// TODO: for now execute outside of switchToState
 		if (initialTransition != null) {
 			StateContext<S, E> stateContext = buildStateContext(initialEvent, initialTransition, this);
@@ -718,10 +720,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	private void callHandlers(State<S,E> sourceState, State<S,E> targetState, Message<E> message) {
-		if (sourceState != null && targetState != null) {
-			StateContext<S, E> stateContext = buildStateContext(message, null, this);
-			getStateMachineHandlerResults(getStateMachineHandlers(sourceState, targetState), stateContext);
-		}
+		StateContext<S, E> stateContext = buildStateContext(message, null, this);
+		getStateMachineHandlerResults(getStateMachineHandlers(sourceState, targetState), stateContext);
 	}
 
 	private List<Object> getStateMachineHandlerResults(List<StateMachineHandler<S, E>> stateMachineHandlers,
@@ -793,17 +793,24 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 		boolean handle = false;
 		if (!scoll.isEmpty() && !tcoll.isEmpty()) {
-			if (StateMachineUtils.containsAtleastOne(scoll, StateMachineUtils.toStringCollection(sourceState.getIds()))
+			if (sourceState != null
+					&& targetState != null
+					&& StateMachineUtils.containsAtleastOne(scoll,
+							StateMachineUtils.toStringCollection(sourceState.getIds()))
 					&& StateMachineUtils.containsAtleastOne(tcoll,
 							StateMachineUtils.toStringCollection(targetState.getIds()))) {
 				handle = true;
 			}
 		} else if (!scoll.isEmpty()) {
-			if (StateMachineUtils.containsAtleastOne(scoll, StateMachineUtils.toStringCollection(sourceState.getIds()))) {
+			if (sourceState != null
+					&& StateMachineUtils.containsAtleastOne(scoll,
+							StateMachineUtils.toStringCollection(sourceState.getIds()))) {
 				handle = true;
 			}
 		} else if (!tcoll.isEmpty()) {
-			if (StateMachineUtils.containsAtleastOne(tcoll, StateMachineUtils.toStringCollection(targetState.getIds()))) {
+			if (targetState != null
+					&& StateMachineUtils.containsAtleastOne(tcoll,
+							StateMachineUtils.toStringCollection(targetState.getIds()))) {
 				handle = true;
 			}
 		}
