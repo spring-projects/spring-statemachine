@@ -370,7 +370,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 					public void onContext(PseudoStateContext<S, E> context) {
 						PseudoState<S, E> pseudoState = context.getPseudoState();
 						State<S, E> toState = findStateWithPseudoState(pseudoState);
-						pseudoState.exit(null);
+						StateContext<S, E> stateContext = buildStateContext(null, null, AbstractStateMachine.this);
+						pseudoState.exit(stateContext);
 						switchToState(toState, null, null, AbstractStateMachine.this);
 					}
 				});

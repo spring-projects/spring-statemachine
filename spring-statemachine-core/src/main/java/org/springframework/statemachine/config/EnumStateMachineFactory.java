@@ -296,7 +296,7 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 			if (state != null) {
 				states.add(state);
 				if (stateData.isInitial()) {
-					initialState = state;					
+					initialState = state;
 				}
 				continue;
 			}
@@ -373,8 +373,27 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 				S s = stateData.getState();
 				List<S> list = stateMachineTransitions.getJoins().get(s);
 				List<State<S, E>> joins = new ArrayList<State<S,E>>();
-				for (S fs : list) {
-					joins.add(stateMap.get(fs));
+
+				// if join source is a regionstate, get
+				// it's end states from regions
+				if (list.size() == 1) {
+					State<S, E> ss1 = stateMap.get(list.get(0));
+					if (ss1 instanceof RegionState) {
+						Collection<Region<S, E>> regions = ((RegionState<S, E>)ss1).getRegions();
+						for (Region<S, E> r : regions) {
+							Collection<State<S, E>> ss2 = r.getStates();
+							for (State<S, E> ss3 : ss2) {
+								if (ss3.getPseudoState() != null && ss3.getPseudoState().getKind() == PseudoStateKind.END) {
+									joins.add(ss3);
+									continue;
+								}
+							}
+						}
+					}
+				} else {
+					for (S fs : list) {
+						joins.add(stateMap.get(fs));
+					}
 				}
 				JoinPseudoState<S, E> pseudoState = new JoinPseudoState<S, E>(joins);
 				state = new EnumState<S, E>(stateData.getState(), stateData.getDeferred(),

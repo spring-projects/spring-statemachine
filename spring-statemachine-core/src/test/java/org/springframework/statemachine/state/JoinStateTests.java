@@ -16,8 +16,14 @@
 package org.springframework.statemachine.state;
 
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -29,6 +35,8 @@ import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.listener.StateMachineListenerAdapter;
+import org.springframework.statemachine.transition.Transition;
 
 public class JoinStateTests extends AbstractStateMachineTests {
 
@@ -39,11 +47,46 @@ public class JoinStateTests extends AbstractStateMachineTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void testJoin() {
+	public void testJoin() throws Exception {
 		context.register(BaseConfig.class, Config1.class);
 		context.refresh();
 		EnumStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		TestListener listener = new TestListener();
+		machine.addStateListener(listener);
+		listener.reset(1);
+		assertThat(machine, notNullValue());
+		machine.start();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+
+		listener.reset(3);
+		machine.sendEvent(TestEvents.E1);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(3));
+
+		listener.reset(1);
+		machine.sendEvent(TestEvents.E2);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+
+		listener.reset(3);
+		machine.sendEvent(TestEvents.E3);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(3));
+
+		assertThat(machine.getState().getIds(), contains(TestStates.S4));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testJoinLoopTwice() throws Exception {
+		context.register(BaseConfig.class, Config1.class);
+		context.refresh();
+		EnumStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		TestListener listener = new TestListener();
+		machine.addStateListener(listener);
 		assertThat(machine, notNullValue());
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
@@ -51,20 +94,101 @@ public class JoinStateTests extends AbstractStateMachineTests {
 		machine.sendEvent(TestEvents.E3);
 
 		assertThat(machine.getState().getIds(), contains(TestStates.S4));
+
+		listener.reset(1);
+		machine.sendEvent(TestEvents.E4);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+		assertThat(machine.getState().getIds(), contains(TestStates.SI));
+
+		listener.reset(3);
+		machine.sendEvent(TestEvents.E1);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(3));
+
+		listener.reset(1);
+		machine.sendEvent(TestEvents.E2);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+
+		listener.reset(3);
+		machine.sendEvent(TestEvents.E3);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(3));
+
+		assertThat(machine.getState().getIds(), contains(TestStates.S4));
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void testJoinSuper() {
+	public void testJoinSuper() throws Exception {
 		context.register(BaseConfig.class, Config2.class);
 		context.refresh();
 		EnumStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		TestListener listener = new TestListener();
+		machine.addStateListener(listener);
+		listener.reset(1);
+		assertThat(machine, notNullValue());
+		machine.start();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+
+		listener.reset(3);
+		machine.sendEvent(TestEvents.E1);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(3));
+
+		listener.reset(1);
+		machine.sendEvent(TestEvents.E2);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+
+		listener.reset(3);
+		machine.sendEvent(TestEvents.E3);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(3));
+
+		assertThat(machine.getState().getIds(), contains(TestStates.S4));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testJoinSuperLoopTwice() throws Exception {
+		context.register(BaseConfig.class, Config2.class);
+		context.refresh();
+		EnumStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		TestListener listener = new TestListener();
+		machine.addStateListener(listener);
 		assertThat(machine, notNullValue());
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
 		machine.sendEvent(TestEvents.E2);
 		machine.sendEvent(TestEvents.E3);
+
+		assertThat(machine.getState().getIds(), contains(TestStates.S4));
+
+		listener.reset(1);
+		machine.sendEvent(TestEvents.E4);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+		assertThat(machine.getState().getIds(), contains(TestStates.SI));
+
+		listener.reset(3);
+		machine.sendEvent(TestEvents.E1);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(3));
+
+		listener.reset(1);
+		machine.sendEvent(TestEvents.E2);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+
+		listener.reset(3);
+		machine.sendEvent(TestEvents.E3);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(3));
 
 		assertThat(machine.getState().getIds(), contains(TestStates.S4));
 	}
@@ -78,9 +202,7 @@ public class JoinStateTests extends AbstractStateMachineTests {
 			states
 				.withStates()
 					.initial(TestStates.SI)
-					.state(TestStates.SI)
 					.state(TestStates.S2)
-					.end(TestStates.SF)
 					.join(TestStates.S3)
 					.state(TestStates.S4)
 					.and()
@@ -122,7 +244,12 @@ public class JoinStateTests extends AbstractStateMachineTests {
 					.and()
 				.withExternal()
 					.source(TestStates.S3)
-					.target(TestStates.S4);
+					.target(TestStates.S4)
+					.and()
+				.withExternal()
+					.source(TestStates.S4)
+					.target(TestStates.SI)
+					.event(TestEvents.E4);
 		}
 
 	}
@@ -136,23 +263,19 @@ public class JoinStateTests extends AbstractStateMachineTests {
 			states
 				.withStates()
 					.initial(TestStates.SI)
-					.state(TestStates.SI)
 					.state(TestStates.S2)
-					.end(TestStates.SF)
 					.join(TestStates.S3)
 					.state(TestStates.S4)
 					.and()
 					.withStates()
 						.parent(TestStates.S2)
 						.initial(TestStates.S20)
-						.state(TestStates.S20)
-						.state(TestStates.S21)
+						.end(TestStates.S21)
 						.and()
 					.withStates()
 						.parent(TestStates.S2)
 						.initial(TestStates.S30)
-						.state(TestStates.S30)
-						.state(TestStates.S31);
+						.end(TestStates.S31);
 		}
 
 		@Override
@@ -179,7 +302,44 @@ public class JoinStateTests extends AbstractStateMachineTests {
 					.and()
 				.withExternal()
 					.source(TestStates.S3)
-					.target(TestStates.S4);
+					.target(TestStates.S4)
+					.and()
+				.withExternal()
+					.source(TestStates.S4)
+					.target(TestStates.SI)
+					.event(TestEvents.E4);
+		}
+
+	}
+
+	private static class TestListener extends StateMachineListenerAdapter<TestStates, TestEvents> {
+
+		volatile CountDownLatch stateChangedLatch = new CountDownLatch(1);
+		volatile CountDownLatch transitionLatch = new CountDownLatch(0);
+		volatile int stateChangedCount = 0;
+		final List<Transition<TestStates, TestEvents>> transitions = new ArrayList<Transition<TestStates,TestEvents>>();
+
+		@Override
+		public void stateChanged(State<TestStates, TestEvents> from, State<TestStates, TestEvents> to) {
+			stateChangedCount++;
+			stateChangedLatch.countDown();
+		}
+
+		@Override
+		public void transition(Transition<TestStates, TestEvents> transition) {
+			transitions.add(transition);
+			transitionLatch.countDown();
+		}
+
+		public void reset(int c1) {
+			reset(c1, 0);
+		}
+
+		public void reset(int c1, int c2) {
+			stateChangedLatch = new CountDownLatch(c1);
+			transitionLatch = new CountDownLatch(c2);
+			stateChangedCount = 0;
+			transitions.clear();
 		}
 
 	}

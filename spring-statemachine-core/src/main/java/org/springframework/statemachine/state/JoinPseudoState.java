@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine.state;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.statemachine.StateContext;
@@ -42,13 +43,16 @@ public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 
 	@Override
 	public State<S, E> entry(StateContext<S, E> context) {
-		tracker = new JoinTracker(this, joins);
+		tracker = new JoinTracker(this, new ArrayList<State<S,E>>(joins));
 		context.getStateMachine().addStateListener(tracker);
 		return null;
 	}
-	
+
 	@Override
 	public void exit(StateContext<S, E> context) {
+		if (context != null) {
+			context.getStateMachine().removeStateListener(tracker);
+		}
 		tracker = null;
 	}
 
@@ -60,9 +64,8 @@ public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 
 		private final PseudoState<S, E> pseudoState;
 		private final List<State<S, E>> track;
-		// TOOO use flat till we can unregister listener
-		private boolean done = false;
-		
+		private boolean notified = false;
+
 		public JoinTracker(PseudoState<S, E> pseudoState, List<State<S, E>> track) {
 			this.pseudoState = pseudoState;
 			this.track = track;
@@ -70,13 +73,12 @@ public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 
 		@Override
 		public void stateChanged(State<S, E> from, State<S, E> to) {
-			if (done) {
-				return;
-			}
-			track.remove(to);
-			if (track.size() == 0) {
-				done = true;
-				notifyContext(new DefaultPseudoStateContext<S, E>(pseudoState, PseudoAction.JOIN_COMPLETED));
+			if (!notified && track.size() > 0) {
+				track.remove(to);
+				if (track.size() == 0) {
+					notified = true;
+					notifyContext(new DefaultPseudoStateContext<S, E>(pseudoState, PseudoAction.JOIN_COMPLETED));
+				}
 			}
 		}
 
