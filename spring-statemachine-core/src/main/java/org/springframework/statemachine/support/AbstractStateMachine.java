@@ -256,6 +256,11 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	@Override
+	public void removeStateListener(StateMachineListener<S, E> listener) {
+		getStateListener().unregister(listener);
+	}
+
+	@Override
 	public boolean isComplete() {
 		if (currentState == null) {
 			return !isRunning();

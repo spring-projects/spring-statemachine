@@ -96,4 +96,11 @@ public interface Region<S, E> {
 	 */
 	void addStateListener(StateMachineListener<S, E> listener);
 
+	/**
+	 * Removes the state listener.
+	 *
+	 * @param listener the listener
+	 */
+	void removeStateListener(StateMachineListener<S, E> listener);
+
 }
