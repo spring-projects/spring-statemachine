@@ -76,7 +76,7 @@ import org.springframework.util.StringUtils;
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSupport<S, E> implements StateMachine<S, E> {
+public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSupport<S, E> implements StateMachine<S, E>, StateMachineAccess<S, E> {
 
 	private static final Log log = LogFactory.getLog(AbstractStateMachine.class);
 
@@ -113,6 +113,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	private final Map<Trigger<S, E>, Transition<S,E>> triggerToTransitionMap = new HashMap<Trigger<S,E>, Transition<S,E>>();
 
 	private final List<Transition<S, E>> triggerlessTransitions = new ArrayList<Transition<S,E>>();
+
+	private StateMachine<S, E> relay;
 
 	/**
 	 * Instantiates a new abstract state machine.
@@ -235,12 +237,12 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		}
 		registerTriggerListener();
 		registerPseudoStateListener();
-		switchToState(initialState, initialEvent, null, this);
+		switchToState(initialState, initialEvent, null, getRelayStateMachine());
 		// TODO: it is a bit off to call handlers after switchToState for initial state
 		callHandlers(null, initialState, initialEvent);
 		// TODO: for now execute outside of switchToState
 		if (initialTransition != null) {
-			StateContext<S, E> stateContext = buildStateContext(initialEvent, initialTransition, this);
+			StateContext<S, E> stateContext = buildStateContext(initialEvent, initialTransition, getRelayStateMachine());
 			initialTransition.transit(stateContext);
 		}
 		notifyStateMachineStarted(this);
@@ -286,6 +288,33 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	@Override
 	public Collection<Transition<S, E>> getTransitions() {
 		return transitions;
+	}
+
+	@Override
+	public void doWithAllRegions(StateMachineFunction<StateMachineAccess<S, E>> stateMachineAccess) {
+		stateMachineAccess.apply(this);
+		for (State<S, E> state : states) {
+			if (state.isSubmachineState()) {
+				StateMachine<S, E> submachine = ((AbstractState<S, E>)state).getSubmachine();
+				if (submachine instanceof StateMachineAccess) {
+					((StateMachineAccess<S, E>)submachine).doWithAllRegions(stateMachineAccess);
+				}
+			} else if (state.isOrthogonal()) {
+				Collection<Region<S, E>> regions = ((AbstractState<S, E>)state).getRegions();
+				for (Region<S, E> region : regions) {
+					((StateMachineAccess<S, E>)region).doWithAllRegions(stateMachineAccess);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void setRelay(StateMachine<S, E> stateMachine) {
+		this.relay = stateMachine;
+	}
+
+	private StateMachine<S, E> getRelayStateMachine() {
+		return relay != null ? relay : this;
 	}
 
 	@Override
@@ -372,9 +401,9 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 					public void onContext(PseudoStateContext<S, E> context) {
 						PseudoState<S, E> pseudoState = context.getPseudoState();
 						State<S, E> toState = findStateWithPseudoState(pseudoState);
-						StateContext<S, E> stateContext = buildStateContext(null, null, AbstractStateMachine.this);
+						StateContext<S, E> stateContext = buildStateContext(null, null, getRelayStateMachine());
 						pseudoState.exit(stateContext);
-						switchToState(toState, null, null, AbstractStateMachine.this);
+						switchToState(toState, null, null, getRelayStateMachine());
 					}
 				});
 			}
@@ -689,7 +718,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	private void handleTriggerTrans(List<Transition<S, E>> trans, Message<E> queuedMessage) {
 		for (Transition<S, E> t : trans) {
-			StateContext<S, E> stateContext = buildStateContext(queuedMessage, t, this);
+			StateContext<S, E> stateContext = buildStateContext(queuedMessage, t, getRelayStateMachine());
 			if (t == null) {
 				continue;
 			}
@@ -708,7 +737,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				notifyTransitionStart(t);
 				callHandlers(t.getSource(), t.getTarget(), queuedMessage);
 				if (t.getKind() != TransitionKind.INTERNAL) {
-					switchToState(t.getTarget(), queuedMessage, t, this);
+					switchToState(t.getTarget(), queuedMessage, t, getRelayStateMachine());
 				}
 				notifyTransition(t);
 				notifyTransitionEnd(t);
@@ -720,7 +749,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	private void callHandlers(State<S,E> sourceState, State<S,E> targetState, Message<E> message) {
-		StateContext<S, E> stateContext = buildStateContext(message, null, this);
+		StateContext<S, E> stateContext = buildStateContext(message, null, getRelayStateMachine());
 		getStateMachineHandlerResults(getStateMachineHandlers(sourceState, targetState), stateContext);
 	}
 

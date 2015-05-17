@@ -46,7 +46,9 @@ import org.springframework.statemachine.state.RegionState;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.state.StateMachineState;
 import org.springframework.statemachine.support.DefaultExtendedState;
+import org.springframework.statemachine.support.StateMachineFunction;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
+import org.springframework.statemachine.support.StateMachineAccess;
 import org.springframework.statemachine.support.tree.Tree;
 import org.springframework.statemachine.support.tree.Tree.Node;
 import org.springframework.statemachine.support.tree.TreeTraverser;
@@ -180,6 +182,16 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 
 			stateStack.push(stateData);
 		}
+
+		// set top-level machine as relay
+		final StateMachine<S, E> mm = machine;
+		((StateMachineAccess<S, E>)machine).doWithAllRegions(new StateMachineFunction<StateMachineAccess<S, E>>() {
+
+			@Override
+			public void apply(StateMachineAccess<S, E> stateMachineAccess) {
+				stateMachineAccess.setRelay(mm);
+			}
+		});
 
 		return machine;
 	}
