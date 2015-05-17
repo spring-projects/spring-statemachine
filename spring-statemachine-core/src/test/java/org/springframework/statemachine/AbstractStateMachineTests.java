@@ -178,8 +178,8 @@ public abstract class AbstractStateMachineTests {
 			if (message != null) {
 				log.info(this);
 			}
-			onExecuteLatch.countDown();
 			stateContexts.add(context);
+			onExecuteLatch.countDown();
 		}
 	}
 
