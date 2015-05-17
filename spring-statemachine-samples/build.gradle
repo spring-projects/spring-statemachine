@@ -12,3 +12,6 @@ project('spring-statemachine-samples-cdplayer') {
   description = 'Spring State Machine CD Player Sample'
 }
 
+project('spring-statemachine-samples-tasks') {
+  description = 'Spring State Machine Parallel Regions Sample'
+}
