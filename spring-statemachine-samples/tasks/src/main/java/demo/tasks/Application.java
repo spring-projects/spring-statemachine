@@ -8,6 +8,8 @@ import java.util.Map;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.shell.Bootstrap;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
@@ -127,8 +129,7 @@ public class Application  {
 				@Override
 				public void execute(StateContext<States, Events> context) {
 					Map<Object, Object> variables = context.getExtendedState().getVariables();
-					if (variables.get("T1").equals(false)) {
-						variables.put("T1", true);
+					if (variables.get("T1").equals(true)) {
 						context.getStateMachine().sendEvent(Events.CONTINUE);
 					} else {
 						context.getStateMachine().sendEvent(Events.FALLBACK);
@@ -155,6 +156,13 @@ public class Application  {
 		@Bean
 		public Tasks tasks() {
 			return new Tasks();
+		}
+
+		@Bean
+		public TaskExecutor taskExecutor() {
+			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+			taskExecutor.setCorePoolSize(5);
+			return taskExecutor;
 		}
 
 	}

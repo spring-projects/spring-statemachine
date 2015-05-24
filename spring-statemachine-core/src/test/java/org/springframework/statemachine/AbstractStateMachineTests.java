@@ -30,9 +30,11 @@ import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
-import org.springframework.statemachine.StateContext;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
+import org.springframework.statemachine.listener.StateMachineListenerAdapter;
+import org.springframework.statemachine.state.State;
 
 /**
  * Base class for stace machine tests.
@@ -104,6 +106,23 @@ public abstract class AbstractStateMachineTests {
 
 	}
 
+	@Configuration
+	public static class BaseConfig2 {
+
+		@Bean
+		public TaskExecutor taskExecutor() {
+			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+			taskExecutor.setCorePoolSize(5);
+			return taskExecutor;
+		}
+
+		@Bean
+		public TaskScheduler taskScheduler() {
+			return new ConcurrentTaskScheduler();
+		}
+
+	}
+
 	public static class TestEntryAction extends AbstractTestAction {
 
 		public TestEntryAction() {
@@ -139,6 +158,30 @@ public abstract class AbstractStateMachineTests {
 	}
 
 	public static class TestAction extends AbstractTestAction {
+	}
+
+	public static class TestSleepAction extends AbstractTestAction {
+
+		long sleep;
+		long now;
+
+		public TestSleepAction(long sleep) {
+			super();
+			this.sleep = sleep;
+		}
+
+		@Override
+		public void execute(StateContext<TestStates, TestEvents> context) {
+			now = System.currentTimeMillis();
+			if (sleep > 0) {
+				try {
+					Thread.sleep(sleep);
+				} catch (InterruptedException e) {
+				}
+			}
+			super.execute(context);
+		}
+
 	}
 
 	public static class TestGuard implements Guard<TestStates, TestEvents> {
@@ -181,6 +224,28 @@ public abstract class AbstractStateMachineTests {
 			stateContexts.add(context);
 			onExecuteLatch.countDown();
 		}
+	}
+
+	protected static class TestStateMachineListener extends StateMachineListenerAdapter<TestStates, TestEvents> {
+
+		volatile CountDownLatch stateChangedLatch = new CountDownLatch(0);
+		volatile CountDownLatch stateMachineStartedLatch = new CountDownLatch(3);
+
+		@Override
+		public void stateChanged(State<TestStates, TestEvents> from, State<TestStates, TestEvents> to) {
+			stateChangedLatch.countDown();
+		}
+
+		@Override
+		public void stateMachineStarted(StateMachine<TestStates, TestEvents> stateMachine) {
+			stateMachineStartedLatch.countDown();
+		}
+
+		void reset(int c1, int c2) {
+			stateChangedLatch = new CountDownLatch(c1);
+			stateMachineStartedLatch = new CountDownLatch(c2);
+		}
+
 	}
 
 }

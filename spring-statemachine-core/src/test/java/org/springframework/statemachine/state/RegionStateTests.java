@@ -41,8 +41,8 @@ public class RegionStateTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testSimpleRegionState() {
-
-		State<TestStates,TestEvents> stateSI = new EnumState<TestStates,TestEvents>(TestStates.SI);
+		PseudoState<TestStates,TestEvents> pseudoState = new DefaultPseudoState<TestStates,TestEvents>(PseudoStateKind.INITIAL);
+		State<TestStates,TestEvents> stateSI = new EnumState<TestStates,TestEvents>(TestStates.SI, pseudoState);
 		State<TestStates,TestEvents> stateS1 = new EnumState<TestStates,TestEvents>(TestStates.S1);
 		State<TestStates,TestEvents> stateS2 = new EnumState<TestStates,TestEvents>(TestStates.S2);
 		State<TestStates,TestEvents> stateS3 = new EnumState<TestStates,TestEvents>(TestStates.S3);
@@ -71,6 +71,7 @@ public class RegionStateTests extends AbstractStateMachineTests {
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
 		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateSI);
 		machine.setTaskExecutor(taskExecutor);
+		machine.afterPropertiesSet();
 		machine.start();
 
 		Collection<Region<TestStates,TestEvents>> regions = new ArrayList<Region<TestStates,TestEvents>>();

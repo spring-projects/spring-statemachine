@@ -46,9 +46,9 @@ import org.springframework.statemachine.state.RegionState;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.state.StateMachineState;
 import org.springframework.statemachine.support.DefaultExtendedState;
-import org.springframework.statemachine.support.StateMachineFunction;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
 import org.springframework.statemachine.support.StateMachineAccess;
+import org.springframework.statemachine.support.StateMachineFunction;
 import org.springframework.statemachine.support.tree.Tree;
 import org.springframework.statemachine.support.tree.Tree.Node;
 import org.springframework.statemachine.support.tree.TreeTraverser;
@@ -161,8 +161,9 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 					// TODO: don't like that we create a last machine here
 					Collection<State<S, E>> states = new ArrayList<State<S, E>>();
 					states.add(rstate);
+					Transition<S, E> initialTransition = new InitialTransition<S, E>(rstate);
 					EnumStateMachine<S, E> m = new EnumStateMachine<S, E>(states, new ArrayList<Transition<S, E>>(), rstate,
-							null, null, defaultExtendedState);
+							initialTransition, null, defaultExtendedState);
 					if (contextEvents != null) {
 						m.setContextEventsEnabled(contextEvents);
 					}
@@ -460,22 +461,17 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 			}
 		}
 
-		// TODO: should make a proper transition
-		Transition<S, E> initialTransition = null;
-		if (initialAction != null) {
-			initialTransition = new InitialTransition<S, E>(initialState, initialAction);
-		}
-
+		Transition<S, E> initialTransition = new InitialTransition<S, E>(initialState, initialAction);
 		EnumStateMachine<S, E> machine = new EnumStateMachine<S, E>(states, transitions, initialState,
 				initialTransition, null, defaultExtendedState);
 		machine.setHistoryState(historyState);
 		if (contextEvents != null) {
 			machine.setContextEventsEnabled(contextEvents);
 		}
-		machine.afterPropertiesSet();
 		if (beanFactory != null) {
 			machine.setBeanFactory(beanFactory);
 		}
+		machine.afterPropertiesSet();
 		return machine;
 	}
 

@@ -131,9 +131,11 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
 		machine.setTaskExecutor(taskExecutor);
 		machine.afterPropertiesSet();
-		machine.start();
 		submachine1.setTaskExecutor(taskExecutor);
+		submachine1.afterPropertiesSet();
 		submachine11.setTaskExecutor(taskExecutor);
+		submachine11.afterPropertiesSet();
+		machine.start();
 
 		machine.sendEvent(TestEvents.E1);
 
@@ -221,8 +223,9 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
 		machine.setTaskExecutor(taskExecutor);
 		machine.afterPropertiesSet();
-		machine.start();
 		submachine11.setTaskExecutor(taskExecutor);
+		submachine11.afterPropertiesSet();
+		machine.start();
 
 		machine.sendEvent(TestEvents.E1);
 
@@ -318,9 +321,11 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
 		machine.setTaskExecutor(taskExecutor);
 		machine.afterPropertiesSet();
-		machine.start();
 		submachine1.setTaskExecutor(taskExecutor);
+		submachine1.afterPropertiesSet();
 		submachine11.setTaskExecutor(taskExecutor);
+		submachine11.afterPropertiesSet();
+		machine.start();
 
 		machine.sendEvent(TestEvents.E1);
 

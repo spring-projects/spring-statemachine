@@ -17,14 +17,15 @@ package org.springframework.statemachine;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
@@ -38,7 +39,6 @@ import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.event.StateMachineEventPublisherConfiguration;
-import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.DefaultPseudoState;
 import org.springframework.statemachine.state.EnumState;
@@ -47,6 +47,7 @@ import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.RegionState;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.DefaultExternalTransition;
+import org.springframework.statemachine.transition.InitialTransition;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.trigger.EventTrigger;
 
@@ -101,7 +102,8 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 		transitions.add(transitionFromS2ToS3);
 
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
-		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateSI);
+		Transition<TestStates,TestEvents> initialTransition = new InitialTransition<TestStates,TestEvents>(stateSI);
+		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateSI, initialTransition, null, null);
 		machine.setTaskExecutor(taskExecutor);
 		machine.afterPropertiesSet();
 		machine.start();
@@ -130,7 +132,7 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 	public void testMultiRegionBuildRaw() throws Exception {
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
 		PseudoState<TestStates,TestEvents> pseudoState = new DefaultPseudoState<TestStates,TestEvents>(PseudoStateKind.INITIAL);
-		State<TestStates,TestEvents> stateSI = new EnumState<TestStates,TestEvents>(TestStates.SI);
+		State<TestStates,TestEvents> stateSI = new EnumState<TestStates,TestEvents>(TestStates.SI, pseudoState);
 
 		TestEntryAction entryActionS111 = new TestEntryAction("S111");
 		TestExitAction exitActionS111 = new TestExitAction("S111");
@@ -164,7 +166,8 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromS111ToS112 =
 				new DefaultExternalTransition<TestStates,TestEvents>(stateS111, stateS112, null, TestEvents.E2, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E2));
 		transitions11.add(transitionFromS111ToS112);
-		EnumStateMachine<TestStates, TestEvents> machine11 = new EnumStateMachine<TestStates, TestEvents>(states11, transitions11, stateS111);
+		Transition<TestStates,TestEvents> initialTransition11 = new InitialTransition<TestStates,TestEvents>(stateS111);
+		EnumStateMachine<TestStates, TestEvents> machine11 = new EnumStateMachine<TestStates, TestEvents>(states11, transitions11, stateS111, initialTransition11, null, null);
 		machine11.setTaskExecutor(taskExecutor);
 		machine11.afterPropertiesSet();
 
@@ -175,7 +178,8 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromSIToS121 =
 				new DefaultExternalTransition<TestStates,TestEvents>(stateSI, stateS111, null, TestEvents.E3, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E3));
 		transitions12.add(transitionFromSIToS121);
-		EnumStateMachine<TestStates, TestEvents> machine12 = new EnumStateMachine<TestStates, TestEvents>(states12, transitions12, stateS121);
+		Transition<TestStates,TestEvents> initialTransition12 = new InitialTransition<TestStates,TestEvents>(stateS121);
+		EnumStateMachine<TestStates, TestEvents> machine12 = new EnumStateMachine<TestStates, TestEvents>(states12, transitions12, stateS121, initialTransition12, null, null);
 		machine12.setTaskExecutor(taskExecutor);
 		machine12.afterPropertiesSet();
 
@@ -190,7 +194,8 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromSIToRegionstate =
 				new DefaultExternalTransition<TestStates,TestEvents>(stateSI, stateR, null, TestEvents.E1, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E1));
 		transitions.add(transitionFromSIToRegionstate);
-		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateR);
+		Transition<TestStates,TestEvents> initialTransition = new InitialTransition<TestStates,TestEvents>(stateR);
+		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateR, initialTransition, null, null);
 
 		machine.setTaskExecutor(taskExecutor);
 		machine.afterPropertiesSet();
@@ -221,7 +226,7 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testMultiRegion() throws Exception {
-		context.register(BaseConfig.class, StateMachineEventPublisherConfiguration.class, Config1.class);
+		context.register(StateMachineEventPublisherConfiguration.class, Config1.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
@@ -253,7 +258,7 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testRegionsInNestedState() throws Exception {
-		context.register(BaseConfig.class, StateMachineEventPublisherConfiguration.class, Config2.class);
+		context.register(StateMachineEventPublisherConfiguration.class, Config2.class);
 		context.refresh();
 		EnumStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
@@ -261,9 +266,83 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 		Collection<Object> states = TestUtils.readField("states", machine);
 		assertThat(states.size(), is(3));
 		assertThat(states, containsInAnyOrder(instanceOf(EnumState.class), instanceOf(EnumState.class), instanceOf(RegionState.class)));
+		TestStateMachineListener listener = context.getBean(TestStateMachineListener.class);
+		machine.addStateListener(listener);
 		machine.start();
+		listener.reset(3, 0);
 		machine.sendEvent(TestEvents.E1);
+		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+	}
+
+	@Test
+	public void testParallelRegionExecution() throws Exception {
+		context.register(StateMachineEventPublisherConfiguration.class, Config3.class, BaseConfig2.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		@SuppressWarnings("unchecked")
+		EnumStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		assertThat(machine, notNullValue());
+		TestSleepAction action1 = context.getBean("action1", TestSleepAction.class);
+		TestSleepAction action2 = context.getBean("action2", TestSleepAction.class);
+		TestStateMachineListener listener = context.getBean(TestStateMachineListener.class);
+		machine.addStateListener(listener);
+		machine.start();
+		assertThat(listener.stateMachineStartedLatch.await(5, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S10, TestStates.S20));
+
+		listener.reset(2, 0);
+		machine.sendEvent(TestEvents.E1);
+		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S11, TestStates.S21));
+
+		listener.reset(1, 0);
+		machine.sendEvent(TestEvents.E2);
+		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S10, TestStates.S21));
+
+		listener.reset(1, 0);
+		machine.sendEvent(TestEvents.E3);
+		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S10, TestStates.S20));
+
+		// check that actions are called and that both are executed
+		// within a time which is less than their sleep time,
+		// indicating that we must have paralled execution
+		assertThat(action1.now, greaterThan(0l));
+		assertThat(action2.now, greaterThan(0l));
+		assertThat(Math.abs(action1.now-action2.now), lessThan(1999l));
+	}
+
+	@Test
+	public void testParallelRegionExecutionInInitialState() throws Exception {
+		context.register(StateMachineEventPublisherConfiguration.class, Config4.class, BaseConfig2.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		@SuppressWarnings("unchecked")
+		EnumStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		assertThat(machine, notNullValue());
+		TestSleepAction action1 = context.getBean("action1", TestSleepAction.class);
+		TestSleepAction action2 = context.getBean("action2", TestSleepAction.class);
+		TestStateMachineListener listener = context.getBean(TestStateMachineListener.class);
+		machine.addStateListener(listener);
+		machine.start();
+		assertThat(listener.stateMachineStartedLatch.await(5, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S10, TestStates.S20));
+
+		listener.reset(2, 0);
+		machine.sendEvent(TestEvents.E1);
+		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S11, TestStates.S21));
+
+		// check that actions are called and that both are executed
+		// within a time which is less than their sleep time,
+		// indicating that we must have paralled execution
+		assertThat(action1.now, greaterThan(0l));
+		assertThat(action2.now, greaterThan(0l));
+		assertThat(Math.abs(action1.now-action2.now), lessThan(1999l));
 	}
 
 	@Configuration
@@ -350,27 +429,117 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 					.event(TestEvents.E1);
 		}
 
+		@Bean
+		public TestStateMachineListener testStateMachineListener() {
+			return new TestStateMachineListener();
+		}
+
 	}
 
-
-	private static class TestStateMachineListener extends StateMachineListenerAdapter<TestStates, TestEvents> {
-
-		volatile CountDownLatch stateChangedLatch = new CountDownLatch(0);
-		volatile CountDownLatch stateMachineStartedLatch = new CountDownLatch(3);
+	@Configuration
+	@EnableStateMachine
+	static class Config3 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
 
 		@Override
-		public void stateChanged(State<TestStates, TestEvents> from, State<TestStates, TestEvents> to) {
-			stateChangedLatch.countDown();
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S10)
+					.state(TestStates.S10)
+					.state(TestStates.S11, action1(), null)
+					.and()
+				.withStates()
+					.initial(TestStates.S20)
+					.state(TestStates.S20)
+					.state(TestStates.S21, action2(), null);
 		}
 
 		@Override
-		public void stateMachineStarted(StateMachine<TestStates, TestEvents> stateMachine) {
-			stateMachineStartedLatch.countDown();
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S10)
+					.target(TestStates.S11)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S11)
+					.target(TestStates.S10)
+					.event(TestEvents.E2)
+					.and()
+				.withExternal()
+					.source(TestStates.S20)
+					.target(TestStates.S21)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S21)
+					.target(TestStates.S20)
+					.event(TestEvents.E3);
 		}
 
-		void reset(int c1, int c2) {
-			stateChangedLatch = new CountDownLatch(c1);
-			stateMachineStartedLatch = new CountDownLatch(c2);
+		@Bean
+		public TestStateMachineListener testStateMachineListener() {
+			return new TestStateMachineListener();
+		}
+
+		@Bean
+		public TestSleepAction action1() {
+			return new TestSleepAction(2000);
+		}
+
+		@Bean
+		public TestSleepAction action2() {
+			return new TestSleepAction(2000);
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config4 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S10)
+					.state(TestStates.S10, action1(), null)
+					.state(TestStates.S11)
+					.and()
+				.withStates()
+					.initial(TestStates.S20)
+					.state(TestStates.S20, action2(), null)
+					.state(TestStates.S21);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S10)
+					.target(TestStates.S11)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S20)
+					.target(TestStates.S21)
+					.event(TestEvents.E1);
+		}
+
+		@Bean
+		public TestStateMachineListener testStateMachineListener() {
+			return new TestStateMachineListener();
+		}
+
+		@Bean
+		public TestSleepAction action1() {
+			return new TestSleepAction(2000);
+		}
+
+		@Bean
+		public TestSleepAction action2() {
+			return new TestSleepAction(2000);
 		}
 
 	}

@@ -15,9 +15,12 @@
  */
 package org.springframework.statemachine;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -44,8 +47,12 @@ public class RelayTests extends AbstractStateMachineTests {
 		EnumStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
 		assertThat(machine, notNullValue());
+		TestStateMachineListener listener = new TestStateMachineListener();
+		machine.addStateListener(listener);
 		machine.start();
+		listener.reset(3, 0);
 		machine.sendEvent(TestEvents.E1);
+		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS), is(true));
 
 		assertThat(machine.getState().getIds(), contains(TestStates.S2, TestStates.S21));
 	}

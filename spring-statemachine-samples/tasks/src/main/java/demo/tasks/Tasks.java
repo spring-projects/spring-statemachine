@@ -54,19 +54,25 @@ public class Tasks {
 	@StatesOnTransition(target = States.T1)
 	public void taskT1(ExtendedState extendedState) {
 		log.info("run task on T1");
+		sleep(2000);
 		extendedState.getVariables().put("T1", tasks.get("T1"));
+		log.info("run task on T1 done");
 	}
 
 	@StatesOnTransition(target = States.T2)
 	public void taskT2(ExtendedState extendedState) {
 		log.info("run task on T2");
+		sleep(2000);
 		extendedState.getVariables().put("T2", tasks.get("T2"));
+		log.info("run task on T2 done");
 	}
 
 	@StatesOnTransition(target = States.T3)
 	public void taskT3(ExtendedState extendedState) {
 		log.info("run task on T3");
+		sleep(2000);
 		extendedState.getVariables().put("T3", tasks.get("T3"));
+		log.info("run task on T3 done");
 	}
 
 	@StatesOnTransition(target = States.AUTOMATIC)
@@ -84,6 +90,13 @@ public class Tasks {
 		if (variables.get("T2").equals(false)) {
 			variables.put("T2", true);
 			tasks.put("T2", true);
+		}
+	}
+
+	private static void sleep(long millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {
 		}
 	}
 

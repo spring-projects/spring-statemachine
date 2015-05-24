@@ -76,7 +76,7 @@ public class ShowcaseTests {
 		assertThat(listener.statesExited.size(), is(2));
 		assertThat(listener.statesExited.get(0).getId(), is(States.S11));
 		assertThat(listener.statesExited.get(1).getId(), is(States.S1));
-		assertThat(listener.transitionCount, is(1));
+		assertThat(listener.transitionCount, is(2));
 	}
 
 	@Test

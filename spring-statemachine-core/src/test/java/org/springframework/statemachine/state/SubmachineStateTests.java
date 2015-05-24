@@ -55,8 +55,8 @@ public class SubmachineStateTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testSimpleSubmachineState() {
-
-		State<TestStates,TestEvents> stateSI = new EnumState<TestStates,TestEvents>(TestStates.SI);
+		PseudoState<TestStates,TestEvents> pseudoState = new DefaultPseudoState<TestStates,TestEvents>(PseudoStateKind.INITIAL);
+		State<TestStates,TestEvents> stateSI = new EnumState<TestStates,TestEvents>(TestStates.SI, pseudoState);
 		State<TestStates,TestEvents> stateS1 = new EnumState<TestStates,TestEvents>(TestStates.S1);
 		State<TestStates,TestEvents> stateS2 = new EnumState<TestStates,TestEvents>(TestStates.S2);
 		State<TestStates,TestEvents> stateS3 = new EnumState<TestStates,TestEvents>(TestStates.S3);
@@ -85,6 +85,7 @@ public class SubmachineStateTests extends AbstractStateMachineTests {
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
 		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateSI);
 		machine.setTaskExecutor(taskExecutor);
+		machine.afterPropertiesSet();
 		machine.start();
 
 		StateMachineState<TestStates,TestEvents> state = new StateMachineState<TestStates,TestEvents>(TestStates.S4, machine);

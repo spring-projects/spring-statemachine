@@ -23,19 +23,51 @@ import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.trigger.Trigger;
 
+/**
+ * {@link Transition} used during a state machine start.
+ *
+ * @author Janne Valkealahti
+ *
+ * @param <S> the type of state
+ * @param <E> the type of event
+ */
 public class InitialTransition<S, E> implements Transition<S, E> {
 
 	private final State<S, E> target;
 
 	private final Collection<Action<S, E>> actions;
 
+	/**
+	 * Instantiates a new initial transition.
+	 *
+	 * @param target the initial target state
+	 */
+	public InitialTransition(State<S, E> target) {
+		this.target = target;
+		this.actions = null;
+	}
+
+	/**
+	 * Instantiates a new initial transition.
+	 *
+	 * @param target the initial target state
+	 * @param action the initial action
+	 */
 	public InitialTransition(State<S, E> target, Action<S, E> action) {
 		this.target = target;
 		ArrayList<Action<S,E>> list = new ArrayList<Action<S, E>>();
-		list.add(action);
+		if (action != null) {
+			list.add(action);
+		}
 		this.actions = list;
 	}
 
+	/**
+	 * Instantiates a new initial transition.
+	 *
+	 * @param target the initial target state
+	 * @param action the initial actions
+	 */
 	public InitialTransition(State<S, E> target, Collection<Action<S, E>> actions) {
 		this.target = target;
 		this.actions = actions;
@@ -73,7 +105,7 @@ public class InitialTransition<S, E> implements Transition<S, E> {
 
 	@Override
 	public TransitionKind getKind() {
-		return null;
+		return TransitionKind.INITIAL;
 	}
 
 }

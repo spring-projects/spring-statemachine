@@ -165,6 +165,16 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		}
 	}
 
+	protected void stateChangedInRelay() {
+		// TODO: this is a temporary tweak to know when state is
+		//       changed in a submachine/regions order to give
+		//       state machine a change to request executor login again
+		//       which is needed when we use multiple thread. with multiple
+		//       threads submachines may do their stuff after thread handling
+		//       main machine has already finished its execution logic, thus
+		//       re-scheduling is needed.
+	}
+
 	/**
 	 * This class is used to relay listener events from a submachines which works
 	 * as its own listener context. User only connects to main root machine and
@@ -175,6 +185,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		@Override
 		public void stateChanged(State<S, E> from, State<S, E> to) {
 			stateListener.stateChanged(from, to);
+			stateChangedInRelay();
 		}
 
 		@Override

@@ -46,22 +46,22 @@ public class TasksTests {
 
 	@Test
 	public void testRunOnce() throws InterruptedException {
-		listener.reset(3, 0, 0);
+		listener.reset(9, 0, 0);
 		tasks.run();
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedLatch.await(6, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), contains(States.READY));
 	}
 
 	@Test
 	public void testRunTwice() throws InterruptedException {
-		listener.reset(3, 0, 0);
+		listener.reset(9, 0, 0);
 		tasks.run();
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedLatch.await(6, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), contains(States.READY));
 
-		listener.reset(3, 0, 0);
+		listener.reset(9, 0, 0);
 		tasks.run();
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedLatch.await(6, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), contains(States.READY));
 	}
 
@@ -70,19 +70,19 @@ public class TasksTests {
 		listener.reset(11, 0, 0);
 		tasks.fail("T1");
 		tasks.run();
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedLatch.await(6, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(11));
 		assertThat(machine.getState().getIds(), contains(States.READY));
 	}
 
 	@Test
 	public void testFailManualFix() throws InterruptedException {
-		listener.reset(3, 0, 0);
+		listener.reset(9, 0, 0);
 		tasks.fail("T2");
 		tasks.run();
 		tasks.fix("T2");
 		tasks.cont();
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedLatch.await(6, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), contains(States.READY));
 	}
 

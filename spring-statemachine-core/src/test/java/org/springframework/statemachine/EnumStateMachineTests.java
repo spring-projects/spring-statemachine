@@ -173,7 +173,8 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testInternalTransitions() {
-		State<TestStates,TestEvents> stateSI = new EnumState<TestStates,TestEvents>(TestStates.SI);
+		PseudoState<TestStates,TestEvents> pseudoState = new DefaultPseudoState<TestStates,TestEvents>(PseudoStateKind.INITIAL);
+		State<TestStates,TestEvents> stateSI = new EnumState<TestStates,TestEvents>(TestStates.SI, pseudoState);
 
 		Collection<State<TestStates,TestEvents>> states = new ArrayList<State<TestStates,TestEvents>>();
 		states.add(stateSI);
@@ -190,6 +191,7 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
 		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateSI);
 		machine.setTaskExecutor(taskExecutor);
+		machine.afterPropertiesSet();
 		machine.start();
 
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());

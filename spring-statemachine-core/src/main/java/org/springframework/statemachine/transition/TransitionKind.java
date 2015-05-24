@@ -18,7 +18,7 @@ package org.springframework.statemachine.transition;
 /**
  * Defines enumeration of a {@link Transition} kind. This is uses within a
  * transition to indicate whether its type is external, internal or local.
- * 
+ *
  * @author Janne Valkealahti
  *
  */
@@ -31,6 +31,9 @@ public enum TransitionKind {
 	INTERNAL,
 
 	/** Indicates a local transition kind. */
-	LOCAL
+	LOCAL,
+
+	/** Indicates an initial transition kind. */
+	INITIAL
 
 }

@@ -21,23 +21,16 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ListableBeanFactory;
-import org.springframework.context.Lifecycle;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.MessageBuilder;
@@ -58,12 +51,12 @@ import org.springframework.statemachine.state.PseudoStateContext;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.PseudoStateListener;
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.support.StateMachineExecutor.StateMachineExecutorTransit;
+import org.springframework.statemachine.transition.InitialTransition;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionKind;
 import org.springframework.statemachine.trigger.DefaultTriggerContext;
-import org.springframework.statemachine.trigger.TimerTrigger;
 import org.springframework.statemachine.trigger.Trigger;
-import org.springframework.statemachine.trigger.TriggerListener;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -92,29 +85,21 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	private final ExtendedState extendedState;
 
-	private final Queue<Message<E>> eventQueue = new ConcurrentLinkedQueue<Message<E>>();
-
-	private final LinkedList<Message<E>> deferList = new LinkedList<Message<E>>();
-
 	private volatile State<S,E> currentState;
 
 	private volatile PseudoState<S, E> history;
 
-	private volatile Runnable task;
-
-	private final AtomicBoolean requestTask = new AtomicBoolean(false);
-
 	private final Map<String, StateMachineOnTransitionHandler<S, E>> handlers = new HashMap<String, StateMachineOnTransitionHandler<S,E>>();
 
 	private volatile boolean handlersInitialized;
-
-	private final Queue<TriggerQueueItem> triggerQueue = new ConcurrentLinkedQueue<TriggerQueueItem>();
 
 	private final Map<Trigger<S, E>, Transition<S,E>> triggerToTransitionMap = new HashMap<Trigger<S,E>, Transition<S,E>>();
 
 	private final List<Transition<S, E>> triggerlessTransitions = new ArrayList<Transition<S,E>>();
 
 	private StateMachine<S, E> relay;
+
+	private StateMachineExecutor<S, E> stateMachineExecutor;
 
 	/**
 	 * Instantiates a new abstract state machine.
@@ -156,9 +141,13 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		this.states = states;
 		this.transitions = transitions;
 		this.initialState = initialState;
-		this.initialTransition = initialTransition;
 		this.initialEvent = initialEvent;
 		this.extendedState = extendedState != null ? extendedState : new DefaultExtendedState();
+		if (initialTransition == null) {
+			this.initialTransition = new InitialTransition<S, E>(initialState);
+		} else {
+			this.initialTransition = initialTransition;
+		}
 	}
 
 	@Override
@@ -186,7 +175,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			return false;
 		}
 		boolean accepted = acceptEvent(event);
-		scheduleEventQueueProcessing();
+		stateMachineExecutor.execute();
 		return accepted;
 	}
 
@@ -202,6 +191,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		Assert.state(initialState.getPseudoState() != null
 				&& initialState.getPseudoState().getKind() == PseudoStateKind.INITIAL,
 				"Initial state's pseudostate kind must be INITIAL");
+
+		// process given transitions
 		for (Transition<S, E> transition : transitions) {
 			Trigger<S, E> trigger = transition.getTrigger();
 			if (trigger != null) {
@@ -211,6 +202,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				triggerlessTransitions.add(transition);
 			}
 		}
+
 		for (State<S, E> state : states) {
 			if (state.isSubmachineState()) {
 				StateMachine<S, E> submachine = ((AbstractState<S, E>)state).getSubmachine();
@@ -227,6 +219,32 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				history = state.getPseudoState();
 			}
 		}
+
+		DefaultStateMachineExecutor<S, E> executor = new DefaultStateMachineExecutor<S, E>(this, getRelayStateMachine(), extendedState,
+				transitions, triggerToTransitionMap, triggerlessTransitions, initialTransition, initialEvent);
+		if (getBeanFactory() != null) {
+			executor.setBeanFactory(getBeanFactory());
+		} else if (getTaskExecutor() != null){
+			executor.setTaskExecutor(getTaskExecutor());
+		}
+		executor.afterPropertiesSet();
+		executor.setStateMachineExecutorTransit(new StateMachineExecutorTransit<S, E>() {
+
+			@Override
+			public void transit(Transition<S, E> t, StateContext<S, E> stateContext, Message<E> queuedMessage) {
+				notifyTransitionStart(t);
+				callHandlers(t.getSource(), t.getTarget(), queuedMessage);
+				if (t.getKind() == TransitionKind.INITIAL) {
+					switchToState(t.getTarget(), queuedMessage, null, getRelayStateMachine());
+					notifyStateMachineStarted(getRelayStateMachine());
+				} else if (t.getKind() != TransitionKind.INTERNAL) {
+					switchToState(t.getTarget(), queuedMessage, t, getRelayStateMachine());
+				}
+				notifyTransition(t);
+				notifyTransitionEnd(t);
+			}
+		});
+		stateMachineExecutor = executor;
 	}
 
 	@Override
@@ -235,21 +253,15 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		if (currentState != null) {
 			return;
 		}
-		registerTriggerListener();
 		registerPseudoStateListener();
-		switchToState(initialState, initialEvent, null, getRelayStateMachine());
-		// TODO: it is a bit off to call handlers after switchToState for initial state
-		callHandlers(null, initialState, initialEvent);
-		// TODO: for now execute outside of switchToState
-		if (initialTransition != null) {
-			StateContext<S, E> stateContext = buildStateContext(initialEvent, initialTransition, getRelayStateMachine());
-			initialTransition.transit(stateContext);
-		}
-		notifyStateMachineStarted(this);
+
+		// start fires first execution which should execute initial transition
+		stateMachineExecutor.start();
 	}
 
 	@Override
 	protected void doStop() {
+		stateMachineExecutor.stop();
 		notifyStateMachineStopped(this);
 		currentState = null;
 	}
@@ -313,6 +325,12 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		this.relay = stateMachine;
 	}
 
+	@Override
+	protected void stateChangedInRelay() {
+		// TODO: temp tweak, see super
+		stateMachineExecutor.execute();
+	}
+
 	private StateMachine<S, E> getRelayStateMachine() {
 		return relay != null ? relay : this;
 	}
@@ -352,7 +370,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 			if (StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
 				if (trigger != null && trigger.evaluate(new DefaultTriggerContext<S, E>(message.getPayload()))) {
-					triggerQueue.add(new TriggerQueueItem(trigger, message));
+					stateMachineExecutor.queueTrigger(trigger, message);
 					return true;
 				} else if (source.getDeferredEvents() != null && source.getDeferredEvents().contains(message.getPayload())) {
 					defer = message;
@@ -361,7 +379,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		}
 		if (defer != null) {
 			log.info("Deferring event " + defer);
-			deferList.addLast(defer);
+			stateMachineExecutor.queueDeferredEvent(defer);
 			return true;
 		}
 
@@ -386,7 +404,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			setCurrentState(state, message, transition, true, stateMachine);
 		}
 
-		scheduleEventQueueProcessing();
+		stateMachineExecutor.execute();
 		if (isComplete()) {
 			stop();
 		}
@@ -436,6 +454,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	void setCurrentState(State<S, E> state, Message<E> message, Transition<S, E> transition, boolean exit, StateMachine<S, E> stateMachine) {
+
 		State<S, E> findDeep = findDeepParent(state);
 		boolean isTargetSubOf = false;
 		if (transition != null) {
@@ -597,157 +616,6 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		state.entry(stateContext);
 	}
 
-	private void processEventQueue() {
-		log.debug("Process event queue");
-		Message<E> queuedEvent = null;
-		while ((queuedEvent = eventQueue.poll()) != null) {
-			Message<E> defer = null;
-			for (Transition<S,E> transition : transitions) {
-				State<S,E> source = transition.getSource();
-				Trigger<S, E> trigger = transition.getTrigger();
-
-				if (StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
-					if (trigger != null && trigger.evaluate(new DefaultTriggerContext<S, E>(queuedEvent.getPayload()))) {
-						triggerQueue.add(new TriggerQueueItem(trigger, queuedEvent));
-					} else if (source.getDeferredEvents() != null && source.getDeferredEvents().contains(queuedEvent.getPayload())) {
-						defer = queuedEvent;
-					}
-				}
-			}
-			if (defer != null) {
-				log.info("Deferring event " + defer);
-				deferList.addLast(defer);
-			}
-		}
-	}
-
-	private boolean processDeferList() {
-		log.debug("Process defer list");
-		boolean triggered = false;
-		ListIterator<Message<E>> iterator = deferList.listIterator();
-		while (iterator.hasNext()) {
-			Message<E> event = iterator.next();
-			for (Transition<S,E> transition : transitions) {
-				State<S,E> source = transition.getSource();
-				Trigger<S, E> trigger = transition.getTrigger();
-				if (source.equals(currentState)) {
-					if (trigger != null && trigger.evaluate(new DefaultTriggerContext<S, E>(event.getPayload()))) {
-						triggerQueue.add(new TriggerQueueItem(trigger, event));
-						iterator.remove();
-						triggered = true;
-					}
-				}
-			}
-		}
-		return triggered;
-	}
-
-	private void scheduleEventQueueProcessing() {
-		TaskExecutor executor = getTaskExecutor();
-		if (executor == null) {
-			return;
-		}
-		if (task == null) {
-			task = new Runnable() {
-				@Override
-				public void run() {
-					processEventQueue();
-					processTriggerQueue();
-					while (processDeferList()) {
-						processTriggerQueue();
-					}
-					task = null;
-					if (requestTask.getAndSet(false)) {
-						scheduleEventQueueProcessing();
-					}
-				}
-			};
-			executor.execute(task);
-		} else {
-			requestTask.set(true);
-		}
-	}
-
-	private void processTriggerQueue() {
-		log.debug("Process trigger queue");
-		TriggerQueueItem queueItem = null;
-		while ((queueItem = triggerQueue.poll()) != null) {
-
-			if (currentState == null) {
-				continue;
-			}
-
-			Message<E> queuedMessage = queueItem.message;
-			E event = queuedMessage != null ? queuedMessage.getPayload() : null;
-
-			// need all transitions trigger could match, event trigger may match multiple
-			// need to go up from substates and ask if trigger transit, if not check super
-			ArrayList<Transition<S, E>> trans = new ArrayList<Transition<S,E>>();
-
-			if (event != null) {
-				ArrayList<S> ids = new ArrayList<S>(currentState.getIds());
-				Collections.reverse(ids);
-				for (S id : ids) {
-					for (Entry<Trigger<S, E>, Transition<S, E>> e : triggerToTransitionMap.entrySet()) {
-						Trigger<S, E> tri = e.getKey();
-						E ee = tri.getEvent();
-						Transition<S, E> tra = e.getValue();
-						if (event == ee) {
-							if (tra.getSource().getId() == id && !trans.contains(tra)) {
-								trans.add(tra);
-								continue;
-							}
-						}
-					}
-				}
-			}
-
-			// most likely timer
-			if (trans.isEmpty()) {
-				trans.add(triggerToTransitionMap.get(queueItem.trigger));
-			}
-
-			// go through candidates and transit max one
-			handleTriggerTrans(trans, queuedMessage);
-		}
-		if (currentState != null) {
-			// handle triggerless transitions
-			handleTriggerTrans(triggerlessTransitions, null);
-		}
-	}
-
-	private void handleTriggerTrans(List<Transition<S, E>> trans, Message<E> queuedMessage) {
-		for (Transition<S, E> t : trans) {
-			StateContext<S, E> stateContext = buildStateContext(queuedMessage, t, getRelayStateMachine());
-			if (t == null) {
-				continue;
-			}
-			State<S,E> source = t.getSource();
-			if (source == null) {
-				continue;
-			}
-			if (!StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
-				continue;
-			}
-			boolean transit = t.transit(stateContext);
-			if (transit) {
-				// TODO: should change trasition api so that we can ask
-				//       if transition will transit so that we can post
-				//       accurate notifyTransitionStart
-				notifyTransitionStart(t);
-				callHandlers(t.getSource(), t.getTarget(), queuedMessage);
-				if (t.getKind() != TransitionKind.INTERNAL) {
-					switchToState(t.getTarget(), queuedMessage, t, getRelayStateMachine());
-				}
-				notifyTransition(t);
-				notifyTransitionEnd(t);
-				break;
-			}
-
-		}
-
-	}
-
 	private void callHandlers(State<S,E> sourceState, State<S,E> targetState, Message<E> message) {
 		StateContext<S, E> stateContext = buildStateContext(message, null, getRelayStateMachine());
 		getStateMachineHandlerResults(getStateMachineHandlers(sourceState, targetState), stateContext);
@@ -845,33 +713,6 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		}
 
 		return handle;
-	}
-
-	private void registerTriggerListener() {
-		for (final Trigger<S, E> trigger : triggerToTransitionMap.keySet()) {
-			if (trigger instanceof TimerTrigger) {
-				((TimerTrigger<?, ?>)trigger).addTriggerListener(new TriggerListener() {
-					@Override
-					public void triggered() {
-						log.debug("TimedTrigger triggered " + trigger);
-						triggerQueue.add(new TriggerQueueItem(trigger, null));
-						scheduleEventQueueProcessing();
-					}
-				});
-			}
-			if (trigger instanceof Lifecycle) {
-				((Lifecycle)trigger).start();
-			}
-		}
-	}
-
-	private class TriggerQueueItem {
-		Trigger<S, E> trigger;
-		Message<E> message;
-		public TriggerQueueItem(Trigger<S, E> trigger, Message<E> message) {
-			this.trigger = trigger;
-			this.message = message;
-		}
 	}
 
 }
