@@ -15,3 +15,7 @@ project('spring-statemachine-samples-cdplayer') {
 project('spring-statemachine-samples-tasks') {
   description = 'Spring State Machine Parallel Regions Sample'
 }
+
+project('spring-statemachine-samples-washer') {
+  description = 'Spring State Machine History State Sample'
+}
