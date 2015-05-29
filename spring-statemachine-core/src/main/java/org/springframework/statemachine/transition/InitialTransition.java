@@ -66,7 +66,7 @@ public class InitialTransition<S, E> implements Transition<S, E> {
 	 * Instantiates a new initial transition.
 	 *
 	 * @param target the initial target state
-	 * @param action the initial actions
+	 * @param actions the initial actions
 	 */
 	public InitialTransition(State<S, E> target, Collection<Action<S, E>> actions) {
 		this.target = target;

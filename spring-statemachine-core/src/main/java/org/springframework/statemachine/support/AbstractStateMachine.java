@@ -302,6 +302,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		return transitions;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void doWithAllRegions(StateMachineFunction<StateMachineAccess<S, E>> stateMachineAccess) {
 		stateMachineAccess.apply(this);
@@ -636,6 +637,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		return results;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private synchronized List<StateMachineHandler<S, E>> getStateMachineHandlers(State<S, E> sourceState,
 			State<S, E> targetState) {
 		BeanFactory beanFactory = getBeanFactory();

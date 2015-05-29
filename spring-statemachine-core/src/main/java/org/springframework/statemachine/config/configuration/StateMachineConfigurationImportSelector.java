@@ -17,6 +17,7 @@ package org.springframework.statemachine.config.configuration;
 
 import java.util.Map;
 
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;

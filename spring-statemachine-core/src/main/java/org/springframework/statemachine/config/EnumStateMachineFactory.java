@@ -91,6 +91,7 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 		this.stateMachineStates = stateMachineStates;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public StateMachine<S, E> getStateMachine() {
 
@@ -144,14 +145,13 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 				for (Collection<StateData<S, E>> regionStateDatas : regionsStateDatas) {
 					machine = buildMachine(machineMap, stateMap, regionStateDatas, transitionsData, getBeanFactory(),
 							contextEvents, defaultExtendedState, stateMachineTransitions);
-					regionStack.push(new MachineStackItem<S, E>(machine, peek.getParent(), peek));
+					regionStack.push(new MachineStackItem<S, E>(machine));
 				}
 
 				Collection<Region<S, E>> regions = new ArrayList<Region<S, E>>();
 				for (MachineStackItem<S, E> si : regionStack) {
 					regions.add(si.machine);
 				}
-				@SuppressWarnings("unchecked")
 				S parent = (S)peek.getParent();
 				RegionState<S, E> rstate = new RegionState<S, E>(parent, regions, null, null, null,
 						new DefaultPseudoState<S, E>(PseudoStateKind.INITIAL));
@@ -248,14 +248,9 @@ public class EnumStateMachineFactory<S extends Enum<S>, E extends Enum<E>> exten
 	private static class MachineStackItem<S, E> {
 
 		StateMachine<S, E> machine;
-		Object parent;
-		StateData<S, E> stateData;
 
-		public MachineStackItem(StateMachine<S, E> machine, Object parent, StateData<S, E> stateData) {
-			super();
+		public MachineStackItem(StateMachine<S, E> machine) {
 			this.machine = machine;
-			this.parent = parent;
-			this.stateData = stateData;
 		}
 
 	}
