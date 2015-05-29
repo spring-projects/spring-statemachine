@@ -65,12 +65,3 @@ You are already trying to implement a state machine if:
   enum is set and then making further exceptions what to do when certain
   combination of your flags and enums exists or doesn't exist together.
 
-== Feature Limitations
-
-A lot of features are planned for future releases thus some are not
-yet implemented:
-
-* Regions are not fully supported and currently contains many bugs.
-* Features around pseudo states are missing functionality like history
-  states, fork/join with regions, etc.
-
