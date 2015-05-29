@@ -136,10 +136,10 @@ concepts.
 A state is a model which a state machine can be in. It is always
 easier to describe state as a real world example rather than trying to
 abstract concepts with a generic documentation. For example lets take
-a simple example of a keyboard most of use are using every single day.
+a simple example of a keyboard most of us are using every single day.
 If you have a full keyboard which has normal keys on a left side and
 the numeric keypad on a right side you may have noticed that the
-numeric keypad may be in a two different stated depending whether
+numeric keypad may be in a two different states depending whether
 numlock is activated or not. If it is not active then typing will
 result navigation using arrows, etc. If numpad is active then typing
 will result numbers to be used. Essentially numpad part of a keyboard
@@ -158,36 +158,63 @@ react to these states by doing various actions available in UML state
 machine concepts.
 
 ===== Initial
-Initial state is always needed for every single state machine whether
-you have a simple one level state machine or more complex state
-machine composed with submachines or regions. Initial state simple
-defines where state machine should go when it starts and without it
-state machine is ill-formed.
+*Initial pseudostate* state is always needed for every single state
+machine whether you have a simple one level state machine or more
+complex state machine composed with submachines or regions. Initial
+state simple defines where state machine should go when it starts and
+without it state machine is ill-formed.
 
 ===== End
-Terminate state which is also called as end state will indicate that a
-particular state machine has reached its final state. Effectively this
-mean that a state machine will no longer process any events and will
+*Terminate pseudostate* which is also called as end state will indicate
+that a particular state machine has reached its final state. Effectively
+this mean that a state machine will no longer process any events and will
 not transit to any other state. However in a case of submachines are
 regions, state machine is able to restart from its terminal state.
 
 ===== Choice
-Choice can be used to choose a transition conditionally.
+*Choice pseudostate* is used to choose a dynamic conditional branch of
+a transition from this state. Dynamic condition is evaluated by guards
+so that at least one and at most one branch is selected. Usually a
+simple if/elseif/else structure is used to make sure that at least one
+branch is selected. Otherwise state machine might end up in a deadlock
+and configuration would be ill-formed.
 
 ===== History
-History state can be used to remember a last active state
+*History pseudostate* can be used to remember a last active state
 configuration. After state machine has been exited, history state can
 be used to restore previous knows configuration. There are two types
 of history states available, _SHALLOW_ only remember active state of a
 state machine itself while _DEEP_ also remembers nested states.
 
+History state could be implemented externally by listening state
+machine events but this would soon make logic very difficult to work
+with, especially if state machine contains complex nested structures.
+Letting state machine itself to handle recording of history states
+makes things much simpler. What is left for user to do is simply do a
+transition into a history state and state machine will hand the needed
+logic to go back to its last known recorded state.
+
 ===== Fork
-Fork can be used to do an explicit entry into one or more regions.
+*Fork pseudostate* can be used to do an explicit entry into one or more regions.
+
+image::images/statechart7.png[width=500]
+
+Target state can be a parent state hosting regions, which simply
+means that regions are activated by entering its initial states. It's
+also possible to add targets directly to any state in a region which
+allows more controlled entry into a state.
 
 ===== Join
-Join is used to merge several transitions together originating from
-different regions. It it generally used to wait and block for
-participating regions to get into its join target states.
+*Join pseudostate* is used to merge several transitions together
+originating from different regions. It it generally used to wait
+and block for participating regions to get into its join target states.
+
+image::images/statechart8.png[width=500]
+
+Source state can be a parent state hosting regions, which means that
+join states will be a terminate states of a participating regions.
+It's also possible to define source states to be any state in a
+regions which allows controlled exit from a regions.
 
 ==== Guard Conditions
 Guard conditions are expressions which evaluates either to *TRUE* or
