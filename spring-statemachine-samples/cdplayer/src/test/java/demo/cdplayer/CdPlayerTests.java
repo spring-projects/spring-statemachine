@@ -297,8 +297,8 @@ public class CdPlayerTests {
 
 		@Override
 		public void stateChanged(State<States, Events> from, State<States, Events> to) {
-			stateChangedLatch.countDown();
 			stateChangedCount++;
+			stateChangedLatch.countDown();
 		}
 
 		@Override
@@ -315,8 +315,8 @@ public class CdPlayerTests {
 
 		@Override
 		public void transitionEnded(Transition<States, Events> transition) {
-			transitionLatch.countDown();
 			transitionCount++;
+			transitionLatch.countDown();
 		}
 
 		public void reset(int c1, int c2, int c3) {
