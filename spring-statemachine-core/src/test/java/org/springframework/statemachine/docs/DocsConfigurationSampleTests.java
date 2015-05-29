@@ -39,6 +39,7 @@ import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter
 import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.StateConfigurer.History;
 import org.springframework.statemachine.event.StateMachineEvent;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
@@ -353,5 +354,224 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // end::snippetO[]
 
 	}
+
+// tag::snippetP[]
+	@Configuration
+	@EnableStateMachine
+	public static class Config10
+			extends EnumStateMachineConfigurerAdapter<States2, Events> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<States2, Events> states)
+				throws Exception {
+			states
+				.withStates()
+					.initial(States2.S1)
+					.state(States2.S2)
+					.and()
+					.withStates()
+						.parent(States2.S2)
+						.initial(States2.S2I)
+						.state(States2.S21)
+						.end(States2.S2F)
+						.and()
+					.withStates()
+						.parent(States2.S2)
+						.initial(States2.S3I)
+						.state(States2.S31)
+						.end(States2.S3F);
+		}
+
+	}
+// end::snippetP[]
+
+// tag::snippetQ[]
+	@Configuration
+	@EnableStateMachine
+	public static class Config11 extends EnumStateMachineConfigurerAdapter<States, Events> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<States, Events> states)
+				throws Exception {
+			states
+				.withStates()
+					.initial(States.S1, initialAction())
+					.end(States.SF)
+					.states(EnumSet.allOf(States.class));
+		}
+
+		@Bean
+		public Action<States, Events> initialAction() {
+			return new Action<States, Events>() {
+
+				@Override
+				public void execute(StateContext<States, Events> context) {
+					// do something initially
+				}
+			};
+		}
+
+	}
+// end::snippetQ[]
+
+// tag::snippetR[]
+	@Configuration
+	@EnableStateMachine
+	public static class Config12 extends EnumStateMachineConfigurerAdapter<States3, Events> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<States3, Events> states)
+				throws Exception {
+			states
+			.withStates()
+				.initial(States3.S1)
+				.state(States3.S2)
+				.and()
+				.withStates()
+					.parent(States3.S2)
+					.initial(States3.S2I)
+					.state(States3.S21)
+					.state(States3.S22)
+					.history(States3.SH, History.SHALLOW);
+		}
+
+	}
+// end::snippetR[]
+
+// tag::snippetS[]
+	@Configuration
+	@EnableStateMachine
+	public static class Config13 extends EnumStateMachineConfigurerAdapter<States, Events> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<States, Events> states)
+				throws Exception {
+			states
+				.withStates()
+					.initial(States.SI)
+					.choice(States.S1)
+					.end(States.SF)
+					.states(EnumSet.allOf(States.class));
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<States, Events> transitions)
+				throws Exception {
+			transitions
+				.withChoice()
+					.source(States.S1)
+					.first(States.S2, s2Guard())
+					.then(States.S3, s3Guard())
+					.last(States.S4);
+		}
+
+		@Bean
+		public Guard<States, Events> s2Guard() {
+			return new Guard<States, Events>() {
+
+				@Override
+				public boolean evaluate(StateContext<States, Events> context) {
+					return false;
+				}
+			};
+		}
+
+		@Bean
+		public Guard<States, Events> s3Guard() {
+			return new Guard<States, Events>() {
+
+				@Override
+				public boolean evaluate(StateContext<States, Events> context) {
+					return true;
+				}
+			};
+		}
+
+	}
+// end::snippetS[]
+
+// tag::snippetT[]
+	@Configuration
+	@EnableStateMachine
+	public static class Config14 extends EnumStateMachineConfigurerAdapter<States2, Events> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<States2, Events> states)
+				throws Exception {
+			states
+				.withStates()
+					.initial(States2.S1)
+					.fork(States2.S2)
+					.state(States2.S3)
+					.and()
+					.withStates()
+						.parent(States2.S3)
+						.initial(States2.S2I)
+						.state(States2.S21)
+						.state(States2.S22)
+						.end(States2.S2F)
+						.and()
+					.withStates()
+						.parent(States2.S3)
+						.initial(States2.S3I)
+						.state(States2.S31)
+						.state(States2.S32)
+						.end(States2.S3F);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<States2, Events> transitions)
+				throws Exception {
+			transitions
+				.withFork()
+					.source(States2.S2)
+					.target(States2.S22)
+					.target(States2.S32);
+		}
+
+	}
+// end::snippetT[]
+
+// tag::snippetU[]
+	@Configuration
+	@EnableStateMachine
+	public static class Config15 extends EnumStateMachineConfigurerAdapter<States2, Events> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<States2, Events> states)
+				throws Exception {
+			states
+				.withStates()
+					.initial(States2.S1)
+					.state(States2.S3)
+					.join(States2.S4)
+					.and()
+					.withStates()
+						.parent(States2.S3)
+						.initial(States2.S2I)
+						.state(States2.S21)
+						.state(States2.S22)
+						.end(States2.S2F)
+						.and()
+					.withStates()
+						.parent(States2.S3)
+						.initial(States2.S3I)
+						.state(States2.S31)
+						.state(States2.S32)
+						.end(States2.S3F);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<States2, Events> transitions)
+				throws Exception {
+			transitions
+				.withJoin()
+					.source(States2.S2F)
+					.source(States2.S3F)
+					.target(States2.S5);
+		}
+
+	}
+// end::snippetU[]
 
 }

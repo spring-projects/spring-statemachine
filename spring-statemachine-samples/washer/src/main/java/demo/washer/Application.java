@@ -41,24 +41,24 @@ public class Application  {
 				throws Exception {
 			transitions
 				.withExternal()
-					.source(States.WASHING)
-					.target(States.RINSING)
+					.source(States.WASHING).target(States.RINSING)
 					.event(Events.RINSE)
 					.and()
 				.withExternal()
-					.source(States.RINSING)
-					.target(States.DRYING)
+					.source(States.RINSING).target(States.DRYING)
 					.event(Events.DRY)
 					.and()
 				.withExternal()
-					.source(States.RUNNING)
-					.target(States.POWEROFF)
+					.source(States.RUNNING)	.target(States.POWEROFF)
 					.event(Events.CUTPOWER)
 					.and()
 				.withExternal()
-					.source(States.POWEROFF)
-					.target(States.HISTORY)
-					.event(Events.RESTOREPOWER);
+					.source(States.POWEROFF).target(States.HISTORY)
+					.event(Events.RESTOREPOWER)
+					.and()
+				.withExternal()
+					.source(States.RUNNING).target(States.END)
+					.event(Events.STOP);
 		}
 //end::snippetAB[]
 
@@ -74,7 +74,7 @@ public class Application  {
 
 //tag::snippetC[]
 	public static enum Events {
-	    RINSE, DRY,
+	    RINSE, DRY, STOP,
 	    RESTOREPOWER, CUTPOWER
 	}
 //end::snippetC[]

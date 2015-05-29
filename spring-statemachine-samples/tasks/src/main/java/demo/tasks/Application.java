@@ -23,12 +23,12 @@ import org.springframework.statemachine.guard.Guard;
 @Configuration
 public class Application  {
 
-//tag::snippetA[]
 	@Configuration
 	@EnableStateMachine
 	static class StateMachineConfig
 			extends EnumStateMachineConfigurerAdapter<States, Events> {
 
+//tag::snippetAA[]
 		@Override
 		public void configure(StateMachineStateConfigurer<States, Events> states)
 				throws Exception {
@@ -62,7 +62,9 @@ public class Application  {
 						.state(States.AUTOMATIC, automaticAction(), null)
 						.state(States.MANUAL);
 		}
+//end::snippetAA[]
 
+//tag::snippetAB[]
 		@Override
 		public void configure(StateMachineTransitionConfigurer<States, Events> transitions)
 				throws Exception {
@@ -108,7 +110,9 @@ public class Application  {
 					.state(States.ERROR)
 					.event(Events.FIX);
 		}
+//end::snippetAB[]
 
+//tag::snippetAC[]
 		@Bean
 		public Guard<States, Events> tasksChoiceGuard() {
 			return new Guard<States, Events>() {
@@ -121,7 +125,9 @@ public class Application  {
 				}
 			};
 		}
+//end::snippetAC[]
 
+//tag::snippetAD[]
 		@Bean
 		public Action<States, Events> automaticAction() {
 			return new Action<States, Events>() {
@@ -152,21 +158,25 @@ public class Application  {
 				}
 			};
 		}
+//end::snippetAD[]
 
+//tag::snippetAE[]
 		@Bean
 		public Tasks tasks() {
 			return new Tasks();
 		}
+//end::snippetAE[]
 
+//tag::snippetAF[]
 		@Bean
 		public TaskExecutor taskExecutor() {
 			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
 			taskExecutor.setCorePoolSize(5);
 			return taskExecutor;
 		}
+//end::snippetAF[]
 
 	}
-//end::snippetA[]
 
 //tag::snippetB[]
 	public static enum States {

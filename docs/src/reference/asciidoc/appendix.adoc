@@ -17,6 +17,16 @@ include::samples/States.java[tags=snippetA]
 
 [source,java,indent=0]
 ----
+include::samples/States2.java[tags=snippetA]
+----
+
+[source,java,indent=0]
+----
+include::samples/States3.java[tags=snippetA]
+----
+
+[source,java,indent=0]
+----
 include::samples/Events.java[tags=snippetA]
 ----
 
@@ -86,6 +96,22 @@ directly contained in a state machine and all other regions in the
 state machine also are completed, then it means that the entire state
 machine is completed.
 
+*History State*::
+A pseudo state which allows a state machine to remember its last
+active state. Two types of history state exists, _shallow_ which only
+remember top level state and _deep_ which remembers active states in a
+sub-machines.
+
+*Choice State*::
+A pseudo state which allows to make a transition choice based of i.e.
+event headers or extended state variables.
+
+*Fork State*::
+A pseudo state which gives a controlled entry into a regions.
+
+*Join State*::
+A pseudo state which gives a controlled exit from a regions.
+
 *Region*::
 A region is an orthogonal part of either a composite state or a state
 machine. It contains states and transitions.
@@ -123,6 +149,45 @@ To relate state concept to programming it means that instead of using
 flags, nested if/else/break clauses or other impractical logic you
 simply rely on state, state variables or other interaction with a
 state machine.
+
+==== Pseudo States
+PseudoState is a special type of state which usually introduces more
+higher level logic into a state machine by either giving a state a
+special meaning like initial state. State machine can then internally
+react to these states by doing various actions available in UML state
+machine concepts.
+
+===== Initial
+Initial state is always needed for every single state machine whether
+you have a simple one level state machine or more complex state
+machine composed with submachines or regions. Initial state simple
+defines where state machine should go when it starts and without it
+state machine is ill-formed.
+
+===== End
+Terminate state which is also called as end state will indicate that a
+particular state machine has reached its final state. Effectively this
+mean that a state machine will no longer process any events and will
+not transit to any other state. However in a case of submachines are
+regions, state machine is able to restart from its terminal state.
+
+===== Choice
+Choice can be used to choose a transition conditionally.
+
+===== History
+History state can be used to remember a last active state
+configuration. After state machine has been exited, history state can
+be used to restore previous knows configuration. There are two types
+of history states available, _SHALLOW_ only remember active state of a
+state machine itself while _DEEP_ also remembers nested states.
+
+===== Fork
+Fork can be used to do an explicit entry into one or more regions.
+
+===== Join
+Join is used to merge several transitions together originating from
+different regions. It it generally used to wait and block for
+participating regions to get into its join target states.
 
 ==== Guard Conditions
 Guard conditions are expressions which evaluates either to *TRUE* or

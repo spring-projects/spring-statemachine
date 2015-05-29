@@ -22,6 +22,15 @@ Statemachine is configured and how it leverages Spring's lightweight
 IoC containers to simplify the application internals to make it more
 manageable.
 
+[NOTE]
+====
+Configuration examples in this section are not feature complete, i.e.
+you always need to have definitions of both states and transitions,
+otherwise state machine configuration would be ill-formed. We have
+simply made code snippets less verbose by leaving other needed parts
+away.
+====
+
 === Configuring States
 We'll get into more complex configuration examples a bit later but
 lets first start with a something simple. For most simple state
@@ -41,6 +50,20 @@ particular states are sub-states of some other state.
 [source,java,indent=0]
 ----
 include::samples/DocsConfigurationSampleTests.java[tags=snippetB]
+----
+
+=== Configuring Regions
+
+There are no special configuration methods to mark a collection of
+states to be part of a orthogonal state. To put it simple, orthogonal
+state is created when same hierarchical state machine has multiple set
+of states each having a initial state. Because a individual state
+machine can only have one initial state, multiple initial states mush
+mean that a specific state mush have multiple independent regions.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetP]
 ----
 
 === Configuring Transitions
@@ -78,6 +101,93 @@ Actions can be defined with various steps within a state transitions.
 [source,java,indent=0]
 ----
 include::samples/DocsConfigurationSampleTests.java[tags=snippetE]
+----
+
+=== Configuring Pseudo States
+
+_Pseudo state_ configuration is usually done by configuring states and
+transitions. Pseudo states are automatically added to state machine as
+states.
+
+==== Initial State
+Simply mark a particular state as initial state by using `initial()`
+method. There are two methods where one takes extra argument to define
+an initial action. This initial action is good for example initialize
+extended state variables.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetQ]
+----
+
+==== Terminate State
+Simply mark a particular state as end state by using `end()` method.
+This can be done max one time per individual sub-machine or region.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetA]
+----
+
+==== History State
+History state can be defined once for each individual state machine.
+You need to choose its state identifier and `History.SHALLOW` or
+`History.DEEP` respectively.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetR]
+----
+
+==== Choice State
+Choice needs to be defined in both states and transitions to work
+properly. Mark particular state as choice state by using `choice()`
+method. This state needs to match source state when transition is
+configured for this choice.
+
+Transition is configured using `withChoice()` where you define source
+state and `first/then/last` structure which is equivalent to normal
+`if/elseif/else`. With `first` and `then` you can specify a guard just
+like you'd use a condition with `if/elseif` clauses.
+
+Transition needs to be able to exist so make sure `last` is used.
+Otherwise configuration is ill-formed.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetS]
+----
+
+==== Fork State
+Fork needs to be defined in both states and transitions to work
+properly. Mark particular state as choice state by using `fork()`
+method. This state needs to match source state when transition is
+configured for this fork.
+
+Target state needs to be a super state or immediate states in
+regions. Using a super state as target will take all regions into
+initial states. Targeting individual state give more controlled entry
+into regions.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetT]
+----
+
+==== Join State
+Join needs to be defined in both states and transitions to work
+properly. Mark particular state as choice state by using `join()`
+method. This state doesn't need to match either source states or
+target state in a transition configuretion.
+
+Select one target state where transition goes when all source states
+has been joined. If you use state hosting regions as source, end
+states of a regions are used as joins. Otherwise you can pick any
+states from a regions.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetU]
 ----
 
 [[sm-factories]]

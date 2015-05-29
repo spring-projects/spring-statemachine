@@ -442,3 +442,183 @@ What happened in above run:
 * We print lcd status and request next track.
 * We stop playing.
 
+== Tasks
+
+Tasks is a sample demonstrating a parallel task handling within a
+regions and additionally adds an error handling to either
+automatically or manually fixing task problems before continuing back
+to a state where tasks can be run again.
+
+image::images/statechart5.png[width=500]
+
+On a high level what happens in this state machine is:
+
+* We're always trying to get into READY state so that we can use event
+  RUN to execute tasks.
+* TASKS state which is composed with 3 independent regions has been
+  put in a middle of FORK and JOIN states which will cause regions to
+  go into its initial states and to be joined by end states.
+* From JOIN state we go automatically into a CHOICE state which checks
+  existence of error flags in extended state variables. Tasks can set
+  these flags and it gives CHOICE state a possibility to go into ERROR
+  state where errors can be handled either automatically or manually.
+* AUTOMATIC state in ERROR can try to automatically fix error and goes
+  back to READY if it succeed to do so. If error is something what
+  can't be handled automatically, user intervention is needed and
+  machine is put into MANUAL state via FALLBACK event.
+
+.States
+[source,java,indent=0]
+----
+include::samples/demo/tasks/Application.java[tags=snippetB]
+----
+
+.Events
+[source,java,indent=0]
+----
+include::samples/demo/tasks/Application.java[tags=snippetC]
+----
+
+.Configuration - states
+[source,java,indent=0]
+----
+include::samples/demo/tasks/Application.java[tags=snippetAA]
+----
+
+.Configuration - transitions
+[source,java,indent=0]
+----
+include::samples/demo/tasks/Application.java[tags=snippetAB]
+----
+
+Guard below is guarding choice entry into a ERROR state and needs to
+return TRUE if error has happened. For this guard simply checks that
+all extended state variables(T1, T2 and T3) are TRUE.
+
+[source,java,indent=0]
+----
+include::samples/demo/tasks/Application.java[tags=snippetAC]
+----
+
+[source,java,indent=0]
+----
+include::samples/demo/tasks/Application.java[tags=snippetAD]
+----
+
+[source,java,indent=0]
+----
+include::samples/demo/tasks/Application.java[tags=snippetAE]
+----
+
+[source,java,indent=0]
+----
+include::samples/demo/tasks/Application.java[tags=snippetAF]
+----
+
+Lets see an example how this state machine actually works.
+
+[source,text]
+----
+sm>sm start
+State machine started
+Entry state READY
+
+sm>tasks run
+Entry state TASKS
+run task on T1
+run task on T2
+run task on T3
+run task on T1 done
+run task on T2 done
+run task on T3 done
+Entry state T1
+Entry state T3
+Entry state T2
+Entry state T1E
+Entry state T2E
+Entry state T3E
+Exit state TASKS
+Entry state JOIN
+Exit state JOIN
+Entry state READY
+
+sm>
+----
+
+== Washer
+
+Washer is a sample demonstrating a use of a history state to recover a
+running state configuration with a simulated power off situation.
+
+Anyone ever used a washing machine knows that if you can somehow pause
+the program it will continue from a same state when lid is closed.
+This kind of behaviour can be implemented in a state machine by using
+a history pseudo state.
+
+image::images/statechart6.png[width=500]
+
+.States
+[source,java,indent=0]
+----
+include::samples/demo/washer/Application.java[tags=snippetB]
+----
+
+.Events
+[source,java,indent=0]
+----
+include::samples/demo/washer/Application.java[tags=snippetC]
+----
+
+.Configuration - states
+[source,java,indent=0]
+----
+include::samples/demo/washer/Application.java[tags=snippetAA]
+----
+
+.Configuration - transitions
+[source,java,indent=0]
+----
+include::samples/demo/washer/Application.java[tags=snippetAB]
+----
+
+Lets see an example how this state machine actually works.
+[source,text]
+----
+sm>sm start
+Entry state RUNNING
+Entry state WASHING
+State machine started
+
+sm>sm event RINSE
+Exit state WASHING
+Entry state RINSING
+Event RINSE send
+
+sm>sm event DRY
+Exit state RINSING
+Entry state DRYING
+Event DRY send
+
+sm>sm event CUTPOWER
+Exit state DRYING
+Exit state RUNNING
+Entry state POWEROFF
+Event CUTPOWER send
+
+sm>sm event RESTOREPOWER
+Exit state POWEROFF
+Entry state RUNNING
+Entry state WASHING
+Entry state DRYING
+Event RESTOREPOWER send
+----
+
+What happened in above run:
+
+* State machine is started which causes machine to get initialized.
+* We go to RINSING state.
+* We go to DRYING state.
+* We cut power and go to POWEROFF state.
+* State is restored via HISTORY state which takes state machine back
+  to its previous known state.
+
