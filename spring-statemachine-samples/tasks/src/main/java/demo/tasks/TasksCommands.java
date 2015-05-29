@@ -37,9 +37,9 @@ public class TasksCommands implements CommandMarker {
 		return tasks.toString();
 	}
 
-	@CliCommand(value = "tasks fix", help = "Fix task")
-	public void fix(@CliOption(key = {"", "task"}, help = "Task id") String task) {
-		tasks.fix(task);
+	@CliCommand(value = "tasks fix", help = "Fix tasks")
+	public void fix() {
+		tasks.fix();
 	}
 
 	@CliCommand(value = "tasks fail", help = "Fail task")

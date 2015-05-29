@@ -21,6 +21,7 @@ import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -54,9 +55,8 @@ public class TasksTests {
 
 	@Test
 	public void testInitialState() throws InterruptedException {
-		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(machine.getState().getIds(), contains(States.READY));
+		Map<Object, Object> variables = machine.getExtendedState().getVariables();
+		assertThat(variables.size(), is(0));
 	}
 
 	@Test
@@ -65,6 +65,8 @@ public class TasksTests {
 		tasks.run();
 		assertThat(listener.stateChangedLatch.await(6, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), contains(States.READY));
+		Map<Object, Object> variables = machine.getExtendedState().getVariables();
+		assertThat(variables.size(), is(3));
 	}
 
 	@Test
@@ -74,10 +76,16 @@ public class TasksTests {
 		assertThat(listener.stateChangedLatch.await(6, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), contains(States.READY));
 
+		Map<Object, Object> variables = machine.getExtendedState().getVariables();
+		assertThat(variables.size(), is(3));
+
 		listener.reset(9, 0, 0);
 		tasks.run();
 		assertThat(listener.stateChangedLatch.await(6, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), contains(States.READY));
+
+		variables = machine.getExtendedState().getVariables();
+		assertThat(variables.size(), is(3));
 	}
 
 	@Test
@@ -92,11 +100,17 @@ public class TasksTests {
 
 	@Test
 	public void testFailManualFix() throws InterruptedException {
-		listener.reset(9, 0, 0);
+		listener.reset(11, 0, 0);
 		tasks.fail("T2");
 		tasks.run();
-		tasks.fix("T2");
-		tasks.cont();
+		assertThat(listener.stateChangedLatch.await(6, TimeUnit.SECONDS), is(true));
+
+		Map<Object, Object> variables = machine.getExtendedState().getVariables();
+		assertThat(variables.size(), is(3));
+
+		assertThat(machine.getState().getIds(), contains(States.ERROR, States.MANUAL));
+		listener.reset(1, 0, 0);
+		tasks.fix();
 		assertThat(listener.stateChangedLatch.await(6, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), contains(States.READY));
 	}
@@ -111,8 +125,9 @@ public class TasksTests {
 		tasks = context.getBean(Tasks.class);
 		listener = context.getBean(TestListener.class);
 		machine.start();
-		// lets do a little sleep to wait sm to start
-		Thread.sleep(1000);
+		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+		assertThat(machine.getState().getIds(), contains(States.READY));
 	}
 
 	@After
@@ -152,8 +167,8 @@ public class TasksTests {
 
 		@Override
 		public void stateChanged(State<States, Events> from, State<States, Events> to) {
-			stateChangedLatch.countDown();
 			stateChangedCount++;
+			stateChangedLatch.countDown();
 		}
 
 		@Override
@@ -170,8 +185,8 @@ public class TasksTests {
 
 		@Override
 		public void transitionEnded(Transition<States, Events> transition) {
-			transitionLatch.countDown();
 			transitionCount++;
+			transitionLatch.countDown();
 		}
 
 		public void reset(int c1, int c2, int c3) {

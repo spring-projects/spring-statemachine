@@ -34,6 +34,7 @@ import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.guard.Guard;
+import org.springframework.util.ObjectUtils;
 
 @Configuration
 public class Application  {
@@ -122,7 +123,6 @@ public class Application  {
 				.withInternal()
 					.source(States.MANUAL)
 					.action(fixAction())
-					.state(States.ERROR)
 					.event(Events.FIX);
 		}
 //end::snippetAB[]
@@ -135,8 +135,9 @@ public class Application  {
 				@Override
 				public boolean evaluate(StateContext<States, Events> context) {
 					Map<Object, Object> variables = context.getExtendedState().getVariables();
-					return !(variables.get("T1").equals(true) && variables.get("T2").equals(true) && variables
-							.get("T3").equals(true));
+					return !(ObjectUtils.nullSafeEquals(variables.get("T1"), true)
+							&& ObjectUtils.nullSafeEquals(variables.get("T2"), true)
+							&& ObjectUtils.nullSafeEquals(variables.get("T3"), true));
 				}
 			};
 		}
@@ -150,7 +151,9 @@ public class Application  {
 				@Override
 				public void execute(StateContext<States, Events> context) {
 					Map<Object, Object> variables = context.getExtendedState().getVariables();
-					if (variables.get("T1").equals(true)) {
+					if (ObjectUtils.nullSafeEquals(variables.get("T1"), true)
+							&& ObjectUtils.nullSafeEquals(variables.get("T2"), true)
+							&& ObjectUtils.nullSafeEquals(variables.get("T3"), true)) {
 						context.getStateMachine().sendEvent(Events.CONTINUE);
 					} else {
 						context.getStateMachine().sendEvent(Events.FALLBACK);
@@ -166,30 +169,28 @@ public class Application  {
 				@Override
 				public void execute(StateContext<States, Events> context) {
 					Map<Object, Object> variables = context.getExtendedState().getVariables();
-					if (variables.get("T1").equals(true) && variables.get("T2").equals(true)
-							&& variables.get("T3").equals(true)) {
-						context.getStateMachine().sendEvent(Events.CONTINUE);
-					}
+					variables.put("T1", true);
+					variables.put("T2", true);
+					variables.put("T3", true);
+					context.getStateMachine().sendEvent(Events.CONTINUE);
 				}
 			};
 		}
 //end::snippetAD[]
 
-//tag::snippetAE[]
 		@Bean
 		public Tasks tasks() {
 			return new Tasks();
 		}
-//end::snippetAE[]
 
-//tag::snippetAF[]
+//tag::snippetAE[]
 		@Bean
 		public TaskExecutor taskExecutor() {
 			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
 			taskExecutor.setCorePoolSize(5);
 			return taskExecutor;
 		}
-//end::snippetAF[]
+//end::snippetAE[]
 
 	}
 

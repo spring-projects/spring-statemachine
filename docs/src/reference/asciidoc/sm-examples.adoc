@@ -500,22 +500,25 @@ all extended state variables(T1, T2 and T3) are TRUE.
 include::samples/demo/tasks/Application.java[tags=snippetAC]
 ----
 
+Actions below will simply send event to a state machine to request
+next step which would be either fallback or continue back to ready.
+
 [source,java,indent=0]
 ----
 include::samples/demo/tasks/Application.java[tags=snippetAD]
 ----
+
+Currently default region execution is synchronous but it can be
+changed to asynchronous by changing `TaskExecutor`. Task will simulate
+work by sleeping 2 seconds so you'll able to see how actions in
+regions are executed parallel.
 
 [source,java,indent=0]
 ----
 include::samples/demo/tasks/Application.java[tags=snippetAE]
 ----
 
-[source,java,indent=0]
-----
-include::samples/demo/tasks/Application.java[tags=snippetAF]
-----
-
-Lets see an example how this state machine actually works.
+Lets see an examples how this state machine actually works.
 
 [source,text]
 ----
@@ -525,12 +528,44 @@ Entry state READY
 
 sm>tasks run
 Entry state TASKS
-run task on T1
-run task on T2
 run task on T3
-run task on T1 done
+run task on T2
+run task on T1
 run task on T2 done
+run task on T1 done
 run task on T3 done
+Entry state T2
+Entry state T3
+Entry state T1
+Entry state T1E
+Entry state T2E
+Entry state T3E
+Exit state TASKS
+Entry state JOIN
+Exit state JOIN
+Entry state READY
+----
+
+In above we can execute tasks multiple times.
+
+[source,text]
+----
+sm>tasks list
+Tasks {T1=true, T3=true, T2=true}
+
+sm>tasks fail T1
+
+sm>tasks list
+Tasks {T1=false, T3=true, T2=true}
+
+sm>tasks run
+Entry state TASKS
+run task on T1
+run task on T3
+run task on T2
+run task on T1 done
+run task on T3 done
+run task on T2 done
 Entry state T1
 Entry state T3
 Entry state T2
@@ -540,10 +575,54 @@ Entry state T3E
 Exit state TASKS
 Entry state JOIN
 Exit state JOIN
+Entry state ERROR
+Entry state AUTOMATIC
+Exit state AUTOMATIC
+Exit state ERROR
 Entry state READY
-
-sm>
 ----
+
+In above, if we simulate failure for task T1, it is fixed
+automatically.
+
+[source,text]
+----
+sm>tasks list
+Tasks {T1=true, T3=true, T2=true}
+
+sm>tasks fail T2
+
+sm>tasks run
+Entry state TASKS
+run task on T2
+run task on T1
+run task on T3
+run task on T2 done
+run task on T1 done
+run task on T3 done
+Entry state T2
+Entry state T1
+Entry state T3
+Entry state T1E
+Entry state T2E
+Entry state T3E
+Exit state TASKS
+Entry state JOIN
+Exit state JOIN
+Entry state ERROR
+Entry state AUTOMATIC
+Exit state AUTOMATIC
+Entry state MANUAL
+
+sm>tasks fix
+Exit state MANUAL
+Exit state ERROR
+Entry state READY
+----
+
+In above if we simulate failure for either task T2 or T3, state
+machine goes to MANUAL state where problem needs to be fixed manually
+before we're able to go back to READY state.
 
 == Washer
 

@@ -49,14 +49,10 @@ public class Tasks {
 		stateMachine.sendEvent(Events.RUN);
 	}
 
-	public void cont() {
-		stateMachine.sendEvent(Events.CONTINUE);
-	}
-
-	public void fix(String task) {
-		if (tasks.containsKey(task)) {
-			tasks.put(task, true);
-		}
+	public void fix() {
+		tasks.put("T1", true);
+		tasks.put("T2", true);
+		tasks.put("T3", true);
 		stateMachine.sendEvent(Events.FIX);
 	}
 
@@ -68,44 +64,33 @@ public class Tasks {
 
 	@StatesOnTransition(target = States.T1)
 	public void taskT1(ExtendedState extendedState) {
-		log.info("run task on T1");
-		sleep(2000);
-		extendedState.getVariables().put("T1", tasks.get("T1"));
-		log.info("run task on T1 done");
+		runTask("T1", extendedState);
 	}
 
 	@StatesOnTransition(target = States.T2)
 	public void taskT2(ExtendedState extendedState) {
-		log.info("run task on T2");
-		sleep(2000);
-		extendedState.getVariables().put("T2", tasks.get("T2"));
-		log.info("run task on T2 done");
+		runTask("T2", extendedState);
 	}
 
 	@StatesOnTransition(target = States.T3)
 	public void taskT3(ExtendedState extendedState) {
-		log.info("run task on T3");
-		sleep(2000);
-		extendedState.getVariables().put("T3", tasks.get("T3"));
-		log.info("run task on T3 done");
+		runTask("T3", extendedState);
 	}
 
+//tag::snippetA[]
 	@StatesOnTransition(target = States.AUTOMATIC)
 	public void automaticFix(ExtendedState extendedState) {
 		Map<Object, Object> variables = extendedState.getVariables();
-		if (variables.get("T1").equals(false)) {
-			variables.put("T1", true);
-			tasks.put("T1", true);
-		}
+		variables.put("T1", true);
+		tasks.put("T1", true);
 	}
+//end::snippetA[]
 
-	@StatesOnTransition(target = States.MANUAL)
-	public void manualFix(ExtendedState extendedState) {
-		Map<Object, Object> variables = extendedState.getVariables();
-		if (variables.get("T2").equals(false)) {
-			variables.put("T2", true);
-			tasks.put("T2", true);
-		}
+	private void runTask(String task, ExtendedState extendedState) {
+		log.info("run task on " + task);
+		sleep(2000);
+		extendedState.getVariables().put(task, tasks.get(task));
+		log.info("run task on " + task + " done");
 	}
 
 	private static void sleep(long millis) {
