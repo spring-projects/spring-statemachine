@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.state.State;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -43,7 +44,12 @@ public class AbstractStateMachineCommands<S, E> implements CommandMarker {
 
 	@CliCommand(value = "sm state", help = "Prints current state")
 	public String state() {
-		return StringUtils.collectionToCommaDelimitedString(stateMachine.getState().getIds());
+		State<S, E> state = stateMachine.getState();
+		if (state != null) {
+			return StringUtils.collectionToCommaDelimitedString(state.getIds());
+		} else {
+			return "No state";
+		}
 	}
 
 	@CliCommand(value = "sm start", help = "Start a state machine")
