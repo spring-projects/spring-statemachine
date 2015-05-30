@@ -25,12 +25,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.action.SpelExpressionAction;
 import org.springframework.statemachine.annotation.OnTransition;
 import org.springframework.statemachine.annotation.WithStateMachine;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -573,5 +577,112 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 
 	}
 // end::snippetU[]
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config16 extends EnumStateMachineConfigurerAdapter<States, Events> {
+
+// tag::snippetVA[]
+		@Override
+		public void configure(StateMachineStateConfigurer<States, Events> states)
+				throws Exception {
+			states
+				.withStates()
+					.initial(States.SI)
+					.state(States.S1, action1(), action2())
+					.state(States.S2, action1(), action2())
+					.state(States.S3, action1(), action3());
+		}
+// end::snippetVA[]
+
+// tag::snippetVB[]
+		@Override
+		public void configure(StateMachineTransitionConfigurer<States, Events> transitions)
+				throws Exception {
+			transitions
+				.withExternal()
+					.source(States.SI).target(States.S1)
+					.event(Events.E1)
+					.guard(guard1())
+					.and()
+				.withExternal()
+					.source(States.S1).target(States.S2)
+					.event(Events.E1)
+					.guard(guard2())
+					.and()
+				.withExternal()
+					.source(States.S2).target(States.S3)
+					.event(Events.E2)
+					.guardExpression("extendedState.variables.get('myvar')");
+		}
+// end::snippetVB[]
+
+// tag::snippetVC[]
+		@Bean
+		public Guard<States, Events> guard1() {
+			return new Guard<States, Events>() {
+
+				@Override
+				public boolean evaluate(StateContext<States, Events> context) {
+					return true;
+				}
+			};
+		}
+
+		@Bean
+		public BaseGuard guard2() {
+			return new BaseGuard();
+		}
+
+		static class BaseGuard implements Guard<States, Events> {
+
+			@Override
+			public boolean evaluate(StateContext<States, Events> context) {
+				return false;
+			}
+		}
+// end::snippetVC[]
+
+// tag::snippetVD[]
+		@Bean
+		public Action<States, Events> action1() {
+			return new Action<States, Events>() {
+
+				@Override
+				public void execute(StateContext<States, Events> context) {
+				}
+			};
+		}
+
+		@Bean
+		public BaseAction action2() {
+			return new BaseAction();
+		}
+
+		@Bean
+		public SpelAction action3() {
+			ExpressionParser parser = new SpelExpressionParser();
+			return new SpelAction(
+					parser.parseExpression(
+							"stateMachine.sendEvent(T(org.springframework.statemachine.docs.Events).E1)"));
+		}
+
+		static class BaseAction implements Action<States, Events> {
+
+			@Override
+			public void execute(StateContext<States, Events> context) {
+			}
+		}
+
+		static class SpelAction extends SpelExpressionAction<States, Events> {
+
+			public SpelAction(Expression expression) {
+				super(expression);
+			}
+		}
+
+// end::snippetVD[]
+
+	}
 
 }

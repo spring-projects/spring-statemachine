@@ -90,7 +90,7 @@ simple _Guard_ is created as a bean and attached to transition between
 states `S1` and `S2`.
 
 Secondly a simple spel expression can be used as a guard where
-expression must return a `Boolean` value. Behind a scenes this spel
+expression must return a `BOOLEAN` value. Behind a scenes this spel
 based guard is a _SpelExpressionGuard_. This was attached to
 transition between states `S2` and `S3`. Both guard in above sample
 always evaluate to true.
@@ -228,6 +228,82 @@ This means that from your actions and guard you will need to
 specifially handle a case that same bean will be called by a different
 state machines. This limitation is something which will be resolved in
 future releases.
+
+[[sm-actions]]
+== Using Actions
+Actions are one of the most useful components from user perspective to
+interact and collaborate with a state machine. Actions can be executed
+in various places in a state machine and its states lifecycle like
+entering or exiting states or during a transitions.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetVA]
+----
+
+Above `action1` and `action2` beans are attached to states entry and
+exit respectively.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetVD]
+----
+
+You can directly implement _Action_ as an anonymous function or create
+a your own implementation and define appropriate implementation as a
+bean.
+
+In `action3` a SpEL expression is used to send event *Events.E1* into
+a state machine.
+
+[NOTE]
+====
+_StateContext_ is described in section <<sm-statecontext>>.
+====
+
+=== SpEL Expressions with Actions 
+It is also possible to use SpEL expressions as a replacement for a
+full _Action_ implementation.
+
+[[sm-guards]]
+== Using Guards
+Above `guard1` and `guard2` beans are attached to states entry and
+exit respectively.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetVB]
+----
+
+You can directly implement _Guard_ as an anonymous function or create
+a your own implementation and define appropriate implementation as a
+bean. In above sample `guardExpression` is simply checking if extended
+state variable `myvar` evaluates to _TRUE_.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetVC]
+----
+
+[NOTE]
+====
+_StateContext_ is described in section <<sm-statecontext>>.
+====
+
+=== SpEL Expressions with Guards
+It is also possible to use SpEL expressions as a replacement for a
+full _Guard_ implementation. Only requirement is that expression needs
+to return a *Boolean* value to satisfy _Guard_ implementation. This is
+demonstrated with a _guardExpression()_ function which takes an
+expression as an argument.
+
+[[sm-statecontext]]
+== Using StateContext
+_StateContext_ is a domain object representing a current status of a
+state machine within a transition or an action. Context gives an
+access to a various information like event, message headers, extended
+state variables, current trasition and a top-level state machine in
+case there is a need to send events to a futher processing.
 
 [[sm-triggers]]
 == Triggering Transitions
