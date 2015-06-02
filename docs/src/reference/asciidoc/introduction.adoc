@@ -49,7 +49,7 @@ ask developer to go home when things are starting to look too complex.
 
 == Usage Scenarios
 
-Project is a good candiate to use state machine if:
+Project is a good candidate to use state machine if:
 
 * Application or part of its structure can be represented as states.
 * You want to split complex logic into smaller manageable tasks.
@@ -61,7 +61,7 @@ You are already trying to implement a state machine if:
 * Use of boolean flags or enums to model situations.
 * Having variables which only have meaning for some part of your
   application lifecycle.
-* Looping throught if/else structure and checking if particular flag or
+* Looping through if/else structure and checking if particular flag or
   enum is set and then making further exceptions what to do when certain
   combination of your flags and enums exists or doesn't exist together.
 

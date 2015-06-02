@@ -24,7 +24,7 @@ projects `build/libs` directory.
 
 Turnstile is a simple device which gives you an access if payment is
 made and is a very simple to model using a state machine. In its
-simples form there are only two states, `LOCKED` and `UNLOCKED`. Two
+simplest form there are only two states, `LOCKED` and `UNLOCKED`. Two
 events, `COIN` and `PUSH` can happen if you try to go through it or
 you make a payment.
 
@@ -136,7 +136,7 @@ include::samples/demo/showcase/Application.java[tags=snippetD]
 include::samples/demo/showcase/Application.java[tags=snippetE]
 ----
 
-Lets go throught what this state machine do when it's executed and we
+Lets go through what this state machine do when it's executed and we
 send various event to it.
 
 [source,text]
@@ -199,13 +199,13 @@ What happens in above sample:
   unable to handle event _H_ due to guard condition, its parent is
   checked next. This guarantees that while on state _S2_, `foo` flag
   is always flipped around. However in state _S1_ event _H_ always
-  match to its dummy transtion without guard or action, not never
+  match to its dummy transition without guard or action, not never
   happens.
 
 == CD Player
 CD Player is a sample which resembles better use case of most of use have
 used in a real world. CD Player itself is a really simple entity where
-user can open a deck, inser or change a disk, then drive player
+user can open a deck, insert or change a disk, then drive player
 functionality by pressing various buttons like _eject_, _play_,
 _stop_, _pause_, _rewind_ and _backward_.
 
@@ -217,7 +217,7 @@ things actually get a bit convoluted.
 You've probably noticed that if your deck is open and you press play,
 deck will close and a song will start to play if CD was inserted in
 a first place. In a sense when deck is open you first need to close
-it and then try to start playing if cd is actually instered. Hopefully
+it and then try to start playing if cd is actually inserted. Hopefully
 you have now realised that a simple CD Player is not anymore so simple.
 Sure you can wrap all this with a simple class with few boolean variables
 and probably few nested if/else clauses, that will do the job, but what
@@ -226,7 +226,7 @@ really want to keep adding more flags and if/else clauses.
 
 image::images/statechart3.png[width=500]
 
-Lets go throught how this sample and its state machine is designed and
+Lets go through how this sample and its state machine is designed and
 how those two interacts with each other. Below three config sections
 are used withing a _EnumStateMachineConfigurerAdapter_.
 

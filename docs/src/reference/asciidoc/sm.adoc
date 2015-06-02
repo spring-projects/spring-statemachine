@@ -55,11 +55,11 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippetB]
 === Configuring Regions
 
 There are no special configuration methods to mark a collection of
-states to be part of a orthogonal state. To put it simple, orthogonal
+states to be part of an orthogonal state. To put it simple, orthogonal
 state is created when same hierarchical state machine has multiple set
-of states each having a initial state. Because a individual state
-machine can only have one initial state, multiple initial states mush
-mean that a specific state mush have multiple independent regions.
+of states each having a initial state. Because an individual state
+machine can only have one initial state, multiple initial states must
+mean that a specific state must have multiple independent regions.
 
 [source,java,indent=0]
 ----
@@ -178,7 +178,7 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippetT]
 Join needs to be defined in both states and transitions to work
 properly. Mark particular state as choice state by using `join()`
 method. This state doesn't need to match either source states or
-target state in a transition configuretion.
+target state in a transition configuration.
 
 Select one target state where transition goes when all source states
 has been joined. If you use state hosting regions as source, end
@@ -225,7 +225,7 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippetL]
 Current limitation of factory is that all actions and guard it is
 associating with created state machine will share a same instances.
 This means that from your actions and guard you will need to
-specifially handle a case that same bean will be called by a different
+specifically handle a case that same bean will be called by a different
 state machines. This limitation is something which will be resolved in
 future releases.
 
@@ -302,12 +302,12 @@ expression as an argument.
 _StateContext_ is a domain object representing a current status of a
 state machine within a transition or an action. Context gives an
 access to a various information like event, message headers, extended
-state variables, current trasition and a top-level state machine in
-case there is a need to send events to a futher processing.
+state variables, current transition and a top-level state machine in
+case there is a need to send events to a further processing.
 
 [[sm-triggers]]
 == Triggering Transitions
-Driving a statemachine is done via transitions which are triggerred
+Driving a statemachine is done via transitions which are triggered
 by triggers. Currently supported triggers are _EventTrigger_ and
 _TimerTrigger_.
 
@@ -408,7 +408,7 @@ either listening its events or using actions with states and
 transitions. Time to time this approach would be too limited and
 verbose to create interaction with the application a state machine is
 working with. For this specific use case we have made a spring style
-context intergration which easily attach state machine functionality
+context integration which easily attach state machine functionality
 into your beans.
 
 === Annotation Support

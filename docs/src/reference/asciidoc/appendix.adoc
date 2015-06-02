@@ -86,7 +86,7 @@ state changes.
 
 *Initial State*::
 A special state in which the state machine starts. Initial state is
-always bound to a particulal state machine or a region. A state
+always bound to a particular state machine or a region. A state
 machine with a multiple regions may have a multiple initial states.
 
 *End State*::
@@ -222,7 +222,7 @@ Guard conditions are expressions which evaluates either to *TRUE* or
 are used with actions and transitions to dynamically choose if
 particular action or transition should be executed. Aspects of guards,
 event parameters and extended state variables are simply to make state
-machine desing much more simple.
+machine design much more simple.
 
 ==== Events
 Event is the most used trigger behaviour to drive a state machine.
@@ -244,7 +244,7 @@ absence of state entry and exit actions.
 
 ===== External vs. Local Transition
 Most of the cases external and local transition are functionally
-equivalent expect in cases where transition is happening between super
+equivalent except in cases where transition is happening between super
 and sub states. Local transition doesn't cause exit and entry to
 source state if target state is a substate of a source state. Other
 way around, local transition doesn't cause exit and entry to target
@@ -257,7 +257,7 @@ with a very simplistic super and sub states.
 
 ==== Actions
 Actions are the ones which really glues state machine state changes
-with a users own code. State machine can execute action on various
+with a user's own code. State machine can execute action on various
 changes and steps in a state machine like entering or exiting a state,
 or doing a state transition.
 
@@ -286,10 +286,10 @@ machine will simply see what a super state can handle.
 ==== Regions
 Regions which are also called as orthogonal regions are usually viewed
 as exclusive OR operation applied to a states. Concept of a region in
-terms of a state machine is usually a little difficult to understang
+terms of a state machine is usually a little difficult to understand
 but things gets a little simpler with a simple example.
 
-Some of use have a full size keyboard with main keys on a left side and numeric
+Some of us have a full size keyboard with main keys on a left side and numeric
 keys on a right side. You've probably noticed that both sides really
 have their own state which you see if you press a numlock key which
 only alters behaviour of numbad itself. If you don't have a full size
@@ -300,7 +300,7 @@ operating on different state machines.
 
 It would be a little inconvenient to handle two different
 statemachines as totally separate entities because in a sense they are
-still working together in a sense. This is why orthogonal regios can
-combine together a multiple simultaneous states withing a single state
+still working together in a sense. This is why orthogonal regions can
+combine together a multiple simultaneous states within a single state
 in a state machine.
 
