@@ -35,7 +35,7 @@ import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.AbstractStateMachineTests;
-import org.springframework.statemachine.EnumStateMachine;
+import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
@@ -60,8 +60,8 @@ public class ListenerTests extends AbstractStateMachineTests {
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config1.class);
 		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
-		EnumStateMachine<TestStates,TestEvents> machine =
-				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		machine.start();
 
 		TestStateMachineListener listener = new TestStateMachineListener();
@@ -87,8 +87,8 @@ public class ListenerTests extends AbstractStateMachineTests {
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config2.class);
 		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
-		EnumStateMachine<TestStates,TestEvents> machine =
-				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 
 		TestStateMachineListener listener = new TestStateMachineListener();
 		machine.addStateListener(listener);

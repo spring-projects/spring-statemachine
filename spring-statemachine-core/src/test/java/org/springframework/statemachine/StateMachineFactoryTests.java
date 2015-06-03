@@ -27,7 +27,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
-import org.springframework.statemachine.config.EnumStateMachineFactory;
+import org.springframework.statemachine.config.ObjectStateMachineFactory;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
@@ -38,8 +38,8 @@ public class StateMachineFactoryTests extends AbstractStateMachineTests {
 	public void testMachineFromFactory() {
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class);
 
-		EnumStateMachineFactory<TestStates, TestEvents> stateMachineFactory =
-				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINEFACTORY, EnumStateMachineFactory.class);
+		ObjectStateMachineFactory<TestStates, TestEvents> stateMachineFactory =
+				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINEFACTORY, ObjectStateMachineFactory.class);
 		StateMachine<TestStates,TestEvents> machine = stateMachineFactory.getStateMachine();
 		machine.start();
 

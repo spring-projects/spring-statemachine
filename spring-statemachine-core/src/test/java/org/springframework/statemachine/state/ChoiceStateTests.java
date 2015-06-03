@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.AbstractStateMachineTests;
-import org.springframework.statemachine.EnumStateMachine;
+import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -49,8 +49,8 @@ public class ChoiceStateTests extends AbstractStateMachineTests {
 	public void testFirst() {
 		context.register(BaseConfig.class, Config1.class);
 		context.refresh();
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		assertThat(machine, notNullValue());
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("choice", "s30").build());
@@ -63,8 +63,8 @@ public class ChoiceStateTests extends AbstractStateMachineTests {
 	public void testThen1() {
 		context.register(BaseConfig.class, Config1.class);
 		context.refresh();
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		assertThat(machine, notNullValue());
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("choice", "s31").build());
@@ -77,8 +77,8 @@ public class ChoiceStateTests extends AbstractStateMachineTests {
 	public void testThen2() {
 		context.register(BaseConfig.class, Config1.class);
 		context.refresh();
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		assertThat(machine, notNullValue());
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("choice", "s32").build());
@@ -91,8 +91,8 @@ public class ChoiceStateTests extends AbstractStateMachineTests {
 	public void testLast() {
 		context.register(BaseConfig.class, Config1.class);
 		context.refresh();
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		assertThat(machine, notNullValue());
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());

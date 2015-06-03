@@ -15,6 +15,16 @@
  */
 package org.springframework.statemachine.config;
 
+import org.springframework.statemachine.config.builders.StateMachineConfigurer;
+
+/**
+ * Base implementation of a {@link StateMachineConfigurer} using enums.
+ *
+ * @author Janne Valkealahti
+ *
+ * @param <S> the type of state
+ * @param <E> the type of event
+ */
 public class EnumStateMachineConfigurerAdapter<S extends Enum<S>, E extends Enum<E>> extends StateMachineConfigurerAdapter<S, E> {
 
 }

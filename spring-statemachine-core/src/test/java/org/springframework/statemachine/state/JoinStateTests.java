@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.AbstractStateMachineTests;
-import org.springframework.statemachine.EnumStateMachine;
+import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
@@ -50,8 +50,8 @@ public class JoinStateTests extends AbstractStateMachineTests {
 	public void testJoin() throws Exception {
 		context.register(BaseConfig.class, Config1.class);
 		context.refresh();
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 		listener.reset(1);
@@ -83,8 +83,8 @@ public class JoinStateTests extends AbstractStateMachineTests {
 	public void testJoinLoopTwice() throws Exception {
 		context.register(BaseConfig.class, Config1.class);
 		context.refresh();
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 		assertThat(machine, notNullValue());
@@ -124,8 +124,8 @@ public class JoinStateTests extends AbstractStateMachineTests {
 	public void testJoinSuper() throws Exception {
 		context.register(BaseConfig.class, Config2.class);
 		context.refresh();
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 		listener.reset(1);
@@ -157,8 +157,8 @@ public class JoinStateTests extends AbstractStateMachineTests {
 	public void testJoinSuperLoopTwice() throws Exception {
 		context.register(BaseConfig.class, Config2.class);
 		context.refresh();
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 		assertThat(machine, notNullValue());

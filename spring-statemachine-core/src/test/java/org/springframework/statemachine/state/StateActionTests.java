@@ -30,7 +30,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.statemachine.AbstractStateMachineTests;
-import org.springframework.statemachine.EnumStateMachine;
+import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -50,8 +50,8 @@ public class StateActionTests extends AbstractStateMachineTests {
 	@SuppressWarnings("unchecked")
 	public void testStateEntryExit() throws Exception {
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config1.class);
-		EnumStateMachine<TestStates,TestEvents> machine =
-				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		TestExitAction testExitAction = ctx.getBean("testExitAction", TestExitAction.class);
 		TestEntryAction testEntryAction = ctx.getBean("testEntryAction", TestEntryAction.class);
 		assertThat(testExitAction, notNullValue());

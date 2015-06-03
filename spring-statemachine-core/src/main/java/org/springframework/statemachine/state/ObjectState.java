@@ -17,63 +17,64 @@ package org.springframework.statemachine.state;
 
 import java.util.Collection;
 
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.region.Region;
 
 /**
- * A {@link State} implementation where state and event is enum based.
+ * A {@link State} implementation where state and event is object based.
  *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public class EnumState<S extends Enum<S>, E extends Enum<E>> extends ObjectState<S, E> {
+public class ObjectState<S, E> extends AbstractSimpleState<S, E> {
 
 	/**
-	 * Instantiates a new enum state.
+	 * Instantiates a new object state.
 	 *
 	 * @param id the id
 	 */
-	public EnumState(S id) {
+	public ObjectState(S id) {
 		super(id);
 	}
 
 	/**
-	 * Instantiates a new enum state.
+	 * Instantiates a new object state.
 	 *
 	 * @param id the id
 	 * @param pseudoState the pseudo state
 	 */
-	public EnumState(S id, PseudoState<S, E> pseudoState) {
+	public ObjectState(S id, PseudoState<S, E> pseudoState) {
 		super(id, pseudoState);
 	}
 
 	/**
-	 * Instantiates a new enum state.
+	 * Instantiates a new object state.
 	 *
 	 * @param id the id
 	 * @param deferred the deferred
 	 */
-	public EnumState(S id, Collection<E> deferred) {
+	public ObjectState(S id, Collection<E> deferred) {
 		super(id, deferred);
 	}
 
 	/**
-	 * Instantiates a new enum state.
+	 * Instantiates a new object state.
 	 *
 	 * @param id the id
 	 * @param deferred the deferred
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 */
-	public EnumState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions) {
+	public ObjectState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions) {
 		super(id, deferred, entryActions, exitActions);
 	}
 
 	/**
-	 * Instantiates a new enum state.
+	 * Instantiates a new object state.
 	 *
 	 * @param id the id
 	 * @param deferred the deferred
@@ -81,13 +82,13 @@ public class EnumState<S extends Enum<S>, E extends Enum<E>> extends ObjectState
 	 * @param exitActions the exit actions
 	 * @param pseudoState the pseudo state
 	 */
-	public EnumState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
+	public ObjectState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
 			PseudoState<S, E> pseudoState) {
 		super(id, deferred, entryActions, exitActions, pseudoState);
 	}
 
 	/**
-	 * Instantiates a new enum state.
+	 * Instantiates a new object state.
 	 *
 	 * @param id the id
 	 * @param deferred the deferred
@@ -96,13 +97,13 @@ public class EnumState<S extends Enum<S>, E extends Enum<E>> extends ObjectState
 	 * @param pseudoState the pseudo state
 	 * @param regions the regions
 	 */
-	public EnumState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
+	public ObjectState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
 			PseudoState<S, E> pseudoState, Collection<Region<S, E>> regions) {
 		super(id, deferred, entryActions, exitActions, pseudoState, regions);
 	}
 
 	/**
-	 * Instantiates a new enum state.
+	 * Instantiates a new object state.
 	 *
 	 * @param id the id
 	 * @param deferred the deferred
@@ -111,9 +112,35 @@ public class EnumState<S extends Enum<S>, E extends Enum<E>> extends ObjectState
 	 * @param pseudoState the pseudo state
 	 * @param submachine the submachine
 	 */
-	public EnumState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
+	public ObjectState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
 			PseudoState<S, E> pseudoState, StateMachine<S, E> submachine) {
 		super(id, deferred, entryActions, exitActions, pseudoState, submachine);
+	}
+
+	@Override
+	public void exit(StateContext<S, E> context) {
+		Collection<? extends Action<S, E>> actions = getExitActions();
+		if (actions != null) {
+			for (Action<S, E> action : actions) {
+				action.execute(context);
+			}
+		}
+	}
+
+	@Override
+	public void entry(StateContext<S, E> context) {
+		Collection<? extends Action<S, E>> actions = getEntryActions();
+		if (actions != null) {
+			for (Action<S, E> action : actions) {
+				action.execute(context);
+			}
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "ObjectState [getIds()=" + getIds() + ", getClass()=" + getClass() + ", hashCode()=" + hashCode()
+				+ ", toString()=" + super.toString() + "]";
 	}
 
 }

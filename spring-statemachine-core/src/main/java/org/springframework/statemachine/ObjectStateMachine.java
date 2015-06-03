@@ -23,7 +23,7 @@ import org.springframework.statemachine.support.AbstractStateMachine;
 import org.springframework.statemachine.transition.Transition;
 
 /**
- * Specialisation of a {@link StateMachine} using enums
+ * Specialisation of a {@link StateMachine} using objects
  * as its {@link State} and event types.
  *
  * @author Janne Valkealahti
@@ -31,7 +31,7 @@ import org.springframework.statemachine.transition.Transition;
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public class EnumStateMachine<S extends Enum<S>, E extends Enum<E>> extends AbstractStateMachine<S, E> {
+public class ObjectStateMachine<S, E> extends AbstractStateMachine<S, E> {
 
 	/**
 	 * Instantiates a new enum state machine.
@@ -40,7 +40,7 @@ public class EnumStateMachine<S extends Enum<S>, E extends Enum<E>> extends Abst
 	 * @param transitions the transitions
 	 * @param initialState the initial state
 	 */
-	public EnumStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
+	public ObjectStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
 			State<S, E> initialState) {
 		super(states, transitions, initialState);
 	}
@@ -55,7 +55,7 @@ public class EnumStateMachine<S extends Enum<S>, E extends Enum<E>> extends Abst
 	 * @param initialEvent the initial event
 	 * @param extendedState the extended state
 	 */
-	public EnumStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
+	public ObjectStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
 			State<S, E> initialState, Transition<S, E> initialTransition,
 			Message<E> initialEvent, ExtendedState extendedState) {
 		super(states, transitions, initialState, initialTransition, initialEvent, extendedState);

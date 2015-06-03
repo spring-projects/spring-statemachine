@@ -15,67 +15,16 @@
  */
 package org.springframework.statemachine.config;
 
-import org.springframework.statemachine.config.builders.StateMachineConfigBuilder;
 import org.springframework.statemachine.config.builders.StateMachineConfigurer;
-import org.springframework.statemachine.config.builders.StateMachineStateBuilder;
-import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
-import org.springframework.statemachine.config.builders.StateMachineTransitionBuilder;
-import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
-import org.springframework.statemachine.config.common.annotation.AnnotationBuilder;
-import org.springframework.statemachine.config.common.annotation.ObjectPostProcessor;
 
 /**
- * Adapter implementation for {@link StateMachineConfigurer}.
- * 
+ * Base implementation of a {@link StateMachineConfigurer} using objects.
+ *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public class StateMachineConfigurerAdapter<S, E> implements StateMachineConfigurer<S, E> {
-
-	private StateMachineTransitionBuilder<S, E> transitionBuilder;
-	private StateMachineStateBuilder<S, E> stateBuilder;
-
-	@Override
-	public final void init(StateMachineConfigBuilder<S, E> config) throws Exception {
-		config.setSharedObject(StateMachineTransitionBuilder.class, getStateMachineTransitionBuilder());
-		config.setSharedObject(StateMachineStateBuilder.class, getStateMachineStateBuilder());
-	}
-
-	@Override
-	public void configure(StateMachineConfigBuilder<S, E> config) throws Exception {
-	}
-
-	@Override
-	public void configure(StateMachineStateConfigurer<S, E> states) throws Exception {
-	}
-
-	@Override
-	public void configure(StateMachineTransitionConfigurer<S, E> transitions) throws Exception {
-	}
-
-	@Override
-	public boolean isAssignable(AnnotationBuilder<StateMachineConfig<S, E>> builder) {
-		return builder instanceof StateMachineConfigBuilder;
-	}
-
-	protected final StateMachineTransitionBuilder<S, E> getStateMachineTransitionBuilder() throws Exception {
-		if (transitionBuilder != null) {
-			return transitionBuilder;
-		}
-		transitionBuilder = new StateMachineTransitionBuilder<S, E>(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR, true);
-		configure(transitionBuilder);
-		return transitionBuilder;
-	}
-
-	protected final StateMachineStateBuilder<S, E> getStateMachineStateBuilder() throws Exception {
-		if (stateBuilder != null) {
-			return stateBuilder;
-		}
-		stateBuilder = new StateMachineStateBuilder<S, E>(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR, true);
-		configure(stateBuilder);
-		return stateBuilder;
-	}
+public class StateMachineConfigurerAdapter<S extends Object, E extends Object> extends AbstractStateMachineConfigurerAdapter<S, E> {
 
 }

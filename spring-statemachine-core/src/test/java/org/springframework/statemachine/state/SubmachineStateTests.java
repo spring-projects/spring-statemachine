@@ -28,7 +28,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.statemachine.AbstractStateMachineTests;
-import org.springframework.statemachine.EnumStateMachine;
+import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.TestUtils;
@@ -83,7 +83,7 @@ public class SubmachineStateTests extends AbstractStateMachineTests {
 		transitions.add(transitionFromS2ToS3);
 
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
-		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateSI);
+		ObjectStateMachine<TestStates, TestEvents> machine = new ObjectStateMachine<TestStates, TestEvents>(states, transitions, stateSI);
 		machine.setTaskExecutor(taskExecutor);
 		machine.afterPropertiesSet();
 		machine.start();
@@ -103,8 +103,8 @@ public class SubmachineStateTests extends AbstractStateMachineTests {
 	public void testFromSimpleToOtherSubstate() {
 		context.register(BaseConfig.class, Config1.class);
 		context.refresh();
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		assertThat(machine, notNullValue());
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
@@ -120,8 +120,8 @@ public class SubmachineStateTests extends AbstractStateMachineTests {
 	public void testAllSubmachinesRunningInitialsTakesToDeep() throws Exception {
 		context.register(BaseConfig.class, Config2.class);
 		context.refresh();
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		assertThat(machine, notNullValue());
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
@@ -146,8 +146,8 @@ public class SubmachineStateTests extends AbstractStateMachineTests {
 	public void testAllSubmachinesRunningInitialsNotTakeToDeep() throws Exception {
 		context.register(BaseConfig.class, Config3.class);
 		context.refresh();
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		assertThat(machine, notNullValue());
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
@@ -172,8 +172,8 @@ public class SubmachineStateTests extends AbstractStateMachineTests {
 	public void testAllSubmachinesStopped() throws Exception {
 		context.register(BaseConfig.class, Config3.class);
 		context.refresh();
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		assertThat(machine, notNullValue());
 		machine.start();
 		machine.sendEvent(TestEvents.E1);

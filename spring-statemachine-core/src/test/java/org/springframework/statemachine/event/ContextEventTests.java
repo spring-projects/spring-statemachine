@@ -28,7 +28,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.AbstractStateMachineTests;
-import org.springframework.statemachine.EnumStateMachine;
+import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
@@ -53,8 +53,8 @@ public class ContextEventTests extends AbstractStateMachineTests {
 	public void contextEventsEnabled() throws Exception {
 		context.register(BaseConfig.class, StateMachineEventPublisherConfiguration.class, Config.class, Config1.class);
 		context.refresh();
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
 		StateMachineApplicationEventListener listener = context.getBean(StateMachineApplicationEventListener.class);
@@ -67,8 +67,8 @@ public class ContextEventTests extends AbstractStateMachineTests {
 	public void contextEventsDisabled() throws Exception {
 		context.register(BaseConfig.class, StateMachineEventPublisherConfiguration.class, Config.class, Config2.class);
 		context.refresh();
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
 		StateMachineApplicationEventListener listener = context.getBean(StateMachineApplicationEventListener.class);

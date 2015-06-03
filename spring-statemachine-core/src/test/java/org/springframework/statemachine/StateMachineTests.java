@@ -37,6 +37,7 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
@@ -56,8 +57,8 @@ public class StateMachineTests extends AbstractStateMachineTests {
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		assertThat(machine, notNullValue());
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("foo", "jee1").build());
@@ -120,8 +121,8 @@ public class StateMachineTests extends AbstractStateMachineTests {
 	public void testForkJoin() throws Exception {
 		context.register(BaseConfig.class, Config3.class);
 		context.refresh();
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 
@@ -150,6 +151,28 @@ public class StateMachineTests extends AbstractStateMachineTests {
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(3));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S4));
+	}
+
+	@Test
+	public void testStringStatesAndEvents() throws Exception {
+		context.register(Config4.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		@SuppressWarnings("unchecked")
+		StateMachine<String, String> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+
+		TestListener2 listener = new TestListener2();
+		machine.addStateListener(listener);
+
+
+		assertThat(machine, notNullValue());
+		machine.start();
+		listener.reset(1);
+		machine.sendEvent(MessageBuilder.withPayload("E1").setHeader("foo", "jee1").build());
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+		assertThat(machine.getState().getIds(), containsInAnyOrder("S1"));
 	}
 
 	private static class LoggingAction implements Action<TestStates, TestEvents> {
@@ -353,6 +376,30 @@ public class StateMachineTests extends AbstractStateMachineTests {
 
 	}
 
+	@Configuration
+	@EnableStateMachine
+	static class Config4 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("SI")
+					.state("S1")
+					.state("S2");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("SI")
+					.target("S1")
+					.event("E1");
+		}
+
+	}
+
 	private static class TestListener extends StateMachineListenerAdapter<TestStates, TestEvents> {
 
 		volatile CountDownLatch stateChangedLatch = new CountDownLatch(1);
@@ -367,6 +414,35 @@ public class StateMachineTests extends AbstractStateMachineTests {
 
 		@Override
 		public void transition(Transition<TestStates, TestEvents> transition) {
+			transitionLatch.countDown();
+		}
+
+		public void reset(int c1) {
+			reset(c1, 0);
+		}
+
+		public void reset(int c1, int c2) {
+			stateChangedLatch = new CountDownLatch(c1);
+			transitionLatch = new CountDownLatch(c2);
+			stateChangedCount = 0;
+		}
+
+	}
+
+	private static class TestListener2 extends StateMachineListenerAdapter<String, String> {
+
+		volatile CountDownLatch stateChangedLatch = new CountDownLatch(1);
+		volatile CountDownLatch transitionLatch = new CountDownLatch(0);
+		volatile int stateChangedCount = 0;
+
+		@Override
+		public void stateChanged(State<String, String> from, State<String, String> to) {
+			stateChangedCount++;
+			stateChangedLatch.countDown();
+		}
+
+		@Override
+		public void transition(Transition<String, String> transition) {
 			transitionLatch.countDown();
 		}
 

@@ -94,7 +94,7 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		Collection<State<TestStates,TestEvents>> substates111 = new ArrayList<State<TestStates,TestEvents>>();
 		substates111.add(stateS111);
 		Collection<Transition<TestStates,TestEvents>> subtransitions111 = new ArrayList<Transition<TestStates,TestEvents>>();
-		EnumStateMachine<TestStates, TestEvents> submachine11 = new EnumStateMachine<TestStates, TestEvents>(substates111, subtransitions111, stateS111);
+		ObjectStateMachine<TestStates, TestEvents> submachine11 = new ObjectStateMachine<TestStates, TestEvents>(substates111, subtransitions111, stateS111);
 
 		// submachine 1
 		TestEntryAction entryActionS11 = new TestEntryAction("S11");
@@ -108,7 +108,7 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		Collection<State<TestStates,TestEvents>> substates11 = new ArrayList<State<TestStates,TestEvents>>();
 		substates11.add(stateS11);
 		Collection<Transition<TestStates,TestEvents>> subtransitions11 = new ArrayList<Transition<TestStates,TestEvents>>();
-		EnumStateMachine<TestStates, TestEvents> submachine1 = new EnumStateMachine<TestStates, TestEvents>(substates11, subtransitions11, stateS11);
+		ObjectStateMachine<TestStates, TestEvents> submachine1 = new ObjectStateMachine<TestStates, TestEvents>(substates11, subtransitions11, stateS11);
 
 		// machine
 		TestEntryAction entryActionS1 = new TestEntryAction("S1");
@@ -125,7 +125,7 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromS111ToS1 =
 				new DefaultExternalTransition<TestStates,TestEvents>(stateS111, stateS1, null, TestEvents.E1, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E1));
 		transitions.add(transitionFromS111ToS1);
-		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateS1);
+		ObjectStateMachine<TestStates, TestEvents> machine = new ObjectStateMachine<TestStates, TestEvents>(states, transitions, stateS1);
 
 
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
@@ -200,7 +200,7 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		substates11.add(stateS111);
 		substates11.add(stateS112);
 		Collection<Transition<TestStates,TestEvents>> subtransitions11 = new ArrayList<Transition<TestStates,TestEvents>>();
-		EnumStateMachine<TestStates, TestEvents> submachine11 = new EnumStateMachine<TestStates, TestEvents>(substates11, subtransitions11, stateS111);
+		ObjectStateMachine<TestStates, TestEvents> submachine11 = new ObjectStateMachine<TestStates, TestEvents>(substates11, subtransitions11, stateS111);
 
 		// machine
 		TestEntryAction entryActionS1 = new TestEntryAction("S1");
@@ -217,7 +217,7 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromS111ToS112 =
 				new DefaultExternalTransition<TestStates,TestEvents>(stateS111, stateS112, null, TestEvents.E1, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E1));
 		transitions.add(transitionFromS111ToS112);
-		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateS1);
+		ObjectStateMachine<TestStates, TestEvents> machine = new ObjectStateMachine<TestStates, TestEvents>(states, transitions, stateS1);
 
 
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
@@ -284,7 +284,7 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		Collection<State<TestStates,TestEvents>> substates111 = new ArrayList<State<TestStates,TestEvents>>();
 		substates111.add(stateS111);
 		Collection<Transition<TestStates,TestEvents>> subtransitions111 = new ArrayList<Transition<TestStates,TestEvents>>();
-		EnumStateMachine<TestStates, TestEvents> submachine11 = new EnumStateMachine<TestStates, TestEvents>(substates111, subtransitions111, stateS111);
+		ObjectStateMachine<TestStates, TestEvents> submachine11 = new ObjectStateMachine<TestStates, TestEvents>(substates111, subtransitions111, stateS111);
 
 		// submachine 1
 		TestEntryAction entryActionS11 = new TestEntryAction("S11");
@@ -298,7 +298,7 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		Collection<State<TestStates,TestEvents>> substates11 = new ArrayList<State<TestStates,TestEvents>>();
 		substates11.add(stateS11);
 		Collection<Transition<TestStates,TestEvents>> subtransitions11 = new ArrayList<Transition<TestStates,TestEvents>>();
-		EnumStateMachine<TestStates, TestEvents> submachine1 = new EnumStateMachine<TestStates, TestEvents>(substates11, subtransitions11, stateS11);
+		ObjectStateMachine<TestStates, TestEvents> submachine1 = new ObjectStateMachine<TestStates, TestEvents>(substates11, subtransitions11, stateS11);
 
 		// machine
 		TestEntryAction entryActionS1 = new TestEntryAction("S1");
@@ -315,7 +315,7 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		DefaultLocalTransition<TestStates,TestEvents> transitionFromS11ToS1 =
 				new DefaultLocalTransition<TestStates,TestEvents>(stateS111, stateS1, null, TestEvents.E1, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E1));
 		transitions.add(transitionFromS11ToS1);
-		EnumStateMachine<TestStates, TestEvents> machine = new EnumStateMachine<TestStates, TestEvents>(states, transitions, stateS1);
+		ObjectStateMachine<TestStates, TestEvents> machine = new ObjectStateMachine<TestStates, TestEvents>(states, transitions, stateS1);
 
 
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
@@ -350,8 +350,8 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 
 		machine.start();
 
@@ -386,8 +386,8 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		machine.start();
 		assertThat(machine, notNullValue());
 
@@ -400,8 +400,8 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
-		EnumStateMachine<TestStates2,TestEvents2> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates2,TestEvents2> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		machine.start();
 		assertThat(machine, notNullValue());
 		assertThat(machine.getState().getIds(), contains(TestStates2.IDLE, TestStates2.CLOSED));

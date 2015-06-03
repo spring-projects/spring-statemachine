@@ -32,7 +32,7 @@ import org.springframework.statemachine.AbstractStateMachineTests.TestAction;
 import org.springframework.statemachine.AbstractStateMachineTests.TestEvents;
 import org.springframework.statemachine.AbstractStateMachineTests.TestGuard;
 import org.springframework.statemachine.AbstractStateMachineTests.TestStates;
-import org.springframework.statemachine.EnumStateMachine;
+import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
@@ -51,8 +51,8 @@ public class GuardTests {
 	@Test
 	public void testGuardEvaluated() throws Exception {
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config1.class);
-		EnumStateMachine<TestStates,TestEvents> machine =
-				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		TestGuard testGuard = ctx.getBean("testGuard", TestGuard.class);
 		TestAction testAction = ctx.getBean("testAction", TestAction.class);
 		assertThat(testGuard, notNullValue());
@@ -70,8 +70,8 @@ public class GuardTests {
 	@Test
 	public void testGuardDenyAction() throws Exception {
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config2.class);
-		EnumStateMachine<TestStates,TestEvents> machine =
-				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		TestGuard testGuard = ctx.getBean("testGuard", TestGuard.class);
 		TestAction testAction = ctx.getBean("testAction", TestAction.class);
 		assertThat(testGuard, notNullValue());

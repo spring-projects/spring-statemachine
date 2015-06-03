@@ -44,8 +44,8 @@ public class RelayTests extends AbstractStateMachineTests {
 	public void testRelayFromSubmachine() throws Exception {
 		context.register(Config1.class);
 		context.refresh();
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		assertThat(machine, notNullValue());
 		TestStateMachineListener listener = new TestStateMachineListener();
 		machine.addStateListener(listener);

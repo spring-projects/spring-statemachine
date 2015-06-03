@@ -30,7 +30,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.AbstractStateMachineTests;
-import org.springframework.statemachine.EnumStateMachine;
+import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -45,8 +45,8 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 	public void testMethodAnnotations() throws Exception {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(BaseConfig.class, BeanConfig1.class, Config1.class);
 
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		assertThat(context.containsBean("fooMachine"), is(true));
 		machine.start();
 
@@ -66,8 +66,8 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 	public void testMethodAnnotations2() throws Exception {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(BaseConfig.class, BeanConfig2.class, Config1.class);
 
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		assertThat(context.containsBean("fooMachine"), is(true));
 		machine.start();
 

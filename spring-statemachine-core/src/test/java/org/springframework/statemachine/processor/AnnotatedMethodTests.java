@@ -31,7 +31,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.AbstractStateMachineTests;
-import org.springframework.statemachine.EnumStateMachine;
+import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.annotation.OnTransition;
 import org.springframework.statemachine.annotation.WithStateMachine;
@@ -52,8 +52,8 @@ public class AnnotatedMethodTests extends AbstractStateMachineTests {
 	public void testSimpleMachine() throws Exception {
 		context.register(Config1.class, BeanConfig1.class);
 		context.refresh();
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		Bean1 bean1 = context.getBean(Bean1.class);
 		machine.start();
 		assertThat(bean1.onMethod0Latch.await(2, TimeUnit.SECONDS), is(true));
@@ -66,8 +66,8 @@ public class AnnotatedMethodTests extends AbstractStateMachineTests {
 	public void testRegions() throws Exception {
 		context.register(Config2.class, BeanConfig1.class);
 		context.refresh();
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		Bean1 bean1 = context.getBean(Bean1.class);
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
@@ -88,8 +88,8 @@ public class AnnotatedMethodTests extends AbstractStateMachineTests {
 	public void testViaJoin() throws Exception {
 		context.register(Config3.class, BeanConfig1.class);
 		context.refresh();
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		Bean1 bean1 = context.getBean(Bean1.class);
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
@@ -110,8 +110,8 @@ public class AnnotatedMethodTests extends AbstractStateMachineTests {
 	public void testViaJoinSuper() throws Exception {
 		context.register(Config4.class, BeanConfig1.class);
 		context.refresh();
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		Bean1 bean1 = context.getBean(Bean1.class);
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
@@ -132,8 +132,8 @@ public class AnnotatedMethodTests extends AbstractStateMachineTests {
 	public void testViaForkSuper() throws Exception {
 		context.register(Config5.class, BeanConfig1.class);
 		context.refresh();
-		EnumStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, EnumStateMachine.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		Bean1 bean1 = context.getBean(Bean1.class);
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
