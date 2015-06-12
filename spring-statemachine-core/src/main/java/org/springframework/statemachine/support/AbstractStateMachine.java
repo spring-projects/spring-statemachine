@@ -37,6 +37,9 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.access.StateMachineAccess;
+import org.springframework.statemachine.access.StateMachineAccessor;
+import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.annotation.OnTransition;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.processor.StateMachineHandler;
@@ -83,7 +86,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	private final Message<E> initialEvent;
 
-	private final ExtendedState extendedState;
+	private ExtendedState extendedState;
 
 	private volatile State<S,E> currentState;
 
@@ -163,6 +166,11 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	@Override
 	public ExtendedState getExtendedState() {
 		return extendedState;
+	}
+
+	@Override
+	public void setExtendedState(ExtendedState extendedState) {
+		this.extendedState = extendedState;
 	}
 
 	public void setHistoryState(PseudoState<S, E> history) {
@@ -304,21 +312,46 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void doWithAllRegions(StateMachineFunction<StateMachineAccess<S, E>> stateMachineAccess) {
-		stateMachineAccess.apply(this);
-		for (State<S, E> state : states) {
-			if (state.isSubmachineState()) {
-				StateMachine<S, E> submachine = ((AbstractState<S, E>)state).getSubmachine();
-				if (submachine instanceof StateMachineAccess) {
-					((StateMachineAccess<S, E>)submachine).doWithAllRegions(stateMachineAccess);
-				}
-			} else if (state.isOrthogonal()) {
-				Collection<Region<S, E>> regions = ((AbstractState<S, E>)state).getRegions();
-				for (Region<S, E> region : regions) {
-					((StateMachineAccess<S, E>)region).doWithAllRegions(stateMachineAccess);
+	public StateMachineAccessor<S, E> getStateMachineAccessor() {
+		// TODO: needs cleaning and perhaps not an anonymous function
+		return new StateMachineAccessor<S, E>() {
+
+			@Override
+			public void doWithAllRegions(StateMachineFunction<StateMachineAccess<S, E>> stateMachineAccess) {
+				stateMachineAccess.apply(AbstractStateMachine.this);
+				for (State<S, E> state : states) {
+					if (state.isSubmachineState()) {
+						StateMachine<S, E> submachine = ((AbstractState<S, E>) state).getSubmachine();
+						submachine.getStateMachineAccessor().doWithAllRegions(stateMachineAccess);
+					} else if (state.isOrthogonal()) {
+						Collection<Region<S, E>> regions = ((AbstractState<S, E>) state).getRegions();
+						for (Region<S, E> region : regions) {
+							((StateMachine<S, E>)region).getStateMachineAccessor().doWithAllRegions(stateMachineAccess);
+						}
+					}
 				}
 			}
-		}
+
+			@Override
+			public List<StateMachineAccess<S, E>> withAllRegions() {
+				List<StateMachineAccess<S, E>> list = new ArrayList<StateMachineAccess<S, E>>();
+				list.add(AbstractStateMachine.this);
+				for (State<S, E> state : states) {
+					if (state.isSubmachineState()) {
+						StateMachine<S, E> submachine = ((AbstractState<S, E>) state).getSubmachine();
+						if (submachine instanceof StateMachineAccess) {
+							list.add((StateMachineAccess<S, E>)submachine);
+						}
+					} else if (state.isOrthogonal()) {
+						Collection<Region<S, E>> regions = ((AbstractState<S, E>) state).getRegions();
+						for (Region<S, E> region : regions) {
+							list.add((StateMachineAccess<S, E>) region);
+						}
+					}
+				}
+				return list;
+			}
+		};
 	}
 
 	@Override
@@ -351,6 +384,16 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			buf.append(StringUtils.collectionToCommaDelimitedString(currentState.getIds()));
 		}
 		return buf.toString();
+	}
+
+	@Override
+	public void resetState(S state) {
+		for (State<S, E> s : getStates()) {
+			if (s.getId().equals(state)) {
+				currentState = s;
+				break;
+			}
+		}
 	}
 
 	protected boolean acceptEvent(Message<E> message) {
@@ -476,6 +519,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			}
 			entryToState(state, message, transition, stateMachine);
 			notifyStateChanged(notifyFrom, state);
+			StateContext<S, E> stateContext = buildStateContext(message, transition, stateMachine);
+			notifyStateChanged(stateContext);
 		} else if (currentState != null) {
 			if (findDeep != null) {
 				if (exit) {

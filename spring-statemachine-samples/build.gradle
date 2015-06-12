@@ -19,3 +19,7 @@ project('spring-statemachine-samples-tasks') {
 project('spring-statemachine-samples-washer') {
   description = 'Spring State Machine History State Sample'
 }
+
+project('spring-statemachine-samples-zookeeper') {
+  description = 'Spring State Machine Distributed Sample'
+}

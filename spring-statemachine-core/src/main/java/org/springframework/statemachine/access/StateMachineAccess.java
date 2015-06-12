@@ -13,42 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine;
+package org.springframework.statemachine.access;
 
-import org.springframework.statemachine.access.StateMachineAccessor;
-import org.springframework.statemachine.region.Region;
-import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.ExtendedState;
+import org.springframework.statemachine.StateMachine;
 
 /**
- * {@code StateMachine} provides an APIs for generic finite state machine needed
- * for basic operations like working with states, events and a lifecycle.
+ * Functional interface exposing {@link StateMachine} internals.
  *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public interface StateMachine<S, E> extends Region<S, E> {
+public interface StateMachineAccess<S, E> {
 
 	/**
-	 * Gets the initial state {@code S}.
+	 * Sets the relay state machine.
 	 *
-	 * @return initial state
+	 * @param stateMachine the state machine
 	 */
-	State<S,E> getInitialState();
+	void setRelay(StateMachine<S, E> stateMachine);
 
 	/**
-	 * Gets the state machine extended state.
+	 * Reset state.
 	 *
-	 * @return extended state
+	 * @param state the state
 	 */
-	ExtendedState getExtendedState();
+	void resetState(S state);
 
 	/**
-	 * Gets the state machine accessor.
+	 * Sets the extended state.
 	 *
-	 * @return the state machine accessor
+	 * @param extendedState the new extended state
 	 */
-	StateMachineAccessor<S, E> getStateMachineAccessor();
+	void setExtendedState(ExtendedState extendedState);
 
 }

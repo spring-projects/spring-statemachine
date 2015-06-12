@@ -28,6 +28,8 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.access.StateMachineAccess;
+import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.builders.StateMachineStates;
 import org.springframework.statemachine.config.builders.StateMachineTransitions;
@@ -47,8 +49,6 @@ import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.state.StateMachineState;
 import org.springframework.statemachine.support.DefaultExtendedState;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
-import org.springframework.statemachine.support.StateMachineAccess;
-import org.springframework.statemachine.support.StateMachineFunction;
 import org.springframework.statemachine.support.tree.Tree;
 import org.springframework.statemachine.support.tree.Tree.Node;
 import org.springframework.statemachine.support.tree.TreeTraverser;
@@ -178,15 +178,15 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		}
 
 		// set top-level machine as relay
-		final StateMachine<S, E> mm = machine;
-		((StateMachineAccess<S, E>)machine).doWithAllRegions(new StateMachineFunction<StateMachineAccess<S, E>>() {
+		final StateMachine<S, E> fmachine = machine;
+		fmachine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<S, E>>() {
 
 			@Override
-			public void apply(StateMachineAccess<S, E> stateMachineAccess) {
-				stateMachineAccess.setRelay(mm);
+			public void apply(StateMachineAccess<S, E> function) {
+				function.setRelay(fmachine);
 			}
-		});
 
+		});
 		return machine;
 	}
 

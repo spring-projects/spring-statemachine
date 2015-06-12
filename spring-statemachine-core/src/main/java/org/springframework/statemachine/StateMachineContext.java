@@ -15,40 +15,51 @@
  */
 package org.springframework.statemachine;
 
-import org.springframework.statemachine.access.StateMachineAccessor;
-import org.springframework.statemachine.region.Region;
-import org.springframework.statemachine.state.State;
+import java.util.Map;
 
 /**
- * {@code StateMachine} provides an APIs for generic finite state machine needed
- * for basic operations like working with states, events and a lifecycle.
+ * {@code StateMachineContext} represents a current state of a state machine.
  *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public interface StateMachine<S, E> extends Region<S, E> {
+public interface StateMachineContext<S, E> {
 
 	/**
-	 * Gets the initial state {@code S}.
+	 * Gets the state machine.
 	 *
-	 * @return initial state
+	 * @return the state machine
 	 */
-	State<S,E> getInitialState();
+	StateMachine<S, E> getStateMachine();
 
 	/**
-	 * Gets the state machine extended state.
+	 * Gets the state.
 	 *
-	 * @return extended state
+	 * @return the state
+	 */
+	S getState();
+
+	/**
+	 * Gets the event.
+	 *
+	 * @return the event
+	 */
+	E getEvent();
+
+	/**
+	 * Gets the event headers.
+	 *
+	 * @return the event headers
+	 */
+	Map<String, Object> getEventHeaders();
+
+	/**
+	 * Gets the extended state.
+	 *
+	 * @return the extended state
 	 */
 	ExtendedState getExtendedState();
-
-	/**
-	 * Gets the state machine accessor.
-	 *
-	 * @return the state machine accessor
-	 */
-	StateMachineAccessor<S, E> getStateMachineAccessor();
 
 }

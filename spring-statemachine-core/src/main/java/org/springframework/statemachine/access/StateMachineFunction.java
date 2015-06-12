@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.support;
+package org.springframework.statemachine.access;
 
 /**
  * Strategic function interface for applying arbitrary function
@@ -22,7 +22,7 @@ package org.springframework.statemachine.support;
  * @author Janne Valkealahti
  *
  * @param <I> the function type
- * @see StateMachineAccess
+ * @see StateMachineAccessor
  */
 public interface StateMachineFunction<I> {
 

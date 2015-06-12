@@ -33,6 +33,7 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.state.EnumState;
@@ -130,6 +131,11 @@ public class StateContextExpressionMethodsTests {
 	private static class MockStatemachine implements StateMachine<SpelStates, SpelEvents> {
 
 		ArrayList<Message<SpelEvents>> events = new ArrayList<Message<SpelEvents>>();
+
+		@Override
+		public StateMachineAccessor<SpelStates, SpelEvents> getStateMachineAccessor() {
+			return null;
+		}
 
 		@Override
 		public void start() {

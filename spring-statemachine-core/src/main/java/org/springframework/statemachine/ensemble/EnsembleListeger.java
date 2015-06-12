@@ -13,33 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.support;
+package org.springframework.statemachine.ensemble;
 
-import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.StateMachineContext;
 
 /**
- * Functional interface for {@link StateMachine} to allow more programmetic
- * access to underlying functionality.
+ * {@code EnsembleListeger} for various ensemble events.
  *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public interface StateMachineAccess<S, E> {
+public interface EnsembleListeger<S, E> {
 
-	/**
-	 * Execute given {@link StateMachineFunction} with all recursive regions.
-	 *
-	 * @param stateMachineAccess the state machine access
-	 */
-	void doWithAllRegions(StateMachineFunction<StateMachineAccess<S, E>> stateMachineAccess);
+	void stateMachineJoined(StateMachineContext<S, E> context);
 
-	/**
-	 * Sets the relay state machine.
-	 *
-	 * @param stateMachine the state machine
-	 */
-	void setRelay(StateMachine<S, E> stateMachine);
+	void stateMachineLeft(StateMachineContext<S, E> context);
+
+	void stateChanged(StateMachineContext<S, E> context);
 
 }

@@ -1,6 +1,7 @@
 rootProject.name = 'spring-statemachine'
 
 include 'spring-statemachine-core'
+include 'spring-statemachine-zookeeper'
 
 include 'spring-statemachine-samples'
 include 'spring-statemachine-samples:turnstile'
@@ -8,6 +9,7 @@ include 'spring-statemachine-samples:showcase'
 include 'spring-statemachine-samples:cdplayer'
 include 'spring-statemachine-samples:tasks'
 include 'spring-statemachine-samples:washer'
+include 'spring-statemachine-samples:zookeeper'
 
 rootProject.children.find {
 	if (it.name == 'spring-statemachine-samples') {

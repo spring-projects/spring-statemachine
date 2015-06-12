@@ -22,8 +22,16 @@ configure(allprojects) {
 	apply plugin: 'eclipse'
 	apply plugin: 'idea'
 	
-	sourceCompatibility = 1.6
-	targetCompatibility = 1.6
+
+	compileJava {
+		sourceCompatibility = 1.7
+		targetCompatibility = 1.7
+	}
+
+	compileTestJava {
+		sourceCompatibility = 1.8
+		targetCompatibility = 1.8
+	}
 
 	group = 'org.springframework.statemachine'
 	
@@ -111,11 +119,29 @@ project('spring-statemachine-core') {
 	}
 }
 
+project('spring-statemachine-zookeeper') {
+	description = "Spring State Machine Zookeeper"
+    
+	dependencies {
+		compile project(":spring-statemachine-core")
+		compile "org.apache.curator:curator-recipes:$curatorVersion"
+		compile "com.esotericsoftware.kryo:kryo:$kryoVersion"
+
+		testCompile "org.apache.curator:curator-test:$curatorVersion"
+		testCompile "org.springframework:spring-test:$springVersion"
+		testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"
+		testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
+		testCompile "junit:junit:$junitVersion"
+		testRuntime("log4j:log4j:$log4jVersion")
+	}
+}
+
 configure(sampleProjects()) {
 	apply plugin: 'spring-boot'
 	configurations.archives.artifacts.removeAll { it.archiveTask.is jar }
 	dependencies {
 		compile project(":spring-statemachine-samples-common")
+		compile project(":spring-statemachine-zookeeper")
 		testCompile "org.springframework:spring-test:$springVersion"
 		testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"
 		testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
