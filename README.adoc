@@ -3,10 +3,17 @@
 Spring Statemachine aims to provide a common infrastructure to work
 with statemachine concepts in Spring applications.
 
-This project is currently in incubation and first milestone is
-released when project state is considered to be relatively stable, we
+This project is currently in incubation and milestones are released
+time to time with new features and bug fixes. Relese candidate is
+considered when project state is considered to be relatively stable, we
 have a good reference documentation and samples. Milestones will not
 be a feature complete.
+
+It is adviced to check from a latest releases found on
+http://projects.spring.io/spring-statemachine/[Spring
+Statemachine Project Page] what is the actual state of this project.
+Master of a git repo may be relatively unstable when new features are
+added into a source code.
 
 == Downloading Artifacts
 See
