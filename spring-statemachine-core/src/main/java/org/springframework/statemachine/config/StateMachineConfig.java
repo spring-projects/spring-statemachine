@@ -15,18 +15,26 @@
  */
 package org.springframework.statemachine.config;
 
+import org.springframework.statemachine.config.builders.StateMachineConfigurationConfig;
 import org.springframework.statemachine.config.builders.StateMachineStates;
 import org.springframework.statemachine.config.builders.StateMachineTransitions;
 
 public class StateMachineConfig<S, E> {
 
+	public final StateMachineConfigurationConfig<S, E> stateMachineConfigurationConfig;
+
 	public final StateMachineTransitions<S, E> transitions;
 
 	public final StateMachineStates<S, E> states;
 
-	public StateMachineConfig(StateMachineTransitions<S, E> transitions, StateMachineStates<S, E> states) {
+	public StateMachineConfig(StateMachineConfigurationConfig<S, E> stateMachineConfigurationConfig, StateMachineTransitions<S, E> transitions, StateMachineStates<S, E> states) {
+		this.stateMachineConfigurationConfig = stateMachineConfigurationConfig;
 		this.transitions = transitions;
 		this.states = states;
+	}
+
+	public StateMachineConfigurationConfig<S, E> getStateMachineConfigurationConfig() {
+		return stateMachineConfigurationConfig;
 	}
 
 	public StateMachineTransitions<S, E> getTransitions() {
@@ -36,4 +44,5 @@ public class StateMachineConfig<S, E> {
 	public StateMachineStates<S, E> getStates() {
 		return states;
 	}
+
 }

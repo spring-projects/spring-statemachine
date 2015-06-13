@@ -16,6 +16,8 @@
 package org.springframework.statemachine.config;
 
 import org.springframework.statemachine.config.builders.StateMachineConfigBuilder;
+import org.springframework.statemachine.config.builders.StateMachineConfigurationBuilder;
+import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateBuilder;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
@@ -36,15 +38,21 @@ public abstract class AbstractStateMachineConfigurerAdapter<S, E> implements Sta
 
 	private StateMachineTransitionBuilder<S, E> transitionBuilder;
 	private StateMachineStateBuilder<S, E> stateBuilder;
+	private StateMachineConfigurationBuilder<S, E> configurationBuilder;
 
 	@Override
 	public final void init(StateMachineConfigBuilder<S, E> config) throws Exception {
 		config.setSharedObject(StateMachineTransitionBuilder.class, getStateMachineTransitionBuilder());
 		config.setSharedObject(StateMachineStateBuilder.class, getStateMachineStateBuilder());
+		config.setSharedObject(StateMachineConfigurationBuilder.class, getStateMachineConfigurationBuilder());
 	}
 
 	@Override
 	public void configure(StateMachineConfigBuilder<S, E> config) throws Exception {
+	}
+
+	@Override
+	public void configure(StateMachineConfigurationConfigurer<S, E> config) throws Exception {
 	}
 
 	@Override
@@ -76,6 +84,15 @@ public abstract class AbstractStateMachineConfigurerAdapter<S, E> implements Sta
 		stateBuilder = new StateMachineStateBuilder<S, E>(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR, true);
 		configure(stateBuilder);
 		return stateBuilder;
+	}
+
+	protected final StateMachineConfigurationBuilder<S, E> getStateMachineConfigurationBuilder() throws Exception {
+		if (configurationBuilder != null) {
+			return configurationBuilder;
+		}
+		configurationBuilder = new StateMachineConfigurationBuilder<S, E>(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR, true);
+		configure(configurationBuilder);
+		return configurationBuilder;
 	}
 
 }

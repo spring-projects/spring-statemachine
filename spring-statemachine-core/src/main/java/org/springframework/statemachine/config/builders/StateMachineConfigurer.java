@@ -20,7 +20,7 @@ import org.springframework.statemachine.config.common.annotation.AnnotationConfi
 
 /**
  * {@link AnnotationConfigurer} exposing configurers for states and transitions.
- * 
+ *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
@@ -30,8 +30,16 @@ public interface StateMachineConfigurer<S, E> extends
 		AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>> {
 
 	/**
+	 * Callback for {@link StateMachineConfigurationConfigurer}.
+	 *
+	 * @param config the {@link StateMachineConfigurationConfigurer}
+	 * @throws Exception if configuration error happens
+	 */
+	void configure(StateMachineConfigurationConfigurer<S, E> config) throws Exception;
+
+	/**
 	 * Callback for {@link StateMachineStateConfigurer}.
-	 * 
+	 *
 	 * @param states the {@link StateMachineStateConfigurer}
 	 * @throws Exception if configuration error happens
 	 */
@@ -39,7 +47,7 @@ public interface StateMachineConfigurer<S, E> extends
 
 	/**
 	 * Callback for {@link StateMachineTransitionConfigurer}.
-	 * 
+	 *
 	 * @param transitions the {@link StateMachineTransitionConfigurer}
 	 * @throws Exception if configuration error happens
 	 */

@@ -18,11 +18,14 @@ package org.springframework.statemachine.config;
 import java.util.Collection;
 
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.Message;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.config.builders.StateMachineConfigurationConfig;
 import org.springframework.statemachine.config.builders.StateMachineStates;
 import org.springframework.statemachine.config.builders.StateMachineTransitions;
 import org.springframework.statemachine.state.ObjectState;
@@ -41,15 +44,17 @@ import org.springframework.statemachine.transition.Transition;
  */
 public class ObjectStateMachineFactory<S, E> extends AbstractStateMachineFactory<S, E> {
 
-	public ObjectStateMachineFactory(StateMachineTransitions<S, E> stateMachineTransitions,
+	public ObjectStateMachineFactory(StateMachineConfigurationConfig<S,E> stateMachineConfigurationConfig, StateMachineTransitions<S, E> stateMachineTransitions,
 			StateMachineStates<S, E> stateMachineStates) {
-		super(stateMachineTransitions, stateMachineStates);
+		super(stateMachineConfigurationConfig, stateMachineTransitions, stateMachineStates);
 	}
 
 	@Override
 	protected StateMachine<S, E> buildStateMachineInternal(Collection<State<S, E>> states,
 			Collection<Transition<S, E>> transitions, State<S, E> initialState, Transition<S, E> initialTransition,
-			Message<E> initialEvent, ExtendedState extendedState, PseudoState<S, E> historyState, Boolean contextEventsEnabled, BeanFactory beanFactory) {
+			Message<E> initialEvent, ExtendedState extendedState, PseudoState<S, E> historyState,
+			Boolean contextEventsEnabled, BeanFactory beanFactory, TaskExecutor taskExecutor,
+			TaskScheduler taskScheduler) {
 		ObjectStateMachine<S, E> machine = new ObjectStateMachine<S, E>(states, transitions, initialState, initialTransition, initialEvent,
 				extendedState);
 		machine.setHistoryState(historyState);
@@ -58,6 +63,12 @@ public class ObjectStateMachineFactory<S, E> extends AbstractStateMachineFactory
 		}
 		if (beanFactory != null) {
 			machine.setBeanFactory(beanFactory);
+		}
+		if (taskExecutor != null) {
+			machine.setTaskExecutor(taskExecutor);
+		}
+		if (taskScheduler != null) {
+			machine.setTaskScheduler(taskScheduler);;
 		}
 		machine.afterPropertiesSet();
 		return machine;

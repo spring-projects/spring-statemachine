@@ -27,9 +27,11 @@ public class StateMachineConfigBuilder<S, E>
 	protected StateMachineConfig<S, E> performBuild() throws Exception {
 		StateMachineTransitionBuilder<?, ?> sharedObject = getSharedObject(StateMachineTransitionBuilder.class);
 		StateMachineStateBuilder<?, ?> sharedObject2 = getSharedObject(StateMachineStateBuilder.class);
-		StateMachineStates<S, E> states = (StateMachineStates<S, E>) sharedObject2.build();
+		StateMachineConfigurationBuilder<?, ?> sharedObject3 = getSharedObject(StateMachineConfigurationBuilder.class);
 		StateMachineTransitions<S, E> transitions = (StateMachineTransitions<S, E>) sharedObject.build();
-		StateMachineConfig<S, E> bean = new StateMachineConfig<S, E>(transitions, states);
+		StateMachineStates<S, E> states = (StateMachineStates<S, E>) sharedObject2.build();
+		StateMachineConfigurationConfig<S, E> config = (StateMachineConfigurationConfig<S, E>) sharedObject3.build();
+		StateMachineConfig<S, E> bean = new StateMachineConfig<S, E>(config, transitions, states);
 		return bean;
 	}
 

@@ -35,6 +35,7 @@ import org.springframework.statemachine.config.ObjectStateMachineFactory;
 import org.springframework.statemachine.config.StateMachineConfig;
 import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.config.builders.StateMachineConfigBuilder;
+import org.springframework.statemachine.config.builders.StateMachineConfigurationConfig;
 import org.springframework.statemachine.config.builders.StateMachineStates;
 import org.springframework.statemachine.config.builders.StateMachineTransitions;
 import org.springframework.statemachine.config.common.annotation.AbstractImportingAnnotationConfiguration;
@@ -109,7 +110,8 @@ public class StateMachineFactoryConfiguration<S extends Enum<S>, E extends Enum<
 			StateMachineConfig<S, E> stateMachineConfig = builder.getOrBuild();
 			StateMachineTransitions<S, E> stateMachineTransitions = stateMachineConfig.getTransitions();
 			StateMachineStates<S, E> stateMachineStates = stateMachineConfig.getStates();
-			ObjectStateMachineFactory<S,E> enumStateMachineFactory = new ObjectStateMachineFactory<S, E>(stateMachineTransitions, stateMachineStates);
+			StateMachineConfigurationConfig<S, E> stateMachineConfigurationConfig = stateMachineConfig.getStateMachineConfigurationConfig();
+			ObjectStateMachineFactory<S,E> enumStateMachineFactory = new ObjectStateMachineFactory<S, E>(stateMachineConfigurationConfig, stateMachineTransitions, stateMachineStates);
 			enumStateMachineFactory.setBeanFactory(beanFactory);
 			enumStateMachineFactory.setContextEventsEnabled(contextEvents);
 			this.stateMachineFactory = enumStateMachineFactory;
