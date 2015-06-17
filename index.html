@@ -105,6 +105,7 @@ static class MyApp {
     StateMachine<States, Events> stateMachine;
 
     void doSignals() {
+        stateMachine.start()
         stateMachine.sendEvent(Events.EVENT1);
         stateMachine.sendEvent(Events.EVENT2);
     }
