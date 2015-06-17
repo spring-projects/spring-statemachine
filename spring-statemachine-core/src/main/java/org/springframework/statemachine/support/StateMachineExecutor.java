@@ -59,6 +59,13 @@ public interface StateMachineExecutor<S, E> {
 	void execute();
 
 	/**
+	 * Sets the if initial stage is enabled.
+	 *
+	 * @param enabled the new flag
+	 */
+	void setInitialEnabled(boolean enabled);
+
+	/**
 	 * Start executor.
 	 *
 	 * @see LifecycleObjectSupport#start()

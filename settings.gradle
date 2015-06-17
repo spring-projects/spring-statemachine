@@ -3,6 +3,8 @@ rootProject.name = 'spring-statemachine'
 include 'spring-statemachine-core'
 include 'spring-statemachine-zookeeper'
 
+include 'spring-statemachine-recipes'
+
 include 'spring-statemachine-samples'
 include 'spring-statemachine-samples:turnstile'
 include 'spring-statemachine-samples:showcase'
@@ -10,8 +12,12 @@ include 'spring-statemachine-samples:cdplayer'
 include 'spring-statemachine-samples:tasks'
 include 'spring-statemachine-samples:washer'
 include 'spring-statemachine-samples:zookeeper'
+include 'spring-statemachine-samples:persist'
 
 rootProject.children.find {
+	if (it.name == 'spring-statemachine-recipes') {
+		it.name = 'spring-statemachine-recipes-common'
+	}
 	if (it.name == 'spring-statemachine-samples') {
 		it.name = 'spring-statemachine-samples-common'
 		it.children.each {

@@ -28,6 +28,7 @@ import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.support.StateChangeInterceptor;
 import org.springframework.statemachine.transition.Transition;
 
 public class StateMachineAccessTests {
@@ -78,6 +79,10 @@ public class StateMachineAccessTests {
 					return list;
 				}
 			};
+		}
+
+		@Override
+		public void addStateChangeInterceptor(StateChangeInterceptor<String, String> interceptor) {
 		}
 
 		@Override

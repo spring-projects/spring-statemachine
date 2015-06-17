@@ -23,3 +23,13 @@ project('spring-statemachine-samples-washer') {
 project('spring-statemachine-samples-zookeeper') {
   description = 'Spring State Machine Distributed Sample'
 }
+
+project('spring-statemachine-samples-persist') {
+	description = 'Spring State Machine Persist Sample'
+	dependencies {
+		compile project(":spring-statemachine-recipes-common")
+		compile ("org.hsqldb:hsqldb:2.3.1")
+		compile ("org.springframework:spring-jdbc:$springVersion")
+	}
+}
+

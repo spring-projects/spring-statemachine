@@ -147,6 +147,13 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 		initialHandled.set(false);
 	}
 
+	@Override
+	public void setInitialEnabled(boolean enabled) {
+		// TODO: should prob handle case where this is enabled
+		//       when executor is running
+		initialHandled.set(!enabled);
+	}
+
 	private void handleTriggerTrans(List<Transition<S, E>> trans, Message<E> queuedMessage) {
 		for (Transition<S, E> t : trans) {
 			if (t == null) {

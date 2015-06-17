@@ -11,6 +11,12 @@ buildscript {
 	}
 }
 
+def recipeProjects() {
+	subprojects.findAll { project ->
+		project.name.contains('spring-statemachine-recipes') && project.name != 'spring-statemachine-recipes-common'
+	}
+}
+
 def sampleProjects() {
 	subprojects.findAll { project ->
 		project.name.contains('spring-statemachine-samples') && project.name != 'spring-statemachine-samples-common'
@@ -133,6 +139,22 @@ project('spring-statemachine-zookeeper') {
 		testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
 		testCompile "junit:junit:$junitVersion"
 		testRuntime("log4j:log4j:$log4jVersion")
+	}
+}
+
+configure(recipeProjects()) {
+	dependencies {
+		compile project(":spring-statemachine-recipes-common")
+		testCompile "org.springframework:spring-test:$springVersion"
+		testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"
+		testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
+		testCompile "junit:junit:$junitVersion"
+	}
+}
+
+project('spring-statemachine-recipes-common') {
+	dependencies {
+		compile project(":spring-statemachine-core")
 	}
 }
 

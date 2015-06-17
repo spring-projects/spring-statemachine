@@ -259,6 +259,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	protected void doStart() {
 		// if state is set assume nothing to do
 		if (currentState != null) {
+			stateMachineExecutor.setInitialEnabled(false);
+			stateMachineExecutor.start();
 			return;
 		}
 		registerPseudoStateListener();
@@ -396,6 +398,11 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		}
 	}
 
+	@Override
+	public void addStateChangeInterceptor(StateChangeInterceptor<S, E> interceptor) {
+		getStateChangeInterceptors().add(interceptor);
+	}
+
 	protected boolean acceptEvent(Message<E> message) {
 
 		boolean accepted = currentState.sendEvent(message);
@@ -430,7 +437,20 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		return false;
 	}
 
+	private boolean callStateChangeInterceptors(State<S,E> state, Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
+		try {
+			getStateChangeInterceptors().preStateChange(state, message, transition, stateMachine);
+		} catch (Exception e) {
+			log.info("Interceptors threw and exception, skipping state change", e);
+			return false;
+		}
+		return true;
+	}
+
 	private void switchToState(State<S,E> state, Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
+		if (!callStateChangeInterceptors(state, message, transition, stateMachine)) {
+			return;
+		}
 		// TODO: need to make below more clear when
 		//       we figure out rest of a pseudostates
 		PseudoStateKind kind = state.getPseudoState() != null ? state.getPseudoState().getKind() : null;

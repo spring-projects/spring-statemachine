@@ -17,6 +17,7 @@ package org.springframework.statemachine.access;
 
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.support.StateChangeInterceptor;
 
 /**
  * Functional interface exposing {@link StateMachine} internals.
@@ -48,5 +49,12 @@ public interface StateMachineAccess<S, E> {
 	 * @param extendedState the new extended state
 	 */
 	void setExtendedState(ExtendedState extendedState);
+
+	/**
+	 * Adds the state change interceptor.
+	 *
+	 * @param interceptor the interceptor
+	 */
+	void addStateChangeInterceptor(StateChangeInterceptor<S, E> interceptor);
 
 }
