@@ -16,6 +16,7 @@
 package org.springframework.statemachine.config.builders;
 
 import org.springframework.statemachine.config.configurers.ConfigurationConfigurer;
+import org.springframework.statemachine.config.configurers.DistributedStateMachineConfigurer;
 
 /**
  * Configurer interface exposing generic config.
@@ -34,5 +35,13 @@ public interface StateMachineConfigurationConfigurer<S, E> {
 	 * @throws Exception if configuration error happens
 	 */
 	ConfigurationConfigurer<S, E> withConfiguration() throws Exception;
+
+	/**
+	 * Gets a configurer for distributed state machine config.
+	 *
+	 * @return {@link DistributedStateMachineConfigurer} for chaining
+	 * @throws Exception if configuration error happens
+	 */
+	DistributedStateMachineConfigurer<S, E> withDistributed() throws Exception;
 
 }

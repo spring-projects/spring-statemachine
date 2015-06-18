@@ -23,6 +23,9 @@ import org.springframework.statemachine.config.common.annotation.AnnotationBuild
 import org.springframework.statemachine.config.common.annotation.ObjectPostProcessor;
 import org.springframework.statemachine.config.configurers.ConfigurationConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultConfigurationConfigurer;
+import org.springframework.statemachine.config.configurers.DefaultDistributedStateMachineConfigurer;
+import org.springframework.statemachine.config.configurers.DistributedStateMachineConfigurer;
+import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 
 /**
  * {@link AnnotationBuilder} for {@link StateMachineStates}.
@@ -39,16 +42,31 @@ public class StateMachineConfigurationBuilder<S, E>
 	private BeanFactory beanFactory;
 	private TaskExecutor taskExecutor;
 	private TaskScheduler taskScheculer;
+	private StateMachineEnsemble<S, E> ensemble;
 
+	/**
+	 * Instantiates a new state machine configuration builder.
+	 */
 	public StateMachineConfigurationBuilder() {
 		super();
 	}
 
+	/**
+	 * Instantiates a new state machine configuration builder.
+	 *
+	 * @param objectPostProcessor the object post processor
+	 * @param allowConfigurersOfSameType the allow configurers of same type
+	 */
 	public StateMachineConfigurationBuilder(ObjectPostProcessor<Object> objectPostProcessor,
 			boolean allowConfigurersOfSameType) {
 		super(objectPostProcessor, allowConfigurersOfSameType);
 	}
 
+	/**
+	 * Instantiates a new state machine configuration builder.
+	 *
+	 * @param objectPostProcessor the object post processor
+	 */
 	public StateMachineConfigurationBuilder(ObjectPostProcessor<Object> objectPostProcessor) {
 		super(objectPostProcessor);
 	}
@@ -59,20 +77,49 @@ public class StateMachineConfigurationBuilder<S, E>
 	}
 
 	@Override
-	protected StateMachineConfigurationConfig<S, E> performBuild() throws Exception {
-		return new StateMachineConfigurationConfig<>(beanFactory, taskExecutor, taskScheculer);
+	public DistributedStateMachineConfigurer<S, E> withDistributed() throws Exception {
+		return apply(new DefaultDistributedStateMachineConfigurer<S, E>());
 	}
 
+	@Override
+	protected StateMachineConfigurationConfig<S, E> performBuild() throws Exception {
+		return new StateMachineConfigurationConfig<>(beanFactory, taskExecutor, taskScheculer, ensemble);
+	}
+
+	/**
+	 * Sets the bean factory.
+	 *
+	 * @param beanFactory the new bean factory
+	 */
 	public void setBeanFactory(BeanFactory beanFactory) {
 		this.beanFactory = beanFactory;
 	}
 
+	/**
+	 * Sets the task executor.
+	 *
+	 * @param taskExecutor the new task executor
+	 */
 	public void setTaskExecutor(TaskExecutor taskExecutor) {
 		this.taskExecutor = taskExecutor;
 	}
 
+	/**
+	 * Sets the task scheculer.
+	 *
+	 * @param taskScheculer the new task scheculer
+	 */
 	public void setTaskScheculer(TaskScheduler taskScheculer) {
 		this.taskScheculer = taskScheculer;
+	}
+
+	/**
+	 * Sets the state machine ensemble.
+	 *
+	 * @param ensemble the ensemble
+	 */
+	public void setStateMachineEnsemble(StateMachineEnsemble<S, E> ensemble) {
+		this.ensemble = ensemble;
 	}
 
 }

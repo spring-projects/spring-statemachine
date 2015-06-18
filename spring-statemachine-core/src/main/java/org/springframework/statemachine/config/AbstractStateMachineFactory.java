@@ -38,6 +38,7 @@ import org.springframework.statemachine.config.builders.StateMachineStates;
 import org.springframework.statemachine.config.builders.StateMachineTransitions;
 import org.springframework.statemachine.config.builders.StateMachineTransitions.ChoiceData;
 import org.springframework.statemachine.config.builders.StateMachineTransitions.TransitionData;
+import org.springframework.statemachine.ensemble.DistributedStateMachine;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.ChoicePseudoState;
 import org.springframework.statemachine.state.ChoicePseudoState.ChoiceStateData;
@@ -196,6 +197,16 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			}
 
 		});
+
+		// setup distributed state machine if needed.
+		// we wrap previously build machine with a distributed
+		// state machine and set it to use given ensemble.
+		if (stateMachineConfigurationConfig.getStateMachineEnsemble() != null) {
+			DistributedStateMachine<S, E> distributedStateMachine = new DistributedStateMachine<>(
+					stateMachineConfigurationConfig.getStateMachineEnsemble(), machine);
+			machine = distributedStateMachine;
+		}
+
 		return machine;
 	}
 

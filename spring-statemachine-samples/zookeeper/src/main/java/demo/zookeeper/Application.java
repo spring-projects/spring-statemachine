@@ -18,64 +18,31 @@ package demo.zookeeper;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.shell.Bootstrap;
-import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
-import org.springframework.statemachine.ensemble.DistributedStateMachine;
 import org.springframework.statemachine.zookeeper.ZookeeperStateMachineEnsemble;
 
 @Configuration
 public class Application  {
 
-	@Configuration
-	static class ZkConfig {
-
-		@Qualifier("internalStateMachine")
-		@Autowired
-		StateMachine<String, String> internalMachine;
-
-		@Bean
-		public StateMachine<String, String> stateMachine() throws Exception {
-			DistributedStateMachine<String, String> machine =
-					new DistributedStateMachine<String, String>(ensemble(), internalMachine);
-			return machine;
-		}
-
-		@Bean
-		public ZookeeperStateMachineEnsemble<String, String> ensemble() throws Exception {
-			ZookeeperStateMachineEnsemble<String, String> ensemble =
-					new ZookeeperStateMachineEnsemble<String, String>(curatorClient(), "/foo");
-			return ensemble;
-		}
-
-		// for now lets not close it here, we need to let
-		// some other framework, ie cloud, to create curator
-		@Bean//(destroyMethod = "close")
-		public CuratorFramework curatorClient() throws Exception {
-			CuratorFramework client = CuratorFrameworkFactory.builder().defaultData(new byte[0])
-					.retryPolicy(new ExponentialBackoffRetry(1000, 3))
-					.connectString("localhost:2181").build();
-			// for testing we start it here, thought initiator
-			// is trying to start it if not already done
-			client.start();
-			return client;
-		}
-
-	}
-
-
 //tag::snippetA[]
 	@Configuration
-	@EnableStateMachine(name="internalStateMachine")
+	@EnableStateMachine
 	static class StateMachineConfig
 			extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<String, String> config) throws Exception {
+			config
+				.withDistributed()
+					.ensemble(new ZookeeperStateMachineEnsemble<String, String>(curatorClient(), "/foo"));
+		}
 
 		@Override
 		public void configure(StateMachineStateConfigurer<String, String> states)
@@ -100,6 +67,18 @@ public class Application  {
 					.target("LOCKED")
 					.event("PUSH");
 		}
+
+		@Bean
+		public CuratorFramework curatorClient() throws Exception {
+			CuratorFramework client = CuratorFrameworkFactory.builder().defaultData(new byte[0])
+					.retryPolicy(new ExponentialBackoffRetry(1000, 3))
+					.connectString("localhost:2181").build();
+			// for testing we start it here, thought initiator
+			// is trying to start it if not already done
+			client.start();
+			return client;
+		}
+
 
 	}
 //end::snippetA[]
