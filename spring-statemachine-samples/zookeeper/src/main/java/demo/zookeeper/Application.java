@@ -55,7 +55,9 @@ public class Application  {
 			return ensemble;
 		}
 
-		@Bean(destroyMethod = "close")
+		// for now lets not close it here, we need to let
+		// some other framework, ie cloud, to create curator
+		@Bean//(destroyMethod = "close")
 		public CuratorFramework curatorClient() throws Exception {
 			CuratorFramework client = CuratorFrameworkFactory.builder().defaultData(new byte[0])
 					.retryPolicy(new ExponentialBackoffRetry(1000, 3))

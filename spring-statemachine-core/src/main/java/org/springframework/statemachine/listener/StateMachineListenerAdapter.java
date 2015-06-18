@@ -15,7 +15,6 @@
  */
 package org.springframework.statemachine.listener;
 
-import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
@@ -33,10 +32,6 @@ public class StateMachineListenerAdapter<S, E> implements StateMachineListener<S
 
 	@Override
 	public void stateChanged(State<S, E> from, State<S, E> to) {
-	}
-
-	@Override
-	public void stateChanged(StateContext<S, E> context) {
 	}
 
 	@Override

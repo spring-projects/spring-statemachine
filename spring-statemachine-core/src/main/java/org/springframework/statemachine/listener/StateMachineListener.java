@@ -15,7 +15,6 @@
  */
 package org.springframework.statemachine.listener;
 
-import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
@@ -37,13 +36,6 @@ public interface StateMachineListener<S,E> {
 	 * @param to the target state
 	 */
 	void stateChanged(State<S,E> from, State<S,E> to);
-
-	/**
-	 * Notified when state is changed.
-	 *
-	 * @param context the state context
-	 */
-	void stateChanged(StateContext<S, E> context);
 
 	/**
 	 * Notified when state is entered.

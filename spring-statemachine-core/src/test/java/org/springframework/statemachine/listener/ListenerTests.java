@@ -132,10 +132,6 @@ public class ListenerTests extends AbstractStateMachineTests {
 		}
 
 		@Override
-		public void stateChanged(StateContext<TestStates, TestEvents> context) {
-		}
-
-		@Override
 		public void stateEntered(State<TestStates, TestEvents> state) {
 		}
 

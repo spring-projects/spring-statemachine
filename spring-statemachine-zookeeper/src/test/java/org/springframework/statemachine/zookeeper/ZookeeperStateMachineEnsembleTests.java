@@ -52,8 +52,8 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 
 		ensemble.afterPropertiesSet();
 
-		assertThat(curatorClient.checkExists().forPath("/foo/current"), notNullValue());
-		assertThat(curatorClient.checkExists().forPath("/foo/log"), notNullValue());
+		assertThat(curatorClient.checkExists().forPath("/foo/data/current"), notNullValue());
+		assertThat(curatorClient.checkExists().forPath("/foo/data/log"), notNullValue());
 
 		ensemble.start();
 	}
@@ -71,7 +71,7 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 
 		ensemble.afterPropertiesSet();
 
-		assertThat(curatorClient.checkExists().forPath("/foo/current"), notNullValue());
+		assertThat(curatorClient.checkExists().forPath("/foo/data/current"), notNullValue());
 
 		ensemble.setState(new DefaultStateMachineContext<String, String>(null, "S1","E1", null, null));
 		ensemble.setState(new DefaultStateMachineContext<String, String>(null, "S2","E1", null, null));
@@ -111,6 +111,27 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 
 		ensemble1.setState(new DefaultStateMachineContext<String, String>(stateMachine1, "S1", "E1", null, null));
 		assertThat(listener2.eventLatch.await(2, TimeUnit.SECONDS), is(true));
+	}
+
+	@Test
+	public void testClearExistingStatePaths() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+
+		// members base path need to exist for delete to happen
+		curatorClient.create().creatingParentsIfNeeded().forPath("/foo/members");
+		curatorClient.create().creatingParentsIfNeeded().forPath("/foo/data/log", new byte[10]);
+
+		ZookeeperStateMachineEnsemble<String, String> ensemble1 =
+				new ZookeeperStateMachineEnsemble<String, String>(curatorClient, "/foo");
+		ensemble1.afterPropertiesSet();
+		ensemble1.start();
+
+		// we assume that if data is 0, it's re-created
+		assertThat(curatorClient.getData().forPath("/foo/data/log").length, is(0));
 	}
 
 	@Override

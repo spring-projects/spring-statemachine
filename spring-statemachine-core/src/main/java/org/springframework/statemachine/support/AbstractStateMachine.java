@@ -540,7 +540,6 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			entryToState(state, message, transition, stateMachine);
 			notifyStateChanged(notifyFrom, state);
 			StateContext<S, E> stateContext = buildStateContext(message, transition, stateMachine);
-			notifyStateChanged(stateContext);
 		} else if (currentState != null) {
 			if (findDeep != null) {
 				if (exit) {

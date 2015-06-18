@@ -24,7 +24,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.OrderComparator;
 import org.springframework.messaging.Message;
-import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.event.StateMachineEventPublisher;
 import org.springframework.statemachine.listener.CompositeStateMachineListener;
@@ -104,16 +103,6 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 				eventPublisher.publishStateChanged(this, source, target);
 			}
 		}
-	}
-
-	protected void notifyStateChanged(StateContext<S, E> context) {
-		stateListener.stateChanged(context);
-//		if (contextEventsEnabled) {
-//			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
-//			if (eventPublisher != null) {
-//				eventPublisher.publishStateChanged(this, source, target);
-//			}
-//		}
 	}
 
 	protected void notifyStateEntered(State<S,E> state) {
@@ -216,11 +205,6 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		public void stateChanged(State<S, E> from, State<S, E> to) {
 			stateListener.stateChanged(from, to);
 			stateChangedInRelay();
-		}
-
-		@Override
-		public void stateChanged(StateContext<S, E> context) {
-			stateListener.stateChanged(context);
 		}
 
 		@Override

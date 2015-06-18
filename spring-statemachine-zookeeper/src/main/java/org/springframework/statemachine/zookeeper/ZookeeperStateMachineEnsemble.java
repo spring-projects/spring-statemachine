@@ -15,7 +15,10 @@
  */
 package org.springframework.statemachine.zookeeper;
 
+import java.io.IOException;
 import java.util.Collection;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.logging.Log;
@@ -24,7 +27,10 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.CuratorWatcher;
 import org.apache.curator.framework.api.transaction.CuratorTransaction;
 import org.apache.curator.framework.api.transaction.CuratorTransactionResult;
-import org.apache.zookeeper.KeeperException;
+import org.apache.curator.framework.imps.CuratorFrameworkState;
+import org.apache.curator.framework.recipes.locks.InterProcessSemaphoreMutex;
+import org.apache.curator.framework.recipes.nodes.PersistentEphemeralNode;
+import org.apache.curator.framework.recipes.nodes.PersistentEphemeralNode.Mode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.data.Stat;
 import org.springframework.statemachine.StateMachine;
@@ -45,13 +51,22 @@ import org.springframework.statemachine.ensemble.StateMachinePersist;
 public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObjectSupport<S, E> {
 
 	private final static Log log = LogFactory.getLog(ZookeeperStateMachineEnsemble.class);
+	private final String uuid = UUID.randomUUID().toString();
+	private final static String PATH_CURRENT = "current";
+	private final static String PATH_LOG = "log";
+	private final static String PATH_MEMBERS = "members";
+	private final static String PATH_MUTEX = "mutex";
 	private final CuratorFramework curatorClient;
-	private final String basePath;
+	private final String baseDataPath;
 	private final String statePath;
 	private final String logPath;
+	private final String memberPath;
+	private final String mutexPath;
+	private final boolean cleanState;
 	private final StateMachinePersist<S, E> persist = new KryoStateMachinePersist<S, E>();
 	private final AtomicReference<StateWrapper> stateRef = new AtomicReference<StateWrapper>();
 	private final CuratorWatcher watcher = new StateWatcher();
+	private PersistentEphemeralNode node;
 
 	/**
 	 * Instantiates a new zookeeper state machine ensemble.
@@ -60,10 +75,24 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	 * @param basePath the base zookeeper path
 	 */
 	public ZookeeperStateMachineEnsemble(CuratorFramework curatorClient, String basePath) {
+		this(curatorClient, basePath, true);
+	}
+
+	/**
+	 * Instantiates a new zookeeper state machine ensemble.
+	 *
+	 * @param curatorClient the curator client
+	 * @param basePath the base zookeeper path
+	 * @param cleanState if true clean existing state
+	 */
+	public ZookeeperStateMachineEnsemble(CuratorFramework curatorClient, String basePath, boolean cleanState) {
 		this.curatorClient = curatorClient;
-		this.basePath = basePath;
-		this.statePath = basePath + "/current";
-		this.logPath = basePath + "/log";
+		this.cleanState = cleanState;
+		this.baseDataPath = basePath + "/data";
+		this.statePath = baseDataPath + "/" + PATH_CURRENT;
+		this.logPath = baseDataPath + "/" + PATH_LOG;
+		this.memberPath = basePath + "/" + PATH_MEMBERS;
+		this.mutexPath = basePath + "/" + PATH_MUTEX;
 	}
 
 	@Override
@@ -73,6 +102,18 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 
 	@Override
 	protected void doStart() {
+	}
+
+	@Override
+	protected void doStop() {
+		if (node != null && curatorClient.getState() != CuratorFrameworkState.STOPPED) {
+			try {
+				node.close();
+			} catch (IOException e) {
+			} finally {
+				node = null;
+			}
+		}
 	}
 
 	@Override
@@ -92,6 +133,14 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 
 	@Override
 	public void leave(StateMachine<S, E> stateMachine) {
+		if (node != null) {
+			try {
+				node.close();
+			} catch (IOException e) {
+			}
+		}
+		StateWrapper stateWrapper = stateRef.get();
+		notifyLeft(stateWrapper != null ? stateWrapper.context : null);
 	}
 
 	@Override
@@ -119,10 +168,27 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	}
 
 	private void initPaths() {
+
+		InterProcessSemaphoreMutex mutex = new InterProcessSemaphoreMutex(curatorClient, mutexPath);
 		try {
-			if (curatorClient.checkExists().forPath(statePath) == null) {
+			mutex.acquire();
+
+			if (cleanState) {
+				if (curatorClient.checkExists().forPath(memberPath) != null) {
+					if (curatorClient.getChildren().forPath(memberPath).size() == 0) {
+						log.info("Deleting from " + baseDataPath);
+						curatorClient.delete().deletingChildrenIfNeeded().forPath(baseDataPath);
+					}
+				}
+			}
+
+			node = new PersistentEphemeralNode(curatorClient, Mode.EPHEMERAL, memberPath + "/" + uuid, new byte[0]);
+			node.start();
+			node.waitForInitialCreate(60, TimeUnit.SECONDS);
+
+			if (curatorClient.checkExists().forPath(baseDataPath) == null) {
 				curatorClient.inTransaction()
-						.create().forPath(basePath)
+						.create().forPath(baseDataPath)
 						.and()
 						.create().forPath(statePath)
 						.and()
@@ -130,10 +196,14 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 						.and()
 						.commit();
 			}
-		} catch (KeeperException.NodeExistsException e) {
-			// ignore, already created
+
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			log.warn("Error in initPaths", e);
+		} finally {
+			try {
+				mutex.release();
+			} catch (Exception e) {
+			}
 		}
 	}
 
