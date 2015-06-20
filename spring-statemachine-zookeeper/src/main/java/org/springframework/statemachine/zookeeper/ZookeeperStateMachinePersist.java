@@ -17,8 +17,14 @@ package org.springframework.statemachine.zookeeper;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.Collection;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.api.transaction.CuratorTransaction;
+import org.apache.curator.framework.api.transaction.CuratorTransactionResult;
+import org.apache.zookeeper.data.Stat;
 import org.springframework.statemachine.StateMachineContext;
+import org.springframework.statemachine.StateMachineException;
 import org.springframework.statemachine.ensemble.StateMachinePersist;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 
@@ -36,8 +42,10 @@ import com.esotericsoftware.kryo.io.Output;
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public class KryoStateMachinePersist<S, E> implements StateMachinePersist<S, E> {
+public class ZookeeperStateMachinePersist<S, E> implements StateMachinePersist<S, E, Stat> {
 
+	// kryo is not a thread safe so using thread local, also
+	// adding custom serializer for state machine context.
 	private static final ThreadLocal<Kryo> kryoThreadLocal = new ThreadLocal<Kryo>() {
 
 		@SuppressWarnings("rawtypes")
@@ -49,8 +57,42 @@ public class KryoStateMachinePersist<S, E> implements StateMachinePersist<S, E> 
 		}
 	};
 
+	private final CuratorFramework curatorClient;
+	private final String path;
+
+	/**
+	 * Instantiates a new zookeeper state machine persist.
+	 *
+	 * @param curatorClient the curator client
+	 * @param path the path for persistent state
+	 */
+	public ZookeeperStateMachinePersist(CuratorFramework curatorClient, String path) {
+		this.curatorClient = curatorClient;
+		this.path = path;
+	}
+
 	@Override
-	public byte[] serialize(StateMachineContext<S, E> context) {
+	public void write(org.springframework.statemachine.StateMachineContext<S,E> context, Stat stat) {
+		byte[] data = serialize(context);
+		CuratorTransaction tx = curatorClient.inTransaction();
+		try {
+			Collection<CuratorTransactionResult> results = tx.setData().forPath(path, data).and().commit();
+			int version = results.iterator().next().getResultStat().getVersion();
+			stat.setVersion(version);
+		} catch (Exception e) {
+			throw new StateMachineException("Error persisting data", e);
+		}
+
+	}
+
+	@Override
+	public StateMachineContext<S, E> read(Stat stat) throws Exception {
+		byte[] data = curatorClient.getData().storingStatIn(stat).forPath(path);
+		StateMachineContext<S, E> context = deserialize(data);
+		return context;
+	}
+
+	private byte[] serialize(StateMachineContext<S, E> context) {
 		Kryo kryo = kryoThreadLocal.get();
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Output output = new Output(out);
@@ -60,8 +102,7 @@ public class KryoStateMachinePersist<S, E> implements StateMachinePersist<S, E> 
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
-	public StateMachineContext<S, E> deserialize(byte[] data) {
+	private StateMachineContext<S, E> deserialize(byte[] data) {
 		if (data == null || data.length == 0) {
 			return null;
 		}

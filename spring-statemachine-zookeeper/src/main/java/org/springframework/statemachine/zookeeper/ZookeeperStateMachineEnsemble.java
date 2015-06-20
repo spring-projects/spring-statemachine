@@ -16,7 +16,6 @@
 package org.springframework.statemachine.zookeeper;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -25,8 +24,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.CuratorWatcher;
-import org.apache.curator.framework.api.transaction.CuratorTransaction;
-import org.apache.curator.framework.api.transaction.CuratorTransactionResult;
 import org.apache.curator.framework.imps.CuratorFrameworkState;
 import org.apache.curator.framework.recipes.locks.InterProcessSemaphoreMutex;
 import org.apache.curator.framework.recipes.nodes.PersistentEphemeralNode;
@@ -63,7 +60,7 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	private final String memberPath;
 	private final String mutexPath;
 	private final boolean cleanState;
-	private final StateMachinePersist<S, E> persist = new KryoStateMachinePersist<S, E>();
+	private final StateMachinePersist<S, E, Stat> persist;
 	private final AtomicReference<StateWrapper> stateRef = new AtomicReference<StateWrapper>();
 	private final CuratorWatcher watcher = new StateWatcher();
 	private PersistentEphemeralNode node;
@@ -93,6 +90,7 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 		this.logPath = baseDataPath + "/" + PATH_LOG;
 		this.memberPath = basePath + "/" + PATH_MEMBERS;
 		this.mutexPath = basePath + "/" + PATH_MUTEX;
+		this.persist = new ZookeeperStateMachinePersist<S, E>(curatorClient, statePath);
 	}
 
 	@Override
@@ -145,12 +143,10 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 
 	@Override
 	public void setState(StateMachineContext<S, E> context) {
-		byte[] data = persist.serialize(context);
-		CuratorTransaction tx = curatorClient.inTransaction();
 		try {
-			Collection<CuratorTransactionResult> results = tx.setData().forPath(statePath, data).and().commit();
-			int version = results.iterator().next().getResultStat().getVersion();
-			stateRef.set(new StateWrapper(context, version));
+			Stat stat = new Stat();
+			persist.write(context, stat);
+			stateRef.set(new StateWrapper(context, stat.getVersion()));
 		} catch (Exception e) {
 			throw new StateMachineException("Error persisting data", e);
 		}
@@ -159,8 +155,9 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	private StateWrapper readCurrentContext() {
 		try {
 			Stat stat = new Stat();
-			byte[] data = curatorClient.getData().storingStatIn(stat).usingWatcher(watcher).forPath(statePath);
-			StateMachineContext<S, E> context = persist.deserialize(data);
+			// TODO: not nice that we need to set watcher here when persister is reading data
+			curatorClient.getData().usingWatcher(watcher).forPath(statePath);
+			StateMachineContext<S, E> context = persist.read(stat);
 			return new StateWrapper(context, stat.getVersion());
 		} catch (Exception e) {
 			throw new StateMachineException("Error reading data", e);

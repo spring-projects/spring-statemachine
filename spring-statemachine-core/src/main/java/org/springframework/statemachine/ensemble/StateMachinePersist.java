@@ -25,23 +25,28 @@ import org.springframework.statemachine.StateMachineContext;
  *
  * @param <S> the type of state
  * @param <E> the type of event
+ * @param <T> the type of context object
  */
-public interface StateMachinePersist<S, E> {
+public interface StateMachinePersist<S, E, T> {
 
 	/**
-	 * Serialize a {@link StateMachineContext}.
+	 * Write a {@link StateMachineContext} into a persistent store
+	 * with a context object {@code T}.
 	 *
-	 * @param context the state machine context
-	 * @return the serialized data
+	 * @param contect the contect
+	 * @param contextOjb the context ojb
+	 * @throws Exception the exception
 	 */
-	byte[] serialize(StateMachineContext<S, E> context);
+	void write(StateMachineContext<S, E> contect, T contextOjb) throws Exception;
 
 	/**
-	 * Deserialize a data into a {@link StateMachineContext}.
+	 * Read a {@link StateMachineContext} from a persistent store
+	 * with a context object {@code T}.
 	 *
-	 * @param data the data
+	 * @param contextOjb the context ojb
 	 * @return the state machine context
+	 * @throws Exception the exception
 	 */
-	StateMachineContext<S, E> deserialize(byte[] data);
+	StateMachineContext<S, E> read(T contextOjb) throws Exception;
 
 }

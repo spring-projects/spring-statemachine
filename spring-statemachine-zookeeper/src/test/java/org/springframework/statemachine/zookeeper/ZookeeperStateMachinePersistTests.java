@@ -18,20 +18,37 @@ package org.springframework.statemachine.zookeeper;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.zookeeper.data.Stat;
 import org.junit.Test;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.ensemble.StateMachinePersist;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 
-public class KryoStateMachinePersistTests {
+public class ZookeeperStateMachinePersistTests extends AbstractZookeeperTests {
+
+	@Override
+	protected AnnotationConfigApplicationContext buildContext() {
+		return new AnnotationConfigApplicationContext();
+	}
 
 	@Test
-	public void testStateEvent() {
-		StateMachinePersist<String, String> persist = new KryoStateMachinePersist<String, String>();
+	public void testStateEvent() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+		curatorClient.create().forPath("/KryoStateMachinePersistTests");
+
+		StateMachinePersist<String, String, Stat> persist = new ZookeeperStateMachinePersist<String, String>(
+				curatorClient, "/KryoStateMachinePersistTests");
+
 		StateMachineContext<String, String> contextOut =
 				new DefaultStateMachineContext<String, String>(null, "S1", "E1", null, null);
-		byte[] data = persist.serialize(contextOut);
-		StateMachineContext<String, String> contextIn = persist.deserialize(data);
+		persist.write(contextOut, new Stat());
+		StateMachineContext<String, String> contextIn = persist.read(new Stat());
 
 		assertThat(contextOut.getState(), is(contextIn.getState()));
 		assertThat(contextOut.getEvent(), is(contextIn.getEvent()));
