@@ -136,10 +136,10 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 		// don't stop if it looks like we're coming back
 		// stop would cause start with entry which would
 		// enable default transition and state
-		if (getSubmachine().getState() != null
+		if (getSubmachine().getState() != null && context.getTransition() != null
 				&& context.getTransition().getSource().getId() != getSubmachine().getState().getId()) {
 			getSubmachine().stop();
-		} else if (!StateMachineUtils.isSubstate(context.getTransition().getTarget(), context.getTransition()
+		} else if (context.getTransition() != null && !StateMachineUtils.isSubstate(context.getTransition().getTarget(), context.getTransition()
 				.getSource())) {
 			getSubmachine().stop();
 		}

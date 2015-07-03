@@ -15,6 +15,8 @@
  */
 package org.springframework.statemachine.config.configurers;
 
+import java.util.Collection;
+
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerBuilder;
 import org.springframework.statemachine.transition.Transition;
@@ -38,6 +40,14 @@ public interface JoinTransitionConfigurer<S, E>
 	 * @return configurer for chaining
 	 */
 	JoinTransitionConfigurer<S, E> source(S source);
+
+	/**
+	 * Specify a source states {@code S} for this {@link Transition}.
+	 *
+	 * @param sources the sources
+	 * @return configurer for chaining
+	 */
+	JoinTransitionConfigurer<S, E> sources(Collection<S> sources);
 
 	/**
 	 * Specify a target state {@code S} for this {@link Transition}.

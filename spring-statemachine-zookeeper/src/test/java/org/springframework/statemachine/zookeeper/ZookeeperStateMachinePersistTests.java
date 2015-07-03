@@ -46,7 +46,7 @@ public class ZookeeperStateMachinePersistTests extends AbstractZookeeperTests {
 				curatorClient, "/KryoStateMachinePersistTests");
 
 		StateMachineContext<String, String> contextOut =
-				new DefaultStateMachineContext<String, String>(null, "S1", "E1", null, null);
+				new DefaultStateMachineContext<String, String>("S1", "E1", null, null);
 		persist.write(contextOut, new Stat());
 		StateMachineContext<String, String> contextIn = persist.read(new Stat());
 

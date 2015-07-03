@@ -160,7 +160,7 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 		public void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
 				StateMachine<S, E> stateMachine) {
 			if (message != null && ObjectUtils.nullSafeEquals(uuid, message.getHeaders().get("uuid"))) {
-				ensemble.setState(new DefaultStateMachineContext<S, E>(delegate, transition.getTarget()
+				ensemble.setState(new DefaultStateMachineContext<S, E>(transition.getTarget()
 						.getId(), message.getPayload(), message.getHeaders(), stateMachine.getExtendedState()));
 			}
 		}

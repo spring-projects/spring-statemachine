@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,11 +29,11 @@ import java.util.Map;
 public interface StateMachineContext<S, E> {
 
 	/**
-	 * Gets the state machine.
+	 * Gets the child contexts if any.
 	 *
-	 * @return the state machine
+	 * @return the child contexts
 	 */
-	StateMachine<S, E> getStateMachine();
+	List<StateMachineContext<S, E>> getChilds();
 
 	/**
 	 * Gets the state.

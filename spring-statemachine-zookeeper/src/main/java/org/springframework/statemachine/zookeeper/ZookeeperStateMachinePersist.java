@@ -125,7 +125,7 @@ public class ZookeeperStateMachinePersist<S, E> implements StateMachinePersist<S
 		public StateMachineContext<S, E> read(Kryo kryo, Input input, Class<StateMachineContext<S, E>> clazz) {
 			E event = (E) kryo.readClassAndObject(input);
 			S state = (S) kryo.readClassAndObject(input);
-			return new DefaultStateMachineContext<S, E>(null, state, event, null, null);
+			return new DefaultStateMachineContext<S, E>(state, event, null, null);
 		}
 
 	}

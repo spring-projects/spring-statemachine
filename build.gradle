@@ -155,6 +155,10 @@ configure(recipeProjects()) {
 project('spring-statemachine-recipes-common') {
 	dependencies {
 		compile project(":spring-statemachine-core")
+		testCompile "org.springframework:spring-test:$springVersion"
+		testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"
+		testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
+		testCompile "junit:junit:$junitVersion"
 	}
 }
 

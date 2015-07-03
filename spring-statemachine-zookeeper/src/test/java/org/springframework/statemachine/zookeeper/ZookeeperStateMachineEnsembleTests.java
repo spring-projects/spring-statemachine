@@ -73,8 +73,8 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 
 		assertThat(curatorClient.checkExists().forPath("/foo/data/current"), notNullValue());
 
-		ensemble.setState(new DefaultStateMachineContext<String, String>(null, "S1","E1", null, null));
-		ensemble.setState(new DefaultStateMachineContext<String, String>(null, "S2","E1", null, null));
+		ensemble.setState(new DefaultStateMachineContext<String, String>("S1","E1", null, null));
+		ensemble.setState(new DefaultStateMachineContext<String, String>("S2","E1", null, null));
 
 	}
 
@@ -109,7 +109,7 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 		assertThat(listener1.joinedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener2.joinedLatch.await(2, TimeUnit.SECONDS), is(true));
 
-		ensemble1.setState(new DefaultStateMachineContext<String, String>(stateMachine1, "S1", "E1", null, null));
+		ensemble1.setState(new DefaultStateMachineContext<String, String>("S1", "E1", null, null));
 		assertThat(listener2.eventLatch.await(2, TimeUnit.SECONDS), is(true));
 	}
 

@@ -121,8 +121,8 @@ public class StateMachineBuilder {
 				if (stateMachineConfigurationConfig.getTaskExecutor() != null) {
 					stateMachineFactory.setTaskExecutor(stateMachineConfigurationConfig.getTaskExecutor());
 				}
-				if (stateMachineConfigurationConfig.getTaskScheculer() != null) {
-					stateMachineFactory.setTaskScheduler(stateMachineConfigurationConfig.getTaskScheculer());
+				if (stateMachineConfigurationConfig.getTaskScheduler() != null) {
+					stateMachineFactory.setTaskScheduler(stateMachineConfigurationConfig.getTaskScheduler());
 				}
 
 				return stateMachineFactory.getStateMachine();

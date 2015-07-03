@@ -404,8 +404,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	protected boolean acceptEvent(Message<E> message) {
-
-		boolean accepted = currentState.sendEvent(message);
+		boolean accepted = (currentState != null && currentState.sendEvent(message));
 		if (accepted) {
 			return true;
 		}

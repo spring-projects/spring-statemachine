@@ -32,7 +32,7 @@ public class StateMachineConfigurationConfig<S, E> {
 
 	private final BeanFactory beanFactory;
 	private final TaskExecutor taskExecutor;
-	private final TaskScheduler taskScheculer;
+	private final TaskScheduler taskScheduler;
 	private final StateMachineEnsemble<S, E> ensemble;
 
 	/**
@@ -40,14 +40,14 @@ public class StateMachineConfigurationConfig<S, E> {
 	 *
 	 * @param beanFactory the bean factory
 	 * @param taskExecutor the task executor
-	 * @param taskScheculer the task scheculer
+	 * @param taskScheduler the task scheduler
 	 * @param ensemble the state machine ensemble
 	 */
 	public StateMachineConfigurationConfig(BeanFactory beanFactory, TaskExecutor taskExecutor,
-			TaskScheduler taskScheculer, StateMachineEnsemble<S, E> ensemble) {
+			TaskScheduler taskScheduler, StateMachineEnsemble<S, E> ensemble) {
 		this.beanFactory = beanFactory;
 		this.taskExecutor = taskExecutor;
-		this.taskScheculer = taskScheculer;
+		this.taskScheduler = taskScheduler;
 		this.ensemble = ensemble;
 	}
 
@@ -70,12 +70,12 @@ public class StateMachineConfigurationConfig<S, E> {
 	}
 
 	/**
-	 * Gets the task scheculer.
+	 * Gets the task scheduler.
 	 *
-	 * @return the task scheculer
+	 * @return the task scheduler
 	 */
-	public TaskScheduler getTaskScheculer() {
-		return taskScheculer;
+	public TaskScheduler getTaskScheduler() {
+		return taskScheduler;
 	}
 
 	/**

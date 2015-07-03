@@ -78,7 +78,7 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 	 * @param pseudoState the pseudo state
 	 */
 	public RegionState(S id, Collection<Region<S, E>> regions, Collection<E> deferred,
-			Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions, PseudoState<S, E> pseudoState) {
+			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions, PseudoState<S, E> pseudoState) {
 		super(id, deferred, entryActions, exitActions, pseudoState, regions);
 	}
 
@@ -92,7 +92,7 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 	 * @param exitActions the exit actions
 	 */
 	public RegionState(S id, Collection<Region<S, E>> regions, Collection<E> deferred,
-			Collection<Action<S, E>> entryActions, Collection<Action<S, E>> exitActions) {
+			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions) {
 		super(id, deferred, entryActions, exitActions, null, regions);
 	}
 
@@ -168,7 +168,9 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 		ArrayList<State<S, E>> states = new ArrayList<State<S, E>>();
 		states.add(this);
 		for (Region<S, E> r : getRegions()) {
-			states.addAll(r.getStates());
+			for (State<S, E> s : r.getStates()) {
+				states.addAll(s.getStates());
+			}
 		}
 		return states;
 	}

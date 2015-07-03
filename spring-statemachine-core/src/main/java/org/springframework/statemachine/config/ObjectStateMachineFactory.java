@@ -21,15 +21,17 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.Message;
 import org.springframework.scheduling.TaskScheduler;
-import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.ExtendedState;
+import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfig;
 import org.springframework.statemachine.config.builders.StateMachineStates;
 import org.springframework.statemachine.config.builders.StateMachineTransitions;
+import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.ObjectState;
 import org.springframework.statemachine.state.PseudoState;
+import org.springframework.statemachine.state.RegionState;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 
@@ -78,6 +80,12 @@ public class ObjectStateMachineFactory<S, E> extends AbstractStateMachineFactory
 	protected State<S, E> buildStateInternal(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions,
 			Collection<? extends Action<S, E>> exitActions, PseudoState<S, E> pseudoState) {
 		return new ObjectState<S, E>(id, deferred, entryActions, exitActions, pseudoState);
+	}
+
+	@Override
+	protected RegionState<S, E> buildRegionStateInternal(S id, Collection<Region<S, E>> regions, Collection<E> deferred,
+			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions, PseudoState<S, E> pseudoState) {
+		return new RegionState<S, E>(id, regions, deferred, entryActions, exitActions, pseudoState);
 	}
 
 }

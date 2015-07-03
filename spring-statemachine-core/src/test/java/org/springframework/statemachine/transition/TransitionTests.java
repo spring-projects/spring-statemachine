@@ -113,12 +113,25 @@ public class TransitionTests extends AbstractStateMachineTests {
 	public void testTriggerlessTransitionInRegionsDefinedInSubStates() throws Exception {
 		context.register(BaseConfig.class, Config5.class);
 		context.refresh();
+
+		TestAction testAction1 = context.getBean("testAction1", TestAction.class);
+		TestAction testAction20 = context.getBean("testAction20", TestAction.class);
+		TestAction testAction21 = context.getBean("testAction21", TestAction.class);
+
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		machine.start();
 		assertThat(machine.getState().getIds(), contains(TestStates.S1));
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
+
+		assertThat(testAction1.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(testAction1.stateContexts.size(), is(1));
+		assertThat(testAction20.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(testAction20.stateContexts.size(), is(1));
+		assertThat(testAction21.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(testAction21.stateContexts.size(), is(1));
+
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S201, TestStates.S211));
 	}
 
@@ -322,16 +335,34 @@ public class TransitionTests extends AbstractStateMachineTests {
 					.source(TestStates.S1)
 					.target(TestStates.S2)
 					.event(TestEvents.E1)
+					.action(testAction1())
 					.and()
 				.withExternal()
 					.state(TestStates.S2)
 					.source(TestStates.S20)
 					.target(TestStates.S201)
+					.action(testAction20())
 					.and()
 				.withExternal()
 					.state(TestStates.S2)
 					.source(TestStates.S21)
-					.target(TestStates.S211);
+					.target(TestStates.S211)
+					.action(testAction21());
+		}
+
+		@Bean
+		public TestAction testAction1() {
+			return new TestAction();
+		}
+
+		@Bean
+		public TestAction testAction20() {
+			return new TestAction();
+		}
+
+		@Bean
+		public TestAction testAction21() {
+			return new TestAction();
 		}
 
 	}

@@ -15,10 +15,11 @@
  */
 package org.springframework.statemachine.support;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.statemachine.ExtendedState;
-import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 
 /**
@@ -31,7 +32,7 @@ import org.springframework.statemachine.StateMachineContext;
  */
 public class DefaultStateMachineContext<S, E> implements StateMachineContext<S, E> {
 
-	private final StateMachine<S, E> stateMachine;
+	private final List<StateMachineContext<S, E>> childs;
 	private final S state;
 	private final E event;
 	private final Map<String, Object> eventHeaders;
@@ -40,14 +41,26 @@ public class DefaultStateMachineContext<S, E> implements StateMachineContext<S, 
 	/**
 	 * Instantiates a new default state machine context.
 	 *
-	 * @param stateMachine the state machine
 	 * @param state the state
 	 * @param event the event
 	 * @param eventHeaders the event headers
 	 * @param extendedState the extended state
 	 */
-	public DefaultStateMachineContext(StateMachine<S, E> stateMachine, S state, E event, Map<String, Object> eventHeaders, ExtendedState extendedState) {
-		this.stateMachine = stateMachine;
+	public DefaultStateMachineContext(S state, E event, Map<String, Object> eventHeaders, ExtendedState extendedState) {
+		this(new ArrayList<StateMachineContext<S, E>>(), state, event, eventHeaders, extendedState);
+	}
+
+	/**
+	 * Instantiates a new default state machine context.
+	 *
+	 * @param childs the child state machine contexts
+	 * @param state the state
+	 * @param event the event
+	 * @param eventHeaders the event headers
+	 * @param extendedState the extended state
+	 */
+	public DefaultStateMachineContext(List<StateMachineContext<S, E>> childs, S state, E event, Map<String, Object> eventHeaders, ExtendedState extendedState) {
+		this.childs = childs;
 		this.state = state;
 		this.event = event;
 		this.eventHeaders = eventHeaders;
@@ -55,8 +68,8 @@ public class DefaultStateMachineContext<S, E> implements StateMachineContext<S, 
 	}
 
 	@Override
-	public StateMachine<S, E> getStateMachine() {
-		return stateMachine;
+	public List<StateMachineContext<S, E>> getChilds() {
+		return childs;
 	}
 
 	@Override

@@ -151,19 +151,20 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 			if (initialCount > 1) {
 				for (Collection<StateData<S, E>> regionStateDatas : regionsStateDatas) {
-					machine = buildMachine(machineMap, stateMap, regionStateDatas, transitionsData, getBeanFactory(),
-							contextEvents, defaultExtendedState, stateMachineTransitions, getTaskExecutor(),
-							getTaskScheduler());
+					machine = buildMachine(machineMap, stateMap, regionStateDatas, transitionsData, resolveBeanFactory(),
+							contextEvents, defaultExtendedState, stateMachineTransitions, resolveTaskExecutor(),
+							resolveTaskScheduler());
 					regionStack.push(new MachineStackItem<S, E>(machine));
 				}
 
 				Collection<Region<S, E>> regions = new ArrayList<Region<S, E>>();
-				for (MachineStackItem<S, E> si : regionStack) {
-					regions.add(si.machine);
+				while (!regionStack.isEmpty()) {
+					MachineStackItem<S, E> pop = regionStack.pop();
+					regions.add(pop.machine);
 				}
 				S parent = (S)peek.getParent();
-				RegionState<S, E> rstate = new RegionState<S, E>(parent, regions, null, null, null,
-						new DefaultPseudoState<S, E>(PseudoStateKind.INITIAL));
+				RegionState<S, E> rstate = buildRegionStateInternal(parent, regions, null, stateData != null ? stateData.getEntryActions() : null,
+						stateData != null ? stateData.getExitActions() : null, new DefaultPseudoState<S, E>(PseudoStateKind.INITIAL));
 				if (stateData != null) {
 					stateMap.put(stateData.getState(), rstate);
 				} else {
@@ -172,13 +173,13 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 					states.add(rstate);
 					Transition<S, E> initialTransition = new InitialTransition<S, E>(rstate);
 					StateMachine<S, E> m = buildStateMachineInternal(states, new ArrayList<Transition<S, E>>(), rstate,
-							initialTransition, null, defaultExtendedState, null, contextEvents, getBeanFactory(),
-							getTaskExecutor(), getTaskScheduler());
+							initialTransition, null, defaultExtendedState, null, contextEvents, resolveBeanFactory(),
+							resolveTaskExecutor(), resolveTaskScheduler());
 					machine = m;
 				}
 			} else {
-				machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, getBeanFactory(),
-						contextEvents, defaultExtendedState, stateMachineTransitions, getTaskExecutor(), getTaskScheduler());
+				machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, resolveBeanFactory(),
+						contextEvents, defaultExtendedState, stateMachineTransitions, resolveTaskExecutor(), resolveTaskScheduler());
 				if (peek.isInitial() || (!peek.isInitial() && !machineMap.containsKey(peek.getParent()))) {
 					machineMap.put(peek.getParent(), machine);
 				}
@@ -212,6 +213,30 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 	public void setContextEventsEnabled(Boolean contextEvents) {
 		this.contextEvents = contextEvents;
+	}
+
+	private BeanFactory resolveBeanFactory() {
+		if (stateMachineConfigurationConfig.getBeanFactory() != null) {
+			return stateMachineConfigurationConfig.getBeanFactory();
+		} else {
+			return getBeanFactory();
+		}
+	}
+
+	private TaskExecutor resolveTaskExecutor() {
+		if (stateMachineConfigurationConfig.getTaskExecutor() != null) {
+			return stateMachineConfigurationConfig.getTaskExecutor();
+		} else {
+			return getTaskExecutor();
+		}
+	}
+
+	private TaskScheduler resolveTaskScheduler() {
+		if (stateMachineConfigurationConfig.getTaskScheduler() != null) {
+			return stateMachineConfigurationConfig.getTaskScheduler();
+		} else {
+			return getTaskScheduler();
+		}
 	}
 
 	private int getInitialCount(Collection<StateData<S, E>> stateDatas) {
@@ -505,5 +530,9 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		Iterator<Node<StateData<S, E>>> iterator = postOrderTraversal.iterator();
 		return iterator;
 	}
+
+	protected abstract RegionState<S, E> buildRegionStateInternal(S id, Collection<Region<S, E>> regions, Collection<E> deferred,
+			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
+			PseudoState<S, E> pseudoState);
 
 }

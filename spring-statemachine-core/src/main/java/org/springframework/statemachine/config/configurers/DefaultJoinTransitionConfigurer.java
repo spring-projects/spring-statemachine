@@ -16,6 +16,7 @@
 package org.springframework.statemachine.config.configurers;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.statemachine.config.builders.StateMachineTransitionBuilder;
@@ -47,6 +48,12 @@ public class DefaultJoinTransitionConfigurer<S, E>
 	@Override
 	public JoinTransitionConfigurer<S, E> source(S source) {
 		this.sources.add(source);
+		return this;
+	}
+
+	@Override
+	public JoinTransitionConfigurer<S, E> sources(Collection<S> sources) {
+		this.sources.addAll(sources);
 		return this;
 	}
 
