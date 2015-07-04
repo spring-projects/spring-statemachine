@@ -262,9 +262,9 @@ public class TasksHandlerTests {
 		assertThat(listener.stateChangedCount, is(11));
 		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_ERROR, TasksHandler.STATE_AUTOMATIC));
 
+		listener.reset(1, 0, 0);
 		handler.fixCurrentProblems();
 		handler.continueFromError();
-		listener.reset(1, 0, 0);
 		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_READY));
