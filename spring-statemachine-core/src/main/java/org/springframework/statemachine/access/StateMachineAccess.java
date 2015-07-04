@@ -57,4 +57,12 @@ public interface StateMachineAccess<S, E> {
 	 */
 	void addStateChangeInterceptor(StateChangeInterceptor<S, E> interceptor);
 
+	/**
+	 * Sets if initial state is enabled when a state machine is
+	 * using sub states.
+	 *
+	 * @param enabled the new initial enabled
+	 */
+	void setInitialEnabled(boolean enabled);
+
 }

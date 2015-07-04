@@ -104,6 +104,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	private StateMachineExecutor<S, E> stateMachineExecutor;
 
+	private Boolean initialEnabled = null;
+
 	/**
 	 * Instantiates a new abstract state machine.
 	 *
@@ -243,7 +245,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				notifyTransitionStart(t);
 				callHandlers(t.getSource(), t.getTarget(), queuedMessage);
 				if (t.getKind() == TransitionKind.INITIAL) {
-					switchToState(t.getTarget(), queuedMessage, null, getRelayStateMachine());
+					switchToState(t.getTarget(), queuedMessage, t, getRelayStateMachine());
 					notifyStateMachineStarted(getRelayStateMachine());
 				} else if (t.getKind() != TransitionKind.INTERNAL) {
 					switchToState(t.getTarget(), queuedMessage, t, getRelayStateMachine());
@@ -265,6 +267,10 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		}
 		registerPseudoStateListener();
 
+		if (initialEnabled != null && !initialEnabled) {
+			stateMachineExecutor.setInitialEnabled(false);
+		}
+
 		// start fires first execution which should execute initial transition
 		stateMachineExecutor.start();
 	}
@@ -274,6 +280,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		stateMachineExecutor.stop();
 		notifyStateMachineStopped(this);
 		currentState = null;
+		initialEnabled = null;
 	}
 
 	@Override
@@ -310,6 +317,14 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	@Override
 	public Collection<Transition<S, E>> getTransitions() {
 		return transitions;
+	}
+
+
+	@Override
+	public void setInitialEnabled(boolean enabled) {
+		if (initialEnabled == null) {
+			initialEnabled = enabled;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -352,6 +367,16 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 					}
 				}
 				return list;
+			}
+
+			@Override
+			public void doWithRegion(StateMachineFunction<StateMachineAccess<S, E>> stateMachineAccess) {
+				stateMachineAccess.apply(AbstractStateMachine.this);
+			}
+
+			@Override
+			public StateMachineAccess<S, E> withRegion() {
+				return AbstractStateMachine.this;
 			}
 		};
 	}
@@ -538,7 +563,6 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			}
 			entryToState(state, message, transition, stateMachine);
 			notifyStateChanged(notifyFrom, state);
-			StateContext<S, E> stateContext = buildStateContext(message, transition, stateMachine);
 		} else if (currentState != null) {
 			if (findDeep != null) {
 				if (exit) {
@@ -575,8 +599,11 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 						}
 					}
 				}
+				boolean shouldEntry = findDeep != currentState;
 				currentState = findDeep;
-				entryToState(currentState, message, transition, stateMachine);
+				if (shouldEntry) {
+					entryToState(currentState, message, transition, stateMachine);
+				}
 
 				if (currentState.isSubmachineState()) {
 					StateMachine<S, E> submachine = ((AbstractState<S, E>)currentState).getSubmachine();

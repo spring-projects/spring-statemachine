@@ -78,6 +78,15 @@ public class StateMachineAccessTests {
 					list.add(MockStateMachine.this);
 					return list;
 				}
+
+				@Override
+				public void doWithRegion(StateMachineFunction<StateMachineAccess<String, String>> stateMachineAccess) {
+				}
+
+				@Override
+				public StateMachineAccess<String, String> withRegion() {
+					return null;
+				}
 			};
 		}
 
@@ -152,6 +161,10 @@ public class StateMachineAccessTests {
 		@Override
 		public ExtendedState getExtendedState() {
 			return null;
+		}
+
+		@Override
+		public void setInitialEnabled(boolean enabled) {
 		}
 
 	}

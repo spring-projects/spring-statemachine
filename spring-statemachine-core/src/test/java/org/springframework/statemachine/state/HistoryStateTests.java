@@ -68,7 +68,6 @@ public class HistoryStateTests extends AbstractStateMachineTests {
 		machine.sendEvent(TestEvents.E2);
 		machine.sendEvent(TestEvents.E3);
 		machine.sendEvent(TestEvents.E4);
-
 		assertThat(machine.getState().getIds(), contains(TestStates.S2, TestStates.S21, TestStates.S212));
 	}
 

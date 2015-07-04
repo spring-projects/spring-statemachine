@@ -37,6 +37,9 @@ public abstract class StateMachineUtils {
 	 * @return if sub is child of super
 	 */
 	public static <S, E> boolean isSubstate(State<S, E> left, State<S, E> right) {
+		if (left == null) {
+			return false;
+		}
 		Collection<State<S, E>> c = left.getStates();
 		c.remove(left);
 		return c.contains(right);

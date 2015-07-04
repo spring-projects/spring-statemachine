@@ -78,7 +78,8 @@ public abstract class AbstractStateMachineTests {
 
 	public static enum TestStates2 {
 	    BUSY, PLAYING, PAUSED,
-	    IDLE, CLOSED, OPEN
+	    IDLE, CLOSED, OPEN,
+	    PAUSED1, PAUSED2
 	}
 
 	public static enum TestStates3 {

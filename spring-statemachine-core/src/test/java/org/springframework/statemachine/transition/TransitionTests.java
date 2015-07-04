@@ -180,6 +180,54 @@ public class TransitionTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), contains(TestStates.S2));
 	}
 
+	@Test
+	public void testTransitDirectlyToSubstateSkipInitial() throws InterruptedException {
+		context.register(BaseConfig.class, Config7.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		@SuppressWarnings("unchecked")
+		ObjectStateMachine<TestStates2,TestEvents2> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		TestListener2 listener = new TestListener2();
+		machine.addStateListener(listener);
+		listener.reset(2);
+
+		machine.start();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(2));
+		assertThat(machine.getState().getIds(), contains(TestStates2.IDLE, TestStates2.CLOSED));
+
+		listener.reset(0, 2);
+		machine.sendEvent(TestEvents2.PAUSE);
+		assertThat(listener.stateEnteredLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateEnteredCount, is(2));
+		assertThat(machine.getState().getIds(), contains(TestStates2.BUSY, TestStates2.PAUSED));
+	}
+
+	@Test
+	public void testTransitDeepDirectlyToSubstateSkipInitial() throws InterruptedException {
+		context.register(BaseConfig.class, Config8.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		@SuppressWarnings("unchecked")
+		ObjectStateMachine<TestStates2,TestEvents2> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		TestListener2 listener = new TestListener2();
+		machine.addStateListener(listener);
+		listener.reset(2);
+
+		machine.start();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(2));
+		assertThat(machine.getState().getIds(), contains(TestStates2.IDLE, TestStates2.CLOSED));
+
+		listener.reset(0, 4);
+		machine.sendEvent(TestEvents2.PAUSE);
+		assertThat(listener.stateEnteredLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateEnteredCount, is(4));
+		assertThat(machine.getState().getIds(), contains(TestStates2.BUSY, TestStates2.PAUSED, TestStates2.PAUSED2));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
@@ -408,6 +456,106 @@ public class TransitionTests extends AbstractStateMachineTests {
 
 	}
 
+	@Configuration
+	@EnableStateMachine
+	static class Config7 extends EnumStateMachineConfigurerAdapter<TestStates2, TestEvents2> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates2, TestEvents2> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates2.IDLE)
+					.state(TestStates2.IDLE)
+					.and()
+					.withStates()
+						.parent(TestStates2.IDLE)
+						.initial(TestStates2.CLOSED)
+						.state(TestStates2.CLOSED)
+						.state(TestStates2.OPEN)
+						.and()
+				.withStates()
+					.state(TestStates2.BUSY)
+					.and()
+					.withStates()
+						.parent(TestStates2.BUSY)
+						.initial(TestStates2.PLAYING)
+						.state(TestStates2.PLAYING)
+						.state(TestStates2.PAUSED);
+
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates2, TestEvents2> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates2.CLOSED)
+					.target(TestStates2.OPEN)
+					.event(TestEvents2.EJECT)
+					.and()
+				.withExternal()
+					.source(TestStates2.OPEN)
+					.target(TestStates2.CLOSED)
+					.event(TestEvents2.EJECT)
+					.and()
+				.withExternal()
+					.source(TestStates2.CLOSED)
+					.target(TestStates2.PAUSED)
+					.event(TestEvents2.PAUSE);
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config8 extends EnumStateMachineConfigurerAdapter<TestStates2, TestEvents2> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates2, TestEvents2> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates2.IDLE)
+					.state(TestStates2.IDLE)
+					.and()
+					.withStates()
+						.parent(TestStates2.IDLE)
+						.initial(TestStates2.CLOSED)
+						.state(TestStates2.OPEN)
+						.and()
+				.withStates()
+					.state(TestStates2.BUSY)
+					.and()
+					.withStates()
+						.parent(TestStates2.BUSY)
+						.initial(TestStates2.PLAYING)
+						.state(TestStates2.PAUSED)
+						.and()
+						.withStates()
+							.parent(TestStates2.PAUSED)
+							.initial(TestStates2.PAUSED1)
+							.state(TestStates2.PAUSED2);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates2, TestEvents2> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates2.CLOSED)
+					.target(TestStates2.OPEN)
+					.event(TestEvents2.EJECT)
+					.and()
+				.withExternal()
+					.source(TestStates2.OPEN)
+					.target(TestStates2.CLOSED)
+					.event(TestEvents2.EJECT)
+					.and()
+				.withExternal()
+					.source(TestStates2.CLOSED)
+					.target(TestStates2.PAUSED2)
+					.event(TestEvents2.PAUSE);
+		}
+
+	}
+
 	static class TestListener extends StateMachineListenerAdapter<TestStates, TestEvents> {
 
 		volatile CountDownLatch stateChangedLatch = new CountDownLatch(1);
@@ -415,13 +563,45 @@ public class TransitionTests extends AbstractStateMachineTests {
 
 		@Override
 		public void stateChanged(State<TestStates, TestEvents> from, State<TestStates, TestEvents> to) {
-			stateChangedLatch.countDown();
 			stateChangedCount++;
+			stateChangedLatch.countDown();
 		}
 
 		public void reset(int c1) {
 			stateChangedLatch = new CountDownLatch(c1);
 			stateChangedCount = 0;
+		}
+
+	}
+
+	static class TestListener2 extends StateMachineListenerAdapter<TestStates2, TestEvents2> {
+
+		volatile CountDownLatch stateChangedLatch = new CountDownLatch(1);
+		volatile int stateChangedCount = 0;
+		volatile CountDownLatch stateEnteredLatch = new CountDownLatch(1);
+		volatile int stateEnteredCount = 0;
+
+		@Override
+		public void stateChanged(State<TestStates2, TestEvents2> from, State<TestStates2, TestEvents2> to) {
+			stateChangedCount++;
+			stateChangedLatch.countDown();
+		}
+
+		@Override
+		public void stateEntered(State<TestStates2, TestEvents2> state) {
+			stateEnteredCount++;
+			stateEnteredLatch.countDown();
+		}
+
+		public void reset(int c1) {
+			reset(c1, 0);
+		}
+
+		public void reset(int c1, int c2) {
+			stateChangedLatch = new CountDownLatch(c1);
+			stateChangedCount = 0;
+			stateEnteredLatch = new CountDownLatch(c2);
+			stateEnteredCount = 0;
 		}
 
 	}

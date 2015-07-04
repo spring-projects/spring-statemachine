@@ -170,12 +170,10 @@ public class ShowcaseTests {
 	public void testII() throws Exception {
 		machine.sendEvent(Events.I);
 
-		listener.reset(1, 0, 0);
-		// TODO: should think if need to bypass
-		//       S211 as initial state and go directly
-		//       to S212.
+		listener.reset(2, 0, 0);
 		machine.sendEvent(Events.I);
-		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
+		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(listener.statesEntered.size(), is(3));
 		assertThat(machine.getState().getIds(), contains(States.S0, States.S2, States.S21, States.S212));
 	}
 
@@ -216,7 +214,7 @@ public class ShowcaseTests {
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
 		assertThat(machine.getState().getIds(), contains(States.S0, States.S2, States.S21, States.S211));
 		assertThat(listener.statesExited.size(), is(2));
-		assertThat(listener.statesEntered.size(), is(3));
+		assertThat(listener.statesEntered.size(), is(2));
 	}
 
 	@Test
@@ -226,7 +224,7 @@ public class ShowcaseTests {
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
 		assertThat(machine.getState().getIds(), contains(States.S0, States.S2, States.S21, States.S211));
 		assertThat(listener.statesExited.size(), is(2));
-		assertThat(listener.statesEntered.size(), is(4));
+		assertThat(listener.statesEntered.size(), is(3));
 	}
 
 	@Test
@@ -236,7 +234,7 @@ public class ShowcaseTests {
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
 		assertThat(machine.getState().getIds(), contains(States.S0, States.S2, States.S21, States.S211));
 		assertThat(listener.statesExited.size(), is(2));
-		assertThat(listener.statesEntered.size(), is(4));
+		assertThat(listener.statesEntered.size(), is(3));
 	}
 
 	static class Config {

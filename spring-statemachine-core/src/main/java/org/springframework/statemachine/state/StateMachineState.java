@@ -21,6 +21,8 @@ import java.util.Collection;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.access.StateMachineAccess;
+import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.support.StateMachineUtils;
 import org.springframework.statemachine.transition.Transition;
@@ -161,8 +163,54 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 		}
 
 		if (getPseudoState() != null && getPseudoState().getKind() == PseudoStateKind.INITIAL) {
+			// disable initial state if it looks like we're about
+			// to transit directory into a non initial state
+			// we do transit via initial state if we're returning
+			// via history state
+			boolean initialEnabled = true;
+			if (context.getTransition() != null) {
+				State<S, E> target = context.getTransition().getTarget();
+				PseudoStateKind kind = target.getPseudoState() != null ? target.getPseudoState().getKind() : null;
+				State<S, E> findDeepParent = findDeepParent(getSubmachine().getStates(), target);
+				if (findDeepParent != null && findDeepParent.isSubmachineState()) {
+					((StateMachineState<S, E>) findDeepParent).getSubmachine().getStateMachineAccessor()
+							.doWithRegion(new StateMachineFunction<StateMachineAccess<S, E>>() {
+
+								@Override
+								public void apply(StateMachineAccess<S, E> function) {
+									function.setInitialEnabled(false);
+								}
+							});
+				}
+				if (getSubmachine().getStates().contains(target) && kind != PseudoStateKind.HISTORY_SHALLOW
+						&& kind != PseudoStateKind.HISTORY_DEEP) {
+					initialEnabled = false;
+				}
+
+			}
+			// need final for state machine access
+			final boolean enabled = initialEnabled;
+			getSubmachine().getStateMachineAccessor().doWithRegion(
+					new StateMachineFunction<StateMachineAccess<S, E>>() {
+
+						@Override
+						public void apply(StateMachineAccess<S, E> function) {
+							function.setInitialEnabled(enabled);
+						}
+					});
 			getSubmachine().start();
 		}
+	}
+
+	private State<S, E> findDeepParent(Collection<State<S, E>> states, State<S, E> state) {
+		for (State<S, E> s : states) {
+			if (s.getStates().contains(state)) {
+				if (s != state) {
+					return s;
+				}
+			}
+		}
+		return null;
 	}
 
 	@Override

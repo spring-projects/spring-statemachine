@@ -46,4 +46,18 @@ public interface StateMachineAccessor<S, E> {
 	 */
 	List<StateMachineAccess<S, E>> withAllRegions();
 
+	/**
+	 * Execute given {@link StateMachineFunction} with a region.
+	 *
+	 * @param stateMachineAccess the state machine access
+	 */
+	void doWithRegion(StateMachineFunction<StateMachineAccess<S, E>> stateMachineAccess);
+
+	/**
+	 * Get a region.
+	 *
+	 * @return the state machine access
+	 */
+	StateMachineAccess<S, E> withRegion();
+
 }
