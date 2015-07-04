@@ -298,17 +298,6 @@ public class TasksHandlerTests {
 			onTasksErrorLatch.countDown();
 		}
 
-		public void reset(int c1, int c2, int c3, int c4, int c5, int c6, int c7) {
-			onTasksStartedLatch = new CountDownLatch(c1);
-			onTasksContinueLatch = new CountDownLatch(c2);
-			onTaskPreExecuteLatch = new CountDownLatch(c3);
-			onTaskPostExecuteLatch = new CountDownLatch(c4);
-			onTaskFailedLatch = new CountDownLatch(c5);
-			onTasksSuccessLatch = new CountDownLatch(c6);
-			onTasksErrorLatch = new CountDownLatch(c7);
-			onTasksStarted = 0;
-		}
-
 	}
 
 }

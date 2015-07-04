@@ -225,7 +225,6 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 	@EnableStateMachine
 	public static class Config5 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
 			TestEntryAction action1 = action1();

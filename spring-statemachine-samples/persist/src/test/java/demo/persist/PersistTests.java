@@ -98,7 +98,6 @@ public class PersistTests {
 		volatile List<Transition<String, String>> transitions = new ArrayList<Transition<String, String>>();
 		List<State<String, String>> statesEntered = new ArrayList<State<String, String>>();
 		List<State<String, String>> statesExited = new ArrayList<State<String, String>>();
-		volatile int transitionCount = 0;
 
 		@Override
 		public void stateChanged(State<String, String> from, State<String, String> to) {
@@ -120,23 +119,7 @@ public class PersistTests {
 		@Override
 		public void transition(Transition<String, String> transition) {
 			transitions.add(transition);
-			transitionCount++;
 			transitionLatch.countDown();
-		}
-
-		public void reset(int c1, int c2, int c3) {
-			reset(c1, c2, c3, 0);
-		}
-
-		public void reset(int c1, int c2, int c3, int c4) {
-			stateChangedLatch = new CountDownLatch(c1);
-			stateEnteredLatch = new CountDownLatch(c2);
-			stateExitedLatch = new CountDownLatch(c3);
-			transitionLatch = new CountDownLatch(c4);
-			statesEntered.clear();
-			statesExited.clear();
-			transitionCount = 0;
-			transitions.clear();
 		}
 
 	}

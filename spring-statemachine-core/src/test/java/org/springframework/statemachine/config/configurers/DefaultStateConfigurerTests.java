@@ -85,7 +85,6 @@ public class DefaultStateConfigurerTests {
 
 	@Test
 	public void testActionsInitialFirst() throws Exception {
-		@SuppressWarnings("unchecked")
 		Collection<Action<TestStates, TestEvents>> exitActions = Arrays.asList(testExitAction());
 
 		DefaultStateConfigurer<TestStates, TestEvents> configurer = new DefaultStateConfigurer<TestStates, TestEvents>();
@@ -103,7 +102,6 @@ public class DefaultStateConfigurerTests {
 
 	@Test
 	public void testActionsJustState() throws Exception {
-		@SuppressWarnings("unchecked")
 		Collection<Action<TestStates, TestEvents>> entryActions = Arrays.asList(testEntryAction());
 
 		DefaultStateConfigurer<TestStates, TestEvents> configurer = new DefaultStateConfigurer<TestStates, TestEvents>();

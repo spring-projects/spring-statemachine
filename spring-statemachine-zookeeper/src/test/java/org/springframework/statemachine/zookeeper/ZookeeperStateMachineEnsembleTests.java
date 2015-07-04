@@ -158,11 +158,6 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 			eventLatch.countDown();
 		}
 
-		public void reset(int c1, int c2) {
-			joinedLatch = new CountDownLatch(c1);
-			eventLatch = new CountDownLatch(c2);
-		}
-
 	}
 
 	private class TestStateMachine implements StateMachine<String, String> {

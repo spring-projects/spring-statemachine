@@ -151,6 +151,7 @@ public class DefaultStateConfigurer<S, E>
 		return state(state, entryActions, exitActions);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public StateConfigurer<S, E> state(S state, E... deferred) {
 		Collection<E> d = null;

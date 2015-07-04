@@ -261,9 +261,7 @@ public class TransitionTests extends AbstractStateMachineTests {
 
 		@Override
 		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
-			@SuppressWarnings("unchecked")
 			Collection<Action<TestStates, TestEvents>> entryActions = Arrays.asList(testEntryAction());
-			@SuppressWarnings("unchecked")
 			Collection<Action<TestStates, TestEvents>> exitActions = Arrays.asList(testExitAction());
 			states
 				.withStates()

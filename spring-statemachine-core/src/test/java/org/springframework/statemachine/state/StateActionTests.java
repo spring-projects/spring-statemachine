@@ -40,12 +40,12 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 
 /**
  * Tests for state entry and exit actions.
- * 
+ *
  * @author Janne Valkealahti
  *
  */
 public class StateActionTests extends AbstractStateMachineTests {
-	
+
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testStateEntryExit() throws Exception {
@@ -56,24 +56,22 @@ public class StateActionTests extends AbstractStateMachineTests {
 		TestEntryAction testEntryAction = ctx.getBean("testEntryAction", TestEntryAction.class);
 		assertThat(testExitAction, notNullValue());
 		assertThat(testEntryAction, notNullValue());
-		
+
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
 		assertThat(testExitAction.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testEntryAction.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
-		
+
 		ctx.close();
 	}
-	
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
 
 		@Override
 		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
-			@SuppressWarnings("unchecked")
 			Collection<Action<TestStates, TestEvents>> entryActions = Arrays.asList(testEntryAction());
-			@SuppressWarnings("unchecked")
 			Collection<Action<TestStates, TestEvents>> exitActions = Arrays.asList(testExitAction());
 			states
 				.withStates()
@@ -100,7 +98,7 @@ public class StateActionTests extends AbstractStateMachineTests {
 		public Action<TestStates, TestEvents> testExitAction() {
 			return new TestExitAction();
 		}
-		
+
 		@Bean
 		public TaskExecutor taskExecutor() {
 			return new SyncTaskExecutor();

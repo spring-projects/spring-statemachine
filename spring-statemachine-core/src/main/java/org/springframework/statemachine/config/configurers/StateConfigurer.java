@@ -97,6 +97,7 @@ public interface StateConfigurer<S, E> extends
 	 * @param deferred the deferred events
 	 * @return configurer for chaining
 	 */
+	@SuppressWarnings("unchecked")
 	StateConfigurer<S, E> state(S state, E... deferred);
 
 	/**

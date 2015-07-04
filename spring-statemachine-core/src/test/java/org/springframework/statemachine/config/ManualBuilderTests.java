@@ -175,16 +175,6 @@ public class ManualBuilderTests {
 			transitionLatch.countDown();
 		}
 
-		public void reset(int c1) {
-			reset(c1, 0);
-		}
-
-		public void reset(int c1, int c2) {
-			stateChangedLatch = new CountDownLatch(c1);
-			transitionLatch = new CountDownLatch(c2);
-			stateChangedCount = 0;
-		}
-
 	}
 
 }
