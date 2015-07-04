@@ -57,7 +57,7 @@ public class RunnableAction implements Action<String, String> {
 
 	@Override
 	public final void execute(StateContext<String, String> context) {
-		if (!shouldExecute(context)) {
+		if (!shouldExecute(id, context)) {
 			return;
 		}
 		StopWatch watch = new StopWatch();
@@ -67,10 +67,13 @@ public class RunnableAction implements Action<String, String> {
 			watch.start();
 		}
 		try {
+			onPreExecute(id, context);
 			runnable.run();
-			onSuccess(context);
+			onSuccess(id, context);
 		} catch (Exception e) {
-			onError(context, e);
+			onError(id, context, e);
+		} finally {
+			onPostExecute(id, context);
 		}
 		if (log.isDebugEnabled()) {
 			watch.stop();
@@ -82,14 +85,20 @@ public class RunnableAction implements Action<String, String> {
 		return id;
 	}
 
-	protected boolean shouldExecute(StateContext<String, String> context) {
+	protected boolean shouldExecute(String id, StateContext<String, String> context) {
 		return true;
 	}
 
-	protected void onSuccess(StateContext<String, String> context) {
+	protected void onPreExecute(String id, StateContext<String, String> context) {
 	}
 
-	protected void onError(StateContext<String, String> context, Exception e) {
+	protected void onPostExecute(String id, StateContext<String, String> context) {
+	}
+
+	protected void onSuccess(String id, StateContext<String, String> context) {
+	}
+
+	protected void onError(String id, StateContext<String, String> context, Exception e) {
 	}
 
 }

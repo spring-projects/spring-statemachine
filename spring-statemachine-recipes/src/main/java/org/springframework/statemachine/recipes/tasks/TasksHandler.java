@@ -42,10 +42,11 @@ import org.springframework.statemachine.support.tree.Tree.Node;
 import org.springframework.statemachine.support.tree.TreeTraverser;
 
 /**
- * {@code TasksHandler} is a recipe for executing {@link Runnable} tasks
+ * {@code TasksHandler} is a recipe for executing arbitrary {@link Runnable} tasks
  * using a state machine logic.
  *
- *
+ * This recipe supports execution of multiple top-level tasks with a
+ * sub-states construct of DAGs.
  *
  * @author Janne Valkealahti
  *
@@ -76,26 +77,39 @@ public class TasksHandler {
 
 	/**
 	 * Instantiates a new tasks handler. Intentionally private instantiation
-	 * meant to be called from builder.
+	 * meant to be called from a builder.
 	 *
 	 * @param tasks the wrapped tasks
+	 * @param listener the tasks listener
 	 */
-	private TasksHandler(List<TaskWrapper> tasks) {
+	private TasksHandler(List<TaskWrapper> tasks, TasksListener listener, TaskExecutor taskExecutor) {
 		try {
-			this.stateMachine = buildStateMachine(tasks);
+			this.stateMachine = buildStateMachine(tasks, taskExecutor);
 		} catch (Exception e) {
 			throw new StateMachineException("Error building state machine from tasks", e);
 		}
+		if (listener != null) {
+			addTasksListener(listener);
+		}
 	}
 
+	/**
+	 * Request to execute current tasks logic.
+	 */
 	public void runTasks() {
 		stateMachine.sendEvent(EVENT_RUN);
 	}
 
+	/**
+	 * Request to continue from an error.
+	 */
 	public void continueFromError() {
 		stateMachine.sendEvent(EVENT_CONTINUE);
 	}
 
+	/**
+	 * Request to fix current problems.
+	 */
 	public void fixCurrentProblems() {
 		stateMachine.sendEvent(EVENT_FIX);
 	}
@@ -137,11 +151,14 @@ public class TasksHandler {
 		return new Builder();
 	}
 
-	private StateMachine<String, String> buildStateMachine(List<TaskWrapper> tasks) throws Exception {
+	private StateMachine<String, String> buildStateMachine(List<TaskWrapper> tasks, TaskExecutor taskExecutor)
+			throws Exception {
 		StateMachineBuilder.Builder<String, String> builder = StateMachineBuilder.builder();
 
+		int taskCount = topLevelTaskCount(tasks);
+
 		builder.configureConfiguration().withConfiguration()
-			.taskExecutor(taskExecutor());
+			.taskExecutor(taskExecutor != null ? taskExecutor : taskExecutor(taskCount));
 
 		StateMachineStateConfigurer<String, String> stateMachineStateConfigurer = builder.configureStates();
 		StateMachineTransitionConfigurer<String, String> stateMachineTransitionConfigurer = builder.configureTransitions();
@@ -211,6 +228,7 @@ public class TasksHandler {
 			.withExternal()
 				.source(STATE_ERROR).target(STATE_READY)
 				.event(EVENT_CONTINUE)
+				.action(continueAction())
 				.and()
 			.withExternal()
 				.source(STATE_AUTOMATIC).target(STATE_MANUAL)
@@ -224,11 +242,19 @@ public class TasksHandler {
 		return builder.build();
 	}
 
-	private static TaskExecutor taskExecutor() {
+	private static TaskExecutor taskExecutor(int taskCount) {
 		ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
 		taskExecutor.afterPropertiesSet();
-		taskExecutor.setCorePoolSize(5);
+		taskExecutor.setCorePoolSize(taskCount);
 		return taskExecutor;
+	}
+
+	private static int topLevelTaskCount(List<TaskWrapper> tasks) {
+		Tree<TaskWrapper> tree = new Tree<TaskWrapper>();
+		for (TaskWrapper wrapper : tasks) {
+			tree.add(wrapper, wrapper.id, wrapper.parent);
+		}
+		return tree.getRoot().getChildren().size();
 	}
 
 	private static Iterator<Node<TaskWrapper>> buildTasksIterator(List<TaskWrapper> tasks) {
@@ -256,13 +282,15 @@ public class TasksHandler {
 	public static class Builder {
 
 		private final List<TaskWrapper> tasks = new ArrayList<TaskWrapper>();
+		private TasksListener listener;
+		private TaskExecutor taskExecutor;
 
 		/**
 		 * Define a top-level task.
 		 *
 		 * @param id the id
 		 * @param runnable the runnable
-		 * @return the builder
+		 * @return the builder for chaining
 		 */
 		public Builder task(Object id, Runnable runnable) {
 			tasks.add(new TaskWrapper(null, id, runnable));
@@ -275,7 +303,7 @@ public class TasksHandler {
 		 * @param parent the parent
 		 * @param id the id
 		 * @param runnable the runnable
-		 * @return the builder
+		 * @return the builder for chaining
 		 */
 		public Builder task(Object parent, Object id, Runnable runnable) {
 			tasks.add(new TaskWrapper(parent, id, runnable));
@@ -287,9 +315,33 @@ public class TasksHandler {
 		 * should be persisted with state changes.
 		 *
 		 * @param persist the persist
-		 * @return the builder
+		 * @return the builder for chaining
 		 */
 		public Builder persist(StateMachinePersist<String, String, Void> persist) {
+			return this;
+		}
+
+		/**
+		 * Define a {@link TasksListener} to be registered.
+		 *
+		 * @param listener the tasks listener
+		 * @return the builder for chaining
+		 */
+		public Builder listener(TasksListener listener) {
+			this.listener = listener;
+			return this;
+		}
+
+		/**
+		 * Define a {@link TaskExecutor} to be used. Default executor will be
+		 * a {@link ThreadPoolTaskExecutor} set with a thread pool size of
+		 * a top-level task count.
+		 *
+		 * @param taskExecutor the task executor
+		 * @return the builder for chaining
+		 */
+		public Builder taskExecutor(TaskExecutor taskExecutor) {
+			this.taskExecutor = taskExecutor;
 			return this;
 		}
 
@@ -299,20 +351,39 @@ public class TasksHandler {
 		 * @return the tasks handler
 		 */
 		public TasksHandler build() {
-			return new TasksHandler(tasks);
+			return new TasksHandler(tasks, listener, taskExecutor);
 		}
 
 	}
 
+	/**
+	 * Gets a tasks entry action.
+	 *
+	 * @return the tasks entry action
+	 */
 	private TasksEntryAction tasksEntryAction() {
 		return new TasksEntryAction();
 	}
 
-	private static LocalRunnableAction runnableAction(Runnable runnable, String id) {
+	/**
+	 * Gets a loca runnable action.
+	 *
+	 * @param runnable the runnable
+	 * @param id the task id
+	 * @return the local runnable action
+	 */
+	private LocalRunnableAction runnableAction(Runnable runnable, String id) {
 		return new LocalRunnableAction(runnable, id);
 	}
 
-	private static Guard<String, String> tasksChoiceGuard() {
+	/**
+	 * Tasks choice guard. This {@link Guard} will check if related
+	 * extended state variables contains negative values for related
+	 * tasks id's and returns true if so, else false.
+	 *
+	 * @return the guard
+	 */
+	private Guard<String, String> tasksChoiceGuard() {
 		return new Guard<String, String>() {
 
 			@Override
@@ -326,12 +397,30 @@ public class TasksHandler {
 								if (log.isDebugEnabled()) {
 									log.debug("Task id=[" + entry.getKey() + "] has negative execution value, tasksChoiceGuard returns true");
 								}
+								listener.onTasksError();
 								return true;
 							}
 						}
 					}
 				}
+				listener.onTasksSuccess();
 				return false;
+			}
+		};
+	}
+
+	/**
+	 * {@link Action} which simply sends an event of continue
+	 * tasks into a state machine.
+	 *
+	 * @return the action
+	 */
+	private Action<String, String> continueAction() {
+		return new Action<String, String>() {
+
+			@Override
+			public void execute(StateContext<String, String> context) {
+				listener.onTasksContinue();
 			}
 		};
 	}
@@ -345,6 +434,12 @@ public class TasksHandler {
 		};
 	}
 
+	/**
+	 * {@link Action} which resets related extended state variables
+	 * to zero for tasks order to indicate a fixed tasks.
+	 *
+	 * @return the action
+	 */
 	private Action<String, String> fixAction() {
 		return new Action<String, String>() {
 
@@ -367,7 +462,9 @@ public class TasksHandler {
 
 	/**
 	 * {@code TasksListener} is a generic interface listening tasks
-	 * execution events.
+	 * execution events. Methods in this interface will be called in a
+	 * tasks execution position where user most likely will want to get
+	 * notified.
 	 */
 	public interface TasksListener {
 
@@ -399,12 +496,19 @@ public class TasksHandler {
 		void onTaskPostExecute(Object id);
 
 		/**
-		 * Called when task execution resulter an error of any kind.
+		 * Called when task execution result an error of any kind.
 		 *
 		 * @param id the task id
 		 * @param exception the exception
 		 */
 		void onTaskFailed(Object id, Exception exception);
+
+		/**
+		 * Called when task execution result without errors.
+		 *
+		 * @param id the task id
+		 */
+		void onTaskSuccess(Object id);
 
 		/**
 		 * Called when all tasks has been executed successfully.
@@ -457,6 +561,13 @@ public class TasksHandler {
 		}
 
 		@Override
+		public void onTaskSuccess(Object id) {
+			for (Iterator<TasksListener> iterator = getListeners().reverse(); iterator.hasNext();) {
+				iterator.next().onTaskSuccess(id);
+			}
+		}
+
+		@Override
 		public void onTasksSuccess() {
 			for (Iterator<TasksListener> iterator = getListeners().reverse(); iterator.hasNext();) {
 				iterator.next().onTasksSuccess();
@@ -504,24 +615,36 @@ public class TasksHandler {
 	/**
 	 * {@link Action} which is execution with every registered {@link Runnable}.
 	 */
-	private static class LocalRunnableAction extends RunnableAction {
+	private class LocalRunnableAction extends RunnableAction {
 
 		public LocalRunnableAction(Runnable runnable, String id) {
 			super(runnable, id);
 		}
 
 		@Override
-		protected boolean shouldExecute(StateContext<String, String> context) {
-			return super.shouldExecute(context);
+		protected boolean shouldExecute(String id, StateContext<String, String> context) {
+			return super.shouldExecute(id, context);
 		}
 
 		@Override
-		protected void onSuccess(StateContext<String, String> context) {
+		protected void onPreExecute(String id, StateContext<String, String> context) {
+			listener.onTaskPreExecute(id);
+		}
+
+		@Override
+		protected void onPostExecute(String id, StateContext<String, String> context) {
+			listener.onTaskPostExecute(id);
+		}
+
+		@Override
+		protected void onSuccess(String id, StateContext<String, String> context) {
+			listener.onTaskSuccess(id);
 			changeCount(1, context);
 		}
 
 		@Override
-		protected void onError(StateContext<String, String> context, Exception e) {
+		protected void onError(String id, StateContext<String, String> context, Exception e) {
+			listener.onTaskFailed(id, e);
 			changeCount(-1, context);
 		}
 
