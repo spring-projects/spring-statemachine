@@ -215,7 +215,7 @@ public class TasksHandlerTests {
 				.build();
 
 		TestListener listener = new TestListener();
-		listener.reset(10, 0, 0);
+		listener.reset(11, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
 		machine.start();
@@ -225,7 +225,7 @@ public class TasksHandlerTests {
 		handler.runTasks();
 
 		assertThat(listener.stateChangedLatch.await(8, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(10));
+		assertThat(listener.stateChangedCount, is(11));
 
 		assertThat(tasksListener.onTasksStartedLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(tasksListener.onTasksStarted, is(1));
