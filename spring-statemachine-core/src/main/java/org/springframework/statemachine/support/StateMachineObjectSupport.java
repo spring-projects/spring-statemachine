@@ -125,6 +125,16 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		}
 	}
 
+	protected void notifyEventNotAccepted(Message<E> event) {
+		stateListener.eventNotAccepted(event);
+		if (contextEventsEnabled) {
+			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
+			if (eventPublisher != null) {
+				eventPublisher.publishEventNotAccepted(this, event);
+			}
+		}
+	}
+
 	protected void notifyTransitionStart(Transition<S,E> transition) {
 		stateListener.transitionStarted(transition);
 		if (contextEventsEnabled) {
@@ -215,6 +225,11 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		@Override
 		public void stateExited(State<S, E> state) {
 			stateListener.stateExited(state);
+		}
+
+		@Override
+		public void eventNotAccepted(Message<E> event) {
+			stateListener.eventNotAccepted(event);
 		}
 
 		@Override

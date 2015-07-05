@@ -16,6 +16,7 @@
 package org.springframework.statemachine.event;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -31,6 +32,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.Message;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
@@ -38,6 +40,7 @@ import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 
 /**
  * Tests from state machine app context events.
@@ -72,7 +75,37 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 		// 6 events instead of 5, first one is initial transition
 		// to SI where source state is null
 		assertThat(listener.onEventLatch.await(5, TimeUnit.SECONDS), is(true));
-		assertThat(listener.events.size(), is(6));
+		assertThat(listener.stateChangedEvents.size(), is(6));
+	}
+
+	@Test
+	public void testEventNotAccepted() throws Exception {
+		context.register(BaseConfig.class, StateMachineEventPublisherConfiguration.class, Config1.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		TestEventListener eventListener = context.getBean(TestEventListener.class);
+		TestListener listener = new TestListener();
+		@SuppressWarnings("unchecked")
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		eventListener.reset(2, 0);
+		machine.addStateListener(listener);
+		machine.start();
+		assertThat(machine, notNullValue());
+		machine.sendEvent(TestEvents.E1);
+
+		assertThat(eventListener.onEventLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(eventListener.stateChangedEvents.size(), is(2));
+
+		eventListener.reset(0, 1);
+		machine.sendEvent(TestEvents.E3);
+		assertThat(eventListener.onEventLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(eventListener.eventNotAcceptedEvents.size(), is(1));
+		assertThat(eventListener.eventNotAcceptedEvents.get(0), instanceOf(OnEventNotAcceptedEvent.class));
+		assertThat(((OnEventNotAcceptedEvent)eventListener.eventNotAcceptedEvents.get(0)).getEvent().getPayload(), is(TestEvents.E3));
+
+		assertThat(listener.eventNotAcceptedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.eventNotAccepted.size(), is(1));
 	}
 
 	@Test
@@ -185,16 +218,40 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 
 	static class TestEventListener implements ApplicationListener<StateMachineEvent> {
 
-		CountDownLatch onEventLatch = new CountDownLatch(6);
+		volatile CountDownLatch onEventLatch = new CountDownLatch(6);
 
-		ArrayList<StateMachineEvent> events = new ArrayList<StateMachineEvent>();
+		volatile ArrayList<StateMachineEvent> stateChangedEvents = new ArrayList<StateMachineEvent>();
+		volatile ArrayList<StateMachineEvent> eventNotAcceptedEvents = new ArrayList<StateMachineEvent>();
 
 		@Override
 		public void onApplicationEvent(StateMachineEvent event) {
 			if (event instanceof OnStateChangedEvent) {
-				events.add(event);
+				stateChangedEvents.add(event);
+				onEventLatch.countDown();
+			} else if (event instanceof OnEventNotAcceptedEvent) {
+				eventNotAcceptedEvents.add(event);
 				onEventLatch.countDown();
 			}
+		}
+
+		public void reset(int c1,int c2) {
+			onEventLatch = new CountDownLatch(c1);
+			eventNotAcceptedEvents = new ArrayList<StateMachineEvent>();
+			stateChangedEvents.clear();
+			eventNotAcceptedEvents.clear();
+		}
+
+	}
+
+	static class TestListener extends StateMachineListenerAdapter<TestStates, TestEvents> {
+
+		volatile CountDownLatch eventNotAcceptedLatch = new CountDownLatch(1);
+		volatile ArrayList<Message<TestEvents>> eventNotAccepted = new ArrayList<Message<TestEvents>>();
+
+		@Override
+		public void eventNotAccepted(Message<TestEvents> event) {
+			eventNotAccepted.add(event);
+			eventNotAcceptedLatch.countDown();
 		}
 
 	}

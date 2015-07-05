@@ -182,10 +182,14 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	@Override
 	public boolean sendEvent(Message<E> event) {
 		if (isComplete() || !isRunning()) {
+			notifyEventNotAccepted(event);
 			return false;
 		}
 		boolean accepted = acceptEvent(event);
 		stateMachineExecutor.execute();
+		if (!accepted) {
+			notifyEventNotAccepted(event);
+		}
 		return accepted;
 	}
 

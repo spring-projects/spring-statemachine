@@ -33,6 +33,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.ObjectStateMachine;
@@ -146,6 +147,10 @@ public class ListenerTests extends AbstractStateMachineTests {
 				this.from = from;
 				this.to = to;
 			}
+		}
+
+		@Override
+		public void eventNotAccepted(Message<TestEvents> event) {
 		}
 
 		@Override

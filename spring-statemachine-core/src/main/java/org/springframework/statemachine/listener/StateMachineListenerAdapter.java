@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine.listener;
 
+import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
@@ -40,6 +41,10 @@ public class StateMachineListenerAdapter<S, E> implements StateMachineListener<S
 
 	@Override
 	public void stateExited(State<S, E> state) {
+	}
+
+	@Override
+	public void eventNotAccepted(Message<E> event) {
 	}
 
 	@Override

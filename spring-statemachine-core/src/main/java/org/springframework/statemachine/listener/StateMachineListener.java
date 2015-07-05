@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine.listener;
 
+import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
@@ -50,6 +51,13 @@ public interface StateMachineListener<S,E> {
 	 * @param state the state
 	 */
 	void stateExited(State<S,E> state);
+
+	/**
+	 * Notified when event was not accepted.
+	 *
+	 * @param event the event
+	 */
+	void eventNotAccepted(Message<E> event);
 
 	/**
 	 * Notified when transition happened.
