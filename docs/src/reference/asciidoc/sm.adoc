@@ -39,8 +39,26 @@ possible states, choose initial and optional end state.
 
 [source,java,indent=0]
 ----
-include::samples/DocsConfigurationSampleTests.java[tags=snippetA]
+include::samples/DocsConfigurationSampleTests.java[tags=snippetAA]
 ----
+
+It's also possible to use strings instead of enums as states and
+events by using `StateMachineConfigurerAdapter` as shown below. Most
+of a configuration examples is using enums but generally speaking
+strings and enums can be just interchanged.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetAB]
+----
+
+[NOTE]
+====
+Using enums will bring more safe set of states and event types but
+limits possible combinations to compile time. Strings don't have this
+limitation and allows user to use more dynamic ways to build state
+machine configurations but doesn't allow same level of safety.
+====
 
 === Configuring Hierarchical States
 Hierarchical states can be defined by using multiple `withStates()`
@@ -203,13 +221,14 @@ Configuration for state machine factory is exactly same as you've seen
 in various examples in this document where state machine configuration
 is hard coded.
 
+=== Factory via Adapter
 Actually creating a state machine using _@EnableStateMachine_ will
 work via factory so _@EnableStateMachineFactory_ is merely exposing
 that factory via its interface.
 
 [source,java,indent=0]
 ----
-include::samples/DocsConfigurationSampleTests.java[tags=snippetF]
+include::samples/DocsConfigurationSampleTests.java[tags=snippetFA]
 ----
 
 Now that you've used _@EnableStateMachineFactory_ to create a factory
@@ -221,13 +240,40 @@ request new state machines.
 include::samples/DocsConfigurationSampleTests.java[tags=snippetL]
 ----
 
-=== Factory Limitations
+==== Adapter Factory Limitations
 Current limitation of factory is that all actions and guard it is
 associating with created state machine will share a same instances.
 This means that from your actions and guard you will need to
 specifically handle a case that same bean will be called by a different
 state machines. This limitation is something which will be resolved in
 future releases.
+
+=== Factory via Builder
+Using adapters shown above has a limitation imposed by its
+requirement to work via Spring `@Configuration` classes and
+application context. While this is a very clear model to configure a
+state machine instances it will limit configuration at a compile time
+which is not always what a user wants to do. If there is a requirement
+to build more dynamic state machines, a simple builder patter can be
+used to construct similar instances. Using strings as states and
+events this builder patter can be used to build fully dynamic state
+machines outside of a Spring application context as shown above.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetFB]
+----
+
+Builder is using same configuration interfaces behind the scenes that
+the `@Configuration` model using adapter classes. Same model goes to
+configuring transitions via builder's `configureTransitions()` method.
+
+[NOTE]
+====
+Currently `builder.configureStates()` and
+`builder.configureTransitions()` cannot be chained together meaning
+builder methods needs to be called individually.
+====
 
 [[sm-actions]]
 == Using Actions
