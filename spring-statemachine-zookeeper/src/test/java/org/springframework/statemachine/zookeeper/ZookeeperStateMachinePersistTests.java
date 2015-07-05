@@ -18,12 +18,18 @@ package org.springframework.statemachine.zookeeper;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.data.Stat;
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.ensemble.StateMachinePersist;
+import org.springframework.statemachine.support.DefaultExtendedState;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 
 public class ZookeeperStateMachinePersistTests extends AbstractZookeeperTests {
@@ -46,12 +52,117 @@ public class ZookeeperStateMachinePersistTests extends AbstractZookeeperTests {
 				curatorClient, "/KryoStateMachinePersistTests");
 
 		StateMachineContext<String, String> contextOut =
-				new DefaultStateMachineContext<String, String>("S1", "E1", null, null);
+				new DefaultStateMachineContext<String, String>("S1", "E1", new HashMap<String, Object>(), new DefaultExtendedState());
 		persist.write(contextOut, new Stat());
 		StateMachineContext<String, String> contextIn = persist.read(new Stat());
 
 		assertThat(contextOut.getState(), is(contextIn.getState()));
 		assertThat(contextOut.getEvent(), is(contextIn.getEvent()));
+	}
+
+	@Test
+	public void testEventHeaders() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+		curatorClient.create().forPath("/KryoStateMachinePersistTests");
+
+		StateMachinePersist<String, String, Stat> persist = new ZookeeperStateMachinePersist<String, String>(
+				curatorClient, "/KryoStateMachinePersistTests");
+
+		HashMap<String, Object> eventHeaders = new HashMap<String, Object>();
+		eventHeaders.put("foo", "jee");
+
+		StateMachineContext<String, String> contextOut =
+				new DefaultStateMachineContext<String, String>("S1", "E1", eventHeaders, new DefaultExtendedState());
+		persist.write(contextOut, new Stat());
+		StateMachineContext<String, String> contextIn = persist.read(new Stat());
+
+		assertThat(contextOut.getState(), is(contextIn.getState()));
+		assertThat(contextOut.getEvent(), is(contextIn.getEvent()));
+		assertThat(contextOut.getEventHeaders().get("foo"), is(contextIn.getEventHeaders().get("foo")));
+	}
+
+	@Test
+	public void testEventHeadersAsMessageHeaders() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+		curatorClient.create().forPath("/KryoStateMachinePersistTests");
+
+		StateMachinePersist<String, String, Stat> persist = new ZookeeperStateMachinePersist<String, String>(
+				curatorClient, "/KryoStateMachinePersistTests");
+
+		HashMap<String, Object> eventHeaders = new HashMap<String, Object>();
+		eventHeaders.put("foo", "jee");
+		MessageHeaders messageHeaders = new MessageHeaders(eventHeaders);
+
+		StateMachineContext<String, String> contextOut =
+				new DefaultStateMachineContext<String, String>("S1", "E1", messageHeaders, new DefaultExtendedState());
+		persist.write(contextOut, new Stat());
+		StateMachineContext<String, String> contextIn = persist.read(new Stat());
+
+		assertThat(contextOut.getState(), is(contextIn.getState()));
+		assertThat(contextOut.getEvent(), is(contextIn.getEvent()));
+		assertThat(contextOut.getEventHeaders().get("foo"), is(contextIn.getEventHeaders().get("foo")));
+	}
+
+	@Test
+	public void testExtendedState() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+		curatorClient.create().forPath("/KryoStateMachinePersistTests");
+
+		StateMachinePersist<String, String, Stat> persist = new ZookeeperStateMachinePersist<String, String>(
+				curatorClient, "/KryoStateMachinePersistTests");
+
+		HashMap<String, Object> eventHeaders = new HashMap<String, Object>();
+		HashMap<Object, Object> variables = new HashMap<Object, Object>();
+		variables.put("foo", "jee");
+
+		StateMachineContext<String, String> contextOut =
+				new DefaultStateMachineContext<String, String>("S1", "E1", eventHeaders, new DefaultExtendedState(variables));
+		persist.write(contextOut, new Stat());
+		StateMachineContext<String, String> contextIn = persist.read(new Stat());
+
+		assertThat(contextOut.getState(), is(contextIn.getState()));
+		assertThat(contextOut.getEvent(), is(contextIn.getEvent()));
+		assertThat(contextOut.getExtendedState().getVariables().get("foo"), is(contextIn.getExtendedState().getVariables().get("foo")));
+	}
+
+	@Test
+	public void testChilds() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+		curatorClient.create().forPath("/KryoStateMachinePersistTests");
+
+		StateMachinePersist<String, String, Stat> persist = new ZookeeperStateMachinePersist<String, String>(
+				curatorClient, "/KryoStateMachinePersistTests");
+
+		StateMachineContext<String, String> child =
+				new DefaultStateMachineContext<String, String>("S2", "E2", new HashMap<String, Object>(), new DefaultExtendedState());
+		List<StateMachineContext<String, String>> childs = new ArrayList<StateMachineContext<String, String>>();
+		childs.add(child);
+		StateMachineContext<String, String> contextOut =
+				new DefaultStateMachineContext<String, String>(childs, "S1", "E1", new HashMap<String, Object>(), new DefaultExtendedState());
+		persist.write(contextOut, new Stat());
+		StateMachineContext<String, String> contextIn = persist.read(new Stat());
+
+		assertThat(contextOut.getState(), is(contextIn.getState()));
+		assertThat(contextOut.getEvent(), is(contextIn.getEvent()));
+
+		assertThat(contextIn.getChilds().size(), is(1));
+		assertThat(contextIn.getChilds().get(0).getEvent(), is("E2"));
 	}
 
 }

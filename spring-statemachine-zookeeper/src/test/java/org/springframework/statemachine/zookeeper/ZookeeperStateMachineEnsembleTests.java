@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -34,6 +35,7 @@ import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.ensemble.EnsembleListeger;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.support.DefaultExtendedState;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.statemachine.transition.Transition;
 
@@ -73,8 +75,8 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 
 		assertThat(curatorClient.checkExists().forPath("/foo/data/current"), notNullValue());
 
-		ensemble.setState(new DefaultStateMachineContext<String, String>("S1","E1", null, null));
-		ensemble.setState(new DefaultStateMachineContext<String, String>("S2","E1", null, null));
+		ensemble.setState(new DefaultStateMachineContext<String, String>("S1","E1", new HashMap<String, Object>(), new DefaultExtendedState()));
+		ensemble.setState(new DefaultStateMachineContext<String, String>("S2","E1", new HashMap<String, Object>(), new DefaultExtendedState()));
 
 	}
 
@@ -109,7 +111,7 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 		assertThat(listener1.joinedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener2.joinedLatch.await(2, TimeUnit.SECONDS), is(true));
 
-		ensemble1.setState(new DefaultStateMachineContext<String, String>("S1", "E1", null, null));
+		ensemble1.setState(new DefaultStateMachineContext<String, String>("S1", "E1", new HashMap<String, Object>(), new DefaultExtendedState()));
 		assertThat(listener2.eventLatch.await(2, TimeUnit.SECONDS), is(true));
 	}
 

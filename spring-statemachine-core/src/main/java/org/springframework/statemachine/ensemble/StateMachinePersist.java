@@ -33,11 +33,11 @@ public interface StateMachinePersist<S, E, T> {
 	 * Write a {@link StateMachineContext} into a persistent store
 	 * with a context object {@code T}.
 	 *
-	 * @param contect the contect
+	 * @param context the context
 	 * @param contextOjb the context ojb
 	 * @throws Exception the exception
 	 */
-	void write(StateMachineContext<S, E> contect, T contextOjb) throws Exception;
+	void write(StateMachineContext<S, E> context, T contextOjb) throws Exception;
 
 	/**
 	 * Read a {@link StateMachineContext} from a persistent store

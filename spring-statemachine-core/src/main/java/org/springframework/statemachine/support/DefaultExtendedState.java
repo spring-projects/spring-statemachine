@@ -37,6 +37,15 @@ public class DefaultExtendedState implements ExtendedState {
 		this.variables = new HashMap<Object, Object>();
 	}
 
+	/**
+	 * Instantiates a new default extended state.
+	 *
+	 * @param variables the variables
+	 */
+	public DefaultExtendedState(Map<Object, Object> variables) {
+		this.variables = variables;
+	}
+
 	@Override
 	public Map<Object, Object> getVariables() {
 		return variables;
