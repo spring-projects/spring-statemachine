@@ -30,7 +30,7 @@ public class OnEventNotAcceptedEvent extends StateMachineEvent {
 	private final Message<?> event;
 
 	/**
-	 * Instantiates a new on state not accepted event.
+	 * Instantiates a new on event not accepted event.
 	 *
 	 * @param source the source
 	 * @param event the event
