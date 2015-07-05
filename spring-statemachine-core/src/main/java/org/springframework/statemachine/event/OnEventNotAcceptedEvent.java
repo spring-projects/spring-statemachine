@@ -51,7 +51,7 @@ public class OnEventNotAcceptedEvent extends StateMachineEvent {
 
 	@Override
 	public String toString() {
-		return "OnStateNotAcceptedEvent [event=" + event + "]";
+		return "OnEventNotAcceptedEvent [event=" + event + "]";
 	}
 
 }
