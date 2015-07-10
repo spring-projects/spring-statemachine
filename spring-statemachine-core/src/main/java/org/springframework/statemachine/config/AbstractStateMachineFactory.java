@@ -348,9 +348,12 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 				continue;
 			}
 			if (stateMachine != null) {
+				PseudoState<S, E> pseudoState = null;
+				if (stateData.isInitial()) {
+					pseudoState = new DefaultPseudoState<S, E>(PseudoStateKind.INITIAL);
+				}
 				state = new StateMachineState<S, E>(stateData.getState(), stateMachine, stateData.getDeferred(),
-				stateData.getEntryActions(), stateData.getExitActions(), new DefaultPseudoState<S, E>(
-				PseudoStateKind.INITIAL));
+						stateData.getEntryActions(), stateData.getExitActions(), pseudoState);
 				// TODO: below if/else doesn't feel right
 				if (stateDatas.size() > 1 && stateData.isInitial()) {
 					initialState = state;

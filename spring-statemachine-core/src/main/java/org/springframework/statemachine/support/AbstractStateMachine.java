@@ -265,6 +265,9 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	protected void doStart() {
 		// if state is set assume nothing to do
 		if (currentState != null) {
+			if (log.isDebugEnabled()) {
+				log.debug("State already set, disabling initial");
+			}
 			stateMachineExecutor.setInitialEnabled(false);
 			stateMachineExecutor.start();
 			return;
@@ -272,6 +275,9 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		registerPseudoStateListener();
 
 		if (initialEnabled != null && !initialEnabled) {
+			if (log.isDebugEnabled()) {
+				log.debug("Initial disable asked, disabling initial");
+			}
 			stateMachineExecutor.setInitialEnabled(false);
 		}
 
@@ -326,9 +332,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	@Override
 	public void setInitialEnabled(boolean enabled) {
-		if (initialEnabled == null) {
-			initialEnabled = enabled;
-		}
+		initialEnabled = enabled;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -554,7 +558,12 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			if (isTargetSubOf && currentState == transition.getTarget()) {
 				state = transition.getSource();
 			}
+//			else if (currentState == null && StateMachineUtils.isSubstate(findDeep, state)) {
+//				state = findDeep;
+//			}
 		}
+
+		boolean nonDeepStatePresent = false;
 
 		if (states.contains(state)) {
 			if (exit) {
@@ -567,7 +576,21 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			}
 			entryToState(state, message, transition, stateMachine);
 			notifyStateChanged(notifyFrom, state);
-		} else if (currentState != null) {
+			nonDeepStatePresent = true;
+		} else if (currentState == null && StateMachineUtils.isSubstate(findDeep, state)) {
+			if (exit) {
+				exitCurrentState(findDeep, message, transition, stateMachine);
+			}
+			State<S, E> notifyFrom = currentState;
+			currentState = findDeep;
+			if (!isRunning()) {
+				start();
+			}
+			entryToState(findDeep, message, transition, stateMachine);
+			notifyStateChanged(notifyFrom, findDeep);
+		}
+
+		if (currentState != null && !nonDeepStatePresent) {
 			if (findDeep != null) {
 				if (exit) {
 					exitCurrentState(state, message, transition, stateMachine);
@@ -603,9 +626,12 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 						}
 					}
 				}
-				boolean shouldEntry = findDeep != currentState;
+				boolean shouldTryEntry = findDeep != currentState;
+				if (!shouldTryEntry && (transition.getSource() == currentState && StateMachineUtils.isSubstate(currentState, transition.getTarget()))) {
+					shouldTryEntry = true;
+				}
 				currentState = findDeep;
-				if (shouldEntry) {
+				if (shouldTryEntry) {
 					entryToState(currentState, message, transition, stateMachine);
 				}
 
@@ -654,7 +680,6 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 			State<S, E> findDeep = findDeepParent(transition.getTarget());
 			boolean isTargetSubOfOtherState = findDeep != null && findDeep != currentState;
-			boolean isTargetSubOfSource = StateMachineUtils.isSubstate(transition.getSource(), transition.getTarget());
 			boolean isSubOfSource = StateMachineUtils.isSubstate(transition.getSource(), currentState);
 			boolean isSubOfTarget = StateMachineUtils.isSubstate(transition.getTarget(), currentState);
 
@@ -666,11 +691,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			} else if (!isSubOfSource && !isSubOfTarget && currentState == transition.getTarget()) {
 			} else if (isTargetSubOfOtherState) {
 			} else if (!isSubOfSource && !isSubOfTarget && findDeep == null) {
+			} else if (!isSubOfSource && !isSubOfTarget && (transition.getSource() == currentState && StateMachineUtils.isSubstate(currentState, transition.getTarget()))) {
 			} else if (!isSubOfSource && !isSubOfTarget) {
-				return;
-			}
-
-			if (transition.getSource() == currentState && isTargetSubOfSource) {
 				return;
 			}
 
@@ -700,7 +722,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			} else if (isComingFromOtherSubmachine) {
 			} else if (!isSubOfSource && !isSubOfTarget && findDeep2 == null) {
 			} else if (isSubOfSource && !isSubOfTarget && currentState == transition.getTarget()) {
-				return;
+			} else if (!isSubOfSource && !isSubOfTarget && (transition.getSource() == currentState && StateMachineUtils.isSubstate(currentState, transition.getTarget()))) {
 			} else if (!isSubOfSource && !isSubOfTarget) {
 				return;
 			}

@@ -146,9 +146,9 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		assertThat(entryActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(exitActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
 
-		assertThat(entryActionS11.stateContexts.size(), is(1));
-		assertThat(exitActionS11.stateContexts.size(), is(1));
-		assertThat(entryActionS11.stateContexts.size(), is(1));
+		assertThat(entryActionS111.stateContexts.size(), is(2));
+		assertThat(exitActionS111.stateContexts.size(), is(1));
+		assertThat(entryActionS11.stateContexts.size(), is(2));
 		assertThat(exitActionS11.stateContexts.size(), is(1));
 		assertThat(entryActionS1.stateContexts.size(), is(1));
 		assertThat(exitActionS1.stateContexts.size(), is(1));
@@ -336,9 +336,9 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		assertThat(entryActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(exitActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));
 
-		assertThat(entryActionS11.stateContexts.size(), is(1));
-		assertThat(exitActionS11.stateContexts.size(), is(1));
-		assertThat(entryActionS11.stateContexts.size(), is(1));
+		assertThat(entryActionS111.stateContexts.size(), is(2));
+		assertThat(exitActionS111.stateContexts.size(), is(1));
+		assertThat(entryActionS11.stateContexts.size(), is(2));
 		assertThat(exitActionS11.stateContexts.size(), is(1));
 		assertThat(entryActionS1.stateContexts.size(), is(1));
 		assertThat(exitActionS1.stateContexts.size(), is(0));
@@ -371,9 +371,9 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		assertThat(entryActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(exitActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
 
-		assertThat(entryActionS11.stateContexts.size(), is(1));
-		assertThat(exitActionS11.stateContexts.size(), is(1));
-		assertThat(entryActionS11.stateContexts.size(), is(1));
+		assertThat(entryActionS111.stateContexts.size(), is(2));
+		assertThat(exitActionS111.stateContexts.size(), is(1));
+		assertThat(entryActionS11.stateContexts.size(), is(2));
 		assertThat(exitActionS11.stateContexts.size(), is(1));
 		assertThat(entryActionS1.stateContexts.size(), is(1));
 		assertThat(exitActionS1.stateContexts.size(), is(1));

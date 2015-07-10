@@ -162,44 +162,48 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 			}
 		}
 
-		if (getPseudoState() != null && getPseudoState().getKind() == PseudoStateKind.INITIAL) {
-			// disable initial state if it looks like we're about
-			// to transit directory into a non initial state
-			// we do transit via initial state if we're returning
-			// via history state
-			boolean initialEnabled = true;
-			if (context.getTransition() != null) {
-				State<S, E> target = context.getTransition().getTarget();
-				PseudoStateKind kind = target.getPseudoState() != null ? target.getPseudoState().getKind() : null;
-				State<S, E> findDeepParent = findDeepParent(getSubmachine().getStates(), target);
-				if (findDeepParent != null && findDeepParent.isSubmachineState()) {
-					((StateMachineState<S, E>) findDeepParent).getSubmachine().getStateMachineAccessor()
-							.doWithRegion(new StateMachineFunction<StateMachineAccess<S, E>>() {
+		if (context.getTransition() != null) {
+			State<S, E> target = context.getTransition().getTarget();
+			State<S, E> immediateDeepParent = findDeepParent(getSubmachine().getStates(), target);
 
-								@Override
-								public void apply(StateMachineAccess<S, E> function) {
-									function.setInitialEnabled(false);
-								}
-							});
-				}
-				if (getSubmachine().getStates().contains(target) && kind != PseudoStateKind.HISTORY_SHALLOW
-						&& kind != PseudoStateKind.HISTORY_DEEP) {
-					initialEnabled = false;
-				}
+			// disable initial state where needed
+			if (immediateDeepParent != null && immediateDeepParent.isSubmachineState() && ( !isInitial(target) ) ) {
+
+				((StateMachineState<S, E>) immediateDeepParent).getSubmachine().getStateMachineAccessor()
+						.doWithRegion(new StateMachineFunction<StateMachineAccess<S, E>>() {
+
+							@Override
+							public void apply(StateMachineAccess<S, E> function) {
+								function.setInitialEnabled(false);
+							}
+						});
 
 			}
-			// need final for state machine access
-			final boolean enabled = initialEnabled;
-			getSubmachine().getStateMachineAccessor().doWithRegion(
-					new StateMachineFunction<StateMachineAccess<S, E>>() {
+			if (immediateDeepParent != null && !isInitial(immediateDeepParent)) {
+				getSubmachine().getStateMachineAccessor().doWithRegion(
+						new StateMachineFunction<StateMachineAccess<S, E>>() {
 
-						@Override
-						public void apply(StateMachineAccess<S, E> function) {
-							function.setInitialEnabled(enabled);
-						}
-					});
-			getSubmachine().start();
+							@Override
+							public void apply(StateMachineAccess<S, E> function) {
+								function.setInitialEnabled(false);
+							}
+						});
+			} else if (immediateDeepParent != null && isInitial(immediateDeepParent) && isInitial(target)) {
+				((StateMachineState<S, E>) immediateDeepParent).getSubmachine().getStateMachineAccessor().doWithRegion(
+						new StateMachineFunction<StateMachineAccess<S, E>>() {
+
+							@Override
+							public void apply(StateMachineAccess<S, E> function) {
+								function.setInitialEnabled(false);
+							}
+						});
+			}
 		}
+		getSubmachine().start();
+	}
+
+	private boolean isInitial(State<S, E> state) {
+		return state.getPseudoState() != null && state.getPseudoState().getKind() == PseudoStateKind.INITIAL;
 	}
 
 	private State<S, E> findDeepParent(Collection<State<S, E>> states, State<S, E> state) {

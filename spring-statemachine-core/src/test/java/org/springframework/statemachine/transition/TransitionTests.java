@@ -200,7 +200,7 @@ public class TransitionTests extends AbstractStateMachineTests {
 		listener.reset(0, 2);
 		machine.sendEvent(TestEvents2.PAUSE);
 		assertThat(listener.stateEnteredLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateEnteredCount, is(2));
+		assertThat(listener.stateEnteredCount, is(3));
 		assertThat(machine.getState().getIds(), contains(TestStates2.BUSY, TestStates2.PAUSED));
 	}
 
@@ -221,10 +221,10 @@ public class TransitionTests extends AbstractStateMachineTests {
 		assertThat(listener.stateChangedCount, is(2));
 		assertThat(machine.getState().getIds(), contains(TestStates2.IDLE, TestStates2.CLOSED));
 
-		listener.reset(0, 4);
+		listener.reset(0, 3);
 		machine.sendEvent(TestEvents2.PAUSE);
 		assertThat(listener.stateEnteredLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateEnteredCount, is(4));
+		assertThat(listener.stateEnteredCount, is(3));
 		assertThat(machine.getState().getIds(), contains(TestStates2.BUSY, TestStates2.PAUSED, TestStates2.PAUSED2));
 	}
 
