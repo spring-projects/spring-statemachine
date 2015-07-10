@@ -188,6 +188,11 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			stateStack.push(stateData);
 		}
 
+		// setup autostart for top-level machine
+		if (machine instanceof LifecycleObjectSupport) {
+			((LifecycleObjectSupport)machine).setAutoStartup(stateMachineConfigurationConfig.isAutoStart());
+		}
+
 		// set top-level machine as relay
 		final StateMachine<S, E> fmachine = machine;
 		fmachine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<S, E>>() {

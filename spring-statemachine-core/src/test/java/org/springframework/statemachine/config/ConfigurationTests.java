@@ -16,6 +16,7 @@
 package org.springframework.statemachine.config;
 
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -34,6 +35,7 @@ import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
@@ -107,6 +109,16 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		assertThat(machine, notNullValue());
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	@Test
+	public void testAutoStartFlagOn() throws Exception {
+		context.register(Config9.class);
+		context.refresh();
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		assertThat(machine.isAutoStartup(), is(true));
 	}
 
 	@Configuration
@@ -426,6 +438,27 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 						.parent(TestStates.S10)
 						.initial(TestStates.S111)
 						.state(TestStates.S111);
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config9 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
+			config
+				.withConfiguration()
+					.autoStart(true);
+		}
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.states(EnumSet.allOf(TestStates.class));
 		}
 
 	}

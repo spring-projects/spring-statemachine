@@ -42,6 +42,7 @@ public class StateMachineConfigurationBuilder<S, E>
 	private BeanFactory beanFactory;
 	private TaskExecutor taskExecutor;
 	private TaskScheduler taskScheculer;
+	private boolean autoStart = false;
 	private StateMachineEnsemble<S, E> ensemble;
 
 	/**
@@ -83,7 +84,7 @@ public class StateMachineConfigurationBuilder<S, E>
 
 	@Override
 	protected StateMachineConfigurationConfig<S, E> performBuild() throws Exception {
-		return new StateMachineConfigurationConfig<>(beanFactory, taskExecutor, taskScheculer, ensemble);
+		return new StateMachineConfigurationConfig<>(beanFactory, taskExecutor, taskScheculer, autoStart, ensemble);
 	}
 
 	/**
@@ -120,6 +121,15 @@ public class StateMachineConfigurationBuilder<S, E>
 	 */
 	public void setStateMachineEnsemble(StateMachineEnsemble<S, E> ensemble) {
 		this.ensemble = ensemble;
+	}
+
+	/**
+	 * Sets the auto start.
+	 *
+	 * @param autoStart the new autostart flag
+	 */
+	public void setAutoStart(boolean autoStart) {
+		this.autoStart = autoStart;
 	}
 
 }

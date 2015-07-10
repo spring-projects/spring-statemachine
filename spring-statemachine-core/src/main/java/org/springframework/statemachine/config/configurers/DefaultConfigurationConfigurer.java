@@ -38,12 +38,14 @@ public class DefaultConfigurationConfigurer<S, E>
 	private BeanFactory beanFactory;
 	private TaskExecutor taskExecutor;
 	private TaskScheduler taskScheculer;
+	private boolean autoStart = false;
 
 	@Override
 	public void configure(StateMachineConfigurationBuilder<S, E> builder) throws Exception {
 		builder.setBeanFactory(beanFactory);
 		builder.setTaskExecutor(taskExecutor);
 		builder.setTaskScheculer(taskScheculer);
+		builder.setAutoStart(autoStart);
 	}
 
 	@Override
@@ -61,6 +63,12 @@ public class DefaultConfigurationConfigurer<S, E>
 	@Override
 	public ConfigurationConfigurer<S, E> taskScheduler(TaskScheduler taskScheduler) {
 		this.taskScheculer = taskScheduler;
+		return this;
+	}
+
+	@Override
+	public ConfigurationConfigurer<S, E> autoStart(boolean autoStart) {
+		this.autoStart = autoStart;
 		return this;
 	}
 

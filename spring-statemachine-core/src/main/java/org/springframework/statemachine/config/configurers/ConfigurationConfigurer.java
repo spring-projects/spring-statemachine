@@ -56,4 +56,13 @@ public interface ConfigurationConfigurer<S, E> extends
 	 */
 	ConfigurationConfigurer<S, E> taskScheduler(TaskScheduler taskScheduler);
 
+	/**
+	 * Specify if state machine should be started automatically.
+	 * On default state machine is not started automatically.
+	 *
+	 * @param autoStart the autostart flag
+	 * @return configurer for chaining
+	 */
+	ConfigurationConfigurer<S, E> autoStart(boolean autoStart);
+
 }

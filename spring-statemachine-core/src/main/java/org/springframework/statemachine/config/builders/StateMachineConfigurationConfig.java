@@ -33,6 +33,7 @@ public class StateMachineConfigurationConfig<S, E> {
 	private final BeanFactory beanFactory;
 	private final TaskExecutor taskExecutor;
 	private final TaskScheduler taskScheduler;
+	private final boolean autoStart;
 	private final StateMachineEnsemble<S, E> ensemble;
 
 	/**
@@ -41,13 +42,15 @@ public class StateMachineConfigurationConfig<S, E> {
 	 * @param beanFactory the bean factory
 	 * @param taskExecutor the task executor
 	 * @param taskScheduler the task scheduler
+	 * @param autoStart the autostart flag
 	 * @param ensemble the state machine ensemble
 	 */
 	public StateMachineConfigurationConfig(BeanFactory beanFactory, TaskExecutor taskExecutor,
-			TaskScheduler taskScheduler, StateMachineEnsemble<S, E> ensemble) {
+			TaskScheduler taskScheduler, boolean autoStart, StateMachineEnsemble<S, E> ensemble) {
 		this.beanFactory = beanFactory;
 		this.taskExecutor = taskExecutor;
 		this.taskScheduler = taskScheduler;
+		this.autoStart = autoStart;
 		this.ensemble = ensemble;
 	}
 
@@ -87,4 +90,12 @@ public class StateMachineConfigurationConfig<S, E> {
 		return ensemble;
 	}
 
+	/**
+	 * Returns autostart flag.
+	 *
+	 * @return true, if is autostart is enabled.
+	 */
+	public boolean isAutoStart() {
+		return autoStart;
+	}
 }
