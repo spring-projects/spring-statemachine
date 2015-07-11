@@ -213,6 +213,8 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		if (stateMachineConfigurationConfig.getStateMachineEnsemble() != null) {
 			DistributedStateMachine<S, E> distributedStateMachine = new DistributedStateMachine<>(
 					stateMachineConfigurationConfig.getStateMachineEnsemble(), machine);
+			distributedStateMachine.setAutoStartup(stateMachineConfigurationConfig.isAutoStart());
+			distributedStateMachine.afterPropertiesSet();
 			machine = distributedStateMachine;
 		}
 
