@@ -114,6 +114,7 @@ public class StateMachineBuilder {
 				StateMachineConfigurationConfig<S, E> stateMachineConfigurationConfig = stateMachineConfig.getStateMachineConfigurationConfig();
 				ObjectStateMachineFactory<S, E> stateMachineFactory = new ObjectStateMachineFactory<S, E>(
 						stateMachineConfigurationConfig, stateMachineTransitions, stateMachineStates);
+				stateMachineFactory.setHandleAutostartup(stateMachineConfigurationConfig.isAutoStart());
 
 				if (stateMachineConfigurationConfig.getBeanFactory() != null) {
 					stateMachineFactory.setBeanFactory(stateMachineConfigurationConfig.getBeanFactory());
@@ -124,7 +125,6 @@ public class StateMachineBuilder {
 				if (stateMachineConfigurationConfig.getTaskScheduler() != null) {
 					stateMachineFactory.setTaskScheduler(stateMachineConfigurationConfig.getTaskScheduler());
 				}
-
 				return stateMachineFactory.getStateMachine();
 			} catch (Exception e) {
 				throw new StateMachineException("Error building state machine", e);

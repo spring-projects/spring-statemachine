@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import java.util.Stack;
 
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.Message;
 import org.springframework.scheduling.TaskScheduler;
@@ -84,6 +85,8 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 	private final StateMachineConfigurationConfig<S,E> stateMachineConfigurationConfig;
 
 	private Boolean contextEvents;
+
+	private boolean handleAutostartup = false;
 
 	/**
 	 * Instantiates a new enum state machine factory.
@@ -213,11 +216,22 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			machine = distributedStateMachine;
 		}
 
-		return machine;
+		return delegateAutoStartup(machine);
+	}
+
+	public void setHandleAutostartup(boolean handleAutostartup) {
+		this.handleAutostartup = handleAutostartup;
 	}
 
 	public void setContextEventsEnabled(Boolean contextEvents) {
 		this.contextEvents = contextEvents;
+	}
+
+	private StateMachine<S, E> delegateAutoStartup(StateMachine<S, E> delegate) {
+		if (handleAutostartup && delegate instanceof SmartLifecycle && ((SmartLifecycle) delegate).isAutoStartup()) {
+			((SmartLifecycle)delegate).start();
+		}
+		return delegate;
 	}
 
 	private BeanFactory resolveBeanFactory() {

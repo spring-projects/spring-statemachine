@@ -60,9 +60,9 @@ public interface ConfigurationConfigurer<S, E> extends
 	 * Specify if state machine should be started automatically.
 	 * On default state machine is not started automatically.
 	 *
-	 * @param autoStart the autostart flag
+	 * @param autoStartup the autoStartup flag
 	 * @return configurer for chaining
 	 */
-	ConfigurationConfigurer<S, E> autoStart(boolean autoStart);
+	ConfigurationConfigurer<S, E> autoStartup(boolean autoStartup);
 
 }

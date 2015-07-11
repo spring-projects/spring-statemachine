@@ -119,6 +119,7 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		assertThat(machine.isAutoStartup(), is(true));
+		assertThat(machine.isRunning(), is(true));
 	}
 
 	@Configuration
@@ -450,7 +451,7 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
 			config
 				.withConfiguration()
-					.autoStart(true);
+					.autoStartup(true);
 		}
 
 		@Override

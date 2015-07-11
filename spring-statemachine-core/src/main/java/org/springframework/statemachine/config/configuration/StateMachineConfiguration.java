@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
@@ -66,10 +67,12 @@ public class StateMachineConfiguration<S extends Enum<S>, E extends Enum<E>> ext
 	}
 
 	private static class StateMachineDelegatingFactoryBean<S extends Enum<S>, E extends Enum<E>>
-		extends BeanDelegatingFactoryBean<StateMachine<S, E>,StateMachineConfigBuilder<S, E>,StateMachineConfig<S, E>> {
+		extends BeanDelegatingFactoryBean<StateMachine<S, E>,StateMachineConfigBuilder<S, E>,StateMachineConfig<S, E>>
+		implements SmartLifecycle {
 
 		private String clazzName;
 		private Boolean contextEvents;
+		private SmartLifecycle lifecycle;
 
 		public StateMachineDelegatingFactoryBean(StateMachineConfigBuilder<S, E> builder, Class<StateMachine<S, E>> clazz,
 				String clazzName, Boolean contextEvents) {
@@ -94,7 +97,39 @@ public class StateMachineConfiguration<S extends Enum<S>, E extends Enum<E>> ext
 					stateMachineConfigurationConfig, stateMachineTransitions, stateMachineStates);
 			stateMachineFactory.setBeanFactory(getBeanFactory());
 			stateMachineFactory.setContextEventsEnabled(contextEvents);
-			setObject(stateMachineFactory.getStateMachine());
+			StateMachine<S, E> stateMachine = stateMachineFactory.getStateMachine();
+			this.lifecycle = (SmartLifecycle) stateMachine;
+			setObject(stateMachine);
+		}
+
+		@Override
+		public void start() {
+			lifecycle.start();
+		}
+
+		@Override
+		public void stop() {
+			lifecycle.stop();
+		}
+
+		@Override
+		public boolean isRunning() {
+			return lifecycle.isRunning();
+		}
+
+		@Override
+		public int getPhase() {
+			return 0;
+		}
+
+		@Override
+		public boolean isAutoStartup() {
+			return lifecycle.isAutoStartup();
+		}
+
+		@Override
+		public void stop(Runnable callback) {
+			lifecycle.stop(callback);
 		}
 
 	}

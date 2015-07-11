@@ -67,7 +67,7 @@ public class DefaultConfigurationConfigurer<S, E>
 	}
 
 	@Override
-	public ConfigurationConfigurer<S, E> autoStart(boolean autoStart) {
+	public ConfigurationConfigurer<S, E> autoStartup(boolean autoStart) {
 		this.autoStart = autoStart;
 		return this;
 	}

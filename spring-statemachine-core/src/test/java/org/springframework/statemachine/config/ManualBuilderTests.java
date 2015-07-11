@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.springframework.beans.factory.support.StaticListableBeanFactory;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.statemachine.StateMachine;
@@ -135,6 +136,33 @@ public class ManualBuilderTests {
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(stateMachine, notNullValue());
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+	}
+
+	@Test
+	public void testAutoStartFlagOn() throws Exception {
+		Builder<String, String> builder = StateMachineBuilder.builder();
+
+		builder.configureConfiguration()
+			.withConfiguration()
+				.autoStartup(true)
+				.taskExecutor(new SyncTaskExecutor())
+				.taskScheduler(new ConcurrentTaskScheduler());
+
+		builder.configureStates()
+			.withStates()
+				.initial("S1").state("S2");
+
+		builder.configureTransitions()
+			.withExternal()
+				.source("S1").target("S2").event("E1")
+				.and()
+			.withExternal()
+				.source("S2").target("S1").event("E2");
+
+		StateMachine<String, String> stateMachine = builder.build();
+
+		assertThat(((SmartLifecycle)stateMachine).isAutoStartup(), is(true));
+		assertThat(((SmartLifecycle)stateMachine).isRunning(), is(true));
 	}
 
 	static class Config extends StateMachineConfigurerAdapter<String, String> {
