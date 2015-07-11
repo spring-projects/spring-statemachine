@@ -15,6 +15,9 @@
  */
 package org.springframework.statemachine.config.builders;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
@@ -26,6 +29,7 @@ import org.springframework.statemachine.config.configurers.DefaultConfigurationC
 import org.springframework.statemachine.config.configurers.DefaultDistributedStateMachineConfigurer;
 import org.springframework.statemachine.config.configurers.DistributedStateMachineConfigurer;
 import org.springframework.statemachine.ensemble.StateMachineEnsemble;
+import org.springframework.statemachine.listener.StateMachineListener;
 
 /**
  * {@link AnnotationBuilder} for {@link StateMachineStates}.
@@ -44,6 +48,7 @@ public class StateMachineConfigurationBuilder<S, E>
 	private TaskScheduler taskScheculer;
 	private boolean autoStart = false;
 	private StateMachineEnsemble<S, E> ensemble;
+	private final List<StateMachineListener<S, E>> listeners = new ArrayList<StateMachineListener<S, E>>();
 
 	/**
 	 * Instantiates a new state machine configuration builder.
@@ -84,7 +89,7 @@ public class StateMachineConfigurationBuilder<S, E>
 
 	@Override
 	protected StateMachineConfigurationConfig<S, E> performBuild() throws Exception {
-		return new StateMachineConfigurationConfig<>(beanFactory, taskExecutor, taskScheculer, autoStart, ensemble);
+		return new StateMachineConfigurationConfig<>(beanFactory, taskExecutor, taskScheculer, autoStart, ensemble, listeners);
 	}
 
 	/**
@@ -130,6 +135,16 @@ public class StateMachineConfigurationBuilder<S, E>
 	 */
 	public void setAutoStart(boolean autoStart) {
 		this.autoStart = autoStart;
+	}
+
+	/**
+	 * Sets the state machine listeners.
+	 *
+	 * @param listeners the listeners
+	 */
+	public void setStateMachineListeners(List<StateMachineListener<S, E>> listeners) {
+		this.listeners.clear();
+		this.listeners.addAll(listeners);
 	}
 
 }

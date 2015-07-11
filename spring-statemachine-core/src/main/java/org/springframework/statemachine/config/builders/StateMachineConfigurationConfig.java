@@ -15,10 +15,13 @@
  */
 package org.springframework.statemachine.config.builders;
 
+import java.util.List;
+
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.statemachine.ensemble.StateMachineEnsemble;
+import org.springframework.statemachine.listener.StateMachineListener;
 
 /**
  * Configuration object used to keep things together in {@link StateMachineConfigurationBuilder}.
@@ -35,6 +38,7 @@ public class StateMachineConfigurationConfig<S, E> {
 	private final TaskScheduler taskScheduler;
 	private final boolean autoStart;
 	private final StateMachineEnsemble<S, E> ensemble;
+	private final List<StateMachineListener<S, E>> listeners;
 
 	/**
 	 * Instantiates a new state machine configuration config.
@@ -44,14 +48,17 @@ public class StateMachineConfigurationConfig<S, E> {
 	 * @param taskScheduler the task scheduler
 	 * @param autoStart the autostart flag
 	 * @param ensemble the state machine ensemble
+	 * @param listeners the state machine listeners
 	 */
 	public StateMachineConfigurationConfig(BeanFactory beanFactory, TaskExecutor taskExecutor,
-			TaskScheduler taskScheduler, boolean autoStart, StateMachineEnsemble<S, E> ensemble) {
+			TaskScheduler taskScheduler, boolean autoStart, StateMachineEnsemble<S, E> ensemble,
+			List<StateMachineListener<S, E>> listeners) {
 		this.beanFactory = beanFactory;
 		this.taskExecutor = taskExecutor;
 		this.taskScheduler = taskScheduler;
 		this.autoStart = autoStart;
 		this.ensemble = ensemble;
+		this.listeners = listeners;
 	}
 
 	/**
@@ -98,4 +105,14 @@ public class StateMachineConfigurationConfig<S, E> {
 	public boolean isAutoStart() {
 		return autoStart;
 	}
+
+	/**
+	 * Gets the state machine listeners.
+	 *
+	 * @return the state machine listeners
+	 */
+	public List<StateMachineListener<S, E>> getStateMachineListeners() {
+		return listeners;
+	}
+
 }

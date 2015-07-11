@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.List;
 
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -34,10 +35,12 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
+import org.springframework.statemachine.TestUtils;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 
 /**
  * Tests for state machine configuration.
@@ -120,6 +123,19 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		assertThat(machine.isAutoStartup(), is(true));
 		assertThat(machine.isRunning(), is(true));
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	@Test
+	public void testRegisterListeners() throws Exception {
+		context.register(Config10.class);
+		context.refresh();
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		Object o1 = TestUtils.readField("stateListener", machine);
+		Object o2 = TestUtils.readField("listeners", o1);
+		Object o3 = TestUtils.readField("list", o2);
+		assertThat(((List<?>)o3).size(), is(2));
 	}
 
 	@Configuration
@@ -452,6 +468,28 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 			config
 				.withConfiguration()
 					.autoStartup(true);
+		}
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.states(EnumSet.allOf(TestStates.class));
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config10 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
+			config
+				.withConfiguration()
+					.listener(new StateMachineListenerAdapter<TestStates, TestEvents>())
+					.listener(new StateMachineListenerAdapter<TestStates, TestEvents>());
 		}
 
 		@Override

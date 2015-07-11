@@ -19,7 +19,9 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
+import org.springframework.statemachine.config.builders.StateMachineConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerBuilder;
+import org.springframework.statemachine.listener.StateMachineListener;
 
 /**
  * Base {@code ConfigConfigurer} interface for configuring generic config.
@@ -64,5 +66,15 @@ public interface ConfigurationConfigurer<S, E> extends
 	 * @return configurer for chaining
 	 */
 	ConfigurationConfigurer<S, E> autoStartup(boolean autoStartup);
+
+	/**
+	 * Specify a {@link StateMachineListener} to be registered
+	 * with a state machine. This method can be called multiple times
+	 * to register multiple listeners.
+	 *
+	 * @param listener the listener to register
+	 * @return the configuration configurer
+	 */
+	ConfigurationConfigurer<S, E> listener(StateMachineListener<S, E> listener);
 
 }

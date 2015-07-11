@@ -40,6 +40,7 @@ import org.springframework.statemachine.config.builders.StateMachineTransitions;
 import org.springframework.statemachine.config.builders.StateMachineTransitions.ChoiceData;
 import org.springframework.statemachine.config.builders.StateMachineTransitions.TransitionData;
 import org.springframework.statemachine.ensemble.DistributedStateMachine;
+import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.ChoicePseudoState;
 import org.springframework.statemachine.state.ChoicePseudoState.ChoiceStateData;
@@ -216,6 +217,10 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			distributedStateMachine.setAutoStartup(stateMachineConfigurationConfig.isAutoStart());
 			distributedStateMachine.afterPropertiesSet();
 			machine = distributedStateMachine;
+		}
+
+		for (StateMachineListener<S, E> listener : stateMachineConfigurationConfig.getStateMachineListeners()) {
+			machine.addStateListener(listener);
 		}
 
 		return delegateAutoStartup(machine);

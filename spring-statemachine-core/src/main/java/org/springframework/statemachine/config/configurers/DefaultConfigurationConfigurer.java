@@ -15,6 +15,9 @@
  */
 package org.springframework.statemachine.config.configurers;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
@@ -22,6 +25,7 @@ import org.springframework.statemachine.config.builders.StateMachineConfiguratio
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfig;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerAdapter;
+import org.springframework.statemachine.listener.StateMachineListener;
 
 /**
  * Default implementation of a {@link ConfigurationConfigurer}.
@@ -39,6 +43,7 @@ public class DefaultConfigurationConfigurer<S, E>
 	private TaskExecutor taskExecutor;
 	private TaskScheduler taskScheculer;
 	private boolean autoStart = false;
+	private final List<StateMachineListener<S, E>> listeners = new ArrayList<StateMachineListener<S, E>>();
 
 	@Override
 	public void configure(StateMachineConfigurationBuilder<S, E> builder) throws Exception {
@@ -46,6 +51,7 @@ public class DefaultConfigurationConfigurer<S, E>
 		builder.setTaskExecutor(taskExecutor);
 		builder.setTaskScheculer(taskScheculer);
 		builder.setAutoStart(autoStart);
+		builder.setStateMachineListeners(listeners);
 	}
 
 	@Override
@@ -69,6 +75,12 @@ public class DefaultConfigurationConfigurer<S, E>
 	@Override
 	public ConfigurationConfigurer<S, E> autoStartup(boolean autoStart) {
 		this.autoStart = autoStart;
+		return this;
+	}
+
+	@Override
+	public ConfigurationConfigurer<S, E> listener(StateMachineListener<S, E> listener) {
+		this.listeners.add(listener);
 		return this;
 	}
 
