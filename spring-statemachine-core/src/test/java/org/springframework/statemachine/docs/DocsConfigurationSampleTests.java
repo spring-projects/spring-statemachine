@@ -24,14 +24,17 @@ import java.util.EnumSet;
 import java.util.HashSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.StaticListableBeanFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
@@ -46,6 +49,7 @@ import org.springframework.statemachine.config.StateMachineBuilder;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.config.StateMachineBuilder.Builder;
+import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.StateConfigurer.History;
@@ -730,5 +734,26 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // end::snippetVD[]
 
 	}
+
+// tag::snippetY[]
+		@Configuration
+		@EnableStateMachine
+		public static class Config17
+				extends EnumStateMachineConfigurerAdapter<States, Events> {
+
+			@Override
+			public void configure(StateMachineConfigurationConfigurer<States, Events> config)
+					throws Exception {
+				config
+					.withConfiguration()
+						.autoStartup(true)
+						.beanFactory(new StaticListableBeanFactory())
+						.taskExecutor(new SyncTaskExecutor())
+						.taskScheduler(new ConcurrentTaskScheduler())
+						.listener(new StateMachineListenerAdapter<States, Events>());
+			}
+
+		}
+// end::snippetY[]
 
 }

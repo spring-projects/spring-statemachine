@@ -144,7 +144,7 @@ This can be done max one time per individual sub-machine or region.
 
 [source,java,indent=0]
 ----
-include::samples/DocsConfigurationSampleTests.java[tags=snippetA]
+include::samples/DocsConfigurationSampleTests.java[tags=snippetAA]
 ----
 
 ==== History State
@@ -208,6 +208,34 @@ states from a regions.
 include::samples/DocsConfigurationSampleTests.java[tags=snippetU]
 ----
 
+=== Configuring Common Settings
+Some of a common state machine configuration can be set via a
+`ConfigurationConfigurer`. This allows to set `BeanFactory`,
+`TaskExecutor`, `TaskScheduler`, autostart flag for a state machine
+and register `StateMachineListener` instances.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetY]
+----
+
+State machine `autoStartup` flag is disabled by default because all
+instances handling sub-states are controlled by a state machine itself
+and cannot be started automatically. Also it is much safer to leave
+this decision to a user whether a machine should be started
+automatically or not. This flag will only control an autostart of a
+top-level state machine.
+
+Setting a `BeanFactory`, `TaskExecutor` or `TaskScheduler` exist for
+conveniance for a user and are also use within a framework itself.
+
+Registering `StateMachineListener` instances is also partly for
+convenience but is required if user wants to catch callback during a
+state machine lifecycle like getting notified of a state machine
+start/stop events. Naturally it is not possible to listen a state
+machine start events if `autoStartup` is enabled unless listener can
+be registered during a configuration phase.
+
 [[sm-factories]]
 == State Machine Factories
 There are use cases when state machine needs to be created dynamically
@@ -248,7 +276,7 @@ specifically handle a case that same bean will be called by a different
 state machines. This limitation is something which will be resolved in
 future releases.
 
-=== Factory via Builder
+=== State Machine via Builder
 Using adapters shown above has a limitation imposed by its
 requirement to work via Spring `@Configuration` classes and
 application context. While this is a very clear model to configure a
@@ -266,13 +294,16 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippetFB]
 
 Builder is using same configuration interfaces behind the scenes that
 the `@Configuration` model using adapter classes. Same model goes to
-configuring transitions via builder's `configureTransitions()` method.
+configuring transitions, states and common configuration via builder's
+methods. This simply means that whatever you can use with a normal
+`EnumStateMachineConfigurerAdapter` or `StateMachineConfigurerAdapter`
+can be used dynamically via a builder.
 
 [NOTE]
 ====
-Currently `builder.configureStates()` and
-`builder.configureTransitions()` cannot be chained together meaning
-builder methods needs to be called individually.
+Currently `builder.configureStates()`,
+`builder.configureTransitions()` and other interface methods cannot be
+chained together meaning builder methods needs to be called individually.
 ====
 
 [[sm-actions]]
