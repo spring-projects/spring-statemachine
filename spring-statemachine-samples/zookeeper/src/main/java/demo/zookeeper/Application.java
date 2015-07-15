@@ -26,6 +26,7 @@ import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 import org.springframework.statemachine.zookeeper.ZookeeperStateMachineEnsemble;
 
 @Configuration
@@ -41,7 +42,7 @@ public class Application  {
 		public void configure(StateMachineConfigurationConfigurer<String, String> config) throws Exception {
 			config
 				.withDistributed()
-					.ensemble(new ZookeeperStateMachineEnsemble<String, String>(curatorClient(), "/foo"));
+					.ensemble(stateMachineEnsemble());
 		}
 
 		@Override
@@ -66,6 +67,11 @@ public class Application  {
 					.source("UNLOCKED")
 					.target("LOCKED")
 					.event("PUSH");
+		}
+
+		@Bean
+		public StateMachineEnsemble<String, String> stateMachineEnsemble() throws Exception {
+			return new ZookeeperStateMachineEnsemble<String, String>(curatorClient(), "/foo");
 		}
 
 		@Bean

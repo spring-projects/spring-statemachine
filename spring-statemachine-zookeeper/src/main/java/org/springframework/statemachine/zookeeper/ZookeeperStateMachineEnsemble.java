@@ -24,6 +24,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.CuratorWatcher;
+import org.apache.curator.framework.api.transaction.CuratorTransaction;
+import org.apache.curator.framework.api.transaction.CuratorTransactionFinal;
 import org.apache.curator.framework.imps.CuratorFrameworkState;
 import org.apache.curator.framework.recipes.locks.InterProcessSemaphoreMutex;
 import org.apache.curator.framework.recipes.nodes.PersistentEphemeralNode;
@@ -49,6 +51,7 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 
 	private final static Log log = LogFactory.getLog(ZookeeperStateMachineEnsemble.class);
 	private final String uuid = UUID.randomUUID().toString();
+	private final static int DEFAULT_LOGSIZE = 32;
 	private final static String PATH_CURRENT = "current";
 	private final static String PATH_LOG = "log";
 	private final static String PATH_MEMBERS = "members";
@@ -57,6 +60,7 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	private final String baseDataPath;
 	private final String statePath;
 	private final String logPath;
+	private final int logSize;
 	private final String memberPath;
 	private final String mutexPath;
 	private final boolean cleanState;
@@ -72,7 +76,7 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	 * @param basePath the base zookeeper path
 	 */
 	public ZookeeperStateMachineEnsemble(CuratorFramework curatorClient, String basePath) {
-		this(curatorClient, basePath, true);
+		this(curatorClient, basePath, true, DEFAULT_LOGSIZE);
 	}
 
 	/**
@@ -81,16 +85,18 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	 * @param curatorClient the curator client
 	 * @param basePath the base zookeeper path
 	 * @param cleanState if true clean existing state
+	 * @param logSize the log size
 	 */
-	public ZookeeperStateMachineEnsemble(CuratorFramework curatorClient, String basePath, boolean cleanState) {
+	public ZookeeperStateMachineEnsemble(CuratorFramework curatorClient, String basePath, boolean cleanState, int logSize) {
 		this.curatorClient = curatorClient;
 		this.cleanState = cleanState;
+		this.logSize = logSize;
 		this.baseDataPath = basePath + "/data";
 		this.statePath = baseDataPath + "/" + PATH_CURRENT;
 		this.logPath = baseDataPath + "/" + PATH_LOG;
 		this.memberPath = basePath + "/" + PATH_MEMBERS;
 		this.mutexPath = basePath + "/" + PATH_MUTEX;
-		this.persist = new ZookeeperStateMachinePersist<S, E>(curatorClient, statePath);
+		this.persist = new ZookeeperStateMachinePersist<S, E>(curatorClient, statePath, logPath, logSize);
 	}
 
 	@Override
@@ -145,6 +151,10 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	public void setState(StateMachineContext<S, E> context) {
 		try {
 			Stat stat = new Stat();
+			StateWrapper stateWrapper = stateRef.get();
+			if (stateWrapper != null) {
+				stat.setVersion(stateWrapper.version);
+			}
 			persist.write(context, stat);
 			stateRef.set(new StateWrapper(context, stat.getVersion()));
 		} catch (Exception e) {
@@ -155,6 +165,7 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	private StateWrapper readCurrentContext() {
 		try {
 			Stat stat = new Stat();
+
 			// TODO: not nice that we need to set watcher here when persister is reading data
 			curatorClient.getData().usingWatcher(watcher).forPath(statePath);
 			StateMachineContext<S, E> context = persist.read(stat);
@@ -168,7 +179,13 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 
 		InterProcessSemaphoreMutex mutex = new InterProcessSemaphoreMutex(curatorClient, mutexPath);
 		try {
+			if (log.isTraceEnabled()) {
+				log.trace("About to acquire mutex");
+			}
 			mutex.acquire();
+			if (log.isTraceEnabled()) {
+				log.trace("Mutex acquired");
+			}
 
 			if (cleanState) {
 				if (curatorClient.checkExists().forPath(memberPath) != null) {
@@ -184,14 +201,14 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 			node.waitForInitialCreate(60, TimeUnit.SECONDS);
 
 			if (curatorClient.checkExists().forPath(baseDataPath) == null) {
-				curatorClient.inTransaction()
-						.create().forPath(baseDataPath)
-						.and()
-						.create().forPath(statePath)
-						.and()
-						.create().forPath(logPath)
-						.and()
-						.commit();
+				CuratorTransaction tx = curatorClient.inTransaction();
+				CuratorTransactionFinal tt = tx.create().forPath(baseDataPath).and();
+				tt = tt.create().forPath(statePath).and();
+				tt = tt.create().forPath(logPath).and();
+				for (int i = 0; i<logSize; i++) {
+					tt = tt.create().forPath(logPath + "/" + i).and();
+				}
+				tt.commit();
 			}
 
 		} catch (Exception e) {
@@ -199,6 +216,9 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 		} finally {
 			try {
 				mutex.release();
+				if (log.isTraceEnabled()) {
+					log.trace("Mutex released");
+				}
 			} catch (Exception e) {
 			}
 		}
@@ -218,12 +238,17 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 				if (log.isTraceEnabled()) {
 					log.trace("NodeDataChanged currentStateWrapper=" + currentStateWrapper + " newStateWrapper=" + newStateWrapper);
 				}
+
+				// if we don't have a previous version, we've missed an update.
+				// we're going to replay those from log paths.
 				if (currentStateWrapper.version + 1 == newStateWrapper.version
 						&& stateRef.compareAndSet(currentStateWrapper, newStateWrapper)) {
 					if (log.isTraceEnabled()) {
 						log.trace("Notify state change with new context");
 					}
 					notifyStateChanged(newStateWrapper.context);
+				} else {
+
 				}
 				break;
 			default:

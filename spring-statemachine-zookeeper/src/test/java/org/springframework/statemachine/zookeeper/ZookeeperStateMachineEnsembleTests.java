@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine.zookeeper;
 
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -74,10 +75,12 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 		ensemble.afterPropertiesSet();
 
 		assertThat(curatorClient.checkExists().forPath("/foo/data/current"), notNullValue());
+		assertThat(curatorClient.getData().forPath("/foo/data/current").length, is(0));
 
 		ensemble.setState(new DefaultStateMachineContext<String, String>("S1","E1", new HashMap<String, Object>(), new DefaultExtendedState()));
-		ensemble.setState(new DefaultStateMachineContext<String, String>("S2","E1", new HashMap<String, Object>(), new DefaultExtendedState()));
+		assertThat(curatorClient.getData().forPath("/foo/data/current").length, greaterThan(0));
 
+		ensemble.setState(new DefaultStateMachineContext<String, String>("S2","E1", new HashMap<String, Object>(), new DefaultExtendedState()));
 	}
 
 	@Test
@@ -135,6 +138,8 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 		// we assume that if data is 0, it's re-created
 		assertThat(curatorClient.getData().forPath("/foo/data/log").length, is(0));
 	}
+
+	//
 
 	@Override
 	protected AnnotationConfigApplicationContext buildContext() {

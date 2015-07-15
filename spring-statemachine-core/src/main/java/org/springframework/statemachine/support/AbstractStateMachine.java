@@ -37,6 +37,7 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.access.StateMachineFunction;
@@ -168,11 +169,6 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	@Override
 	public ExtendedState getExtendedState() {
 		return extendedState;
-	}
-
-	@Override
-	public void setExtendedState(ExtendedState extendedState) {
-		this.extendedState = extendedState;
 	}
 
 	public void setHistoryState(PseudoState<S, E> history) {
@@ -422,12 +418,29 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	@Override
-	public void resetState(S state) {
+	public void resetStateMachine(StateMachineContext<S, E> stateMachineContext) {
+		S state = stateMachineContext.getState();
+		boolean stateSet = false;
 		for (State<S, E> s : getStates()) {
-			if (s.getId().equals(state)) {
-				currentState = s;
+			for (State<S, E> ss : s.getStates()) {
+				if (ss.getIds().contains(state)) {
+					currentState = s;
+					// TODO: not sure about starting submachine here, though
+					//       needed if we only transit to super state
+					if (s.isSubmachineState()) {
+						StateMachine<S, E> submachine = ((AbstractState<S, E>)s).getSubmachine();
+						submachine.start();
+					}
+					stateSet = true;
+					break;
+				}
+			}
+			if (stateSet) {
 				break;
 			}
+		}
+		if (stateSet && stateMachineContext.getExtendedState() != null) {
+			this.extendedState = stateMachineContext.getExtendedState();
 		}
 	}
 
@@ -479,8 +492,12 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		return true;
 	}
 
+	private boolean isInitialTransition(Transition<S,E> transition) {
+		return transition != null && transition.getKind() == TransitionKind.INITIAL;
+	}
+
 	private void switchToState(State<S,E> state, Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
-		if (!callStateChangeInterceptors(state, message, transition, stateMachine)) {
+		if (!isInitialTransition(transition) && !callStateChangeInterceptors(state, message, transition, stateMachine)) {
 			return;
 		}
 		// TODO: need to make below more clear when
@@ -558,9 +575,6 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			if (isTargetSubOf && currentState == transition.getTarget()) {
 				state = transition.getSource();
 			}
-//			else if (currentState == null && StateMachineUtils.isSubstate(findDeep, state)) {
-//				state = findDeep;
-//			}
 		}
 
 		boolean nonDeepStatePresent = false;

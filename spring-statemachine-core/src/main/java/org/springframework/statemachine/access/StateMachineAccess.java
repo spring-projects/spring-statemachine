@@ -15,8 +15,8 @@
  */
 package org.springframework.statemachine.access;
 
-import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.support.StateChangeInterceptor;
 
 /**
@@ -37,18 +37,11 @@ public interface StateMachineAccess<S, E> {
 	void setRelay(StateMachine<S, E> stateMachine);
 
 	/**
-	 * Reset state.
+	 * Reset state machine.
 	 *
-	 * @param state the state
+	 * @param stateMachineContext the state machine context
 	 */
-	void resetState(S state);
-
-	/**
-	 * Sets the extended state.
-	 *
-	 * @param extendedState the new extended state
-	 */
-	void setExtendedState(ExtendedState extendedState);
+	void resetStateMachine(StateMachineContext<S, E> stateMachineContext);
 
 	/**
 	 * Adds the state change interceptor.

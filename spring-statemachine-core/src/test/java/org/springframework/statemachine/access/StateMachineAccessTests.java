@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.StateChangeInterceptor;
@@ -100,11 +101,7 @@ public class StateMachineAccessTests {
 		}
 
 		@Override
-		public void resetState(String state) {
-		}
-
-		@Override
-		public void setExtendedState(ExtendedState extendedState) {
+		public void resetStateMachine(StateMachineContext<String, String> stateMachineContext) {
 		}
 
 		@Override

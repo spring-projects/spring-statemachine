@@ -24,6 +24,7 @@ import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.listener.AbstractCompositeListener;
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
 import org.springframework.statemachine.support.StateChangeInterceptor;
 import org.springframework.statemachine.transition.Transition;
@@ -73,7 +74,7 @@ public class PersistStateMachineHandler extends LifecycleObjectSupport {
 		stateMachine.stop();
 		List<StateMachineAccess<String, String>> withAllRegions = stateMachine.getStateMachineAccessor().withAllRegions();
 		for (StateMachineAccess<String, String> a : withAllRegions) {
-			a.resetState(state);
+			a.resetStateMachine(new DefaultStateMachineContext<String, String>(state, null, null, null));
 		}
 		stateMachine.start();
 		stateMachine.sendEvent(event);

@@ -59,7 +59,8 @@ public class DefaultStateMachineContext<S, E> implements StateMachineContext<S, 
 	 * @param eventHeaders the event headers
 	 * @param extendedState the extended state
 	 */
-	public DefaultStateMachineContext(List<StateMachineContext<S, E>> childs, S state, E event, Map<String, Object> eventHeaders, ExtendedState extendedState) {
+	public DefaultStateMachineContext(List<StateMachineContext<S, E>> childs, S state, E event,
+			Map<String, Object> eventHeaders, ExtendedState extendedState) {
 		this.childs = childs;
 		this.state = state;
 		this.event = event;
@@ -90,6 +91,12 @@ public class DefaultStateMachineContext<S, E> implements StateMachineContext<S, 
 	@Override
 	public ExtendedState getExtendedState() {
 		return extendedState;
+	}
+
+	@Override
+	public String toString() {
+		return "DefaultStateMachineContext [state=" + state + ", event=" + event + ", eventHeaders=" + eventHeaders
+				+ ", extendedState=" + extendedState + "]";
 	}
 
 }

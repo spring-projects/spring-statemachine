@@ -26,6 +26,7 @@ import java.util.UUID;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.transaction.CuratorTransaction;
+import org.apache.curator.framework.api.transaction.CuratorTransactionFinal;
 import org.apache.curator.framework.api.transaction.CuratorTransactionResult;
 import org.apache.zookeeper.data.Stat;
 import org.springframework.messaging.MessageHeaders;
@@ -34,6 +35,7 @@ import org.springframework.statemachine.StateMachineException;
 import org.springframework.statemachine.ensemble.StateMachinePersist;
 import org.springframework.statemachine.support.DefaultExtendedState;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
+import org.springframework.util.Assert;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
@@ -68,6 +70,8 @@ public class ZookeeperStateMachinePersist<S, E> implements StateMachinePersist<S
 
 	private final CuratorFramework curatorClient;
 	private final String path;
+	private final String logPath;
+	private final int logSize;
 
 	/**
 	 * Instantiates a new zookeeper state machine persist.
@@ -76,16 +80,37 @@ public class ZookeeperStateMachinePersist<S, E> implements StateMachinePersist<S
 	 * @param path the path for persistent state
 	 */
 	public ZookeeperStateMachinePersist(CuratorFramework curatorClient, String path) {
+		this(curatorClient, path, null, 0);
+	}
+
+	/**
+	 * Instantiates a new zookeeper state machine persist.
+	 *
+	 * @param curatorClient the curator client
+	 * @param path the path
+	 * @param logPath the log path
+	 * @param logSize the log size
+	 */
+	public ZookeeperStateMachinePersist(CuratorFramework curatorClient, String path, String logPath, int logSize) {
+		if (logPath != null) {
+			Assert.state(logSize > 0 && ((logSize & -logSize) == logSize), "Log size must be positive and power of two");
+		}
 		this.curatorClient = curatorClient;
 		this.path = path;
+		this.logPath = logPath;
+		this.logSize = logSize;
 	}
 
 	@Override
-	public void write(org.springframework.statemachine.StateMachineContext<S,E> context, Stat stat) {
+	public void write(StateMachineContext<S,E> context, Stat stat) {
 		byte[] data = serialize(context);
 		CuratorTransaction tx = curatorClient.inTransaction();
 		try {
-			Collection<CuratorTransactionResult> results = tx.setData().forPath(path, data).and().commit();
+			CuratorTransactionFinal tt = tx.setData().withVersion(stat.getVersion()).forPath(path, data).and();
+			if (logPath != null) {
+				tt = tt.setData().forPath(logPath + "/" + stat.getVersion() % logSize, data).and();
+			}
+			Collection<CuratorTransactionResult> results = tt.commit();
 			int version = results.iterator().next().getResultStat().getVersion();
 			stat.setVersion(version);
 		} catch (Exception e) {

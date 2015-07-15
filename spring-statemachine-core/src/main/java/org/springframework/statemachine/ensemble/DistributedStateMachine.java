@@ -42,6 +42,9 @@ import org.springframework.util.ObjectUtils;
  * together with a {@link StateMachineEnsemble} order to provide a distributed state
  * machine.
  *
+ * Every distributed state machine will enter its initial state regardless of
+ * a distributed state status.
+ *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
@@ -168,7 +171,8 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 	}
 
 	/**
-	 *
+	 * Bridge for instructing delegating machine based on what
+	 * is happening in an ensemble.
 	 */
 	private class LocalEnsembleListener implements EnsembleListeger<S, E> {
 
@@ -178,12 +182,15 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 				// I'm now successfully joined, so set delegating
 				// sm to current known state by a context.
 
+				if (log.isDebugEnabled()) {
+					log.debug("Joining with context " + context);
+				}
+
 				delegate.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<S, E>>() {
 
 					@Override
 					public void apply(StateMachineAccess<S, E> function) {
-						function.resetState(context.getState());
-						function.setExtendedState(context.getExtendedState());
+						function.resetStateMachine(context);
 					}
 
 				});
