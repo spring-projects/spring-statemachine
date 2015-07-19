@@ -17,7 +17,7 @@ package org.springframework.statemachine.access;
 
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
-import org.springframework.statemachine.support.StateChangeInterceptor;
+import org.springframework.statemachine.support.StateMachineInterceptor;
 
 /**
  * Functional interface exposing {@link StateMachine} internals.
@@ -44,11 +44,11 @@ public interface StateMachineAccess<S, E> {
 	void resetStateMachine(StateMachineContext<S, E> stateMachineContext);
 
 	/**
-	 * Adds the state change interceptor.
+	 * Adds the state machine interceptor.
 	 *
 	 * @param interceptor the interceptor
 	 */
-	void addStateChangeInterceptor(StateChangeInterceptor<S, E> interceptor);
+	void addStateMachineInterceptor(StateMachineInterceptor<S, E> interceptor);
 
 	/**
 	 * Sets if initial state is enabled when a state machine is

@@ -61,6 +61,37 @@ public class ZookeeperStateMachinePersistTests extends AbstractZookeeperTests {
 	}
 
 	@Test
+	public void testLogs() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+		curatorClient.create().forPath("/KryoStateMachinePersistTests");
+
+		ZookeeperStateMachinePersist<String, String> persist = new ZookeeperStateMachinePersist<String, String>(
+				curatorClient, "/KryoStateMachinePersistTests", "/KryoStateMachinePersistTestsLogs", 32);
+
+		for (int i = 0; i < 10; i++) {
+			curatorClient.create().creatingParentsIfNeeded().forPath("/KryoStateMachinePersistTestsLogs/" + i);
+		}
+
+		for (int i = 0; i < 10; i++) {
+			Stat stat = new Stat();
+			stat.setVersion(i);
+			StateMachineContext<String, String> contextOut =
+					new DefaultStateMachineContext<String, String>("S" + i, "E" + i, new HashMap<String, Object>(), new DefaultExtendedState());
+			persist.write(contextOut, stat);
+		}
+
+		for (int i = 0; i < 10; i++) {
+			StateMachineContext<String, String> contextIn = persist.readLog(i, new Stat());
+			assertThat(contextIn.getState(), is("S" + i));
+			assertThat(contextIn.getEvent(), is("E" + i));
+		}
+	}
+
+	@Test
 	public void testEventHeaders() throws Exception {
 		context.register(ZkServerConfig.class, BaseConfig.class);
 		context.refresh();

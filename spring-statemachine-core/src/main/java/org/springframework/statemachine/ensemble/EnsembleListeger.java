@@ -27,10 +27,25 @@ import org.springframework.statemachine.StateMachineContext;
  */
 public interface EnsembleListeger<S, E> {
 
+	/**
+	 * Called when state machine joined an ensemble.
+	 *
+	 * @param context the state machine context
+	 */
 	void stateMachineJoined(StateMachineContext<S, E> context);
 
+	/**
+	 * Called when state machine left an ensemble.
+	 *
+	 * @param context the state machine context
+	 */
 	void stateMachineLeft(StateMachineContext<S, E> context);
 
+	/**
+	 * Called when ensemble is discovering a state change.
+	 *
+	 * @param context the state machine context
+	 */
 	void stateChanged(StateMachineContext<S, E> context);
 
 }

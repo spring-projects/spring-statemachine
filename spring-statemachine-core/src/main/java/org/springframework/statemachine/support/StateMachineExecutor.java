@@ -87,6 +87,13 @@ public interface StateMachineExecutor<S, E> {
 	void setStateMachineExecutorTransit(StateMachineExecutorTransit<S, E> stateMachineExecutorTransit);
 
 	/**
+	 * Adds the state machine interceptor.
+	 *
+	 * @param interceptor the interceptor
+	 */
+	void addStateMachineInterceptor(StateMachineInterceptor<S, E> interceptor);
+
+	/**
 	 * Callback interface when executor wants to handle transit.
 	 */
 	public interface StateMachineExecutorTransit<S, E> {

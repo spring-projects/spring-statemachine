@@ -269,7 +269,7 @@ public class ZookeeperStateMachineTests extends AbstractZookeeperTests {
 		}
 	}
 
-	abstract static class SharedConfig2 extends SharedConfig1 {
+	public abstract static class SharedConfig2 extends SharedConfig1 {
 
 		@Override
 		public void configure(StateMachineConfigurationConfigurer<String, String> config) throws Exception {

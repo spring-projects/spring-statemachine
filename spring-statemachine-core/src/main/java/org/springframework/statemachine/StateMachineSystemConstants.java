@@ -17,7 +17,7 @@ package org.springframework.statemachine;
 
 /**
  * Various constants used in state machine lib.
- * 
+ *
  * @author Janne Valkealahti
  *
  */
@@ -31,5 +31,8 @@ public abstract class StateMachineSystemConstants {
 
 	/** Default bean id for state machine event publisher. */
 	public static final String DEFAULT_ID_EVENT_PUBLISHER = "stateMachineEventPublisher";
+
+	/** State machine id key for headers and variables */
+	public static final String STATEMACHINE_IDENTIFIER = "_sm_id_";
 
 }

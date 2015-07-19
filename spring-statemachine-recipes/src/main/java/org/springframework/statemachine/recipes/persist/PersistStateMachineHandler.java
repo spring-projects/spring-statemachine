@@ -26,7 +26,7 @@ import org.springframework.statemachine.listener.AbstractCompositeListener;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
-import org.springframework.statemachine.support.StateChangeInterceptor;
+import org.springframework.statemachine.support.StateMachineInterceptorAdapter;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.util.Assert;
 
@@ -59,7 +59,7 @@ public class PersistStateMachineHandler extends LifecycleObjectSupport {
 
 			@Override
 			public void apply(StateMachineAccess<String, String> function) {
-				function.addStateChangeInterceptor(interceptor);
+				function.addStateMachineInterceptor(interceptor);
 			}
 		});
 	}
@@ -108,17 +108,17 @@ public class PersistStateMachineHandler extends LifecycleObjectSupport {
 		 * @param transition the transition
 		 * @param stateMachine the state machine
 		 */
-		void onPersist(State<String, String> state, Message<String> message, Transition<String, String> transition, StateMachine<String, String> stateMachine);
+		void onPersist(State<String, String> state, Message<String> message, Transition<String, String> transition,
+				StateMachine<String, String> stateMachine);
 	}
 
-	private class PersistingStateChangeInterceptor implements StateChangeInterceptor<String, String> {
+	private class PersistingStateChangeInterceptor extends StateMachineInterceptorAdapter<String, String> {
 
 		@Override
 		public void preStateChange(State<String, String> state, Message<String> message,
 				Transition<String, String> transition, StateMachine<String, String> stateMachine) {
 			listeners.onPersist(state, message, transition, stateMachine);
 		}
-
 	}
 
 	private class CompositePersistStateChangeListener extends AbstractCompositeListener<PersistStateChangeListener> implements

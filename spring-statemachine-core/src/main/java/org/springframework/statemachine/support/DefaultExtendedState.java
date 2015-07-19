@@ -65,4 +65,9 @@ public class DefaultExtendedState implements ExtendedState {
 		return (T) value;
 	}
 
+	@Override
+	public String toString() {
+		return "DefaultExtendedState [variables=" + variables + "]";
+	}
+
 }

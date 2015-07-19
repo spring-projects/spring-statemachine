@@ -18,10 +18,13 @@ package org.springframework.statemachine.zookeeper;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -139,7 +142,123 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 		assertThat(curatorClient.getData().forPath("/foo/data/log").length, is(0));
 	}
 
-	//
+	@Test
+	public void testLogs() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+
+		ZookeeperStateMachineEnsemble<String, String> ensemble =
+				new ZookeeperStateMachineEnsemble<String, String>(curatorClient, "/foo", true, 4);
+
+		ensemble.afterPropertiesSet();
+		ensemble.start();
+
+		assertThat(curatorClient.checkExists().forPath("/foo/data/log"), notNullValue());
+		assertThat(curatorClient.checkExists().forPath("/foo/data/log/0"), notNullValue());
+		assertThat(curatorClient.checkExists().forPath("/foo/data/log/1"), notNullValue());
+		assertThat(curatorClient.checkExists().forPath("/foo/data/log/2"), notNullValue());
+		assertThat(curatorClient.checkExists().forPath("/foo/data/log/3"), notNullValue());
+		assertThat(curatorClient.checkExists().forPath("/foo/data/log/4"), nullValue());
+		assertThat(curatorClient.getData().forPath("/foo/data/log/0").length, is(0));
+		assertThat(curatorClient.getData().forPath("/foo/data/log/1").length, is(0));
+		assertThat(curatorClient.getData().forPath("/foo/data/log/2").length, is(0));
+		assertThat(curatorClient.getData().forPath("/foo/data/log/3").length, is(0));
+
+		ensemble.setState(new DefaultStateMachineContext<String, String>("S1","E1", new HashMap<String, Object>(), new DefaultExtendedState()));
+		assertThat(curatorClient.getData().forPath("/foo/data/log/0").length, greaterThan(0));
+		assertThat(curatorClient.getData().forPath("/foo/data/log/1").length, is(0));
+		assertThat(curatorClient.getData().forPath("/foo/data/log/2").length, is(0));
+		assertThat(curatorClient.getData().forPath("/foo/data/log/3").length, is(0));
+
+		ensemble.setState(new DefaultStateMachineContext<String, String>("S2","E1", new HashMap<String, Object>(), new DefaultExtendedState()));
+		assertThat(curatorClient.getData().forPath("/foo/data/log/0").length, greaterThan(0));
+		assertThat(curatorClient.getData().forPath("/foo/data/log/1").length, greaterThan(0));
+		assertThat(curatorClient.getData().forPath("/foo/data/log/2").length, is(0));
+		assertThat(curatorClient.getData().forPath("/foo/data/log/3").length, is(0));
+
+		ensemble.setState(new DefaultStateMachineContext<String, String>("S3","E1", new HashMap<String, Object>(), new DefaultExtendedState()));
+		assertThat(curatorClient.getData().forPath("/foo/data/log/0").length, greaterThan(0));
+		assertThat(curatorClient.getData().forPath("/foo/data/log/1").length, greaterThan(0));
+		assertThat(curatorClient.getData().forPath("/foo/data/log/2").length, greaterThan(0));
+		assertThat(curatorClient.getData().forPath("/foo/data/log/3").length, is(0));
+
+		ensemble.setState(new DefaultStateMachineContext<String, String>("S4","E1", new HashMap<String, Object>(), new DefaultExtendedState()));
+		assertThat(curatorClient.getData().forPath("/foo/data/log/0").length, greaterThan(0));
+		assertThat(curatorClient.getData().forPath("/foo/data/log/1").length, greaterThan(0));
+		assertThat(curatorClient.getData().forPath("/foo/data/log/2").length, greaterThan(0));
+		assertThat(curatorClient.getData().forPath("/foo/data/log/3").length, greaterThan(0));
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void testIllegalLogSize() throws Exception {
+				new ZookeeperStateMachineEnsemble<String, String>(null, "/foo", true, 3);
+	}
+
+	@Test
+	public void testContextEventsNotMissedBurstNoOverflow() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+
+		ZookeeperStateMachineEnsemble<String, String> ensemble =
+				new ZookeeperStateMachineEnsemble<String, String>(curatorClient, "/foo");
+
+		TestEnsembleListener listener = new TestEnsembleListener();
+		ensemble.addEnsembleListener(listener);
+
+		ensemble.afterPropertiesSet();
+		ensemble.start();
+		listener.reset(0, 10);
+
+		for (int i = 0; i < 10; i++) {
+			ensemble.setState(new DefaultStateMachineContext<String, String>("S" + i, "E" + i,
+					new HashMap<String, Object>(), new DefaultExtendedState()));
+		}
+
+		assertThat(listener.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener.events.size(), is(10));
+
+		for (int i = 0; i < 10; i++) {
+			assertThat(listener.events.get(i).getEvent(), is("E" + i));
+		}
+	}
+
+	@Test
+	public void testContextEventsNotMissedSlowNoOverflow() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+
+		ZookeeperStateMachineEnsemble<String, String> ensemble =
+				new ZookeeperStateMachineEnsemble<String, String>(curatorClient, "/foo");
+
+		TestEnsembleListener listener = new TestEnsembleListener();
+		ensemble.addEnsembleListener(listener);
+
+		ensemble.afterPropertiesSet();
+		ensemble.start();
+		listener.reset(0, 10);
+
+		for (int i = 0; i < 10; i++) {
+			ensemble.setState(new DefaultStateMachineContext<String, String>("S" + i, "E" + i,
+					new HashMap<String, Object>(), new DefaultExtendedState()));
+			Thread.sleep(500);
+		}
+
+		assertThat(listener.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener.events.size(), is(10));
+
+		for (int i = 0; i < 10; i++) {
+			assertThat(listener.events.get(i).getEvent(), is("E" + i));
+		}
+	}
 
 	@Override
 	protected AnnotationConfigApplicationContext buildContext() {
@@ -150,6 +269,7 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 
 		volatile CountDownLatch joinedLatch = new CountDownLatch(1);
 		volatile CountDownLatch eventLatch = new CountDownLatch(1);
+		volatile List<StateMachineContext<String, String>> events = new ArrayList<StateMachineContext<String,String>>();
 
 		@Override
 		public void stateMachineJoined(StateMachineContext<String, String> context) {
@@ -162,7 +282,14 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 
 		@Override
 		public void stateChanged(StateMachineContext<String, String> context) {
+			events.add(context);
 			eventLatch.countDown();
+		}
+
+		public void reset(int c1, int c2) {
+			joinedLatch = new CountDownLatch(c1);
+			eventLatch = new CountDownLatch(c2);
+			events.clear();
 		}
 
 	}
@@ -227,6 +354,11 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 
 		@Override
 		public ExtendedState getExtendedState() {
+			return null;
+		}
+
+		@Override
+		public String getId() {
 			return null;
 		}
 

@@ -66,6 +66,7 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	private final boolean cleanState;
 	private final StateMachinePersist<S, E, Stat> persist;
 	private final AtomicReference<StateWrapper> stateRef = new AtomicReference<StateWrapper>();
+	private final AtomicReference<StateWrapper> notifyRef = new AtomicReference<StateWrapper>();
 	private final CuratorWatcher watcher = new StateWatcher();
 	private PersistentEphemeralNode node;
 
@@ -97,6 +98,7 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 		this.memberPath = basePath + "/" + PATH_MEMBERS;
 		this.mutexPath = basePath + "/" + PATH_MUTEX;
 		this.persist = new ZookeeperStateMachinePersist<S, E>(curatorClient, statePath, logPath, logSize);
+		setAutoStartup(true);
 	}
 
 	@Override
@@ -106,6 +108,20 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 
 	@Override
 	protected void doStart() {
+		// initially setting a watcher here, further watchers
+		// will be set when events are received.
+		registerWatcherForStatePath();
+
+		StateWrapper stateWrapper = stateRef.get();
+		if (stateWrapper == null) {
+			try {
+				StateWrapper currentStateWrapper = readCurrentContext();
+				stateRef.set(new StateWrapper(currentStateWrapper.context, currentStateWrapper.version));
+				stateWrapper = stateRef.get();
+			} catch (Exception e) {
+				log.error("Error reading current state during start", e);
+			}
+		}
 	}
 
 	@Override
@@ -123,15 +139,6 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	@Override
 	public void join(StateMachine<S, E> stateMachine) {
 		StateWrapper stateWrapper = stateRef.get();
-		if (stateWrapper == null) {
-			try {
-				StateWrapper currentStateWrapper = readCurrentContext();
-				stateRef.set(new StateWrapper(currentStateWrapper.context, currentStateWrapper.version));
-				stateWrapper = stateRef.get();
-			} catch (Exception e) {
-				log.error("Error reading current state during join", e);
-			}
-		}
 		notifyJoined(stateWrapper != null ? stateWrapper.context : null);
 	}
 
@@ -148,7 +155,10 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	}
 
 	@Override
-	public void setState(StateMachineContext<S, E> context) {
+	public synchronized void setState(StateMachineContext<S, E> context) {
+		if (log.isDebugEnabled()) {
+			log.debug("Setting state context=" + context);
+		}
 		try {
 			Stat stat = new Stat();
 			StateWrapper stateWrapper = stateRef.get();
@@ -162,12 +172,15 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 		}
 	}
 
+	@Override
+	public StateMachineContext<S, E> getState() {
+		return readCurrentContext().context;
+	}
+
 	private StateWrapper readCurrentContext() {
 		try {
 			Stat stat = new Stat();
-
-			// TODO: not nice that we need to set watcher here when persister is reading data
-			curatorClient.getData().usingWatcher(watcher).forPath(statePath);
+			registerWatcherForStatePath();
 			StateMachineContext<S, E> context = persist.read(stat);
 			return new StateWrapper(context, stat.getVersion());
 		} catch (Exception e) {
@@ -175,8 +188,13 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 		}
 	}
 
+	/**
+	 * Create all needed paths including what ZookeeperStateMachinePersist
+	 * is going to need because it doesn't handle any path creation. We also
+	 * use a mutex lock to make a decision if cleanState is enabled to wipe
+	 * out existing data.
+	 */
 	private void initPaths() {
-
 		InterProcessSemaphoreMutex mutex = new InterProcessSemaphoreMutex(curatorClient, mutexPath);
 		try {
 			if (log.isTraceEnabled()) {
@@ -224,7 +242,47 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 		}
 	}
 
+	/**
+	 * Register existing {@link CuratorWatcher} for a state path.
+	 */
+	private void registerWatcherForStatePath() {
+		try {
+			if (curatorClient.getState() != CuratorFrameworkState.STOPPED) {
+				curatorClient.checkExists().usingWatcher(watcher).forPath(statePath);
+			}
+		} catch (Exception e) {
+			log.warn("Registering wacher for path " + statePath + " threw error", e);
+		}
+	}
+
+	private void mayNotifyStateChanged(StateWrapper wrapper) {
+		StateWrapper notifyWrapper = notifyRef.get();
+		if (notifyWrapper == null) {
+			notifyRef.set(wrapper);
+			notifyStateChanged(wrapper.context);
+		} else if (wrapper.version > notifyWrapper.version) {
+			notifyRef.set(wrapper);
+			notifyStateChanged(wrapper.context);
+		}
+	}
+
+	private void traceLogWrappers(StateWrapper currentWrapper, StateWrapper notifyWrapper, StateWrapper newWrapper) {
+		if (log.isTraceEnabled()) {
+			log.trace("Wrappers \ncurrentWrapper=[" + currentWrapper + "] \nnotifyWrapper=[" + notifyWrapper
+					+ "] \nnewWrapper=[" + newWrapper + "]");
+		}
+	}
+
 	private class StateWatcher implements CuratorWatcher {
+
+		// zk is not really reliable for watching events because
+		// you need to re-register watcher when it fires. most likely
+		// we will miss events so need to do little tricks here via
+		// event logs.
+
+		// NOTE: because paths are pre-created, version always start
+		//       from 1 when real data is set. initial path contains
+		//       empty data with version 0.
 
 		@Override
 		public void process(WatchedEvent event) throws Exception {
@@ -233,26 +291,44 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 			}
 			switch (event.getType()) {
 			case NodeDataChanged:
-				StateWrapper currentStateWrapper = stateRef.get();
-				StateWrapper newStateWrapper = readCurrentContext();
-				if (log.isTraceEnabled()) {
-					log.trace("NodeDataChanged currentStateWrapper=" + currentStateWrapper + " newStateWrapper=" + newStateWrapper);
-				}
+				try {
+					StateWrapper currentWrapper = stateRef.get();
+					StateWrapper notifyWrapper = notifyRef.get();
+					StateWrapper newWrapper = readCurrentContext();
+					traceLogWrappers(currentWrapper, notifyWrapper, newWrapper);
 
-				// if we don't have a previous version, we've missed an update.
-				// we're going to replay those from log paths.
-				if (currentStateWrapper.version + 1 == newStateWrapper.version
-						&& stateRef.compareAndSet(currentStateWrapper, newStateWrapper)) {
-					if (log.isTraceEnabled()) {
-						log.trace("Notify state change with new context");
+					if (currentWrapper.version + 1 == newWrapper.version
+							&& stateRef.compareAndSet(currentWrapper, newWrapper)) {
+						mayNotifyStateChanged(newWrapper);
+					} else {
+						final int start = (notifyWrapper != null ? (notifyWrapper.version) : 0) % logSize;
+						int count = newWrapper.version - (notifyWrapper != null ? (notifyWrapper.version) : 0);
+						if (log.isDebugEnabled()) {
+							log.debug("Events missed, trying to replay start " + start + " count " + count);
+						}
+						for (int i = start; i < (start + count); i++) {
+							try {
+								Stat stat = new Stat();
+								StateMachineContext<S, E> context = ((ZookeeperStateMachinePersist<S, E>) persist)
+										.readLog(i, stat);
+								int ver = (stat.getVersion() - 1) * logSize + (i + 1);
+								if (log.isDebugEnabled()) {
+									log.debug("Replay position " + i + " with version " + ver);
+								}
+								StateWrapper wrapper = new StateWrapper(context, ver);
+								mayNotifyStateChanged(wrapper);
+							} catch (Exception e) {
+								log.error("error reading log", e);
+							}
+						}
 					}
-					notifyStateChanged(newStateWrapper.context);
-				} else {
-
+				} catch (Exception e) {
+					log.error("Error handling event", e);
 				}
+				registerWatcherForStatePath();
 				break;
 			default:
-				curatorClient.checkExists().usingWatcher(this).forPath(statePath);
+				registerWatcherForStatePath();
 				break;
 			}
 		}
@@ -260,7 +336,8 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	}
 
 	/**
-	 * Wrapper object for a {@link StateMachineContext}.
+	 * Wrapper object for a {@link StateMachineContext} and its
+	 * current version.
 	 */
 	private class StateWrapper {
 		private final StateMachineContext<S, E> context;

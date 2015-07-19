@@ -121,9 +121,11 @@ public class ZookeeperStateMachinePersist<S, E> implements StateMachinePersist<S
 
 	@Override
 	public StateMachineContext<S, E> read(Stat stat) throws Exception {
-		byte[] data = curatorClient.getData().storingStatIn(stat).forPath(path);
-		StateMachineContext<S, E> context = deserialize(data);
-		return context;
+		return deserialize(curatorClient.getData().storingStatIn(stat).forPath(path));
+	}
+
+	public StateMachineContext<S, E> readLog(int version, Stat stat) throws Exception {
+		return deserialize(curatorClient.getData().storingStatIn(stat).forPath(logPath + "/" + version));
 	}
 
 	private byte[] serialize(StateMachineContext<S, E> context) {

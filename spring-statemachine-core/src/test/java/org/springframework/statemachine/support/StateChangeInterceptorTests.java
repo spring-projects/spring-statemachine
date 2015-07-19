@@ -65,7 +65,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 
 			@Override
 			public void apply(StateMachineAccess<States, Events> function) {
-				function.addStateChangeInterceptor(interceptor);
+				function.addStateMachineInterceptor(interceptor);
 			}
 		});
 
@@ -74,9 +74,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(3));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S1, States.S11));
-
 		assertThat((Integer)machine.getExtendedState().getVariables().get("foo"), is(0));
-
 
 		listener.reset(3);
 		interceptor.reset(1);
@@ -86,6 +84,9 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		assertThat(interceptor.preStateChangeLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(interceptor.preStateChangeCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S2, States.S21, States.S211));
+		machine.sendEvent(Events.H);
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S2, States.S21, States.S211));
+		assertThat((Integer)machine.getExtendedState().getVariables().get("foo"), is(1));
 	}
 
 	@Configuration
@@ -266,7 +267,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 
 	}
 
-	private static class TestStateChangeInterceptor implements StateChangeInterceptor<States, Events> {
+	private static class TestStateChangeInterceptor implements StateMachineInterceptor<States, Events> {
 
 		volatile CountDownLatch preStateChangeLatch = new CountDownLatch(1);
 		volatile int preStateChangeCount = 0;
@@ -278,6 +279,22 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 			preStateChangeLatch.countDown();
 
 		}
+
+		@Override
+		public void postStateChange(State<States, Events> state, Message<Events> message,
+				Transition<States, Events> transition, StateMachine<States, Events> stateMachine) {
+		}
+
+		@Override
+		public StateContext<States, Events> preTransition(StateContext<States, Events> stateContext) {
+			return stateContext;
+		}
+
+		@Override
+		public StateContext<States, Events> postTransition(StateContext<States, Events> stateContext) {
+			return stateContext;
+		}
+
 
 		public void reset(int c1) {
 			preStateChangeLatch = new CountDownLatch(c1);

@@ -16,15 +16,16 @@
 package org.springframework.statemachine.ensemble;
 
 import java.util.Collection;
-import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.ExtendedState;
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
+import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.access.StateMachineFunction;
@@ -32,7 +33,7 @@ import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
-import org.springframework.statemachine.support.StateChangeInterceptor;
+import org.springframework.statemachine.support.StateMachineInterceptor;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -53,11 +54,10 @@ import org.springframework.util.ObjectUtils;
 public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implements StateMachine<S, E> {
 
 	private final static Log log = LogFactory.getLog(DistributedStateMachine.class);
-	private final String uuid = UUID.randomUUID().toString();
 	private final StateMachineEnsemble<S, E> ensemble;
 	private final StateMachine<S, E> delegate;
 	private final LocalEnsembleListener listener = new LocalEnsembleListener();
-	private final LocalStateChangeInterceptor interceptor = new LocalStateChangeInterceptor();
+	private final LocalStateMachineInterceptor interceptor = new LocalStateMachineInterceptor();
 
 	/**
 	 * Instantiates a new distributed state machine.
@@ -78,7 +78,7 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 
 			@Override
 			public void apply(StateMachineAccess<S, E> function) {
-				function.addStateChangeInterceptor(interceptor);
+				function.addStateMachineInterceptor(interceptor);
 			}
 		});
 	}
@@ -99,7 +99,10 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 
 	@Override
 	public boolean sendEvent(Message<E> event) {
-		return delegate.sendEvent(MessageBuilder.fromMessage(event).setHeader("uuid", uuid).build());
+		// adding state machine id to the message so that
+		// listeners can know from where a state change originates
+		return delegate.sendEvent(MessageBuilder.fromMessage(event)
+				.setHeader(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER, delegate.getId()).build());
 	}
 
 	@Override
@@ -152,20 +155,47 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 		return delegate.getStateMachineAccessor();
 	}
 
+	@Override
+	public String getId() {
+		return delegate.getId();
+	}
+
+	@Override
+	public String toString() {
+		return "DistributedStateMachine [delegate=" + delegate + "]";
+	}
+
 	/**
 	 * We intercept state changes order to attempt to update global
 	 * distributed state. This attempt is sent to an ensemble which will
 	 * tell us if that attempt was successful.
 	 */
-	private class LocalStateChangeInterceptor implements StateChangeInterceptor<S, E> {
+	private class LocalStateMachineInterceptor implements StateMachineInterceptor<S, E> {
 
 		@Override
 		public void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
 				StateMachine<S, E> stateMachine) {
-			if (message != null && ObjectUtils.nullSafeEquals(uuid, message.getHeaders().get("uuid"))) {
-				ensemble.setState(new DefaultStateMachineContext<S, E>(transition.getTarget()
-						.getId(), message.getPayload(), message.getHeaders(), stateMachine.getExtendedState()));
+			if (message != null
+					&& ObjectUtils.nullSafeEquals(delegate.getId(),
+							message.getHeaders().get(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER))) {
+				ensemble.setState(new DefaultStateMachineContext<S, E>(transition.getTarget().getId(), message
+						.getPayload(), message.getHeaders(), stateMachine.getExtendedState()));
 			}
+		}
+
+		@Override
+		public void postStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
+				StateMachine<S, E> stateMachine) {
+		}
+
+		@Override
+		public StateContext<S, E> preTransition(StateContext<S, E> stateContext) {
+			return stateContext;
+		}
+
+		@Override
+		public StateContext<S, E> postTransition(StateContext<S, E> stateContext) {
+			return stateContext;
 		}
 
 	}

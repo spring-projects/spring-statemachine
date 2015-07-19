@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
@@ -106,6 +107,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	private StateMachineExecutor<S, E> stateMachineExecutor;
 
 	private Boolean initialEnabled = null;
+
+	private String id = UUID.randomUUID().toString();
 
 	/**
 	 * Instantiates a new abstract state machine.
@@ -445,8 +448,14 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	@Override
-	public void addStateChangeInterceptor(StateChangeInterceptor<S, E> interceptor) {
-		getStateChangeInterceptors().add(interceptor);
+	public void addStateMachineInterceptor(StateMachineInterceptor<S, E> interceptor) {
+		getStateMachineInterceptors().add(interceptor);
+		stateMachineExecutor.addStateMachineInterceptor(interceptor);
+	}
+
+	@Override
+	public String getId() {
+		return id;
 	}
 
 	protected boolean acceptEvent(Message<E> message) {
@@ -482,14 +491,21 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		return false;
 	}
 
-	private boolean callStateChangeInterceptors(State<S,E> state, Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
+	private boolean callPreStateChangeInterceptors(State<S,E> state, Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
 		try {
-			getStateChangeInterceptors().preStateChange(state, message, transition, stateMachine);
+			getStateMachineInterceptors().preStateChange(state, message, transition, stateMachine);
 		} catch (Exception e) {
-			log.info("Interceptors threw and exception, skipping state change", e);
+			log.info("Interceptors threw exception, skipping state change", e);
 			return false;
 		}
 		return true;
+	}
+
+	private void callPostStateChangeInterceptors(State<S,E> state, Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
+		try {
+			getStateMachineInterceptors().postStateChange(state, message, transition, stateMachine);
+		} catch (Exception e) {
+		}
 	}
 
 	private boolean isInitialTransition(Transition<S,E> transition) {
@@ -497,7 +513,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	private void switchToState(State<S,E> state, Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
-		if (!isInitialTransition(transition) && !callStateChangeInterceptors(state, message, transition, stateMachine)) {
+		if (!isInitialTransition(transition) && !callPreStateChangeInterceptors(state, message, transition, stateMachine)) {
 			return;
 		}
 		// TODO: need to make below more clear when
@@ -516,6 +532,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		} else {
 			setCurrentState(state, message, transition, true, stateMachine);
 		}
+
+		callPostStateChangeInterceptors(state, message, transition, stateMachine);
 
 		stateMachineExecutor.execute();
 		if (isComplete()) {

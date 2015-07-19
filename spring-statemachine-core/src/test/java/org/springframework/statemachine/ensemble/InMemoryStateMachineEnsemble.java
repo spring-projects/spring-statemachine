@@ -48,4 +48,9 @@ public class InMemoryStateMachineEnsemble<S, E> extends StateMachineEnsembleObje
 		notifyStateChanged(context);
 	}
 
+	@Override
+	public StateMachineContext<S, E> getState() {
+		return current;
+	}
+
 }

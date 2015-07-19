@@ -16,12 +16,39 @@
 package org.springframework.statemachine.support;
 
 import org.springframework.messaging.Message;
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 
-public interface StateChangeInterceptor<S, E> {
+/**
+ * Adapter helper implementation for {@link StateMachineInterceptor}.
+ *
+ * @author Janne Valkealahti
+ *
+ * @param <S> the type of state
+ * @param <E> the type of event
+ */
+public class StateMachineInterceptorAdapter<S, E> implements StateMachineInterceptor<S, E> {
 
-	void preStateChange(State<S,E> state, Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine);
+	@Override
+	public void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
+			StateMachine<S, E> stateMachine) {
+	}
+
+	@Override
+	public void postStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
+			StateMachine<S, E> stateMachine) {
+	}
+
+	@Override
+	public StateContext<S, E> preTransition(StateContext<S, E> stateContext) {
+		return stateContext;
+	}
+
+	@Override
+	public StateContext<S, E> postTransition(StateContext<S, E> stateContext) {
+		return stateContext;
+	}
 
 }

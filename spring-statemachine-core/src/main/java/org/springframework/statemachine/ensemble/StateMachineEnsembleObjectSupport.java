@@ -15,6 +15,8 @@
  */
 package org.springframework.statemachine.ensemble;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
@@ -28,6 +30,8 @@ import org.springframework.statemachine.support.LifecycleObjectSupport;
  * @param <E> the type of event
  */
 public abstract class StateMachineEnsembleObjectSupport<S, E> extends LifecycleObjectSupport implements StateMachineEnsemble<S, E> {
+
+	private final static Log log = LogFactory.getLog(StateMachineEnsembleObjectSupport.class);
 
 	private final CompositeEnsembleListener<S, E> ensembleListener = new CompositeEnsembleListener<S, E>();
 
@@ -56,6 +60,9 @@ public abstract class StateMachineEnsembleObjectSupport<S, E> extends LifecycleO
 	}
 
 	protected void notifyStateChanged(StateMachineContext<S, E> context) {
+		if (log.isTraceEnabled()) {
+			log.trace("Notify notifyStateChanged " + context);
+		}
 		ensembleListener.stateChanged(context);
 	}
 

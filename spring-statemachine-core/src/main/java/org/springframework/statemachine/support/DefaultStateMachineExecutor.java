@@ -37,6 +37,7 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.trigger.DefaultTriggerContext;
@@ -85,6 +86,9 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 	private volatile Runnable task;
 
 	private StateMachineExecutorTransit<S, E> stateMachineExecutorTransit;
+
+    private final StateMachineInterceptorList<S, E> interceptors =
+            new StateMachineInterceptorList<S, E>();
 
 	/**
 	 * Instantiates a new default state machine executor.
@@ -154,6 +158,11 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 		initialHandled.set(!enabled);
 	}
 
+	@Override
+	public void addStateMachineInterceptor(StateMachineInterceptor<S, E> interceptor) {
+		interceptors.add(interceptor);
+	}
+
 	private void handleTriggerTrans(List<Transition<S, E>> trans, Message<E> queuedMessage) {
 		for (Transition<S, E> t : trans) {
 			if (t == null) {
@@ -167,10 +176,17 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 			if (!StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
 				continue;
 			}
+
 			StateContext<S, E> stateContext = buildStateContext(queuedMessage, t, relayStateMachine);
+			stateContext = interceptors.preTransition(stateContext);
+			if (stateContext == null) {
+				break;
+			}
+
 			boolean transit = t.transit(stateContext);
 			if (transit) {
 				stateMachineExecutorTransit.transit(t, stateContext, queuedMessage);
+				interceptors.postTransition(stateContext);
 				break;
 			}
 		}
@@ -319,9 +335,17 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 
 	private StateContext<S, E> buildStateContext(Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
 		E event = message != null ? message.getPayload() : null;
+
+		// TODO: maybe a direct use of MessageHeaders is wring, combine
+		//       payload and headers as a message?
+
+		// add sm id to headers so that user of a StateContext can
+		// see who initiated this transition
 		MessageHeaders messageHeaders = message != null ? message.getHeaders() : new MessageHeaders(
 				new HashMap<String, Object>());
-		return new DefaultStateContext<S, E>(event, messageHeaders, extendedState, transition, stateMachine);
+		Map<String, Object> map = new HashMap<String, Object>(messageHeaders);
+		map.put(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER, stateMachine.getId());
+		return new DefaultStateContext<S, E>(event, new MessageHeaders(map), extendedState, transition, stateMachine);
 	}
 
 	private void registerTriggerListener() {

@@ -15,10 +15,8 @@
  */
 package org.springframework.statemachine.support;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,8 +50,8 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	/** Flag for application context events */
 	private boolean contextEventsEnabled = true;
 
-    private final StateChangeInterceptorList interceptors =
-            new StateChangeInterceptorList();
+    private final StateMachineInterceptorList<S, E> interceptors =
+            new StateMachineInterceptorList<S, E>();
 
 	/**
 	 * Gets the state machine event publisher.
@@ -195,11 +193,11 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		//       re-scheduling is needed.
 	}
 
-	protected StateChangeInterceptorList getStateChangeInterceptors() {
+	protected StateMachineInterceptorList<S, E> getStateMachineInterceptors() {
 		return interceptors;
 	}
 
-	protected void setStateChangeInterceptors(List<StateChangeInterceptor<S,E>> interceptors) {
+	protected void setStateMachineInterceptors(List<StateMachineInterceptor<S,E>> interceptors) {
 		Collections.sort(interceptors, new OrderComparator());
 	    this.interceptors.set(interceptors);
 	}
@@ -259,53 +257,4 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 
 	}
 
-	protected class StateChangeInterceptorList {
-
-		private final List<StateChangeInterceptor<S, E>> interceptors = new CopyOnWriteArrayList<StateChangeInterceptor<S, E>>();
-
-		/**
-		 * Sets the interceptors, clears any existing interceptors.
-		 *
-		 * @param interceptors the list of interceptors
-		 * @return <tt>true</tt> if interceptor list changed as a result of the
-		 *         call
-		 */
-		public boolean set(List<StateChangeInterceptor<S, E>> interceptors) {
-			synchronized (interceptors) {
-				interceptors.clear();
-				return interceptors.addAll(interceptors);
-			}
-		}
-
-		/**
-		 * Adds interceptor to the list.
-		 *
-		 * @param interceptor the interceptor
-		 * @return <tt>true</tt> (as specified by {@link Collection#add})
-		 */
-		public boolean add(StateChangeInterceptor<S, E> interceptor) {
-			return interceptors.add(interceptor);
-		}
-
-		/**
-		 * Removes interceptor from the list.
-		 *
-		 * @param interceptor the interceptor
-		 * @return <tt>true</tt> (as specified by {@link Collection#remove})
-		 */
-		public boolean remove(StateChangeInterceptor<S, E> interceptor) {
-			return interceptors.remove(interceptor);
-		}
-
-		/**
-		 * Handles the pre state change calls.
-		 */
-		void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
-				StateMachine<S, E> stateMachine) {
-			for (StateChangeInterceptor<S, E> interceptor : interceptors) {
-				interceptor.preStateChange(state, message, transition, stateMachine);
-			}
-		}
-
-	}
 }

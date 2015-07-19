@@ -34,6 +34,13 @@ import org.springframework.statemachine.transition.Transition;
 public interface Region<S, E> {
 
 	/**
+	 * Gets the region and state machine unique id.
+	 *
+	 * @return the region and state machine unique id
+	 */
+	String getId();
+
+	/**
 	 * Start the region.
 	 */
 	void start();

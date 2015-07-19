@@ -29,7 +29,7 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.state.State;
-import org.springframework.statemachine.support.StateChangeInterceptor;
+import org.springframework.statemachine.support.StateMachineInterceptor;
 import org.springframework.statemachine.transition.Transition;
 
 public class StateMachineAccessTests {
@@ -92,7 +92,7 @@ public class StateMachineAccessTests {
 		}
 
 		@Override
-		public void addStateChangeInterceptor(StateChangeInterceptor<String, String> interceptor) {
+		public void addStateMachineInterceptor(StateMachineInterceptor<String, String> interceptor) {
 		}
 
 		@Override
@@ -162,6 +162,11 @@ public class StateMachineAccessTests {
 
 		@Override
 		public void setInitialEnabled(boolean enabled) {
+		}
+
+		@Override
+		public String getId() {
+			return null;
 		}
 
 	}
