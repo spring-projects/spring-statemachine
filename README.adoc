@@ -73,6 +73,11 @@ see the
 https://github.com/spring-projects/spring-statemachine/blob/master/CONTRIBUTING.md[contributor
 guidelines] for details.
 
+If you want to contribute, search github tickets marked with `help
+wanted` or come up with your own ticket but please first open a ticket
+to discus not to work on a same topic or issues. Nobody wants to see
+same work done twice!
+
 == License
 Spring Statemachine is Open Source software released under the
 http://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
