@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine.ensemble;
 
+import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 
 /**
@@ -30,16 +31,18 @@ public interface EnsembleListeger<S, E> {
 	/**
 	 * Called when state machine joined an ensemble.
 	 *
+	 * @param stateMachine the state machine
 	 * @param context the state machine context
 	 */
-	void stateMachineJoined(StateMachineContext<S, E> context);
+	void stateMachineJoined(StateMachine<S, E> stateMachine, StateMachineContext<S, E> context);
 
 	/**
 	 * Called when state machine left an ensemble.
 	 *
+	 * @param stateMachine the state machine
 	 * @param context the state machine context
 	 */
-	void stateMachineLeft(StateMachineContext<S, E> context);
+	void stateMachineLeft(StateMachine<S, E> stateMachine, StateMachineContext<S, E> context);
 
 	/**
 	 * Called when ensemble is discovering a state change.

@@ -64,6 +64,11 @@ public interface StateMachineEnsemble<S, E> {
 	 */
 	void setState(StateMachineContext<S, E> context);
 
+	/**
+	 * Gets the state.
+	 *
+	 * @return the state
+	 */
 	StateMachineContext<S, E> getState();
 
 }

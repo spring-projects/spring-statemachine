@@ -31,14 +31,14 @@ public class InMemoryStateMachineEnsemble<S, E> extends StateMachineEnsembleObje
 	public void join(StateMachine<S, E> stateMachine) {
 		if (!joined.contains(stateMachine)) {
 			joined.add(stateMachine);
-			notifyJoined(current);
+			notifyJoined(stateMachine, current);
 		}
 	}
 
 	@Override
 	public void leave(StateMachine<S, E> stateMachine) {
 		if (joined.remove(stateMachine)) {
-			notifyLeft(current);
+			notifyLeft(stateMachine, current);
 		}
 	}
 

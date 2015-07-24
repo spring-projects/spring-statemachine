@@ -272,12 +272,12 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 		volatile List<StateMachineContext<String, String>> events = new ArrayList<StateMachineContext<String,String>>();
 
 		@Override
-		public void stateMachineJoined(StateMachineContext<String, String> context) {
+		public void stateMachineJoined(StateMachine<String, String> stateMachine, StateMachineContext<String, String> context) {
 			joinedLatch.countDown();
 		}
 
 		@Override
-		public void stateMachineLeft(StateMachineContext<String, String> context) {
+		public void stateMachineLeft(StateMachine<String, String> stateMachine, StateMachineContext<String, String> context) {
 		}
 
 		@Override

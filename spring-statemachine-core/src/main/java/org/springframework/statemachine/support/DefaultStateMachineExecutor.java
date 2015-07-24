@@ -344,7 +344,11 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 		MessageHeaders messageHeaders = message != null ? message.getHeaders() : new MessageHeaders(
 				new HashMap<String, Object>());
 		Map<String, Object> map = new HashMap<String, Object>(messageHeaders);
-		map.put(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER, stateMachine.getId());
+		if (!map.containsKey(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER)) {
+			// don't set sm id if it's already present because
+			// we want to keep the originating sm id
+			map.put(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER, stateMachine.getId());
+		}
 		return new DefaultStateContext<S, E>(event, new MessageHeaders(map), extendedState, transition, stateMachine);
 	}
 

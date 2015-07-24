@@ -35,6 +35,7 @@ import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
 import org.springframework.statemachine.support.StateMachineInterceptor;
 import org.springframework.statemachine.transition.Transition;
+import org.springframework.statemachine.transition.TransitionKind;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
@@ -175,6 +176,7 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 		@Override
 		public void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
 				StateMachine<S, E> stateMachine) {
+			// only handle if state change originates from this dist machine
 			if (message != null
 					&& ObjectUtils.nullSafeEquals(delegate.getId(),
 							message.getHeaders().get(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER))) {
@@ -195,6 +197,16 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 
 		@Override
 		public StateContext<S, E> postTransition(StateContext<S, E> stateContext) {
+			// only handle if state change originates from this dist machine
+			if (stateContext.getTransition() != null
+					&& stateContext.getTransition().getKind() == TransitionKind.INTERNAL
+					&& ObjectUtils.nullSafeEquals(delegate.getId(),
+							stateContext.getMessageHeader(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER))) {
+				StateMachineContext<S, E> xxx = ensemble.getState();
+				ensemble.setState(new DefaultStateMachineContext<S, E>(
+						xxx.getState(), stateContext.getEvent(), stateContext
+								.getMessageHeaders(), stateContext.getStateMachine().getExtendedState()));
+			}
 			return stateContext;
 		}
 
@@ -207,37 +219,47 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 	private class LocalEnsembleListener implements EnsembleListeger<S, E> {
 
 		@Override
-		public void stateMachineJoined(final StateMachineContext<S, E> context) {
-			if (context != null) {
-				// I'm now successfully joined, so set delegating
-				// sm to current known state by a context.
+		public void stateMachineJoined(final StateMachine<S, E> stateMachine, final StateMachineContext<S, E> context) {
+			if (stateMachine != null && stateMachine == DistributedStateMachine.this) {
+				if (context != null) {
+					// I'm now successfully joined, so set delegating
+					// sm to current known state by a context.
 
-				if (log.isDebugEnabled()) {
-					log.debug("Joining with context " + context);
-				}
-
-				delegate.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<S, E>>() {
-
-					@Override
-					public void apply(StateMachineAccess<S, E> function) {
-						function.resetStateMachine(context);
+					if (log.isDebugEnabled()) {
+						log.debug("Joining with context " + context);
 					}
 
-				});
+					delegate.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<S, E>>() {
+
+						@Override
+						public void apply(StateMachineAccess<S, E> function) {
+							function.resetStateMachine(context);
+						}
+
+					});
+				}
+				log.info("Requesting to start delegating state machine " + delegate);
+				log.info("Delegating machine id " + delegate.getId());
+				delegate.start();
 			}
-			log.info("Requesting to start delegating state machine " + delegate);
-			delegate.start();
 		}
 
 		@Override
-		public void stateMachineLeft(StateMachineContext<S, E> context) {
-			log.info("Requesting to stop delegating state machine " + delegate);
-			delegate.stop();
+		public void stateMachineLeft(StateMachine<S, E> stateMachine, StateMachineContext<S, E> context) {
+			if (stateMachine != null && stateMachine == DistributedStateMachine.this) {
+				log.info("Requesting to stop delegating state machine " + delegate);
+				delegate.stop();
+			}
 		}
 
 		@Override
 		public void stateChanged(StateMachineContext<S, E> context) {
-			delegate.sendEvent(MessageBuilder.withPayload(context.getEvent()).copyHeaders(context.getEventHeaders()).build());
+			// do not pass if state change was originated from this dist machine
+			if (!ObjectUtils.nullSafeEquals(delegate.getId(),
+					context.getEventHeaders().get(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER))) {
+				delegate.sendEvent(MessageBuilder.withPayload(context.getEvent())
+						.copyHeaders(context.getEventHeaders()).build());
+			}
 		}
 
 	}

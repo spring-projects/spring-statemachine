@@ -17,6 +17,7 @@ package org.springframework.statemachine.ensemble;
 
 import java.util.Iterator;
 
+import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.listener.AbstractCompositeListener;
 
@@ -32,18 +33,18 @@ public class CompositeEnsembleListener<S, E> extends AbstractCompositeListener<E
 	EnsembleListeger<S, E> {
 
 	@Override
-	public void stateMachineJoined(StateMachineContext<S, E> context) {
+	public void stateMachineJoined(StateMachine<S, E> stateMachine, StateMachineContext<S, E> context) {
 		for (Iterator<EnsembleListeger<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
 			EnsembleListeger<S, E> listener = iterator.next();
-			listener.stateMachineJoined(context);
+			listener.stateMachineJoined(stateMachine, context);
 		}
 	}
 
 	@Override
-	public void stateMachineLeft(StateMachineContext<S, E> context) {
+	public void stateMachineLeft(StateMachine<S, E> stateMachine, StateMachineContext<S, E> context) {
 		for (Iterator<EnsembleListeger<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
 			EnsembleListeger<S, E> listener = iterator.next();
-			listener.stateMachineLeft(context);
+			listener.stateMachineLeft(stateMachine, context);
 		}
 	}
 

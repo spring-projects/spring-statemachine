@@ -51,12 +51,12 @@ public abstract class StateMachineEnsembleObjectSupport<S, E> extends LifecycleO
 		ensembleListener.unregister(listener);
 	}
 
-	protected void notifyJoined(StateMachineContext<S, E> context) {
-		ensembleListener.stateMachineJoined(context);
+	protected void notifyJoined(StateMachine<S, E> stateMachine, StateMachineContext<S, E> context) {
+		ensembleListener.stateMachineJoined(stateMachine, context);
 	}
 
-	protected void notifyLeft(StateMachineContext<S, E> context) {
-		ensembleListener.stateMachineLeft(context);
+	protected void notifyLeft(StateMachine<S, E> stateMachine, StateMachineContext<S, E> context) {
+		ensembleListener.stateMachineLeft(stateMachine, context);
 	}
 
 	protected void notifyStateChanged(StateMachineContext<S, E> context) {

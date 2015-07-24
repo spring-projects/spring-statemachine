@@ -16,7 +16,9 @@
 package org.springframework.statemachine.zookeeper;
 
 import java.io.IOException;
+import java.util.Queue;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -69,6 +71,7 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	private final AtomicReference<StateWrapper> notifyRef = new AtomicReference<StateWrapper>();
 	private final CuratorWatcher watcher = new StateWatcher();
 	private PersistentEphemeralNode node;
+	private final Queue<StateMachine<S, E>> joinQueue = new ConcurrentLinkedQueue<StateMachine<S, E>>();
 
 	/**
 	 * Instantiates a new zookeeper state machine ensemble.
@@ -116,12 +119,13 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 		if (stateWrapper == null) {
 			try {
 				StateWrapper currentStateWrapper = readCurrentContext();
-				stateRef.set(new StateWrapper(currentStateWrapper.context, currentStateWrapper.version));
-				stateWrapper = stateRef.get();
+				stateRef.set(currentStateWrapper);
+				notifyRef.set(currentStateWrapper);
 			} catch (Exception e) {
 				log.error("Error reading current state during start", e);
 			}
 		}
+		joinQueued();
 	}
 
 	@Override
@@ -138,8 +142,20 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 
 	@Override
 	public void join(StateMachine<S, E> stateMachine) {
+		if (!isRunning()) {
+			joinQueue.add(stateMachine);
+		} else {
+			StateWrapper stateWrapper = stateRef.get();
+			notifyJoined(stateMachine, stateWrapper != null ? stateWrapper.context : null);
+		}
+	}
+
+	private void joinQueued() {
 		StateWrapper stateWrapper = stateRef.get();
-		notifyJoined(stateWrapper != null ? stateWrapper.context : null);
+		StateMachine<S, E> stateMachine = null;
+		while ((stateMachine = joinQueue.poll()) != null) {
+			notifyJoined(stateMachine, stateWrapper != null ? stateWrapper.context : null);
+		}
 	}
 
 	@Override
@@ -151,7 +167,7 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 			}
 		}
 		StateWrapper stateWrapper = stateRef.get();
-		notifyLeft(stateWrapper != null ? stateWrapper.context : null);
+		notifyLeft(stateMachine, stateWrapper != null ? stateWrapper.context : null);
 	}
 
 	@Override
@@ -314,6 +330,7 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 								int ver = (stat.getVersion() - 1) * logSize + (i + 1);
 								if (log.isDebugEnabled()) {
 									log.debug("Replay position " + i + " with version " + ver);
+									log.debug("Context in position " + i + " " + context);
 								}
 								StateWrapper wrapper = new StateWrapper(context, ver);
 								mayNotifyStateChanged(wrapper);
