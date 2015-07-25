@@ -202,9 +202,9 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 					&& stateContext.getTransition().getKind() == TransitionKind.INTERNAL
 					&& ObjectUtils.nullSafeEquals(delegate.getId(),
 							stateContext.getMessageHeader(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER))) {
-				StateMachineContext<S, E> xxx = ensemble.getState();
+				StateMachineContext<S, E> current = ensemble.getState();
 				ensemble.setState(new DefaultStateMachineContext<S, E>(
-						xxx.getState(), stateContext.getEvent(), stateContext
+						current.getState(), stateContext.getEvent(), stateContext
 								.getMessageHeaders(), stateContext.getStateMachine().getExtendedState()));
 			}
 			return stateContext;
@@ -260,6 +260,14 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 				delegate.sendEvent(MessageBuilder.withPayload(context.getEvent())
 						.copyHeaders(context.getEventHeaders()).build());
 			}
+		}
+
+		@Override
+		public void ensembleError(StateMachineEnsembleException exception) {
+			// TODO: when we get support for sm error handling,
+			//       propagate this exception there
+			log.error("Ensemble error", exception);
+			throw exception;
 		}
 
 	}

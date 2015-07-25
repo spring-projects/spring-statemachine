@@ -51,4 +51,11 @@ public interface EnsembleListeger<S, E> {
 	 */
 	void stateChanged(StateMachineContext<S, E> context);
 
+	/**
+	 * Called when {@link StateMachineEnsemble} resulted an error.
+	 *
+	 * @param exception the exception
+	 */
+	void ensembleError(StateMachineEnsembleException exception);
+
 }

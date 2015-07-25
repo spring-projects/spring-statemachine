@@ -38,6 +38,7 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.StateMachineException;
 import org.springframework.statemachine.ensemble.StateMachineEnsemble;
+import org.springframework.statemachine.ensemble.StateMachineEnsembleException;
 import org.springframework.statemachine.ensemble.StateMachineEnsembleObjectSupport;
 import org.springframework.statemachine.ensemble.StateMachinePersist;
 
@@ -261,7 +262,7 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	/**
 	 * Register existing {@link CuratorWatcher} for a state path.
 	 */
-	private void registerWatcherForStatePath() {
+	protected void registerWatcherForStatePath() {
 		try {
 			if (curatorClient.getState() != CuratorFrameworkState.STOPPED) {
 				curatorClient.checkExists().usingWatcher(watcher).forPath(statePath);
@@ -328,6 +329,13 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 								StateMachineContext<S, E> context = ((ZookeeperStateMachinePersist<S, E>) persist)
 										.readLog(i, stat);
 								int ver = (stat.getVersion() - 1) * logSize + (i + 1);
+
+								// check if we're behind more than a log size meaning we can't
+								// replay full history, notify and break out from a loop
+								if (i + logSize < ver) {
+									notifyError(new StateMachineEnsembleException("Current version behind more that log size"));
+									break;
+								}
 								if (log.isDebugEnabled()) {
 									log.debug("Replay position " + i + " with version " + ver);
 									log.debug("Context in position " + i + " " + context);

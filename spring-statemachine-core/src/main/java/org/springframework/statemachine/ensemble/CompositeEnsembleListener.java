@@ -56,4 +56,12 @@ public class CompositeEnsembleListener<S, E> extends AbstractCompositeListener<E
 		}
 	}
 
+	@Override
+	public void ensembleError(StateMachineEnsembleException exception) {
+		for (Iterator<EnsembleListeger<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
+			EnsembleListeger<S, E> listener = iterator.next();
+			listener.ensembleError(exception);
+		}
+	}
+
 }

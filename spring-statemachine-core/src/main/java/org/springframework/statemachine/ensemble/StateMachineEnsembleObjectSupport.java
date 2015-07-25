@@ -59,6 +59,10 @@ public abstract class StateMachineEnsembleObjectSupport<S, E> extends LifecycleO
 		ensembleListener.stateMachineLeft(stateMachine, context);
 	}
 
+	protected void notifyError(StateMachineEnsembleException exception) {
+		ensembleListener.ensembleError(exception);
+	}
+
 	protected void notifyStateChanged(StateMachineContext<S, E> context) {
 		if (log.isTraceEnabled()) {
 			log.trace("Notify notifyStateChanged " + context);

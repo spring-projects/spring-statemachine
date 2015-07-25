@@ -37,6 +37,7 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.ensemble.EnsembleListeger;
+import org.springframework.statemachine.ensemble.StateMachineEnsembleException;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.DefaultExtendedState;
@@ -260,6 +261,58 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 		}
 	}
 
+	@Test
+	public void testEventsOverflow() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+		OverflowControlZookeeperStateMachineEnsemble ensemble =
+				new OverflowControlZookeeperStateMachineEnsemble(curatorClient, "/foo", true, 4);
+
+		TestEnsembleListener listener = new TestEnsembleListener();
+		ensemble.addEnsembleListener(listener);
+
+		ensemble.afterPropertiesSet();
+		ensemble.start();
+		listener.reset(0, 10, 1);
+		ensemble.enabled = false;
+
+		for (int i = 0; i < 5; i++) {
+			ensemble.setState(new DefaultStateMachineContext<String, String>("S" + i, "E" + i,
+					new HashMap<String, Object>(), new DefaultExtendedState()));
+		}
+
+		ensemble.enabled = true;
+		TestUtils.callMethod("registerWatcherForStatePath", ensemble);
+		assertThat(listener.errors.size(), is(0));
+
+		for (int i = 5; i < 6; i++) {
+			ensemble.setState(new DefaultStateMachineContext<String, String>("S" + i, "E" + i,
+					new HashMap<String, Object>(), new DefaultExtendedState()));
+		}
+
+		assertThat(listener.errorLatch.await(2, TimeUnit.SECONDS), is(true));
+	}
+
+	private class OverflowControlZookeeperStateMachineEnsemble extends ZookeeperStateMachineEnsemble<String, String> {
+
+		boolean enabled = true;
+
+		public OverflowControlZookeeperStateMachineEnsemble(CuratorFramework curatorClient, String basePath,
+				boolean cleanState, int logSize) {
+			super(curatorClient, basePath, cleanState, logSize);
+		}
+
+		@Override
+		protected void registerWatcherForStatePath() {
+			if (enabled) {
+				super.registerWatcherForStatePath();
+			}
+		}
+
+	}
+
 	@Override
 	protected AnnotationConfigApplicationContext buildContext() {
 		return new AnnotationConfigApplicationContext();
@@ -269,6 +322,8 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 
 		volatile CountDownLatch joinedLatch = new CountDownLatch(1);
 		volatile CountDownLatch eventLatch = new CountDownLatch(1);
+		volatile CountDownLatch errorLatch = new CountDownLatch(1);
+		volatile List<Exception> errors = new ArrayList<Exception>();
 		volatile List<StateMachineContext<String, String>> events = new ArrayList<StateMachineContext<String,String>>();
 
 		@Override
@@ -286,10 +341,22 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 			eventLatch.countDown();
 		}
 
+		@Override
+		public void ensembleError(StateMachineEnsembleException exception) {
+			errors.add(exception);
+			errorLatch.countDown();
+		}
+
 		public void reset(int c1, int c2) {
+			reset(c1, c2, 0);
+		}
+
+		public void reset(int c1, int c2, int c3) {
 			joinedLatch = new CountDownLatch(c1);
 			eventLatch = new CountDownLatch(c2);
+			errorLatch = new CountDownLatch(c3);
 			events.clear();
+			errors.clear();
 		}
 
 	}
