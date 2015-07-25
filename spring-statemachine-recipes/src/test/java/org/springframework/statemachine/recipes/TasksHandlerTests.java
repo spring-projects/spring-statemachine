@@ -26,10 +26,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.recipes.tasks.TasksHandler;
-import org.springframework.statemachine.recipes.tasks.TasksHandler.TasksListener;
+import org.springframework.statemachine.recipes.tasks.TasksHandler.TasksListenerAdapter;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 
@@ -84,7 +85,7 @@ public class TasksHandlerTests {
 	}
 
 	@Test
-	public void testRunFailAndContinue() throws InterruptedException {
+	public void testRunFailAndFixAndContinue() throws InterruptedException {
 		TasksHandler handler = TasksHandler.builder()
 				.task("1", sleepRunnable())
 				.task("2", sleepRunnable())
@@ -92,7 +93,7 @@ public class TasksHandlerTests {
 				.build();
 
 		TestListener listener = new TestListener();
-		listener.reset(11, 0, 0);
+		listener.reset(12, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
 		machine.start();
@@ -101,14 +102,40 @@ public class TasksHandlerTests {
 		handler.runTasks();
 
 		assertThat(listener.stateChangedLatch.await(8, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(11));
-		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_ERROR, TasksHandler.STATE_AUTOMATIC));
+		assertThat(listener.stateChangedCount, is(12));
+		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_ERROR, TasksHandler.STATE_MANUAL));
 
 		handler.fixCurrentProblems();
 		handler.continueFromError();
 		listener.reset(1, 0, 0);
 		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
+		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_READY));
+	}
+
+	@Test
+	public void testRunFailAndAutomaticFix() throws InterruptedException {
+		TasksHandler handler = TasksHandler.builder()
+				.task("1", sleepRunnable())
+				.task("2", sleepRunnable())
+				.task("3", failRunnable())
+				.build();
+
+		TestTasksListener tasksListener = new TestTasksListener();
+		tasksListener.fix = true;
+		handler.addTasksListener(tasksListener);
+
+		TestListener listener = new TestListener();
+		listener.reset(12, 0, 0);
+		StateMachine<String, String> machine = handler.getStateMachine();
+		machine.addStateListener(listener);
+		machine.start();
+		assertThat(listener.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
+
+		handler.runTasks();
+
+		assertThat(listener.stateChangedLatch.await(8, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(12));
 		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_READY));
 	}
 
@@ -249,7 +276,7 @@ public class TasksHandlerTests {
 				.build();
 
 		TestListener listener = new TestListener();
-		listener.reset(11, 0, 0);
+		listener.reset(12, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
 		machine.start();
@@ -259,8 +286,8 @@ public class TasksHandlerTests {
 		handler.runTasks();
 
 		assertThat(listener.stateChangedLatch.await(8, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(11));
-		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_ERROR, TasksHandler.STATE_AUTOMATIC));
+		assertThat(listener.stateChangedCount, is(12));
+		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_ERROR, TasksHandler.STATE_MANUAL));
 
 		listener.reset(1, 0, 0);
 		handler.fixCurrentProblems();
@@ -354,7 +381,9 @@ public class TasksHandlerTests {
 
 	}
 
-	private class TestTasksListener implements TasksListener {
+	private static class TestTasksListener extends TasksListenerAdapter {
+
+		final Object lock = new Object();
 
 		volatile CountDownLatch onTasksStartedLatch = new CountDownLatch(1);
 		volatile CountDownLatch onTasksContinueLatch = new CountDownLatch(1);
@@ -374,71 +403,99 @@ public class TasksHandlerTests {
 		volatile int onTasksSuccess;
 		volatile int onTasksError;
 
+		volatile boolean fix = false;
+
 		@Override
 		public void onTasksStarted() {
-			onTasksStarted++;
-			onTasksStartedLatch.countDown();
+			synchronized (lock) {
+				onTasksStarted++;
+				onTasksStartedLatch.countDown();
+			}
 		}
 
 		@Override
 		public void onTasksContinue() {
-			onTasksContinue++;
-			onTasksContinueLatch.countDown();
+			synchronized (lock) {
+				onTasksContinue++;
+				onTasksContinueLatch.countDown();
+			}
 		}
 
 		@Override
 		public void onTaskPreExecute(Object id) {
-			onTaskPreExecute++;
-			onTaskPreExecuteLatch.countDown();
+			synchronized (lock) {
+				onTaskPreExecute++;
+				onTaskPreExecuteLatch.countDown();
+			}
 		}
 
 		@Override
 		public void onTaskPostExecute(Object id) {
-			onTaskPostExecute++;
-			onTaskPostExecuteLatch.countDown();
+			synchronized (lock) {
+				onTaskPostExecute++;
+				onTaskPostExecuteLatch.countDown();
+			}
 		}
 
 		@Override
 		public void onTaskFailed(Object id, Exception exception) {
-			onTaskFailed++;
-			onTaskFailedLatch.countDown();
+			synchronized (lock) {
+				onTaskFailed++;
+				onTaskFailedLatch.countDown();
+			}
 		}
 
 		@Override
 		public void onTaskSuccess(Object id) {
-			onTaskSuccess++;
-			onTaskSuccessLatch.countDown();
+			synchronized (lock) {
+				onTaskSuccess++;
+				onTaskSuccessLatch.countDown();
+			}
 		}
 
 		@Override
 		public void onTasksSuccess() {
-			onTasksSuccess++;
-			onTasksSuccessLatch.countDown();
+			synchronized (lock) {
+				onTasksSuccess++;
+				onTasksSuccessLatch.countDown();
+			}
 		}
 
 		@Override
 		public void onTasksError() {
-			onTasksError++;
-			onTasksErrorLatch.countDown();
+			synchronized (lock) {
+				onTasksError++;
+				onTasksErrorLatch.countDown();
+			}
+		}
+
+		@Override
+		public void onTasksAutomaticFix(TasksHandler handler, StateContext<String, String> context) {
+			if (!fix) {
+				return;
+			}
+			handler.markAllTasksFixed();
 		}
 
 		public void reset(int c1, int c2, int c3, int c4, int c5, int c6, int c7, int c8) {
-			onTasksStartedLatch = new CountDownLatch(c1);
-			onTasksContinueLatch = new CountDownLatch(c2);
-			onTaskPreExecuteLatch = new CountDownLatch(c3);
-			onTaskPostExecuteLatch = new CountDownLatch(c4);
-			onTaskFailedLatch = new CountDownLatch(c5);
-			onTaskSuccessLatch = new CountDownLatch(c6);
-			onTasksSuccessLatch = new CountDownLatch(c7);
-			onTasksErrorLatch = new CountDownLatch(c8);
-			onTasksStarted = 0;
-			onTasksContinue = 0;
-			onTaskPreExecute = 0;
-			onTaskPostExecute = 0;
-			onTaskFailed = 0;
-			onTaskSuccess = 0;
-			onTasksSuccess = 0;
-			onTasksError = 0;
+			synchronized (lock) {
+				onTasksStartedLatch = new CountDownLatch(c1);
+				onTasksContinueLatch = new CountDownLatch(c2);
+				onTaskPreExecuteLatch = new CountDownLatch(c3);
+				onTaskPostExecuteLatch = new CountDownLatch(c4);
+				onTaskFailedLatch = new CountDownLatch(c5);
+				onTaskSuccessLatch = new CountDownLatch(c6);
+				onTasksSuccessLatch = new CountDownLatch(c7);
+				onTasksErrorLatch = new CountDownLatch(c8);
+				onTasksStarted = 0;
+				onTasksContinue = 0;
+				onTaskPreExecute = 0;
+				onTaskPostExecute = 0;
+				onTaskFailed = 0;
+				onTaskSuccess = 0;
+				onTasksSuccess = 0;
+				onTasksError = 0;
+			}
 		}
 
 	}

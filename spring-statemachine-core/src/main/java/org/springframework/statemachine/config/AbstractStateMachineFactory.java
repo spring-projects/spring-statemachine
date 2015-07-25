@@ -510,7 +510,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 			if (transitionData.getKind() == TransitionKind.EXTERNAL) {
 				// TODO can we do this?
-				if (stateMap.get(source) == null && stateMap.get(target) == null) {
+				if (stateMap.get(source) == null || stateMap.get(target) == null) {
 					continue;
 				}
 				DefaultExternalTransition<S, E> transition = new DefaultExternalTransition<S, E>(stateMap.get(source),

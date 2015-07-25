@@ -151,6 +151,23 @@ public class TasksHandler {
 		return new Builder();
 	}
 
+	/**
+	 * Mark all extended state variables related to tasks fixed.
+	 */
+	public void markAllTasksFixed() {
+		Map<Object, Object> variables = getStateMachine().getExtendedState().getVariables();
+		for (Entry<Object, Object> entry : variables.entrySet()) {
+			if (entry.getKey() instanceof String && ((String)entry.getKey()).startsWith(STATE_TASKS_PREFIX)) {
+				if (entry.getValue() instanceof Integer) {
+					Integer value = (Integer) entry.getValue();
+					if (value < 0) {
+						variables.put(entry.getKey(), 0);
+					}
+				}
+			}
+		}
+	}
+
 	private StateMachine<String, String> buildStateMachine(List<TaskWrapper> tasks, TaskExecutor taskExecutor)
 			throws Exception {
 		StateMachineBuilder.Builder<String, String> builder = StateMachineBuilder.builder();
@@ -201,6 +218,7 @@ public class TasksHandler {
 
 			stateMachineTransitionConfigurer
 				.withExternal()
+					.state(parent)
 					.source(initial)
 					.target(task);
 		}
@@ -425,11 +443,40 @@ public class TasksHandler {
 		};
 	}
 
+	/**
+	 * {@link Action} calls {@link TasksListener#onTasksAutomaticFix(StateContext)}
+	 * before checking status of extended state variables related to tasks. If all
+	 * variables are ok, event {@code EVENT_CONTINUE} is sent, otherwise event
+	 * {@code EVENT_FALLBACK} is send which takes state machine into a manual handling.
+	 *
+	 * @return the action
+	 */
 	private Action<String, String> automaticAction() {
 		return new Action<String, String>() {
 
 			@Override
 			public void execute(StateContext<String, String> context) {
+
+				listener.onTasksAutomaticFix(TasksHandler.this, context);
+
+				boolean hasErrors = false;
+				Map<Object, Object> variables = context.getExtendedState().getVariables();
+				for (Entry<Object, Object> entry : variables.entrySet()) {
+					if (entry.getKey() instanceof String && ((String)entry.getKey()).startsWith(STATE_TASKS_PREFIX)) {
+						if (entry.getValue() instanceof Integer) {
+							Integer value = (Integer) entry.getValue();
+							if (value < 0) {
+								hasErrors = true;
+								break;
+							}
+						}
+					}
+				}
+				if (hasErrors) {
+					context.getStateMachine().sendEvent(EVENT_FALLBACK);
+				} else {
+					context.getStateMachine().sendEvent(EVENT_CONTINUE);
+				}
 			}
 		};
 	}
@@ -451,13 +498,56 @@ public class TasksHandler {
 						if (entry.getValue() instanceof Integer) {
 							Integer value = (Integer) entry.getValue();
 							if (value < 0) {
-								variables.put(entry.getValue(), 0);
+								variables.put(entry.getKey(), 0);
 							}
 						}
 					}
 				}
 			}
 		};
+	}
+
+	/**
+	 * Adapter class for {@link TasksListener}.
+	 */
+	public static class TasksListenerAdapter implements TasksListener {
+
+		@Override
+		public void onTasksStarted() {
+		}
+
+		@Override
+		public void onTasksContinue() {
+		}
+
+		@Override
+		public void onTaskPreExecute(Object id) {
+		}
+
+		@Override
+		public void onTaskPostExecute(Object id) {
+		}
+
+		@Override
+		public void onTaskFailed(Object id, Exception exception) {
+		}
+
+		@Override
+		public void onTaskSuccess(Object id) {
+		}
+
+		@Override
+		public void onTasksSuccess() {
+		}
+
+		@Override
+		public void onTasksError() {
+		}
+
+		@Override
+		public void onTasksAutomaticFix(TasksHandler handler, StateContext<String, String> context) {
+		}
+
 	}
 
 	/**
@@ -520,6 +610,16 @@ public class TasksHandler {
 		 * tasks executed with an error.
 		 */
 		void onTasksError();
+
+		/**
+		 * Called when tasks execution resulted an error and AUTOMATIC state
+		 * is entered. This is a moment where extended state variables can be
+		 * modified to allow continue into a READY state.
+		 *
+		 * @param handler the tasks handler
+		 * @param context the state context
+		 */
+		void onTasksAutomaticFix(TasksHandler handler, StateContext<String, String> context);
 	}
 
 	private class CompositeTasksListener extends AbstractCompositeListener<TasksListener> implements
@@ -581,6 +681,13 @@ public class TasksHandler {
 			}
 		}
 
+		@Override
+		public void onTasksAutomaticFix(TasksHandler handler, StateContext<String, String> context) {
+			for (Iterator<TasksListener> iterator = getListeners().reverse(); iterator.hasNext();) {
+				iterator.next().onTasksAutomaticFix(handler, context);
+			}
+		}
+
 	}
 
 	/**
@@ -613,7 +720,7 @@ public class TasksHandler {
 	}
 
 	/**
-	 * {@link Action} which is execution with every registered {@link Runnable}.
+	 * {@link Action} which is executed with every registered {@link Runnable}.
 	 */
 	private class LocalRunnableAction extends RunnableAction {
 

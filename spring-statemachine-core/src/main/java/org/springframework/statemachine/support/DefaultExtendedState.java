@@ -15,8 +15,8 @@
  */
 package org.springframework.statemachine.support;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.statemachine.ExtendedState;
 
@@ -34,7 +34,7 @@ public class DefaultExtendedState implements ExtendedState {
 	 * Instantiates a new default extended state.
 	 */
 	public DefaultExtendedState() {
-		this.variables = new HashMap<Object, Object>();
+		this.variables = new ConcurrentHashMap<Object, Object>();
 	}
 
 	/**
