@@ -125,6 +125,19 @@ project('spring-statemachine-core') {
 	}
 }
 
+project('spring-statemachine-test') {
+	description = "Spring State Machine Test"
+    
+	dependencies {
+		compile project(":spring-statemachine-core")
+
+		compile "org.springframework:spring-test:$springVersion"
+		compile "org.hamcrest:hamcrest-core:$hamcrestVersion"
+		compile "org.hamcrest:hamcrest-library:$hamcrestVersion"
+		compile "junit:junit:$junitVersion"
+	}
+}
+
 project('spring-statemachine-zookeeper') {
 	description = "Spring State Machine Zookeeper"
     
@@ -133,6 +146,7 @@ project('spring-statemachine-zookeeper') {
 		compile "org.apache.curator:curator-recipes:$curatorVersion"
 		compile "com.esotericsoftware.kryo:kryo:$kryoVersion"
 
+		testCompile project(":spring-statemachine-test")
 		testCompile "org.apache.curator:curator-test:$curatorVersion"
 		testCompile "org.springframework:spring-test:$springVersion"
 		testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"

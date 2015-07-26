@@ -39,6 +39,8 @@ import org.springframework.statemachine.ensemble.DistributedStateMachine;
 import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.test.StateMachineTestPlan;
+import org.springframework.statemachine.test.StateMachineTestPlanBuilder;
 import org.springframework.statemachine.transition.Transition;
 
 public class ZookeeperStateMachineTests extends AbstractZookeeperTests {
@@ -137,37 +139,16 @@ public class ZookeeperStateMachineTests extends AbstractZookeeperTests {
 		StateMachine<String, String> machine2 =
 				context.getBean("sm2", StateMachine.class);
 
-		TestListener listener1 =
-				context.getBean("listener1", TestListener.class);
-		TestListener listener2 =
-				context.getBean("listener2", TestListener.class);
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.stateMachine(machine1)
+					.stateMachine(machine2)
+					.step().expectState("SI").and()
+					.step().sendEvent("E1").expectStateChanged(1).expectState("S1").and()
+					.step().sendEvent("E2").expectStateChanged(1).expectState("S2").and()
+					.build();
 
-		assertThat(listener1.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(listener2.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
-
-		assertThat(machine1.getState().getIds(), containsInAnyOrder("SI"));
-		assertThat(machine2.getState().getIds(), containsInAnyOrder("SI"));
-
-		listener1.reset(1);
-		listener2.reset(1);
-		machine1.sendEvent("E1");
-
-		assertThat(listener1.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener1.stateChangedCount, is(1));
-		assertThat(listener2.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener2.stateChangedCount, is(1));
-		assertThat(machine1.getState().getIds(), containsInAnyOrder("S1"));
-		assertThat(machine2.getState().getIds(), containsInAnyOrder("S1"));
-
-		listener1.reset(1);
-		listener2.reset(1);
-		machine1.sendEvent("E2");
-		assertThat(listener1.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener1.stateChangedCount, is(1));
-		assertThat(listener2.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener2.stateChangedCount, is(1));
-		assertThat(machine1.getState().getIds(), containsInAnyOrder("S2"));
-		assertThat(machine2.getState().getIds(), containsInAnyOrder("S2"));
+		plan.test();
 	}
 
 	@Test
