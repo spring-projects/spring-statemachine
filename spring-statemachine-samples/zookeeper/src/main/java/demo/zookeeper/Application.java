@@ -32,18 +32,19 @@ import org.springframework.statemachine.zookeeper.ZookeeperStateMachineEnsemble;
 @Configuration
 public class Application  {
 
-//tag::snippetA[]
 	@Configuration
 	@EnableStateMachine
 	static class StateMachineConfig
 			extends StateMachineConfigurerAdapter<String, String> {
 
+//tag::snippetA[]
 		@Override
 		public void configure(StateMachineConfigurationConfigurer<String, String> config) throws Exception {
 			config
 				.withDistributed()
 					.ensemble(stateMachineEnsemble());
 		}
+//end::snippetA[]
 
 		@Override
 		public void configure(StateMachineStateConfigurer<String, String> states)
@@ -69,6 +70,7 @@ public class Application  {
 					.event("PUSH");
 		}
 
+//tag::snippetB[]
 		@Bean
 		public StateMachineEnsemble<String, String> stateMachineEnsemble() throws Exception {
 			return new ZookeeperStateMachineEnsemble<String, String>(curatorClient(), "/foo");
@@ -79,27 +81,20 @@ public class Application  {
 			CuratorFramework client = CuratorFrameworkFactory.builder().defaultData(new byte[0])
 					.retryPolicy(new ExponentialBackoffRetry(1000, 3))
 					.connectString("localhost:2181").build();
-			// for testing we start it here, thought initiator
-			// is trying to start it if not already done
 			client.start();
 			return client;
 		}
-
+//end::snippetB[]
 
 	}
-//end::snippetA[]
 
-//tag::snippetB[]
 	public static enum States {
 	    LOCKED, UNLOCKED
 	}
-//end::snippetB[]
 
-//tag::snippetC[]
 	public static enum Events {
 	    COIN, PUSH
 	}
-//end::snippetC[]
 
 	public static void main(String[] args) throws Exception {
 		Bootstrap.main(args);

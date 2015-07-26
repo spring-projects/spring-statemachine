@@ -67,6 +67,7 @@ public class Application  {
 	}
 //end::snippetA[]
 
+//tag::snippetB[]
 	@Configuration
 	static class PersistHandlerConfig {
 
@@ -84,7 +85,9 @@ public class Application  {
 		}
 
 	}
+//end::snippetB[]
 
+//tag::snippetC[]
 	public static class Order {
 		int id;
 		String state;
@@ -100,6 +103,7 @@ public class Application  {
 		}
 
 	}
+//end::snippetC[]
 
 	public static void main(String[] args) throws Exception {
 		Bootstrap.main(args);

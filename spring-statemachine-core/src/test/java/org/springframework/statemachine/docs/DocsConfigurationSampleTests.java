@@ -38,6 +38,8 @@ import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.access.StateMachineAccess;
+import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.action.SpelExpressionAction;
 import org.springframework.statemachine.annotation.OnTransition;
@@ -46,17 +48,19 @@ import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.StateMachineBuilder;
+import org.springframework.statemachine.config.StateMachineBuilder.Builder;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.StateMachineFactory;
-import org.springframework.statemachine.config.StateMachineBuilder.Builder;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.StateConfigurer.History;
+import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 import org.springframework.statemachine.event.StateMachineEvent;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.support.StateMachineInterceptor;
 import org.springframework.statemachine.transition.Transition;
 
 /**
@@ -735,7 +739,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 
 	}
 
-// tag::snippetY[]
+// tag::snippetYA[]
 		@Configuration
 		@EnableStateMachine
 		public static class Config17
@@ -754,6 +758,118 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 			}
 
 		}
-// end::snippetY[]
+// end::snippetYA[]
+
+// tag::snippetYB[]
+		@Configuration
+		@EnableStateMachine
+		public static class Config18
+				extends EnumStateMachineConfigurerAdapter<States, Events> {
+
+			@Override
+			public void configure(StateMachineConfigurationConfigurer<States, Events> config)
+					throws Exception {
+				config
+					.withDistributed()
+						.ensemble(stateMachineEnsemble());
+			}
+
+			@Bean
+			public StateMachineEnsemble<States, Events> stateMachineEnsemble()
+					throws Exception {
+				// naturally not null but should return ensemble instance
+				return null;
+			}
+
+		}
+// end::snippetYB[]
+
+		public static class AccessorSamples {
+
+			StateMachine<String, String> stateMachine = null;
+
+			void s1() {
+// tag::snippetZA[]
+				stateMachine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<String,String>>() {
+
+					@Override
+					public void apply(StateMachineAccess<String, String> function) {
+						function.setRelay(stateMachine);
+					}
+				});
+
+				stateMachine.getStateMachineAccessor()
+					.doWithAllRegions(access -> access.setRelay(stateMachine));
+// end::snippetZA[]
+			}
+
+			void s2() {
+// tag::snippetZB[]
+				stateMachine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<String,String>>() {
+
+					@Override
+					public void apply(StateMachineAccess<String, String> function) {
+						function.setRelay(stateMachine);
+					}
+				});
+
+				stateMachine.getStateMachineAccessor()
+					.doWithRegion(access -> access.setRelay(stateMachine));
+// end::snippetZB[]
+			}
+
+			void s3() {
+// tag::snippetZC[]
+				for (StateMachineAccess<String, String> access : stateMachine.getStateMachineAccessor().withAllRegions()) {
+					access.setRelay(stateMachine);
+				}
+
+				stateMachine.getStateMachineAccessor().withAllRegions()
+					.stream().forEach(access -> access.setRelay(stateMachine));
+// end::snippetZC[]
+			}
+
+			void s4() {
+// tag::snippetZD[]
+				stateMachine.getStateMachineAccessor()
+					.withRegion().setRelay(stateMachine);
+// end::snippetZD[]
+			}
+
+		}
+
+		public static class InterceptorSamples {
+
+			StateMachine<String, String> stateMachine = null;
+
+			void s1() {
+// tag::snippetZH[]
+				stateMachine.getStateMachineAccessor()
+					.withRegion().addStateMachineInterceptor(new StateMachineInterceptor<String, String>() {
+
+						@Override
+						public StateContext<String, String> preTransition(StateContext<String, String> stateContext) {
+							return stateContext;
+						}
+
+						@Override
+						public void preStateChange(State<String, String> state, Message<String> message,
+								Transition<String, String> transition, StateMachine<String, String> stateMachine) {
+						}
+
+						@Override
+						public StateContext<String, String> postTransition(StateContext<String, String> stateContext) {
+							return stateContext;
+						}
+
+						@Override
+						public void postStateChange(State<String, String> state, Message<String> message,
+								Transition<String, String> transition, StateMachine<String, String> stateMachine) {
+						}
+					});
+// end::snippetZH[]
+			}
+
+		}
 
 }

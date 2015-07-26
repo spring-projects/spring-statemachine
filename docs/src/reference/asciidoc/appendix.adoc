@@ -304,3 +304,11 @@ still working together in a sense. This is why orthogonal regions can
 combine together a multiple simultaneous states within a single state
 in a state machine.
 
+[appendix]
+[[appendices-zookeeper]]
+== Distributed State Machine with Zookeeper
+This appendix provides more detailed technical documentation about
+using a Zookeeper with a Spring State Machine.
+
+tbd.
+

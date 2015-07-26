@@ -36,8 +36,10 @@ public class Persist {
 
 	private final PersistStateMachineHandler handler;
 
+//tag::snippetA[]
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
+//end::snippetA[]
 
 	private final PersistStateChangeListener listener = new LocalPersistStateChangeListener();
 
@@ -62,6 +64,7 @@ public class Persist {
 		return buf.toString();
 	}
 
+//tag::snippetB[]
 	public void change(int order, String event) {
 		Order o = jdbcTemplate.queryForObject("select id, state from orders where id = ?", new Object[]{order}, new RowMapper<Order>() {
             public Order mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -70,7 +73,9 @@ public class Persist {
         });
 		handler.handleEventWithState(MessageBuilder.withPayload(event).setHeader("order", order).build(), o.state);
 	}
+//end::snippetB[]
 
+//tag::snippetC[]
 	private class LocalPersistStateChangeListener implements PersistStateChangeListener {
 
 		@Override
@@ -82,5 +87,6 @@ public class Persist {
 			}
 		}
 	}
+//end::snippetC[]
 
 }

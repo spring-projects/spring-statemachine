@@ -20,6 +20,7 @@ Every sample is located in its own directory under
 spring-shell and you will find usual boot fat jars under every sample
 projects `build/libs` directory.
 
+[[statemachine-examples-turnstile]]
 == Turnstile
 
 Turnstile is a simple device which gives you an access if payment is
@@ -442,6 +443,7 @@ What happened in above run:
 * We print lcd status and request next track.
 * We stop playing.
 
+[[statemachine-examples-tasks]]
 == Tasks
 
 Tasks is a sample demonstrating a parallel task handling within a
@@ -700,4 +702,195 @@ What happened in above run:
 * We cut power and go to POWEROFF state.
 * State is restored via HISTORY state which takes state machine back
   to its previous known state.
+
+[[statemachine-examples-persist]]
+== Persist
+Persist is a sample using recipe <<statemachine-recipes-persist>> to
+demonstate how a database entry update logic can be controlled by a
+state machine.
+
+The state machine logic and configuration is shown above:
+
+image::images/statechart10.png[width=500]
+
+.StateMachine Config
+[source,java,indent=0]
+----
+include::samples/demo/persist/Application.java[tags=snippetA]
+----
+
+`PersistStateMachineHandler` can be created using a below config:
+
+.Handler Config
+[source,java,indent=0]
+----
+include::samples/demo/persist/Application.java[tags=snippetB]
+----
+
+Order class used with this sample is shown below:
+
+.Order Class
+[source,java,indent=0]
+----
+include::samples/demo/persist/Application.java[tags=snippetC]
+----
+
+Now let's see how this example works.
+
+[source,text]
+----
+sm>persist db
+Order [id=1, state=PLACED]
+Order [id=2, state=PROCESSING]
+Order [id=3, state=SENT]
+Order [id=4, state=DELIVERED]
+
+sm>persist process 1
+Exit state PLACED
+Entry state PROCESSING
+
+sm>persist db
+Order [id=2, state=PROCESSING]
+Order [id=3, state=SENT]
+Order [id=4, state=DELIVERED]
+Order [id=1, state=PROCESSING]
+
+sm>persist deliver 3
+Exit state SENT
+Entry state DELIVERED
+
+sm>persist db
+Order [id=2, state=PROCESSING]
+Order [id=4, state=DELIVERED]
+Order [id=1, state=PROCESSING]
+Order [id=3, state=DELIVERED]
+----
+
+What happened in above run:
+
+* We listed rows from an existing embedded database which is already
+  populated with sample data. 
+* We request to update order `1` into `PROCESSING` state.
+* We list db entries again and see that state has been changed from
+  `PLACED` into a `PROCESSING`.
+* We do update for order `3` to update state from `SENT` into
+  `DELIVERED`.
+
+[NOTE]
+====
+If you're wondering where is the database because there are literally no
+signs of it in a sample code. Sample is based on Spring Boot and
+because necessary classes are in a classpath, embedded `HSQL` instance
+is created automatically.
+
+Spring Boot will even create an instance of `JdbcTemplate` which you
+can just autowire like how it's done in `Persist.java`.
+
+[source,java,indent=0]
+----
+include::samples/demo/persist/Persist.java[tags=snippetA]
+----
+====
+
+Finally we need to handle state changes:
+
+[source,java,indent=0]
+----
+include::samples/demo/persist/Persist.java[tags=snippetB]
+----
+
+And use a `PersistStateChangeListener` to update database:
+
+[source,java,indent=0]
+----
+include::samples/demo/persist/Persist.java[tags=snippetC]
+----
+
+[[statemachine-examples-zookeeper]]
+== Zookeeper
+Zookeeper is a distributed version from sample
+<<statemachine-examples-turnstile>>.
+
+[NOTE]
+====
+This sample needs and external `Zookeeper` instance accessible from
+`localhost` with default port and settings.
+====
+
+Configuration of this sample is almost same as `turnstile` sample. We
+only add configuration for distributed state machine where we
+configure `StateMachineEnsemble`.
+
+[source,java,indent=0]
+----
+include::samples/demo/zookeeper/Application.java[tags=snippetA]
+----
+
+Actual `StateMachineEnsemble` needs to be created as bean together
+with `CuratorFramework` client.
+
+[source,java,indent=0]
+----
+include::samples/demo/zookeeper/Application.java[tags=snippetB]
+----
+
+Lets go through a simple example where two different shell instances are
+started with command `java -jar
+spring-statemachine-samples-zookeeper-1.0.0.BUILD-SNAPSHOT.jar`.
+
+First open first shell instance(do not start second instance yet).
+When state machine is started it will end up into its initial state
+`LOCKED`. Then send event `COIN` to transit into `UNLOCKED` state.
+
+.Shell1
+[source,text]
+----
+sm>sm start
+Entry state LOCKED
+State machine started
+
+sm>sm event COIN
+Exit state LOCKED
+Entry state UNLOCKED
+Event COIN send
+
+sm>sm state
+UNLOCKED
+----
+
+Open second shell instance and start a state machine. You should see
+that distributed state `UNLOCKED` is entered instead of default
+initial state `LOCKED`.
+
+.Shell2
+[source,text]
+----
+sm>sm start
+State machine started
+
+sm>sm state
+UNLOCKED
+----
+
+Then from either of a shells(we use second instance here) send event
+`PUSH` to transit from `UNLOCKED` into `LOCKED` state.
+
+.Shell2
+[source,text]
+----
+sm>sm event PUSH
+Exit state UNLOCKED
+Entry state LOCKED
+Event PUSH send
+----
+
+In other shell you should see state getting changed automatically
+based on distributed state kept in Zookeeper.
+
+.Shell1
+[source,text]
+----
+sm>Exit state UNLOCKED
+Entry state LOCKED
+----
 

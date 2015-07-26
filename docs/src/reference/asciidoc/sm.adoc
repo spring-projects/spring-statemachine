@@ -31,6 +31,7 @@ simply made code snippets less verbose by leaving other needed parts
 away.
 ====
 
+[[statemachine-config]]
 === Configuring States
 We'll get into more complex configuration examples a bit later but
 lets first start with a something simple. For most simple state
@@ -208,6 +209,7 @@ states from a regions.
 include::samples/DocsConfigurationSampleTests.java[tags=snippetU]
 ----
 
+[[statemachine-config-commonsettings]]
 === Configuring Common Settings
 Some of a common state machine configuration can be set via a
 `ConfigurationConfigurer`. This allows to set `BeanFactory`,
@@ -216,7 +218,7 @@ and register `StateMachineListener` instances.
 
 [source,java,indent=0]
 ----
-include::samples/DocsConfigurationSampleTests.java[tags=snippetY]
+include::samples/DocsConfigurationSampleTests.java[tags=snippetYA]
 ----
 
 State machine `autoStartup` flag is disabled by default because all
@@ -235,6 +237,18 @@ state machine lifecycle like getting notified of a state machine
 start/stop events. Naturally it is not possible to listen a state
 machine start events if `autoStartup` is enabled unless listener can
 be registered during a configuration phase.
+
+`DistributedStateMachine` is configured via `withDistributed()` which
+allows to set a `StateMachineEnsemble` which if exists automatically
+wraps created `StateMachine` with `DistributedStateMachine` and
+enables distributed mode.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetYB]
+----
+
+More about distributed states, refer to section <<sm-distributed>>.
 
 [[sm-factories]]
 == State Machine Factories
@@ -522,4 +536,144 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippetK]
 
 In your own bean you can then use this _@StatesOnTransition_ as is and
 use type safe `source` and `target`.
+
+[[sm-accessor]]
+== State Machine Accessor
+`StateMachine` is a main interface to communicate with a state machine
+itself. Time to time there is a need to get more dynamical and
+programmatic access to internal structures of a state machine and its
+nested machines and regions. For these use cases a `StateMachine` is
+exposing a functional interface `StateMachineAccessor` which provides
+an interface to get access to individual `StateMachine` and
+`Region` instances.
+
+`StateMachineFunction` is a simple functional interface which allows
+to apply `StateMachineAccess` interface into a state machine. With
+jdk7 these will create a little verbose code but with jdk8 lambdas
+things look relatively non-verbose.
+
+Method `doWithAllRegions` gives access to all `Region` instances in
+a state machine.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetZA]
+----
+
+Method `doWithRegion` gives access to single `Region` instance in a
+state machine.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetZB]
+----
+
+Method `withAllRegions` gives access to all `Region` instances in
+a state machine.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetZC]
+----
+
+Method `withRegion` gives access to single `Region` instance in a
+state machine.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetZD]
+----
+
+[[sm-interceptor]]
+== State Machine Interceptor
+Instead of using a `StateMachineListener` interface one option is to
+use a `StateMachineInterceptor`. One conceptual difference is that an
+interceptor can be used to intercept and stop a current state
+change or transition logic. Instead of implementing full interface,
+adapter class `StateMachineInterceptorAdapter` can be used to override
+default no-op methods.
+
+[NOTE]
+====
+There is one recipe <<statemachine-recipes-persist>> and one sample
+<<statemachine-examples-persist>> which are related to use of an
+interceptor.
+====
+
+Interceptor can be registered via `StateMachineAccessor`. Concept of
+an interceptor is relatively deep internal feature and thus is not
+exposed directly via `StateMachine` interface.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetZH]
+----
+
+
+[[sm-persist]]
+== Persisting State Machine
+Traditionally an instance of a state machine is used as is within a
+running program. More dynamic behaviour is possible to achieve via
+dynamic builders and factories which allows state machine
+instantiation on-demand. Building an instance of a state machine is
+relatively heavy operation so if there is a need to i.e. handle
+arbitrary state change in a database using a state machine we need to
+find a better and faster way to do it.
+
+Persist feature allows user to save a state of a state machine itself
+into an external repository and later reset a state machine based of
+serialized state. For example if you have a database table keeping
+orders it would be way too expensive to update order state via a state
+machine if a new instance would need to be build for every change.
+Persist feature allows you to reset a state machine state without
+instantiating a new state machine instance.
+
+[NOTE]
+====
+There is one recipe <<statemachine-recipes-persist>> and one sample
+<<statemachine-examples-persist>> which provides more info about
+persisting states.
+====
+
+While it is possible to build a custom persistence feature using a
+`StateMachineListener` it has one conceptual problem. When listener
+notifies a change of state, state change has already happened. If a
+custom persistent method within a listener fails to update serialized
+state in an external repository, state in a state machine and state in
+an external repository are then in inconsistent state.
+
+State machine interceptor can be used instead of where attempt to save
+serialized state into an external storage is done during the a state
+change within a state machine. If this interceptor callback fails,
+state change attempt will be halted and instead of ending into an
+inconsistent state, user can then handle this error manually. Using
+the interceptors are discussed in <<sm-interceptor>>.
+
+[[sm-distributed]]
+== Using Distributed States
+Distributed state is probably one of a most compicated concepts of a
+Spring State Machine. What exactly is a distributed state? A state
+within a single state machine is naturally really simple to understand
+but when there is a need to introduce a shared distributed state
+thoughout a state machines, things will get a little complicated.
+
+For configuration support see section
+<<statemachine-config-commonsettings>> and actual usage example see
+sample <<statemachine-examples-zookeeper>>.
+
+`Distributed State Machine` is implemented via a
+`DistributedStateMachine` class which simply wraps an actual instance
+of a `StateMachine`. `DistributedStateMachine` intercepts
+communication with a `StateMachine` instance and works with
+distributed state abstractions handled via interface
+`StateMachineEnsemble`. Depending on an actual implementation
+`StateMachinePersist` interface may also be used to serialize a
+`StateMachineContext` which contains enought information to reset a
+`StateMachine`.
+
+While `Distributed State Machine` is implemented via an abstraction,
+only one implementation currently exists based on `Zookeeper`.
+
+Current technical documentation of a `Zookeeker` based distributed
+state machine can be found from an appendice <<appendices-zookeeper>>.
 

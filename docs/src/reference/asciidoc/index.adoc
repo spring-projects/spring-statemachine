@@ -18,6 +18,7 @@ include::introduction.adoc[]
 [[springandsm]]
 include::sm.adoc[]
 
+include::recipes.adoc[]
 include::sm-examples.adoc[]
 include::faq.adoc[]
 include::appendix.adoc[]
