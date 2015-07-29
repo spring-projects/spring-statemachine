@@ -417,6 +417,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		if (currentState != null) {
 			buf.append(StringUtils.collectionToCommaDelimitedString(currentState.getIds()));
 		}
+		buf.append(" / id=");
+		buf.append(id);
 		return buf.toString();
 	}
 

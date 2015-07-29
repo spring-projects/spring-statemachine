@@ -75,13 +75,15 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 
 	@Override
 	protected void onInit() throws Exception {
-		delegate.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<S, E>>() {
+		// TODO: should we register with all, not just top one?
+		delegate.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S, E>>() {
 
 			@Override
 			public void apply(StateMachineAccess<S, E> function) {
 				function.addStateMachineInterceptor(interceptor);
 			}
 		});
+
 	}
 
 	@Override
@@ -176,6 +178,9 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 		@Override
 		public void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
 				StateMachine<S, E> stateMachine) {
+			if (log.isTraceEnabled()) {
+				log.trace("Received preStateChange from " + stateMachine + " for delegate " + delegate);
+			}
 			// only handle if state change originates from this dist machine
 			if (message != null
 					&& ObjectUtils.nullSafeEquals(delegate.getId(),

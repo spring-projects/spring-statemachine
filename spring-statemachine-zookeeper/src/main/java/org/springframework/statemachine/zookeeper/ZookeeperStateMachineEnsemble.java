@@ -32,6 +32,7 @@ import org.apache.curator.framework.imps.CuratorFrameworkState;
 import org.apache.curator.framework.recipes.locks.InterProcessSemaphoreMutex;
 import org.apache.curator.framework.recipes.nodes.PersistentEphemeralNode;
 import org.apache.curator.framework.recipes.nodes.PersistentEphemeralNode.Mode;
+import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.data.Stat;
 import org.springframework.statemachine.StateMachine;
@@ -182,9 +183,18 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 			if (stateWrapper != null) {
 				stat.setVersion(stateWrapper.version);
 			}
+			if (log.isDebugEnabled()) {
+				log.debug("Requesting persist write " + context + " with version " + stat.getVersion() + " for ensemble " + uuid);
+			}
 			persist.write(context, stat);
 			stateRef.set(new StateWrapper(context, stat.getVersion()));
 		} catch (Exception e) {
+			if (e instanceof StateMachineException) {
+				if (((StateMachineException)e).contains(KeeperException.BadVersionException.class)) {
+					notifyError(new StateMachineEnsembleException("Cas error during write id=[" + uuid
+							+ "] for context=[" + context + "]", e));
+				}
+			}
 			throw new StateMachineException("Error persisting data", e);
 		}
 	}
@@ -275,9 +285,16 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	private void mayNotifyStateChanged(StateWrapper wrapper) {
 		StateWrapper notifyWrapper = notifyRef.get();
 		if (notifyWrapper == null) {
+			if (log.isDebugEnabled()) {
+				log.debug("notifyWrapper null, wrapper=[" + wrapper + "] for " + this);
+			}
 			notifyRef.set(wrapper);
 			notifyStateChanged(wrapper.context);
 		} else if (wrapper.version > notifyWrapper.version) {
+			if (log.isDebugEnabled()) {
+				log.debug("Wrapper version higher that notifyWrapper version, notifyWrapper=[" + notifyWrapper
+						+ "], wrapper=[" + wrapper + "] for " + this);
+			}
 			notifyRef.set(wrapper);
 			notifyStateChanged(wrapper.context);
 		}
@@ -285,9 +302,14 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 
 	private void traceLogWrappers(StateWrapper currentWrapper, StateWrapper notifyWrapper, StateWrapper newWrapper) {
 		if (log.isTraceEnabled()) {
-			log.trace("Wrappers \ncurrentWrapper=[" + currentWrapper + "] \nnotifyWrapper=[" + notifyWrapper
-					+ "] \nnewWrapper=[" + newWrapper + "]");
+			log.trace("Wrappers id=" + uuid + "\ncurrentWrapper=[" + currentWrapper + "] \nnotifyWrapper=["
+					+ notifyWrapper + "] \nnewWrapper=[" + newWrapper + "]");
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "ZookeeperStateMachineEnsemble [uuid=" + uuid + "]";
 	}
 
 	private class StateWatcher implements CuratorWatcher {
@@ -304,7 +326,7 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 		@Override
 		public void process(WatchedEvent event) throws Exception {
 			if (log.isTraceEnabled()) {
-				log.trace("Process WatchedEvent: " + event);
+				log.trace("Process WatchedEvent: id=" + uuid + " " + event);
 			}
 			switch (event.getType()) {
 			case NodeDataChanged:
@@ -333,14 +355,25 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 								// check if we're behind more than a log size meaning we can't
 								// replay full history, notify and break out from a loop
 								if (i + logSize < ver) {
-									notifyError(new StateMachineEnsembleException("Current version behind more that log size"));
+									notifyError(new StateMachineEnsembleException("Current version behind more than log size"));
 									break;
 								}
 								if (log.isDebugEnabled()) {
 									log.debug("Replay position " + i + " with version " + ver);
 									log.debug("Context in position " + i + " " + context);
 								}
+
 								StateWrapper wrapper = new StateWrapper(context, ver);
+
+								// need to set stateRef when replaying if its
+								// context is not set or otherwise just set
+								// if stateRef still is currentWrapper
+								StateWrapper currentWrapperx = stateRef.get();
+								if (currentWrapperx.context == null) {
+									stateRef.set(wrapper);
+								} else if (wrapper.version == currentWrapperx.version + 1){
+									stateRef.set(wrapper);
+								}
 								mayNotifyStateChanged(wrapper);
 							} catch (Exception e) {
 								log.error("error reading log", e);

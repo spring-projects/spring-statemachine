@@ -17,6 +17,7 @@ package org.springframework.statemachine.zookeeper;
 
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -29,12 +30,14 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.zookeeper.KeeperException;
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
+import org.springframework.statemachine.StateMachineException;
 import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.ensemble.EnsembleListeger;
 import org.springframework.statemachine.ensemble.StateMachineEnsembleException;
@@ -230,6 +233,146 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 	}
 
 	@Test
+	public void testContextEventsNotMissedBurstNoOverflow2() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+
+		ZookeeperStateMachineEnsemble<String, String> ensemble1 =
+				new ZookeeperStateMachineEnsemble<String, String>(curatorClient, "/foo");
+		ZookeeperStateMachineEnsemble<String, String> ensemble2 =
+				new ZookeeperStateMachineEnsemble<String, String>(curatorClient, "/foo");
+
+		TestEnsembleListener listener1 = new TestEnsembleListener();
+		ensemble1.addEnsembleListener(listener1);
+		TestEnsembleListener listener2 = new TestEnsembleListener();
+		ensemble2.addEnsembleListener(listener2);
+
+		ensemble1.afterPropertiesSet();
+		ensemble1.start();
+		ensemble2.afterPropertiesSet();
+		ensemble2.start();
+
+		listener1.reset(0, 10);
+		listener2.reset(0, 10);
+
+		for (int i = 0; i < 10; i++) {
+			ensemble1.setState(new DefaultStateMachineContext<String, String>("S" + i, "E" + i,
+					new HashMap<String, Object>(), new DefaultExtendedState()));
+		}
+
+		assertThat(listener1.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener1.events.size(), is(10));
+		assertThat(listener2.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener2.events.size(), is(10));
+
+		for (int i = 0; i < 10; i++) {
+			assertThat(listener1.events.get(i).getEvent(), is("E" + i));
+			assertThat(listener2.events.get(i).getEvent(), is("E" + i));
+		}
+	}
+
+	@Test
+	public void testContextEventsNotMissedBurstNoOverflow3() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+
+		ZookeeperStateMachineEnsemble<String, String> ensemble1 =
+				new ZookeeperStateMachineEnsemble<String, String>(curatorClient, "/foo");
+		ZookeeperStateMachineEnsemble<String, String> ensemble2 =
+				new ZookeeperStateMachineEnsemble<String, String>(curatorClient, "/foo");
+
+		TestEnsembleListener listener1 = new TestEnsembleListener();
+		ensemble1.addEnsembleListener(listener1);
+		TestEnsembleListener listener2 = new TestEnsembleListener();
+		ensemble2.addEnsembleListener(listener2);
+
+		ensemble1.afterPropertiesSet();
+		ensemble1.start();
+		ensemble2.afterPropertiesSet();
+		ensemble2.start();
+
+		listener1.reset(0, 10);
+		listener2.reset(0, 10);
+
+		Exception e = null;
+		try {
+			for (int i = 0; i < 10; i++) {
+				if (((i % 2) == 0)) {
+					ensemble1.setState(new DefaultStateMachineContext<String, String>("S" + i, "E" + i,
+							new HashMap<String, Object>(), new DefaultExtendedState()));
+				} else {
+					ensemble2.setState(new DefaultStateMachineContext<String, String>("S" + i, "E" + i,
+							new HashMap<String, Object>(), new DefaultExtendedState()));
+				}
+			}
+		} catch (Exception ee) {
+			e = ee;
+		}
+
+		if (e != null) {
+			assertThat(e, instanceOf(StateMachineException.class));
+			assertThat(((StateMachineException)e).contains(KeeperException.BadVersionException.class), is(true));
+		} else {
+			// miracle happened and no cas error, well then check events
+			assertThat(listener1.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+			assertThat(listener1.events.size(), is(10));
+			assertThat(listener2.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+			assertThat(listener2.events.size(), is(10));
+
+			for (int i = 0; i < 10; i++) {
+				assertThat(listener1.events.get(i).getEvent(), is("E" + i));
+				assertThat(listener2.events.get(i).getEvent(), is("E" + i));
+			}
+		}
+	}
+
+	@Test
+	public void testContextEventsNotMissedBurstNoOverflow4() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+
+		ZookeeperStateMachineEnsemble<String, String> ensemble1 =
+				new ZookeeperStateMachineEnsemble<String, String>(curatorClient, "/foo");
+		ZookeeperStateMachineEnsemble<String, String> ensemble2 =
+				new ZookeeperStateMachineEnsemble<String, String>(curatorClient, "/foo");
+
+		TestEnsembleListener listener1 = new TestEnsembleListener();
+		ensemble1.addEnsembleListener(listener1);
+		TestEnsembleListener listener2 = new TestEnsembleListener();
+		ensemble2.addEnsembleListener(listener2);
+
+		ensemble1.afterPropertiesSet();
+		ensemble1.start();
+		ensemble2.afterPropertiesSet();
+		ensemble2.start();
+
+		for (int i = 0; i < 10; i++) {
+			listener1.reset(0, 1);
+			listener2.reset(0, 1);
+			if (((i % 2) == 0)) {
+				ensemble1.setState(new DefaultStateMachineContext<String, String>("S" + i, "E" + i,
+						new HashMap<String, Object>(), new DefaultExtendedState()));
+			} else {
+				ensemble2.setState(new DefaultStateMachineContext<String, String>("S" + i, "E" + i,
+						new HashMap<String, Object>(), new DefaultExtendedState()));
+			}
+			assertThat(listener1.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+			assertThat(listener1.events.size(), is(1));
+			assertThat(listener2.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+			assertThat(listener2.events.size(), is(1));
+		}
+	}
+
+	@Test
 	public void testContextEventsNotMissedSlowNoOverflow() throws Exception {
 		context.register(ZkServerConfig.class, BaseConfig.class);
 		context.refresh();
@@ -258,6 +401,108 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 
 		for (int i = 0; i < 10; i++) {
 			assertThat(listener.events.get(i).getEvent(), is("E" + i));
+		}
+	}
+
+	@Test
+	public void testContextEventsNotMissedSlowNoOverflow2() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+
+		ZookeeperStateMachineEnsemble<String, String> ensemble1 =
+				new ZookeeperStateMachineEnsemble<String, String>(curatorClient, "/foo");
+		ZookeeperStateMachineEnsemble<String, String> ensemble2 =
+				new ZookeeperStateMachineEnsemble<String, String>(curatorClient, "/foo");
+
+		TestEnsembleListener listener1 = new TestEnsembleListener();
+		TestEnsembleListener listener2 = new TestEnsembleListener();
+		ensemble1.addEnsembleListener(listener1);
+		ensemble2.addEnsembleListener(listener2);
+
+		ensemble1.afterPropertiesSet();
+		ensemble1.start();
+		ensemble2.afterPropertiesSet();
+		ensemble2.start();
+		listener1.reset(0, 10);
+		listener2.reset(0, 10);
+
+		for (int i = 0; i < 10; i++) {
+			ensemble1.setState(new DefaultStateMachineContext<String, String>("S" + i, "E" + i,
+					new HashMap<String, Object>(), new DefaultExtendedState()));
+			Thread.sleep(500);
+		}
+
+		assertThat(listener1.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener1.events.size(), is(10));
+		assertThat(listener2.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener2.events.size(), is(10));
+
+		for (int i = 0; i < 10; i++) {
+			assertThat(listener1.events.get(i).getEvent(), is("E" + i));
+			assertThat(listener2.events.get(i).getEvent(), is("E" + i));
+		}
+	}
+
+	@Test
+	public void testDoesNotThrowCasError() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+
+		ZookeeperStateMachineEnsemble<String, String> ensemble1 =
+				new ZookeeperStateMachineEnsemble<String, String>(curatorClient, "/foo");
+		ZookeeperStateMachineEnsemble<String, String> ensemble2 =
+				new ZookeeperStateMachineEnsemble<String, String>(curatorClient, "/foo");
+
+		TestEnsembleListener listener1 = new TestEnsembleListener();
+		TestEnsembleListener listener2 = new TestEnsembleListener();
+		ensemble1.addEnsembleListener(listener1);
+		ensemble2.addEnsembleListener(listener2);
+
+		ensemble1.afterPropertiesSet();
+		ensemble1.start();
+		ensemble2.afterPropertiesSet();
+		ensemble2.start();
+		listener1.reset(0, 9);
+		listener2.reset(0, 9);
+
+		for (int i = 0; i < 9; i++) {
+			ensemble1.setState(new DefaultStateMachineContext<String, String>("S" + i, "E" + i,
+					new HashMap<String, Object>(), new DefaultExtendedState()));
+		}
+
+		assertThat(listener1.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener1.events.size(), is(9));
+		assertThat(listener2.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener2.events.size(), is(9));
+
+		for (int i = 0; i < 9; i++) {
+			assertThat(listener1.events.get(i).getEvent(), is("E" + i));
+			assertThat(listener2.events.get(i).getEvent(), is("E" + i));
+		}
+
+		listener1.reset(0, 1);
+		listener2.reset(0, 1);
+
+		// should not throw BadVersionException when we immediately
+		for (int i = 9; i < 10; i++) {
+			ensemble2.setState(new DefaultStateMachineContext<String, String>("S" + i, "E" + i,
+					new HashMap<String, Object>(), new DefaultExtendedState()));
+		}
+
+		assertThat(listener1.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener1.events.size(), is(1));
+		assertThat(listener2.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener2.events.size(), is(1));
+
+		for (int i = 0; i < 1; i++) {
+			assertThat(listener1.events.get(i).getEvent(), is("E" + (i+9)));
+			assertThat(listener2.events.get(i).getEvent(), is("E" + (i+9)));
 		}
 	}
 
