@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Stomp Over Web Socket</title>
+  <link rel="stylesheet" href="qunit.css" media="screen" />
+  <link rel="stylesheet" href="test.css" media="screen" />
+  <script src="qunit.js"></script>
+  <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js'></script>
+
+  <script src="../lib/stomp.js"></script>
+
+  <!-- define all valid Test variables used by the tests -->
+  <script src="unit/config.js"></script>
+  <!-- check web socket support -->
+  <script src="unit/websocket.js"></script>
+  <!-- check Stomp frame marshalling -->
+  <script src="unit/frame.js"></script>
+  <!-- check connect method arguments -->
+  <script src="unit/parse_connect.js"></script>
+  <!-- check connection/disconnection -->
+  <script src="unit/connection.js"></script>
+  <!-- check send/receive messages -->
+  <script src="unit/message.js"></script>
+  <!-- check transactions -->
+  <script src="unit/transaction.js"></script>
+  <!-- check subscriptions -->
+  <script src="unit/subscription.js"></script>
+  <!-- check acknowledgement -->
+  <script src="unit/ack.js"></script>
+  
+</head>
+<body>
+  <section>
+    <h1 id="qunit-header">Stomp Over Web Socket</h1>
+    <section>
+      <p>Tests requires that a Stomp Server accepting WebSocket protocol is running with the configuration:</p>
+      <ul>
+        <li>URL: <span id="test_url"></span>
+        <li>Destination: <span id="test_destination"></span>
+        <li>User: <span id="test_login"></span> /  <span id="test_password"></span>
+      </ul>
+      <p>These values can be configured in <a href="unit/config.js">unit/config.js</a>
+    </section>
+    
+    <h2 id="qunit-banner"></h2>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests"></ol>
+    
+    <pre id="debug"></pre>
+  </section>
+</body>
+</html>

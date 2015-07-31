@@ -1,0 +1,151 @@
+/*
+
+Copyright (c) 2010, Jeff Mesnil (http://jmesnil.net) All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice,
+  this list of conditions and the following disclaimer.
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 'AS IS'
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+Acknowledgements & Inspirations
+
+The stub of the stylesheet (and the documentation in general) was taken 
+from Mark Pilgrim's Dive into HTML 5 (http//diveintohtml5.org).
+ 
+"The Elements of Typographic Style Applied to the Web" ... http://webtypography.net/toc/
+"Use the Best Available Ampersand" ....................... http://simplebits.com/notebook/2008/08/14/ampersands.html
+"Unicode Support in HTML, Fonts, and Web Browsers" ....... http://alanwood.net/unicode/
+"Punctuation" ............................................ http://en.wikipedia.org/wiki/Punctuation
+"Essays 1743" ............................................ http://www.thibault.org/fonts/essays/
+"Linux Libertine" ........................................ http://linuxlibertine.sourceforge.net/
+"CSS Styled Restaurant Menu" ............................. http://www.web-graphics.com/mtarchive/ItalianMenu.html
+*/
+
+footer {
+  clear: both;
+  text-align: center;
+  font-size: small;
+  display: block;
+}
+
+
+body {
+    font: large/1.556 "Linux Libertine", Palatino, "Palatino Linotype", "Book Antiqua", Georgia, "Times New Roman", serif;
+     word-spacing: 0.1em;
+     max-width: 800px;
+     margin: 0 auto;
+     padding-bottom: 2em;
+   }
+   
+pre, kbd, samp, code, var {
+  font: medium Consolas, "Andale Mono", Monaco, "Liberation Mono", "Bitstream Vera Sans Mono", "DejaVu Sans Mono", monospace;
+  word-spacing: 0;
+  letter-spacing: 0;
+}
+
+code, var, samp {
+  line-height:inherit !important;
+}
+
+samp {
+  display:inline ;
+  color: #667;
+}
+mark {
+  display: inline-block;
+  background: #ff8;
+  border: 1px dotted #888;
+}
+
+h1, h2, h3, h4, caption, thead th {
+  font-family: "Essays 1743", "Linux Libertine", Palatino, "Palatino Linotype", "Book Antiqua", Georgia, "Times New Roman", serif;
+}
+
+h1, h2, h3, h4 {
+  clear: both;
+}
+
+
+img {
+  float: left;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+.bc, .st {
+  width:100%;
+  border-collapse:collapse;
+}
+
+.st {
+  border: 1px solid;
+}
+
+.st th {
+  text-align: left;
+  font-weight: normal;
+}
+
+.st tr > th:first-child {
+  padding-left: 5px;
+}
+
+.ho th {
+  border-bottom: 1px solid;
+}
+
+.zebra {
+  background: #eee;
+}
+
+.ss {
+  float: right;
+  margin: 0 0 1.75em 1.75em;
+  font-size: medium;
+}
+
+aside {
+  display: block;
+  padding: 0.75em;
+  border: 1px solid #000;
+  -moz-border-radius: 1em;
+  -webkit-border-radius: 1em;
+  border-radius: 1em;
+  font-style: oblique;
+  margin: 1.75em 0;
+}
+
+.advice {
+  display: block;
+  padding: 0.75em;
+  border: 1px solid #000;
+  -moz-border-radius: 1em;
+  -webkit-border-radius: 1em;
+  border-radius: 1em;
+  font-style: oblique;
+  margin: 1.75em 0;
+  min-height: 148px;
+  
+}
+
+.ss span {
+  display: block;
+  text-align: center;
+  border-bottom: 3px double;
+}

@@ -1,0 +1,4 @@
+{
+  "name": "stomp-websocket",
+  "main": "lib/stomp.min.js"
+}

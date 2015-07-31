@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="springChat">
+	<head>
+	  <meta charset="utf-8" />
+	  <title>Spring Statemachine Zookeeper Demo</title>
+	  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	  <link href="lib/flat-ui/dist/css/vendor/bootstrap.min.css" rel="stylesheet">
+	  <link href="lib/flat-ui/dist/css/flat-ui.css" rel="stylesheet">
+	  <link href="lib/angularjs-toaster/toaster.css" rel="stylesheet">
+
+	  <link href="css/chat.css" rel="stylesheet">
+	</head>
+	<body>
+
+		<div class="container" ng-controller="ChatController">
+			<toaster-container></toaster-container>
+			<div class="row">
+				<nav class="navbar navbar-inverse navbar-embossed" role="navigation">
+					<div class="collapse navbar-collapse" id="navbar-collapse-01">
+						<h1>Spring Statemachine Zookeeper Demo</h1>
+					</div>
+				</nav>
+			</div>
+			<div class="row">
+	        	<div>
+       				<button ng-click="sendEvent('A')">event A</button>
+       				<button ng-click="sendEvent('B')">event B</button>
+       				<button ng-click="sendEvent('C')">event C</button>
+       				<button ng-click="sendEvent('D')">event D</button>
+       				<button ng-click="sendEvent('E')">event E</button>
+       				<button ng-click="sendEvent('F')">event F</button>
+       				<button ng-click="sendEvent('G')">event G</button>
+       				<button ng-click="sendEvent('H')">event H</button>
+       				<button ng-click="sendEvent('I')">event I</button>
+       			</div>
+			</div>
+	        <div class="row">
+        		<div class="col-xs-3">
+        			<h4>States</h4>
+        			<div class="share">
+	        			<ul ng-repeat="participant in participants">
+	        				<li>
+	        					<div>{{participant.message}}</div>
+	        				</li>
+	        			</ul>
+        			</div>
+        		</div>
+        		<div class="col-xs-3">
+        			<h4>Variables</h4>
+        			<div class="share">
+	        			<ul ng-repeat="variable in variables">
+	        				<li>
+	        					<div>{{variable}}</div>
+	        				</li>
+	        			</ul>
+        			</div>
+        		</div>
+        		<div class="col-xs-8 chat-box">
+        			<h4>Messages</h4>
+	        		<div ng-repeat="message in messages">
+	       	 			<small print-message></small>
+	      			</div>
+        		</div>
+        	</div>
+	    </div>
+	    <!-- /.container -->
+
+		<!-- 3rd party -->
+		<script src="lib/angular/angular.min.js"></script>
+	    <script src="lib/angular-animate/angular-animate.min.js"></script>
+	    <script src="lib/angularjs-toaster/toaster.js"></script>
+	    <script src="lib/angularjs-scroll-glue/src/scrollglue.js"></script>
+	    <script src="lib/sockjs/sockjs.min.js"></script>
+	    <script src="lib/stomp/lib/stomp.min.js"></script>
+
+		<!-- App -->
+		<script src="js/app.js"></script>
+		<script src="js/controllers.js"></script>
+		<script src="js/services.js"></script>
+		<script src="js/directives.js"></script>
+	</body>
+</html>

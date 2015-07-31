@@ -1,0 +1,15 @@
+{
+  "name": "stomp-websocket",
+  "main": "lib/stomp.min.js",
+  "homepage": "https://github.com/jmesnil/stomp-websocket",
+  "version": "2.3.4",
+  "_release": "2.3.4",
+  "_resolution": {
+    "type": "version",
+    "tag": "2.3.4",
+    "commit": "b2ba8ce3071215131e99aba9df7061eb4ffbab9e"
+  },
+  "_source": "git://github.com/jmesnil/stomp-websocket.git",
+  "_target": "~2.3.4",
+  "_originalSource": "stomp-websocket"
+}

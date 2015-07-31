@@ -1,0 +1,22 @@
+= Spring State Machine Web Sample
+This module is using bower to manage its javascript dependencies
+but it is not yet integrated into a gradle build process. Thus all
+javascript dependencies are already included in
+`src/main/resources/static/lib`.
+
+Usual process to create javascript deps is to run(for ubuntu):
+
+[indent=0]
+----
+sudo apt-get install nodejs
+sudo apt-get install npm
+sudo sudo npm install bower
+----
+
+and then run from this directory:
+[indent=0]
+----
+bower install
+----
+
+which is using `bower.json` to update dependencies.

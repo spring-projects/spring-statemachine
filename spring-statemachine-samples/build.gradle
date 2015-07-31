@@ -33,3 +33,13 @@ project('spring-statemachine-samples-persist') {
 	}
 }
 
+project('spring-statemachine-samples-web') {
+	description = 'Spring State Machine Web Sample'
+	dependencies {
+		compile("org.springframework.boot:spring-boot-starter-security:$springBootVersion")
+		compile("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
+		compile("org.springframework.boot:spring-boot-starter-websocket:$springBootVersion")
+		compile("org.springframework.security:spring-security-messaging:$springSecurityVersion")
+		compile("org.springframework.session:spring-session:$springSessionVersion")
+	}
+}

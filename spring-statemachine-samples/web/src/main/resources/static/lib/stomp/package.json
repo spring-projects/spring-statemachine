@@ -1,0 +1,40 @@
+{
+  "name": "stompjs",
+  "version": "2.3.4",
+  "author": "Jeff Mesnil <jmesnil@gmail.com>",
+  "description": "STOMP for JavaScript apps (Web browser & node.js)",
+  "scripts": {
+    "build": "cake build",
+    "test": "coffeelint -f coffeelint.json -r src && cake test"
+  },
+  "devDependencies": {
+    "coffee-script": "latest",
+    "coffeelint": "latest",
+    "jasmine-node": "latest",
+    "uglify-js": "latest",
+    "docco": "latest",
+    "connect": "latest"
+  },
+  "optionalDependencies": {
+    "websocket": "latest"
+  },
+  "directories": {
+    "doc": "doc",
+    "example": "example",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jmesnil/stomp-websocket"
+  },
+  "keywords": [
+    "STOMP",
+    "Web sockets",
+    "messaging",
+    "queue"
+  ],
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/jmesnil/stomp-websocket/issues"
+  }
+}

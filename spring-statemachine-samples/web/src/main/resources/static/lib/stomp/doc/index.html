@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>STOMP Over WebSocket</title>
+<!--[if IE]>
+<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+<link rel=stylesheet href=screen.css>
+<link rel=alternate type=application/atom+xml href=http://github.com/feeds/jmesnil/commits/stomp-websocket/master>
+</head>
+
+<body>
+<header>
+<h1>STOMP Over WebSocket</h1>
+</header>
+
+<p id="toc">&nbsp;</p>
+
+<section>
+<h2 id=stomp>What is STOMP?</h2>
+
+<p><img src=i/johnny_automatic/johnny_automatic_elephant_climbing.svg></p>
+<p><a href=http://stomp.github.com/>STOMP</a> is a simple text-orientated messaging protocol.
+  It defines an <a href=http://stomp.github.com/stomp-specification-1.1.html>interoperable wire format</a> 
+  so that any of the available STOMP clients can communicate with any STOMP message broker to provide easy and widespread
+  messaging interoperability among languages and platforms (the STOMP web site has a <a href=http://stomp.github.com/implementations.html>list of STOMP client and server implementations</a>.</p>
+</section>
+
+<section>
+<h2 id=websockets>What is the WebSocket API?</h2>
+
+<p class=ss style="width:248px"><img width=248 src=i/johnny_automatic/johnny_automatic_follow_the_leader.svg><br>
+  <span id=live-web-sockets></span></p>
+<p><a href=http://dev.w3.org/html5/websockets/>WebSockets</a> are "TCP for the Web".</p>
+<p>When Google announced the availability of
+<a href=http://blog.chromium.org/2009/12/web-sockets-now-available-in-google.html>WebSocket in Google Chrome</a>,
+it explained the idea behind WebSockets:</p>
+<blockquote>
+  <p>The WebSocket API enables web applications to handle bidirectional communications
+    with server-side process in a straightforward way. Developers have been using XMLHttpRequest
+    ("XHR") for such purposes, but XHR makes developing web applications that communicate back
+    and forth to the server unnecessarily complex. XHR is basically asynchronous HTTP,
+    and because you need to use a tricky technique like long-hanging GET for sending data
+    from the server to the browser, simple tasks rapidly become complex. As opposed to XMLHttpRequest,
+    WebSockets provide a real bidirectional communication channel in your browser.
+    Once you get a WebSocket connection, you can send data from browser to server by calling
+    a send() method, and receive data from server to browser by an onmessage event handler.</p>
+
+  <p>In addition to the new WebSocket API, there is also a new protocol
+    (the "WebSocket Protocol") that the browser uses to communicate with servers.
+    The protocol is not raw TCP because it needs to provide the browser's "same-origin"
+    security model. It's also not HTTP because WebSocket traffic differers from HTTP's
+    request-response model. WebSocket communications using the new WebSocket protocol
+    should use less bandwidth because, unlike a series of XHRs and hanging GETs,
+    no headers are exchanged once the single connection has been established. To use this new
+    API and protocol and take advantage of the simpler programming model and more
+    efficient network traffic, you do need a new server implementation to communicate
+    with.</p>
+</blockquote>
+
+<p>The API is part of <a href=>HTML5</a> and is supported (<a href=http://en.wikipedia.org/wiki/WebSocket#Browser_support>at various degree...</a>) by most modern Web Browsers (including Google Chrome, Firefox and Safari on Mac OS X and iOS).</p>
+
+</section>
+
+<section>
+<h2 id=protocols>Protocol Support</h2>
+
+<p>This library supports multiple version of STOMP protocols:
+
+<ul>
+  <li><a href=http://stomp.github.com/stomp-specification-1.0.html>STOMP 1.0</a>
+  <li><a href=http://stomp.github.com/stomp-specification-1.1.html>STOMP 1.1<a> (including <a href=#heartbeat>heart-beating</a>)
+</ul>
+
+<h2 id=requirements>Server Requirements</h2>
+
+<p>This library is not a <em>pure</em> STOMP client. It is aimed to run on the WebSockets protocol which
+  is not TCP. Basically, the WebSocket protocol requires a <em>handshake</em> between the browser's 
+  client and the server to ensure the browser's "same-origin" security model remains in effect.</p>
+<p>This means that this library can not connect to regular STOMP brokers since they would not understand
+  the handshake initiated by the WebSocket which is not part of the STOMP protocol and would
+  likely reject the connection.</p>
+<p>There are ongoing works to add WebSocket support to STOMP broker so that they will accept STOMP connections over 
+  the WebSocket protocol.</p>
+
+<h3 id=hornetq>HornetQ</h3>
+
+<p><a href=http://jboss.org/hornetq>HornetQ</a> is the Open Source messaging system developed
+  by Red Hat and JBoss.</p>
+  
+<p>To start HornetQ with support for STOMP Over WebSocket, <a href=http://www.jboss.org/hornetq/downloads.html>download the latest version</a> and run the following steps:</p>
+
+<pre>
+  <samp>$ </samp><kbd>cd hornetq-x.y.z/examples/jms/stomp-websockets</kbd>
+  <samp>$ </samp><kbd>mvn clean install</kbd>
+  <samp>...
+  INFO: HQ221020: Started Netty Acceptor version 3.6.2.Final-c0d783c localhost:61614 for STOMP_WS protocol
+  Apr 15, 2013 1:15:33 PM org.hornetq.core.server.impl.HornetQServerImpl$SharedStoreLiveActivation run
+  INFO: HQ221007: Server is now live
+  Apr 15, 2013 1:15:33 PM org.hornetq.core.server.impl.HornetQServerImpl start
+  INFO: HQ221001: HornetQ Server version 2.3.0.CR2 (black'n'yellow2, 123) [c9e29e45-a5bd-11e2-976a-b3fef7ceb5df]</samp>
+</pre>
+
+<p>HornetQ is now started and listens to STOMP over WebSocket on the port <code>61614</code>.<br>
+It accepts <em>WebSocket connections</em> from the URL <code>ws://localhost:61614/stomp</code></p>
+</section>
+
+<p>To configure and run HornetQ with STOMP Over WebSocket enabled, follow the
+  <a href=http://docs.jboss.org/hornetq/2.3.0.CR2/docs/user-manual/html/interoperability.html#stomp.websockets>instructions</a>.</p>
+
+<h3 id=activemq>ActiveMQ</h3>
+
+<p><a href=http://activemq.apache.org>ActiveMQ</a> is the Open Source messaging system developed by Apache.
+  Starting with 5.4 snapshots, ActiveMQ supports STOMP Over WebSocket.</p>
+<p>To configure and run ActiveMQ with STOMP Over WebSocket enabled, follow the
+  <a href=http://activemq.apache.org/websockets.html>instructions</a>.</p>
+
+<h3 id=apollo>ActiveMQ Apollo</h3>
+
+<p><a href=http://activemq.apache.org/apollo/>ActiveMQ Apollo</a> is the next generation of ActiveMQ broker.
+  From the start, Apollo supports STOMP Over WebSocket.</p>
+<p>To configure and run Apollo with STOMP Over WebSocket enabled, follow the
+  <a href=http://activemq.apache.org/apollo/documentation/user-manual.html#WebSocket_Transports>instructions</a>.</p>
+
+<h3 id=rabbitmq>RabbitMQ</h3>
+
+<p><a href=http://www.rabbitmq.com/>RabbitMQ</a> is Open Source messaging system sponsored by VMware.
+<p>To configure and run RabbitMQ with STOMP Over WebSocket enabled, follow the instructions to install the <a href=http://www.rabbitmq.com/web-stomp.html>Web-Stomp plugin</a>.</p>
+
+<h3 id=stilts>Stilts &amp; Torquebox</h3>
+
+<p><a href=http://stilts.projectodd.org/>Stilts</a> is a STOMP-native messaging framework which aims to address treating STOMP as primary contract for messaging, and integrating around it, instead of simply applying STOMP shims to existing services.
+<p><a href=http://torquebox.org/>TorqueBox</a> uses the Stilts project to provide its <a href=http://torquebox.org/documentation/2.1.2/stomp.html>WebSockets and STOMP stack</a>.
+
+<section>
+
+  
+<h2 id=download>Download stomp.js JavaScript file</h2>
+
+<p>You can download <a href="https://raw.github.com/jmesnil/stomp-websocket/master/lib/stomp.js">stomp.js</a> to use it in your Web applications</p>
+
+<p>A <a href="https://raw.github.com/jmesnil/stomp-websocket/master/lib/stomp.min.js">minified version</a> is also provided to be used in production.
+
+<p>This JavaScript file is generated from <a href=http://jashkenas.github.com/coffee-script/>CoffeeScript</a> files. See the <a href=#contribute>Contribute</a> section to download the source code or browse the <a href="stomp.html">annotated source code</a>.
+
+<h2 id=api>STOMP API</h2>
+
+<h3 id=frame>STOMP Frame</h3>
+
+<p>STOMP Over WebSocket provides a straightforward mapping from a STOMP frame to a JavaScript
+  object.</p>
+
+<table class=st>
+<caption>Frame Object</caption>
+<tr class=ho><th>Property<th>Type<th>Notes
+<tr class=zebra><th><code>command</code><td>String<td>name of the frame (<code>"CONNECT"</code>, <code>"SEND"</code>, etc.)
+<tr><th><code>headers</code><td>JavaScript object<td>
+<tr class=zebra><th><code>body</code><td>String<td>
+</table>
+
+<p>The <code>command</code> and <code>headers</code> properties will always be defined
+  but the <code>headers</code> can be empty if the frame has no headers.
+  The <code>body</code> can be <code>null</code> if the frame does not have a body.</p>
+
+<h3 id=client>Create a STOMP client</h3>
+
+<h4 id=clientws>In a Web browser with regular Web Socket</h4>
+
+<p>STOMP JavaScript clients will communicate to a STOMP server using a <code>ws://</code> URL.</p>
+<p>To create a STOMP client JavaScript object, you need to call <code>Stomp.client(url)</code>
+  with the URL corresponding to the server's WebSocket endpoint:
+
+<pre><code>
+  var url = "ws://localhost:61614/stomp";
+  var client = <mark>Stomp.client(url)</mark>;
+</code></pre>
+
+<p>The <code>Stomp.client(url, protocols)</code> can also be used to override the default subprotocols provided by the library: <code>['v10.stomp', 'v11.stomp]'</code> (for STOMP 1.0 &amp; 1.1 specifications). This second argument can either be a single string or an array of strings to specify multiple subprotocols.
+
+<h4 id=alternative>In the Web browser with a custom WebSocket</h3>
+
+<p>Web browsers supports different versions of the WebSocket protocol. Some older browsers does not provide the WebSocket JavaScript or expose it under another name. By default, <code>stomp.js</code> will use the Web browser native <code>WebSocket</code> class to create the WebSocket.
+<p>However it is possible to use other type of WebSockets by using the <code>Stomp.over(ws)</code> method.
+This method expects an object that conforms to the WebSocket definition.
+
+<p>For example, it is possible to use the implementation provided by the <a href=https://github.com/sockjs/sockjs-client>SockJS</a> project which falls back to a variety of browser-specific transport protocols instead:
+
+<pre><code>
+  &lt;script src="http://cdn.sockjs.org/sockjs-0.3.min.js">&lt;/script>
+  &lt;script>
+    // use SockJS implementation instead of the browser's native implementation
+    var ws = new SockJS(url);
+    var client = <mark>Stomp.over(ws)</mark>;
+    [...]
+  &lt;/script>
+</code></pre>
+
+<p>Use <code>Stomp.client(url)</code> to use regular WebSockets or use <code>Stomp.over(ws)</code> if you required another type of WebSocket.
+<p>Apart from this initialization, the STOMP API remains the same in both cases.
+
+<h4 id=nodejs>In a node.js application</h3>
+
+<p>The library can also be used in <a href="http://nodejs.org">node.js</a> application by using the 
+  <a href="https://npmjs.org/package/stompjs">stompjs npm package</a>.
+
+<pre>
+  <samp>$ </samp><kbd>npm install <mark>stompjs</mark></kbd>
+</pre>
+  
+<p>In the node.js app, require the module with:
+
+<pre><code>
+  var <mark>Stomp</mark> = require(<mark>'stompjs'</mark>);
+</code></pre>
+  
+<p>To connect to a STOMP broker over a <em>TCP socket</em>, use the <code>Stomp.overTCP(host, port)</code> method:
+
+<pre><code>
+  var client = Stomp.<mark>overTCP</mark>('localhost', 61613);
+</code></pre>
+
+<p>To connect to a STOMP broker over a <em>Web Socket</em>, use instead the <code>Stomp.overWS(url)</code> method:
+
+<pre><code>
+  var client = Stomp.<mark>overWS</mark>('ws://localhost:61614/stomp');
+</code></pre>
+
+<p>Apart from this initialization, the STOMP API remains the same whether it is running in a Web browser or in node.js application.
+
+<h3 id=connection>Connection to the server</h3>
+
+<p>Once a STOMP client is created, it must call its <code>connect()</code> method to effectively
+  connect and authenticate to the STOMP server. The method takes two mandatory arguments,
+  <code>login</code> and <code>passcode</code> corresponding to the user credentials.</p>
+<p>Behind the scene, the client will open a connection using a WebSocket and send
+  a <a href=http://stomp.github.com/stomp-specification-1.1.html#CONNECT_or_STOMP_Frame>CONNECT</a> frame.</p>
+<p>The connection is done asynchronously: you have no guarantee to be effectively connected when
+  the call to <code>connect</code> returns. To be notified of the connection, you need to pass a
+  <code>connect_callback</code> function to the <code>connect()</code> method:</p>
+<pre><code>
+  <mark>var connect_callback</mark> = function() {
+    // called back after the client is connected and authenticated to the STOMP server
+  };
+</code></pre>
+<p>But what happens if the connection fails? the <code>connect()</code> method accepts an
+  optional <code>error_callback</code> argument which will be called if the client is not able
+  to connect to the server.
+  The callback will be called with a single argument, an error object corresponding to STOMP
+  <a href=http://stomp.github.com/stomp-specification-1.1.html#ERROR>ERROR</a> frame:</p>
+  
+<pre><code>
+  <mark>var error_callback</mark> = function(error) {
+    // display the error's message header:
+    alert(error.headers.message);
+  };
+</code></pre>
+
+<p>The <code>connect()</code> method accepts different number of arguments to provide a simple API to use in most cases:
+
+<pre><code>
+  <mark>client.connect</mark>(login, passcode, connectCallback);
+  <mark>client.connect</mark>(login, passcode, connectCallback, errorCallback);
+  <mark>client.connect</mark>(login, passcode, connectCallback, errorCallback, host);
+</code></pre>
+
+<p>where <code>login</code>, <code>passcode</code> are strings and <code>connectCallback</code> and <code>errorCallback</code> are functions
+  (some brokers also require to pass a <a href=http://stomp.github.io/stomp-specification-1.1.html#CONNECT_or_STOMP_Frame>host</a> String).
+
+<p>The <code>connect()</code> method also accepts two other variants if you need to pass additional headers:
+
+<pre><code>
+  <mark>client.connect</mark>(headers, connectCallback);
+  <mark>client.connect</mark>(headers, connectCallback, errorCallback);
+</code></pre>
+
+<p>where <code>header</code> is a map and <code>connectCallback</code> and <code>errorCallback</code> are functions.
+<p>Please note that if you use these forms, you <strong>must</strong> add the <code>login</code>, <code>passcode</code> (and eventually <code>host</code>)
+  headers yourself:
+
+  <pre><code>
+    var <mark>headers</mark> = {
+      login: 'mylogin',
+      passcode: 'mypasscode',
+      // additional header
+      'client-id': 'my-client-id'
+    };
+    client.connect(<mark>headers</mark>, connectCallback);
+  </code></pre>
+
+<p>To disconnect a client from the server, you can call its <code>disconnect()</code> method.
+  The disconnection is asynchronous: to be notified when the disconnection is effective,
+  the <code>disconnect</code> method takes an optional <code>callback</code> argument.</p>
+
+<pre><code>
+  <mark>client.disconnect</mark>(function() {
+    alert("See you next time!");
+  };
+</code></pre>
+
+<p>When a client is disconnected, it can no longer send or receive messages.</p>
+
+<h3 id=heartbeat>Heart-beating</h3>
+
+<p>If the STOMP broker accepts STOMP 1.1 frames, <a href=>heart-beating</a> is enabled by default.
+
+<p>The <code>client</code> object has a <code>heartbeat</code> field which can be used to configure heart-beating by changing its <code>incoming</code> and <code>outgoing</code> integer fields (default value for both is <code>10000</code>ms):
+
+<pre><code>
+    client.<mark>heartbeat.outgoing</mark> = 20000; // client will send heartbeats every 20000ms
+    client.<mark>heartbeat.incoming</mark> = 0;     // client does not want to receive heartbeats
+                                       // from the server
+</code></pre>
+
+<p>The heart-beating is using <code>window.setInterval()</code> to regularly send heart-beats and/or check server heart-beats.
+
+<h3 id=send>Send messages</h3>
+
+<p>When the client is connected to the server, it can send STOMP messages using
+  the <code>send()</code> method. The method takes a mandatory <code>destination</code>
+  argument corresponding to the STOMP destination. It also takes two optional
+  arguments: <code>headers</code>, a JavaScript object containing additional
+  message headers and <code>body</code>, a String object.</p>
+
+<pre><code>
+  <mark>client.send</mark>("/queue/test", {priority: 9}, "Hello, STOMP");
+</code></pre>
+
+<p>The client will send a STOMP
+  <a href=http://stomp.github.com/stomp-specification-1.1.html#SEND>SEND</a> frame to <code>/queue/test</code> destination
+  with a header <code>priority</code> set to <code>9</code> and a body <code>Hello, STOMP</code>.</p>
+
+<div class=advice>
+  <img style="float:left" width=120 src="i/johnny_automatic/johnny_automatic_advise_from_the_doctor.svg">
+  <p>If you want to send a message with a body, you <em>must</em> also pass the <code>headers</code>
+    argument. If you have no headers to pass, use an empty JavaScript literal <code>{}</code>:</p>
+  <pre><code>
+  client.send(destination, <mark>{}</mark>, body);
+  </code></pre>
+</div>
+
+<h3 id=subscribe>Subscribe and receive messages</h3>
+
+<p>To receive messages in the browser, the STOMP client must first subscribe to a destination.</p>
+<p>You can use the <code>subscribe()</code> method to subscribe to a destination. The method takes 2 mandatory
+  arguments: <code>destination</code>, a String corresponding to the destination and
+  <code>callback</code>, a function with one <code>message</code> argument
+  and an <em>optional</em> argument <code>headers</code>, a JavaScript object for additional headers.
+
+<pre><code>
+  var subscription = <mark>client.subscribe</mark>("/queue/test", callback);
+</code></pre>
+<p>The <code>subscribe()</code> methods returns a JavaScript obect with 1 attribute, <code>id</code>, that correspond to the client subscription ID
+  and one method <code>unsubscribe()</code> that can be used later on to unsubscribe the client from this destination.</p>
+
+<p>By default, the library will generate an unique ID if there is none provided in the headers. To use your own ID, pass it using the <code>headers</code> argument:
+
+<pre><code>
+  var mysubid = '...';
+  var subscription = client.subscribe(destination, callback, <mark>{ id: mysubid }</mark>);
+</code></pre>
+
+
+<p>The client will send a STOMP
+  <a href=http://stomp.github.com/stomp-specification-1.1.html#SUBSCRIBE>SUBSCRIBE</a> frame to the server
+  and register the callback. Every time the server
+  send a message to the client, the client will in turn call the callback with a STOMP Frame object
+  corresponding to the message:</p>
+
+<pre><code>
+  <mark>callback</mark> = function(message) {
+    // called when the client receives a STOMP message from the server
+    if (message.body) {
+      alert("got message with body " + message.body)
+    } else {
+      alert("got empty message");
+    }
+  });
+</code></pre>
+
+<p>The <code>subscribe()</code> method takes an optional <code>headers</code> argument to specify
+  additional headers when subscribing to a destination:</p>
+
+<pre><code>
+  var headers = {ack: 'client', 'selector': "location = 'Europe'"};
+  client.subscribe("/queue/test", message_callback, <mark>headers</mark>);
+</code></pre>
+
+<p>The client specifies that it will handle the message acknowledgement and is interested to receive
+  only messages matching the selector <code>location = 'Europe'</code>.</p>
+<div class=advice>
+  <img style="float:left" width=120 src="i/johnny_automatic/johnny_automatic_advise_from_the_doctor.svg">
+  <p>If you want to subscribe the client to multiple destinations, you can use the same callback to receive all
+    the messages:</p>
+  <pre style="clear:left"><code>
+  onmessage = function(message) {
+    // called every time the client receives a message
+  }
+  var sub1 = client.subscribe("queue/test", <mark>onmessage</mark>);
+  var sub2 = client.subscribe("queue/another", <mark>onmessage</mark>);
+  </code></pre>
+</div>
+
+<p>To stop receiving messages, the client can use the <code>unsubscribe()</code> method on the object returned by the <code>subscribe()</code>
+  method.</p>
+
+<pre><code>
+  var subscription = client.subscribe(...);
+  
+  ...
+  
+  <mark>subscription.unsubscribe</mark>();
+</code></pre>
+
+<h3 id=json>JSON support</h3>
+
+<p>The body of a STOMP message must be a <code>String</code>. If you want to send and receive
+  <a href=http://json.org/>JSON</a> objects, you can use <code>JSON.stringify()</code> and <code>JSON.parse()</code> to transform the JSON
+  object to a String and vice versa.</p>
+
+<pre><code>
+  var quote = {symbol: 'APPL', value: 195.46};
+  client.send("/topic/stocks", {}, <mark>JSON.stringify(quote)</mark>);
+
+  client.subcribe("/topic/stocks", function(message) {
+    var quote = <mark>JSON.parse(message.body)</mark>;
+    alert(quote.symbol + " is at " + quote.value);
+  };
+</code></pre>
+
+<h3 id=ack>Acknowledgment</h3>
+
+<p>By default, STOMP messages will be automatically acknowledged by the server before the message
+  is delivered to the client.</p>
+<p>The client can chose instead to handle message <a href=http://stomp.github.com/stomp-specification-1.1.html#SUBSCRIBE_ack_Header>acknowledgement</a> by subscribing to a destination and
+  specify a <code>ack</code> header set to <code>client</code> or <code>client-individual</code>.</p>
+<p>In that case, the client must use the <code>message.ack()</code> method to inform the server that it has
+  acknowledge the message.</p>
+
+<pre><code>
+  var subscription = client.subscribe("/queue/test",
+    function(message) {
+      // do something with the message
+      ...
+      // and acknowledge it
+      <mark>message.ack()</mark>;
+    },
+    <mark>{ack: 'client'}</mark>
+  );
+</code></pre>
+
+<p>The <code>ack()</code> method accepts a <code>headers</code> argument for additional headers to acknowledge the message. For example, it is possible
+  to acknowledge a message as part of a transaction and ask for a receipt when the <code>ACK</code> STOMP frame has effectively be processed by the broker:
+
+<pre><code>
+  var tx = client.begin();
+  message.ack(<mark>{ transaction: tx.id, receipt: 'my-receipt' }</mark>);
+  tx.commit();
+</code></pre>
+
+<p>The <code>nack()</code> method can also be used to inform STOMP 1.1 brokers that the client did <em>not</em> consume the message. It takes the same arguments than the <code>ack()</code> method.
+
+<h3 id=transaction>Transactions</h3>
+
+<p>Messages can be sent and acknowledged <em>in a transaction</em>.</p>
+<p>A transaction is started by the client using its <code>begin()</code> method
+  which takes an optional <code>transaction</code>, a String which uniquely identifies the
+  transaction. If no <code>transaction</code> is passed, the library will generate one automatically.
+<p>This methods returns a JavaScript object with a <code>id</code> attribute corresponding to the transaction ID and two methods:
+
+<ul>
+  <li><code>commit()</code> to commit the transaction
+  <li><code>abort()</code> to abort the transaction
+</ul>
+
+The client can then send and/or acknowledge messages in the transaction by specifying a
+<code>transaction</code> set with the transaction <code>id</code>.</p>
+
+<pre><code>
+  // start the transaction
+  var tx = <mark>client.begin</mark>();
+  // send the message in a transaction
+  client.send("/queue/test", <mark>{transaction: tx.id}</mark>, "message in a transaction");
+  // commit the transaction to effectively send the message
+  <mark>tx.commit</mark>();
+</code></pre>
+
+<div class=advice>
+  <img style="float:left" width=120 src="i/johnny_automatic/johnny_automatic_advise_from_the_doctor.svg">
+  <p>If you forget to add the <code>transaction</code> header when calling <code>send()</code>
+    the message will <em>not</em> be part of the transaction and will be sent directly without
+    waiting for the completion of the transaction.</p>
+  <pre style="clear:both"><code>
+  var txid = "unique_transaction_identifier";
+  // start the transaction
+  var tx = <mark>client.begin</mark>();
+  // oops! send the message outside the transaction
+  client.send("/queue/test", <mark>{}</mark>, "I thought I was in a transaction!");
+  <mark>tx.abort</mark>(); // Too late! the message has been sent
+  </code></pre>
+</div>
+
+<h3 id=debug>Debug</h3>
+
+<p>There are few tests in the code and it is helpful to see what is sent and received
+  from the library to debug application.</p>
+<p>The client can set its <code>debug</code> property to a function with takes a <code>String</code> argument
+  to see all the debug statements of the library:</p>
+
+<pre><code>
+  <mark>client.debug</mark> = function(str) {
+    // append the debug log to a #debug div somewhere in the page using JQuery:
+    $("#debug").append(str + "\n");
+  };
+</code></pre>
+
+<p>By default, the debug messages are logged in the browser window's console.
+
+</section>
+
+<section>
+<h2 id=example>Example</h2>
+
+<p>The source code contains a chat example in <kbd>examples/chat/index.html</kbd></p>
+<p>You need to start a STOMP server with support for WebSocket (using for example <a href=#hornetq>HornetQ</a>).</p>
+<p>Click on the <kbd>Connect</kbd> button to connect to the server and subscribe to the <code>/queue/test/</code> queue.</p>
+<p>You can then type messages in the form at the bottom of the page to send STOMP messages to the queue.
+  Messages received by the client will be displayed at the top of the page.</p>
+<p>You can also send regular STOMP messages and see them displayed in the browser. For
+  example using directly <kbd>telnet</kbd> on STOMP default port:</p>
+
+<pre>
+  <samp>$ </samp><kbd>telnet localhost 61613</kbd>
+  <kbd>CONNECT
+  login:guest
+  passcode:guest
+
+  ^@
+  </kbd>
+  <samp>CONNECTED
+  session:1092296064
+  </samp>
+</pre>
+
+<p><kbd>^@</kbd> is a null (<kbd>control-@</kbd> in ASCII) byte.</p>
+
+<pre>
+  <kbd>SEND
+  destination:/queue/test
+
+  Hello from TCP!
+  ^@
+  </kbd>
+</pre>
+
+<p>You should now have received this message in your browser.</p>
+</section>
+
+<section>
+<h2 id=contribute>Contribute</h2>
+
+<p><img width=240 src=i/johnny_automatic/johnny_automatic_the_dynamometer_test.svg></p>
+<p> The source code is hosted on <a href=http://github/org>GitHub</a>:</p>
+
+<pre>
+  <kbd>git clone <a href=http://github.com/jmesnil/stomp-websocket>git://github.com/jmesnil/stomp-websocket.git</a></kbd>
+</pre>
+
+</section>
+
+<footer>
+&copy; 2012 <a href="http://jmesnil.net/">Jeff Mesnil</a>
+</footer>
+
+<script src='http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js'></script>
+<script src='j/doc.js'></script>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-257783-1");
+pageTracker._initData();
+pageTracker._trackPageview();
+</script>
+
+</body>
+</html>

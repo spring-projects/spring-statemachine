@@ -1,0 +1,8 @@
+#debug {
+  background-color: #F0F0F0;
+  font-size: 12px;
+  height: 75%;
+  overflow: auto;
+  padding: 10px;
+  z-index: 100;
+}

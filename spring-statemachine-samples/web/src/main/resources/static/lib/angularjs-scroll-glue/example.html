@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+  <head lang="en">
+    <meta charset="utf-8">
+    <title>AngularJS Scroll Glue Directive</title>
+
+    <style type="text/css">
+      [scroll-glue]{
+        height: 100px;
+        overflow-y: scroll;
+        border: 1px solid red;
+      }
+    </style>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.1/angular.js"></script>
+    <script src="src/scrollglue.js"></script>
+    
+    <script>
+      angular.module('demo', ['luegg.directives']);
+    
+      function ItemsCtrl($scope, $timeout){
+        $scope.items = ['1', '2', '3'];
+        $scope.glued = true;
+        
+        function addItem(){
+          $scope.items.push(Math.random());
+          $timeout(addItem, 1000);
+        }
+        
+        $timeout(addItem, 1000);
+      }
+    </script>
+  </head>
+  
+  <body ng-app="demo" ng-controller="ItemsCtrl">
+    <h1>Simple</h1>
+    <div scroll-glue>
+      <ul>
+        <li ng-repeat="item in items">{{item}}</li>
+      </ul>
+    </div>
+
+    <h1>With data binding</h1>
+    <div scroll-glue ng-model="glued">
+      <ul>
+        <li ng-repeat="item in items">{{item}}</li>
+      </ul>
+    </div>
+    <a ng-click="glued = !glued">Toggle scroll-glue ({{glued}})</a>
+    <ol>
+      <li>Watch the element scrolling</li>
+      <li>Scroll up to release the glue</li>
+      <li>Scroll to bottom to attach the glue again</li>
+    </ol>
+  </body>
+  
+</html>

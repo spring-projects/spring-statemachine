@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>WebWorker Example Using STOMP Over WebSocket</title>
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/bootstrap.min.responsive.css" rel="stylesheet">
+    <style type="text/css">
+      body { padding-top: 40px; }
+    </style>
+  </head>
+
+  <body>
+    
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="#">WebWorker Example Using STOMP Over WebSockets</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span12">
+          <div id="connect">
+            <div class="page-header">
+              <h2>Server Login</h2>
+            </div>
+            <form class="form-horizontal" id='connect_form'>
+              <fieldset>
+                <div class="control-group">
+                  <label>WebSocket URL</label>
+                  <div class="controls">
+                    <input name=url id='connect_url' value='ws://localhost:61623' type="text">
+                  </div>
+                </div>
+                <div class="control-group">
+                  <label>User</label>
+                  <div class="controls">
+                    <input id='connect_login' placeholder="User Login" value="admin" type="text">
+                  </div>
+                </div>
+                <div class="control-group">
+                  <label>Password</label>
+                  <div class="controls">
+                    <input id='connect_passcode' placeholder="User Password" value="password" type="password">
+                  </div>
+                </div>
+                <div class="control-group">
+                  <label>Destination</label>
+                  <div class="controls">
+                    <input id='destination' placeholder="Destination" value="/topic/chat.general" type="text">
+                  </div>
+                </div>
+                <div class="control-group">
+                  <label>Text</label>
+                  <div class="controls">
+                    <input id='text' placeholder="Text" value="Hello, World!" type="text">
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button id='connect_submit' type="submit" class="btn btn-large btn-primary">Send</button>
+                </div>
+              </fieldset>
+            </form>
+          </div>          
+          <div id="messages">
+            <h2>Messages</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts placed at the end of the document so the pages load faster -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <script>//<![CDATA[
+    $(document).ready(function() {
+      if(window.WebSocket) {
+
+        $('#connect_form').submit(function() {
+          var url = $("#connect_url").val();
+          var login = $("#connect_login").val();
+          var passcode = $("#connect_passcode").val();
+          var destination = $("#destination").val();
+          var text = $("#text").val();
+
+          var worker = new Worker("webworker.js");
+          worker.onmessage = function (event) {
+            $("#messages").append("<p>" + event.data + "</p>\n");
+          };
+
+          worker.postMessage({
+            url: url,
+            login: login,
+            passcode: passcode,
+            destination: destination,
+            text: text
+          });
+          return false;
+        });
+      } else {
+        $("#connect").html("\
+            <h1>Get a new Web Browser!</h1>\
+            <p>\
+            Your browser does not support WebSockets. This example will not work properly.<br>\
+            Please use a Web Browser with WebSockets support (WebKit or Google Chrome).\
+            </p>\
+        ");
+      }
+    });
+    //]]></script>
+
+  </body>
+</html>

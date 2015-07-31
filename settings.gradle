@@ -14,6 +14,7 @@ include 'spring-statemachine-samples:tasks'
 include 'spring-statemachine-samples:washer'
 include 'spring-statemachine-samples:zookeeper'
 include 'spring-statemachine-samples:persist'
+include 'spring-statemachine-samples:web'
 
 rootProject.children.find {
 	if (it.name == 'spring-statemachine-recipes') {
