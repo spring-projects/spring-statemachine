@@ -310,5 +310,8 @@ in a state machine.
 This appendix provides more detailed technical documentation about
 using a Zookeeper with a Spring State Machine.
 
-tbd.
-
+[NOTE]
+====
+This article is not complete as it requires jepsen tests which are
+planned for next release.
+====

@@ -56,7 +56,8 @@ public class StateMachineErrorTests extends AbstractStateMachineTests {
 		context.register(Config.class, Config1.class);
 		context.refresh();
 
-		TestApplicationEventListener listener1 = context.getBean(TestApplicationEventListener.class);
+		TestApplicationEventListener1 listener1 = context.getBean(TestApplicationEventListener1.class);
+		TestApplicationEventListener2 listener3 = context.getBean(TestApplicationEventListener2.class);
 
 		@SuppressWarnings("unchecked")
 		ObjectStateMachine<TestStates,TestEvents> machine =
@@ -72,6 +73,8 @@ public class StateMachineErrorTests extends AbstractStateMachineTests {
 
 		assertThat(listener1.latch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(listener1.count, is(1));
+		assertThat(listener3.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(listener3.count, is(1));
 		assertThat(listener2.latch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(listener2.count, is(1));
 		assertThat(machine.hasStateMachineError(), is(true));
@@ -82,7 +85,7 @@ public class StateMachineErrorTests extends AbstractStateMachineTests {
 		context.register(Config.class, Config1.class);
 		context.refresh();
 
-		TestApplicationEventListener listener1 = context.getBean(TestApplicationEventListener.class);
+		TestApplicationEventListener1 listener1 = context.getBean(TestApplicationEventListener1.class);
 
 		@SuppressWarnings("unchecked")
 		ObjectStateMachine<TestStates,TestEvents> machine =
@@ -180,8 +183,13 @@ public class StateMachineErrorTests extends AbstractStateMachineTests {
 	static class Config {
 
 		@Bean
-		public TestApplicationEventListener testApplicationEventListener() {
-			return new TestApplicationEventListener();
+		public TestApplicationEventListener1 testApplicationEventListener1() {
+			return new TestApplicationEventListener1();
+		}
+
+		@Bean
+		public TestApplicationEventListener2 testApplicationEventListener2() {
+			return new TestApplicationEventListener2();
 		}
 	}
 
@@ -197,7 +205,7 @@ public class StateMachineErrorTests extends AbstractStateMachineTests {
 		}
 	}
 
-	static class TestApplicationEventListener implements ApplicationListener<StateMachineEvent> {
+	static class TestApplicationEventListener1 implements ApplicationListener<StateMachineEvent> {
 
 		CountDownLatch latch = new CountDownLatch(1);
 		int count = 0;
@@ -209,6 +217,19 @@ public class StateMachineErrorTests extends AbstractStateMachineTests {
 		    	latch.countDown();
 	    	}
 	    }
+	}
+
+	static class TestApplicationEventListener2 implements ApplicationListener<OnStateMachineError> {
+
+		CountDownLatch latch = new CountDownLatch(1);
+		int count = 0;
+
+		@Override
+		public void onApplicationEvent(OnStateMachineError event) {
+	    	count++;
+	    	latch.countDown();
+		}
+
 	}
 
 }

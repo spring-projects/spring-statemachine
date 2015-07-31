@@ -56,11 +56,13 @@ import org.springframework.statemachine.config.builders.StateMachineStateConfigu
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.StateConfigurer.History;
 import org.springframework.statemachine.ensemble.StateMachineEnsemble;
+import org.springframework.statemachine.event.OnStateMachineError;
 import org.springframework.statemachine.event.StateMachineEvent;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.StateMachineInterceptor;
+import org.springframework.statemachine.support.StateMachineInterceptorAdapter;
 import org.springframework.statemachine.transition.Transition;
 
 /**
@@ -877,5 +879,68 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 			}
 
 		}
+
+		@SuppressWarnings("unused")
+		private static class InterceptorAddExample {
+
+// tag::snippet1[]
+			StateMachine<String, String> stateMachine;
+
+			void addInterceptor() {
+				stateMachine.getStateMachineAccessor()
+					.doWithRegion(new StateMachineFunction<StateMachineAccess<String, String>>() {
+
+					@Override
+					public void apply(StateMachineAccess<String, String> function) {
+						function.addStateMachineInterceptor(
+								new StateMachineInterceptorAdapter<String, String>() {
+							@Override
+							public Exception stateMachineError(StateMachine<String, String> stateMachine,
+									Exception exception) {
+								// return null indicating handled error
+								return exception;
+							}
+						});
+					}
+				});
+
+			}
+// end::snippet1[]
+		}
+
+// tag::snippet2[]
+		public static class ErrorStateMachineListener
+				extends StateMachineListenerAdapter<String, String> {
+
+			@Override
+			public void stateMachineError(StateMachine<String, String> stateMachine, Exception exception) {
+	    		// do something with error
+			}
+		}
+// end::snippet2[]
+
+// tag::snippet3[]
+		public static class GenericApplicationEventListener
+				implements ApplicationListener<StateMachineEvent> {
+
+		    @Override
+		    public void onApplicationEvent(StateMachineEvent event) {
+		    	if (event instanceof OnStateMachineError) {
+		    		// do something with error
+		    	}
+		    }
+		}
+// end::snippet3[]
+
+// tag::snippet4[]
+		public static class ErrorApplicationEventListener
+				implements ApplicationListener<OnStateMachineError> {
+
+			@Override
+			public void onApplicationEvent(OnStateMachineError event) {
+	    		// do something with error
+			}
+		}
+// end::snippet4[]
 
 }
