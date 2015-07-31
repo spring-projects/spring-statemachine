@@ -134,6 +134,16 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 	}
 
 	@Override
+	public void setStateMachineError(Exception exception) {
+		delegate.setStateMachineError(exception);
+	}
+
+	@Override
+	public boolean hasStateMachineError() {
+		return delegate.hasStateMachineError();
+	}
+
+	@Override
 	public void addStateListener(StateMachineListener<S, E> listener) {
 		delegate.addStateListener(listener);
 	}
@@ -215,6 +225,11 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 			return stateContext;
 		}
 
+		@Override
+		public Exception stateMachineError(StateMachine<S, E> stateMachine, Exception exception) {
+			return exception;
+		}
+
 	}
 
 	/**
@@ -269,9 +284,8 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 
 		@Override
 		public void ensembleError(StateMachineEnsembleException exception) {
-			// TODO: when we get support for sm error handling,
-			//       propagate this exception there
 			log.error("Ensemble error", exception);
+			setStateMachineError(exception);
 			throw exception;
 		}
 

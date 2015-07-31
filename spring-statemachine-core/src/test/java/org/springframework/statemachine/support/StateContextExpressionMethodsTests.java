@@ -177,6 +177,15 @@ public class StateContextExpressionMethodsTests {
 		}
 
 		@Override
+		public void setStateMachineError(Exception exception) {
+		}
+
+		@Override
+		public boolean hasStateMachineError() {
+			return false;
+		}
+
+		@Override
 		public void addStateListener(StateMachineListener<SpelStates, SpelEvents> listener) {
 		}
 

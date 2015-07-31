@@ -176,6 +176,10 @@ public class ListenerTests extends AbstractStateMachineTests {
 			stopLatch.countDown();
 		}
 
+		@Override
+		public void stateMachineError(StateMachine<TestStates, TestEvents> stateMachine, Exception exception) {
+		}
+
 	}
 
 	@Configuration

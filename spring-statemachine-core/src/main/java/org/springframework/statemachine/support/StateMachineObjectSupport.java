@@ -183,6 +183,16 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		}
 	}
 
+	protected void notifyStateMachineError(StateMachine<S, E> stateMachine, Exception exception) {
+		stateListener.stateMachineError(stateMachine, exception);
+		if (contextEventsEnabled) {
+			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
+			if (eventPublisher != null) {
+				eventPublisher.publishStateMachineError(this, stateMachine, exception);
+			}
+		}
+	}
+
 	protected void stateChangedInRelay() {
 		// TODO: this is a temporary tweak to know when state is
 		//       changed in a submachine/regions order to give
@@ -253,6 +263,11 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		@Override
 		public void stateMachineStopped(StateMachine<S, E> stateMachine) {
 			stateListener.stateMachineStopped(stateMachine);
+		}
+
+		@Override
+		public void stateMachineError(StateMachine<S, E> stateMachine, Exception exception) {
+			stateListener.stateMachineError(stateMachine, exception);
 		}
 
 	}

@@ -73,4 +73,13 @@ public interface StateMachineInterceptor<S, E> {
 	 */
 	StateContext<S, E> postTransition(StateContext<S, E> stateContext);
 
+	/**
+	 * State when state machine is about to enter error it can't recover.
+	 *
+	 * @param stateMachine the state machine
+	 * @param exception the exception
+	 * @return the exception
+	 */
+	Exception stateMachineError(StateMachine<S, E> stateMachine, Exception exception);
+
 }

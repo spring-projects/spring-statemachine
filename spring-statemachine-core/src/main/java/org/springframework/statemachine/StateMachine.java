@@ -51,4 +51,18 @@ public interface StateMachine<S, E> extends Region<S, E> {
 	 */
 	StateMachineAccessor<S, E> getStateMachineAccessor();
 
+	/**
+	 * Sets the state machine error.
+	 *
+	 * @param exception the new state machine error
+	 */
+	void setStateMachineError(Exception exception);
+
+	/**
+	 * Checks for state machine error.
+	 *
+	 * @return true, if error has been set
+	 */
+	boolean hasStateMachineError();
+
 }

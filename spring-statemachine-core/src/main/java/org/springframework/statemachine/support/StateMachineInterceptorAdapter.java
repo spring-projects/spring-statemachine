@@ -51,4 +51,9 @@ public class StateMachineInterceptorAdapter<S, E> implements StateMachineInterce
 		return stateContext;
 	}
 
+	@Override
+	public Exception stateMachineError(StateMachine<S, E> stateMachine, Exception exception) {
+		return exception;
+	}
+
 }

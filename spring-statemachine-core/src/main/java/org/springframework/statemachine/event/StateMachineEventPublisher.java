@@ -101,4 +101,13 @@ public interface StateMachineEventPublisher {
 	 */
 	void publishStateMachineStop(Object source, StateMachine<?, ?> stateMachine);
 
+	/**
+	 * Publish a state machine error.
+	 *
+	 * @param source the source
+	 * @param stateMachine the state machine
+	 * @param exception the exception
+	 */
+	void publishStateMachineError(Object source, StateMachine<?, ?> stateMachine, Exception exception);
+
 }

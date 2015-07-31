@@ -143,6 +143,15 @@ public class StateMachineAccessTests {
 		}
 
 		@Override
+		public void setStateMachineError(Exception exception) {
+		}
+
+		@Override
+		public boolean hasStateMachineError() {
+			return false;
+		}
+
+		@Override
 		public void addStateListener(StateMachineListener<String, String> listener) {
 		}
 

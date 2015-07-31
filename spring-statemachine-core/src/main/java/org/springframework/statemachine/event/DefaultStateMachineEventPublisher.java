@@ -115,4 +115,11 @@ public class DefaultStateMachineEventPublisher implements StateMachineEventPubli
 		}
 	}
 
+	@Override
+	public void publishStateMachineError(Object source, StateMachine<?, ?> stateMachine, Exception exception) {
+		if (applicationEventPublisher != null) {
+			applicationEventPublisher.publishEvent(new OnStateMachineError(source, stateMachine, exception));
+		}
+	}
+
 }

@@ -92,6 +92,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	private volatile State<S,E> currentState;
 
+	private volatile Exception currentError;
+
 	private volatile PseudoState<S, E> history;
 
 	private final Map<String, StateMachineOnTransitionHandler<S, E>> handlers = new HashMap<String, StateMachineOnTransitionHandler<S,E>>();
@@ -180,6 +182,11 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	@Override
 	public boolean sendEvent(Message<E> event) {
+		if (hasStateMachineError()) {
+			// TODO: should we throw exception?
+			notifyEventNotAccepted(event);
+			return false;
+		}
 		if (isComplete() || !isRunning()) {
 			notifyEventNotAccepted(event);
 			return false;
@@ -290,6 +297,24 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		notifyStateMachineStopped(this);
 		currentState = null;
 		initialEnabled = null;
+	}
+
+	@Override
+	public void setStateMachineError(Exception exception) {
+		if (exception == null) {
+			currentError = null;
+		} else {
+			exception = getStateMachineInterceptors().stateMachineError(this, exception);
+			currentError = exception;
+		}
+		if (currentError != null) {
+			notifyStateMachineError(this, currentError);
+		}
+	}
+
+	@Override
+	public boolean hasStateMachineError() {
+		return currentError != null;
 	}
 
 	@Override

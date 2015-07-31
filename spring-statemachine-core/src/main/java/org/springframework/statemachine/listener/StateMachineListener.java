@@ -94,4 +94,12 @@ public interface StateMachineListener<S,E> {
 	 */
 	void stateMachineStopped(StateMachine<S, E> stateMachine);
 
+	/**
+	 * Notified when statemachine enters error it can't recover from.
+	 *
+	 * @param stateMachine the state machine
+	 * @param exception the exception
+	 */
+	void stateMachineError(StateMachine<S, E> stateMachine, Exception exception);
+
 }

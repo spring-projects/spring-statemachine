@@ -105,4 +105,12 @@ public class CompositeStateMachineListener<S,E> extends AbstractCompositeListene
 		}
 	}
 
+	@Override
+	public void stateMachineError(StateMachine<S, E> stateMachine, Exception exception) {
+		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
+			StateMachineListener<S, E> listener = iterator.next();
+			listener.stateMachineError(stateMachine, exception);
+		}
+	}
+
 }

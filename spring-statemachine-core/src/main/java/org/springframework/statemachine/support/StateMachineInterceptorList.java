@@ -131,4 +131,20 @@ public class StateMachineInterceptorList<S, E> {
 		return stateContext;
 	}
 
+	/**
+	 * State machine error.
+	 *
+	 * @param stateMachine the state machine
+	 * @param exception the exception
+	 * @return the exception
+	 */
+	public Exception stateMachineError(StateMachine<S, E> stateMachine, Exception exception) {
+		for (StateMachineInterceptor<S, E> interceptor : interceptors) {
+			if ((exception = interceptor.stateMachineError(stateMachine, exception)) == null) {
+				break;
+			}
+		}
+		return exception;
+	}
+
 }

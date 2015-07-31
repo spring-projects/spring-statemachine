@@ -301,6 +301,11 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 			preStateChangeCount = 0;
 		}
 
+		@Override
+		public Exception stateMachineError(StateMachine<States, Events> stateMachine, Exception exception) {
+			return exception;
+		}
+
 	}
 
 }

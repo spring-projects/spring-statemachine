@@ -866,6 +866,12 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 						public void postStateChange(State<String, String> state, Message<String> message,
 								Transition<String, String> transition, StateMachine<String, String> stateMachine) {
 						}
+
+						@Override
+						public Exception stateMachineError(StateMachine<String, String> stateMachine,
+								Exception exception) {
+							return exception;
+						}
 					});
 // end::snippetZH[]
 			}
