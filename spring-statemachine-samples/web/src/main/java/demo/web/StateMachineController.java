@@ -17,6 +17,7 @@ package demo.web;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -128,7 +129,14 @@ public class StateMachineController {
 		return stateMachine.getState().getIds();
 	}
 
-
+	@RequestMapping(value = "/status", method = RequestMethod.GET, produces="application/json")
+	@ResponseBody
+	public Map<Object, Object> getStatus() {
+		HashMap<Object, Object> map = new HashMap<Object, Object>();
+		map.put("hasStateMachineError", stateMachine.hasStateMachineError());
+		map.put("isComplete", stateMachine.isComplete());
+		return map;
+	}
 
 	@MessageExceptionHandler
 	@SendToUser(value = "/queue/errors", broadcast = false)
