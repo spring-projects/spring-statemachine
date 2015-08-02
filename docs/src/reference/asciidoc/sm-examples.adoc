@@ -898,8 +898,8 @@ Entry state LOCKED
 [[statemachine-examples-web]]
 == Web
 Web is a distributed state machine example using a zookeeper to handle
-distribted state. This example is meant to be run on a multiple
-browser sessions agains a multiple different hosts.
+distributed state. This example is meant to be run on a multiple
+browser sessions against a multiple different hosts.
 
 This sample is using a modified state machine structure from a
 <<statemachine-examples-showcase>> to work with a distributed state
@@ -911,16 +911,16 @@ Due to nature of this sample an instanse of a `Zookeeper` is expected to
 be available from a localhost for every individual sample instance.
 ====
 
-Lets go through a simple example where two different sample instances are
+Lets go through a simple example where three different sample instances are
 started with command `java -jar
 spring-statemachine-samples-web-1.0.0.BUILD-SNAPSHOT.jar`. If you are
 running different instances on a same host you need to distinguish
 used port by adding `--server.port=<myport>` to the command. Otherwise
 default port for each host will be `8080`.
 
-In this sample run we have three hosts, `n1`, `n2` and `n3`. which all
-have a zookeeper running and a state machine sample running on a port
-`8080`.
+In this sample run we have three hosts, `n1`, `n2` and `n3` which all
+have a local zookeeper instance running and a state machine sample running
+on a port `8080`.
 
 [source,text]
 ----
@@ -929,31 +929,28 @@ have a zookeeper running and a state machine sample running on a port
 @n3:~# java -jar spring-statemachine-samples-web-1.0.0.BUILD-SNAPSHOT.jar
 ----
 
-Lets take a sample run of this example assuming that we have three
-nodes, `n1`, `n2` and `n3` hosting `Zookeeper` and this statemachine
-web sample.
-
 When all instances are running you should see all showing similar
-information via a browser where you have states `S0`, `S1` and `S11`,
+information via a browser where states are `S0`, `S1` and `S11`,
 and extended state variable `foo=0`. Main state is `S11`.
 
 image::images/sm-dist-n1-1.png[width=500]
 
 When you press button `Event C` in any of a browser window,
 distributed state is changed to `S211` which is the target state
-denoted by transition associated with a event `C`.
+denoted by transition associated with an event `C`.
 
 image::images/sm-dist-n2-2.png[width=500]
 
 Then lets press button `Event H` and what is supposed to happen is
-that internal transition is happening on all state machines changing
+that internal transition is executed on all state machines changing
 extended stare variable `foo` from value `0` to `1`. This change is
-then propagated to other state machines. You should only see variable
-`foo` to change from `0` to `1`.
+first done on a state machine receiving the event and then propagated
+to other state machines. You should only see variable `foo` to change
+from `0` to `1`.
 
 image::images/sm-dist-n3-3.png[width=500]
 
-Last we simply send event `Event C` which is supposed to take state
+Last we simply send an event `Event C` which is supposed to take state
 machine state back to state `S11` and you should see this happening in
 all browser sessions.
 

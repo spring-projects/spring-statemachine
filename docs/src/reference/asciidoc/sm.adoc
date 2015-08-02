@@ -703,6 +703,13 @@ within a single state machine is naturally really simple to understand
 but when there is a need to introduce a shared distributed state
 thoughout a state machines, things will get a little complicated.
 
+[NOTE]
+====
+Distributed state functionality is still a preview feature and is not
+yet considered to be stable in this particular release. We expect this
+feature to mature towards the first official release.
+====
+
 For configuration support see section
 <<statemachine-config-commonsettings>> and actual usage example see
 sample <<statemachine-examples-zookeeper>>.

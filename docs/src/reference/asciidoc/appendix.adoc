@@ -315,3 +315,43 @@ using a Zookeeper with a Spring State Machine.
 This article is not complete as it requires jepsen tests which are
 planned for next release.
 ====
+
+As mentioned in <<sm-distributed>> distibuted states are enabled by
+wrapper an instance of a `StateMachine` within a
+`DistributedStateMachine`. Specific `StateMachineEnsemble`
+implementation is `ZookeeperStateMachineEnsemble` providing
+integration with a zookeeper.
+
+=== ZookeeperStateMachinePersist
+We wanted to have a generic interface `StateMachinePersist` which is
+able to persist `StateMachineContext` into an arbitrary storage and
+`ZookeeperStateMachinePersist` is implementing this interface for a
+zookeeper.
+
+=== ZookeeperStateMachineEnsemble
+While distributed state machine is using one set of serialized context
+to update its own state, with zookeeper we're having a conceptual
+problem how these context changes can be listened. We're able to
+serialize context into a zookeeper znode and eventually listen when
+znode data is modified. However zookeeper doesn't guarantee that you
+will get notification for every data change because registered watcher
+for a znode is disabled once it fires and user need to re-register
+that watcher. During this short time znode data can be changed thus
+resulting missing events. It is actually very easy to miss these
+events by just changing data from a multiple threads in a concurrent
+manner.
+
+Order to overcome this issue we're keeping individual context changes
+in a multiple znodes and we just use a simple integer counter to mark
+which znode is a current active one. This allows us to replay missed
+events. We don't want to create more and more znodes and then later
+delete old ones, instead we're using a simple concept of a circular
+set of znodes. This allow use to use predefined set of znodes where
+current had can be determided with a simple counter. We already have
+this counter by tracking main znode data version which in zookeeper is
+an integer.
+
+Size of a circular buffer is mandated to be a power of two not to get
+trouble when interger is going to overflow thus we don't need to
+handle any specific cases.
+
