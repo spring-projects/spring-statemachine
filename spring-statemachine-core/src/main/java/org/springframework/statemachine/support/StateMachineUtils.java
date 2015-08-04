@@ -32,6 +32,8 @@ public abstract class StateMachineUtils {
 	/**
 	 * Checks if right hand side is a substate of a left hand side.
 	 *
+	 * @param <S> the type of state
+	 * @param <E> the type of event
 	 * @param left the super state
 	 * @param right the sub state
 	 * @return if sub is child of super

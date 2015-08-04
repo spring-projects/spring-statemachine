@@ -295,12 +295,8 @@ configure(rootProject) {
 		from('src/dist') {
 			include 'changelog.txt'
 		}
-		// disable api for jdk8 because we have
-		// some trouble with javadocs
-		if (!JavaVersion.current().isJava8Compatible()) {
-			from (api) {
-				into 'api'
-			}
+		from (api) {
+			into 'api'
 		}
 		from (reference) {
 			into 'reference'

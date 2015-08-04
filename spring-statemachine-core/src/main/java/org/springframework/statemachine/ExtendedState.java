@@ -37,6 +37,7 @@ public interface ExtendedState {
 	/**
 	 * Gets a variable which is automatically casted into a type.
 	 *
+	 * @param <T> the return type
 	 * @param key the variable key
 	 * @param type the variable type
 	 * @return the variable

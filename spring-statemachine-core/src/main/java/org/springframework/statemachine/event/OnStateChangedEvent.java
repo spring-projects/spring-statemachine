@@ -33,6 +33,8 @@ public class OnStateChangedEvent extends StateMachineEvent {
 	 * Instantiates a new on state changed event.
 	 *
 	 * @param source the component that published the event (never {@code null})
+	 * @param sourceState the source state
+	 * @param targetState the target state
 	 */
 	public OnStateChangedEvent(Object source, State<?, ?> sourceState, State<?, ?> targetState) {
 		super(source);

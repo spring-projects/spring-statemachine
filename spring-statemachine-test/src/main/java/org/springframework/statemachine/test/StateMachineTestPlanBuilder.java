@@ -41,6 +41,8 @@ public class StateMachineTestPlanBuilder<S, E> {
 	/**
 	 * Gets a new instance of this builder.
 	 *
+	 * @param <S> the type of state
+	 * @param <E> the type of event
 	 * @return the state machine test plan builder
 	 */
 	public static <S, E> StateMachineTestPlanBuilder<S, E> builder() {

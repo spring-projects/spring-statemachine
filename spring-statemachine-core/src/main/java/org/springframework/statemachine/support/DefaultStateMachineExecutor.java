@@ -99,6 +99,8 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 	 * @param transitions the transitions
 	 * @param triggerToTransitionMap the trigger to transition map
 	 * @param triggerlessTransitions the triggerless transitions
+	 * @param initialTransition the initial transition
+	 * @param initialEvent the initial event
 	 */
 	public DefaultStateMachineExecutor(StateMachine<S, E> stateMachine, StateMachine<S, E> relayStateMachine,
 			ExtendedState extendedState, Collection<Transition<S, E>> transitions, Map<Trigger<S, E>, Transition<S, E>> triggerToTransitionMap,

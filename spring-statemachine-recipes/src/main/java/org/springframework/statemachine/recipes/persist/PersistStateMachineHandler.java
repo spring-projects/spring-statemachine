@@ -94,7 +94,7 @@ public class PersistStateMachineHandler extends LifecycleObjectSupport {
 	 * The class that is interested in processing a persistStateChange
 	 * event implements this interface, and the object created
 	 * with that class is registered with a component using the
-	 * component's <code>addPersistStateChangeListener<code> method. When
+	 * component's <code>addPersistStateChangeListener</code> method. When
 	 * the persistStateChange event occurs, that object's appropriate
 	 * method is invoked.
 	 */

@@ -44,7 +44,7 @@ public interface ConfigurationConfigurer<S, E> extends
 	/**
 	 * Specify a {@link TaskExecutor}.
 	 *
-	 * @param beanFactory the bean factory
+	 * @param taskExecutor the task executor
 	 * @return configurer for chaining
 	 */
 	ConfigurationConfigurer<S, E> taskExecutor(TaskExecutor taskExecutor);
@@ -52,7 +52,7 @@ public interface ConfigurationConfigurer<S, E> extends
 	/**
 	 * Specify a {@link TaskScheduler}.
 	 *
-	 * @param beanFactory the bean factory
+	 * @param taskScheduler the task scheduler
 	 * @return configurer for chaining
 	 */
 	ConfigurationConfigurer<S, E> taskScheduler(TaskScheduler taskScheduler);

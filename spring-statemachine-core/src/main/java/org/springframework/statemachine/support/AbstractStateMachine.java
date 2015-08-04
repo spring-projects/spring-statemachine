@@ -143,6 +143,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	 * @param states the states of this machine
 	 * @param transitions the transitions of this machine
 	 * @param initialState the initial state of this machine
+	 * @param initialTransition the initial transition
 	 * @param initialEvent the initial event of this machine
 	 * @param extendedState the extended state of this machine
 	 */
