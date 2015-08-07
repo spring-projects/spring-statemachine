@@ -18,6 +18,12 @@ angular.module('springChat.controllers', ['toaster'])
 				});
 		};
 
+		$scope.sendEventAndVariable = function(event) {
+			$http.post('/event', null, {params:{"id": event, "testVariable": $scope.testVariable}}).
+				success(function(data) {
+				});
+		};
+
 		var initStompClient = function() {
 			chatSocket.init('/ws');
 

@@ -151,8 +151,11 @@ public class StateMachineConfig {
 					.source(States.S211).target(States.S212).event(Events.I)
 					.and()
 				.withExternal()
-					.source(States.S12).target(States.S212).event(Events.I);
-
+					.source(States.S12).target(States.S212).event(Events.I)
+					.and()
+				.withInternal()
+					.source(States.S11).event(Events.J)
+					.action(setVariableAction());
 		}
 
 		@Bean
@@ -168,6 +171,11 @@ public class StateMachineConfig {
 		@Bean
 		public FooAction fooAction() {
 			return new FooAction();
+		}
+
+		@Bean
+		public SetVariableAction setVariableAction() {
+			return new SetVariableAction();
 		}
 
 		@Bean
@@ -193,7 +201,7 @@ public class StateMachineConfig {
 	}
 
 	public static enum Events {
-	    A, B, C, D, E, F, G, H, I
+	    A, B, C, D, E, F, G, H, I, J
 	}
 
 	private static class FooAction implements Action<States, Events> {
@@ -228,6 +236,20 @@ public class StateMachineConfig {
 			Object foo = context.getExtendedState().getVariables().get("foo");
 			return !(foo == null || !foo.equals(match));
 		}
+	}
+
+	private static class SetVariableAction implements Action<States, Events> {
+
+		@Override
+		public void execute(StateContext<States, Events> context) {
+			System.out.println("XXXXXXXXXXX execute");
+			String testVariable = context.getMessageHeaders().get("testVariable", String.class);
+			System.out.println("XXXXXXXXXXX execute testVariable=" + testVariable);
+			if (testVariable != null) {
+				context.getExtendedState().getVariables().put("testVariable", testVariable);
+			}
+		}
+
 	}
 
 }

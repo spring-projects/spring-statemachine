@@ -26,10 +26,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineException;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
@@ -118,9 +120,14 @@ public class StateMachineController {
 
 	@RequestMapping("/event")
 	@ResponseStatus(HttpStatus.OK)
-    public void sendEvent(@RequestParam(value="id") Events id) {
-		log.info("Got request to send event " + id);
-		stateMachine.sendEvent(id);
+	public void sendEvent(@RequestParam(value = "id") Events id,
+			@RequestParam(value = "testVariable", required = false) String testVariable) {
+		log.info("Got request to send event " + id + " testVariable " + testVariable);
+	    Message<Events> message = MessageBuilder
+	            .withPayload(id)
+	            .setHeader("testVariable", testVariable)
+	            .build();
+	    stateMachine.sendEvent(message);
     }
 
 	@RequestMapping(value = "/states", method = RequestMethod.GET, produces="application/json")
