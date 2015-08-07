@@ -142,6 +142,7 @@ public class StateMachineController {
 		HashMap<Object, Object> map = new HashMap<Object, Object>();
 		map.put("hasStateMachineError", stateMachine.hasStateMachineError());
 		map.put("isComplete", stateMachine.isComplete());
+		map.put("extendedStateVariables", stateMachine.getExtendedState().getVariables());
 		return map;
 	}
 
