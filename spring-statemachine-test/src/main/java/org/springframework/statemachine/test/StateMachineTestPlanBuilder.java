@@ -111,6 +111,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 
 		E sendEvent;
 		Object sendEventMachineId;
+		boolean sendEventToAll = false;
 		final Collection<S> expectStates = new ArrayList<S>();
 		Integer expectStateChanged;
 		Integer expectStateEntered;
@@ -156,7 +157,22 @@ public class StateMachineTestPlanBuilder<S, E> {
 		 * @return the state machine test plan step builder
 		 */
 		public StateMachineTestPlanStepBuilder sendEvent(E event) {
-			return sendEvent(event, null);
+			return sendEvent(event, false);
+		}
+
+		/**
+		 * Send an event {@code E}. If {@code sendToAll} is set to {@code TRUE} event
+		 * will be send to all existing machines.
+		 *
+		 * @param event the event
+		 * @param sendToAll send to all machines
+		 * @return the state machine test plan step builder
+		 */
+		public StateMachineTestPlanStepBuilder sendEvent(E event, boolean sendToAll) {
+			this.sendEvent = event;
+			this.sendEventMachineId = null;
+			this.sendEventToAll = sendToAll;
+			return this;
 		}
 
 		/**
@@ -330,7 +346,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 		 * @return the state machine test plan builder for chaining
 		 */
 		public StateMachineTestPlanBuilder<S, E> and() {
-			steps.add(new StateMachineTestPlanStep<S, E>(sendEvent, sendEventMachineId, expectStates,
+			steps.add(new StateMachineTestPlanStep<S, E>(sendEvent, sendEventMachineId, sendEventToAll, expectStates,
 					expectStateChanged, expectStateEntered, expectStateExited, expectEventNotAccepted,
 					expectTransition, expectTransitionStarted, expectTransitionEnded, expectStateMachineStarted,
 					expectStateMachineStopped, expectVariableKeys, expectVariables));
@@ -342,6 +358,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 	static class StateMachineTestPlanStep<S, E> {
 		E sendEvent;
 		Object sendEventMachineId;
+		boolean sendEventToAll = false;
 		final Collection<S> expectStates;
 		Integer expectStateChanged;
 		Integer expectStateEntered;
@@ -355,13 +372,15 @@ public class StateMachineTestPlanBuilder<S, E> {
 		final Collection<Object> expectVariableKeys;
 		final Map<Object, Object> expectVariables;
 
-		public StateMachineTestPlanStep(E sendEvent, Object sendEventMachineId, Collection<S> expectStates, Integer expectStateChanged,
-				Integer expectStateEntered, Integer expectStateExited, Integer expectEventNotAccepted,
-				Integer expectTransition, Integer expectTransitionStarted, Integer expectTransitionEnded,
-				Integer expectStateMachineStarted, Integer expectStateMachineStopped,
-				Collection<Object> expectVariableKeys, Map<Object, Object> expectVariables) {
+		public StateMachineTestPlanStep(E sendEvent, Object sendEventMachineId, boolean sendEventToAll,
+				Collection<S> expectStates, Integer expectStateChanged, Integer expectStateEntered,
+				Integer expectStateExited, Integer expectEventNotAccepted, Integer expectTransition,
+				Integer expectTransitionStarted, Integer expectTransitionEnded, Integer expectStateMachineStarted,
+				Integer expectStateMachineStopped, Collection<Object> expectVariableKeys,
+				Map<Object, Object> expectVariables) {
 			this.sendEvent = sendEvent;
 			this.sendEventMachineId = sendEventMachineId;
+			this.sendEventToAll = sendEventToAll;
 			this.expectStates = expectStates;
 			this.expectStateChanged = expectStateChanged;
 			this.expectStateEntered = expectStateEntered;

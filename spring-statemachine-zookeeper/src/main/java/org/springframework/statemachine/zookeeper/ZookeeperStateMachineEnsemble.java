@@ -32,7 +32,6 @@ import org.apache.curator.framework.imps.CuratorFrameworkState;
 import org.apache.curator.framework.recipes.locks.InterProcessSemaphoreMutex;
 import org.apache.curator.framework.recipes.nodes.PersistentEphemeralNode;
 import org.apache.curator.framework.recipes.nodes.PersistentEphemeralNode.Mode;
-import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.data.Stat;
 import org.springframework.statemachine.StateMachine;
@@ -189,12 +188,6 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 			persist.write(context, stat);
 			stateRef.set(new StateWrapper(context, stat.getVersion()));
 		} catch (Exception e) {
-			if (e instanceof StateMachineException) {
-				if (((StateMachineException)e).contains(KeeperException.BadVersionException.class)) {
-					notifyError(new StateMachineEnsembleException("Cas error during write id=[" + uuid
-							+ "] for context=[" + context + "]", e));
-				}
-			}
 			throw new StateMachineException("Error persisting data", e);
 		}
 	}

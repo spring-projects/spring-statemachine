@@ -18,6 +18,8 @@ package org.springframework.statemachine.test;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
@@ -112,15 +114,19 @@ public class StateMachineTestPlan<S, E> {
 			}
 
 			if (step.sendEvent != null) {
-				StateMachine<S, E> sendVia = null;
+				ArrayList<StateMachine<S, E>> sendVia = new ArrayList<StateMachine<S, E>>();
 				if (step.sendEventMachineId != null) {
-					sendVia = stateMachines.get(step.sendEventMachineId);
+					sendVia.add(stateMachines.get(step.sendEventMachineId));
+				} else if (step.sendEventToAll) {
+					sendVia.addAll(stateMachines.values());
 				} else {
-					sendVia = stateMachines.values().iterator().next();
+					sendVia.add(stateMachines.values().iterator().next());
 				}
-				assertThat("Error finding machine to send via", sendVia, notNullValue());
-				log.info("Sending test event " + step.sendEvent + " via machine " + sendVia);
-				sendVia.sendEvent(step.sendEvent);
+				assertThat("Error finding machine to send via", sendVia, not(empty()));
+				for (StateMachine<S, E> machine : sendVia) {
+					log.info("Sending test event " + step.sendEvent + " via machine " + machine);
+					machine.sendEvent(step.sendEvent);
+				}
 			}
 
 			if (step.expectStateChanged != null) {

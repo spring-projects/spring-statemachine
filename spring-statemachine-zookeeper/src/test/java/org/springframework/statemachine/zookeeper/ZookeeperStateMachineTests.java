@@ -258,6 +258,51 @@ public class ZookeeperStateMachineTests extends AbstractZookeeperTests {
 	}
 
 	@Test
+	public void testShouldHaveCasErrorDoesNotBreakMachines() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+
+		StateMachine<String, String> machine1 =
+				buildTestStateMachine2(curatorClient);
+		StateMachine<String, String> machine2 =
+				buildTestStateMachine2(curatorClient);
+		StateMachine<String, String> machine3 =
+				buildTestStateMachine2(curatorClient);
+		StateMachine<String, String> machine4 =
+				buildTestStateMachine2(curatorClient);
+		StateMachine<String, String> machine5 =
+				buildTestStateMachine2(curatorClient);
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.defaultAwaitTime(2)
+					.stateMachine(machine1)
+					.stateMachine(machine2)
+					.stateMachine(machine3)
+					.stateMachine(machine4)
+					.stateMachine(machine5)
+					.step()
+						.expectStates("SI")
+						.and()
+					.step()
+						.sendEvent("E1", true)
+						.expectStateChanged(1)
+						.expectStates("S1")
+						.and()
+					.step()
+						.sendEvent("E2", true)
+						.expectStateChanged(1)
+						.expectStates("S2")
+						.and()
+					.build();
+
+		plan.test();
+	}
+
+	@Test
 	@SuppressWarnings("unchecked")
 	public void testJoinLaterShouldSyncState() throws Exception {
 		context.register(ZkServerConfig.class, BaseConfig.class, Config1.class, Config2.class);
@@ -546,6 +591,34 @@ public class ZookeeperStateMachineTests extends AbstractZookeeperTests {
 					.and()
 				.withExternal()
 					.source("S12").target("S212").event("I");
+
+		return builder.build();
+	}
+
+	private StateMachine<String, String> buildTestStateMachine2(CuratorFramework curatorClient)
+			throws Exception {
+		StateMachineBuilder.Builder<String, String> builder = StateMachineBuilder.builder();
+
+		builder.configureConfiguration()
+			.withConfiguration()
+				.taskExecutor(new SyncTaskExecutor())
+				.autoStartup(true)
+				.and()
+			.withDistributed()
+				.ensemble(stateMachineEnsemble(curatorClient));
+
+		builder.configureStates()
+				.withStates()
+					.initial("SI")
+					.state("S1")
+					.state("S2");
+
+		builder.configureTransitions()
+				.withExternal()
+					.source("SI").target("S1").event("E1")
+					.and()
+				.withExternal()
+					.source("S1").target("S2").event("E2");
 
 		return builder.build();
 	}
