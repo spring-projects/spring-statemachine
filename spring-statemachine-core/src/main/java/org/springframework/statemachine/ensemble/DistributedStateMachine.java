@@ -218,9 +218,13 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 					&& ObjectUtils.nullSafeEquals(delegate.getId(),
 							stateContext.getMessageHeader(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER))) {
 				StateMachineContext<S, E> current = ensemble.getState();
-				ensemble.setState(new DefaultStateMachineContext<S, E>(
-						current.getState(), stateContext.getEvent(), stateContext
-								.getMessageHeaders(), stateContext.getStateMachine().getExtendedState()));
+				if (current != null) {
+					// TODO: it feels a bit wrong that this can be null so
+					//       adding note here. feel this will come back to haunt us
+					ensemble.setState(new DefaultStateMachineContext<S, E>(
+							current.getState(), stateContext.getEvent(), stateContext
+									.getMessageHeaders(), stateContext.getStateMachine().getExtendedState()));
+				}
 			}
 			return stateContext;
 		}
