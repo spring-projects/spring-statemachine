@@ -242,9 +242,7 @@ public class StateMachineConfig {
 
 		@Override
 		public void execute(StateContext<States, Events> context) {
-			System.out.println("XXXXXXXXXXX execute");
 			String testVariable = context.getMessageHeaders().get("testVariable", String.class);
-			System.out.println("XXXXXXXXXXX execute testVariable=" + testVariable);
 			if (testVariable != null) {
 				context.getExtendedState().getVariables().put("testVariable", testVariable);
 			}
