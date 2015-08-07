@@ -126,16 +126,19 @@ public class TasksHandlerTests {
 		handler.addTasksListener(tasksListener);
 
 		TestListener listener = new TestListener();
-		listener.reset(12, 0, 0);
+		listener.reset(1, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
 		machine.start();
 		assertThat(listener.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+
+		listener.reset(11, 0, 0);
 
 		handler.runTasks();
-
-		assertThat(listener.stateChangedLatch.await(8, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(12));
+		assertThat(listener.stateChangedLatch.await(4, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(11));
 		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_READY));
 	}
 
@@ -178,17 +181,20 @@ public class TasksHandlerTests {
 				.build();
 
 		TestListener listener = new TestListener();
-		listener.reset(22, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 
 		machine.addStateListener(listener);
+		listener.reset(1, 0, 0);
 		machine.start();
 		assertThat(listener.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
 
+		listener.reset(21, 0, 0);
 		handler.runTasks();
 
-		assertThat(listener.stateChangedLatch.await(20, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(22));
+		assertThat(listener.stateChangedLatch.await(10, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(21));
 		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_READY));
 		Map<Object, Object> variables = machine.getExtendedState().getVariables();
 		assertThat(variables.size(), is(9));
@@ -325,6 +331,8 @@ public class TasksHandlerTests {
 
 	static class TestListener extends StateMachineListenerAdapter<String, String> {
 
+		private final Object lock = new Object();
+
 		volatile CountDownLatch stateMachineStartedLatch = new CountDownLatch(1);
 		volatile CountDownLatch stateChangedLatch = new CountDownLatch(1);
 		volatile CountDownLatch stateEnteredLatch = new CountDownLatch(2);
@@ -337,31 +345,41 @@ public class TasksHandlerTests {
 
 		@Override
 		public void stateMachineStarted(StateMachine<String, String> stateMachine) {
-			stateMachineStartedLatch.countDown();
+			synchronized (lock) {
+				stateMachineStartedLatch.countDown();
+			}
 		}
 
 		@Override
 		public void stateChanged(State<String, String> from, State<String, String> to) {
-			stateChangedCount++;
-			stateChangedLatch.countDown();
+			synchronized (lock) {
+				stateChangedCount++;
+				stateChangedLatch.countDown();
+			}
 		}
 
 		@Override
 		public void stateEntered(State<String, String> state) {
-			statesEntered.add(state);
-			stateEnteredLatch.countDown();
+			synchronized (lock) {
+				statesEntered.add(state);
+				stateEnteredLatch.countDown();
+			}
 		}
 
 		@Override
 		public void stateExited(State<String, String> state) {
-			statesExited.add(state);
-			stateExitedLatch.countDown();
+			synchronized (lock) {
+				statesExited.add(state);
+				stateExitedLatch.countDown();
+			}
 		}
 
 		@Override
 		public void transitionEnded(Transition<String, String> transition) {
-			transitionCount++;
-			transitionLatch.countDown();
+			synchronized (lock) {
+				transitionCount++;
+				transitionLatch.countDown();
+			}
 		}
 
 		public void reset(int c1, int c2, int c3) {
@@ -369,14 +387,16 @@ public class TasksHandlerTests {
 		}
 
 		public void reset(int c1, int c2, int c3, int c4) {
-			stateChangedLatch = new CountDownLatch(c1);
-			stateEnteredLatch = new CountDownLatch(c2);
-			stateExitedLatch = new CountDownLatch(c3);
-			transitionLatch = new CountDownLatch(c4);
-			stateChangedCount = 0;
-			transitionCount = 0;
-			statesEntered.clear();
-			statesExited.clear();
+			synchronized (lock) {
+				stateChangedLatch = new CountDownLatch(c1);
+				stateEnteredLatch = new CountDownLatch(c2);
+				stateExitedLatch = new CountDownLatch(c3);
+				transitionLatch = new CountDownLatch(c4);
+				stateChangedCount = 0;
+				transitionCount = 0;
+				statesEntered.clear();
+				statesExited.clear();
+			}
 		}
 
 	}

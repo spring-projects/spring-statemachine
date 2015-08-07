@@ -33,9 +33,13 @@ import org.springframework.statemachine.state.PseudoStateContext.PseudoAction;
 public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 
 	private final List<State<S, E>> joins;
-
 	private volatile JoinTracker tracker;
 
+	/**
+	 * Instantiates a new join pseudo state.
+	 *
+	 * @param joins the joins
+	 */
 	public JoinPseudoState(List<State<S, E>> joins) {
 		super(PseudoStateKind.JOIN);
 		this.joins = joins;
@@ -56,6 +60,11 @@ public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 		tracker = null;
 	}
 
+	/**
+	 * Gets the join states.
+	 *
+	 * @return the joins
+	 */
 	public List<State<S, E>> getJoins() {
 		return joins;
 	}
@@ -72,7 +81,7 @@ public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 		}
 
 		@Override
-		public void stateChanged(State<S, E> from, State<S, E> to) {
+		public synchronized void stateChanged(State<S, E> from, State<S, E> to) {
 			if (!notified && track.size() > 0) {
 				track.remove(to);
 				if (track.size() == 0) {
