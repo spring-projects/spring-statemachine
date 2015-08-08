@@ -16,8 +16,8 @@
 package org.springframework.statemachine.zookeeper;
 
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -551,16 +551,27 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 		ensemble.afterPropertiesSet();
 		ensemble.start();
 		listener.reset(0, 10, 1);
-		ensemble.enabled = false;
 
-		for (int i = 0; i < 5; i++) {
+		// this is a bit of a hack to test things like this
+		// not sure if this is totally reliable way
+		ensemble.enabled = false;
+		for (int i = 0; i < 4; i++) {
+			ensemble.setState(new DefaultStateMachineContext<String, String>("S" + i, "E" + i,
+					new HashMap<String, Object>(), new DefaultExtendedState()));
+		}
+		assertThat(listener.errorLatch.await(2, TimeUnit.SECONDS), is(false));
+		for (int i = 4; i < 5; i++) {
 			ensemble.setState(new DefaultStateMachineContext<String, String>("S" + i, "E" + i,
 					new HashMap<String, Object>(), new DefaultExtendedState()));
 		}
 
 		ensemble.enabled = true;
 		TestUtils.callMethod("registerWatcherForStatePath", ensemble);
-		assertThat(listener.errors.size(), is(0));
+		String reason = "";
+		if (listener.errors.size() > 0) {
+			reason = listener.errors.get(0).toString();
+		}
+		assertThat(reason, listener.errors.size(), is(0));
 
 		for (int i = 5; i < 6; i++) {
 			ensemble.setState(new DefaultStateMachineContext<String, String>("S" + i, "E" + i,

@@ -73,7 +73,7 @@ public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 
 		private final PseudoState<S, E> pseudoState;
 		private final List<State<S, E>> track;
-		private boolean notified = false;
+		private volatile boolean notified = false;
 
 		public JoinTracker(PseudoState<S, E> pseudoState, List<State<S, E>> track) {
 			this.pseudoState = pseudoState;

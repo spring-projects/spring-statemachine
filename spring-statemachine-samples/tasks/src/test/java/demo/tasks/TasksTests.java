@@ -63,7 +63,7 @@ public class TasksTests {
 	public void testRunOnce() throws InterruptedException {
 		listener.reset(9, 0, 0);
 		tasks.run();
-		assertThat(listener.stateChangedLatch.await(6, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedLatch.await(8, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), contains(States.READY));
 		Map<Object, Object> variables = machine.getExtendedState().getVariables();
 		assertThat(variables.size(), is(3));
@@ -73,7 +73,7 @@ public class TasksTests {
 	public void testRunTwice() throws InterruptedException {
 		listener.reset(9, 0, 0);
 		tasks.run();
-		assertThat(listener.stateChangedLatch.await(6, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedLatch.await(8, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), contains(States.READY));
 
 		Map<Object, Object> variables = machine.getExtendedState().getVariables();
@@ -81,7 +81,7 @@ public class TasksTests {
 
 		listener.reset(9, 0, 0);
 		tasks.run();
-		assertThat(listener.stateChangedLatch.await(6, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedLatch.await(8, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), contains(States.READY));
 
 		variables = machine.getExtendedState().getVariables();
