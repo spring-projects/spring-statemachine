@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateMachine;
 
 /**
@@ -110,6 +111,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 	public class StateMachineTestPlanStepBuilder {
 
 		E sendEvent;
+		Message<E> sendMessage;
 		Object sendEventMachineId;
 		boolean sendEventToAll = false;
 		final Collection<S> expectStates = new ArrayList<S>();
@@ -185,6 +187,46 @@ public class StateMachineTestPlanBuilder<S, E> {
 		 */
 		public StateMachineTestPlanStepBuilder sendEvent(E event, Object machineId) {
 			this.sendEvent = event;
+			this.sendEventMachineId = machineId;
+			return this;
+		}
+
+		/**
+		 * Send a message {@code Message<E>}. In case multiple state machines
+		 * exists, a random one will be chosen to send this event.
+		 *
+		 * @param event the event
+		 * @return the state machine test plan step builder
+		 */
+		public StateMachineTestPlanStepBuilder sendEvent(Message<E> event) {
+			return sendEvent(event, false);
+		}
+
+		/**
+		 * Send a message {@code Message<E>}. If {@code sendToAll} is set to {@code TRUE} event
+		 * will be send to all existing machines.
+		 *
+		 * @param event the event
+		 * @param sendToAll send to all machines
+		 * @return the state machine test plan step builder
+		 */
+		public StateMachineTestPlanStepBuilder sendEvent(Message<E> event, boolean sendToAll) {
+			this.sendMessage = event;
+			this.sendEventMachineId = null;
+			this.sendEventToAll = sendToAll;
+			return this;
+		}
+
+		/**
+		 * Send a message {@code Message<E>} into a state machine identified
+		 * by {@code machineId}.
+		 *
+		 * @param event the event
+		 * @param machineId the machine identifier for sending event
+		 * @return the state machine test plan step builder
+		 */
+		public StateMachineTestPlanStepBuilder sendEvent(Message<E> event, Object machineId) {
+			this.sendMessage = event;
 			this.sendEventMachineId = machineId;
 			return this;
 		}
@@ -346,8 +388,8 @@ public class StateMachineTestPlanBuilder<S, E> {
 		 * @return the state machine test plan builder for chaining
 		 */
 		public StateMachineTestPlanBuilder<S, E> and() {
-			steps.add(new StateMachineTestPlanStep<S, E>(sendEvent, sendEventMachineId, sendEventToAll, expectStates,
-					expectStateChanged, expectStateEntered, expectStateExited, expectEventNotAccepted,
+			steps.add(new StateMachineTestPlanStep<S, E>(sendEvent, sendMessage, sendEventMachineId, sendEventToAll,
+					expectStates, expectStateChanged, expectStateEntered, expectStateExited, expectEventNotAccepted,
 					expectTransition, expectTransitionStarted, expectTransitionEnded, expectStateMachineStarted,
 					expectStateMachineStopped, expectVariableKeys, expectVariables));
 			return StateMachineTestPlanBuilder.this;
@@ -357,6 +399,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 
 	static class StateMachineTestPlanStep<S, E> {
 		E sendEvent;
+		Message<E> sendMessage;
 		Object sendEventMachineId;
 		boolean sendEventToAll = false;
 		final Collection<S> expectStates;
@@ -372,13 +415,14 @@ public class StateMachineTestPlanBuilder<S, E> {
 		final Collection<Object> expectVariableKeys;
 		final Map<Object, Object> expectVariables;
 
-		public StateMachineTestPlanStep(E sendEvent, Object sendEventMachineId, boolean sendEventToAll,
-				Collection<S> expectStates, Integer expectStateChanged, Integer expectStateEntered,
-				Integer expectStateExited, Integer expectEventNotAccepted, Integer expectTransition,
-				Integer expectTransitionStarted, Integer expectTransitionEnded, Integer expectStateMachineStarted,
-				Integer expectStateMachineStopped, Collection<Object> expectVariableKeys,
-				Map<Object, Object> expectVariables) {
+		public StateMachineTestPlanStep(E sendEvent, Message<E> sendMessage, Object sendEventMachineId,
+				boolean sendEventToAll, Collection<S> expectStates, Integer expectStateChanged,
+				Integer expectStateEntered, Integer expectStateExited, Integer expectEventNotAccepted,
+				Integer expectTransition, Integer expectTransitionStarted, Integer expectTransitionEnded,
+				Integer expectStateMachineStarted, Integer expectStateMachineStopped,
+				Collection<Object> expectVariableKeys, Map<Object, Object> expectVariables) {
 			this.sendEvent = sendEvent;
+			this.sendMessage = sendMessage;
 			this.sendEventMachineId = sendEventMachineId;
 			this.sendEventToAll = sendEventToAll;
 			this.expectStates = expectStates;

@@ -91,6 +91,36 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 	}
 
 	@Test
+	public void testReadStateFromOther() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+
+		ZookeeperStateMachineEnsemble<String, String> ensemble1 =
+				new ZookeeperStateMachineEnsemble<String, String>(curatorClient, "/foo");
+		ZookeeperStateMachineEnsemble<String, String> ensemble2 =
+				new ZookeeperStateMachineEnsemble<String, String>(curatorClient, "/foo");
+
+		ensemble1.afterPropertiesSet();
+		ensemble2.afterPropertiesSet();
+		ensemble1.start();
+		ensemble2.start();
+
+		assertThat(curatorClient.checkExists().forPath("/foo/data/current"), notNullValue());
+		assertThat(curatorClient.getData().forPath("/foo/data/current").length, is(0));
+
+		ensemble1.setState(new DefaultStateMachineContext<String, String>("S1","E1", new HashMap<String, Object>(), new DefaultExtendedState()));
+		assertThat(curatorClient.getData().forPath("/foo/data/current").length, greaterThan(0));
+
+		StateMachineContext<String, String> context = ensemble2.getState();
+		assertThat(context, notNullValue());
+		assertThat(context.getState(), is("S1"));
+		assertThat(context.getEvent(), is("E1"));
+	}
+
+	@Test
 	public void testReceiveEvents() throws Exception {
 		context.register(ZkServerConfig.class, BaseConfig.class);
 		context.refresh();

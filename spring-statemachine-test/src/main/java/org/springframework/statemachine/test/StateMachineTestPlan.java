@@ -127,6 +127,20 @@ public class StateMachineTestPlan<S, E> {
 					log.info("Sending test event " + step.sendEvent + " via machine " + machine);
 					machine.sendEvent(step.sendEvent);
 				}
+			} else if (step.sendMessage != null) {
+				ArrayList<StateMachine<S, E>> sendVia = new ArrayList<StateMachine<S, E>>();
+				if (step.sendEventMachineId != null) {
+					sendVia.add(stateMachines.get(step.sendEventMachineId));
+				} else if (step.sendEventToAll) {
+					sendVia.addAll(stateMachines.values());
+				} else {
+					sendVia.add(stateMachines.values().iterator().next());
+				}
+				assertThat("Error finding machine to send via", sendVia, not(empty()));
+				for (StateMachine<S, E> machine : sendVia) {
+					log.info("Sending test event " + step.sendEvent + " via machine " + machine);
+					machine.sendEvent(step.sendMessage);
+				}
 			}
 
 			if (step.expectStateChanged != null) {
@@ -212,7 +226,7 @@ public class StateMachineTestPlan<S, E> {
 				for (StateMachine<S, E> stateMachine : stateMachines.values()) {
 					Map<Object, Object> variables = stateMachine.getExtendedState().getVariables();
 					for (Entry<Object, Object> entry : step.expectVariables.entrySet()) {
-						assertThat("Key " + entry.getKey() + " doesn exist in extended state variables",
+						assertThat("Key " + entry.getKey() + " doesn't exist in extended state variables",
 								variables.containsKey(entry.getKey()), is(true));
 						assertThat("Variable " + entry.getKey() + " doesn't match in extended state variables",
 								variables.get(entry.getKey()), is(entry.getValue()));

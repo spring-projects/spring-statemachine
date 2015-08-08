@@ -31,6 +31,8 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SyncTaskExecutor;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
@@ -296,6 +298,83 @@ public class ZookeeperStateMachineTests extends AbstractZookeeperTests {
 						.sendEvent("E2", true)
 						.expectStateChanged(1)
 						.expectStates("S2")
+						.and()
+					.build();
+
+		plan.test();
+	}
+
+	@Test
+	public void testExtendedStateVariables1() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+
+		StateMachine<String, String> machine1 =
+				buildTestStateMachine2(curatorClient);
+		StateMachine<String, String> machine2 =
+				buildTestStateMachine2(curatorClient);
+
+	    Message<String> message = MessageBuilder
+	            .withPayload("EV")
+	            .setHeader("testVariable", "x1")
+	            .build();
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.defaultAwaitTime(2)
+					.stateMachine(machine1)
+					.stateMachine(machine2)
+					.step()
+						.expectStates("SI")
+						.and()
+					.step()
+						.sendEvent(message, machine1)
+						.expectTransition(1)
+						.expectVariable("testVariable", "x1")
+						.and()
+					.build();
+
+		plan.test();
+	}
+
+	@Test
+	public void testExtendedStateVariables2() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+
+		StateMachine<String, String> machine1 =
+				buildTestStateMachine2(curatorClient);
+		StateMachine<String, String> machine2 =
+				buildTestStateMachine2(curatorClient);
+
+	    Message<String> message = MessageBuilder
+	            .withPayload("EV")
+	            .setHeader("testVariable", "x1")
+	            .build();
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.defaultAwaitTime(2)
+					.stateMachine(machine1)
+					.stateMachine(machine2)
+					.step()
+						.expectStates("SI")
+						.and()
+					.step()
+						.sendEvent("E1", machine1)
+						.expectStateChanged(1)
+						.expectStates("S1")
+						.and()
+					.step()
+						.sendEvent(message, machine1)
+						.expectTransition(1)
+						.expectVariable("testVariable", "x1")
 						.and()
 					.build();
 
@@ -618,7 +697,15 @@ public class ZookeeperStateMachineTests extends AbstractZookeeperTests {
 					.source("SI").target("S1").event("E1")
 					.and()
 				.withExternal()
-					.source("S1").target("S2").event("E2");
+					.source("S1").target("S2").event("E2")
+					.and()
+				.withInternal()
+					.source("SI").event("EV")
+					.action(setVariableAction())
+					.and()
+				.withInternal()
+					.source("S1").event("EV")
+					.action(setVariableAction());
 
 		return builder.build();
 	}
@@ -633,6 +720,10 @@ public class ZookeeperStateMachineTests extends AbstractZookeeperTests {
 
 	private static FooAction fooAction() {
 		return new FooAction();
+	}
+
+	private static SetVariableAction setVariableAction() {
+		return new SetVariableAction();
 	}
 
 	private static class FooGuard implements Guard<String, String> {
@@ -664,6 +755,18 @@ public class ZookeeperStateMachineTests extends AbstractZookeeperTests {
 				variables.put("foo", 0);
 			}
 		}
+	}
+
+	private static class SetVariableAction implements Action<String, String> {
+
+		@Override
+		public void execute(StateContext<String, String> context) {
+			String testVariable = context.getMessageHeaders().get("testVariable", String.class);
+			if (testVariable != null) {
+				context.getExtendedState().getVariables().put("testVariable", testVariable);
+			}
+		}
+
 	}
 
 }
