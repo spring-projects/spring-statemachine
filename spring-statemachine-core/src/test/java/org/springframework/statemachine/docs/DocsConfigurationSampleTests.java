@@ -56,6 +56,7 @@ import org.springframework.statemachine.config.builders.StateMachineStateConfigu
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.StateConfigurer.History;
 import org.springframework.statemachine.ensemble.StateMachineEnsemble;
+import org.springframework.statemachine.event.OnExtendedStateChanged;
 import org.springframework.statemachine.event.OnStateMachineError;
 import org.springframework.statemachine.event.StateMachineEvent;
 import org.springframework.statemachine.guard.Guard;
@@ -942,5 +943,44 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 			}
 		}
 // end::snippet4[]
+
+// tag::snippet5[]
+		public static class ExtendedStateVariableListener
+				extends StateMachineListenerAdapter<String, String> {
+
+			@Override
+			public void extendedStateChanged(Object key, Object value) {
+				// do something with changed variable
+			}
+		}
+// end::snippet5[]
+
+// tag::snippet6[]
+		public static class ExtendedStateVariableEventListener
+				implements ApplicationListener<OnExtendedStateChanged> {
+
+			@Override
+			public void onApplicationEvent(OnExtendedStateChanged event) {
+				// do something with changed variable
+			}
+		}
+// end::snippet6[]
+
+		public static class ExtendedStateVariableActionSample {
+
+// tag::snippet7[]
+			public Action<String, String> myVariableAction() {
+				return new Action<String, String>() {
+
+					@Override
+					public void execute(StateContext<String, String> context) {
+						context.getExtendedState()
+							.getVariables().put("mykey", "myvalue");
+					}
+				};
+			}
+// end::snippet7[]
+
+		}
 
 }

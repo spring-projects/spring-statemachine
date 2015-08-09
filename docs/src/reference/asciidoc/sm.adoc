@@ -388,6 +388,48 @@ to return a *Boolean* value to satisfy _Guard_ implementation. This is
 demonstrated with a _guardExpression()_ function which takes an
 expression as an argument.
 
+[[sm-extendedstate]]
+== Using Extended State
+Let's assume that we'd need to create a state machine tracking how
+many times a user is pressing a key on a keyboard and then terminate
+when keys are pressed 1000 times. Possible but a really dump solution
+would be to create a new state for each 1000 key presses. Going
+even worse combinations you might suddenly have astronomical number of
+states which naturally is not very practical.
+
+This is where extended state variables comes into rescue by not having
+a necessity to add more states to drive state machine changes, instead
+a simple variable change can be done during a transition.
+
+`StateMachine` has a method `getExtendedState()` which returns an
+interface `ExtendedState` which gives an access to extended state
+variables. You can access variables directly via a state machine or
+`StateContext` during a callback from actions or transitions.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippet7]
+----
+
+If there is a need to get notified for extended state variable
+changes, there are two options; either use `StateMachineListener` and
+listen `extendedStateChanged(key, value)` callbacks:
+
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippet5]
+----
+
+Or implement a Spring Application context listeners for
+`OnExtendedStateChanged`. Naturally as mentioned in <<sm-listeners>>
+you can also listen all `StateMachineEvent` events.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippet6]
+----
+
 [[sm-statecontext]]
 == Using StateContext
 _StateContext_ is a domain object representing a current status of a

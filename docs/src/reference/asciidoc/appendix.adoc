@@ -73,6 +73,10 @@ A state models a situation during which some invariant condition
 holds. State is the main entity of a state machine where state changes
 are driven by an events.
 
+*Extended State*::
+An extended state is a special set of variables kept in a state
+machine to reduce number of needed states.
+
 *Transition*::
 A transition is a relationship between a source state and a target
 state. It may be part of a compound transition, which takes the state
