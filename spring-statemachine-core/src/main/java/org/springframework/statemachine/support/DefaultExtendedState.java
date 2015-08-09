@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.statemachine.ExtendedState;
+import org.springframework.statemachine.support.ObservableMap.MapChangeListener;
 
 /**
  * Default implementation of a {@link ExtendedState}.
@@ -29,12 +30,14 @@ import org.springframework.statemachine.ExtendedState;
 public class DefaultExtendedState implements ExtendedState {
 
 	private final Map<Object, Object> variables;
+	private ExtendedStateChangeListener listener;
 
 	/**
 	 * Instantiates a new default extended state.
 	 */
 	public DefaultExtendedState() {
-		this.variables = new ConcurrentHashMap<Object, Object>();
+		this.variables = new ObservableMap<Object, Object>(new ConcurrentHashMap<Object, Object>(),
+				new LocalMapChangeListener());
 	}
 
 	/**
@@ -66,8 +69,38 @@ public class DefaultExtendedState implements ExtendedState {
 	}
 
 	@Override
+	public void setExtendedStateChangeListener(ExtendedStateChangeListener listener) {
+		this.listener = listener;
+	}
+
+	@Override
 	public String toString() {
 		return "DefaultExtendedState [variables=" + variables + "]";
+	}
+
+	private class LocalMapChangeListener implements MapChangeListener<Object, Object> {
+
+		@Override
+		public void added(Object key, Object value) {
+			if (listener != null) {
+				listener.changed(key, value);
+			}
+		}
+
+		@Override
+		public void changed(Object key, Object value) {
+			if (listener != null) {
+				listener.changed(key, value);
+			}
+		}
+
+		@Override
+		public void removed(Object key, Object value) {
+			if (listener != null) {
+				listener.changed(key, value);
+			}
+		}
+
 	}
 
 }

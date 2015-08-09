@@ -103,6 +103,26 @@ public class ListenerTests extends AbstractStateMachineTests {
 		ctx.close();
 	}
 
+	@Test
+	public void testExtendedStateEvents() throws Exception {
+		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config2.class);
+		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		@SuppressWarnings("unchecked")
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+
+		TestStateMachineListener listener = new TestStateMachineListener();
+		machine.addStateListener(listener);
+		machine.start();
+
+		machine.getExtendedState().getVariables().put("foo", "jee");
+		assertThat(listener.extendedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.extended.size(), is(1));
+		assertThat(listener.extended.get(0).key, is("foo"));
+		assertThat(listener.extended.get(0).value, is("jee"));
+		ctx.close();
+	}
+
 	private static class LoggingAction implements Action<TestStates, TestEvents> {
 
 		private static final Log log = LogFactory.getLog(LoggingAction.class);
@@ -126,6 +146,9 @@ public class ListenerTests extends AbstractStateMachineTests {
 		volatile int started = 0;
 		volatile int stopped = 0;
 		CountDownLatch stopLatch = new CountDownLatch(1);
+		ArrayList<Holder2> extended = new ArrayList<Holder2>();
+		CountDownLatch extendedLatch = new CountDownLatch(1);
+
 
 		@Override
 		public void stateChanged(State<TestStates, TestEvents> from, State<TestStates, TestEvents> to) {
@@ -147,6 +170,16 @@ public class ListenerTests extends AbstractStateMachineTests {
 				this.from = from;
 				this.to = to;
 			}
+		}
+
+		static class Holder2 {
+			Object key;
+			Object value;
+			public Holder2(Object key, Object value) {
+				this.key = key;
+				this.value = value;
+			}
+
 		}
 
 		@Override
@@ -178,6 +211,12 @@ public class ListenerTests extends AbstractStateMachineTests {
 
 		@Override
 		public void stateMachineError(StateMachine<TestStates, TestEvents> stateMachine, Exception exception) {
+		}
+
+		@Override
+		public void extendedStateChanged(Object key, Object value) {
+			extended.add(new Holder2(key, value));
+			extendedLatch.countDown();
 		}
 
 	}

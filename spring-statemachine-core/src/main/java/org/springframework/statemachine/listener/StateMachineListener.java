@@ -102,4 +102,12 @@ public interface StateMachineListener<S,E> {
 	 */
 	void stateMachineError(StateMachine<S, E> stateMachine, Exception exception);
 
+	/**
+	 * Notified when extended state variable is either added, modified or removed.
+	 *
+	 * @param key the variable key
+	 * @param value the variable value
+	 */
+	void extendedStateChanged(Object key, Object value);
+
 }

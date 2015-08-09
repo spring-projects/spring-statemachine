@@ -122,4 +122,11 @@ public class DefaultStateMachineEventPublisher implements StateMachineEventPubli
 		}
 	}
 
+	@Override
+	public void publishExtendedStateChanged(Object source, Object key, Object value) {
+		if (applicationEventPublisher != null) {
+			applicationEventPublisher.publishEvent(new OnExtendedStateChanged(source, key, value));
+		}
+	}
+
 }

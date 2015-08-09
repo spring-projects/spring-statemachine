@@ -39,6 +39,7 @@ import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
+import org.springframework.statemachine.ExtendedState.ExtendedStateChangeListener;
 import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.access.StateMachineFunction;
@@ -212,6 +213,13 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		Assert.state(initialState.getPseudoState() != null
 				&& initialState.getPseudoState().getKind() == PseudoStateKind.INITIAL,
 				"Initial state's pseudostate kind must be INITIAL");
+
+		extendedState.setExtendedStateChangeListener(new ExtendedStateChangeListener() {
+			@Override
+			public void changed(Object key, Object value) {
+				notifyExtendedStateChanged(key, value);
+			}
+		});
 
 		// process given transitions
 		for (Transition<S, E> transition : transitions) {

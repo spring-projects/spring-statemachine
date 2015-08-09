@@ -44,4 +44,26 @@ public interface ExtendedState {
 	 */
 	<T> T get(Object key, Class<T> type);
 
+	/**
+	 * Sets the extended state change listener.
+	 *
+	 * @param listener the new extended state change listener
+	 */
+	void setExtendedStateChangeListener(ExtendedStateChangeListener listener);
+
+	/**
+	 * The listener interface for receiving extended state change events.
+	 */
+	public interface ExtendedStateChangeListener {
+
+		/**
+		 * Called when extended state variable has been changed.
+		 *
+		 * @param key the key
+		 * @param value the value
+		 */
+		void changed(Object key, Object value);
+
+	}
+
 }

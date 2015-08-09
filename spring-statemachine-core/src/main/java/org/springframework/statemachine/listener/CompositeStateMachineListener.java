@@ -113,4 +113,12 @@ public class CompositeStateMachineListener<S,E> extends AbstractCompositeListene
 		}
 	}
 
+	@Override
+	public void extendedStateChanged(Object key, Object value) {
+		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
+			StateMachineListener<S, E> listener = iterator.next();
+			listener.extendedStateChanged(key, value);
+		}
+	}
+
 }

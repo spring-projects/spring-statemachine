@@ -110,4 +110,13 @@ public interface StateMachineEventPublisher {
 	 */
 	void publishStateMachineError(Object source, StateMachine<?, ?> stateMachine, Exception exception);
 
+	/**
+	 * Publish extended state changed.
+	 *
+	 * @param source the source
+	 * @param key the key
+	 * @param value the value
+	 */
+	void publishExtendedStateChanged(Object source, Object key, Object value);
+
 }

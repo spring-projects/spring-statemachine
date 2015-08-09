@@ -71,4 +71,8 @@ public class StateMachineListenerAdapter<S, E> implements StateMachineListener<S
 	public void stateMachineError(StateMachine<S, E> stateMachine, Exception exception) {
 	}
 
+	@Override
+	public void extendedStateChanged(Object key, Object value) {
+	}
+
 }
