@@ -27,6 +27,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.shell.Bootstrap;
 import org.springframework.statemachine.StateContext;
+import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.annotation.OnTransition;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -184,7 +185,7 @@ public class Application  {
 		}
 
 //tag::snippetAE[]
-		@Bean
+		@Bean(name = StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME)
 		public TaskExecutor taskExecutor() {
 			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
 			taskExecutor.setCorePoolSize(5);

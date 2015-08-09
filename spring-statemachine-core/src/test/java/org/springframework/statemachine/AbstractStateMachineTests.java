@@ -95,7 +95,7 @@ public abstract class AbstractStateMachineTests {
 	@Configuration
 	public static class BaseConfig {
 
-		@Bean
+		@Bean(name = StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME)
 		public TaskExecutor taskExecutor() {
 			return new SyncTaskExecutor();
 		}
@@ -110,7 +110,7 @@ public abstract class AbstractStateMachineTests {
 	@Configuration
 	public static class BaseConfig2 {
 
-		@Bean
+		@Bean(name = StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME)
 		public TaskExecutor taskExecutor() {
 			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
 			taskExecutor.setCorePoolSize(5);

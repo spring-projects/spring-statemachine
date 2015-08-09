@@ -29,6 +29,7 @@ import org.springframework.context.SmartLifecycle;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.StateMachineBuilder.Builder;
 import org.springframework.statemachine.config.builders.StateMachineConfigBuilder;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfig;
@@ -56,7 +57,7 @@ public class ManualBuilderTests {
 				stateMachineConfigurationConfig, stateMachineTransitions, stateMachineStates);
 
 		StaticListableBeanFactory beanFactory = new StaticListableBeanFactory();
-		beanFactory.addBean("taskExecutor", new SyncTaskExecutor());
+		beanFactory.addBean(StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME, new SyncTaskExecutor());
 		beanFactory.addBean("taskScheduler", new ConcurrentTaskScheduler());
 		stateMachineFactory.setBeanFactory(beanFactory);
 
@@ -76,7 +77,7 @@ public class ManualBuilderTests {
 		Builder<String, String> builder = StateMachineBuilder.builder();
 
 		StaticListableBeanFactory beanFactory = new StaticListableBeanFactory();
-		beanFactory.addBean("taskExecutor", new SyncTaskExecutor());
+		beanFactory.addBean(StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME, new SyncTaskExecutor());
 		beanFactory.addBean("taskScheduler", new ConcurrentTaskScheduler());
 
 		builder.configureConfiguration()

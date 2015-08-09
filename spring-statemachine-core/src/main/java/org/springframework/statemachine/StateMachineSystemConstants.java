@@ -35,4 +35,7 @@ public abstract class StateMachineSystemConstants {
 	/** State machine id key for headers and variables */
 	public static final String STATEMACHINE_IDENTIFIER = "_sm_id_";
 
+	/** Bean name for task executor */
+	public static final String TASK_EXECUTOR_BEAN_NAME = "stateMachineTaskExecutor";
+
 }

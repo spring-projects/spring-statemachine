@@ -36,7 +36,7 @@ public class StateMachineContextUtils {
 	public static final String TASK_SCHEDULER_BEAN_NAME = "taskScheduler";
 
 	/* Default task executor bean name */
-	public static final String TASK_EXECUTOR_BEAN_NAME = "taskExecutor";
+	public static final String TASK_EXECUTOR_BEAN_NAME = StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME;
 
 	/* Default conversion service bean name */
 	public static final String CONVERSION_SERVICE_BEAN_NAME = "cloudClusterConversionService";
@@ -103,7 +103,7 @@ public class StateMachineContextUtils {
 		return getBeanOfType(beanFactory, StateMachineSystemConstants.DEFAULT_ID_EVENT_PUBLISHER,
 				StateMachineEventPublisher.class);
 	}
-	
+
 	/**
 	 * Gets a bean from a factory with a given name and type.
 	 *

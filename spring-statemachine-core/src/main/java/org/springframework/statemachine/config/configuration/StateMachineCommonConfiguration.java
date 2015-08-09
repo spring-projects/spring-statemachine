@@ -21,6 +21,7 @@ import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
+import org.springframework.statemachine.StateMachineSystemConstants;
 
 /**
  * Common configuration for statemachine.
@@ -31,7 +32,7 @@ import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 @Configuration
 public class StateMachineCommonConfiguration {
 
-	@Bean
+	@Bean(name = StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME)
 	public TaskExecutor taskExecutor() {
 		return new SyncTaskExecutor();
 	}
