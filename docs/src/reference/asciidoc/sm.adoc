@@ -730,3 +730,36 @@ only one implementation currently exists based on `Zookeeper`.
 Current technical documentation of a `Zookeeker` based distributed
 state machine can be found from an appendice <<appendices-zookeeper>>.
 
+[[sm-test]]
+== Testing Support
+We have also added a set of utility classes to easy testing of a state
+machine instances. These are used in a framework itself but are also
+very useful for end users.
+
+`StateMachineTestPlanBuilder` is used to build a `StateMachineTestPlan`
+which then have one method `test()` which runs a plan.
+`StateMachineTestPlanBuilder` contains a fluent builder api to add
+steps into a plan and during these steps you can send events and check
+various conditions like state changes, transitions and extended state
+variables.
+
+Lets take a simple `StateMachine` build using below example:
+
+[source,java,indent=0]
+----
+include::samples/DocsTestSampleTests.java[tags=snippetB]
+----
+
+In below test plan we have two steps, first we check that initial
+state `S1` is indeed set, secondly we send an event `E1` and expect
+one state change to happen and machine to end up into a state `S1`.
+
+[source,java,indent=0]
+----
+include::samples/DocsTestSampleTests.java[tags=snippetA]
+----
+
+These utilities are also used within a framework to test distributed
+state machine features and multiple machines can be added to a plan.
+If multiple machines are added then it is also possible to choose if
+event is sent to particular, random or all machines.

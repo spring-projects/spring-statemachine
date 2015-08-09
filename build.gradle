@@ -246,6 +246,7 @@ configure(rootProject) {
 
 	task copyDocsSamples(type: Copy) {
 		from 'spring-statemachine-core/src/test/java/org/springframework/statemachine/docs'
+		from 'spring-statemachine-test/src/test/java/org/springframework/statemachine/test/docs'
 		from 'spring-statemachine-recipes/src/test/java/org/springframework/statemachine/recipes/docs'
 		from 'spring-statemachine-samples/src/main/java/'
 		from 'spring-statemachine-samples/washer/src/main/java/'
