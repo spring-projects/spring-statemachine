@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -83,12 +84,12 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 
 	private final AtomicBoolean initialHandled = new AtomicBoolean(false);
 
-	private volatile Runnable task;
+	private final AtomicReference<Runnable> taskRef = new AtomicReference<Runnable>();
 
 	private StateMachineExecutorTransit<S, E> stateMachineExecutorTransit;
 
-    private final StateMachineInterceptorList<S, E> interceptors =
-            new StateMachineInterceptorList<S, E>();
+	private final StateMachineInterceptorList<S, E> interceptors =
+			new StateMachineInterceptorList<S, E>();
 
 	/**
 	 * Instantiates a new default state machine executor.
@@ -205,21 +206,26 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 		if (executor == null) {
 			return;
 		}
-		if (task == null) {
-			task = new Runnable() {
-				@Override
-				public void run() {
-					processEventQueue();
+
+		// TODO: it'd be nice not to create runnable if
+		//       current ref is null, we use atomic reference
+		//       to play safe with concurrency
+		Runnable task = new Runnable() {
+			@Override
+			public void run() {
+				processEventQueue();
+				processTriggerQueue();
+				while (processDeferList()) {
 					processTriggerQueue();
-					while (processDeferList()) {
-						processTriggerQueue();
-					}
-					task = null;
-					if (requestTask.getAndSet(false)) {
-						scheduleEventQueueProcessing();
-					}
 				}
-			};
+				taskRef.set(null);
+				if (requestTask.getAndSet(false)) {
+					scheduleEventQueueProcessing();
+				}
+			}
+		};
+
+		if (taskRef.compareAndSet(null, task)) {
 			executor.execute(task);
 		} else {
 			requestTask.set(true);
