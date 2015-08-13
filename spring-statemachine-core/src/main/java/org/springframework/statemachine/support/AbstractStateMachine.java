@@ -458,17 +458,40 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	@Override
 	public void resetStateMachine(StateMachineContext<S, E> stateMachineContext) {
+		if (log.isDebugEnabled()) {
+			log.debug("Request to reset state machine: stateMachine=[" + this + "] stateMachineContext=[" + stateMachineContext + "]");
+		}
 		S state = stateMachineContext.getState();
 		boolean stateSet = false;
 		for (State<S, E> s : getStates()) {
 			for (State<S, E> ss : s.getStates()) {
 				if (ss.getIds().contains(state)) {
 					currentState = s;
-					// TODO: not sure about starting submachine here, though
-					//       needed if we only transit to super state
+					// TODO: not sure about starting submachine/regions here, though
+					//       needed if we only transit to super state or reset regions
 					if (s.isSubmachineState()) {
 						StateMachine<S, E> submachine = ((AbstractState<S, E>)s).getSubmachine();
 						submachine.start();
+					} else if (s.isOrthogonal() && stateMachineContext.getChilds() != null) {
+						Collection<Region<S, E>> regions = ((AbstractState<S, E>)s).getRegions();
+						for (Region<S, E> region : regions) {
+							for (final StateMachineContext<S, E> child : stateMachineContext.getChilds()) {
+								((StateMachine<S, E>)region).getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S,E>>() {
+
+									@Override
+									public void apply(StateMachineAccess<S, E> function) {
+										function.resetStateMachine(child);
+									}
+								});
+							}
+						}
+						for (Region<S, E> region : regions) {
+							region.start();
+						}
+					}
+
+					if (log.isDebugEnabled()) {
+						log.debug("State reseted: stateMachine=[" + this + "] stateMachineContext=[" + stateMachineContext + "]");
 					}
 					stateSet = true;
 					break;

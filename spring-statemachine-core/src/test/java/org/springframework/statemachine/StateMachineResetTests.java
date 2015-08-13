@@ -19,7 +19,9 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -124,6 +126,37 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 		machine.start();
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S2, States.S21, States.S211));
 		assertThat((Integer)machine.getExtendedState().getVariables().get("foo"), is(1));
+	}
+
+	@Test
+	public void testResetRegions() {
+		context.register(Config2.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachine<TestStates, TestEvents> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+
+		DefaultStateMachineContext<TestStates, TestEvents> stateMachineContext1 =
+				new DefaultStateMachineContext<TestStates, TestEvents>(TestStates.S21, TestEvents.E2, null, null);
+		DefaultStateMachineContext<TestStates, TestEvents> stateMachineContext2 =
+				new DefaultStateMachineContext<TestStates, TestEvents>(TestStates.S31, TestEvents.E3, null, null);
+
+		List<StateMachineContext<TestStates, TestEvents>> childs = new ArrayList<StateMachineContext<TestStates,TestEvents>>();
+		childs.add(stateMachineContext1);
+		childs.add(stateMachineContext2);
+
+		DefaultStateMachineContext<TestStates, TestEvents> stateMachineContext =
+				new DefaultStateMachineContext<TestStates, TestEvents>(childs, TestStates.S2, TestEvents.E1, null, null);
+
+		machine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<TestStates, TestEvents>>() {
+
+			@Override
+			public void apply(StateMachineAccess<TestStates, TestEvents> function) {
+				function.resetStateMachine(stateMachineContext);
+			}
+		});
+
+		machine.start();
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S31));
 	}
 
 	@Configuration
@@ -284,6 +317,53 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 			Object foo = context.getExtendedState().getVariables().get("foo");
 			return !(foo == null || !foo.equals(match));
 		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config2 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.SI)
+					.state(TestStates.SI)
+					.state(TestStates.S2)
+					.end(TestStates.SF)
+					.and()
+					.withStates()
+						.parent(TestStates.S2)
+						.initial(TestStates.S20)
+						.state(TestStates.S20)
+						.state(TestStates.S21)
+						.and()
+					.withStates()
+						.parent(TestStates.S2)
+						.initial(TestStates.S30)
+						.state(TestStates.S30)
+						.state(TestStates.S31);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.SI)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S20)
+					.target(TestStates.S21)
+					.event(TestEvents.E2)
+					.and()
+				.withExternal()
+					.source(TestStates.S30)
+					.target(TestStates.S31)
+					.event(TestEvents.E3);
+		}
+
 	}
 
 }
