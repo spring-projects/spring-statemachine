@@ -106,8 +106,12 @@ public class TasksHandlerTests {
 		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_ERROR, TasksHandler.STATE_MANUAL));
 
 		handler.fixCurrentProblems();
-		handler.continueFromError();
+
+		listener.reset(0, 0, 0, 0, 1);
+		assertThat(listener.extendedStateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
+
 		listener.reset(1, 0, 0);
+		handler.continueFromError();
 		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_READY));
@@ -338,8 +342,10 @@ public class TasksHandlerTests {
 		volatile CountDownLatch stateEnteredLatch = new CountDownLatch(2);
 		volatile CountDownLatch stateExitedLatch = new CountDownLatch(0);
 		volatile CountDownLatch transitionLatch = new CountDownLatch(0);
+		volatile CountDownLatch extendedStateChangedLatch = new CountDownLatch(0);
 		volatile int stateChangedCount = 0;
 		volatile int transitionCount = 0;
+		volatile int extendedStateChangedCount = 0;
 		List<State<String, String>> statesEntered = new ArrayList<State<String, String>>();
 		List<State<String, String>> statesExited = new ArrayList<State<String, String>>();
 
@@ -382,18 +388,32 @@ public class TasksHandlerTests {
 			}
 		}
 
+		@Override
+		public void extendedStateChanged(Object key, Object value) {
+			synchronized (lock) {
+				extendedStateChangedCount++;
+				extendedStateChangedLatch.countDown();
+			}
+		}
+
 		public void reset(int c1, int c2, int c3) {
 			reset(c1, c2, c3, 0);
 		}
 
 		public void reset(int c1, int c2, int c3, int c4) {
+			reset(c1, c2, c3, c4, 0);
+		}
+
+		public void reset(int c1, int c2, int c3, int c4, int c5) {
 			synchronized (lock) {
 				stateChangedLatch = new CountDownLatch(c1);
 				stateEnteredLatch = new CountDownLatch(c2);
 				stateExitedLatch = new CountDownLatch(c3);
 				transitionLatch = new CountDownLatch(c4);
+				extendedStateChangedLatch = new CountDownLatch(c5);
 				stateChangedCount = 0;
 				transitionCount = 0;
+				extendedStateChangedCount = 0;
 				statesEntered.clear();
 				statesExited.clear();
 			}
