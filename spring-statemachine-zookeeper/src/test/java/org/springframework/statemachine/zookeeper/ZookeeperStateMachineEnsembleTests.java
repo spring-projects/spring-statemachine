@@ -554,18 +554,18 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 
 		// this is a bit of a hack to test things like this
 		// not sure if this is totally reliable way
-		ensemble.enabled = false;
-		for (int i = 0; i < 4; i++) {
+		// we've hacked to disable znode event registration so
+		// should not get any errors until it's re-enabled and
+		// we write again
+		for (int i = 0; i < 10; i++) {
 			ensemble.setState(new DefaultStateMachineContext<String, String>("S" + i, "E" + i,
 					new HashMap<String, Object>(), new DefaultExtendedState()));
 		}
 		assertThat(listener.errorLatch.await(2, TimeUnit.SECONDS), is(false));
-		for (int i = 4; i < 5; i++) {
-			ensemble.setState(new DefaultStateMachineContext<String, String>("S" + i, "E" + i,
-					new HashMap<String, Object>(), new DefaultExtendedState()));
-		}
 
 		ensemble.enabled = true;
+
+		// logging error if this fails
 		TestUtils.callMethod("registerWatcherForStatePath", ensemble);
 		String reason = "";
 		if (listener.errors.size() > 0) {
@@ -573,17 +573,17 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 		}
 		assertThat(reason, listener.errors.size(), is(0));
 
-		for (int i = 5; i < 6; i++) {
+		// this should actually cause ensemble to fail
+		for (int i = 10; i < 11; i++) {
 			ensemble.setState(new DefaultStateMachineContext<String, String>("S" + i, "E" + i,
 					new HashMap<String, Object>(), new DefaultExtendedState()));
 		}
-
 		assertThat(listener.errorLatch.await(2, TimeUnit.SECONDS), is(true));
 	}
 
 	private class OverflowControlZookeeperStateMachineEnsemble extends ZookeeperStateMachineEnsemble<String, String> {
 
-		boolean enabled = true;
+		boolean enabled = false;
 
 		public OverflowControlZookeeperStateMachineEnsemble(CuratorFramework curatorClient, String basePath,
 				boolean cleanState, int logSize) {
