@@ -374,6 +374,7 @@ public class ZookeeperStateMachineTests extends AbstractZookeeperTests {
 					.step()
 						.sendEvent(message, machine1)
 						.expectTransition(1)
+						.expectExtendedStateChanged(1)
 						.expectVariable("testVariable", "x1")
 						.and()
 					.build();

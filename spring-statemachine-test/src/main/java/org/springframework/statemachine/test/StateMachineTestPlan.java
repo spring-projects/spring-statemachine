@@ -101,7 +101,8 @@ public class StateMachineTestPlan<S, E> {
 						step.expectTransitionStarted != null ? step.expectTransitionStarted : 0,
 						step.expectTransitionEnded != null ? step.expectTransitionEnded : 0,
 						step.expectStateMachineStarted != null ? step.expectStateMachineStarted : 0,
-						step.expectStateMachineStopped != null ? step.expectStateMachineStopped : 0);
+						step.expectStateMachineStopped != null ? step.expectStateMachineStopped : 0,
+						step.expectExtendedStateChanged != null ? step.expectExtendedStateChanged : 0);
 			}
 
 			if (step.expectStateMachineStarted != null) {
@@ -209,6 +210,13 @@ public class StateMachineTestPlan<S, E> {
 						itemMatchers.add(is(expectState));
 					}
 					assertThat(stateMachine.getState().getIds(), containsInAnyOrder(itemMatchers));
+				}
+			}
+
+			if (step.expectExtendedStateChanged != null) {
+				for (LatchStateMachineListener<S, E> listener : listeners.values()) {
+					assertThat(listener.getExtendedStateChangedLatch().await(defaultAwaitTime, TimeUnit.SECONDS), is(true));
+					assertThat(listener.getExtendedStateChanged().size(), is(step.expectExtendedStateChanged));
 				}
 			}
 

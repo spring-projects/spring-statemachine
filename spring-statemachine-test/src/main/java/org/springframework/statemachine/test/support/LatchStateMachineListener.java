@@ -48,6 +48,7 @@ public class LatchStateMachineListener<S, E> extends StateMachineListenerAdapter
 	private volatile CountDownLatch transitionEndedLatch = new CountDownLatch(1);
 	private volatile CountDownLatch stateMachineStartedLatch = new CountDownLatch(1);
 	private volatile CountDownLatch stateMachineStoppedLatch = new CountDownLatch(1);
+	private volatile CountDownLatch extendedStateChangedLatch = new CountDownLatch(1);
 
 	private final List<StateChangedWrapper<S, E>> stateChanged = new ArrayList<StateChangedWrapper<S, E>>();
 	private final List<State<S, E>> stateEntered = new ArrayList<State<S, E>>();
@@ -58,6 +59,7 @@ public class LatchStateMachineListener<S, E> extends StateMachineListenerAdapter
 	private final List<Transition<S, E>> transitionEnded = new ArrayList<Transition<S, E>>();
 	private final List<StateMachine<S, E>> stateMachineStarted = new ArrayList<StateMachine<S, E>>();
 	private final List<StateMachine<S, E>> stateMachineStopped = new ArrayList<StateMachine<S, E>>();
+	private final List<ExtendedStateChangedWrapper> extendedStateChanged = new ArrayList<ExtendedStateChangedWrapper>();
 
 	@Override
 	public void stateChanged(State<S, E> from, State<S, E> to) {
@@ -131,9 +133,17 @@ public class LatchStateMachineListener<S, E> extends StateMachineListenerAdapter
 		}
 	}
 
+	@Override
+	public void extendedStateChanged(Object key, Object value) {
+		synchronized (lock) {
+			this.extendedStateChanged.add(new ExtendedStateChangedWrapper(key, value));
+			this.extendedStateChangedLatch.countDown();
+		}
+	}
+
 	public void reset(int stateChangedCount, int stateEnteredCount, int stateExitedCount, int eventNotAcceptedCount,
 			int transitionCount, int transitionStartedCount, int transitionEndedCount, int stateMachineStartedCount,
-			int stateMachineStoppedCount) {
+			int stateMachineStoppedCount, int extendedStateChangedCount) {
 		synchronized (lock) {
 			this.stateChangedLatch = new CountDownLatch(stateChangedCount);
 			this.stateEnteredLatch = new CountDownLatch(stateEnteredCount);
@@ -144,6 +154,7 @@ public class LatchStateMachineListener<S, E> extends StateMachineListenerAdapter
 			this.transitionEndedLatch = new CountDownLatch(transitionEndedCount);
 			this.stateMachineStartedLatch = new CountDownLatch(stateMachineStartedCount);
 			this.stateMachineStoppedLatch = new CountDownLatch(stateMachineStoppedCount);
+			this.extendedStateChangedLatch = new CountDownLatch(extendedStateChangedCount);
 			this.stateChanged.clear();
 			this.stateEntered.clear();
 			this.stateExited.clear();
@@ -153,6 +164,7 @@ public class LatchStateMachineListener<S, E> extends StateMachineListenerAdapter
 			this.transitionEnded.clear();
 			this.stateMachineStarted.clear();
 			this.stateMachineStopped.clear();
+			this.extendedStateChanged.clear();
 		}
 	}
 
@@ -192,6 +204,10 @@ public class LatchStateMachineListener<S, E> extends StateMachineListenerAdapter
 		return stateMachineStoppedLatch;
 	}
 
+	public CountDownLatch getExtendedStateChangedLatch() {
+		return extendedStateChangedLatch;
+	}
+
 	public List<StateChangedWrapper<S, E>> getStateChanged() {
 		return stateChanged;
 	}
@@ -228,6 +244,10 @@ public class LatchStateMachineListener<S, E> extends StateMachineListenerAdapter
 		return stateMachineStopped;
 	}
 
+	public List<ExtendedStateChangedWrapper> getExtendedStateChanged() {
+		return extendedStateChanged;
+	}
+
 	public static class StateChangedWrapper<S, E> {
 		final State<S, E> from;
 		final State<S, E> to;
@@ -235,6 +255,17 @@ public class LatchStateMachineListener<S, E> extends StateMachineListenerAdapter
 		public StateChangedWrapper(State<S, E> from, State<S, E> to) {
 			this.from = from;
 			this.to = to;
+		}
+
+	}
+
+	public static class ExtendedStateChangedWrapper {
+		final Object key;
+		final Object value;
+
+		public ExtendedStateChangedWrapper(Object key, Object value) {
+			this.key = key;
+			this.value = value;
 		}
 
 	}

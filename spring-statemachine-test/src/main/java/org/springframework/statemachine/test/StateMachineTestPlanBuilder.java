@@ -124,6 +124,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 		Integer expectTransitionEnded;
 		Integer expectStateMachineStarted;
 		Integer expectStateMachineStopped;
+		Integer expectExtendedStateChanged;
 		final Collection<Object> expectVariableKeys = new ArrayList<Object>();
 		final Map<Object, Object> expectVariables = new HashMap<Object, Object>();
 
@@ -382,6 +383,21 @@ public class StateMachineTestPlanBuilder<S, E> {
 		}
 
 		/**
+		 * Expect state machine extended state variables changing {@code count} times.
+		 *
+		 * @param count the count
+		 * @return the state machine test plan step builder
+		 */
+		public StateMachineTestPlanStepBuilder expectExtendedStateChanged(int count) {
+			if (count < 0) {
+				throw new IllegalArgumentException("Expected count cannot be negative, was " + count);
+			}
+			this.expectExtendedStateChanged = count;
+			return this;
+		}
+
+
+		/**
 		 * Add a new step and return {@link StateMachineTestPlanBuilder}
 		 * for chaining.
 		 *
@@ -391,7 +407,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 			steps.add(new StateMachineTestPlanStep<S, E>(sendEvent, sendMessage, sendEventMachineId, sendEventToAll,
 					expectStates, expectStateChanged, expectStateEntered, expectStateExited, expectEventNotAccepted,
 					expectTransition, expectTransitionStarted, expectTransitionEnded, expectStateMachineStarted,
-					expectStateMachineStopped, expectVariableKeys, expectVariables));
+					expectStateMachineStopped, expectVariableKeys, expectVariables, expectExtendedStateChanged));
 			return StateMachineTestPlanBuilder.this;
 		}
 
@@ -412,6 +428,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 		Integer expectTransitionEnded;
 		Integer expectStateMachineStarted;
 		Integer expectStateMachineStopped;
+		Integer expectExtendedStateChanged;
 		final Collection<Object> expectVariableKeys;
 		final Map<Object, Object> expectVariables;
 
@@ -420,7 +437,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 				Integer expectStateEntered, Integer expectStateExited, Integer expectEventNotAccepted,
 				Integer expectTransition, Integer expectTransitionStarted, Integer expectTransitionEnded,
 				Integer expectStateMachineStarted, Integer expectStateMachineStopped,
-				Collection<Object> expectVariableKeys, Map<Object, Object> expectVariables) {
+				Collection<Object> expectVariableKeys, Map<Object, Object> expectVariables, Integer expectExtendedStateChanged) {
 			this.sendEvent = sendEvent;
 			this.sendMessage = sendMessage;
 			this.sendEventMachineId = sendEventMachineId;
@@ -437,6 +454,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 			this.expectStateMachineStopped = expectStateMachineStopped;
 			this.expectVariableKeys = expectVariableKeys;
 			this.expectVariables = expectVariables;
+			this.expectExtendedStateChanged = expectExtendedStateChanged;
 		}
 
 	}
