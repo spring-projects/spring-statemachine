@@ -306,7 +306,6 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	}
 
 	private class StateWatcher implements CuratorWatcher {
-
 		// zk is not really reliable for watching events because
 		// you need to re-register watcher when it fires. most likely
 		// we will miss events so need to do little tricks here via
@@ -324,54 +323,10 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 			switch (event.getType()) {
 			case NodeDataChanged:
 				try {
-					StateWrapper currentWrapper = stateRef.get();
-					StateWrapper notifyWrapper = notifyRef.get();
-					StateWrapper newWrapper = readCurrentContext();
-					traceLogWrappers(currentWrapper, notifyWrapper, newWrapper);
-
-					if (currentWrapper.version + 1 == newWrapper.version
-							&& stateRef.compareAndSet(currentWrapper, newWrapper)) {
-						mayNotifyStateChanged(newWrapper);
-					} else {
-						final int start = (notifyWrapper != null ? (notifyWrapper.version) : 0) % logSize;
-						int count = newWrapper.version - (notifyWrapper != null ? (notifyWrapper.version) : 0);
-						if (log.isDebugEnabled()) {
-							log.debug("Events missed, trying to replay start " + start + " count " + count);
-						}
-						for (int i = start; i < (start + count); i++) {
-							try {
-								Stat stat = new Stat();
-								StateMachineContext<S, E> context = ((ZookeeperStateMachinePersist<S, E>) persist)
-										.readLog(i, stat);
-								int ver = (stat.getVersion() - 1) * logSize + (i + 1);
-
-								// check if we're behind more than a log size meaning we can't
-								// replay full history, notify and break out from a loop
-								if (i + logSize < ver) {
-									notifyError(new StateMachineEnsembleException("Current version behind more than log size"));
-									break;
-								}
-								if (log.isDebugEnabled()) {
-									log.debug("Replay position " + i + " with version " + ver);
-									log.debug("Context in position " + i + " " + context);
-								}
-
-								StateWrapper wrapper = new StateWrapper(context, ver);
-
-								// need to set stateRef when replaying if its
-								// context is not set or otherwise just set
-								// if stateRef still is currentWrapper
-								StateWrapper currentWrapperx = stateRef.get();
-								if (currentWrapperx.context == null) {
-									stateRef.set(wrapper);
-								} else if (wrapper.version == currentWrapperx.version + 1){
-									stateRef.set(wrapper);
-								}
-								mayNotifyStateChanged(wrapper);
-							} catch (Exception e) {
-								log.error("error reading log", e);
-							}
-						}
+					// re-read once if we did read log history
+					// there might be unread change
+					if (handleDataChange()) {
+						handleDataChange();
 					}
 				} catch (Exception e) {
 					log.error("Error handling event", e);
@@ -384,6 +339,63 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 			}
 		}
 
+	}
+
+	/**
+	 * Handles internal logic of reading and comparing current
+	 * wrapper references and re-plays logs if needed.
+	 *
+	 * @return true if log is replayed
+	 * @throws Exception if error occurred
+	 */
+	private boolean handleDataChange() throws Exception {
+		StateWrapper currentWrapper = stateRef.get();
+		StateWrapper notifyWrapper = notifyRef.get();
+		StateWrapper newWrapper = readCurrentContext();
+		traceLogWrappers(currentWrapper, notifyWrapper, newWrapper);
+
+		if (currentWrapper.version + 1 == newWrapper.version
+				&& stateRef.compareAndSet(currentWrapper, newWrapper)) {
+			mayNotifyStateChanged(newWrapper);
+		} else {
+			final int start = (notifyWrapper != null ? (notifyWrapper.version) : 0) % logSize;
+			int count = newWrapper.version - (notifyWrapper != null ? (notifyWrapper.version) : 0);
+			if (log.isDebugEnabled()) {
+				log.debug("Events missed, trying to replay start " + start + " count " + count);
+			}
+			for (int i = start; i < (start + count); i++) {
+				Stat stat = new Stat();
+				StateMachineContext<S, E> context = ((ZookeeperStateMachinePersist<S, E>) persist).readLog(i, stat);
+				int ver = (stat.getVersion() - 1) * logSize + (i + 1);
+
+				// check if we're behind more than a log size meaning we can't
+				// replay full history, notify and break out from a loop
+				if (i + logSize < ver) {
+					notifyError(new StateMachineEnsembleException("Current version behind more than log size"));
+					break;
+				}
+				if (log.isDebugEnabled()) {
+					log.debug("Replay position " + i + " with version " + ver);
+					log.debug("Context in position " + i + " " + context);
+				}
+
+				StateWrapper wrapper = new StateWrapper(context, ver);
+
+				// need to set stateRef when replaying if its
+				// context is not set or otherwise just set
+				// if stateRef still is currentWrapper
+				StateWrapper currentWrapperx = stateRef.get();
+				if (currentWrapperx.context == null) {
+					stateRef.set(wrapper);
+				} else if (wrapper.version == currentWrapperx.version + 1) {
+					stateRef.set(wrapper);
+				}
+				mayNotifyStateChanged(wrapper);
+			}
+			// did we replay
+			return count > 0;
+		}
+		return false;
 	}
 
 	/**
