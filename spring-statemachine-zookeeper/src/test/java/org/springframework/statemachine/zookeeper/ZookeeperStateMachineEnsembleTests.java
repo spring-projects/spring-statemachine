@@ -256,7 +256,7 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 					new HashMap<String, Object>(), new DefaultExtendedState()));
 		}
 
-		assertThat(listener.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener.eventLatch.await(10, TimeUnit.SECONDS), is(true));
 		assertThat(listener.events.size(), is(10));
 
 		for (int i = 0; i < 10; i++) {
@@ -300,9 +300,9 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 					new HashMap<String, Object>(), new DefaultExtendedState()));
 		}
 
-		assertThat(listener1.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener1.eventLatch.await(10, TimeUnit.SECONDS), is(true));
 		assertThat(listener1.events.size(), is(10));
-		assertThat(listener2.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener2.eventLatch.await(10, TimeUnit.SECONDS), is(true));
 		assertThat(listener2.events.size(), is(10));
 
 		for (int i = 0; i < 10; i++) {
@@ -362,9 +362,9 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 			assertThat(((StateMachineException)e).contains(KeeperException.BadVersionException.class), is(true));
 		} else {
 			// miracle happened and no cas error, well then check events
-			assertThat(listener1.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+			assertThat(listener1.eventLatch.await(10, TimeUnit.SECONDS), is(true));
 			assertThat(listener1.events.size(), is(10));
-			assertThat(listener2.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+			assertThat(listener2.eventLatch.await(10, TimeUnit.SECONDS), is(true));
 			assertThat(listener2.events.size(), is(10));
 
 			for (int i = 0; i < 10; i++) {
@@ -412,9 +412,9 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 				ensemble2.setState(new DefaultStateMachineContext<String, String>("S" + i, "E" + i,
 						new HashMap<String, Object>(), new DefaultExtendedState()));
 			}
-			assertThat(listener1.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+			assertThat(listener1.eventLatch.await(10, TimeUnit.SECONDS), is(true));
 			assertThat(listener1.events.size(), is(1));
-			assertThat(listener2.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+			assertThat(listener2.eventLatch.await(10, TimeUnit.SECONDS), is(true));
 			assertThat(listener2.events.size(), is(1));
 		}
 	}
@@ -447,7 +447,7 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 			Thread.sleep(500);
 		}
 
-		assertThat(listener.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener.eventLatch.await(10, TimeUnit.SECONDS), is(true));
 		assertThat(listener.events.size(), is(10));
 
 		for (int i = 0; i < 10; i++) {
@@ -492,9 +492,9 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 			Thread.sleep(500);
 		}
 
-		assertThat(listener1.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener1.eventLatch.await(10, TimeUnit.SECONDS), is(true));
 		assertThat(listener1.events.size(), is(10));
-		assertThat(listener2.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener2.eventLatch.await(10, TimeUnit.SECONDS), is(true));
 		assertThat(listener2.events.size(), is(10));
 
 		for (int i = 0; i < 10; i++) {
@@ -539,9 +539,9 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 					new HashMap<String, Object>(), new DefaultExtendedState()));
 		}
 
-		assertThat(listener1.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener1.eventLatch.await(10, TimeUnit.SECONDS), is(true));
 		assertThat(listener1.events.size(), is(9));
-		assertThat(listener2.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener2.eventLatch.await(10, TimeUnit.SECONDS), is(true));
 		assertThat(listener2.events.size(), is(9));
 
 		for (int i = 0; i < 9; i++) {
@@ -558,9 +558,9 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 					new HashMap<String, Object>(), new DefaultExtendedState()));
 		}
 
-		assertThat(listener1.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener1.eventLatch.await(10, TimeUnit.SECONDS), is(true));
 		assertThat(listener1.events.size(), is(1));
-		assertThat(listener2.eventLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener2.eventLatch.await(10, TimeUnit.SECONDS), is(true));
 		assertThat(listener2.events.size(), is(1));
 
 		for (int i = 0; i < 1; i++) {
