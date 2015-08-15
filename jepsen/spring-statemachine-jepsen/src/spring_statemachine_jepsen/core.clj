@@ -175,144 +175,145 @@
   []
 
   (gen/phases
+    ;get error status of all machines
     (gen/clients
       (gen/each
         (gen/once {:type :invoke
                    :f    :status})))
+    ;check states for all machines
     (gen/clients
       (gen/each
         (gen/once {:type :invoke
                    :f    :states
                    :s    ["S0","S1","S11"]})))
-    ; this picks random node for sending event
+    ;pick random node for sending event C
     (gen/clients
       (gen/once {:type :invoke
                  :f    :event
                  :e    "C"}))
-    (gen/sleep 2)
+    ;check states for all machines
     (gen/clients
       (gen/each
         (gen/once {:type :invoke
                    :f    :status})))
+    ;check variable foo=0 for all machines
     (gen/clients
       (gen/each
         (gen/once {:type :invoke
                    :f    :variable
                    :v    "foo"
                    :r    0})))
+    ;check states for all machines
     (gen/clients
       (gen/each
         (gen/once {:type :invoke
                    :f    :states
-                   :s    ["S0","S2","S21","S211"]})))
-    )
-  )
+                   :s    ["S0","S2","S21","S211"]})))))
 
 (defn event-gen-2
   "Generates parallel event and checks states and status"
   []
 
   (gen/phases
+    ;get error status of all machines
     (gen/clients
       (gen/each
         (gen/once {:type :invoke
                    :f    :status})))
+    ;check states for all machines
     (gen/clients
       (gen/each
         (gen/once {:type :invoke
                    :f    :states
                    :s    ["S0","S1","S11"]})))
-    ; this picks all nodes for sending event
+    ;pick all nodes for sending event C
     (gen/clients
       (gen/each
         (gen/once {:type :invoke
                    :f    :event
                    :e    "C"})))
     (gen/sleep 2)
+    ;get error status of all machines
     (gen/clients
       (gen/each
         (gen/once {:type :invoke
                    :f    :status})))
+    ;check states for all machines
     (gen/clients
       (gen/each
         (gen/once {:type :invoke
                    :f    :states
-                   :s    ["S0","S2","S21","S211"]})))
-    )
-  )
+                   :s    ["S0","S2","S21","S211"]})))))
 
 (defn event-gen-3
   "Generates event and checks states, status and variable"
   []
 
   (gen/phases
+    ;get error status of all machines
     (gen/clients
       (gen/each
         (gen/once {:type :invoke
                    :f    :status})))
+    ;check states for all machines
     (gen/clients
       (gen/each
         (gen/once {:type :invoke
                    :f    :states
                    :s    ["S0","S1","S11"]})))
-    ; this picks random node for sending event
+    ;pick random node for sending event J with variable x1
     (gen/clients
       (gen/once {:type :invoke
                  :f    :eventvariable
                  :e    "J"
                  :v    "x1"}))
     (gen/sleep 2)
+    ;check variable value x1 for all machines
     (gen/clients
       (gen/each
         (gen/once {:type :invoke
                    :f    :variable
                    :v    "testVariable"
-                   :r    "x1"})))
-
-    )
-  )
+                   :r    "x1"})))))
 
 (defn event-gen-4
   "Generates event and checks states while splitting network"
   []
 
   (gen/phases
+    ;get error status of all machines
     (gen/clients
       (gen/each
         (gen/once {:type :invoke
                    :f    :status})))
-
+    ;start nemesis, split network
     (gen/nemesis
       (gen/once {:type :info :f :start}))
-
     (gen/sleep 30)
-
+    ;get error status of all machines
     (gen/clients
       (gen/each
         (gen/once {:type :invoke
                    :f    :status})))
-
+    ;stop nemesis, heal network
     (gen/nemesis
       (gen/once {:type :info :f :stop}))
-
+    ;get error status of all machines
     (gen/clients
       (gen/each
         (gen/once {:type :invoke
                    :f    :status})))
-
+    ;pick random node for sending event C
     (gen/clients
       (gen/once {:type :invoke
                  :f    :event
                  :e    "C"}))
-
+    ;check states for all machines
     (gen/clients
       (gen/each
         (gen/once {:type :invoke
                    :f    :states
-                   :s    ["S0","S2","S21","S211"]})))
-
-    )
-  )
+                   :s    ["S0","S2","S21","S211"]})))))
 
 (defn statemachine-test
   "Defaults for testing state machine."
