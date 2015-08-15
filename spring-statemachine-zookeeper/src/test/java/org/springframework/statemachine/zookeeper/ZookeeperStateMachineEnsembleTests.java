@@ -244,9 +244,11 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 
 		TestEnsembleListener listener = new TestEnsembleListener();
 		ensemble.addEnsembleListener(listener);
-
 		ensemble.afterPropertiesSet();
 		ensemble.start();
+		ensemble.join(new TestStateMachine());
+		assertThat(listener.joinedLatch.await(3, TimeUnit.SECONDS), is(true));
+
 		listener.reset(0, 10);
 
 		for (int i = 0; i < 10; i++) {
@@ -284,6 +286,11 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 		ensemble1.start();
 		ensemble2.afterPropertiesSet();
 		ensemble2.start();
+
+		ensemble1.join(new TestStateMachine());
+		assertThat(listener1.joinedLatch.await(3, TimeUnit.SECONDS), is(true));
+		ensemble2.join(new TestStateMachine());
+		assertThat(listener2.joinedLatch.await(3, TimeUnit.SECONDS), is(true));
 
 		listener1.reset(0, 10);
 		listener2.reset(0, 10);
@@ -326,6 +333,11 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 		ensemble1.start();
 		ensemble2.afterPropertiesSet();
 		ensemble2.start();
+
+		ensemble1.join(new TestStateMachine());
+		assertThat(listener1.joinedLatch.await(3, TimeUnit.SECONDS), is(true));
+		ensemble2.join(new TestStateMachine());
+		assertThat(listener2.joinedLatch.await(3, TimeUnit.SECONDS), is(true));
 
 		listener1.reset(0, 10);
 		listener2.reset(0, 10);
@@ -385,6 +397,11 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 		ensemble2.afterPropertiesSet();
 		ensemble2.start();
 
+		ensemble1.join(new TestStateMachine());
+		assertThat(listener1.joinedLatch.await(3, TimeUnit.SECONDS), is(true));
+		ensemble2.join(new TestStateMachine());
+		assertThat(listener2.joinedLatch.await(3, TimeUnit.SECONDS), is(true));
+
 		for (int i = 0; i < 10; i++) {
 			listener1.reset(0, 1);
 			listener2.reset(0, 1);
@@ -418,6 +435,10 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 
 		ensemble.afterPropertiesSet();
 		ensemble.start();
+
+		ensemble.join(new TestStateMachine());
+		assertThat(listener.joinedLatch.await(3, TimeUnit.SECONDS), is(true));
+
 		listener.reset(0, 10);
 
 		for (int i = 0; i < 10; i++) {
@@ -456,6 +477,12 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 		ensemble1.start();
 		ensemble2.afterPropertiesSet();
 		ensemble2.start();
+
+		ensemble1.join(new TestStateMachine());
+		assertThat(listener1.joinedLatch.await(3, TimeUnit.SECONDS), is(true));
+		ensemble2.join(new TestStateMachine());
+		assertThat(listener2.joinedLatch.await(3, TimeUnit.SECONDS), is(true));
+
 		listener1.reset(0, 10);
 		listener2.reset(0, 10);
 
@@ -498,6 +525,12 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 		ensemble1.start();
 		ensemble2.afterPropertiesSet();
 		ensemble2.start();
+
+		ensemble1.join(new TestStateMachine());
+		assertThat(listener1.joinedLatch.await(3, TimeUnit.SECONDS), is(true));
+		ensemble2.join(new TestStateMachine());
+		assertThat(listener2.joinedLatch.await(3, TimeUnit.SECONDS), is(true));
+
 		listener1.reset(0, 9);
 		listener2.reset(0, 9);
 
@@ -550,6 +583,10 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 
 		ensemble.afterPropertiesSet();
 		ensemble.start();
+
+		ensemble.join(new TestStateMachine());
+		assertThat(listener.joinedLatch.await(3, TimeUnit.SECONDS), is(true));
+
 		listener.reset(0, 10, 1);
 
 		// this is a bit of a hack to test things like this
