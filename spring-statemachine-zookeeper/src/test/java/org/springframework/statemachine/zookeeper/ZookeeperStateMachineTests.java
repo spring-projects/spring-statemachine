@@ -431,6 +431,149 @@ public class ZookeeperStateMachineTests extends AbstractZookeeperTests {
 		assertThat(machine2.getState().getIds(), containsInAnyOrder("S1"));
 	}
 
+	@Test
+	public void testConnectionLoss1() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+
+		StateMachine<String, String> machine1 =
+				buildTestStateMachine(curatorClient);
+
+		StateMachineTestPlan<String, String> plan1 =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.defaultAwaitTime(2)
+					.stateMachine(machine1)
+					.step()
+						.expectStates("S0", "S1", "S11")
+						.and()
+					.step()
+						.sendEvent("C", machine1)
+						.expectStateChanged(3)
+						.expectStates("S0", "S2", "S21", "S211")
+						.and()
+					.build();
+		plan1.test();
+
+		Object ensemble = TestUtils.readField("ensemble", machine1);
+		try {
+			TestUtils.callMethod("handleZkDisconnect", ensemble);
+		} catch (Exception e) {
+		}
+		TestUtils.callMethod("handleZkConnect", ensemble);
+
+		StateMachineTestPlan<String, String> plan2 =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.defaultAwaitTime(2)
+					.stateMachine(machine1)
+					.step()
+						.expectStates("S0", "S2", "S21", "S211")
+						.and()
+					.step()
+						.sendEvent("C", machine1)
+						.expectStateChanged(2)
+						.expectStates("S0", "S1", "S11")
+						.and()
+					.build();
+		plan2.test();
+	}
+
+	@Test
+	public void testConnectionLoss2() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+
+		StateMachine<String, String> machine1 =
+				buildTestStateMachine(curatorClient);
+		StateMachine<String, String> machine2 =
+				buildTestStateMachine(curatorClient);
+		StateMachine<String, String> machine3 =
+				buildTestStateMachine(curatorClient);
+		StateMachine<String, String> machine4 =
+				buildTestStateMachine(curatorClient);
+		StateMachine<String, String> machine5 =
+				buildTestStateMachine(curatorClient);
+
+		StateMachineTestPlan<String, String> plan1 =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.defaultAwaitTime(2)
+					.stateMachine(machine1)
+					.stateMachine(machine2)
+					.stateMachine(machine3)
+					.stateMachine(machine4)
+					.stateMachine(machine5)
+					.step()
+						.expectStates("S0", "S1", "S11")
+						.and()
+					.step()
+						.sendEvent("C", machine1)
+						.expectStateChanged(3)
+						.expectStates("S0", "S2", "S21", "S211")
+						.and()
+					.build();
+		plan1.test();
+
+		Object ensemble2 = TestUtils.readField("ensemble", machine2);
+		Object ensemble3 = TestUtils.readField("ensemble", machine3);
+		Object ensemble4 = TestUtils.readField("ensemble", machine4);
+		Object ensemble5 = TestUtils.readField("ensemble", machine5);
+		try {
+			TestUtils.callMethod("handleZkDisconnect", ensemble2);
+			TestUtils.callMethod("handleZkDisconnect", ensemble3);
+			TestUtils.callMethod("handleZkDisconnect", ensemble4);
+			TestUtils.callMethod("handleZkDisconnect", ensemble5);
+		} catch (Exception e) {
+		}
+		TestUtils.callMethod("handleZkConnect", ensemble2);
+		TestUtils.callMethod("handleZkConnect", ensemble3);
+		TestUtils.callMethod("handleZkConnect", ensemble4);
+		TestUtils.callMethod("handleZkConnect", ensemble5);
+
+		StateMachineTestPlan<String, String> plan2 =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.defaultAwaitTime(2)
+					.stateMachine(machine1)
+					.stateMachine(machine2)
+					.stateMachine(machine3)
+					.stateMachine(machine4)
+					.stateMachine(machine5)
+					.step()
+						.expectStates("S0", "S2", "S21", "S211")
+						.and()
+					.step()
+						.sendEvent("C", machine1)
+						.expectStateChanged(2)
+						.expectStates("S0", "S1", "S11")
+						.and()
+					.step()
+						.sendEvent("C", machine2)
+						.expectStateChanged(3)
+						.expectStates("S0", "S2", "S21", "S211")
+						.and()
+					.step()
+						.sendEvent("C", machine3)
+						.expectStateChanged(2)
+						.expectStates("S0", "S1", "S11")
+						.and()
+					.step()
+						.sendEvent("C", machine4)
+						.expectStateChanged(3)
+						.expectStates("S0", "S2", "S21", "S211")
+						.and()
+					.step()
+						.sendEvent("C", machine5)
+						.expectStateChanged(2)
+						.expectStates("S0", "S1", "S11")
+						.and()
+					.build();
+		plan2.test();
+	}
+
 	@Configuration
 	@EnableStateMachine(name = "sm1")
 	static class Config1 extends SharedConfig1 {

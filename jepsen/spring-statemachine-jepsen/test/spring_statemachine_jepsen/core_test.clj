@@ -22,3 +22,6 @@
 
 (deftest send-isolated-event-with-variable
   (run-statemachine-test! (send-isolated-event-with-variable-test)))
+
+(deftest partition-half
+  (run-statemachine-test! (partition-half-test)))

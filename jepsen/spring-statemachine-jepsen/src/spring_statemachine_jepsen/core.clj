@@ -272,6 +272,48 @@
     )
   )
 
+(defn event-gen-4
+  "Generates event and checks states while splitting network"
+  []
+
+  (gen/phases
+    (gen/clients
+      (gen/each
+        (gen/once {:type :invoke
+                   :f    :status})))
+
+    (gen/nemesis
+      (gen/once {:type :info :f :start}))
+
+    (gen/sleep 30)
+
+    (gen/clients
+      (gen/each
+        (gen/once {:type :invoke
+                   :f    :status})))
+
+    (gen/nemesis
+      (gen/once {:type :info :f :stop}))
+
+    (gen/clients
+      (gen/each
+        (gen/once {:type :invoke
+                   :f    :status})))
+
+    (gen/clients
+      (gen/once {:type :invoke
+                 :f    :event
+                 :e    "C"}))
+
+    (gen/clients
+      (gen/each
+        (gen/once {:type :invoke
+                   :f    :states
+                   :s    ["S0","S2","S21","S211"]})))
+
+    )
+  )
+
 (defn statemachine-test
   "Defaults for testing state machine."
   [name opts]
@@ -309,3 +351,10 @@
   (event-test "send-isolated-event-with-variable"
                {:nemesis   nemesis/noop
                 :generator (event-gen-3)}))
+
+(defn partition-half-test
+  "Does a half brain split and checks that machines are healing."
+  []
+  (event-test "partition-half"
+               {:nemesis   (nemesis/partition-random-halves)
+                :generator (event-gen-4)}))

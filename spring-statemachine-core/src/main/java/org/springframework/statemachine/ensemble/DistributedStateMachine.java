@@ -247,7 +247,12 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 
 		@Override
 		public void stateMachineJoined(final StateMachine<S, E> stateMachine, final StateMachineContext<S, E> context) {
+			if (log.isDebugEnabled()) {
+				log.debug("Event stateMachineJoined stateMachine=[" + stateMachine + "] context=[" + context + "]");
+			}
 			if (stateMachine != null && stateMachine == DistributedStateMachine.this) {
+				delegate.stop();
+				setStateMachineError(null);
 				if (context != null) {
 					// I'm now successfully joined, so set delegating
 					// sm to current known state by a context.

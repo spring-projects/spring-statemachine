@@ -29,7 +29,13 @@ import org.springframework.statemachine.StateMachineContext;
 public interface EnsembleListeger<S, E> {
 
 	/**
-	 * Called when state machine joined an ensemble.
+	 * Called when state machine joined an ensemble. This callback
+	 * is guaranteed to be called for a {@link StateMachine} who
+	 * requested a join. User of this listener should check that a
+	 * {@link StateMachine} is the one interested of. Implementation
+	 * may choose to notify other {@link StateMachine} joins if it is
+	 * able to do so. This may be called multiple time in case ensemble
+	 * has made a choice to leave machine due to ensemble errors.
 	 *
 	 * @param stateMachine the state machine
 	 * @param context the state machine context
@@ -37,7 +43,12 @@ public interface EnsembleListeger<S, E> {
 	void stateMachineJoined(StateMachine<S, E> stateMachine, StateMachineContext<S, E> context);
 
 	/**
-	 * Called when state machine left an ensemble.
+	 * Called when state machine left an ensemble. This callback
+	 * is guaranteed to be called for a {@link StateMachine} who
+	 * requested a leave. User of this listener should check that a
+	 * {@link StateMachine} is the one interested of. Implementation
+	 * may choose to notify other {@link StateMachine} leaves if it is
+	 * able to do so.
 	 *
 	 * @param stateMachine the state machine
 	 * @param context the state machine context

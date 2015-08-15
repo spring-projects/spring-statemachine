@@ -16,6 +16,8 @@
 package org.springframework.statemachine.zookeeper;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -32,6 +34,8 @@ import org.apache.curator.framework.imps.CuratorFrameworkState;
 import org.apache.curator.framework.recipes.locks.InterProcessSemaphoreMutex;
 import org.apache.curator.framework.recipes.nodes.PersistentEphemeralNode;
 import org.apache.curator.framework.recipes.nodes.PersistentEphemeralNode.Mode;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.data.Stat;
 import org.springframework.statemachine.StateMachine;
@@ -73,6 +77,9 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	private final CuratorWatcher watcher = new StateWatcher();
 	private PersistentEphemeralNode node;
 	private final Queue<StateMachine<S, E>> joinQueue = new ConcurrentLinkedQueue<StateMachine<S, E>>();
+	private final List<StateMachine<S, E>> joined = new ArrayList<StateMachine<S,E>>();
+	private final Object joinLock = new Object();
+	private final ConnectionStateListener connectionListener = new LocalConnectionStateListener();
 
 	/**
 	 * Instantiates a new zookeeper state machine ensemble.
@@ -126,7 +133,7 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 				log.error("Error reading current state during start", e);
 			}
 		}
-		joinQueued();
+		curatorClient.getConnectionStateListenable().addListener(connectionListener);
 	}
 
 	@Override
@@ -139,6 +146,7 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 				node = null;
 			}
 		}
+		curatorClient.getConnectionStateListenable().removeListener(connectionListener);
 	}
 
 	@Override
@@ -147,28 +155,57 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 			joinQueue.add(stateMachine);
 		} else {
 			StateWrapper stateWrapper = stateRef.get();
+			synchronized (joinLock) {
+				joined.add(stateMachine);
+			}
 			notifyJoined(stateMachine, stateWrapper != null ? stateWrapper.context : null);
 		}
 	}
 
 	private void joinQueued() {
-		StateWrapper stateWrapper = stateRef.get();
 		StateMachine<S, E> stateMachine = null;
-		while ((stateMachine = joinQueue.poll()) != null) {
-			notifyJoined(stateMachine, stateWrapper != null ? stateWrapper.context : null);
+		synchronized (joinLock) {
+			while ((stateMachine = joinQueue.poll()) != null) {
+				joined.add(stateMachine);
+			}
+		}
+	}
+
+	private void notifyJoined() {
+		StateWrapper stateWrapper = stateRef.get();
+		synchronized (joinLock) {
+			for (StateMachine<S, E> stateMachine : joined) {
+				notifyJoined(stateMachine, stateWrapper != null ? stateWrapper.context : null);
+			}
+		}
+	}
+
+	private void notifyLeft() {
+		StateWrapper stateWrapper = stateRef.get();
+		synchronized (joinLock) {
+			for (StateMachine<S, E> stateMachine : joined) {
+				notifyLeft(stateMachine, stateWrapper != null ? stateWrapper.context : null);
+			}
 		}
 	}
 
 	@Override
 	public void leave(StateMachine<S, E> stateMachine) {
+		// TODO: think when to close
 		if (node != null) {
 			try {
 				node.close();
 			} catch (IOException e) {
 			}
 		}
-		StateWrapper stateWrapper = stateRef.get();
-		notifyLeft(stateMachine, stateWrapper != null ? stateWrapper.context : null);
+		boolean removed = false;
+		synchronized (joinLock) {
+			removed = joined.remove(stateMachine);
+		}
+		if (removed) {
+			StateWrapper stateWrapper = stateRef.get();
+			notifyLeft(stateMachine, stateWrapper != null ? stateWrapper.context : null);
+		}
 	}
 
 	@Override
@@ -195,6 +232,19 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	@Override
 	public StateMachineContext<S, E> getState() {
 		return readCurrentContext().context;
+	}
+
+	private void handleZkConnect() {
+		log.info("Handling Zookeeper connect");
+		joinQueued();
+		notifyJoined();
+		registerWatcherForStatePath();
+	}
+
+	private void handleZkDisconnect() {
+		log.info("Handling Zookeeper disconnect");
+		notifyError(new StateMachineEnsembleException("Lost connection to zookeeper"));
+		notifyLeft();
 	}
 
 	private StateWrapper readCurrentContext() {
@@ -271,7 +321,7 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 				curatorClient.checkExists().usingWatcher(watcher).forPath(statePath);
 			}
 		} catch (Exception e) {
-			log.warn("Registering wacher for path " + statePath + " threw error", e);
+			log.warn("Registering watcher for path " + statePath + " threw error", e);
 		}
 	}
 
@@ -397,6 +447,30 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 		}
 		return false;
 	}
+
+	private class LocalConnectionStateListener implements ConnectionStateListener {
+
+		@Override
+		public void stateChanged(CuratorFramework client, ConnectionState newState) {
+			if (curatorClient == client) {
+				switch (newState) {
+				case CONNECTED:
+				case RECONNECTED:
+					handleZkConnect();
+					break;
+				case READ_ONLY:
+					break;
+				case LOST:
+				case SUSPENDED:
+					handleZkDisconnect();
+					break;
+				default:
+					break;
+				}
+			}
+		}
+
+	};
 
 	/**
 	 * Wrapper object for a {@link StateMachineContext} and its

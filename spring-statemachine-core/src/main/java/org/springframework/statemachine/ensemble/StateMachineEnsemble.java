@@ -30,14 +30,23 @@ import org.springframework.statemachine.StateMachineContext;
 public interface StateMachineEnsemble<S, E> {
 
 	/**
-	 * Request a join to a state machine ensemble.
+	 * Request a join to a state machine ensemble. This method
+	 * is a request to join an ensemble and doesn't guarantee
+	 * a requester will eventually successfully join. Join operation
+	 * needs to be used together with {@link EnsembleListeger} and
+	 * {@link EnsembleListeger#stateMachineJoined(StateMachine, StateMachineContext)}
+	 * is called with a {@link StateMachine} instance for successful join.
 	 *
 	 * @param stateMachine the state machine
 	 */
 	void join(StateMachine<S, E> stateMachine);
 
 	/**
-	 * Request a leave from an ensemble.
+	 * Request a leave from an ensemble. This method is a request to
+	 * leave an ensemble. After this method is called no further processing
+	 * is done for a instance of {@link StateMachine}. Additionally
+	 * {@link EnsembleListeger#stateMachineLeft(StateMachine, StateMachineContext)}
+	 * is called when leave request is fully processed.
 	 *
 	 * @param stateMachine the state machine
 	 */
@@ -58,16 +67,16 @@ public interface StateMachineEnsemble<S, E> {
 	void removeEnsembleListener(EnsembleListeger<S, E> listener);
 
 	/**
-	 * Sets the state.
+	 * Sets the state as a {@link StateMachineContext}.
 	 *
-	 * @param context the context
+	 * @param context the state machine context
 	 */
 	void setState(StateMachineContext<S, E> context);
 
 	/**
-	 * Gets the state.
+	 * Gets the state as a {@link StateMachineContext}.
 	 *
-	 * @return the state
+	 * @return the state machine context
 	 */
 	StateMachineContext<S, E> getState();
 
