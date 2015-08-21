@@ -903,7 +903,9 @@ browser sessions against a multiple different hosts.
 
 This sample is using a modified state machine structure from a
 <<statemachine-examples-showcase>> to work with a distributed state
-machine.
+machine. The state machine logic is shown above:
+
+image::images/statechart11.png[width=500]
 
 [NOTE]
 ====
@@ -950,7 +952,7 @@ from `0` to `1`.
 
 image::images/sm-dist-n3-3.png[width=500]
 
-Last we simply send an event `Event C` which is supposed to take state
+Last we simply send an event `Event K` which is supposed to take state
 machine state back to state `S11` and you should see this happening in
 all browser sessions.
 

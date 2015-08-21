@@ -310,21 +310,105 @@ in a state machine.
 
 [appendix]
 [[appendices-zookeeper]]
-== Distributed State Machine with Zookeeper
+== Distributed State Machine Technical Paper
 This appendix provides more detailed technical documentation about
 using a Zookeeper with a Spring State Machine.
 
 [NOTE]
 ====
-This article is not complete as it requires jepsen tests which are
-planned for next release.
+This techical paper is work in progress and planned to be fully
+written towards `1.0.0.RELEASE`.
 ====
 
+=== Abstract
+Introducing a `distributed state` on top of a single state machine
+running on a single jvm is a difficult and complex topic. `Distributed
+State Machine` is introducing a few relatively complex problems on top
+of a simple state machine due to its run-to-completion model and generally
+because of its single thread execution model, though orthogonal
+regions can be executed parallel. One other natural problem is that
+state machine transition execution is driven by triggers which are
+either event or timer based.
+
+Distributed Spring State Machine is trying to solve problem of spanning
+a generic State Machine though a jvm boundady. Here we show that a generic
+`State Machine` concepts can be used in multiple `jvm's` and `Spring
+Application Contexts`.
+
+We found that if `Distributed State Machine` abstraction is carefully chosen
+and backing distributed state repository is guarantees CP readiness, it is
+possible to create a consistent state machine which is able to share
+distributed state among other state machines.
+
+Our results demonstrate that distributed state changes are consistent if backing
+repository is CP. We anticipate our distributed state machine to provide
+a foundation to applications which need to work with a shared distributed
+states. This model aims to provide a good methods for cloud applications
+to have much easier ways to communicate with each others without having
+a need to explicitly build these distributed state concepts.
+
+=== Intro
+Spring State Machine is not exactly a single threaded because once
+multiple regions are uses, regions can be executed parallel.
+
+When state changes are no longer driven by a trigger in a local jvm or
+local state machine instance, transition logic needs to be controlled
+externally in an arbitrary persistent storage. This storage needs to
+have a ways to notify participating state machines when distributed
+state is changed.
+
+https://en.wikipedia.org/wiki/CAP_theorem[CAP Theorem] states that
+"it is impossible for a distributed computer system to simultaneously
+provide all three of the following guarantees, `consistency`,
+`availability` and `partition tolerance` ". What this means is that
+whatever is chosen for a backing persistence storage is it advisable
+it to be `CP`. In this context `CP` means `consistency` and `partition
+tolerance`. Naturally Distributed Spring Statemachine doesn't care
+about what is its `CAP` level but in reality `consistency` and
+`partition tolerance` are more important than `availability`. This is
+an exact reason why i.e. `Zookeeper` is a `CP` storage.
+
+All tests presented in this article are accomplished by running custom
+jepsen tests in a following environment:
+
+* Cluster having nodes n1, n2, n3, n4 and n5.
+* Each node have a `Zookeeper` instance constructing an ensemble with
+  other nodes.
+* Each node have a <<statemachine-examples-web>> sample installed
+  which will connect to a local `Zookeeper` node.
+* All state machine instances when started will create a
+  `StateMachineEnsemble` using `Zookeeper` ensemble.
+* Sample contains a custom rest api's which jepsen will use to send
+  events and check particular state machine status.
+
+All jepsen tests for `Spring Distributed Statemachine` are available from
+https://github.com/spring-projects/spring-statemachine/tree/master/jepsen/spring-statemachine-jepsen[Jepsen
+Tests.]
+
+=== Generic Concepts
+One design decision of a `Distributed State Machine` was not to make
+individual `State Machine` instance aware of that it is part of a
+`distributed ensemble`. Because main functions and features of a
+`StateMachine` can be accessed via its interface, it makes sense to
+wrap this instance using a `DistributedStateMachine` which simply
+intercepts all state machine communication and collaborate with an
+ensemble to orchestrate distributed state changes.
+
+One other important concept is to be able to persist enough
+information from a state machine order to reset a state machine state
+from arbitrary state into a new deserialized state. This is naturally
+needed when a new state machine instance is joining with an ensemble
+and it needs to synchronize its own internal state with a distributed
+state. Together with using concepts of distributed states and state
+persisting it is possible to create a distributed state machine.
+Currently only backing repository of a `Distributed State Machine` is
+implemented using a `Zookeeper`.
+
 As mentioned in <<sm-distributed>> distibuted states are enabled by
-wrapper an instance of a `StateMachine` within a
+wrapping an instance of a `StateMachine` within a
 `DistributedStateMachine`. Specific `StateMachineEnsemble`
 implementation is `ZookeeperStateMachineEnsemble` providing
-integration with a zookeeper.
+integration with a `Zookeeper`.
 
 === ZookeeperStateMachinePersist
 We wanted to have a generic interface `StateMachinePersist` which is
@@ -358,4 +442,117 @@ an integer.
 Size of a circular buffer is mandated to be a power of two not to get
 trouble when interger is going to overflow thus we don't need to
 handle any specific cases.
+
+=== Distributed Tolerance
+Order to show how a various distributed actions against a state
+machine work in a real life, we're using a set of `jepsen` tests to
+simulate various conditions which may happen in a real distributed
+cluster. These include a `brain split` on a network level, parallel
+events with a multiple `distributed state machines` and changes in
+an `extended state variables`. Jepsen tests are based on a sample
+<<statemachine-examples-web>> where this sample instance is run on
+multiple hosts together with a `Zookeeper` instance on every node
+where state machine is run. Essentially every state machine sample
+will connect to local `Zookeeper` instance which allows use, via
+`jepsen` to simulate network conditions.
+
+Plotted graps below in this chapter contain states and events which
+directly maps to a state chart which can be found from
+<<statemachine-examples-web>>.
+
+[[sm-tech-isolated-events]]
+==== Isolated Events
+Sending an isolated single event into exactly one state machine in an
+ensemble is the most simplest testing scenario and demonstrates that a
+state change in one state machine is properly propagated into other
+state machines in an ensemble.
+
+In this test we will demonstrate that a state change in one machine
+will eventually cause a consistent state change in other machines.
+
+image::images/sm-tech-isolated-events.png[width=500]
+
+What's happening in above chart:
+
+* All machines report state `S21`.
+* Event `I` is sent to node `n1` and all nodes report state change
+  from `S21` to `S22`.
+* Event `C` is sent to node `n2` and all nodes report state change
+  from `S22` to `S211`.
+* Event `I` is sent to node `n5` and all nodes report state change
+  from `S211` to `S212`.
+* Event `K` is sent to node `n3` and all nodes report state change
+  from `S212` to `S21`.
+* We cycle events `I`, `C`, `I` and `K` one more time via random nodes.
+
+==== Parallel Events
+As mentioned in <<sm-distributed>>, tbd.
+
+Logical problem with multiple distributed state machines is that if a
+same event is sent into a multiple state machine exactly at a same
+time, only one of those events will cause a distributed state
+transitions. This is somewhat expected scenario because a first state
+machine, for this event, which is able to change a distributed state
+will control the distributed transition logic. Effectively all other
+machines receiving this same event will silently discard the event
+because distributed state is no longer in a state where particular
+event can be processed.
+
+In this test we will demonstrate that a state change caused by a
+parallel events throughout an ensemble will eventually cause a
+consistent state change in all machines.
+
+image::images/sm-tech-parallel-events.png[width=500]
+
+What's happening in above chart:
+
+* We use exactly same event flow than in previous sample
+  <<sm-tech-isolated-events>> with a difference that events are always
+  sent to all nodes.
+
+==== Concurrent Extended State Variable Changes
+Extended state machine variables are not guaranteed to be atomic at
+any given time but after a distributed state change, all state machines
+in an ensemble should have a synchronized extended state.
+
+In this test we will demonstrate that a change in extended state
+variables in one distributed state machine will eventually be
+consistent in all distributed state machines.
+
+image::images/sm-tech-isolated-events-with-variable.png[width=500]
+
+What's happening in above chart:
+
+* Event `J` is send to node `n5` with event variable `testVariable`
+  having value `v1`. All nodes are then reporting having varible
+  `testVariable` as value `v1`.
+* Event `J` is repeated from variable `v2` to `v8` doing same checks.
+
+==== Partition Tolerance
+We need to always assume that sooner or later things in a cluster will
+go bad whether that is just a crash of a `Zookeeper` or a state
+machine or a network problem like a brain split. Brain split is a
+situation where existing cluster members are isolated so that only
+part of a hosts are able to see each others. Usual scenario is that a
+brain split will create a minority and majority of an ensemble where
+hosts in a minority cannot participate in an ensemble anymore until
+network status has been healed.
+
+In this test we will demostrate that a various types of brain-split's in
+an ensemble will eventually cause an fully synchronized state of all
+distributed state machines.
+
+image::images/sm-tech-partition-half.png[width=500]
+
+What's happening in above chart:
+
+* First event `C` is sent to all machine leading a state change to
+  `S211`.
+* Jepsen nemisis will cause a brain-split which is causing partitions
+  of `n1/n2/n5` and `n3/n4`. Nodes `n3/n4` are left in minority and
+  nodes `n1/n2/n5` constructs a new healthy majority. Nodes in
+  majority will keep function without problems but nodes in minority
+  will get into error state.
+* Jepsen will heal network and after some time nodes `n3/n4` will join
+  back into ensemble and synchronize its distributed status.
 
