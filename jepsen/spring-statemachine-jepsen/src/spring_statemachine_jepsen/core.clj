@@ -15,6 +15,8 @@
                     [store     :as store]
                     [report    :as report]
                     [tests     :as tests]]
+            [spring-statemachine-jepsen.checker :refer [checker1]]
+            [spring-statemachine-jepsen.checker :refer [checker2]]
             [jepsen.checker.timeline  :as timeline]
             [jepsen.control.net       :as net]
             [jepsen.os.debian         :as debian]
@@ -145,14 +147,16 @@
                   (catch RuntimeException e
                     (assoc op :type :fail :value (.getMessage e))))
         :states (try
-                  (if (= (sm-read-states client) (:s op))
-                    (assoc op :type :ok)
-                    (assoc op :type :fail :value "wrong states"))
+                  (let [res (sm-read-states client)]
+                    (if (= res (:s op))
+                      (assoc op :type :ok :value (vec res))
+                      (assoc op :type :fail :value (str "wrong states " (pr-str res))))
+                    )
                 (catch RuntimeException e
                   (assoc op :type :fail :value (.getMessage e))))
         :event (try
                  (sm-send-event client (:e op))
-                 (assoc op :type :ok)
+                 (assoc op :type :ok :value (:e op))
                (catch RuntimeException e
                  (assoc op :type :fail :value (.getMessage e))))
         :eventvariable (try
@@ -170,150 +174,157 @@
   []
   (CreateEventClient. nil))
 
+(defn gen-read-states
+  "Read states n times and expect states."
+  [times expect]
+  (gen/clients
+    (gen/each
+      (gen/seq
+        (take (* times 2)
+          (cycle [(gen/sleep 1)
+                  {:type :invoke
+                   :f    :states
+                   :s    expect}]))))))
+
+(defn gen-send-event
+  "Send event one time to random node."
+  [event]
+  (gen/clients
+    (gen/once {:type :invoke
+               :f    :event
+               :e    event})))
+
+(defn gen-send-event-all
+  "Send event one time to all nodes."
+  [event]
+  (gen/clients
+    (gen/each
+      (gen/once {:type :invoke
+                 :f    :event
+                 :e    event}))))
+
+(defn gen-send-event-variable
+  "Send event with variable value to one node."
+  [event variable]
+  (gen/clients
+    (gen/once {:type :invoke
+               :f    :eventvariable
+               :e    event
+               :v    variable})))
+
+(defn gen-read-variable
+  "Read variable from all nodes and expect variable value."
+  [expect]
+  (gen/clients
+    (gen/each
+      (gen/seq
+        (take 10
+          (cycle [(gen/sleep 1)
+                  {:type :invoke
+                   :f    :variable
+                   :v    "testVariable"
+                   :r    expect}]))))))
+
+(defn gen-status
+  "Read states n times and expect states."
+  [times]
+  (gen/clients
+    (gen/each
+      (gen/seq
+        (take (* times 2)
+          (cycle [(gen/sleep 1)
+                  {:type :invoke
+                   :f    :status}]))))))
+
 (defn event-gen-1
   "Generates isolated event and checks states and status"
   []
-
   (gen/phases
-    ;get error status of all machines
-    (gen/clients
-      (gen/each
-        (gen/once {:type :invoke
-                   :f    :status})))
-    ;check states for all machines
-    (gen/clients
-      (gen/each
-        (gen/once {:type :invoke
-                   :f    :states
-                   :s    ["S0","S1","S11"]})))
-    ;pick random node for sending event C
-    (gen/clients
-      (gen/once {:type :invoke
-                 :f    :event
-                 :e    "C"}))
-    ;check states for all machines
-    (gen/clients
-      (gen/each
-        (gen/once {:type :invoke
-                   :f    :status})))
-    ;check variable foo=0 for all machines
-    (gen/clients
-      (gen/each
-        (gen/once {:type :invoke
-                   :f    :variable
-                   :v    "foo"
-                   :r    0})))
-    ;check states for all machines
-    (gen/clients
-      (gen/each
-        (gen/once {:type :invoke
-                   :f    :states
-                   :s    ["S0","S2","S21","S211"]})))))
+    (gen-read-states 5 ["S0","S1","S11"])
+    (gen-send-event "I")
+    (gen-read-states 5 ["S0","S1","S12"])
+    (gen-send-event "C")
+    (gen-read-states 5 ["S0","S2","S21","S211"])
+    (gen-send-event "I")
+    (gen-read-states 5 ["S0","S2","S21","S212"])
+    (gen-send-event "K")
+    (gen-read-states 5 ["S0","S1","S11"])
+    (gen-send-event "I")
+    (gen-read-states 5 ["S0","S1","S12"])
+    (gen-send-event "C")
+    (gen-read-states 5 ["S0","S2","S21","S211"])
+    (gen-send-event "I")
+    (gen-read-states 5 ["S0","S2","S21","S212"])
+    (gen-send-event "K")
+    (gen-read-states 5 ["S0","S1","S11"])))
 
 (defn event-gen-2
   "Generates parallel event and checks states and status"
   []
-
   (gen/phases
-    ;get error status of all machines
-    (gen/clients
-      (gen/each
-        (gen/once {:type :invoke
-                   :f    :status})))
-    ;check states for all machines
-    (gen/clients
-      (gen/each
-        (gen/once {:type :invoke
-                   :f    :states
-                   :s    ["S0","S1","S11"]})))
-    ;pick all nodes for sending event C
-    (gen/clients
-      (gen/each
-        (gen/once {:type :invoke
-                   :f    :event
-                   :e    "C"})))
-    (gen/sleep 2)
-    ;get error status of all machines
-    (gen/clients
-      (gen/each
-        (gen/once {:type :invoke
-                   :f    :status})))
-    ;check states for all machines
-    (gen/clients
-      (gen/each
-        (gen/once {:type :invoke
-                   :f    :states
-                   :s    ["S0","S2","S21","S211"]})))))
+    (gen-read-states 5 ["S0","S1","S11"])
+    (gen-send-event-all "I")
+    (gen-read-states 5 ["S0","S1","S12"])
+    (gen-send-event-all "C")
+    (gen-read-states 5 ["S0","S2","S21","S211"])
+    (gen-send-event-all "I")
+    (gen-read-states 5 ["S0","S2","S21","S212"])
+    (gen-send-event-all "K")
+    (gen-read-states 5 ["S0","S1","S11"])
+    (gen-send-event-all "I")
+    (gen-read-states 5 ["S0","S1","S12"])
+    (gen-send-event-all "C")
+    (gen-read-states 5 ["S0","S2","S21","S211"])
+    (gen-send-event-all "I")
+    (gen-read-states 5 ["S0","S2","S21","S212"])
+    (gen-send-event-all "K")
+    (gen-read-states 5 ["S0","S1","S11"])))
 
 (defn event-gen-3
   "Generates event and checks states, status and variable"
   []
-
   (gen/phases
-    ;get error status of all machines
-    (gen/clients
-      (gen/each
-        (gen/once {:type :invoke
-                   :f    :status})))
-    ;check states for all machines
-    (gen/clients
-      (gen/each
-        (gen/once {:type :invoke
-                   :f    :states
-                   :s    ["S0","S1","S11"]})))
-    ;pick random node for sending event J with variable x1
-    (gen/clients
-      (gen/once {:type :invoke
-                 :f    :eventvariable
-                 :e    "J"
-                 :v    "x1"}))
-    (gen/sleep 2)
-    ;check variable value x1 for all machines
-    (gen/clients
-      (gen/each
-        (gen/once {:type :invoke
-                   :f    :variable
-                   :v    "testVariable"
-                   :r    "x1"})))))
+    (gen-read-states 5 ["S0","S1","S11"])
+    (gen-send-event-variable "J" "v1")
+    (gen-read-variable "v1")
+    (gen-send-event-variable "J" "v2")
+    (gen-read-variable "v2")
+    (gen-send-event-variable "J" "v3")
+    (gen-read-variable "v3")
+    (gen-send-event-variable "J" "v4")
+    (gen-read-variable "v4")
+    (gen-send-event-variable "J" "v5")
+    (gen-read-variable "v5")
+    (gen-send-event-variable "J" "v6")
+    (gen-read-variable "v6")
+    (gen-send-event-variable "J" "v7")
+    (gen-read-variable "v7")
+    (gen-send-event-variable "J" "v8")
+    (gen-read-variable "v8")
+))
 
 (defn event-gen-4
   "Generates event and checks states while splitting network"
   []
-
   (gen/phases
-    ;get error status of all machines
-    (gen/clients
-      (gen/each
-        (gen/once {:type :invoke
-                   :f    :status})))
+    (gen-read-states 5 ["S0","S1","S11"])
+    (gen-send-event-all "C")
+    (gen-read-states 5 ["S0","S2","S21","S211"])
+    (gen-status 2)
     ;start nemesis, split network
     (gen/nemesis
       (gen/once {:type :info :f :start}))
-    (gen/sleep 30)
-    ;get error status of all machines
-    (gen/clients
-      (gen/each
-        (gen/once {:type :invoke
-                   :f    :status})))
+    (gen-read-states 15 ["S0","S2","S21","S211"])
+    (gen-status 5)
     ;stop nemesis, heal network
     (gen/nemesis
       (gen/once {:type :info :f :stop}))
-    ;get error status of all machines
-    (gen/clients
-      (gen/each
-        (gen/once {:type :invoke
-                   :f    :status})))
-    ;pick random node for sending event C
-    (gen/clients
-      (gen/once {:type :invoke
-                 :f    :event
-                 :e    "C"}))
-    ;check states for all machines
-    (gen/clients
-      (gen/each
-        (gen/once {:type :invoke
-                   :f    :states
-                   :s    ["S0","S2","S21","S211"]})))))
+    (gen-status 5)
+    (gen-read-states 15 ["S0","S2","S21","S211"])
+    (gen-send-event-all "K")
+    (gen-read-states 10 ["S0","S1","S11"])
+    (gen-status 30)
+    (gen-read-states 10 ["S0","S1","S11"])))
 
 (defn statemachine-test
   "Defaults for testing state machine."
@@ -337,25 +348,29 @@
   []
   (event-test "send-isolated-event"
                {:nemesis   nemesis/noop
-                :generator (event-gen-1)}))
+                :generator (event-gen-1)
+                :checker (checker1)}))
 
 (defn send-parallel-event-test
   "Sends simple events via all nodes."
   []
   (event-test "send-parallel-event"
                {:nemesis   nemesis/noop
-                :generator (event-gen-2)}))
+                :generator (event-gen-2)
+                :checker (checker1)}))
 
 (defn send-isolated-event-with-variable-test
   "Sends simple events via random node with variable."
   []
   (event-test "send-isolated-event-with-variable"
                {:nemesis   nemesis/noop
-                :generator (event-gen-3)}))
+                :generator (event-gen-3)
+                :checker (checker2)}))
 
 (defn partition-half-test
   "Does a half brain split and checks that machines are healing."
   []
   (event-test "partition-half"
                {:nemesis   (nemesis/partition-random-halves)
-                :generator (event-gen-4)}))
+                :generator (event-gen-4)
+                :checker (checker1)}))
