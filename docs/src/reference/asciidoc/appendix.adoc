@@ -322,34 +322,37 @@ written towards `1.0.0.RELEASE`.
 
 === Abstract
 Introducing a `distributed state` on top of a single state machine
-running on a single jvm is a difficult and complex topic. `Distributed
-State Machine` is introducing a few relatively complex problems on top
-of a simple state machine due to its run-to-completion model and generally
-because of its single thread execution model, though orthogonal
-regions can be executed parallel. One other natural problem is that
-state machine transition execution is driven by triggers which are
-either event or timer based.
+instance running on a single `jvm` is a difficult and a complex topic.
+`Distributed State Machine` is introducing a few relatively complex
+problems on top of a simple state machine due to its run-to-completion
+model and generally because of its single thread execution model,
+though orthogonal regions can be executed parallel. One other natural
+problem is that a state machine transition execution is driven by triggers
+which are either `event` or `timer` based.
 
-Distributed Spring State Machine is trying to solve problem of spanning
-a generic State Machine though a jvm boundady. Here we show that a generic
+Distributed `Spring State Machine` is trying to solve problem of spanning
+a generic `State Machine` through a jvm boundary. Here we show that a generic
 `State Machine` concepts can be used in multiple `jvm's` and `Spring
 Application Contexts`.
 
 We found that if `Distributed State Machine` abstraction is carefully chosen
-and backing distributed state repository is guarantees CP readiness, it is
+and backing distributed state repository guarantees `CP` readiness, it is
 possible to create a consistent state machine which is able to share
-distributed state among other state machines.
+distributed state among other state machines in an ensemble.
 
 Our results demonstrate that distributed state changes are consistent if backing
-repository is CP. We anticipate our distributed state machine to provide
+repository is `CP`. We anticipate our distributed state machine to provide
 a foundation to applications which need to work with a shared distributed
 states. This model aims to provide a good methods for cloud applications
 to have much easier ways to communicate with each others without having
 a need to explicitly build these distributed state concepts.
 
 === Intro
-Spring State Machine is not exactly a single threaded because once
-multiple regions are uses, regions can be executed parallel.
+Spring State Machine is not forced to use a single threaded execution
+model because once multiple regions are uses, regions can be executed
+parallel if necessary configuration is applied. This is an important
+topic because once user wants to have a paraller state machine
+execution it will make state changes faster for independent regions.
 
 When state changes are no longer driven by a trigger in a local jvm or
 local state machine instance, transition logic needs to be controlled
@@ -362,24 +365,27 @@ https://en.wikipedia.org/wiki/CAP_theorem[CAP Theorem] states that
 provide all three of the following guarantees, `consistency`,
 `availability` and `partition tolerance` ". What this means is that
 whatever is chosen for a backing persistence storage is it advisable
-it to be `CP`. In this context `CP` means `consistency` and `partition
-tolerance`. Naturally Distributed Spring Statemachine doesn't care
+to be `CP`. In this context `CP` means `consistency` and `partition
+tolerance`. Naturally `Distributed Spring Statemachine` doesn't care
 about what is its `CAP` level but in reality `consistency` and
 `partition tolerance` are more important than `availability`. This is
 an exact reason why i.e. `Zookeeper` is a `CP` storage.
 
 All tests presented in this article are accomplished by running custom
-jepsen tests in a following environment:
+`jepsen` tests in a following environment:
 
 * Cluster having nodes n1, n2, n3, n4 and n5.
 * Each node have a `Zookeeper` instance constructing an ensemble with
-  other nodes.
+  all other nodes.
 * Each node have a <<statemachine-examples-web>> sample installed
   which will connect to a local `Zookeeper` node.
+* Every state machine instance will only communicate with a local
+  `Zookeeper` instance. While connecting machine to multiple instances
+  is possible, it is not used here.
 * All state machine instances when started will create a
   `StateMachineEnsemble` using `Zookeeper` ensemble.
-* Sample contains a custom rest api's which jepsen will use to send
-  events and check particular state machine status.
+* Sample contains a custom rest api's which `jepsen` will use to send
+  events and check particular state machine statuses.
 
 All jepsen tests for `Spring Distributed Statemachine` are available from
 https://github.com/spring-projects/spring-statemachine/tree/master/jepsen/spring-statemachine-jepsen[Jepsen
@@ -390,8 +396,8 @@ One design decision of a `Distributed State Machine` was not to make
 individual `State Machine` instance aware of that it is part of a
 `distributed ensemble`. Because main functions and features of a
 `StateMachine` can be accessed via its interface, it makes sense to
-wrap this instance using a `DistributedStateMachine` which simply
-intercepts all state machine communication and collaborate with an
+wrap this instance using a `DistributedStateMachine`, which simply
+intercepts all state machine communication and collaborates with an
 ensemble to orchestrate distributed state changes.
 
 One other important concept is to be able to persist enough
@@ -414,29 +420,30 @@ integration with a `Zookeeper`.
 We wanted to have a generic interface `StateMachinePersist` which is
 able to persist `StateMachineContext` into an arbitrary storage and
 `ZookeeperStateMachinePersist` is implementing this interface for a
-zookeeper.
+`Zookeeper`.
 
 === ZookeeperStateMachineEnsemble
-While distributed state machine is using one set of serialized context
-to update its own state, with zookeeper we're having a conceptual
-problem how these context changes can be listened. We're able to
-serialize context into a zookeeper znode and eventually listen when
-znode data is modified. However zookeeper doesn't guarantee that you
-will get notification for every data change because registered watcher
-for a znode is disabled once it fires and user need to re-register
-that watcher. During this short time znode data can be changed thus
-resulting missing events. It is actually very easy to miss these
-events by just changing data from a multiple threads in a concurrent
-manner.
+While distributed state machine is using one set of serialized
+contexts to update its own state, with zookeeper we're having a
+conceptual problem how these context changes can be listened. We're
+able to serialize context into a zookeeper `znode` and eventually
+listen when `znode` data is modified. However `Zookeeper` doesn't
+guarantee that you will get notification for every data change
+because registered `watcher` for a `znode` is disabled once it fires
+and user need to re-register that `watcher`. During this short time
+a `znode` data can be changed thus resulting missing events. It is
+actually very easy to miss these events by just changing data from a
+multiple threads in a concurrent manner.
 
 Order to overcome this issue we're keeping individual context changes
-in a multiple znodes and we just use a simple integer counter to mark
-which znode is a current active one. This allows us to replay missed
+in a multiple `znodes` and we just use a simple integer counter to mark
+which `znode` is a current active one. This allows us to replay missed
 events. We don't want to create more and more znodes and then later
 delete old ones, instead we're using a simple concept of a circular
-set of znodes. This allow use to use predefined set of znodes where
-current had can be determided with a simple counter. We already have
-this counter by tracking main znode data version which in zookeeper is
+set of znodes. This allows to use predefined set of znodes where
+a current can be determided with a simple integer counter. We already have
+this counter by tracking main `znode` data version which in
+`Zookeeper` is
 an integer.
 
 Size of a circular buffer is mandated to be a power of two not to get
@@ -531,7 +538,7 @@ What's happening in above chart:
 ==== Partition Tolerance
 We need to always assume that sooner or later things in a cluster will
 go bad whether that is just a crash of a `Zookeeper` or a state
-machine or a network problem like a brain split. Brain split is a
+machine or a network problem like a `brain split`. Brain split is a
 situation where existing cluster members are isolated so that only
 part of a hosts are able to see each others. Usual scenario is that a
 brain split will create a minority and majority of an ensemble where
@@ -539,7 +546,7 @@ hosts in a minority cannot participate in an ensemble anymore until
 network status has been healed.
 
 In this test we will demostrate that a various types of brain-split's in
-an ensemble will eventually cause an fully synchronized state of all
+an ensemble will eventually cause n fully synchronized state of all
 distributed state machines.
 
 image::images/sm-tech-partition-half.png[width=500]
