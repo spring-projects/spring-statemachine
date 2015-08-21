@@ -223,6 +223,9 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 				log.debug("Requesting persist write " + context + " with version " + stat.getVersion() + " for ensemble " + uuid);
 			}
 			persist.write(context, stat);
+			if (log.isDebugEnabled()) {
+				log.debug("Request persist write ok " + context + " new version " + stat.getVersion() + " for ensemble " + uuid);
+			}
 			stateRef.set(new StateWrapper(context, stat.getVersion()));
 		} catch (Exception e) {
 			throw new StateMachineException("Error persisting data", e);

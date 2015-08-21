@@ -108,7 +108,7 @@ public class StateMachineConfig {
 					.source(States.S1).target(States.S2).event(Events.C)
 					.and()
 				.withExternal()
-					.source(States.S2).target(States.S1).event(Events.C)
+					.source(States.S2).target(States.S1).event(Events.K)
 					.and()
 				.withExternal()
 					.source(States.S1).target(States.S0).event(Events.D)
@@ -201,7 +201,7 @@ public class StateMachineConfig {
 	}
 
 	public static enum Events {
-	    A, B, C, D, E, F, G, H, I, J
+	    A, B, C, D, E, F, G, H, I, J, K
 	}
 
 	private static class FooAction implements Action<States, Events> {

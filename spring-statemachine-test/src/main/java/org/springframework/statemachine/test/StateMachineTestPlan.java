@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
@@ -124,9 +125,13 @@ public class StateMachineTestPlan<S, E> {
 					sendVia.add(stateMachines.values().iterator().next());
 				}
 				assertThat("Error finding machine to send via", sendVia, not(empty()));
-				for (StateMachine<S, E> machine : sendVia) {
-					log.info("Sending test event " + step.sendEvent + " via machine " + machine);
-					machine.sendEvent(step.sendEvent);
+				if (!step.sendEventParallel) {
+					for (StateMachine<S, E> machine : sendVia) {
+						log.info("Sending test event " + step.sendEvent + " via machine " + machine);
+						machine.sendEvent(step.sendEvent);
+					}
+				} else {
+					sendEventParallel(sendVia, step.sendEvent);
 				}
 			} else if (step.sendMessage != null) {
 				ArrayList<StateMachine<S, E>> sendVia = new ArrayList<StateMachine<S, E>>();
@@ -240,6 +245,42 @@ public class StateMachineTestPlan<S, E> {
 								variables.get(entry.getKey()), is(entry.getValue()));
 					}
 				}
+			}
+		}
+	}
+
+	/**
+	 * Send event parallel to all machines.
+	 *
+	 * @param machines the machines
+	 * @param event the event
+	 */
+	private void sendEventParallel(final List<StateMachine<S, E>> machines, final E event) {
+		final CountDownLatch latch = new CountDownLatch(1);
+		final ArrayList<Thread> joins = new ArrayList<Thread>();
+		int threadCount = machines.size();
+		for (int i = 0; i < threadCount; ++i) {
+			final StateMachine<S,E> machine = machines.get(i);
+			Runnable runner = new Runnable() {
+
+				@Override
+				public void run() {
+					try {
+						latch.await();
+						machine.sendEvent(event);
+					} catch (InterruptedException e) {
+					}
+				}
+			};
+			Thread t = new Thread(runner, "EventSenderThread" + i);
+			joins.add(t);
+			t.start();
+		}
+		latch.countDown();
+		for (Thread t : joins) {
+			try {
+				t.join();
+			} catch (InterruptedException e) {
 			}
 		}
 	}

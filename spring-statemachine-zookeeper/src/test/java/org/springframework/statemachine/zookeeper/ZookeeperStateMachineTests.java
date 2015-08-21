@@ -305,6 +305,76 @@ public class ZookeeperStateMachineTests extends AbstractZookeeperTests {
 	}
 
 	@Test
+	public void testParallelEvents() throws Exception {
+		context.register(ZkServerConfig.class, BaseConfig.class);
+		context.refresh();
+
+		CuratorFramework curatorClient =
+				context.getBean("curatorClient", CuratorFramework.class);
+
+		StateMachine<String, String> machine1 =
+				buildTestStateMachine2(curatorClient);
+		StateMachine<String, String> machine2 =
+				buildTestStateMachine2(curatorClient);
+		StateMachine<String, String> machine3 =
+				buildTestStateMachine2(curatorClient);
+		StateMachine<String, String> machine4 =
+				buildTestStateMachine2(curatorClient);
+		StateMachine<String, String> machine5 =
+				buildTestStateMachine2(curatorClient);
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.defaultAwaitTime(2)
+					.stateMachine(machine1)
+					.stateMachine(machine2)
+					.stateMachine(machine3)
+					.stateMachine(machine4)
+					.stateMachine(machine5)
+					.step()
+						.expectStates("SI")
+						.and()
+					.step()
+						.sendEvent("E1", true)
+						.expectStateChanged(1)
+						.expectStates("S1")
+						.and()
+					.step()
+						.sendEvent("E2", true, true)
+						.expectStateChanged(1)
+						.expectStates("S2")
+						.and()
+					.step()
+						.sendEvent("E3", true, true)
+						.expectStateChanged(1)
+						.expectStates("S1")
+						.and()
+					.step()
+						.sendEvent("E2", true, true)
+						.expectStateChanged(1)
+						.expectStates("S2")
+						.and()
+					.step()
+						.sendEvent("E3", true, true)
+						.expectStateChanged(1)
+						.expectStates("S1")
+						.and()
+					.step()
+						.sendEvent("E2", true, true)
+						.expectStateChanged(1)
+						.expectStates("S2")
+						.and()
+					.step()
+						.sendEvent("E3", true, true)
+						.expectStateChanged(1)
+						.expectStates("S1")
+						.and()
+					.build();
+
+		plan.test();
+	}
+
+	@Test
 	public void testExtendedStateVariables1() throws Exception {
 		context.register(ZkServerConfig.class, BaseConfig.class);
 		context.refresh();
@@ -842,6 +912,9 @@ public class ZookeeperStateMachineTests extends AbstractZookeeperTests {
 					.and()
 				.withExternal()
 					.source("S1").target("S2").event("E2")
+					.and()
+				.withExternal()
+					.source("S2").target("S1").event("E3")
 					.and()
 				.withInternal()
 					.source("SI").event("EV")

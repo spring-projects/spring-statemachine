@@ -114,6 +114,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 		Message<E> sendMessage;
 		Object sendEventMachineId;
 		boolean sendEventToAll = false;
+		boolean sendEventParallel = false;
 		final Collection<S> expectStates = new ArrayList<S>();
 		Integer expectStateChanged;
 		Integer expectStateEntered;
@@ -172,9 +173,25 @@ public class StateMachineTestPlanBuilder<S, E> {
 		 * @return the state machine test plan step builder
 		 */
 		public StateMachineTestPlanStepBuilder sendEvent(E event, boolean sendToAll) {
+			sendEvent(event, sendToAll, false);
+			return this;
+		}
+
+		/**
+		 * Send an event {@code E}. If {@code sendToAll} is set to {@code TRUE} event
+		 * will be send to all existing machines. If {@code sendPalallel} is set to
+		 * {@code TRUE} event to all machines will be send by parallel threads.
+		 *
+		 * @param event the event
+		 * @param sendToAll send to all machines
+		 * @param sendParallel send event parallel
+		 * @return the state machine test plan step builder
+		 */
+		public StateMachineTestPlanStepBuilder sendEvent(E event, boolean sendToAll, boolean sendParallel) {
 			this.sendEvent = event;
 			this.sendEventMachineId = null;
 			this.sendEventToAll = sendToAll;
+			this.sendEventParallel = sendParallel;
 			return this;
 		}
 
@@ -405,9 +422,10 @@ public class StateMachineTestPlanBuilder<S, E> {
 		 */
 		public StateMachineTestPlanBuilder<S, E> and() {
 			steps.add(new StateMachineTestPlanStep<S, E>(sendEvent, sendMessage, sendEventMachineId, sendEventToAll,
-					expectStates, expectStateChanged, expectStateEntered, expectStateExited, expectEventNotAccepted,
-					expectTransition, expectTransitionStarted, expectTransitionEnded, expectStateMachineStarted,
-					expectStateMachineStopped, expectVariableKeys, expectVariables, expectExtendedStateChanged));
+					sendEventParallel, expectStates, expectStateChanged, expectStateEntered, expectStateExited,
+					expectEventNotAccepted, expectTransition, expectTransitionStarted, expectTransitionEnded,
+					expectStateMachineStarted, expectStateMachineStopped, expectVariableKeys, expectVariables,
+					expectExtendedStateChanged));
 			return StateMachineTestPlanBuilder.this;
 		}
 
@@ -418,6 +436,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 		Message<E> sendMessage;
 		Object sendEventMachineId;
 		boolean sendEventToAll = false;
+		boolean sendEventParallel = false;
 		final Collection<S> expectStates;
 		Integer expectStateChanged;
 		Integer expectStateEntered;
@@ -433,15 +452,17 @@ public class StateMachineTestPlanBuilder<S, E> {
 		final Map<Object, Object> expectVariables;
 
 		public StateMachineTestPlanStep(E sendEvent, Message<E> sendMessage, Object sendEventMachineId,
-				boolean sendEventToAll, Collection<S> expectStates, Integer expectStateChanged,
-				Integer expectStateEntered, Integer expectStateExited, Integer expectEventNotAccepted,
-				Integer expectTransition, Integer expectTransitionStarted, Integer expectTransitionEnded,
-				Integer expectStateMachineStarted, Integer expectStateMachineStopped,
-				Collection<Object> expectVariableKeys, Map<Object, Object> expectVariables, Integer expectExtendedStateChanged) {
+				boolean sendEventToAll, boolean sendEventParallel, Collection<S> expectStates,
+				Integer expectStateChanged, Integer expectStateEntered, Integer expectStateExited,
+				Integer expectEventNotAccepted, Integer expectTransition, Integer expectTransitionStarted,
+				Integer expectTransitionEnded, Integer expectStateMachineStarted, Integer expectStateMachineStopped,
+				Collection<Object> expectVariableKeys, Map<Object, Object> expectVariables,
+				Integer expectExtendedStateChanged) {
 			this.sendEvent = sendEvent;
 			this.sendMessage = sendMessage;
 			this.sendEventMachineId = sendEventMachineId;
 			this.sendEventToAll = sendEventToAll;
+			this.sendEventParallel = sendEventParallel;
 			this.expectStates = expectStates;
 			this.expectStateChanged = expectStateChanged;
 			this.expectStateEntered = expectStateEntered;
