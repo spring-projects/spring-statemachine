@@ -563,7 +563,7 @@ What's happening in above chart:
 * Jepsen will heal network and after some time nodes `n3/n4` will join
   back into ensemble and synchronize its distributed status.
 
-=== Crash and Join Tolerance
+==== Crash and Join Tolerance
 In this test we will demostrate that killing existing state machine
 and then joining new instance back into an ensemble will keep the
 distributed state healthy and newly joined state machines will synchronize
