@@ -12,6 +12,7 @@
             [knossos.history :as history]
             [gnuplot.core :as g]))
 
+(def nodetovalue {"n1" 1 "n2" 2 "n3" 3 "n4" 4 "n5" 5 })
 (def statetovalue {"S11" 1 "S12" 2 "S211" 3 "S212" 4 })
 (def variabletovalue {"v1" 1 "v2" 2 "v3" 3 "v4" 4 "v5" 5 "v6" 6 "v7" 7 "v8" 8})
 
@@ -64,6 +65,16 @@
          (filter #(= :eventvariable (:f %))))]
     (vector
       (reduce-kv (fn [vec key value] (conj vec (vector (get value :time) (+ (get value :process) 1) (get value :v))) ) [] (vec data)))))
+
+(defn extract-plot-data5
+  [history]
+  (let [data
+    (->> history
+         (filter #(:value %))
+         (filter #(= :nemesis (:process %)))
+         (filter #(= :stop (:f %))))]
+    (vector
+      (reduce-kv (fn [vec key value] (conj vec (vector (get value :time) (get nodetovalue (name (last (keys (get value :value))))) "X")) ) [] (vec data)))))
 
 (defn plot1!
   [test model history]
@@ -129,6 +140,38 @@
     output-path)
     {:valid? true})
 
+(defn plot3!
+  [test model history]
+
+  (let [output-path (.getCanonicalPath (store/path! test "states.png"))]
+    (g/raw-plot! [[:set :key :outside]
+                  [:set :style :textbox :opaque]
+                  [:set :terminal :qt :size (keyword "900,450")]
+                  [:set :yrange (keyword "[0.5:4.5]")]
+                  [:set :y2range (keyword "[0.5:5.5]")]
+                  [:set :xtics :format "%h\nns"]
+                  [:set :xlabel "elapsed time"]
+                  [:set :ylabel "states in nodes"]
+                  [:set :y2label "crash/start in nodes"]
+                  [:set :ytics 1]
+                  [:set :ytics (keyword "('S21' 1, 'S22' 2, 'S211' 3, 'S212' 4)")]
+                  [:set :ytics :nomirror]
+                  [:set :y2tics 1]
+                  [:set :y2tics (keyword "('n1' 1, 'n2' 2, 'n3' 3, 'n4' 4, 'n5' 5)")]
+                  [:plot
+                   (g/list ["-" :title "states n1" :with :steps :lw :3]
+                           ["-" :title "states n2" :with :steps :lw :3]
+                           ["-" :title "states n3" :with :steps :lw :3]
+                           ["-" :title "states n4" :with :steps :lw :3]
+                           ["-" :title "states n5" :with :steps :lw :3]
+                           ["-" :title "crash" :with :labels :center :boxed :font ",15" :axis :x1y2]
+                           )]]
+                   (into
+                     (extract-plot-data history)
+                     (extract-plot-data5 history)))
+    output-path)
+    {:valid? true})
+
 (defn checker1
   "Constructs a Jepsen checker."
   []
@@ -142,3 +185,10 @@
   (reify Checker
     (check [_ test model history]
       (if (env :plot) (plot2! test model history) {:valid? true}))))
+
+(defn checker3
+  "Constructs a Jepsen checker."
+  []
+  (reify Checker
+    (check [_ test model history]
+      (if (env :plot) (plot3! test model history) {:valid? true}))))

@@ -17,6 +17,7 @@
                     [tests     :as tests]]
             [spring-statemachine-jepsen.checker :refer [checker1]]
             [spring-statemachine-jepsen.checker :refer [checker2]]
+            [spring-statemachine-jepsen.checker :refer [checker3]]
             [jepsen.checker.timeline  :as timeline]
             [jepsen.control.net       :as net]
             [jepsen.os.debian         :as debian]
@@ -300,8 +301,7 @@
     (gen-send-event-variable "J" "v7")
     (gen-read-variable "v7")
     (gen-send-event-variable "J" "v8")
-    (gen-read-variable "v8")
-))
+    (gen-read-variable "v8")))
 
 (defn event-gen-4
   "Generates event and checks states while splitting network"
@@ -325,6 +325,64 @@
     (gen-read-states 10 ["S0","S1","S11"])
     (gen-status 30)
     (gen-read-states 10 ["S0","S1","S11"])))
+
+(defn event-gen-5
+  "Generates starts and stops and checks joins"
+  []
+  (gen/phases
+    (gen-read-states 5 ["S0","S1","S11"])
+    (gen-send-event-all "C")
+    (gen-read-states 5 ["S0","S2","S21","S211"])
+    (gen/nemesis
+      (gen/seq [{:type :info :f :start}
+                (gen/sleep 5)
+                {:type :info :f :stop}]))
+    (gen-read-states 2 ["S0","S2","S21","S211"])
+    (gen/nemesis
+      (gen/seq [{:type :info :f :start}
+                (gen/sleep 5)
+                {:type :info :f :stop}]))
+    (gen-read-states 2 ["S0","S2","S21","S211"])
+    (gen/nemesis
+      (gen/seq [{:type :info :f :start}
+                (gen/sleep 5)
+                {:type :info :f :stop}]))
+    (gen-read-states 2 ["S0","S2","S21","S211"])
+    (gen/nemesis
+      (gen/seq [{:type :info :f :start}
+                (gen/sleep 5)
+                {:type :info :f :stop}]))
+    (gen-read-states 2 ["S0","S2","S21","S211"])
+    (gen/nemesis
+      (gen/seq [{:type :info :f :start}
+                (gen/sleep 5)
+                {:type :info :f :stop}]))
+    (gen-read-states 2 ["S0","S2","S21","S211"])
+    (gen/nemesis
+      (gen/seq [{:type :info :f :start}
+                (gen/sleep 5)
+                {:type :info :f :stop}]))
+    (gen-read-states 2 ["S0","S2","S21","S211"])
+    (gen/nemesis
+      (gen/seq [{:type :info :f :start}
+                (gen/sleep 5)
+                {:type :info :f :stop}]))
+    (gen-read-states 2 ["S0","S2","S21","S211"])
+    (gen/nemesis
+      (gen/seq [{:type :info :f :start}
+                (gen/sleep 5)
+                {:type :info :f :stop}]))
+    (gen-read-states 5 ["S0","S2","S21","S211"])
+    (gen-send-event-all "K")
+    (gen-read-states 5 ["S0","S1","S11"])))
+
+(defn killer
+  "Kills statemachine on a random node on start, restarts it on stop."
+  []
+  (nemesis/node-start-stopper
+    rand-nth
+    (fn start [test node] (c/su (c/exec :pkill :-9 :-f :spring-statemachine-samples-web)))
+    (fn stop  [test node] (start! node))))
 
 (defn statemachine-test
   "Defaults for testing state machine."
@@ -374,3 +432,11 @@
                {:nemesis   (nemesis/partition-random-halves)
                 :generator (event-gen-4)
                 :checker (checker1)}))
+
+(defn stop-start-test
+  "Stops and start nodes checking join is okk."
+  []
+  (event-test "partition-half"
+               {:nemesis   (killer)
+                :generator (event-gen-5)
+                :checker (checker3)}))

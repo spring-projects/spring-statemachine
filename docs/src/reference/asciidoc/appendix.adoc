@@ -563,3 +563,19 @@ What's happening in above chart:
 * Jepsen will heal network and after some time nodes `n3/n4` will join
   back into ensemble and synchronize its distributed status.
 
+=== Crash and Join Tolerance
+In this test we will demostrate that killing existing state machine
+and then joining new instance back into an ensemble will keep the
+distributed state healthy and newly joined state machines will synchronize
+their states properly.
+
+image::images/sm-tech-stop-start.png[width=500]
+
+What's happening in above chart:
+
+* All state machines are transitioned from initial state `S21` into
+  `S211` so that we can test proper state synchronize during join.
+* `X` is marking when a specific node has been crashed and started.
+* At a same time we request states from all machines and plot it.
+* Finally we do a simple transition back to `S21` from `S211` to make
+  sure that all state machines are still functioning properly.

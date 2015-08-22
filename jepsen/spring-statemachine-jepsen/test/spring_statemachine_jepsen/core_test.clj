@@ -25,3 +25,6 @@
 
 (deftest partition-half
   (run-statemachine-test! (partition-half-test)))
+
+(deftest stop-start
+  (run-statemachine-test! (stop-start-test)))
