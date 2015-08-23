@@ -248,6 +248,7 @@ configure(rootProject) {
 		from 'spring-statemachine-core/src/test/java/org/springframework/statemachine/docs'
 		from 'spring-statemachine-test/src/test/java/org/springframework/statemachine/test/docs'
 		from 'spring-statemachine-recipes/src/test/java/org/springframework/statemachine/recipes/docs'
+		from 'spring-statemachine-zookeeper/src/test/java/org/springframework/statemachine/zookeeper/docs'
 		from 'spring-statemachine-samples/src/main/java/'
 		from 'spring-statemachine-samples/washer/src/main/java/'
 		from 'spring-statemachine-samples/tasks/src/main/java/'

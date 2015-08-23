@@ -743,7 +743,7 @@ Distributed state is probably one of a most compicated concepts of a
 Spring State Machine. What exactly is a distributed state? A state
 within a single state machine is naturally really simple to understand
 but when there is a need to introduce a shared distributed state
-thoughout a state machines, things will get a little complicated.
+through a state machines, things will get a little complicated.
 
 [NOTE]
 ====
@@ -752,7 +752,7 @@ yet considered to be stable in this particular release. We expect this
 feature to mature towards the first official release.
 ====
 
-For configuration support see section
+For generic configuration support see section
 <<statemachine-config-commonsettings>> and actual usage example see
 sample <<statemachine-examples-zookeeper>>.
 
@@ -769,8 +769,34 @@ distributed state abstractions handled via interface
 While `Distributed State Machine` is implemented via an abstraction,
 only one implementation currently exists based on `Zookeeper`.
 
+Here is a generic example of how `Zookeeper` based `Distributed State
+Machine` would be configured.
+
+[source,java,indent=0]
+----
+include::samples/DocsZookeeperSampleTests.java[tags=snippetA]
+----
+
 Current technical documentation of a `Zookeeker` based distributed
 state machine can be found from an appendice <<appendices-zookeeper>>.
+
+=== ZookeeperStateMachineEnsemble
+`ZookeeperStateMachineEnsemble` itself needs two mandatory settings,
+an instance of `curatorClient` and `basePath`. Client is a
+`CuratorFramework` and path is root of a tree in a `Zookeeper`.
+
+Optionally it is possible to set `cleanState` which defaults to `TRUE`
+and will clear existing data if no members exists in an ensemble. Set
+this to `FALSE` if you want to preserve distributed state within
+application restarts.
+
+Optionally it is possible to set a size of a `logSize` which defaults
+to `32` and is used to keep history of state changes. Value of this
+setting needs to be a power of two. `32` is generally good default
+value but if a particular state machine is left behind more than a
+size of a log it is put into error state and disconnected from an
+ensemble indicating it has lost its history to reconstruct fully
+synchronized status.
 
 [[sm-test]]
 == Testing Support
