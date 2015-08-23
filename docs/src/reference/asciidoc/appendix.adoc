@@ -537,31 +537,79 @@ What's happening in above chart:
 
 ==== Partition Tolerance
 We need to always assume that sooner or later things in a cluster will
-go bad whether that is just a crash of a `Zookeeper` or a state
+go bad whether it is just a crash of a `Zookeeper` instance, a state
 machine or a network problem like a `brain split`. Brain split is a
 situation where existing cluster members are isolated so that only
 part of a hosts are able to see each others. Usual scenario is that a
-brain split will create a minority and majority of an ensemble where
-hosts in a minority cannot participate in an ensemble anymore until
-network status has been healed.
+brain split will create a minority and majority partitions of an
+ensemble where hosts in a minority cannot participate in an ensemble
+anymore until network status has been healed.
 
-In this test we will demostrate that a various types of brain-split's in
-an ensemble will eventually cause n fully synchronized state of all
+In below tests we will demostrate that various types of brain-split's in
+an ensemble will eventually cause fully synchronized state of all
 distributed state machines.
 
-image::images/sm-tech-partition-half.png[width=500]
+There are two scenarious having a one straight brain split in a
+network where where `Zookeeper` and `Statemachine` instances are
+split in half, assuming each `Statemachine` will connect into a
+local `Zookeeper` instance:
 
+* If current zookeeper leader is kept in a majority, all clients
+  connected into majority will keep functioning properly.
+* If current zookeeper leader is left in minority, all clients will
+  disconnect from it and will try to connect back till previous
+  minority members has succesfully joined back to existing majority
+  ensemble.
+
+[NOTE]
+====
+In our current `jepsen` tests we can't separate zookeeper split brains
+scenarios between leader left in marojity or minority so we need to
+run tests multiple time to accomplish this situation.
+====
+
+[NOTE]
+====
+In below plots we have mapped a state machine error state into a
+`error` to indicate that `state machine` is in error stete instead or
+a normal state. Please indicate this when interpering chart states.
+====
+
+In this first test we show that when existing zookeeper leader was
+kept in majority, 3 out of 5 machines will continue as is.
+
+image::images/sm-tech-partition-half-1.png[width=500]
 What's happening in above chart:
 
 * First event `C` is sent to all machine leading a state change to
   `S211`.
 * Jepsen nemisis will cause a brain-split which is causing partitions
   of `n1/n2/n5` and `n3/n4`. Nodes `n3/n4` are left in minority and
-  nodes `n1/n2/n5` constructs a new healthy majority. Nodes in
+  nodes `n1/n2/n5` construct a new healthy majority. Nodes in
   majority will keep function without problems but nodes in minority
   will get into error state.
 * Jepsen will heal network and after some time nodes `n3/n4` will join
   back into ensemble and synchronize its distributed status.
+* Lastly event `K1` is sent to all state machines to ensure that ensemble
+  is working properly. This state change will lead back to state
+  `S21`.
+
+In this second test we show that when existing zookeeper leader was
+kept in majority, all machines will error out:
+
+image::images/sm-tech-partition-half-2.png[width=500]
+What's happening in above chart:
+
+* First event `C` is sent to all machine leading a state change to
+  `S211`.
+* Jepsen nemisis will cause a brain-split which is causing partitions
+  so that existing `Zookeeper` leader is kept in minority and all
+  instances are disconnected from ensemble.
+* Jepsen will heal network and after some time all nodes will join
+  back into ensemble and synchronize its distributed status.
+* Lastly event `K1` is sent to all state machines to ensure that ensemble
+  is working properly. This state change will lead back to state
+  `S21`.
 
 ==== Crash and Join Tolerance
 In this test we will demostrate that killing existing state machine

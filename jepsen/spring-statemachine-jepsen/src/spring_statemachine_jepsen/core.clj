@@ -18,6 +18,7 @@
             [spring-statemachine-jepsen.checker :refer [checker1]]
             [spring-statemachine-jepsen.checker :refer [checker2]]
             [spring-statemachine-jepsen.checker :refer [checker3]]
+            [spring-statemachine-jepsen.checker :refer [checker4]]
             [jepsen.checker.timeline  :as timeline]
             [jepsen.control.net       :as net]
             [jepsen.os.debian         :as debian]
@@ -41,17 +42,19 @@
   (http/post (str "http://" (name node) ":8080/event")
     {:form-params {:id (str event) :testVariable value}}))
 
-(defn sm-read-states
-  "Reading states from a state machine"
-  [node]
-  (let [response (http/get (str "http://" (name node) ":8080/states") {:as :json})]
-    (get response :body)))
-
 (defn sm-read-status-ok?
   "Read status and check that there is no errors"
   [node]
   (let [response (http/get (str "http://" (name node) ":8080/status") {:as :json})]
     (= (get (get response :body) :hasStateMachineError) false)))
+
+(defn sm-read-states
+  "Reading states from a state machine"
+  [node]
+  (if (sm-read-status-ok? node)
+    (let [response (http/get (str "http://" (name node) ":8080/states") {:as :json})]
+      (get response :body))
+    (vec ["error"])))
 
 (defn sm-read-state-variable
   "Read status and check that there is no errors"
@@ -82,8 +85,7 @@
           (Thread/sleep 1000)
           (if (sm-read-status-ok? node) false true)
           (catch Exception e true))
-        (recur))))
-  )
+        (recur)))))
 
 (defn start!
   [node]
@@ -155,6 +157,11 @@
                     )
                 (catch RuntimeException e
                   (assoc op :type :fail :value (.getMessage e))))
+        :statesnoexpect (try
+                  (let [res (sm-read-states client)]
+                      (assoc op :type :ok :value (vec res)))
+                (catch RuntimeException e
+                  (assoc op :type :fail :value (.getMessage e))))
         :event (try
                  (sm-send-event client (:e op))
                  (assoc op :type :ok :value (:e op))
@@ -186,6 +193,17 @@
                   {:type :invoke
                    :f    :states
                    :s    expect}]))))))
+
+(defn gen-read-states-noexpect
+  "Read states n times."
+  [times]
+  (gen/clients
+    (gen/each
+      (gen/seq
+        (take (* times 2)
+          (cycle [(gen/sleep 1)
+                  {:type :invoke
+                   :f    :statesnoexpect}]))))))
 
 (defn gen-send-event
   "Send event one time to random node."
@@ -307,24 +325,19 @@
   "Generates event and checks states while splitting network"
   []
   (gen/phases
-    (gen-read-states 5 ["S0","S1","S11"])
+    (gen-read-states-noexpect 10)
     (gen-send-event-all "C")
-    (gen-read-states 5 ["S0","S2","S21","S211"])
-    (gen-status 2)
+    (gen-read-states-noexpect 10)
     ;start nemesis, split network
     (gen/nemesis
       (gen/once {:type :info :f :start}))
-    (gen-read-states 15 ["S0","S2","S21","S211"])
-    (gen-status 5)
+    (gen-read-states-noexpect 15)
     ;stop nemesis, heal network
     (gen/nemesis
       (gen/once {:type :info :f :stop}))
-    (gen-status 5)
-    (gen-read-states 15 ["S0","S2","S21","S211"])
+    (gen-read-states-noexpect 100)
     (gen-send-event-all "K")
-    (gen-read-states 10 ["S0","S1","S11"])
-    (gen-status 30)
-    (gen-read-states 10 ["S0","S1","S11"])))
+    (gen-read-states-noexpect 10)))
 
 (defn event-gen-5
   "Generates starts and stops and checks joins"
@@ -431,7 +444,7 @@
   (event-test "partition-half"
                {:nemesis   (nemesis/partition-random-halves)
                 :generator (event-gen-4)
-                :checker (checker1)}))
+                :checker (checker4)}))
 
 (defn stop-start-test
   "Stops and start nodes checking join is okk."
