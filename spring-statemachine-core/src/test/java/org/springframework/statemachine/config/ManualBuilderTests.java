@@ -108,6 +108,41 @@ public class ManualBuilderTests {
 	}
 
 	@Test
+	public void testManualBuildTaskViaBeanFactory2() throws Exception {
+		Builder<MyStates, MyEvents> builder = StateMachineBuilder.builder();
+
+		StaticListableBeanFactory beanFactory = new StaticListableBeanFactory();
+		beanFactory.addBean(StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME, new SyncTaskExecutor());
+		beanFactory.addBean("taskScheduler", new ConcurrentTaskScheduler());
+
+		builder.configureConfiguration()
+			.withConfiguration()
+				.beanFactory(beanFactory);
+
+		builder.configureStates()
+			.withStates()
+				.initial(MyStates.S1).state(MyStates.S2);
+
+		builder.configureTransitions()
+			.withExternal()
+				.source(MyStates.S1).target(MyStates.S2).event(MyEvents.E1)
+				.and()
+			.withExternal()
+				.source(MyStates.S2).target(MyStates.S1).event(MyEvents.E2);
+
+		StateMachine<MyStates, MyEvents> stateMachine = builder.build();
+		assertThat(stateMachine, notNullValue());
+		TestListener2 listener = new TestListener2();
+		stateMachine.addStateListener(listener);
+		stateMachine.start();
+
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+		assertThat(stateMachine, notNullValue());
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(MyStates.S1));
+	}
+
+	@Test
 	public void testManualBuildExplicitTaskExecutorAndScheduler() throws Exception {
 		Builder<String, String> builder = StateMachineBuilder.builder();
 
@@ -166,6 +201,14 @@ public class ManualBuilderTests {
 		assertThat(((SmartLifecycle)stateMachine).isRunning(), is(true));
 	}
 
+	static enum MyStates {
+		S1, S2
+	}
+
+	static enum MyEvents {
+		E1, E2
+	}
+
 	static class Config extends StateMachineConfigurerAdapter<String, String> {
 
 		@Override
@@ -201,6 +244,25 @@ public class ManualBuilderTests {
 
 		@Override
 		public void transition(Transition<String, String> transition) {
+			transitionLatch.countDown();
+		}
+
+	}
+
+	private static class TestListener2 extends StateMachineListenerAdapter<MyStates, MyEvents> {
+
+		volatile CountDownLatch stateChangedLatch = new CountDownLatch(1);
+		volatile CountDownLatch transitionLatch = new CountDownLatch(0);
+		volatile int stateChangedCount = 0;
+
+		@Override
+		public void stateChanged(State<MyStates, MyEvents> from, State<MyStates, MyEvents> to) {
+			stateChangedCount++;
+			stateChangedLatch.countDown();
+		}
+
+		@Override
+		public void transition(Transition<MyStates, MyEvents> transition) {
 			transitionLatch.countDown();
 		}
 
