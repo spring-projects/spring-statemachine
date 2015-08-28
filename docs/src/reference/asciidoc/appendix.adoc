@@ -593,7 +593,7 @@ What's happening in above chart:
   `S21`.
 
 In this second test we show that when existing zookeeper leader was
-kept in majority, all machines will error out:
+kept in minority, all machines will error out:
 
 image::images/sm-tech-partition-half-2.png[width=500]
 What's happening in above chart:
