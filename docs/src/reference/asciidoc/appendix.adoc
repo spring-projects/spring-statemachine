@@ -619,6 +619,13 @@ their states properly.
 
 image::images/sm-tech-stop-start.png[width=500]
 
+[NOTE]
+====
+In this test, states are not checked between first `X` and last `X`,
+thus graph will will show flat line in between. States are checked
+exactly where state change happens between `S21` and `S211`.
+====
+
 What's happening in above chart:
 
 * All state machines are transitioned from initial state `S21` into
