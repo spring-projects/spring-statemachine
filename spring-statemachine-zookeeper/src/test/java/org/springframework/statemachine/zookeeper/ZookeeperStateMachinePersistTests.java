@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.statemachine.StateMachineContext;
-import org.springframework.statemachine.ensemble.StateMachinePersist;
+import org.springframework.statemachine.StateMachinePersist;
 import org.springframework.statemachine.support.DefaultExtendedState;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 

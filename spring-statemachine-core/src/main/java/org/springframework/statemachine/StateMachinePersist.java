@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.ensemble;
+package org.springframework.statemachine;
 
-import org.springframework.statemachine.StateMachineContext;
 
 /**
  * {@code StateMachinePersist} is an interface handling serialization

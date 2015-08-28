@@ -41,10 +41,10 @@ import org.apache.zookeeper.data.Stat;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.StateMachineException;
+import org.springframework.statemachine.StateMachinePersist;
 import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 import org.springframework.statemachine.ensemble.StateMachineEnsembleException;
 import org.springframework.statemachine.ensemble.StateMachineEnsembleObjectSupport;
-import org.springframework.statemachine.ensemble.StateMachinePersist;
 
 /**
  * {@link StateMachineEnsemble} backed by a zookeeper.
