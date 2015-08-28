@@ -493,8 +493,6 @@ What's happening in above chart:
 * We cycle events `I`, `C`, `I` and `K` one more time via random nodes.
 
 ==== Parallel Events
-As mentioned in <<sm-distributed>>, tbd.
-
 Logical problem with multiple distributed state machines is that if a
 same event is sent into a multiple state machine exactly at a same
 time, only one of those events will cause a distributed state
