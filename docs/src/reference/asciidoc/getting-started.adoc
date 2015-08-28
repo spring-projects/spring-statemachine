@@ -1,0 +1,307 @@
+[[statemachine-getting-started]]
+= Getting started
+If you’re just getting started with Spring Statemachine,
+this is the section for you! Here we answer the basic
+“what?”, “how?” and “why?” questions. You’ll find a gentle
+introduction to Spring Statemachine. We’ll then build our
+first Spring Statemachine application, discussing some
+core principles as we go.
+
+== System Requirements
+Spring Statemachine {revnumber} is built and tested with
+JDK 7 and Spring Framework {spring-version} and doesn't
+require any other dependencies outside of Spring Framework
+within its core system.
+
+Other optional parts like <<sm-distributed>> has dependencies to
+a `Zookeeper`, while <<statemachine-examples>> has dependencies
+to spring-shell and spring-boot which pulls other dependencies
+beyond framework itself.
+
+== Modules
+The following modules are available for Spring Statemachine.
+
+|===
+|Module |Description
+
+|spring-statemachine-core
+|Core system of a Spring Statemachine.
+
+|spring-statemachine-recipes-common
+|Common recipes which doesn't require dependencies outside of a core
+framework.
+
+|spring-statemachine-zookeeper
+|`Zookeeper` integration for a distributed state machine.
+
+|spring-statemachine-test
+|Support module for state machine testing.
+|===
+
+== Using Gradle
+Here is a typical `build.gradle` file:
+
+[source,groovy,indent=0]
+----
+buildscript {
+    repositories {
+        maven { url "http://repo.spring.io/libs-release" }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.3.RELEASE")
+    }
+}
+
+apply plugin: 'base'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+version =  '0.1.0'
+archivesBaseName = 'gs-statemachine'
+
+repositories {
+    mavenCentral()
+    maven { url "http://repo.spring.io/libs-release" }
+    maven { url "http://repo.spring.io/libs-milestone" }
+    maven { url "http://repo.spring.io/libs-snapshot" }
+}
+
+dependencies {
+    compile("org.springframework.statemachine:spring-statemachine-core:1.0.0.BUILD-SNAPSHOT")
+    compile("org.springframework.boot:spring-boot-starter:1.2.3.RELEASE")
+    testCompile("org.springframework.statemachine:spring-statemachine-test:1.0.0.BUILD-SNAPSHOT")
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.11'
+}
+----
+
+Having a normal project structure you'd build this with command:
+[source,text,indent=0]
+----
+# ./gradlew clean build
+----
+
+Expected Spring Boot packaged fat-jar would be `build/libs/gs-statemachine-0.1.0.jar`.
+
+[NOTE]
+====
+You don't need repos `libs-milestone` and `libs-snapshot` for
+production development.
+====
+
+== Using Maven
+Here is a typical `pom.xml` file:
+
+[source,xml,indent=0]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.springframework</groupId>
+    <artifactId>gs-statemachine</artifactId>
+    <version>0.1.0</version>
+    <packaging>jar</packaging>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.2.3.RELEASE</version>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.statemachine</groupId>
+            <artifactId>spring-statemachine-core</artifactId>
+            <version>1.0.0.BUILD-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <version>1.0.0.BUILD-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.statemachine</groupId>
+            <artifactId>spring-statemachine-test</artifactId>
+            <version>1.0.0.BUILD-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin> 
+                <artifactId>maven-compiler-plugin</artifactId> 
+                <version>2.3.2</version> 
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>spring-release</id>
+            <url>http://repo.spring.io/libs-release</url>
+            <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+        <repository>
+            <id>spring-milestone</id>
+            <url>http://repo.spring.io/libs-milestone</url>
+            <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+        <repository>
+            <id>spring-snapshot</id>
+            <url>http://repo.spring.io/libs-snapshot</url>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>spring-release</id>
+            <url>http://repo.spring.io/libs-release</url>
+            <snapshots><enabled>false</enabled></snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+</project>
+----
+
+Having a normal project structure you'd build this with command:
+[source,text,indent=0]
+----
+# mvn clean package
+----
+
+Expected Spring Boot packaged fat-jar would be `target/gs-statemachine-0.1.0.jar`.
+
+[NOTE]
+====
+You don't need repos `libs-milestone` and `libs-snapshot` for
+production development.
+====
+
+==  Developing your first Spring Statemachine application
+Lets start by creating a simple Spring Boot `Application` class
+implementing `CommandLineRunner`.
+
+[source,java,indent=0]
+----
+@SpringBootApplication
+public class Application implements CommandLineRunner {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+
+}
+----
+
+Add states and events:
+[source,java,indent=0]
+----
+public static enum States {
+    SI, S1, S2
+}
+
+public static enum Events {
+    E1, E2
+}
+----
+
+Add state machine configuration:
+[source,java,indent=0]
+----
+@Configuration
+@EnableStateMachine
+static class StateMachineConfig
+        extends EnumStateMachineConfigurerAdapter<States, Events> {
+
+    @Override
+    public void configure(StateMachineConfigurationConfigurer<States, Events> config)
+            throws Exception {
+        config
+            .withConfiguration()
+                .autoStartup(true)
+                .listener(listener());
+    }
+
+    @Override
+    public void configure(StateMachineStateConfigurer<States, Events> states)
+            throws Exception {
+        states
+            .withStates()
+                .initial(States.SI)
+                    .states(EnumSet.allOf(States.class));
+    }
+
+    @Override
+    public void configure(StateMachineTransitionConfigurer<States, Events> transitions)
+            throws Exception {
+        transitions
+            .withExternal()
+                .source(States.SI).target(States.S1).event(Events.E1)
+                .and()
+            .withExternal()
+                .source(States.S1).target(States.S2).event(Events.E2);
+    }
+
+    @Bean
+    public StateMachineListener<States, Events> listener() {
+        return new StateMachineListenerAdapter<States, Events>() {
+            @Override
+            public void stateChanged(State<States, Events> from, State<States, Events> to) {
+                System.out.println("State change to " + to.getId());
+            }
+        };
+    }
+}
+----
+
+Implement `CommandLineRunner`, autowire `StateMachine`:
+[source,java,indent=0]
+----
+@Autowired
+private StateMachine<States, Events> stateMachine;
+
+@Override
+public void run(String... args) throws Exception {
+    stateMachine.sendEvent(Events.E1);
+    stateMachine.sendEvent(Events.E2);
+}
+----
+
+Depending whether you build your application using `Gradle` or `Maven`
+it's run `java -jar build/libs/gs-statemachine-0.1.0.jar` or
+`java -jar target/gs-statemachine-0.1.0.jar` respectively.
+
+What is expected for running this command is a normal Spring Boot output
+but if you look closely you see lines:
+
+[source,text,indent=0]
+----
+State change to SI
+State change to S1
+State change to S2
+----
+

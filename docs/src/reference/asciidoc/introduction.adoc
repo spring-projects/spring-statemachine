@@ -19,13 +19,6 @@ and <<crashcourse>> to get a generic idea of what state machines are
 mostly because rest of a documentation expects reader to be fairly
 familiar with state machine concepts.
 
-== Requirements
-Spring Statemachine {revnumber} is built and tested with JDK 7 and Spring
-Framework {spring-version} and doesn't require any other dependencies
-outside of Spring Framework. Samples require spring-shell and
-spring-boot which pulls other dependencies beyond framework
-itself.
-
 == Background
 State machines are powerful because behaviour is always guaranteed to be
 consistent and relatively easily debugged due to ways how operational

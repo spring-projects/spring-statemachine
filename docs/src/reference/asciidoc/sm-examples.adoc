@@ -8,7 +8,24 @@ configuration and what an application does with a state machine. For
 complete examples go and study the samples repository.
 
 Samples are build directly from a main source distribution during a
-normal build cycle.
+normal build cycle. Samples in this chapter are:
+
+<<statemachine-examples-turnstile>> Turnstile.
+
+<<statemachine-examples-showcase>> Showcase.
+
+<<statemachine-examples-cdplayer>> CD Player.
+
+<<statemachine-examples-tasks>> Tasks.
+
+<<statemachine-examples-washer>> Washer.
+
+<<statemachine-examples-persist>> Persist.
+
+<<statemachine-examples-zookeeper>> Zookeeper.
+
+<<statemachine-examples-web>> Web.
+
 
 [source,text]
 ----
@@ -204,6 +221,7 @@ What happens in above sample:
   match to its dummy transition without guard or action, not never
   happens.
 
+[[statemachine-examples-cdplayer]]
 == CD Player
 CD Player is a sample which resembles better use case of most of use have
 used in a real world. CD Player itself is a really simple entity where
@@ -627,6 +645,7 @@ In above if we simulate failure for either task T2 or T3, state
 machine goes to MANUAL state where problem needs to be fixed manually
 before we're able to go back to READY state.
 
+[[statemachine-examples-washer]]
 == Washer
 
 Washer is a sample demonstrating a use of a history state to recover a

@@ -15,9 +15,8 @@
 include::preface.adoc[]
 include::introduction.adoc[]
 
-[[springandsm]]
+include::getting-started.adoc[]
 include::sm.adoc[]
-
 include::recipes.adoc[]
 include::sm-examples.adoc[]
 include::faq.adoc[]

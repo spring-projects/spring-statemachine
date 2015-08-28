@@ -1,18 +1,38 @@
 [[statemachine]]
-= Spring and Statemachine
+= Using Spring Statemachine
 
 This part of the reference documentation explains the core functionality
 that Spring Statemachine provides to any Spring based application.
 
-<<sm-config>> describes the generic configuration support.
+<<sm-config>> the generic configuration support.
 
-<<sm-factories>> describes the generic state machine factory support.
+<<sm-factories>> the generic state machine factory support.
 
-<<sm-triggers>> describes the use of triggers.
+<<sm-actions>> the actions support.
 
-<<sm-listeners>> describes the use of state machine listeners.
+<<sm-guards>> the guard support.
 
-<<sm-context>> describes the generic Spring application context support.
+<<sm-extendedstate>> the extended state support.
+
+<<sm-statecontext>> the state context support.
+
+<<sm-triggers>> the use of triggers.
+
+<<sm-listeners>> the use of state machine listeners.
+
+<<sm-context>> the generic Spring application context support.
+
+<<sm-accessor>> the state machine internal accessor support.
+
+<<sm-interceptor>> the state machine error handling support.
+
+<<sm-error-handling>> the state machine interceptor support.
+
+<<sm-persist>> the state machine persisting support.
+
+<<sm-distributed>> the distributed state machine support.
+
+<<sm-test>> the state machine testing support.
 
 [[sm-config]]
 == Statemachine Configuration
