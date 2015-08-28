@@ -113,6 +113,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	private String id = UUID.randomUUID().toString();
 
+	private volatile Message<E> forwardedInitialEvent;
+
 	/**
 	 * Instantiates a new abstract state machine.
 	 *
@@ -294,6 +296,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				log.debug("Initial disable asked, disabling initial");
 			}
 			stateMachineExecutor.setInitialEnabled(false);
+		} else {
+			stateMachineExecutor.setForwardedInitialEvent(forwardedInitialEvent);
 		}
 
 		// start fires first execution which should execute initial transition
@@ -431,6 +435,11 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	protected void stateChangedInRelay() {
 		// TODO: temp tweak, see super
 		stateMachineExecutor.execute();
+	}
+
+	@Override
+	public void setForwardedInitialEvent(Message<E> message) {
+		forwardedInitialEvent = message;
 	}
 
 	private StateMachine<S, E> getRelayStateMachine() {

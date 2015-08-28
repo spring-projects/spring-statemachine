@@ -178,6 +178,10 @@ public class StateMachineAccessTests {
 			return null;
 		}
 
+		@Override
+		public void setForwardedInitialEvent(Message<String> message) {
+		}
+
 	}
 
 }

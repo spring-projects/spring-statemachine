@@ -18,6 +18,7 @@ package org.springframework.statemachine.support;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.trigger.Trigger;
 
@@ -78,6 +79,14 @@ public interface StateMachineExecutor<S, E> {
 	 * @see LifecycleObjectSupport#stop()
 	 */
 	void stop();
+
+	/**
+	 * Set initial forwarded event.
+	 *
+	 * @param message the forwarded message
+	 * @see StateMachineAccess#setForwardedInitialEvent(Message)
+	 */
+	void setForwardedInitialEvent(Message<E> message);
 
 	/**
 	 * Sets the state machine executor transit.

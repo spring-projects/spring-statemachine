@@ -115,12 +115,50 @@ transition between states `S2` and `S3`. Both guard in above sample
 always evaluate to true.
 
 === Configuring Actions
-Actions can be defined with various steps within a state transitions.
+Actions can be defined to be executed with transitions and states
+itself. Action is always executed as a result of a transition which
+originates from a trigger.
 
 [source,java,indent=0]
 ----
-include::samples/DocsConfigurationSampleTests.java[tags=snippetE]
+include::samples/DocsConfigurationSampleTests.java[tags=snippetEA]
 ----
+
+In above a single `Action` is defined as bean `action` and associated
+with a transition from `S1` to `S2`.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetEB]
+----
+
+[NOTE]
+====
+Usually you would not define same `Action` instance for different
+stages but we did it here not to make too much noise in a code
+snippet.
+====
+
+In above a single `Action` is defined as bean `action` and associated
+with states `S1`, `S2` and `S3`. There is more going on there which
+needs more clarification:
+
+* We defined action for initial state `S1`.
+* We defined entry action for state `S1` and left exit action empty.
+* We defined exit action for state `S2` and left entry action empty.
+* We defined entry action as well as exit action for state `S3`.
+* Notice how state `S1` is used twice with `initial()` and `state()`
+  functions. This is only needed if you want to define entry or exit
+  actions with initial state.
+
+[IMPORTANT]
+====
+Defining action with `initial()` function only executes particular
+action when state machine or sub state is started. Think this action
+to be initializing action which is only executed once. Action defined
+with `state()` is then executed if state machine is transitioning back
+and forward between initial and non-inital states.
+====
 
 === Configuring Pseudo States
 

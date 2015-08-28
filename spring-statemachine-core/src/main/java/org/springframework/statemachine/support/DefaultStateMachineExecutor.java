@@ -91,6 +91,8 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 	private final StateMachineInterceptorList<S, E> interceptors =
 			new StateMachineInterceptorList<S, E>();
 
+	private volatile Message<E> forwardedInitialEvent;
+
 	/**
 	 * Instantiates a new default state machine executor.
 	 *
@@ -159,6 +161,11 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 		// TODO: should prob handle case where this is enabled
 		//       when executor is running
 		initialHandled.set(!enabled);
+	}
+
+	@Override
+	public void setForwardedInitialEvent(Message<E> message) {
+		forwardedInitialEvent = message;
 	}
 
 	@Override
@@ -265,7 +272,12 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 		if (!initialHandled.getAndSet(true)) {
 			ArrayList<Transition<S, E>> trans = new ArrayList<Transition<S, E>>();
 			trans.add(initialTransition);
-			handleInitialTrans(initialTransition, initialEvent);
+			// TODO: should we merge if initial event is actually used?
+			if (initialEvent != null) {
+				handleInitialTrans(initialTransition, initialEvent);
+			} else {
+				handleInitialTrans(initialTransition, forwardedInitialEvent);
+			}
 			return;
 		}
 		log.debug("Process trigger queue");

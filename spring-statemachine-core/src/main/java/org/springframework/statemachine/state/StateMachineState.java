@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.access.StateMachineAccess;
@@ -154,7 +155,7 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 	}
 
 	@Override
-	public void entry(StateContext<S, E> context) {
+	public void entry(final StateContext<S, E> context) {
 		Collection<? extends Action<S, E>> actions = getEntryActions();
 		if (actions != null && !isLocal(context)) {
 			for (Action<S, E> action : actions) {
@@ -166,8 +167,20 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 			State<S, E> target = context.getTransition().getTarget();
 			State<S, E> immediateDeepParent = findDeepParent(getSubmachine().getStates(), target);
 
+			if (context.getEvent() != null) {
+				getSubmachine().getStateMachineAccessor().doWithRegion(
+						new StateMachineFunction<StateMachineAccess<S, E>>() {
+
+							@Override
+							public void apply(StateMachineAccess<S, E> function) {
+								function.setForwardedInitialEvent(MessageBuilder.withPayload(context.getEvent())
+										.copyHeaders(context.getMessageHeaders()).build());
+							}
+						});
+			}
+
 			// disable initial state where needed
-			if (immediateDeepParent != null && immediateDeepParent.isSubmachineState() && ( !isInitial(target) ) ) {
+			if (immediateDeepParent != null && immediateDeepParent.isSubmachineState() && (!isInitial(target))) {
 
 				((StateMachineState<S, E>) immediateDeepParent).getSubmachine().getStateMachineAccessor()
 						.doWithRegion(new StateMachineFunction<StateMachineAccess<S, E>>() {
@@ -189,8 +202,8 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 							}
 						});
 			} else if (immediateDeepParent != null && isInitial(immediateDeepParent) && isInitial(target)) {
-				((StateMachineState<S, E>) immediateDeepParent).getSubmachine().getStateMachineAccessor().doWithRegion(
-						new StateMachineFunction<StateMachineAccess<S, E>>() {
+				((StateMachineState<S, E>) immediateDeepParent).getSubmachine().getStateMachineAccessor()
+						.doWithRegion(new StateMachineFunction<StateMachineAccess<S, E>>() {
 
 							@Override
 							public void apply(StateMachineAccess<S, E> function) {

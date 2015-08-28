@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine.access;
 
+import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.support.StateMachineInterceptor;
@@ -57,5 +58,14 @@ public interface StateMachineAccess<S, E> {
 	 * @param enabled the new initial enabled
 	 */
 	void setInitialEnabled(boolean enabled);
+
+	/**
+	 * Set initial forwarded event which is used for passing in
+	 * event and its headers for actions executed when sub state
+	 * is entered via initial transition.
+	 *
+	 * @param message the forwarded message
+	 */
+	void setForwardedInitialEvent(Message<E> message);
 
 }
