@@ -569,7 +569,7 @@ run tests multiple time to accomplish this situation.
 [NOTE]
 ====
 In below plots we have mapped a state machine error state into a
-`error` to indicate that `state machine` is in error stete instead or
+`error` to indicate that `state machine` is in error state instead or
 a normal state. Please indicate this when interpering chart states.
 ====
 
