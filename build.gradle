@@ -179,6 +179,7 @@ project('spring-statemachine-recipes-common') {
 configure(sampleProjects()) {
 	apply plugin: 'spring-boot'
 	configurations.archives.artifacts.removeAll { it.archiveTask.is jar }
+	tasks.findByPath("artifactoryPublish")?.enabled = false
 	dependencies {
 		compile project(":spring-statemachine-samples-common")
 		compile project(":spring-statemachine-zookeeper")
@@ -191,6 +192,7 @@ configure(sampleProjects()) {
 
 project('spring-statemachine-samples-common') {
 	configurations.archives.artifacts.removeAll { it.archiveTask.is jar }
+	tasks.findByPath("artifactoryPublish")?.enabled = false
 	dependencies {
 		compile project(":spring-statemachine-core")
 		compile "org.springframework.shell:spring-shell:1.1.0.RELEASE"
