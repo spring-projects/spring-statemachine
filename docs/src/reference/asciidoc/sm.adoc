@@ -522,8 +522,23 @@ for example user is implementing actions.
 
 === TimerTrigger
 _TimerTrigger_ is useful when something needs to be triggered
-automatically without any user interaction. Trigger is added to a
-transition by associating a timer to it during a configuration.
+automatically without any user interaction. `Trigger` is added to a
+transition by associating a timer with it during a configuration.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests2.java[tags=snippetA]
+----
+
+In above we have two states, `S1` and `S2`. We have a normal external
+transition from `S1` to `S2` with event `E1` but interesting part is
+when we define internal transition with source state `S2` and
+associate it with `Action` bean `timerAction` and `timer` value of
+`1000ms`. Once a state machine receive event `E1` it does a transition
+from `S1` to `S2` and timer kicks in. As long as state is kept in `S2`
+`TimerTrigger` executes and causes a transition associated with that
+state which in this case is the internal transition which has the
+`timerAction` defined.
 
 [[sm-listeners]]
 == Listening State Machine Events
