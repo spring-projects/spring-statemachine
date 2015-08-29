@@ -173,7 +173,8 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 		interceptors.add(interceptor);
 	}
 
-	private void handleTriggerTrans(List<Transition<S, E>> trans, Message<E> queuedMessage) {
+	private boolean handleTriggerTrans(List<Transition<S, E>> trans, Message<E> queuedMessage) {
+		boolean transit = false;
 		for (Transition<S, E> t : trans) {
 			if (t == null) {
 				continue;
@@ -183,6 +184,9 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 				continue;
 			}
 			State<S,E> currentState = stateMachine.getState();
+			if (currentState == null) {
+				continue;
+			}
 			if (!StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
 				continue;
 			}
@@ -193,13 +197,14 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 				break;
 			}
 
-			boolean transit = t.transit(stateContext);
+			transit = t.transit(stateContext);
 			if (transit) {
 				stateMachineExecutorTransit.transit(t, stateContext, queuedMessage);
 				interceptors.postTransition(stateContext);
 				break;
 			}
 		}
+		return transit;
 	}
 
 	private void handleInitialTrans(Transition<S, E> tran, Message<E> queuedMessage) {
@@ -282,6 +287,9 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 		}
 		log.debug("Process trigger queue");
 		TriggerQueueItem queueItem = null;
+		// keep last message here so that we can
+		// pass it to triggerless transitions
+		Message<E> queuedMessage = null;
 		while ((queueItem = triggerQueue.poll()) != null) {
 
 			State<S,E> currentState = stateMachine.getState();
@@ -290,7 +298,7 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 				continue;
 			}
 
-			Message<E> queuedMessage = queueItem.message;
+			queuedMessage = queueItem.message;
 			E event = queuedMessage != null ? queuedMessage.getPayload() : null;
 
 			// need all transitions trigger could match, event trigger may match
@@ -326,8 +334,12 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 			handleTriggerTrans(trans, queuedMessage);
 		}
 		if (stateMachine.getState() != null) {
-			// handle triggerless transitions
-			handleTriggerTrans(triggerlessTransitions, null);
+			// loop triggerless transitions here so that
+			// all "chained" transitions will get queue message
+			boolean transit = false;
+			do {
+				transit = handleTriggerTrans(triggerlessTransitions, queuedMessage);
+			} while (transit);
 		}
 	}
 
