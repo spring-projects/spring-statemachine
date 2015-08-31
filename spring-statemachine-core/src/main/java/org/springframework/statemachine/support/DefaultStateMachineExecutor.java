@@ -93,6 +93,8 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 
 	private volatile Message<E> forwardedInitialEvent;
 
+	private volatile Message<E> queuedMessage = null;
+
 	/**
 	 * Instantiates a new default state machine executor.
 	 *
@@ -245,7 +247,9 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 	}
 
 	private void processEventQueue() {
-		log.debug("Process event queue");
+		if (log.isDebugEnabled()) {
+			log.debug("Process event queue, size=" + eventQueue.size());
+		}
 		Message<E> queuedEvent = null;
 		State<S,E> currentState = stateMachine.getState();
 		while ((queuedEvent = eventQueue.poll()) != null) {
@@ -285,11 +289,12 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 			}
 			return;
 		}
-		log.debug("Process trigger queue");
+		if (log.isDebugEnabled()) {
+			log.debug("Process trigger queue, size=" + triggerQueue.size());
+		}
 		TriggerQueueItem queueItem = null;
 		// keep last message here so that we can
 		// pass it to triggerless transitions
-		Message<E> queuedMessage = null;
 		while ((queueItem = triggerQueue.poll()) != null) {
 
 			State<S,E> currentState = stateMachine.getState();
@@ -298,6 +303,9 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 				continue;
 			}
 
+			// queued message is kept on a class level order to let
+			// triggerless transition to receive this message if it doesn't
+			// kick in in this poll loop.
 			queuedMessage = queueItem.message;
 			E event = queuedMessage != null ? queuedMessage.getPayload() : null;
 
@@ -344,7 +352,9 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 	}
 
 	private boolean processDeferList() {
-		log.debug("Process defer list");
+		if (log.isDebugEnabled()) {
+			log.debug("Process defer list, size=" + deferList.size());
+		}
 		boolean triggered = false;
 		ListIterator<Message<E>> iterator = deferList.listIterator();
 		State<S,E> currentState = stateMachine.getState();
