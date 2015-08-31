@@ -9,9 +9,9 @@ core principles as we go.
 
 == System Requirements
 Spring Statemachine {revnumber} is built and tested with
-JDK 7 and Spring Framework {spring-version} and doesn't
-require any other dependencies outside of Spring Framework
-within its core system.
+JDK 8(all artifacts have JDK 7 compatibility) and Spring
+Framework {spring-version} and doesn't require any other
+dependencies outside of Spring Framework within its core system.
 
 Other optional parts like <<sm-distributed>> has dependencies to
 a `Zookeeper`, while <<statemachine-examples>> has dependencies
@@ -48,7 +48,7 @@ buildscript {
         maven { url "http://repo.spring.io/libs-release" }
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.3.RELEASE")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.5.RELEASE")
     }
 }
 
@@ -69,7 +69,7 @@ repositories {
 
 dependencies {
     compile("org.springframework.statemachine:spring-statemachine-core:1.0.0.BUILD-SNAPSHOT")
-    compile("org.springframework.boot:spring-boot-starter:1.2.3.RELEASE")
+    compile("org.springframework.boot:spring-boot-starter:1.2.5.RELEASE")
     testCompile("org.springframework.statemachine:spring-statemachine-test:1.0.0.BUILD-SNAPSHOT")
 }
 
@@ -111,7 +111,7 @@ Here is a typical `pom.xml` file:
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.2.3.RELEASE</version>
+        <version>1.2.5.RELEASE</version>
     </parent>
 
     <dependencies>
