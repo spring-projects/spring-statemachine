@@ -38,19 +38,20 @@ public class DefaultChoiceTransitionConfigurer<S, E>
 		implements ChoiceTransitionConfigurer<S, E> {
 
 	private S source;
-
 	private ChoiceData<S, E> first;
-
 	private final List<ChoiceData<S, E>> thens = new ArrayList<ChoiceData<S, E>>();
-
 	private ChoiceData<S, E> last;
 
 	@Override
 	public void configure(StateMachineTransitionBuilder<S, E> builder) throws Exception {
 		List<ChoiceData<S, E>> choices = new ArrayList<ChoiceData<S, E>>();
-		choices.add(first);
+		if (first != null) {
+			choices.add(first);
+		}
 		choices.addAll(thens);
-		choices.add(last);
+		if (last != null) {
+			choices.add(last);
+		}
 		builder.add(source, choices);
 	}
 

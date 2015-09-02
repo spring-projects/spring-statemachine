@@ -30,8 +30,13 @@ import org.springframework.statemachine.guard.Guard;
  */
 public class ChoicePseudoState<S, E> implements PseudoState<S, E> {
 
-	private List<ChoiceStateData<S, E>> choices;
+	private final List<ChoiceStateData<S, E>> choices;
 
+	/**
+	 * Instantiates a new choice pseudo state.
+	 *
+	 * @param choices the choices
+	 */
 	public ChoicePseudoState(List<ChoiceStateData<S, E>> choices) {
 		this.choices = choices;
 	}
@@ -52,7 +57,7 @@ public class ChoicePseudoState<S, E> implements PseudoState<S, E> {
 		}
 		return s;
 	}
-	
+
 	@Override
 	public void exit(StateContext<S, E> context) {
 	}
@@ -61,16 +66,42 @@ public class ChoicePseudoState<S, E> implements PseudoState<S, E> {
 	public void addPseudoStateListener(PseudoStateListener<S, E> listener) {
 	}
 
+	/**
+	 * Data class wrapping choice {@link State} and {@link Guard}
+	 * together.
+	 *
+	 * @param <S> the type of state
+	 * @param <E> the type of event
+	 */
 	public static class ChoiceStateData<S, E> {
 		private final State<S, E> state;
 		private final Guard<S, E> guard;
+
+		/**
+		 * Instantiates a new choice state data.
+		 *
+		 * @param state the state
+		 * @param guard the guard
+		 */
 		public ChoiceStateData(State<S, E> state, Guard<S, E> guard) {
 			this.state = state;
 			this.guard = guard;
 		}
+
+		/**
+		 * Gets the state.
+		 *
+		 * @return the state
+		 */
 		public State<S, E> getState() {
 			return state;
 		}
+
+		/**
+		 * Gets the guard.
+		 *
+		 * @return the guard
+		 */
 		public Guard<S, E> getGuard() {
 			return guard;
 		}
