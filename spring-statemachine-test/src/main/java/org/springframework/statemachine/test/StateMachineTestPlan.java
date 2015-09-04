@@ -84,7 +84,6 @@ public class StateMachineTestPlan<S, E> {
 			LatchStateMachineListener<S, E> listener = new LatchStateMachineListener<S, E>();
 			listeners.put(stateMachine, listener);
 			stateMachine.addStateListener(listener);
-			stateMachine.start();
 		}
 		log.info("Running test plan for machines "
 				+ StringUtils.collectionToCommaDelimitedString(stateMachines.values()));
@@ -104,6 +103,11 @@ public class StateMachineTestPlan<S, E> {
 						step.expectStateMachineStarted != null ? step.expectStateMachineStarted : 0,
 						step.expectStateMachineStopped != null ? step.expectStateMachineStopped : 0,
 						step.expectExtendedStateChanged != null ? step.expectExtendedStateChanged : 0);
+			}
+
+			// need to call start here, ok to call from all steps
+			for (StateMachine<S, E> stateMachine : stateMachines.values()) {
+				stateMachine.start();
 			}
 
 			if (step.expectStateMachineStarted != null) {

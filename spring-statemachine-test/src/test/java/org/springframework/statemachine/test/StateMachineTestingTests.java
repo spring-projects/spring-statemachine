@@ -17,10 +17,14 @@ package org.springframework.statemachine.test;
 
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
@@ -35,6 +39,24 @@ public class StateMachineTestingTests extends AbstractStateMachineTests {
 		StateMachineTestPlan<String, String> plan =
 				StateMachineTestPlanBuilder.<String, String>builder()
 					.stateMachine(machine)
+					.step().expectState("SI").and()
+					.step().sendEvent("E1").expectStateChanged(1).expectState("S1").and()
+					.step().sendEvent("E2").expectStateChanged(1).expectState("S2").and()
+					.build();
+
+		plan.test();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testStarted() throws Exception {
+		registerAndRefresh(Config2.class);
+		StateMachine<String, String> machine =	context.getBean(StateMachine.class);
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.stateMachine(machine)
+					.step().expectStateMachineStarted(1).and()
 					.step().expectState("SI").and()
 					.step().sendEvent("E1").expectStateChanged(1).expectState("S1").and()
 					.step().sendEvent("E2").expectStateChanged(1).expectState("S2").and()
@@ -73,6 +95,49 @@ public class StateMachineTestingTests extends AbstractStateMachineTests {
 					.source("S1")
 					.target("S2")
 					.event("E2");
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config2 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<String, String> config) throws Exception {
+			config
+				.withConfiguration()
+					.taskExecutor(taskExecutor());
+		}
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("SI")
+					.state("S1")
+					.state("S2");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("SI")
+					.target("S1")
+					.event("E1")
+					.and()
+				.withExternal()
+					.source("S1")
+					.target("S2")
+					.event("E2");
+		}
+
+		@Bean
+		public TaskExecutor taskExecutor() {
+			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+			taskExecutor.setCorePoolSize(1);
+			return taskExecutor;
 		}
 
 	}
