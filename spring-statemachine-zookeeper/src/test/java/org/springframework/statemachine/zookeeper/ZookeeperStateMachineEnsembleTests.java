@@ -39,7 +39,7 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.StateMachineException;
 import org.springframework.statemachine.access.StateMachineAccessor;
-import org.springframework.statemachine.ensemble.EnsembleListeger;
+import org.springframework.statemachine.ensemble.EnsembleListener;
 import org.springframework.statemachine.ensemble.StateMachineEnsembleException;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.state.State;
@@ -641,7 +641,7 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 		return new AnnotationConfigApplicationContext();
 	}
 
-	private class TestEnsembleListener implements EnsembleListeger<String, String> {
+	private class TestEnsembleListener implements EnsembleListener<String, String> {
 
 		volatile CountDownLatch joinedLatch = new CountDownLatch(1);
 		volatile CountDownLatch eventLatch = new CountDownLatch(1);

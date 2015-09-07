@@ -42,12 +42,12 @@ public abstract class StateMachineEnsembleObjectSupport<S, E> extends LifecycleO
 	public abstract void leave(StateMachine<S, E> stateMachine);
 
 	@Override
-	public void addEnsembleListener(EnsembleListeger<S, E> listener) {
+	public void addEnsembleListener(EnsembleListener<S, E> listener) {
 		ensembleListener.register(listener);
 	}
 
 	@Override
-	public void removeEnsembleListener(EnsembleListeger<S, E> listener) {
+	public void removeEnsembleListener(EnsembleListener<S, E> listener) {
 		ensembleListener.unregister(listener);
 	}
 

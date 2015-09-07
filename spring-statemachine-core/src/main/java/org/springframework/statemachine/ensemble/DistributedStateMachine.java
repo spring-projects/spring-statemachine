@@ -243,7 +243,7 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 	 * Bridge for instructing delegating machine based on what
 	 * is happening in an ensemble.
 	 */
-	private class LocalEnsembleListener implements EnsembleListeger<S, E> {
+	private class LocalEnsembleListener implements EnsembleListener<S, E> {
 
 		@Override
 		public void stateMachineJoined(final StateMachine<S, E> stateMachine, final StateMachineContext<S, E> context) {

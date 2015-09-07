@@ -33,8 +33,8 @@ public interface StateMachineEnsemble<S, E> {
 	 * Request a join to a state machine ensemble. This method
 	 * is a request to join an ensemble and doesn't guarantee
 	 * a requester will eventually successfully join. Join operation
-	 * needs to be used together with {@link EnsembleListeger} and
-	 * {@link EnsembleListeger#stateMachineJoined(StateMachine, StateMachineContext)}
+	 * needs to be used together with {@link EnsembleListener} and
+	 * {@link EnsembleListener#stateMachineJoined(StateMachine, StateMachineContext)}
 	 * is called with a {@link StateMachine} instance for successful join.
 	 *
 	 * @param stateMachine the state machine
@@ -45,7 +45,7 @@ public interface StateMachineEnsemble<S, E> {
 	 * Request a leave from an ensemble. This method is a request to
 	 * leave an ensemble. After this method is called no further processing
 	 * is done for a instance of {@link StateMachine}. Additionally
-	 * {@link EnsembleListeger#stateMachineLeft(StateMachine, StateMachineContext)}
+	 * {@link EnsembleListener#stateMachineLeft(StateMachine, StateMachineContext)}
 	 * is called when leave request is fully processed.
 	 *
 	 * @param stateMachine the state machine
@@ -57,14 +57,14 @@ public interface StateMachineEnsemble<S, E> {
 	 *
 	 * @param listener the listener
 	 */
-	void addEnsembleListener(EnsembleListeger<S, E> listener);
+	void addEnsembleListener(EnsembleListener<S, E> listener);
 
 	/**
 	 * Removes the ensemble listener.
 	 *
 	 * @param listener the listener
 	 */
-	void removeEnsembleListener(EnsembleListeger<S, E> listener);
+	void removeEnsembleListener(EnsembleListener<S, E> listener);
 
 	/**
 	 * Sets the state as a {@link StateMachineContext}.

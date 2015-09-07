@@ -22,44 +22,44 @@ import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.listener.AbstractCompositeListener;
 
 /**
- * Default {@link EnsembleListeger} dispatcher.
+ * Default {@link EnsembleListener} dispatcher.
  *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public class CompositeEnsembleListener<S, E> extends AbstractCompositeListener<EnsembleListeger<S, E>> implements
-	EnsembleListeger<S, E> {
+public class CompositeEnsembleListener<S, E> extends AbstractCompositeListener<EnsembleListener<S, E>> implements
+	EnsembleListener<S, E> {
 
 	@Override
 	public void stateMachineJoined(StateMachine<S, E> stateMachine, StateMachineContext<S, E> context) {
-		for (Iterator<EnsembleListeger<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
-			EnsembleListeger<S, E> listener = iterator.next();
+		for (Iterator<EnsembleListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
+			EnsembleListener<S, E> listener = iterator.next();
 			listener.stateMachineJoined(stateMachine, context);
 		}
 	}
 
 	@Override
 	public void stateMachineLeft(StateMachine<S, E> stateMachine, StateMachineContext<S, E> context) {
-		for (Iterator<EnsembleListeger<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
-			EnsembleListeger<S, E> listener = iterator.next();
+		for (Iterator<EnsembleListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
+			EnsembleListener<S, E> listener = iterator.next();
 			listener.stateMachineLeft(stateMachine, context);
 		}
 	}
 
 	@Override
 	public void stateChanged(StateMachineContext<S, E> context) {
-		for (Iterator<EnsembleListeger<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
-			EnsembleListeger<S, E> listener = iterator.next();
+		for (Iterator<EnsembleListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
+			EnsembleListener<S, E> listener = iterator.next();
 			listener.stateChanged(context);
 		}
 	}
 
 	@Override
 	public void ensembleError(StateMachineEnsembleException exception) {
-		for (Iterator<EnsembleListeger<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
-			EnsembleListeger<S, E> listener = iterator.next();
+		for (Iterator<EnsembleListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
+			EnsembleListener<S, E> listener = iterator.next();
 			listener.ensembleError(exception);
 		}
 	}
