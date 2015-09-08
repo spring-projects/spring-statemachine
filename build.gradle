@@ -183,6 +183,7 @@ configure(sampleProjects()) {
 	dependencies {
 		compile project(":spring-statemachine-samples-common")
 		compile project(":spring-statemachine-zookeeper")
+		compile "org.springframework:spring-context-support:$springVersion"
 		testCompile "org.springframework:spring-test:$springVersion"
 		testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"
 		testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
@@ -195,8 +196,8 @@ project('spring-statemachine-samples-common') {
 	tasks.findByPath("artifactoryPublish")?.enabled = false
 	dependencies {
 		compile project(":spring-statemachine-core")
-		compile "org.springframework.shell:spring-shell:1.1.0.RELEASE"
-		compile "org.springframework.boot:spring-boot-starter:1.2.1.RELEASE"
+		compile "org.springframework.shell:spring-shell:$springShellVersion"
+		compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
 	}
 }
 
