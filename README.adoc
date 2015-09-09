@@ -1,19 +1,20 @@
 = Spring Statemachine
 
-Spring Statemachine aims to provide a common infrastructure to work
-with statemachine concepts in Spring applications.
+The Spring Statemachine project aims to provide a common infrastructure 
+to work with state machine concepts in Spring applications.
 
 This project is currently in incubation and milestones are released
-time to time with new features and bug fixes. Relese candidate is
-considered when project state is considered to be relatively stable, we
-have a good reference documentation and samples. Milestones will not
-be a feature complete.
+time to time with new features and bug fixes. A release candidate is
+considered when the project state is determined to be relatively 
+stable and we have good reference documentation and samples. Milestones 
+will not be feature complete.
 
-It is adviced to check from a latest releases found on
+It is advised to check the actual state of this project by referring to 
+the latest releases found on
 http://projects.spring.io/spring-statemachine/[Spring
-Statemachine Project Page] what is the actual state of this project.
-Master of a git repo may be relatively unstable when new features are
-added into a source code.
+Statemachine Project Page].
+The git repo master branch may be relatively unstable when new features are
+added into the source code.
 
 == Downloading Artifacts
 See
@@ -21,7 +22,7 @@ https://github.com/spring-projects/spring-framework/wiki/Downloading-Spring-arti
 Spring artifacts] for Maven repository information.
 
 == Documentation
-http://projects.spring.io/spring-statemachine/[Spring
+http://projects.spring.io/spring-statemachine/[The Spring
 Statemachine Project Page] contains links to currently available
 JavaDoc and Reference Documentation for particular releases and
 versions.
@@ -75,8 +76,8 @@ guidelines] for details.
 
 If you want to contribute, search github tickets marked with `help
 wanted` or come up with your own ticket but please first open a ticket
-to discus not to work on a same topic or issues. Nobody wants to see
-same work done twice!
+to discuss in order to avoid duplicate work on a topic or issue. Nobody 
+wants to see the same work done twice!
 
 == License
 Spring Statemachine is Open Source software released under the
