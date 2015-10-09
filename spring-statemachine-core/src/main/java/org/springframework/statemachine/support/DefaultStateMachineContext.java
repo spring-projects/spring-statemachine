@@ -95,8 +95,8 @@ public class DefaultStateMachineContext<S, E> implements StateMachineContext<S, 
 
 	@Override
 	public String toString() {
-		return "DefaultStateMachineContext [state=" + state + ", event=" + event + ", eventHeaders=" + eventHeaders
-				+ ", extendedState=" + extendedState + "]";
+		return "DefaultStateMachineContext [childs=" + childs + ", state=" + state + ", event=" + event
+				+ ", eventHeaders=" + eventHeaders + ", extendedState=" + extendedState + "]";
 	}
 
 }

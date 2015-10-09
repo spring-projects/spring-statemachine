@@ -25,11 +25,15 @@ import java.util.Map.Entry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.messaging.Message;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.StateMachineException;
 import org.springframework.statemachine.StateMachinePersist;
+import org.springframework.statemachine.access.StateMachineAccess;
+import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.StateMachineBuilder;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
@@ -37,9 +41,16 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.listener.AbstractCompositeListener;
 import org.springframework.statemachine.recipes.support.RunnableAction;
+import org.springframework.statemachine.state.PseudoStateKind;
+import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.support.DefaultStateMachineContext;
+import org.springframework.statemachine.support.StateMachineInterceptor;
+import org.springframework.statemachine.support.StateMachineInterceptorAdapter;
+import org.springframework.statemachine.support.StateMachineUtils;
 import org.springframework.statemachine.support.tree.Tree;
 import org.springframework.statemachine.support.tree.Tree.Node;
 import org.springframework.statemachine.support.tree.TreeTraverser;
+import org.springframework.statemachine.transition.Transition;
 
 /**
  * {@code TasksHandler} is a recipe for executing arbitrary {@link Runnable} tasks
@@ -74,6 +85,7 @@ public class TasksHandler {
 
 	private StateMachine<String, String> stateMachine;
 	private final CompositeTasksListener listener = new CompositeTasksListener();
+	private final StateMachinePersist<String, String, Void> persist;
 
 	/**
 	 * Instantiates a new tasks handler. Intentionally private instantiation
@@ -81,10 +93,25 @@ public class TasksHandler {
 	 *
 	 * @param tasks the wrapped tasks
 	 * @param listener the tasks listener
+	 * @param taskExecutor the task executor
+	 * @param persist the state machine persist
 	 */
-	private TasksHandler(List<TaskWrapper> tasks, TasksListener listener, TaskExecutor taskExecutor) {
+	private TasksHandler(List<TaskWrapper> tasks, TasksListener listener, TaskExecutor taskExecutor,
+			StateMachinePersist<String, String, Void> persist) {
+		this.persist = persist;
 		try {
-			this.stateMachine = buildStateMachine(tasks, taskExecutor);
+			stateMachine = buildStateMachine(tasks, taskExecutor);
+			if (persist != null) {
+				final LocalStateMachineInterceptor interceptor = new LocalStateMachineInterceptor(persist);
+				stateMachine.getStateMachineAccessor()
+					.doWithAllRegions(new StateMachineFunction<StateMachineAccess<String, String>>() {
+
+					@Override
+					public void apply(StateMachineAccess<String, String> function) {
+						function.addStateMachineInterceptor(interceptor);
+					}
+				});
+			}
 		} catch (Exception e) {
 			throw new StateMachineException("Error building state machine from tasks", e);
 		}
@@ -112,6 +139,37 @@ public class TasksHandler {
 	 */
 	public void fixCurrentProblems() {
 		stateMachine.sendEvent(EVENT_FIX);
+	}
+
+	/**
+	 * Resets state machine states from a backing persistent repository. If
+	 * {@link StateMachinePersist} is not set this method doesn't do anything.
+	 * {@link StateMachine} is stopped before states are reseted from a persistent
+	 * store and started afterwards.
+	 */
+	public void resetFromPersistStore() {
+		if (persist == null) {
+			// TODO: should we throw or silently return?
+			return;
+		}
+
+		final StateMachineContext<String, String> context;
+		try {
+			context = persist.read(null);
+		} catch (Exception e) {
+			throw new StateMachineException("Error reading state from persistent store", e);
+		}
+
+		stateMachine.stop();
+		stateMachine.getStateMachineAccessor()
+			.doWithAllRegions(new StateMachineFunction<StateMachineAccess<String, String>>() {
+
+			@Override
+			public void apply(StateMachineAccess<String, String> function) {
+				function.resetStateMachine(context);
+			}
+		});
+		stateMachine.start();
 	}
 
 	/**
@@ -302,6 +360,7 @@ public class TasksHandler {
 		private final List<TaskWrapper> tasks = new ArrayList<TaskWrapper>();
 		private TasksListener listener;
 		private TaskExecutor taskExecutor;
+		private StateMachinePersist<String, String, Void> persist;
 
 		/**
 		 * Define a top-level task.
@@ -336,6 +395,7 @@ public class TasksHandler {
 		 * @return the builder for chaining
 		 */
 		public Builder persist(StateMachinePersist<String, String, Void> persist) {
+			this.persist = persist;
 			return this;
 		}
 
@@ -369,7 +429,7 @@ public class TasksHandler {
 		 * @return the tasks handler
 		 */
 		public TasksHandler build() {
-			return new TasksHandler(tasks, listener, taskExecutor);
+			return new TasksHandler(tasks, listener, taskExecutor, persist);
 		}
 
 	}
@@ -384,7 +444,7 @@ public class TasksHandler {
 	}
 
 	/**
-	 * Gets a loca runnable action.
+	 * Gets a local runnable action.
 	 *
 	 * @param runnable the runnable
 	 * @param id the task id
@@ -768,6 +828,54 @@ public class TasksHandler {
 			variables.put(key, count);
 		}
 
+	}
+
+	/**
+	 * Local {@link StateMachineInterceptor} persisting state machine states.
+	 */
+	private class LocalStateMachineInterceptor extends StateMachineInterceptorAdapter<String, String> {
+
+		// TODO: should try to find a common way to build context and
+		//       not do tweaks here.
+		private final StateMachinePersist<String, String, Void> persist;
+		private DefaultStateMachineContext<String, String> currentContext;
+		private State<String, String> currentContextState;
+		private final List<StateMachineContext<String, String>> childs = new ArrayList<StateMachineContext<String, String>>();
+
+		public LocalStateMachineInterceptor(StateMachinePersist<String, String, Void> persist) {
+			this.persist = persist;
+		}
+
+		@Override
+		public void preStateChange(State<String, String> state, Message<String> message,
+				Transition<String, String> transition, StateMachine<String, String> stateMachine) {
+
+			// skip all other pseudostates than initial
+			if (state == null || (state.getPseudoState() != null && state.getPseudoState().getKind() != PseudoStateKind.INITIAL)) {
+				return;
+			}
+
+			// track root state here and update childs
+			if (currentContext != null && StateMachineUtils.isSubstate(currentContextState, state)) {
+				DefaultStateMachineContext<String, String> context = new DefaultStateMachineContext<String, String>(
+						transition != null ? transition.getTarget().getId() : null, message != null ? message.getPayload()
+								: null, message != null ? message.getHeaders() : null, stateMachine.getExtendedState());
+				currentContext.getChilds().add(context);
+			} else {
+				childs.clear();
+				DefaultStateMachineContext<String, String> context = new DefaultStateMachineContext<String, String>(
+						new ArrayList<StateMachineContext<String, String>>(childs), state.getId(), message != null ? message.getPayload()
+								: null, message != null ? message.getHeaders() : null, stateMachine.getExtendedState());
+				currentContext = context;
+				currentContextState = state;
+			}
+
+			try {
+				persist.write(currentContext, null);
+			} catch (Exception e) {
+				throw new StateMachineException("Error persisting", e);
+			}
+		}
 	}
 
 	/**

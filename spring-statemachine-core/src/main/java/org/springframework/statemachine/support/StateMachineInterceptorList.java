@@ -147,4 +147,9 @@ public class StateMachineInterceptorList<S, E> {
 		return exception;
 	}
 
+	@Override
+	public String toString() {
+		return "StateMachineInterceptorList [interceptors=" + interceptors + "]";
+	}
+
 }

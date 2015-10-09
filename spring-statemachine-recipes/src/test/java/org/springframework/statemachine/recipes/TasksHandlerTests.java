@@ -28,10 +28,12 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.recipes.tasks.TasksHandler;
 import org.springframework.statemachine.recipes.tasks.TasksHandler.TasksListenerAdapter;
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.statemachine.transition.Transition;
 
 public class TasksHandlerTests {
@@ -307,6 +309,182 @@ public class TasksHandlerTests {
 
 		assertThat(tasksListener.onTasksContinueLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(tasksListener.onTasksContinue, is(1));
+	}
+
+	@Test
+	public void testPersist1() throws InterruptedException {
+		TestStateMachinePersist persist = new TestStateMachinePersist();
+		TasksHandler handler = TasksHandler.builder()
+				.task("1", sleepRunnable())
+				.task("2", sleepRunnable())
+				.task("3", sleepRunnable())
+				.persist(persist)
+				.build();
+
+		TestListener listener = new TestListener();
+		listener.reset(10, 0, 0);
+		StateMachine<String, String> machine = handler.getStateMachine();
+		machine.addStateListener(listener);
+		machine.start();
+		assertThat(listener.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
+
+		persist.reset(5);
+
+		handler.runTasks();
+
+		assertThat(listener.stateChangedLatch.await(8, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(10));
+		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_READY));
+		Map<Object, Object> variables = machine.getExtendedState().getVariables();
+		assertThat(variables.size(), is(3));
+
+		assertThat(persist.writeLatch.await(4, TimeUnit.SECONDS), is(true));
+		assertThat(persist.contexts.size(), is(5));
+
+		for (StateMachineContext<String, String> context : persist.getContexts()) {
+			if (context.getState() == "TASKS") {
+				assertThat(context.getChilds().size(), is(3));
+			} else {
+				assertThat(context.getChilds().size(), is(0));
+			}
+		}
+	}
+
+	@Test
+	public void testPersist2() throws InterruptedException {
+		TestStateMachinePersist persist = new TestStateMachinePersist();
+		TasksHandler handler = TasksHandler.builder()
+				.task("1", sleepRunnable())
+				.task("2", sleepRunnable())
+				.task("3", failRunnable())
+				.persist(persist)
+				.build();
+
+		TestListener listener = new TestListener();
+		listener.reset(10, 0, 0);
+		StateMachine<String, String> machine = handler.getStateMachine();
+		machine.addStateListener(listener);
+		machine.start();
+		assertThat(listener.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
+
+		persist.reset(6);
+
+		handler.runTasks();
+
+		assertThat(listener.stateChangedLatch.await(8, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(10));
+		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_ERROR, TasksHandler.STATE_AUTOMATIC));
+		Map<Object, Object> variables = machine.getExtendedState().getVariables();
+		assertThat(variables.size(), is(3));
+
+		assertThat(persist.writeLatch.await(4, TimeUnit.SECONDS), is(true));
+		assertThat(persist.contexts.size(), is(6));
+
+		for (StateMachineContext<String, String> context : persist.getContexts()) {
+			if (context.getState() == "TASKS") {
+				assertThat(context.getChilds().size(), is(3));
+			} else if (context.getState() == "ERROR") {
+				assertThat(context.getChilds().size(), is(1));
+			} else {
+				assertThat(context.getChilds().size(), is(0));
+			}
+		}
+	}
+
+	@Test
+	public void testReset1() throws InterruptedException {
+		TestStateMachinePersist persist = new TestStateMachinePersist();
+		TasksHandler handler = TasksHandler.builder()
+				.task("1", sleepRunnable())
+				.task("2", sleepRunnable())
+				.task("3", sleepRunnable())
+				.persist(persist)
+				.build();
+
+		TestListener listener = new TestListener();
+		StateMachine<String, String> machine = handler.getStateMachine();
+		machine.addStateListener(listener);
+		handler.resetFromPersistStore();
+		assertThat(listener.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
+	}
+
+	@Test
+	public void testReset2() throws InterruptedException {
+		DefaultStateMachineContext<String, String> child = new DefaultStateMachineContext<String, String>("MANUAL", null, null, null);
+		List<StateMachineContext<String, String>> childs = new ArrayList<StateMachineContext<String, String>>();
+		childs.add(child);
+		DefaultStateMachineContext<String, String> context = new DefaultStateMachineContext<String, String>(childs, "ERROR", null, null, null);
+		TestStateMachinePersist persist = new TestStateMachinePersist(context);
+		TasksHandler handler = TasksHandler.builder()
+				.task("1", sleepRunnable())
+				.task("2", sleepRunnable())
+				.task("3", sleepRunnable())
+				.persist(persist)
+				.build();
+
+		TestListener listener = new TestListener();
+		StateMachine<String, String> machine = handler.getStateMachine();
+		machine.addStateListener(listener);
+
+		handler.resetFromPersistStore();
+
+		assertThat(listener.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_ERROR, TasksHandler.STATE_MANUAL));
+	}
+
+	@Test
+	public void testReset3() throws InterruptedException {
+		List<StateMachineContext<String, String>> childs = new ArrayList<StateMachineContext<String, String>>();
+		DefaultStateMachineContext<String, String> context = new DefaultStateMachineContext<String, String>(childs, "ERROR", null, null, null);
+		TestStateMachinePersist persist = new TestStateMachinePersist(context);
+		TasksHandler handler = TasksHandler.builder()
+				.task("1", sleepRunnable())
+				.task("2", sleepRunnable())
+				.task("3", sleepRunnable())
+				.persist(persist)
+				.build();
+
+		TestListener listener = new TestListener();
+		listener.reset(2, 0, 0);
+		StateMachine<String, String> machine = handler.getStateMachine();
+		machine.addStateListener(listener);
+
+		handler.resetFromPersistStore();
+
+		assertThat(listener.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
+
+		assertThat(listener.stateChangedLatch.await(4, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(2));
+		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_READY));
+	}
+
+	//@Test
+	public void testReset4() throws InterruptedException {
+		// TODO: automaticAction() is not executed when state is reset
+		DefaultStateMachineContext<String, String> child = new DefaultStateMachineContext<String, String>("AUTOMATIC", null, null, null);
+		List<StateMachineContext<String, String>> childs = new ArrayList<StateMachineContext<String, String>>();
+		childs.add(child);
+		DefaultStateMachineContext<String, String> context = new DefaultStateMachineContext<String, String>(childs, "ERROR", null, null, null);
+		TestStateMachinePersist persist = new TestStateMachinePersist(context);
+		TasksHandler handler = TasksHandler.builder()
+				.task("1", sleepRunnable())
+				.task("2", sleepRunnable())
+				.task("3", sleepRunnable())
+				.persist(persist)
+				.build();
+
+		TestListener listener = new TestListener();
+		listener.reset(2, 0, 0);
+		StateMachine<String, String> machine = handler.getStateMachine();
+		machine.addStateListener(listener);
+
+		handler.resetFromPersistStore();
+
+		assertThat(listener.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
+
+		assertThat(listener.stateChangedLatch.await(4, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(2));
+		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_READY));
 	}
 
 	private static Runnable sleepRunnable() {

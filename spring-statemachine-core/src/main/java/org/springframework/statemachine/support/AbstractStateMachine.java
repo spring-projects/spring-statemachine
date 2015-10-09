@@ -287,6 +287,10 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			}
 			stateMachineExecutor.setInitialEnabled(false);
 			stateMachineExecutor.start();
+			// assume that state was set/reseted so we need to
+			// dispatch started event which would net getting
+			// dispatched via executor
+			notifyStateMachineStarted(getRelayStateMachine());
 			return;
 		}
 		registerPseudoStateListener();
@@ -467,10 +471,16 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	@Override
 	public void resetStateMachine(StateMachineContext<S, E> stateMachineContext) {
+		if (stateMachineContext == null) {
+			return;
+		}
 		if (log.isDebugEnabled()) {
 			log.debug("Request to reset state machine: stateMachine=[" + this + "] stateMachineContext=[" + stateMachineContext + "]");
 		}
 		S state = stateMachineContext.getState();
+		if (state == null) {
+			return;
+		}
 		boolean stateSet = false;
 		for (State<S, E> s : getStates()) {
 			for (State<S, E> ss : s.getStates()) {
@@ -480,6 +490,15 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 					//       needed if we only transit to super state or reset regions
 					if (s.isSubmachineState()) {
 						StateMachine<S, E> submachine = ((AbstractState<S, E>)s).getSubmachine();
+						for (final StateMachineContext<S, E> child : stateMachineContext.getChilds()) {
+							submachine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S,E>>() {
+
+								@Override
+								public void apply(StateMachineAccess<S, E> function) {
+									function.resetStateMachine(child);
+								}
+							});
+						}
 						submachine.start();
 					} else if (s.isOrthogonal() && stateMachineContext.getChilds() != null) {
 						Collection<Region<S, E>> regions = ((AbstractState<S, E>)s).getRegions();
@@ -591,10 +610,16 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				|| kind == PseudoStateKind.HISTORY_DEEP) {
 			StateContext<S, E> stateContext = buildStateContext(message, transition, stateMachine);
 			State<S, E> toState = state.getPseudoState().entry(stateContext);
+
+			if (kind == PseudoStateKind.CHOICE) {
+				callPreStateChangeInterceptors(toState, message, transition, stateMachine);
+			}
+
 			setCurrentState(toState, message, transition, true, stateMachine);
 		} else if (kind == PseudoStateKind.FORK) {
 			ForkPseudoState<S, E> fps = (ForkPseudoState<S, E>) state.getPseudoState();
 			for (State<S, E> ss : fps.getForks()) {
+				callPreStateChangeInterceptors(ss, message, transition, stateMachine);
 				setCurrentState(ss, message, transition, false, stateMachine);
 			}
 		} else {

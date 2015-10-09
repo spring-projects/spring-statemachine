@@ -129,7 +129,7 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 	}
 
 	@Test
-	public void testResetRegions() {
+	public void testResetRegions1() {
 		context.register(Config2.class);
 		context.refresh();
 		@SuppressWarnings("unchecked")
@@ -146,6 +146,37 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 
 		DefaultStateMachineContext<TestStates, TestEvents> stateMachineContext =
 				new DefaultStateMachineContext<TestStates, TestEvents>(childs, TestStates.S2, TestEvents.E1, null, null);
+
+		machine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<TestStates, TestEvents>>() {
+
+			@Override
+			public void apply(StateMachineAccess<TestStates, TestEvents> function) {
+				function.resetStateMachine(stateMachineContext);
+			}
+		});
+
+		machine.start();
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S31));
+	}
+
+	@Test
+	public void testResetRegions2() {
+		context.register(Config2.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachine<TestStates, TestEvents> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+
+		DefaultStateMachineContext<TestStates, TestEvents> stateMachineContext1 =
+				new DefaultStateMachineContext<TestStates, TestEvents>(TestStates.S21, null, null, null);
+		DefaultStateMachineContext<TestStates, TestEvents> stateMachineContext2 =
+				new DefaultStateMachineContext<TestStates, TestEvents>(TestStates.S31, null, null, null);
+
+		List<StateMachineContext<TestStates, TestEvents>> childs = new ArrayList<StateMachineContext<TestStates,TestEvents>>();
+		childs.add(stateMachineContext1);
+		childs.add(stateMachineContext2);
+
+		DefaultStateMachineContext<TestStates, TestEvents> stateMachineContext =
+				new DefaultStateMachineContext<TestStates, TestEvents>(childs, TestStates.S2, null, null, null);
 
 		machine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<TestStates, TestEvents>>() {
 
