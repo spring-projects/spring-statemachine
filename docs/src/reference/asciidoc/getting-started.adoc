@@ -202,7 +202,7 @@ production development.
 ====
 
 ==  Developing your first Spring Statemachine application
-Lets start by creating a simple Spring Boot `Application` class
+Let's start by creating a simple Spring Boot `Application` class
 implementing `CommandLineRunner`.
 
 [source,java,indent=0]

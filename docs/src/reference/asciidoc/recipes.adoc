@@ -64,7 +64,7 @@ tasks execution errors and then having a way to continue execution
 without executing already successfully executed tasks. Addition to
 this it would be nice if some execution errors can be handled
 automatically and as a last fallback, if error can't be handled
-automatically, state maching is put into a state where user can handle
+automatically, state machine is put into a state where user can handle
 errors manually.
 
 `TasksHandler` contains a builder method to configure handler instance
@@ -90,7 +90,7 @@ include::samples/DocsTasksSampleTests.java[tags=snippetB]
 
 Order to listen what is happening with a task execution an instance of
 a `TasksListener` can be registered with a `TasksHandler`. Recipe
-provides an adapter `TasksListenerAdapter` if you dont' want to
+provides an adapter `TasksListenerAdapter` if you don't want to
 implement a full interface. Listener provides a various hooks to
 listen tasks execution events.
 

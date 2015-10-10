@@ -139,7 +139,7 @@ concepts.
 ==== States
 A state is a model which a state machine can be in. It is always
 easier to describe state as a real world example rather than trying to
-abstract concepts with a generic documentation. For example lets take
+abstract concepts with a generic documentation. For example let's take
 a simple example of a keyboard most of us are using every single day.
 If you have a full keyboard which has normal keys on a left side and
 the numeric keypad on a right side you may have noticed that the
@@ -303,7 +303,7 @@ other they must have a totally different states which means they are
 operating on different state machines.
 
 It would be a little inconvenient to handle two different
-statemachines as totally separate entities because in a sense they are
+state machines as totally separate entities because in a sense they are
 still working together in a sense. This is why orthogonal regions can
 combine together a multiple simultaneous states within a single state
 in a state machine.
@@ -313,12 +313,6 @@ in a state machine.
 == Distributed State Machine Technical Paper
 This appendix provides more detailed technical documentation about
 using a Zookeeper with a Spring State Machine.
-
-[NOTE]
-====
-This techical paper is work in progress and planned to be fully
-written towards `1.0.0.RELEASE`.
-====
 
 === Abstract
 Introducing a `distributed state` on top of a single state machine
@@ -351,7 +345,7 @@ a need to explicitly build these distributed state concepts.
 Spring State Machine is not forced to use a single threaded execution
 model because once multiple regions are uses, regions can be executed
 parallel if necessary configuration is applied. This is an important
-topic because once user wants to have a paraller state machine
+topic because once user wants to have a parallel state machine
 execution it will make state changes faster for independent regions.
 
 When state changes are no longer driven by a trigger in a local jvm or
@@ -463,7 +457,7 @@ where state machine is run. Essentially every state machine sample
 will connect to local `Zookeeper` instance which allows use, via
 `jepsen` to simulate network conditions.
 
-Plotted graps below in this chapter contain states and events which
+Plotted graphs below in this chapter contain states and events which
 directly maps to a state chart which can be found from
 <<statemachine-examples-web>>.
 
@@ -543,11 +537,11 @@ brain split will create a minority and majority partitions of an
 ensemble where hosts in a minority cannot participate in an ensemble
 anymore until network status has been healed.
 
-In below tests we will demostrate that various types of brain-split's in
+In below tests we will demonstrate that various types of brain-split's in
 an ensemble will eventually cause fully synchronized state of all
 distributed state machines.
 
-There are two scenarious having a one straight brain split in a
+There are two scenarios having a one straight brain split in a
 network where where `Zookeeper` and `Statemachine` instances are
 split in half, assuming each `Statemachine` will connect into a
 local `Zookeeper` instance:
@@ -556,21 +550,21 @@ local `Zookeeper` instance:
   connected into majority will keep functioning properly.
 * If current zookeeper leader is left in minority, all clients will
   disconnect from it and will try to connect back till previous
-  minority members has succesfully joined back to existing majority
+  minority members has successfully joined back to existing majority
   ensemble.
 
 [NOTE]
 ====
 In our current `jepsen` tests we can't separate zookeeper split brains
-scenarios between leader left in marojity or minority so we need to
+scenarios between leader left in majority or minority so we need to
 run tests multiple time to accomplish this situation.
 ====
 
 [NOTE]
 ====
-In below plots we have mapped a state machine error state into a
+In below plots we have mapped a state machine error state into an
 `error` to indicate that `state machine` is in error state instead or
-a normal state. Please indicate this when interpering chart states.
+a normal state. Please indicate this when interpreting chart states.
 ====
 
 In this first test we show that when existing zookeeper leader was
@@ -581,7 +575,7 @@ What's happening in above chart:
 
 * First event `C` is sent to all machine leading a state change to
   `S211`.
-* Jepsen nemisis will cause a brain-split which is causing partitions
+* Jepsen nemesis will cause a brain-split which is causing partitions
   of `n1/n2/n5` and `n3/n4`. Nodes `n3/n4` are left in minority and
   nodes `n1/n2/n5` construct a new healthy majority. Nodes in
   majority will keep function without problems but nodes in minority
@@ -600,7 +594,7 @@ What's happening in above chart:
 
 * First event `C` is sent to all machine leading a state change to
   `S211`.
-* Jepsen nemisis will cause a brain-split which is causing partitions
+* Jepsen nemesis will cause a brain-split which is causing partitions
   so that existing `Zookeeper` leader is kept in minority and all
   instances are disconnected from ensemble.
 * Jepsen will heal network and after some time all nodes will join
@@ -610,7 +604,7 @@ What's happening in above chart:
   `S21`.
 
 ==== Crash and Join Tolerance
-In this test we will demostrate that killing existing state machine
+In this test we will demonstrate that killing existing state machine
 and then joining new instance back into an ensemble will keep the
 distributed state healthy and newly joined state machines will synchronize
 their states properly.

@@ -3,7 +3,7 @@
 Concept of a state machine is most likely older that any of a reader
 of this reference documentation and definitely older than a Java
 language itself. Description of finite automate dates back to 1943
-when gentlements Warren McCulloch and Walter Pitts wrote a paper about
+when gentlemens Warren McCulloch and Walter Pitts wrote a paper about
 it. Later George H. Mealy presented a state machine concept in 1955
 which is known as a Mealy Machine. A year later in 1956 Edward F.
 Moore presented another paper which is known as a Moore Machine. If

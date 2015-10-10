@@ -14,7 +14,7 @@ There are few choices a state machine developer can choose.
 * Implement an action and send appropriate event into a state machine
   which triggers a transition into a proper target state.
 * Define deferred event within a state and before sending an event
-  send a event which will be deferred and thus causing next
+  send an event which will be deferred and thus causing next
   appropriate state transition when it is more convenient to handle
   that event.
 * Implement a triggerless transition which will automatically cause

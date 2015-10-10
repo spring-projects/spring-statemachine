@@ -54,7 +54,7 @@ away.
 [[statemachine-config]]
 === Configuring States
 We'll get into more complex configuration examples a bit later but
-lets first start with a something simple. For most simple state
+let's first start with a something simple. For most simple state
 machine you just use `EnumStateMachineConfigurerAdapter` and define
 possible states, choose initial and optional end state.
 
@@ -128,9 +128,9 @@ In above two different types of guard configurations are used. Firstly a
 simple _Guard_ is created as a bean and attached to transition between
 states `S1` and `S2`.
 
-Secondly a simple spel expression can be used as a guard where
-expression must return a `BOOLEAN` value. Behind a scenes this spel
-based guard is a _SpelExpressionGuard_. This was attached to
+Secondly a simple SPeL expression can be used as a guard where
+expression must return a `BOOLEAN` value. Behind a scenes this
+expression based guard is a _SpelExpressionGuard_. This was attached to
 transition between states `S2` and `S3`. Both guard in above sample
 always evaluate to true.
 
@@ -354,9 +354,9 @@ requirement to work via Spring `@Configuration` classes and
 application context. While this is a very clear model to configure a
 state machine instances it will limit configuration at a compile time
 which is not always what a user wants to do. If there is a requirement
-to build more dynamic state machines, a simple builder patter can be
+to build more dynamic state machines, a simple builder pattern can be
 used to construct similar instances. Using strings as states and
-events this builder patter can be used to build fully dynamic state
+events this builder pattern can be used to build fully dynamic state
 machines outside of a Spring application context as shown above.
 
 [source,java,indent=0]
@@ -450,7 +450,7 @@ expression as an argument.
 == Using Extended State
 Let's assume that we'd need to create a state machine tracking how
 many times a user is pressing a key on a keyboard and then terminate
-when keys are pressed 1000 times. Possible but a really dump solution
+when keys are pressed 1000 times. Possible but a really naive solution
 would be to create a new state for each 1000 key presses. Going
 even worse combinations you might suddenly have astronomical number of
 states which naturally is not very practical.
@@ -594,7 +594,7 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippetM]
 ----
 
 === Limitations and Problems
-Spring application context is not a fastest event bus out there so it
+Spring application context is not a fastest eventbus out there so it
 is advised to give some thought what is a rate of events state machine
 is sending. For better performance it may be better to use
 _StateMachineListener_ interface. For this specific reason it is
@@ -619,7 +619,7 @@ into your beans.
 
 === Annotation Support
 _@WithStateMachine_ annotation can be used to associate a state
-machine with a existing bean. Withing this annotation a propertys
+machine with a existing bean. Within this annotation a property's
 _source_ and _target_ can be used to qualify a transition 
 
 [source,java,indent=0]
@@ -734,7 +734,7 @@ More about error handling shown in above example, see section
 == State Machine Error Handling
 If state machine detects an internal error during a state transition
 logic it may throw an exception. Before this exception is processed
-internally, user is given a change to intercept.
+internally, user is given a chance to intercept.
 
 Normal `StateMachineInterceptor` can be used to intercept errors and
 example of it is shown above.
@@ -836,7 +836,7 @@ communication with a `StateMachine` instance and works with
 distributed state abstractions handled via interface
 `StateMachineEnsemble`. Depending on an actual implementation
 `StateMachinePersist` interface may also be used to serialize a
-`StateMachineContext` which contains enought information to reset a
+`StateMachineContext` which contains enough information to reset a
 `StateMachine`.
 
 While `Distributed State Machine` is implemented via an abstraction,
@@ -884,7 +884,7 @@ steps into a plan and during these steps you can send events and check
 various conditions like state changes, transitions and extended state
 variables.
 
-Lets take a simple `StateMachine` build using below example:
+Let's take a simple `StateMachine` build using below example:
 
 [source,java,indent=0]
 ----

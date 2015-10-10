@@ -155,7 +155,7 @@ include::samples/demo/showcase/Application.java[tags=snippetD]
 include::samples/demo/showcase/Application.java[tags=snippetE]
 ----
 
-Lets go through what this state machine do when it's executed and we
+Let's go through what this state machine do when it's executed and we
 send various event to it.
 
 [source,text]
@@ -229,9 +229,9 @@ user can open a deck, insert or change a disk, then drive player
 functionality by pressing various buttons like _eject_, _play_,
 _stop_, _pause_, _rewind_ and _backward_.
 
-How many of use have really given a thought of what it will take to
+How many of us have really given a thought of what it will take to
 make a code for a CD Player which interacts with a hardware. Yes,
-concept of a player is overly simple but if you look behind a scenes
+concept of a player is overly simple but if you look behind the scenes
 things actually get a bit convoluted.
 
 You've probably noticed that if your deck is open and you press play,
@@ -246,7 +246,7 @@ really want to keep adding more flags and if/else clauses.
 
 image::images/statechart3.png[width=500]
 
-Lets go through how this sample and its state machine is designed and
+Let's go through how this sample and its state machine is designed and
 how those two interacts with each other. Below three config sections
 are used withing a _EnumStateMachineConfigurerAdapter_.
 
@@ -371,7 +371,7 @@ include::samples/demo/cdplayer/Application.java[tags=snippetL]
 ----
 
 One other important aspect of a state machines is that they have their
-own responsibilies mostly around handling states and all application
+own responsibilities mostly around handling states and all application
 level logic should be kept outside. This means that application needs
 to have a ways to interact with a state machine and below sample is
 how cdplayer does it order to update lcd status. Also pay attention
@@ -397,7 +397,7 @@ matched from enums. _@StatesOnTransition_ is then something what user
 can create into his own application to get a type safe annotation where
 a real enums can be used.
 
-Lets see an example how this state machine actually works.
+Let's see an example how this state machine actually works.
 
 [source,text]
 ----
@@ -539,7 +539,7 @@ regions are executed parallel.
 include::samples/demo/tasks/Application.java[tags=snippetAE]
 ----
 
-Lets see an examples how this state machine actually works.
+Let's see an examples how this state machine actually works.
 
 [source,text]
 ----
@@ -682,7 +682,7 @@ include::samples/demo/washer/Application.java[tags=snippetAA]
 include::samples/demo/washer/Application.java[tags=snippetAB]
 ----
 
-Lets see an example how this state machine actually works.
+Let's see an example how this state machine actually works.
 [source,text]
 ----
 sm>sm start
@@ -726,7 +726,7 @@ What happened in above run:
 [[statemachine-examples-persist]]
 == Persist
 Persist is a sample using recipe <<statemachine-recipes-persist>> to
-demonstate how a database entry update logic can be controlled by a
+demonstrate how a database entry update logic can be controlled by a
 state machine.
 
 The state machine logic and configuration is shown above:
@@ -854,7 +854,7 @@ with `CuratorFramework` client.
 include::samples/demo/zookeeper/Application.java[tags=snippetB]
 ----
 
-Lets go through a simple example where two different shell instances are
+Let's go through a simple example where two different shell instances are
 started with command `java -jar
 spring-statemachine-samples-zookeeper-1.0.0.BUILD-SNAPSHOT.jar`.
 
@@ -928,11 +928,11 @@ image::images/statechart11.png[width=500]
 
 [NOTE]
 ====
-Due to nature of this sample an instanse of a `Zookeeper` is expected to
+Due to nature of this sample an instance of a `Zookeeper` is expected to
 be available from a localhost for every individual sample instance.
 ====
 
-Lets go through a simple example where three different sample instances are
+Let's go through a simple example where three different sample instances are
 started with command `java -jar
 spring-statemachine-samples-web-1.0.0.BUILD-SNAPSHOT.jar`. If you are
 running different instances on a same host you need to distinguish
@@ -962,9 +962,9 @@ denoted by transition associated with an event `C`.
 
 image::images/sm-dist-n2-2.png[width=500]
 
-Then lets press button `Event H` and what is supposed to happen is
+Then let's press button `Event H` and what is supposed to happen is
 that internal transition is executed on all state machines changing
-extended stare variable `foo` from value `0` to `1`. This change is
+extended state variable `foo` from value `0` to `1`. This change is
 first done on a state machine receiving the event and then propagated
 to other state machines. You should only see variable `foo` to change
 from `0` to `1`.
