@@ -210,7 +210,7 @@ allows more controlled entry into a state.
 
 ===== Join
 *Join pseudostate* is used to merge several transitions together
-originating from different regions. It it generally used to wait
+originating from different regions. It is generally used to wait
 and block for participating regions to get into its join target states.
 
 image::images/statechart8.png[width=500]
