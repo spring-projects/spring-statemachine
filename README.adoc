@@ -3,12 +3,6 @@
 The Spring Statemachine project aims to provide a common infrastructure 
 to work with state machine concepts in Spring applications.
 
-This project is currently in incubation and milestones are released
-time to time with new features and bug fixes. A release candidate is
-considered when the project state is determined to be relatively 
-stable and we have good reference documentation and samples. Milestones 
-will not be feature complete.
-
 It is advised to check the actual state of this project by referring to 
 the latest releases found on
 http://projects.spring.io/spring-statemachine/[Spring
