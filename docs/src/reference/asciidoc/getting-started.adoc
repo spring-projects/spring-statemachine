@@ -78,6 +78,11 @@ task wrapper(type: Wrapper) {
 }
 ----
 
+[NOTE]
+====
+Replace `1.0.0.BUILD-SNAPSHOT` with a version you want to use.
+====
+
 Having a normal project structure you'd build this with command:
 [source,text,indent=0]
 ----
@@ -186,6 +191,11 @@ Here is a typical `pom.xml` file:
 
 </project>
 ----
+
+[NOTE]
+====
+Replace `1.0.0.BUILD-SNAPSHOT` with a version you want to use.
+====
 
 Having a normal project structure you'd build this with command:
 [source,text,indent=0]

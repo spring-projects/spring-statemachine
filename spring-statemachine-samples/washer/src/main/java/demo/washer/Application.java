@@ -64,7 +64,7 @@ public class Application  {
 					.event(Events.DRY)
 					.and()
 				.withExternal()
-					.source(States.RUNNING)	.target(States.POWEROFF)
+					.source(States.RUNNING).target(States.POWEROFF)
 					.event(Events.CUTPOWER)
 					.and()
 				.withExternal()
