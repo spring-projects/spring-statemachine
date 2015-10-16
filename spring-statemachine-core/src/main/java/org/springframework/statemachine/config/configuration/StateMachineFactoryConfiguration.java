@@ -110,11 +110,17 @@ public class StateMachineFactoryConfiguration<S extends Enum<S>, E extends Enum<
 			StateMachineConfig<S, E> stateMachineConfig = builder.getOrBuild();
 			StateMachineTransitions<S, E> stateMachineTransitions = stateMachineConfig.getTransitions();
 			StateMachineStates<S, E> stateMachineStates = stateMachineConfig.getStates();
-			StateMachineConfigurationConfig<S, E> stateMachineConfigurationConfig = stateMachineConfig.getStateMachineConfigurationConfig();
-			ObjectStateMachineFactory<S,E> enumStateMachineFactory = new ObjectStateMachineFactory<S, E>(stateMachineConfigurationConfig, stateMachineTransitions, stateMachineStates);
-			enumStateMachineFactory.setBeanFactory(beanFactory);
-			enumStateMachineFactory.setContextEventsEnabled(contextEvents);
-			this.stateMachineFactory = enumStateMachineFactory;
+			StateMachineConfigurationConfig<S, E> stateMachineConfigurationConfig = stateMachineConfig
+					.getStateMachineConfigurationConfig();
+			ObjectStateMachineFactory<S, E> objectStateMachineFactory = new ObjectStateMachineFactory<S, E>(
+					stateMachineConfigurationConfig, stateMachineTransitions, stateMachineStates);
+			objectStateMachineFactory.setBeanFactory(beanFactory);
+			objectStateMachineFactory.setContextEventsEnabled(contextEvents);
+			// explicitly tell factory to handle auto-start because
+			// machine is not created as a bean so factory need to
+			// call lifecycle methods manually
+			objectStateMachineFactory.setHandleAutostartup(true);
+			this.stateMachineFactory = objectStateMachineFactory;
 		}
 
 		@Override

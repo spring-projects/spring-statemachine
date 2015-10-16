@@ -69,7 +69,7 @@ import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.util.ObjectUtils;
 
 /**
- * {@link StateMachineFactory} implementation using enums to build {@link StateMachine}s.
+ * Base {@link StateMachineFactory} implementation building {@link StateMachine}s.
  *
  * @author Janne Valkealahti
  *
@@ -226,10 +226,21 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		return delegateAutoStartup(machine);
 	}
 
+	/**
+	 * Instructs this factory to handle auto-start flag manually
+	 * by calling lifecycle start method.
+	 *
+	 * @param handleAutostartup the new handle autostartup
+	 */
 	public void setHandleAutostartup(boolean handleAutostartup) {
 		this.handleAutostartup = handleAutostartup;
 	}
 
+	/**
+	 * Instructs this factory to enable application context events.
+	 *
+	 * @param contextEvents the new context events enabled
+	 */
 	public void setContextEventsEnabled(Boolean contextEvents) {
 		this.contextEvents = contextEvents;
 	}

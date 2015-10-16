@@ -33,7 +33,8 @@ import org.springframework.statemachine.config.configuration.StateMachineConfigu
 import org.springframework.statemachine.config.configuration.StateMachineConfigurationImportSelector;
 
 /**
- * Example annotation which imports @{@link Configuration}s.
+ * Annotation which imports @{@link Configuration}s related to
+ * building state machines.
  *
  * @author Janne Valkealahti
  *

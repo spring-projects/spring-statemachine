@@ -127,6 +127,17 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 
 	@SuppressWarnings({ "unchecked" })
 	@Test
+	public void testAutoStartFlagOff() throws Exception {
+		context.register(Config11.class);
+		context.refresh();
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		assertThat(machine.isAutoStartup(), is(false));
+		assertThat(machine.isRunning(), is(false));
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	@Test
 	public void testRegisterListeners() throws Exception {
 		context.register(Config10.class);
 		context.refresh();
@@ -490,6 +501,27 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 				.withConfiguration()
 					.listener(new StateMachineListenerAdapter<TestStates, TestEvents>())
 					.listener(new StateMachineListenerAdapter<TestStates, TestEvents>());
+		}
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.states(EnumSet.allOf(TestStates.class));
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config11 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
+			config
+				.withConfiguration()
+					.autoStartup(false);
 		}
 
 		@Override

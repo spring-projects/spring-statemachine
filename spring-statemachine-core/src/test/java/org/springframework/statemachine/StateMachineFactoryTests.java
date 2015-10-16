@@ -16,9 +16,13 @@
 package org.springframework.statemachine;
 
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.EnumSet;
+
 import org.junit.Test;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,30 +32,63 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.ObjectStateMachineFactory;
+import org.springframework.statemachine.config.StateMachineFactory;
+import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
 public class StateMachineFactoryTests extends AbstractStateMachineTests {
 
+	@Override
+	protected AnnotationConfigApplicationContext buildContext() {
+		return new AnnotationConfigApplicationContext();
+	}
+
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testMachineFromFactory() {
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class);
+		context.register(Config1.class);
+		context.refresh();
 
 		ObjectStateMachineFactory<TestStates, TestEvents> stateMachineFactory =
-				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINEFACTORY, ObjectStateMachineFactory.class);
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINEFACTORY, ObjectStateMachineFactory.class);
 		StateMachine<TestStates,TestEvents> machine = stateMachineFactory.getStateMachine();
 		machine.start();
 
 		assertThat(machine.getState().getIds(), contains(TestStates.S1));
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
 		assertThat(machine.getState().getIds(), contains(TestStates.S2));
-		ctx.close();
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	@Test
+	public void testAutoStartFlagOn() throws Exception {
+		context.register(Config2.class);
+		context.refresh();
+		StateMachineFactory<TestStates, TestEvents> stateMachineFactory =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINEFACTORY, StateMachineFactory.class);
+		StateMachine<TestStates,TestEvents> machine = stateMachineFactory.getStateMachine();
+
+		assertThat(((SmartLifecycle)machine).isAutoStartup(), is(true));
+		assertThat(((SmartLifecycle)machine).isRunning(), is(true));
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	@Test
+	public void testAutoStartFlagOff() throws Exception {
+		context.register(Config3.class);
+		context.refresh();
+		StateMachineFactory<TestStates, TestEvents> stateMachineFactory =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINEFACTORY, StateMachineFactory.class);
+		StateMachine<TestStates,TestEvents> machine = stateMachineFactory.getStateMachine();
+
+		assertThat(((SmartLifecycle)machine).isAutoStartup(), is(false));
+		assertThat(((SmartLifecycle)machine).isRunning(), is(false));
 	}
 
 	@Configuration
 	@EnableStateMachineFactory
-	static class Config extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+	static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
 
 		@Override
 		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
@@ -74,6 +111,48 @@ public class StateMachineFactoryTests extends AbstractStateMachineTests {
 		@Bean
 		public TaskExecutor taskExecutor() {
 			return new SyncTaskExecutor();
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachineFactory
+	public static class Config2 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
+			config
+				.withConfiguration()
+					.autoStartup(true);
+		}
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.states(EnumSet.allOf(TestStates.class));
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachineFactory
+	public static class Config3 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
+			config
+				.withConfiguration()
+					.autoStartup(false);
+		}
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.states(EnumSet.allOf(TestStates.class));
 		}
 
 	}
