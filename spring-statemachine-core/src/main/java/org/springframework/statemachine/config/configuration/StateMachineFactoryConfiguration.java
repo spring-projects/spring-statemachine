@@ -40,6 +40,7 @@ import org.springframework.statemachine.config.builders.StateMachineStates;
 import org.springframework.statemachine.config.builders.StateMachineTransitions;
 import org.springframework.statemachine.config.common.annotation.AbstractImportingAnnotationConfiguration;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurer;
+import org.springframework.util.ClassUtils;
 
 @Configuration
 public class StateMachineFactoryConfiguration<S extends Enum<S>, E extends Enum<E>> extends
@@ -56,6 +57,7 @@ public class StateMachineFactoryConfiguration<S extends Enum<S>, E extends Enum<
 				EnableStateMachineFactory.class.getName(), false));
 		Boolean contextEvents = attributes.getBoolean("contextEvents");
 		beanDefinitionBuilder.addConstructorArgValue(builder);
+		beanDefinitionBuilder.addConstructorArgValue(importingClassMetadata.getClassName());
 		beanDefinitionBuilder.addConstructorArgValue(contextEvents);
 		return beanDefinitionBuilder.getBeanDefinition();
 	}
@@ -72,18 +74,16 @@ public class StateMachineFactoryConfiguration<S extends Enum<S>, E extends Enum<
 			FactoryBean<StateMachineFactory<S, E>>, BeanFactoryAware, InitializingBean {
 
 		private final StateMachineConfigBuilder<S, E> builder;
-
 		private List<AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>>> configurers;
-
 		private BeanFactory beanFactory;
-
 		private StateMachineFactory<S, E> stateMachineFactory;
-
+		private String clazzName;
 		private Boolean contextEvents;
 
 		@SuppressWarnings("unused")
-		public StateMachineFactoryDelegatingFactoryBean(StateMachineConfigBuilder<S, E> builder, Boolean contextEvents) {
+		public StateMachineFactoryDelegatingFactoryBean(StateMachineConfigBuilder<S, E> builder, String clazzName, Boolean contextEvents) {
 			this.builder = builder;
+			this.clazzName = clazzName;
 			this.contextEvents = contextEvents;
 		}
 
@@ -105,7 +105,10 @@ public class StateMachineFactoryConfiguration<S extends Enum<S>, E extends Enum<
 		@Override
 		public void afterPropertiesSet() throws Exception {
 			for (AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>> configurer : configurers) {
-				builder.apply(configurer);
+				Class<?> clazz = configurer.getClass();
+				if (ClassUtils.getUserClass(clazz).getName().equals(clazzName)) {
+					builder.apply(configurer);
+				}
 			}
 			StateMachineConfig<S, E> stateMachineConfig = builder.getOrBuild();
 			StateMachineTransitions<S, E> stateMachineTransitions = stateMachineConfig.getTransitions();
