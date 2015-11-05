@@ -36,13 +36,14 @@ public class StateMachineOnTransitionHandler<S, E> extends StateMachineHandler<S
 	/**
 	 * Instantiates a new state machine on transition handler.
 	 *
+	 * @param beanClass the bean class
 	 * @param target the target
 	 * @param method the method
 	 * @param metaAnnotation the meta annotation
 	 * @param annotation the annotation
 	 */
-	public StateMachineOnTransitionHandler(Object target, Method method, OnTransition metaAnnotation, Annotation annotation) {
-		super(target, method);
+	public StateMachineOnTransitionHandler(Class<?> beanClass, Object target, Method method, OnTransition metaAnnotation, Annotation annotation) {
+		super(beanClass, target, method);
 		this.metaAnnotation = metaAnnotation;
 		this.annotation = annotation;
 	}

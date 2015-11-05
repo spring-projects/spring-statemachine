@@ -34,6 +34,7 @@ public interface MethodAnnotationPostProcessor<T extends Annotation> {
 	 * <code>null</code>. Caller of this method is then responsible to handle
 	 * newly created object.
 	 *
+	 * @param beanClass the bean class
 	 * @param bean the bean
 	 * @param beanName the bean name
 	 * @param method the method
@@ -41,6 +42,6 @@ public interface MethodAnnotationPostProcessor<T extends Annotation> {
 	 * @param annotation the annotation
 	 * @return the post processed object
 	 */
-	Object postProcess(Object bean, String beanName, Method method, T metaAnnotation, Annotation annotation);
+	Object postProcess(Class<?> beanClass, Object bean, String beanName, Method method, T metaAnnotation, Annotation annotation);
 
 }

@@ -33,6 +33,8 @@ import org.springframework.statemachine.annotation.WithStateMachine;
  */
 public class StateMachineHandler<S, E> implements Ordered {
 
+	private final Class<?> beanClass;
+	
 	private final StateMachineRuntimeProcessor<?, S, E> processor;
 
 	private int order = Ordered.LOWEST_PRECEDENCE;
@@ -40,36 +42,49 @@ public class StateMachineHandler<S, E> implements Ordered {
 	/**
 	 * Instantiates a new container handler.
 	 *
+	 * @param beanClass the bean class
 	 * @param target the target bean
 	 * @param method the method
 	 */
-	public StateMachineHandler(Object target, Method method) {
-		this(new MethodInvokingStateMachineRuntimeProcessor<Object, S, E>(target, method));
+	public StateMachineHandler(Class<?> beanClass, Object target, Method method) {
+		this(beanClass, new MethodInvokingStateMachineRuntimeProcessor<Object, S, E>(target, method));
 	}
 
 	/**
 	 * Instantiates a new container handler.
 	 *
+	 * @param beanClass the bean class
 	 * @param target the target bean
 	 * @param methodName the method name
 	 */
-	public StateMachineHandler(Object target, String methodName) {
-		this(new MethodInvokingStateMachineRuntimeProcessor<Object, S, E>(target, methodName));
+	public StateMachineHandler(Class<?> beanClass, Object target, String methodName) {
+		this(beanClass, new MethodInvokingStateMachineRuntimeProcessor<Object, S, E>(target, methodName));
 	}
 
 	/**
 	 * Instantiates a new container handler.
 	 *
 	 * @param <T> the generic type
+	 * @param beanClass the bean class
 	 * @param processor the processor
 	 */
-	public <T> StateMachineHandler(MethodInvokingStateMachineRuntimeProcessor<T, S, E> processor) {
+	public <T> StateMachineHandler(Class<?> beanClass, MethodInvokingStateMachineRuntimeProcessor<T, S, E> processor) {
+		this.beanClass = beanClass;
 		this.processor = processor;
 	}
 
 	@Override
 	public int getOrder() {
 		return order;
+	}
+	
+	/**
+	 * Gets the bean class.
+	 * 
+	 * @return the bean class
+	 */
+	public Class<?> getBeanClass() {
+		return beanClass;
 	}
 
 	/**

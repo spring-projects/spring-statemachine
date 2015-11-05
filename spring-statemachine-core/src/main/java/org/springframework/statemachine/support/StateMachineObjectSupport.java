@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.core.OrderComparator;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateMachine;
@@ -38,7 +39,7 @@ import org.springframework.util.Assert;
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSupport {
+public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSupport implements BeanNameAware {
 
 	private static final Log log = LogFactory.getLog(StateMachineObjectSupport.class);
 
@@ -52,7 +53,24 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 
     private final StateMachineInterceptorList<S, E> interceptors =
             new StateMachineInterceptorList<S, E>();
+    
+    private String beanName;
 
+    @Override
+    public void setBeanName(String name) {
+    	beanName = name;
+    }
+    
+    /**
+     * Returns a bean name known to context per contract
+     * with {@link BeanNameAware}.
+     * 
+     * @return a bean name 
+     */
+    protected String getBeanName() {
+		return beanName;
+	}
+    
 	/**
 	 * Gets the state machine event publisher.
 	 *

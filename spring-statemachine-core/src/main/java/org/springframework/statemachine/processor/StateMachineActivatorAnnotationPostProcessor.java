@@ -40,8 +40,8 @@ public class StateMachineActivatorAnnotationPostProcessor implements MethodAnnot
 	}
 
 	@Override
-	public Object postProcess(Object bean, String beanName, Method method, OnTransition metaAnnotation, Annotation annotation) {
-		StateMachineHandler<Object, Object> handler = new StateMachineOnTransitionHandler<Object, Object>(bean, method, metaAnnotation, annotation);
+	public Object postProcess(Class<?> beanClass, Object bean, String beanName, Method method, OnTransition metaAnnotation, Annotation annotation) {
+		StateMachineHandler<Object, Object> handler = new StateMachineOnTransitionHandler<Object, Object>(beanClass, bean, method, metaAnnotation, annotation);
 
 		Integer order = findOrder(bean, method);
 		if (order != null) {

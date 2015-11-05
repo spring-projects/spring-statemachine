@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import java.util.Stack;
 
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.Message;
@@ -77,7 +78,7 @@ import org.springframework.util.ObjectUtils;
  * @param <E> the type of event
  */
 public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectSupport implements
-		StateMachineFactory<S, E> {
+		StateMachineFactory<S, E>, BeanNameAware {
 
 	private final StateMachineTransitions<S, E> stateMachineTransitions;
 
@@ -88,6 +89,8 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 	private Boolean contextEvents;
 
 	private boolean handleAutostartup = false;
+
+	private String beanName;
 
 	/**
 	 * Instantiates a new enum state machine factory.
@@ -101,6 +104,11 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		this.stateMachineConfigurationConfig = stateMachineConfigurationConfig;
 		this.stateMachineTransitions = stateMachineTransitions;
 		this.stateMachineStates = stateMachineStates;
+	}
+	
+	@Override
+	public void setBeanName(String name) {
+		this.beanName = name;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -178,7 +186,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 					Transition<S, E> initialTransition = new InitialTransition<S, E>(rstate);
 					StateMachine<S, E> m = buildStateMachineInternal(states, new ArrayList<Transition<S, E>>(), rstate,
 							initialTransition, null, defaultExtendedState, null, contextEvents, resolveBeanFactory(),
-							resolveTaskExecutor(), resolveTaskScheduler());
+							resolveTaskExecutor(), resolveTaskScheduler(), beanName);
 					machine = m;
 				}
 			} else {
@@ -196,7 +204,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		if (machine instanceof LifecycleObjectSupport) {
 			((LifecycleObjectSupport)machine).setAutoStartup(stateMachineConfigurationConfig.isAutoStart());
 		}
-
+		
 		// set top-level machine as relay
 		final StateMachine<S, E> fmachine = machine;
 		fmachine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<S, E>>() {
@@ -536,8 +544,9 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		}
 
 		Transition<S, E> initialTransition = new InitialTransition<S, E>(initialState, initialAction);
-		StateMachine<S, E> machine = buildStateMachineInternal(states, transitions, initialState, initialTransition, null,
-				defaultExtendedState, historyState, contextEvents, beanFactory, taskExecutor, taskScheduler);
+		StateMachine<S, E> machine = buildStateMachineInternal(states, transitions, initialState, initialTransition,
+				null, defaultExtendedState, historyState, contextEvents, beanFactory, taskExecutor, taskScheduler,
+				beanName);
 		return machine;
 	}
 
@@ -545,7 +554,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			Collection<Transition<S, E>> transitions, State<S, E> initialState, Transition<S, E> initialTransition,
 			Message<E> initialEvent, ExtendedState extendedState, PseudoState<S, E> historyState,
 			Boolean contextEventsEnabled, BeanFactory beanFactory, TaskExecutor taskExecutor,
-			TaskScheduler taskScheduler);
+			TaskScheduler taskScheduler, String beanName);
 
 	protected abstract State<S, E> buildStateInternal(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
 			PseudoState<S, E> pseudoState);

@@ -133,7 +133,7 @@ public class StateMachineAnnotationPostProcessor implements BeanPostProcessor, B
 							.get(metaAnnotation.annotationType()) : null;
 
 					if (postProcessor != null && shouldCreateHandler(annotation)) {
-						Object result = postProcessor.postProcess(bean, beanName, method, metaAnnotation, annotation);
+						Object result = postProcessor.postProcess(beanClass, bean, beanName, method, metaAnnotation, annotation);
 
 						if (result != null && result instanceof StateMachineHandler) {
 							String endpointBeanName = generateBeanName(beanName, method, annotation.annotationType());

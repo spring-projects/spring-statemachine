@@ -18,6 +18,7 @@ package org.springframework.statemachine.config;
 import java.util.Collection;
 
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.Message;
 import org.springframework.scheduling.TaskScheduler;
@@ -56,7 +57,7 @@ public class ObjectStateMachineFactory<S, E> extends AbstractStateMachineFactory
 			Collection<Transition<S, E>> transitions, State<S, E> initialState, Transition<S, E> initialTransition,
 			Message<E> initialEvent, ExtendedState extendedState, PseudoState<S, E> historyState,
 			Boolean contextEventsEnabled, BeanFactory beanFactory, TaskExecutor taskExecutor,
-			TaskScheduler taskScheduler) {
+			TaskScheduler taskScheduler, String beanName) {
 		ObjectStateMachine<S, E> machine = new ObjectStateMachine<S, E>(states, transitions, initialState, initialTransition, initialEvent,
 				extendedState);
 		machine.setHistoryState(historyState);
@@ -71,6 +72,9 @@ public class ObjectStateMachineFactory<S, E> extends AbstractStateMachineFactory
 		}
 		if (taskScheduler != null) {
 			machine.setTaskScheduler(taskScheduler);;
+		}
+		if (machine instanceof BeanNameAware) {
+			((BeanNameAware)machine).setBeanName(beanName);
 		}
 		machine.afterPropertiesSet();
 		return machine;

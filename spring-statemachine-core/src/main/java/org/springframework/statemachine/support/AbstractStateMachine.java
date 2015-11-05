@@ -44,6 +44,7 @@ import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.annotation.OnTransition;
+import org.springframework.statemachine.annotation.WithStateMachine;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.processor.StateMachineHandler;
 import org.springframework.statemachine.processor.StateMachineOnTransitionHandler;
@@ -64,6 +65,7 @@ import org.springframework.statemachine.transition.TransitionKind;
 import org.springframework.statemachine.trigger.DefaultTriggerContext;
 import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -890,9 +892,9 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		Assert.state(beanFactory instanceof ListableBeanFactory, "Bean factory must be instance of ListableBeanFactory");
 
 		if (!handlersInitialized) {
-			Map<String, StateMachineOnTransitionHandler> handlersx = ((ListableBeanFactory) beanFactory)
+			Map<String, StateMachineOnTransitionHandler> handlersMap = ((ListableBeanFactory) beanFactory)
 					.getBeansOfType(StateMachineOnTransitionHandler.class);
-			for (Entry<String, StateMachineOnTransitionHandler> entry : handlersx.entrySet()) {
+			for (Entry<String, StateMachineOnTransitionHandler> entry : handlersMap.entrySet()) {
 				handlers.put(entry.getKey(), entry.getValue());
 			}
 			handlersInitialized = true;
@@ -901,9 +903,13 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		List<StateMachineHandler<S, E>> handlersList = new ArrayList<StateMachineHandler<S, E>>();
 
 		for (Entry<String, StateMachineOnTransitionHandler<S, E>> entry : handlers.entrySet()) {
+			// add only matching names from beanName and WithStateMachine name field
+			WithStateMachine withStateMachine = AnnotationUtils.findAnnotation(entry.getValue().getBeanClass(), WithStateMachine.class);
+			if (withStateMachine == null || !ObjectUtils.nullSafeEquals(withStateMachine.name(), getBeanName())) {
+				continue;
+			}			
 			OnTransition metaAnnotation = entry.getValue().getMetaAnnotation();
 			Annotation annotation = entry.getValue().getAnnotation();
-
 			if (transitionHandlerMatch(metaAnnotation, annotation, sourceState, targetState)) {
 				handlersList.add(entry.getValue());
 			}

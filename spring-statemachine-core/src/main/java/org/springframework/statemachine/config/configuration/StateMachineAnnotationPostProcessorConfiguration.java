@@ -21,7 +21,7 @@ import org.springframework.statemachine.annotation.WithStateMachine;
 import org.springframework.statemachine.processor.StateMachineAnnotationPostProcessor;
 
 /**
- * Configuration for annotation port processor which is needed i.e. when
+ * Configuration for annotation post processor which is needed i.e. when
  * {@link WithStateMachine} is used.
  *
  * @author Janne Valkealahti

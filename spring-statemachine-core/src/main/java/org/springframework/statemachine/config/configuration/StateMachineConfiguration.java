@@ -19,6 +19,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.context.SmartLifecycle;
@@ -68,17 +69,23 @@ public class StateMachineConfiguration<S extends Enum<S>, E extends Enum<E>> ext
 
 	private static class StateMachineDelegatingFactoryBean<S extends Enum<S>, E extends Enum<E>>
 		extends BeanDelegatingFactoryBean<StateMachine<S, E>,StateMachineConfigBuilder<S, E>,StateMachineConfig<S, E>>
-		implements SmartLifecycle {
+		implements SmartLifecycle, BeanNameAware {
 
 		private String clazzName;
 		private Boolean contextEvents;
 		private SmartLifecycle lifecycle;
+		private String beanName;
 
 		public StateMachineDelegatingFactoryBean(StateMachineConfigBuilder<S, E> builder, Class<StateMachine<S, E>> clazz,
 				String clazzName, Boolean contextEvents) {
 			super(builder, clazz);
 			this.clazzName = clazzName;
 			this.contextEvents = contextEvents;
+		}
+		
+		@Override
+		public void setBeanName(String name) {
+			this.beanName = name;
 		}
 
 		@Override
@@ -97,6 +104,7 @@ public class StateMachineConfiguration<S extends Enum<S>, E extends Enum<E>> ext
 					stateMachineConfigurationConfig, stateMachineTransitions, stateMachineStates);
 			stateMachineFactory.setBeanFactory(getBeanFactory());
 			stateMachineFactory.setContextEventsEnabled(contextEvents);
+			stateMachineFactory.setBeanName(beanName);
 			StateMachine<S, E> stateMachine = stateMachineFactory.getStateMachine();
 			this.lifecycle = (SmartLifecycle) stateMachine;
 			setObject(stateMachine);
