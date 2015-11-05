@@ -36,7 +36,7 @@ import org.springframework.statemachine.transition.Transition;
 public class PersistStateMachineHandlerTests {
 
 	@Test
-	public void testStateChangeViaPersist() throws Exception {
+	public void testAcceptedStateChangeViaPersist() throws Exception {
 		StateMachine<String,String> stateMachine = buildTestStateMachine();
 
 		PersistStateMachineHandler handler = new PersistStateMachineHandler(stateMachine);
@@ -47,9 +47,28 @@ public class PersistStateMachineHandlerTests {
 		handler.addPersistStateChangeListener(listener);
 
 		Message<String> event = MessageBuilder.withPayload("E2").build();
-		handler.handleEventWithState(event, "S1");
+		boolean accepted = handler.handleEventWithState(event, "S1");
+		assertThat(accepted, is(true));
 		assertThat(listener.latch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
+	}
+
+	@Test
+	public void testNotAcceptedStateChangeViaPersist() throws Exception {
+		StateMachine<String,String> stateMachine = buildTestStateMachine();
+
+		PersistStateMachineHandler handler = new PersistStateMachineHandler(stateMachine);
+		handler.afterPropertiesSet();
+		handler.start();
+
+		TestPersistStateChangeListener listener = new TestPersistStateChangeListener();
+		handler.addPersistStateChangeListener(listener);
+
+		Message<String> event = MessageBuilder.withPayload("E1").build();
+		boolean accepted = handler.handleEventWithState(event, "S1");
+		assertThat(accepted, is(false));
+		assertThat(listener.latch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
 	}
 
 	private static class TestPersistStateChangeListener implements PersistStateChangeListener {
