@@ -69,15 +69,16 @@ public class PersistStateMachineHandler extends LifecycleObjectSupport {
 	 *
 	 * @param event the event
 	 * @param state the state
+	 * @return true if event was accepted
 	 */
-	public void handleEventWithState(Message<String> event, String state) {
+	public boolean handleEventWithState(Message<String> event, String state) {
 		stateMachine.stop();
 		List<StateMachineAccess<String, String>> withAllRegions = stateMachine.getStateMachineAccessor().withAllRegions();
 		for (StateMachineAccess<String, String> a : withAllRegions) {
 			a.resetStateMachine(new DefaultStateMachineContext<String, String>(state, null, null, null));
 		}
 		stateMachine.start();
-		stateMachine.sendEvent(event);
+		return stateMachine.sendEvent(event);
 	}
 
 	/**
