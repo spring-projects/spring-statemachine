@@ -19,6 +19,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -30,6 +31,7 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.ObjectStateMachineFactory;
 import org.springframework.statemachine.config.StateMachineConfig;
+import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigBuilder;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfig;
 import org.springframework.statemachine.config.builders.StateMachineStates;
@@ -38,8 +40,18 @@ import org.springframework.statemachine.config.common.annotation.AbstractImporti
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurer;
 import org.springframework.util.ClassUtils;
 
+/**
+ * {@link Configuration} which gets imported from {@link EnableStateMachine} and registers
+ * a {@link StateMachine} build from a {@link StateMachineConfigurerAdapter} via
+ * a {@link BeanDefinition}.
+ *
+ * @author Janne Valkealahti
+ *
+ * @param <S> the type of state
+ * @param <E> the type of event
+ */
 @Configuration
-public class StateMachineConfiguration<S extends Enum<S>, E extends Enum<E>> extends
+public class StateMachineConfiguration<S, E> extends
 		AbstractImportingAnnotationConfiguration<StateMachineConfigBuilder<S, E>, StateMachineConfig<S, E>> {
 
 	private final StateMachineConfigBuilder<S, E> builder = new StateMachineConfigBuilder<S, E>();
@@ -67,7 +79,7 @@ public class StateMachineConfiguration<S extends Enum<S>, E extends Enum<E>> ext
 		return types;
 	}
 
-	private static class StateMachineDelegatingFactoryBean<S extends Enum<S>, E extends Enum<E>>
+	private static class StateMachineDelegatingFactoryBean<S, E>
 		extends BeanDelegatingFactoryBean<StateMachine<S, E>,StateMachineConfigBuilder<S, E>,StateMachineConfig<S, E>>
 		implements SmartLifecycle, BeanNameAware {
 
@@ -82,7 +94,7 @@ public class StateMachineConfiguration<S extends Enum<S>, E extends Enum<E>> ext
 			this.clazzName = clazzName;
 			this.contextEvents = contextEvents;
 		}
-		
+
 		@Override
 		public void setBeanName(String name) {
 			this.beanName = name;
@@ -90,6 +102,12 @@ public class StateMachineConfiguration<S extends Enum<S>, E extends Enum<E>> ext
 
 		@Override
 		public void afterPropertiesSet() throws Exception {
+			// do not continue without configurers, it would not work
+			if (getConfigurers() == null || getConfigurers().size() == 0) {
+				throw new BeanDefinitionStoreException(
+						"Cannot configure state machine due to missing configurers. Did you remember to use " +
+						"@EnableStateMachine with a StateMachineConfigurerAdapter.");
+			}
 			for (AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>> configurer : getConfigurers()) {
 				Class<?> clazz = configurer.getClass();
 				if (ClassUtils.getUserClass(clazz).getName().equals(clazzName)) {

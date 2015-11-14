@@ -15,8 +15,8 @@
  */
 package org.springframework.statemachine.config;
 
-import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -27,6 +27,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 import org.junit.Test;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -147,6 +148,18 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		Object o2 = TestUtils.readField("listeners", o1);
 		Object o3 = TestUtils.readField("list", o2);
 		assertThat(((List<?>)o3).size(), is(2));
+	}
+
+	@Test(expected = BeanCreationException.class)
+	public void testEnableStateMachineNoAdapter() {
+		context.register(Config12.class);
+		context.refresh();
+	}
+
+	@Test(expected = BeanCreationException.class)
+	public void testEnableStateMachineFactoryNoAdapter() {
+		context.register(Config13.class);
+		context.refresh();
 	}
 
 	@Configuration
@@ -532,6 +545,16 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 					.states(EnumSet.allOf(TestStates.class));
 		}
 
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config12 {
+	}
+
+	@Configuration
+	@EnableStateMachineFactory
+	public static class Config13 {
 	}
 
 }
