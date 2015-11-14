@@ -80,6 +80,11 @@ public abstract class AbstractImportingAnnotationConfiguration<B extends Annotat
 			throw new RuntimeException("Error with onConfigurers", e);
 		}
 
+		// implementation didn't return definition so don't continue registration
+		if (beanDefinition == null) {
+			return;
+		}
+
 		if (ObjectUtils.isEmpty(names)) {
 			// ok, name(s) not given, generate one
 			names = new String[] { beanNameGenerator.generateBeanName(beanDefinition, registry) };

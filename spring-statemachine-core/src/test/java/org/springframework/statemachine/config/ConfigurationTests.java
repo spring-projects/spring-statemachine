@@ -150,7 +150,7 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		assertThat(((List<?>)o3).size(), is(2));
 	}
 
-	@Test(expected = BeanCreationException.class)
+	@Test
 	public void testEnableStateMachineNoAdapter() {
 		context.register(Config12.class);
 		context.refresh();

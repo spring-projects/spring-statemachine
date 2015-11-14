@@ -38,7 +38,6 @@ import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
-import org.springframework.statemachine.event.StateMachineEventPublisherConfiguration;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.DefaultPseudoState;
 import org.springframework.statemachine.state.EnumState;
@@ -227,7 +226,7 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testMultiRegion() throws Exception {
-		context.register(StateMachineEventPublisherConfiguration.class, Config1.class);
+		context.register(Config1.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
@@ -259,7 +258,7 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testRegionsInNestedState() throws Exception {
-		context.register(StateMachineEventPublisherConfiguration.class, Config2.class);
+		context.register(Config2.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -279,7 +278,7 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testParallelRegionExecution() throws Exception {
-		context.register(StateMachineEventPublisherConfiguration.class, Config3.class, BaseConfig2.class);
+		context.register(Config3.class, BaseConfig2.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
@@ -319,7 +318,7 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testParallelRegionExecutionInInitialState() throws Exception {
-		context.register(StateMachineEventPublisherConfiguration.class, Config4.class, BaseConfig2.class);
+		context.register(Config4.class, BaseConfig2.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")

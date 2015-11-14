@@ -34,6 +34,7 @@ import org.springframework.statemachine.config.StateMachineConfig;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigBuilder;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfig;
+import org.springframework.statemachine.config.builders.StateMachineConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStates;
 import org.springframework.statemachine.config.builders.StateMachineTransitions;
 import org.springframework.statemachine.config.common.annotation.AbstractImportingAnnotationConfiguration;
@@ -59,6 +60,16 @@ public class StateMachineConfiguration<S, E> extends
 	@Override
 	protected BeanDefinition buildBeanDefinition(AnnotationMetadata importingClassMetadata,
 			Class<? extends Annotation> namedAnnotation) throws Exception {
+
+		String enableStateMachineEnclosingClassName = importingClassMetadata.getClassName();
+		Class<?> enableStateMachineEnclosingClass = ClassUtils.forName(enableStateMachineEnclosingClassName,
+				getClass().getClassLoader());
+		// return null if it looks like @EnableStateMachine was annotated with class
+		// not extending StateMachineConfigurer.
+		if (!ClassUtils.isAssignable(StateMachineConfigurer.class, enableStateMachineEnclosingClass)) {
+			return null;
+		}
+
 		BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(StateMachineDelegatingFactoryBean.class);
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(

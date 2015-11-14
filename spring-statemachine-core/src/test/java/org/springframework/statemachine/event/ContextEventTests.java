@@ -29,9 +29,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.ObjectStateMachine;
+import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.StateMachineBuilder;
+import org.springframework.statemachine.config.StateMachineBuilder.Builder;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
@@ -51,7 +54,7 @@ public class ContextEventTests extends AbstractStateMachineTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void contextEventsEnabled() throws Exception {
-		context.register(BaseConfig.class, StateMachineEventPublisherConfiguration.class, Config.class, Config1.class);
+		context.register(BaseConfig.class, Config.class, Config1.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -65,7 +68,7 @@ public class ContextEventTests extends AbstractStateMachineTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void contextEventsDisabled() throws Exception {
-		context.register(BaseConfig.class, StateMachineEventPublisherConfiguration.class, Config.class, Config2.class);
+		context.register(BaseConfig.class, Config.class, Config2.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -74,6 +77,34 @@ public class ContextEventTests extends AbstractStateMachineTests {
 		StateMachineApplicationEventListener listener = context.getBean(StateMachineApplicationEventListener.class);
 		listener.latch.await(1, TimeUnit.SECONDS);
 		assertThat(listener.count, is(0));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void contextEventsWithManualBuilder() throws Exception {
+		context.register(BaseConfig.class, Config.class, Config3.class);
+		context.refresh();
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		machine.start();
+		machine.sendEvent(TestEvents.E1);
+		StateMachineApplicationEventListener listener = context.getBean(StateMachineApplicationEventListener.class);
+		listener.latch.await(1, TimeUnit.SECONDS);
+		assertThat(listener.count, greaterThan(1));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void contextEventsWithManualBuilderExternalConfigClass() throws Exception {
+		context.register(BaseConfig.class, Config.class, ExternalConfig.class);
+		context.refresh();
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		machine.start();
+		machine.sendEvent(TestEvents.E1);
+		StateMachineApplicationEventListener listener = context.getBean(StateMachineApplicationEventListener.class);
+		listener.latch.await(1, TimeUnit.SECONDS);
+		assertThat(listener.count, greaterThan(1));
 	}
 
 	@Configuration
@@ -120,6 +151,28 @@ public class ContextEventTests extends AbstractStateMachineTests {
 					.source(TestStates.S1)
 					.target(TestStates.S2)
 					.event(TestEvents.E1);
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config3 {
+
+		@Bean
+		public StateMachine<TestStates, TestEvents> stateMachine() throws Exception {
+
+			Builder<TestStates, TestEvents> builder = StateMachineBuilder.builder();
+			builder.configureStates()
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S2);
+			builder.configureTransitions()
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1);
+			return builder.build();
 		}
 
 	}

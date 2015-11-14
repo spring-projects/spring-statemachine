@@ -36,7 +36,6 @@ import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
-import org.springframework.statemachine.event.StateMachineEventPublisherConfiguration;
 import org.springframework.statemachine.state.DefaultPseudoState;
 import org.springframework.statemachine.state.EnumState;
 import org.springframework.statemachine.state.PseudoState;
@@ -382,7 +381,7 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testMixedStates() throws Exception {
-		context.register(BaseConfig.class, StateMachineEventPublisherConfiguration.class, Config2.class);
+		context.register(BaseConfig.class, Config2.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
@@ -396,7 +395,7 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testStateChangeWithinMachine() {
-		context.register(BaseConfig.class, StateMachineEventPublisherConfiguration.class, Config3.class);
+		context.register(BaseConfig.class, Config3.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")

@@ -15,8 +15,8 @@
  */
 package org.springframework.statemachine.event;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -57,7 +57,7 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testContextEvents() throws Exception {
-		context.register(BaseConfig.class, StateMachineEventPublisherConfiguration.class, Config1.class);
+		context.register(BaseConfig.class, Config1.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		TestEventListener listener = context.getBean(TestEventListener.class);
@@ -80,7 +80,7 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testEventNotAccepted() throws Exception {
-		context.register(BaseConfig.class, StateMachineEventPublisherConfiguration.class, Config1.class);
+		context.register(BaseConfig.class, Config1.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		TestEventListener eventListener = context.getBean(TestEventListener.class);
@@ -110,7 +110,7 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testSubmachineHandlesEvent() throws Exception {
-		context.register(BaseConfig.class, StateMachineEventPublisherConfiguration.class, Config2.class);
+		context.register(BaseConfig.class, Config2.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
