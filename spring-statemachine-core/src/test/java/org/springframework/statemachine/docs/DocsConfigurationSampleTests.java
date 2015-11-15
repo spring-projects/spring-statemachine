@@ -288,7 +288,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // end::snippetFA[]
 
 // tag::snippetFB[]
-	StateMachine<String, String> buildMachine() throws Exception {
+	StateMachine<String, String> buildMachine1() throws Exception {
 		Builder<String, String> builder = StateMachineBuilder.builder();
 		builder.configureStates()
 			.withStates()
@@ -299,6 +299,20 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 	}
 // end::snippetFB[]
 
+// tag::snippetFC[]
+	StateMachine<String, String> buildMachine2() throws Exception {
+		Builder<String, String> builder = StateMachineBuilder.builder();
+		builder.configureConfiguration()
+			.withConfiguration()
+				.autoStartup(false)
+				.beanFactory(null)
+				.taskExecutor(null)
+				.taskScheduler(null)
+				.listener(null);
+		return builder.build();
+	}
+// end::snippetFC[]
+
 // tag::snippetG[]
 	static class StateMachineApplicationEventListener
 			implements ApplicationListener<StateMachineEvent> {
@@ -307,7 +321,39 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 		public void onApplicationEvent(StateMachineEvent event) {
 		}
 	}
+
+	@Configuration
+	static class ListenerConfig {
+
+		@Bean
+		public StateMachineApplicationEventListener contextListener() {
+			return new StateMachineApplicationEventListener();
+		}
+	}
 // end::snippetG[]
+
+// tag::snippetGG[]
+	@Configuration
+	@EnableStateMachine
+	public static class ManualBuilderConfig {
+
+		@Bean
+		public StateMachine<String, String> stateMachine() throws Exception {
+
+			Builder<String, String> builder = StateMachineBuilder.builder();
+			builder.configureStates()
+				.withStates()
+					.initial("S1")
+					.state("S2");
+			builder.configureTransitions()
+				.withExternal()
+					.source("S1")
+					.target("S2")
+					.event("E1");
+			return builder.build();
+		}
+	}
+// end::snippetGG[]
 
 // tag::snippetH[]
 	static class StateMachineEventListener
@@ -343,6 +389,18 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 
 		@Override
 		public void stateMachineStopped(StateMachine<States, Events> stateMachine) {
+		}
+
+		@Override
+		public void eventNotAccepted(Message<Events> event) {
+		}
+
+		@Override
+		public void extendedStateChanged(Object key, Object value) {
+		}
+
+		@Override
+		public void stateMachineError(StateMachine<States, Events> stateMachine, Exception exception) {
 		}
 	}
 // end::snippetH[]

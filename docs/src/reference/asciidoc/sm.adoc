@@ -51,7 +51,29 @@ simply made code snippets less verbose by leaving other needed parts
 away.
 ====
 
-[[statemachine-config]]
+[[statemachine-config-annotations]]
+=== Using _enable_ annotations
+We use familiar spring _enabler_ annotations to ease configuration. Two
+annotations exists, _@EnableStateMachine_ and _@EnableStateMachineFactory_.
+These annontations if placed in a _@Configuration_ class will enable
+some basic functionality needed by a state machines.
+
+_@EnableStateMachine_ is used when a configuration wants to create an
+instance of a _StateMachine_. Usually _@Configuration_ class extends adapters
+`EnumStateMachineConfigurerAdapter` or `StateMachineConfigurerAdapter` which
+allows user to override configuration callback methods. We automatically
+detect if user is using these adapter classes and modify runtime configuration
+logic.
+
+_@EnableStateMachineFactory_ is used when a configuration wants to create an
+instance of a _StateMachineFactory_.
+
+[NOTE]
+====
+Usage examples of these are shown in below sections.
+====
+
+[[statemachine-config-states]]
 === Configuring States
 We'll get into more complex configuration examples a bit later but
 let's first start with a something simple. For most simple state
@@ -373,10 +395,25 @@ can be used dynamically via a builder.
 
 [NOTE]
 ====
-Currently `builder.configureStates()`,
-`builder.configureTransitions()` and other interface methods cannot be
+Currently `builder.configureStates()`, `builder.configureTransitions()`
+and `builder.configureConfiguration()` interface methods cannot be
 chained together meaning builder methods needs to be called individually.
 ====
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetFC]
+----
+
+It is important to understand on what cases common configuration needs
+to be used with a machines instantiated from a builder. Configurer
+returned from a `withConfiguration()` can be used to setup _autoStart_,
+_TaskScheduler_, _TaskExecutor_, _BeanFactory_ and additionally register
+a _StateMachineListener_. If _StateMachine_ instance returned from
+a builder is registered as a bean via `@Bean`, i.e. _BeanFactory_
+is attached automatically and then a default _TaskExecutor_ can be found
+from there. If instances are used outside of a spring application context
+these methods must be used to setup needed facilities.
 
 [[sm-actions]]
 == Using Actions
@@ -558,14 +595,25 @@ interface. Both of these have pros and cons which will be discussed later.
 Application context events classes are _OnTransitionStartEvent_,
 _OnTransitionEvent_, _OnTransitionEndEvent_, _OnStateExitEvent_,
 _OnStateEntryEvent_, _OnStateChangedEvent_, _OnStateMachineStart_ and
-_OnStateMachineStop_. These can be used as is with spring typed
-_ApplicationListener_ class but they also share a common class
-_StateMachineEvent_ which can be used to get statemachine related
-events.
+_OnStateMachineStop_ and others which extends base event class
+_StateMachineEvent_ These can be used as is with spring typed
+_ApplicationListener_.
+
+_StateMachine_ will send context events via _StateMachineEventPublisher_
+it's set. Default implementation is automatically created if _@Configuration_
+class is annotated with _@EnableStateMachine_.
 
 [source,java,indent=0]
 ----
 include::samples/DocsConfigurationSampleTests.java[tags=snippetG]
+----
+
+Context events are also automatically enabled via _@EnableStateMachine_
+with machine builder _StateMachine_ registered as a bean as shown below.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetGG]
 ----
 
 === State Machine Listener
