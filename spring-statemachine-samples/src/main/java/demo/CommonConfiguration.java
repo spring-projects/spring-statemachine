@@ -27,7 +27,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.statemachine.event.OnStateEntryEvent;
 import org.springframework.statemachine.event.OnStateExitEvent;
+import org.springframework.statemachine.event.OnTransitionEvent;
 import org.springframework.statemachine.event.StateMachineEvent;
+import org.springframework.statemachine.transition.TransitionKind;
 
 @Configuration
 public class CommonConfiguration {
@@ -64,6 +66,11 @@ public class CommonConfiguration {
 			} else if (event instanceof OnStateExitEvent) {
 				OnStateExitEvent e = (OnStateExitEvent)event;
 				log.info("Exit state " + e.getState().getId());
+			} else if (event instanceof OnTransitionEvent) {
+				OnTransitionEvent e = (OnTransitionEvent)event;
+				if (e.getTransition().getKind() == TransitionKind.INTERNAL) {
+					log.info("Internal transition source=" + e.getTransition().getSource().getId());
+				}
 			}
 		}
 

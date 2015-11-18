@@ -161,10 +161,10 @@ send various event to it.
 [source,text]
 ----
 sm>sm start
+Init foo to 0
 Entry state S0
 Entry state S1
 Entry state S11
-Init foo to 0
 State machine started
 
 sm>sm event A
@@ -180,6 +180,7 @@ Event C send
 
 sm>sm event H
 Switch foo to 1
+Internal transition source=S0
 Event H send
 
 sm>sm event C
@@ -212,6 +213,65 @@ What happens in above sample:
   variable `foo`. Then we simply go back using event _C_.
 * Event _A_ is sent again and now _S1_ does a self transition because
   guard evaluates true.
+
+Let's take closer look of how hierarchical states and their event
+handling works with a below example.
+
+[source,text]
+----
+sm>sm variables
+No variables
+
+sm>sm start
+Init foo to 0
+Entry state S0
+Entry state S1
+Entry state S11
+State machine started
+
+sm>sm variables
+foo=0
+
+sm>sm event H
+Internal transition source=S1
+Event H send
+
+sm>sm variables
+foo=0
+
+sm>sm event C
+Exit state S11
+Exit state S1
+Entry state S2
+Entry state S21
+Entry state S211
+Event C send
+
+sm>sm variables
+foo=0
+
+sm>sm event H
+Switch foo to 1
+Internal transition source=S0
+Event H send
+
+sm>sm variables
+foo=1
+
+sm>sm event H
+Switch foo to 0
+Internal transition source=S2
+Event H send
+
+sm>sm variables
+foo=0
+----
+
+What happens in above sample:
+
+* We print extended state variables in various stages.
+* With event _H_ we end up executing internal transition
+  which is logged with source state.
 * It's also worth to pay attention to how event _H_ is handled in
   different states _S0_, _S1_ and _S2_. This is a good example of how
   hierarchical states and their event handling works. If state _S2_ is
