@@ -1,4 +1,16 @@
 SPRING STATEMACHINE CHANGELOG
-==================================
+=============================
 http://projects.spring.io/spring-statemachine/
+
+Issues: https://github.com/spring-projects/spring-statemachine/issues
+
+Changes in version 1.0.1 (2015-11-18)
+-------------------------------------
+* autoStart via @EnableStateMachineFactory doesn't work [#113]
+* Update to framework 4.2.2 [#115]
+* Association with @EnableStateMachine and @WithStateMachine [#116]
+* EnableStateMachineFactory fails when there are 2 state machine configurations [#117]
+* PersistStateMachineHandler returning event outcome [#118]
+* NPE with missing configurer [#119]
+* Context events not working with StateMachineBuilder [#120]
 
