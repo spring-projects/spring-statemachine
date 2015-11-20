@@ -22,6 +22,7 @@ import java.lang.annotation.Target;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.StaticListableBeanFactory;
@@ -36,12 +37,14 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.statemachine.AbstractStateMachineTests;
+import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.action.SpelExpressionAction;
+import org.springframework.statemachine.annotation.EventHeaders;
 import org.springframework.statemachine.annotation.OnTransition;
 import org.springframework.statemachine.annotation.WithStateMachine;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -414,6 +417,16 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 		}
 	}
 // end::snippetI[]
+
+// tag::snippetII[]
+	@WithStateMachine
+	static class Bean4 {
+
+		@StatesOnTransition(source = States.S1, target = States.S2)
+		public void fromS1ToS2(@EventHeaders Map<String, Object> headers, ExtendedState extendedState) {
+		}
+	}
+// end::snippetII[]
 
 // tag::snippetJ[]
 	@Target(ElementType.METHOD)

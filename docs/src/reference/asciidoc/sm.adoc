@@ -679,6 +679,15 @@ Default _@OnTransition_ annotation can't be used with a state and
 event enums user have created due to java language limitations, thus
 string representation have to be used.
 
+Additionally it is possible to access `Event Headers` and
+`ExtendedState` by adding needed arguments to a method. Method
+is then called automatically with these arguments.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetII]
+----
+
 However if you want to have a type safe annotation it is possible to
 create a new annotation and use _@OnTransition_ as meta annotation.
 This user level annotation can make a reference to actual states and
