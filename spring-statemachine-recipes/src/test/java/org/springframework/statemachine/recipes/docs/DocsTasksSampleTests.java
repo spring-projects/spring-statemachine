@@ -85,7 +85,7 @@ public class DocsTasksSampleTests {
 	}
 
 // tag::snippetAA[]
-	private static Runnable sleepRunnable() {
+	private Runnable sleepRunnable() {
 		return new Runnable() {
 
 			@Override
@@ -100,7 +100,7 @@ public class DocsTasksSampleTests {
 // end::snippetAA[]
 
 // tag::snippetAB[]
-	private static class MyTasksListener extends TasksListenerAdapter {
+	private class MyTasksListener extends TasksListenerAdapter {
 
 		@Override
 		public void onTasksStarted() {

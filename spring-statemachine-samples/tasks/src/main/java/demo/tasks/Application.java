@@ -196,7 +196,7 @@ public class Application  {
 	}
 
 //tag::snippetB[]
-	public static enum States {
+	public enum States {
 	    READY,
 	    FORK, JOIN, CHOICE,
 	    TASKS, T1, T1E, T2, T2E, T3, T3E,
@@ -205,7 +205,7 @@ public class Application  {
 //end::snippetB[]
 
 //tag::snippetC[]
-	public static enum Events {
+	public enum Events {
 	    RUN, FALLBACK, CONTINUE, FIX;
 	}
 //end::snippetC[]
@@ -213,7 +213,7 @@ public class Application  {
 	@Target(ElementType.METHOD)
 	@Retention(RetentionPolicy.RUNTIME)
 	@OnTransition
-	public static @interface StatesOnTransition {
+	public @interface StatesOnTransition {
 
 		States[] source() default {};
 

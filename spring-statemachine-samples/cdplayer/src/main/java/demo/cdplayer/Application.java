@@ -152,7 +152,7 @@ public class Application  {
 
 
 //tag::snippetB[]
-	public static enum States {
+	public enum States {
 		// super state of PLAYING and PAUSED
 	    BUSY,
 	    PLAYING,
@@ -165,7 +165,7 @@ public class Application  {
 //end::snippetB[]
 
 //tag::snippetC[]
-	public static enum Events {
+	public enum Events {
 	    PLAY, STOP, PAUSE, EJECT, LOAD, FORWARD, BACK
 	}
 //end::snippetC[]
@@ -183,11 +183,11 @@ public class Application  {
 //end::snippetD[]
 
 //tag::snippetE[]
-	public static enum Variables {
+	public enum Variables {
 		CD, TRACK, ELAPSEDTIME
 	}
 
-	public static enum Headers {
+	public enum Headers {
 		TRACKSHIFT
 	}
 //end::snippetE[]
@@ -196,7 +196,7 @@ public class Application  {
 	@Target(ElementType.METHOD)
 	@Retention(RetentionPolicy.RUNTIME)
 	@OnTransition
-	public static @interface StatesOnTransition {
+	public @interface StatesOnTransition {
 
 		States[] source() default {};
 

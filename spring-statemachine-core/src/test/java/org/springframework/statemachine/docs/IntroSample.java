@@ -30,11 +30,11 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 public class IntroSample {
 
 // tag::snippetA[]
-	static enum States {
+	public enum States {
 		STATE1, STATE2
 	}
 
-	static enum Events {
+	public enum Events {
 		EVENT1, EVENT2
 	}
 // end::snippetA[]
@@ -42,7 +42,7 @@ public class IntroSample {
 // tag::snippetB[]
 	@Configuration
 	@EnableStateMachine
-	static class Config1 extends EnumStateMachineConfigurerAdapter<States, Events> {
+	public class Config1 extends EnumStateMachineConfigurerAdapter<States, Events> {
 
 		@Override
 		public void configure(StateMachineStateConfigurer<States, Events> states)
@@ -70,7 +70,7 @@ public class IntroSample {
 
 // tag::snippetC[]
 	@WithStateMachine
-	static class MyBean {
+	public class MyBean {
 
 		@OnTransition(target = "STATE1")
 		void toState1() {
@@ -83,7 +83,7 @@ public class IntroSample {
 // end::snippetC[]
 
 // tag::snippetD[]
-	static class MyApp {
+	public class MyApp {
 
 		@Autowired
 		StateMachine<States, Events> stateMachine;

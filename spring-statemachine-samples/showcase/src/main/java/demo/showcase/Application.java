@@ -164,13 +164,13 @@ public class Application  {
 	}
 
 //tag::snippetB[]
-	public static enum States {
+	public enum States {
 	    S0, S1, S11, S12, S2, S21, S211, S212
 	}
 //end::snippetB[]
 
 //tag::snippetC[]
-	public static enum Events {
+	public enum Events {
 	    A, B, C, D, E, F, G, H, I
 	}
 //end::snippetC[]

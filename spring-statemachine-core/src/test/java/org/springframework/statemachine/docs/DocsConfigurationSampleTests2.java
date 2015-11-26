@@ -30,7 +30,7 @@ public class DocsConfigurationSampleTests2 extends AbstractStateMachineTests {
 // tag::snippetA[]
 	@Configuration
 	@EnableStateMachine
-	static class Config2 extends StateMachineConfigurerAdapter<String, String> {
+	public class Config2 extends StateMachineConfigurerAdapter<String, String> {
 
 		@Override
 		public void configure(StateMachineStateConfigurer<String, String> states)
@@ -62,7 +62,7 @@ public class DocsConfigurationSampleTests2 extends AbstractStateMachineTests {
 		}
 	}
 
-	static class TimerAction implements Action<String, String> {
+	public class TimerAction implements Action<String, String> {
 
 		@Override
 		public void execute(StateContext<String, String> context) {

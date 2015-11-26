@@ -230,11 +230,11 @@ public class Application implements CommandLineRunner {
 Add states and events:
 [source,java,indent=0]
 ----
-public static enum States {
+public enum States {
     SI, S1, S2
 }
 
-public static enum Events {
+public enum Events {
     E1, E2
 }
 ----
@@ -244,7 +244,7 @@ Add state machine configuration:
 ----
 @Configuration
 @EnableStateMachine
-static class StateMachineConfig
+public class StateMachineConfig
         extends EnumStateMachineConfigurerAdapter<States, Events> {
 
     @Override

@@ -61,13 +61,13 @@ public class Application  {
 //end::snippetA[]
 
 //tag::snippetB[]
-	public static enum States {
+	public enum States {
 	    LOCKED, UNLOCKED
 	}
 //end::snippetB[]
 
 //tag::snippetC[]
-	public static enum Events {
+	public enum Events {
 	    COIN, PUSH
 	}
 //end::snippetC[]

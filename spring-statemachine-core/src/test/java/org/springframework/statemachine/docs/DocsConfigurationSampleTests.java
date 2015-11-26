@@ -80,7 +80,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // tag::snippetAA[]
 	@Configuration
 	@EnableStateMachine
-	public static class Config1Enums
+	public class Config1Enums
 			extends EnumStateMachineConfigurerAdapter<States, Events> {
 
 		@Override
@@ -99,7 +99,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // tag::snippetAB[]
 	@Configuration
 	@EnableStateMachine
-	public static class Config1Strings
+	public class Config1Strings
 			extends StateMachineConfigurerAdapter<String, String> {
 
 		@Override
@@ -118,7 +118,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // tag::snippetB[]
 	@Configuration
 	@EnableStateMachine
-	public static class Config2
+	public class Config2
 			extends EnumStateMachineConfigurerAdapter<States, Events> {
 
 		@Override
@@ -141,7 +141,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // tag::snippetC[]
 	@Configuration
 	@EnableStateMachine
-	public static class Config3
+	public class Config3
 			extends EnumStateMachineConfigurerAdapter<States, Events> {
 
 		@Override
@@ -176,7 +176,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // tag::snippetD[]
 	@Configuration
 	@EnableStateMachine
-	public static class Config4
+	public class Config4
 			extends EnumStateMachineConfigurerAdapter<States, Events> {
 
 		@Override
@@ -212,7 +212,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // tag::snippetEA[]
 	@Configuration
 	@EnableStateMachine
-	public static class Config51
+	public class Config51
 			extends EnumStateMachineConfigurerAdapter<States, Events> {
 
 		@Override
@@ -243,7 +243,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // tag::snippetEB[]
 		@Configuration
 		@EnableStateMachine
-		public static class Config52
+		public class Config52
 				extends EnumStateMachineConfigurerAdapter<States, Events> {
 
 			@Override
@@ -274,7 +274,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // tag::snippetFA[]
 	@Configuration
 	@EnableStateMachineFactory
-	public static class Config6
+	public class Config6
 			extends EnumStateMachineConfigurerAdapter<States, Events> {
 
 		@Override
@@ -317,7 +317,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // end::snippetFC[]
 
 // tag::snippetG[]
-	static class StateMachineApplicationEventListener
+	public class StateMachineApplicationEventListener
 			implements ApplicationListener<StateMachineEvent> {
 
 		@Override
@@ -326,7 +326,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 	}
 
 	@Configuration
-	static class ListenerConfig {
+	public class ListenerConfig {
 
 		@Bean
 		public StateMachineApplicationEventListener contextListener() {
@@ -338,7 +338,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // tag::snippetGG[]
 	@Configuration
 	@EnableStateMachine
-	public static class ManualBuilderConfig {
+	public class ManualBuilderConfig {
 
 		@Bean
 		public StateMachine<String, String> stateMachine() throws Exception {
@@ -359,7 +359,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // end::snippetGG[]
 
 // tag::snippetH[]
-	static class StateMachineEventListener
+	public class StateMachineEventListener
 			extends StateMachineListenerAdapter<States, Events> {
 
 		@Override
@@ -410,7 +410,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 
 // tag::snippetI[]
 	@WithStateMachine
-	static class Bean1 {
+	public class Bean1 {
 
 		@OnTransition(source = "S1", target = "S2")
 		public void fromS1ToS2() {
@@ -420,7 +420,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 
 // tag::snippetII[]
 	@WithStateMachine
-	static class Bean4 {
+	public class Bean4 {
 
 		@StatesOnTransition(source = States.S1, target = States.S2)
 		public void fromS1ToS2(@EventHeaders Map<String, Object> headers, ExtendedState extendedState) {
@@ -432,7 +432,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 	@Target(ElementType.METHOD)
 	@Retention(RetentionPolicy.RUNTIME)
 	@OnTransition
-	static @interface StatesOnTransition {
+	public @interface StatesOnTransition {
 
 		States[] source() default {};
 
@@ -442,7 +442,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 
 // tag::snippetK[]
 	@WithStateMachine
-	static class Bean2 {
+	public class Bean2 {
 
 		@StatesOnTransition(source = States.S1, target = States.S2)
 		public void fromS1ToS2() {
@@ -451,7 +451,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // end::snippetK[]
 
 // tag::snippetL[]
-	static class Bean3 {
+	public class Bean3 {
 
 		@Autowired
 		StateMachineFactory<States, Events> factory;
@@ -464,7 +464,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // end::snippetL[]
 
 // tag::snippetM[]
-	static class Config7 {
+	public class Config7 {
 
 		@Autowired
 		StateMachine<States, Events> stateMachine;
@@ -482,18 +482,18 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // tag::snippetN[]
 	@Configuration
 	@EnableStateMachine(contextEvents = false)
-	public static class Config8
+	public class Config8
 			extends EnumStateMachineConfigurerAdapter<States, Events> {
 	}
 
 	@Configuration
 	@EnableStateMachineFactory(contextEvents = false)
-	public static class Config9
+	public class Config9
 			extends EnumStateMachineConfigurerAdapter<States, Events> {
 	}
 // end::snippetN[]
 
-	static class DummyShowSendEvent {
+	public class DummyShowSendEvent {
 
 // tag::snippetO[]
 		@Autowired
@@ -515,7 +515,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // tag::snippetP[]
 	@Configuration
 	@EnableStateMachine
-	public static class Config10
+	public class Config10
 			extends EnumStateMachineConfigurerAdapter<States2, Events> {
 
 		@Override
@@ -545,7 +545,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // tag::snippetQ[]
 	@Configuration
 	@EnableStateMachine
-	public static class Config11
+	public class Config11
 			extends EnumStateMachineConfigurerAdapter<States, Events> {
 
 		@Override
@@ -575,7 +575,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // tag::snippetR[]
 	@Configuration
 	@EnableStateMachine
-	public static class Config12
+	public class Config12
 			extends EnumStateMachineConfigurerAdapter<States3, Events> {
 
 		@Override
@@ -600,7 +600,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // tag::snippetS[]
 	@Configuration
 	@EnableStateMachine
-	public static class Config13
+	public class Config13
 			extends EnumStateMachineConfigurerAdapter<States, Events> {
 
 		@Override
@@ -653,7 +653,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // tag::snippetT[]
 	@Configuration
 	@EnableStateMachine
-	public static class Config14
+	public class Config14
 			extends EnumStateMachineConfigurerAdapter<States2, Events> {
 
 		@Override
@@ -696,7 +696,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // tag::snippetU[]
 	@Configuration
 	@EnableStateMachine
-	public static class Config15
+	public class Config15
 			extends EnumStateMachineConfigurerAdapter<States2, Events> {
 
 		@Override
@@ -738,7 +738,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 
 	@Configuration
 	@EnableStateMachine
-	public static class Config16
+	public class Config16
 			extends EnumStateMachineConfigurerAdapter<States, Events> {
 
 // tag::snippetVA[]
@@ -793,7 +793,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 			return new BaseGuard();
 		}
 
-		static class BaseGuard implements Guard<States, Events> {
+		public class BaseGuard implements Guard<States, Events> {
 
 			@Override
 			public boolean evaluate(StateContext<States, Events> context) {
@@ -826,14 +826,14 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 							"stateMachine.sendEvent(T(org.springframework.statemachine.docs.Events).E1)"));
 		}
 
-		static class BaseAction implements Action<States, Events> {
+		public class BaseAction implements Action<States, Events> {
 
 			@Override
 			public void execute(StateContext<States, Events> context) {
 			}
 		}
 
-		static class SpelAction extends SpelExpressionAction<States, Events> {
+		public class SpelAction extends SpelExpressionAction<States, Events> {
 
 			public SpelAction(Expression expression) {
 				super(expression);
@@ -847,7 +847,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // tag::snippetYA[]
 		@Configuration
 		@EnableStateMachine
-		public static class Config17
+		public class Config17
 				extends EnumStateMachineConfigurerAdapter<States, Events> {
 
 			@Override
@@ -868,7 +868,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // tag::snippetYB[]
 		@Configuration
 		@EnableStateMachine
-		public static class Config18
+		public class Config18
 				extends EnumStateMachineConfigurerAdapter<States, Events> {
 
 			@Override
@@ -889,7 +889,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 		}
 // end::snippetYB[]
 
-		public static class AccessorSamples {
+		public class AccessorSamples {
 
 			StateMachine<String, String> stateMachine = null;
 
@@ -943,7 +943,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 
 		}
 
-		public static class InterceptorSamples {
+		public class InterceptorSamples {
 
 			StateMachine<String, String> stateMachine = null;
 
@@ -984,7 +984,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 		}
 
 		@SuppressWarnings("unused")
-		private static class InterceptorAddExample {
+		private class InterceptorAddExample {
 
 // tag::snippet1[]
 			StateMachine<String, String> stateMachine;
@@ -1012,7 +1012,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 		}
 
 // tag::snippet2[]
-		public static class ErrorStateMachineListener
+		public class ErrorStateMachineListener
 				extends StateMachineListenerAdapter<String, String> {
 
 			@Override
@@ -1023,7 +1023,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // end::snippet2[]
 
 // tag::snippet3[]
-		public static class GenericApplicationEventListener
+		public class GenericApplicationEventListener
 				implements ApplicationListener<StateMachineEvent> {
 
 		    @Override
@@ -1036,7 +1036,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // end::snippet3[]
 
 // tag::snippet4[]
-		public static class ErrorApplicationEventListener
+		public class ErrorApplicationEventListener
 				implements ApplicationListener<OnStateMachineError> {
 
 			@Override
@@ -1047,7 +1047,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // end::snippet4[]
 
 // tag::snippet5[]
-		public static class ExtendedStateVariableListener
+		public class ExtendedStateVariableListener
 				extends StateMachineListenerAdapter<String, String> {
 
 			@Override
@@ -1058,7 +1058,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 // end::snippet5[]
 
 // tag::snippet6[]
-		public static class ExtendedStateVariableEventListener
+		public class ExtendedStateVariableEventListener
 				implements ApplicationListener<OnExtendedStateChanged> {
 
 			@Override
@@ -1068,7 +1068,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 		}
 // end::snippet6[]
 
-		public static class ExtendedStateVariableActionSample {
+		public class ExtendedStateVariableActionSample {
 
 // tag::snippet7[]
 			public Action<String, String> myVariableAction() {

@@ -80,7 +80,7 @@ public class Application  {
 	}
 
 //tag::snippetB[]
-	public static enum States {
+	public enum States {
 	    RUNNING, HISTORY, END,
 	    WASHING, RINSING, DRYING,
 	    POWEROFF
@@ -88,7 +88,7 @@ public class Application  {
 //end::snippetB[]
 
 //tag::snippetC[]
-	public static enum Events {
+	public enum Events {
 	    RINSE, DRY, STOP,
 	    RESTOREPOWER, CUTPOWER
 	}

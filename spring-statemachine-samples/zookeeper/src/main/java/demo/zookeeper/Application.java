@@ -88,11 +88,11 @@ public class Application  {
 
 	}
 
-	public static enum States {
+	public enum States {
 	    LOCKED, UNLOCKED
 	}
 
-	public static enum Events {
+	public enum Events {
 	    COIN, PUSH
 	}
 

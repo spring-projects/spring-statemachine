@@ -35,7 +35,7 @@ public class DocsZookeeperSampleTests {
 // tag::snippetA[]
 	@Configuration
 	@EnableStateMachine
-	static class Config
+	public class Config
 			extends StateMachineConfigurerAdapter<String, String> {
 
 		@Override
