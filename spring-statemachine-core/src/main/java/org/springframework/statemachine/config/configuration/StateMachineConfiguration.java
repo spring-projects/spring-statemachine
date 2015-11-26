@@ -62,8 +62,9 @@ public class StateMachineConfiguration<S, E> extends
 			Class<? extends Annotation> namedAnnotation) throws Exception {
 
 		String enableStateMachineEnclosingClassName = importingClassMetadata.getClassName();
+		// for below classloader, see gh122
 		Class<?> enableStateMachineEnclosingClass = ClassUtils.forName(enableStateMachineEnclosingClassName,
-				getClass().getClassLoader());
+				ClassUtils.getDefaultClassLoader());
 		// return null if it looks like @EnableStateMachine was annotated with class
 		// not extending StateMachineConfigurer.
 		if (!ClassUtils.isAssignable(StateMachineConfigurer.class, enableStateMachineEnclosingClass)) {
