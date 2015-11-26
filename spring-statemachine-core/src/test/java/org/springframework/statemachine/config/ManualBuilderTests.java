@@ -39,7 +39,6 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 import org.springframework.statemachine.config.builders.StateMachineTransitions;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
-import org.springframework.statemachine.transition.Transition;
 
 public class ManualBuilderTests {
 
@@ -140,6 +139,13 @@ public class ManualBuilderTests {
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(stateMachine, notNullValue());
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(MyStates.S1));
+
+		listener.reset(1);
+		stateMachine.sendEvent(MyEvents.E1);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+		assertThat(stateMachine, notNullValue());
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(MyStates.S2));
 	}
 
 	@Test
@@ -172,6 +178,13 @@ public class ManualBuilderTests {
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(stateMachine, notNullValue());
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+
+		listener.reset(1);
+		stateMachine.sendEvent("E1");
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+		assertThat(stateMachine, notNullValue());
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
 	}
 
 	@Test
@@ -233,7 +246,6 @@ public class ManualBuilderTests {
 	private static class TestListener extends StateMachineListenerAdapter<String, String> {
 
 		volatile CountDownLatch stateChangedLatch = new CountDownLatch(1);
-		volatile CountDownLatch transitionLatch = new CountDownLatch(0);
 		volatile int stateChangedCount = 0;
 
 		@Override
@@ -242,9 +254,9 @@ public class ManualBuilderTests {
 			stateChangedLatch.countDown();
 		}
 
-		@Override
-		public void transition(Transition<String, String> transition) {
-			transitionLatch.countDown();
+		public void reset(int a1) {
+			stateChangedCount = 0;
+			stateChangedLatch = new CountDownLatch(a1);
 		}
 
 	}
@@ -252,7 +264,6 @@ public class ManualBuilderTests {
 	private static class TestListener2 extends StateMachineListenerAdapter<MyStates, MyEvents> {
 
 		volatile CountDownLatch stateChangedLatch = new CountDownLatch(1);
-		volatile CountDownLatch transitionLatch = new CountDownLatch(0);
 		volatile int stateChangedCount = 0;
 
 		@Override
@@ -261,9 +272,9 @@ public class ManualBuilderTests {
 			stateChangedLatch.countDown();
 		}
 
-		@Override
-		public void transition(Transition<MyStates, MyEvents> transition) {
-			transitionLatch.countDown();
+		public void reset(int a1) {
+			stateChangedCount = 0;
+			stateChangedLatch = new CountDownLatch(a1);
 		}
 
 	}
