@@ -30,8 +30,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.AbstractStateMachineTests;
-import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.ExtendedState;
+import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
@@ -48,15 +48,23 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		assertThat(context.containsBean("fooMachine"), is(true));
+		Bean1 bean1 = context.getBean(Bean1.class);
 		machine.start();
 
-		Bean1 bean1 = context.getBean(Bean1.class);
+		assertThat(bean1.onMethod1Latch.await(2, TimeUnit.SECONDS), is(false));
+		assertThat(bean1.onOnTransitionLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean1.onMethod1Count, is(0));
+		assertThat(bean1.onOnTransitionCount, is(1));
+
+		bean1.reset(1, 1);
 
 		// this event should cause 'method1' to get called
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
 
 		assertThat(bean1.onMethod1Latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(bean1.onOnTransitionFromS2ToS3Latch.await(2, TimeUnit.SECONDS), is(false));
+		assertThat(bean1.onOnTransitionLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean1.onMethod1Count, is(1));
+		assertThat(bean1.onOnTransitionCount, is(1));
 
 		context.close();
 	}
@@ -93,16 +101,27 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 	static class Bean1 {
 
 		CountDownLatch onMethod1Latch = new CountDownLatch(1);
-		CountDownLatch onOnTransitionFromS2ToS3Latch = new CountDownLatch(1);
+		CountDownLatch onOnTransitionLatch = new CountDownLatch(1);
+		int onMethod1Count;
+		int onOnTransitionCount;
 
 		@OnTransition(source = "S1", target = "S2")
 		public void method1() {
+			onMethod1Count++;
 			onMethod1Latch.countDown();
 		}
 
 		@OnTransition
-		public void onTransitionFromS2ToS3() {
-			onOnTransitionFromS2ToS3Latch.countDown();
+		public void onTransition() {
+			onOnTransitionCount++;
+			onOnTransitionLatch.countDown();
+		}
+
+		public void reset(int a1, int a2) {
+			onMethod1Latch = new CountDownLatch(a1);
+			onOnTransitionLatch = new CountDownLatch(a2);
+			onMethod1Count = 0;
+			onOnTransitionCount = 0;
 		}
 
 	}

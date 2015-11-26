@@ -415,6 +415,10 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 		@OnTransition(source = "S1", target = "S2")
 		public void fromS1ToS2() {
 		}
+
+		@OnTransition
+		public void anyTransition() {
+		}
 	}
 // end::snippetI[]
 

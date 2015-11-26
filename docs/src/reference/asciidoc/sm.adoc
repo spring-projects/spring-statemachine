@@ -668,7 +668,8 @@ into your beans.
 === Annotation Support
 _@WithStateMachine_ annotation can be used to associate a state
 machine with a existing bean. Within this annotation a property's
-_source_ and _target_ can be used to qualify a transition 
+_source_ and _target_ can be used to qualify a transition. If
+_source_ and _target_ is left empty then any transition is matched.
 
 [source,java,indent=0]
 ----

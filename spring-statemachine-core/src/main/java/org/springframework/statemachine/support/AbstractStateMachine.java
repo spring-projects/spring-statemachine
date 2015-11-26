@@ -23,8 +23,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,10 +36,10 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.ExtendedState;
+import org.springframework.statemachine.ExtendedState.ExtendedStateChangeListener;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
-import org.springframework.statemachine.ExtendedState.ExtendedStateChangeListener;
 import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.access.StateMachineFunction;
@@ -907,7 +907,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			WithStateMachine withStateMachine = AnnotationUtils.findAnnotation(entry.getValue().getBeanClass(), WithStateMachine.class);
 			if (withStateMachine == null || !ObjectUtils.nullSafeEquals(withStateMachine.name(), getBeanName())) {
 				continue;
-			}			
+			}
 			OnTransition metaAnnotation = entry.getValue().getMetaAnnotation();
 			Annotation annotation = entry.getValue().getAnnotation();
 			if (transitionHandlerMatch(metaAnnotation, annotation, sourceState, targetState)) {
@@ -959,6 +959,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 							StateMachineUtils.toStringCollection(targetState.getIds()))) {
 				handle = true;
 			}
+		} else if (scoll.isEmpty() && tcoll.isEmpty()) {
+			handle = true;
 		}
 
 		return handle;
