@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine.support;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.logging.Log;
@@ -55,10 +56,17 @@ public abstract class LifecycleObjectSupport implements InitializingBean, SmartL
 	// to access bean factory
 	private volatile BeanFactory beanFactory;
 
+	// protect InitializingBean for single call
+	private final AtomicBoolean afterPropertiesSetCalled = new AtomicBoolean(false);
+
 	@Override
 	public final void afterPropertiesSet() {
 		try {
-			this.onInit();
+			if (afterPropertiesSetCalled.compareAndSet(false, true)) {
+				this.onInit();
+			} else {
+				log.debug("afterPropertiesSet() is already called, not calling onInit()");
+			}
 		} catch (Exception e) {
 			if (e instanceof RuntimeException) {
 				throw (RuntimeException) e;
@@ -68,7 +76,7 @@ public abstract class LifecycleObjectSupport implements InitializingBean, SmartL
 	}
 
 	@Override
-	public final void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
 		Assert.notNull(beanFactory, "beanFactory must not be null");
 		if(log.isDebugEnabled()) {
 			log.debug("Setting bean factory: " + beanFactory + " for " + this);

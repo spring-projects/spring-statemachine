@@ -17,6 +17,7 @@ package org.springframework.statemachine.config;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -28,6 +29,8 @@ import java.util.List;
 
 import org.junit.Test;
 import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,9 +38,11 @@ import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.ObjectStateMachine;
+import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.TestUtils;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.config.StateMachineBuilder.Builder;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
@@ -160,6 +165,81 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 	public void testEnableStateMachineFactoryNoAdapter() {
 		context.register(Config13.class);
 		context.refresh();
+	}
+
+	@Test
+	public void testTaskExecutor1() throws Exception {
+		// set in builder, no bf or taskExecutor bean registered
+		context.register(Config14.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+
+		Object executorFromMachine = TestUtils.readField("taskExecutor", stateMachine);
+		Object stateMachineExecutor = TestUtils.readField("stateMachineExecutor", stateMachine);
+		Object executorFromExecutor = TestUtils.readField("taskExecutor", stateMachineExecutor);
+
+		assertThat(executorFromMachine, sameInstance(Config14.taskExecutor));
+		assertThat(executorFromExecutor, sameInstance(Config14.taskExecutor));
+
+		assertThat(executorFromMachine, notNullValue());
+		assertThat(executorFromExecutor, notNullValue());
+		assertThat(executorFromMachine, sameInstance(executorFromExecutor));
+	}
+
+	@Test
+	public void testTaskExecutor2() throws Exception {
+		// set as bean, should get from bf
+		context.register(BaseConfig.class, Config15.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		assertThat(context.containsBean(StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME), is(true));
+
+		Object stateMachineExecutor = TestUtils.readField("stateMachineExecutor", stateMachine);
+
+		Object executorFromMachine = TestUtils.callMethod("getTaskExecutor", stateMachine);
+		Object executorFromExecutor = TestUtils.callMethod("getTaskExecutor", stateMachineExecutor);
+
+		assertThat(executorFromMachine, notNullValue());
+		assertThat(executorFromExecutor, notNullValue());
+		assertThat(executorFromMachine, sameInstance(executorFromExecutor));
+	}
+
+	@Test
+	public void testBeanFactory1() throws Exception {
+		// should come from context
+		context.register(Config15.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+
+		Object stateMachineExecutor = TestUtils.readField("stateMachineExecutor", stateMachine);
+
+		Object bfFromMachine = TestUtils.callMethod("getBeanFactory", stateMachine);
+		Object bfFromExecutor = TestUtils.callMethod("getBeanFactory", stateMachineExecutor);
+
+		assertThat(bfFromMachine, notNullValue());
+		assertThat(bfFromExecutor, notNullValue());
+		assertThat(bfFromMachine, sameInstance(bfFromExecutor));
+	}
+
+	@Test
+	public void testBeanFactory2() throws Exception {
+		// set bf in builder
+		context.register(Config16.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+
+		Object stateMachineExecutor = TestUtils.readField("stateMachineExecutor", stateMachine);
+
+		Object bfFromMachine = TestUtils.callMethod("getBeanFactory", stateMachine);
+		Object bfFromExecutor = TestUtils.callMethod("getBeanFactory", stateMachineExecutor);
+
+		assertThat(bfFromMachine, notNullValue());
+		assertThat(bfFromExecutor, notNullValue());
+		assertThat(bfFromMachine, sameInstance(Config16.beanFactory));
 	}
 
 	@Configuration
@@ -555,6 +635,84 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 	@Configuration
 	@EnableStateMachineFactory
 	public static class Config13 {
+	}
+
+	@Configuration
+	public static class Config14 {
+
+		public static TaskExecutor taskExecutor = new SyncTaskExecutor();
+
+		@Bean
+		StateMachine<String, String> stateMachine() throws Exception {
+			Builder<String, String> builder = StateMachineBuilder.builder();
+			builder.configureConfiguration()
+				.withConfiguration()
+					.autoStartup(false)
+					.taskExecutor(taskExecutor);
+			builder.configureStates()
+				.withStates()
+					.initial("S1").state("S2");
+			builder.configureTransitions()
+				.withExternal()
+					.source("S1").target("S2").event("E1")
+					.and()
+				.withExternal()
+					.source("S2").target("S1").event("E2");
+			StateMachine<String, String> stateMachine = builder.build();
+			return stateMachine;
+		}
+
+	}
+
+	@Configuration
+	public static class Config15 {
+
+		@Bean
+		StateMachine<String, String> stateMachine() throws Exception {
+			Builder<String, String> builder = StateMachineBuilder.builder();
+			builder.configureConfiguration()
+				.withConfiguration()
+					.autoStartup(false);
+			builder.configureStates()
+				.withStates()
+					.initial("S1").state("S2");
+			builder.configureTransitions()
+				.withExternal()
+					.source("S1").target("S2").event("E1")
+					.and()
+				.withExternal()
+					.source("S2").target("S1").event("E2");
+			StateMachine<String, String> stateMachine = builder.build();
+			return stateMachine;
+		}
+
+	}
+
+	@Configuration
+	public static class Config16 {
+
+		public static BeanFactory beanFactory = new DefaultListableBeanFactory();
+
+		@Bean
+		StateMachine<String, String> stateMachine() throws Exception {
+			Builder<String, String> builder = StateMachineBuilder.builder();
+			builder.configureConfiguration()
+				.withConfiguration()
+					.autoStartup(false)
+					.beanFactory(beanFactory);
+			builder.configureStates()
+				.withStates()
+					.initial("S1").state("S2");
+			builder.configureTransitions()
+				.withExternal()
+					.source("S1").target("S2").event("E1")
+					.and()
+				.withExternal()
+					.source("S2").target("S1").event("E2");
+			StateMachine<String, String> stateMachine = builder.build();
+			return stateMachine;
+		}
+
 	}
 
 }

@@ -100,9 +100,11 @@ public class ContextEventTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		machine.start();
-		machine.sendEvent(TestEvents.E1);
 		StateMachineApplicationEventListener listener = context.getBean(StateMachineApplicationEventListener.class);
+		machine.start();
+		listener.latch.await(1, TimeUnit.SECONDS);
+		listener.reset();
+		machine.sendEvent(TestEvents.E1);
 		listener.latch.await(1, TimeUnit.SECONDS);
 		assertThat(listener.count, greaterThan(1));
 	}
@@ -188,14 +190,19 @@ public class ContextEventTests extends AbstractStateMachineTests {
 
 	static class StateMachineApplicationEventListener implements ApplicationListener<StateMachineEvent> {
 
-		CountDownLatch latch = new CountDownLatch(1);
-		int count = 0;
+		volatile CountDownLatch latch = new CountDownLatch(1);
+		volatile int count = 0;
 
 	    @Override
 	    public void onApplicationEvent(StateMachineEvent event) {
 	    	count++;
 	    	latch.countDown();
 	    }
+
+		public void reset() {
+			count = 0;
+			latch = new CountDownLatch(1);
+		}
 	}
 
 }

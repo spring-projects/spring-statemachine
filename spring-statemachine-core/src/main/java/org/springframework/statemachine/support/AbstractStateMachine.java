@@ -28,7 +28,9 @@ import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -257,7 +259,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				transitions, triggerToTransitionMap, triggerlessTransitions, initialTransition, initialEvent);
 		if (getBeanFactory() != null) {
 			executor.setBeanFactory(getBeanFactory());
-		} else if (getTaskExecutor() != null){
+		}
+		if (getTaskExecutor() != null){
 			executor.setTaskExecutor(getTaskExecutor());
 		}
 		executor.afterPropertiesSet();
@@ -278,6 +281,19 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			}
 		});
 		stateMachineExecutor = executor;
+	}
+
+	@Override
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		// last change to set factory because this maybe be called per
+		// BeanFactoryAware if machine is created as Bean and configurers
+		// didn't set it.
+		if (getBeanFactory() == null) {
+			super.setBeanFactory(beanFactory);
+			if (stateMachineExecutor instanceof BeanFactoryAware) {
+				((BeanFactoryAware)stateMachineExecutor).setBeanFactory(beanFactory);
+			}
+		}
 	}
 
 	@Override
