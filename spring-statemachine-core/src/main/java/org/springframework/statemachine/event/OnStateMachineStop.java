@@ -50,7 +50,7 @@ public class OnStateMachineStop extends StateMachineEvent {
 
 	@Override
 	public String toString() {
-		return "OnStateMachineStart [stateMachine=" + stateMachine + "]";
+		return "OnStateMachineStop [stateMachine=" + stateMachine + "]";
 	}
 
 }
