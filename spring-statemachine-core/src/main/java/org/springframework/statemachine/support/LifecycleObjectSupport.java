@@ -24,6 +24,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanInitializationException;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.core.task.TaskExecutor;
@@ -37,7 +38,7 @@ import org.springframework.util.Assert;
  * @author Janne Valkealahti
  *
  */
-public abstract class LifecycleObjectSupport implements InitializingBean, SmartLifecycle, BeanFactoryAware {
+public abstract class LifecycleObjectSupport implements InitializingBean, DisposableBean, SmartLifecycle, BeanFactoryAware {
 
 	private static final Log log = LogFactory.getLog(LifecycleObjectSupport.class);
 
@@ -73,6 +74,12 @@ public abstract class LifecycleObjectSupport implements InitializingBean, SmartL
 			}
 			throw new BeanInitializationException("failed to initialize", e);
 		}
+	}
+
+	@Override
+	public final void destroy() throws Exception {
+		log.info("destroy called");
+		doDestroy();
 	}
 
 	@Override
@@ -254,5 +261,7 @@ public abstract class LifecycleObjectSupport implements InitializingBean, SmartL
 	 * will be invoked while holding the {@link #lifecycleLock}.
 	 */
 	protected void doStop() {};
+
+	protected void doDestroy() {};
 
 }

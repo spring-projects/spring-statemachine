@@ -335,6 +335,13 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	@Override
+	protected void doDestroy() {
+		// if lifecycle methods has not been called, make
+		// sure we get into those if only destroy() is called.
+		stop();
+	}
+
+	@Override
 	public void setStateMachineError(Exception exception) {
 		if (exception == null) {
 			currentError = null;

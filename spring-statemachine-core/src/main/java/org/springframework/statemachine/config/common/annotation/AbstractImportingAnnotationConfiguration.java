@@ -18,20 +18,26 @@ package org.springframework.statemachine.config.common.annotation;
 import java.lang.annotation.Annotation;
 import java.util.List;
 
+import org.springframework.aop.scope.ScopedProxyUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinitionHolder;
+import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.beans.factory.support.DefaultBeanNameGenerator;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
@@ -61,6 +67,7 @@ public abstract class AbstractImportingAnnotationConfiguration<B extends Annotat
 		List<Class<? extends Annotation>> annotationTypes = getAnnotations();
 		Class<? extends Annotation> namedAnnotation = null;
 		String[] names = null;
+		ScopedProxyMode proxyMode = null;
 		if (annotationTypes != null) {
 			for (Class<? extends Annotation> annotationType : annotationTypes) {
 				AnnotationAttributes attributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(
@@ -71,6 +78,13 @@ public abstract class AbstractImportingAnnotationConfiguration<B extends Annotat
 					break;
 				}
 			}
+		}
+
+		// check if Scope annotation is defined and get proxyMode from it
+		AnnotationAttributes scopeAttributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(
+				Scope.class.getName(), false));
+		if (scopeAttributes != null) {
+			proxyMode = scopeAttributes.getEnum("proxyMode");
 		}
 
 		BeanDefinition beanDefinition;
@@ -95,6 +109,20 @@ public abstract class AbstractImportingAnnotationConfiguration<B extends Annotat
 			for (int i = 1; i < names.length; i++) {
 				registry.registerAlias(names[0], names[i]);
 			}
+		}
+
+		// wrap in scoped proxy if needed
+		if (proxyMode != null && proxyMode != ScopedProxyMode.DEFAULT && proxyMode != ScopedProxyMode.NO) {
+			BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(beanDefinition, names[0]);
+			BeanDefinitionHolder scopedProxy = null;
+			if (proxyMode == ScopedProxyMode.TARGET_CLASS) {
+				scopedProxy = ScopedProxyUtils.createScopedProxy(definitionHolder, registry, true);
+			} else if (proxyMode == ScopedProxyMode.INTERFACES) {
+				scopedProxy = ScopedProxyUtils.createScopedProxy(definitionHolder, registry, false);
+			} else {
+				throw new IllegalArgumentException("Unknown proxyMode " + proxyMode);
+			}
+			BeanDefinitionReaderUtils.registerBeanDefinition(scopedProxy, registry);
 		}
 	}
 
@@ -147,7 +175,7 @@ public abstract class AbstractImportingAnnotationConfiguration<B extends Annotat
 	}
 
 	protected abstract static class BeanDelegatingFactoryBean<T, B extends AnnotationBuilder<O>, O> implements
-			FactoryBean<T>, BeanFactoryAware, InitializingBean {
+			FactoryBean<T>, BeanFactoryAware, InitializingBean, DisposableBean {
 
 		private final B builder;
 
@@ -187,6 +215,10 @@ public abstract class AbstractImportingAnnotationConfiguration<B extends Annotat
 		@Override
 		public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
 			this.beanFactory = beanFactory;
+		}
+
+		@Override
+		public void destroy() throws Exception {
 		}
 
 		public B getBuilder() {

@@ -415,6 +415,41 @@ is attached automatically and then a default _TaskExecutor_ can be found
 from there. If instances are used outside of a spring application context
 these methods must be used to setup needed facilities.
 
+[[sm-scopes]]
+== Using Scopes
+Support for scopes in a state machine is very limited but it is possible
+to enable use of _session_ scope using a normal spring `@Scope` annotation.
+Firstly if state machine is build manually via a builder and returned into
+context as `@Bean`, and secondly via an contifuration adapter. Both of
+these simply needs an a `@Scope` to be present where _scopeName_ is set to
+_session_ and _proxyMode_ to `ScopedProxyMode.TARGET_CLASS`. Examples for
+both use cases are shown below.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests2.java[tags=snippetB]
+----
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests2.java[tags=snippetC]
+----
+
+Once you have scoped state machine into `session`, autowiring it into
+a `@Controller` will give new state machine instance per session.
+State machine is then destroyed when `HttpSession` is invalidated.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests2.java[tags=snippetD]
+----
+
+[NOTE]
+====
+Using state machines in a `session` scopes needs a careful planning
+mostly because it is a relatively heavy component.
+====
+
 [[sm-actions]]
 == Using Actions
 Actions are one of the most useful components from user perspective to

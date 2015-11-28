@@ -21,10 +21,12 @@ import java.util.List;
 
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.statemachine.StateMachine;
@@ -40,6 +42,7 @@ import org.springframework.statemachine.config.builders.StateMachineTransitions;
 import org.springframework.statemachine.config.common.annotation.AbstractImportingAnnotationConfiguration;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurer;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * {@link Configuration} which gets imported from {@link EnableStateMachine} and registers
@@ -73,9 +76,19 @@ public class StateMachineConfiguration<S, E> extends
 
 		BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(StateMachineDelegatingFactoryBean.class);
-		AnnotationAttributes attributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(
+		AnnotationAttributes esmAttributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(
 				EnableStateMachine.class.getName(), false));
-		Boolean contextEvents = attributes.getBoolean("contextEvents");
+		Boolean contextEvents = esmAttributes.getBoolean("contextEvents");
+
+		// check if Scope annotation is defined and set scope from it
+		AnnotationAttributes scopeAttributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(
+				Scope.class.getName(), false));
+		if (scopeAttributes != null) {
+			String scope = scopeAttributes.getAliasedString("value", Scope.class, enableStateMachineEnclosingClass);
+			if (StringUtils.hasText(scope)) {
+				beanDefinitionBuilder.setScope(scope);
+			}
+		}
 
 		beanDefinitionBuilder.addConstructorArgValue(builder);
 		beanDefinitionBuilder.addConstructorArgValue(StateMachine.class);
@@ -98,6 +111,7 @@ public class StateMachineConfiguration<S, E> extends
 		private String clazzName;
 		private Boolean contextEvents;
 		private SmartLifecycle lifecycle;
+		private DisposableBean disposableBean;
 		private String beanName;
 
 		public StateMachineDelegatingFactoryBean(StateMachineConfigBuilder<S, E> builder, Class<StateMachine<S, E>> clazz,
@@ -137,7 +151,13 @@ public class StateMachineConfiguration<S, E> extends
 			stateMachineFactory.setBeanName(beanName);
 			StateMachine<S, E> stateMachine = stateMachineFactory.getStateMachine();
 			this.lifecycle = (SmartLifecycle) stateMachine;
+			this.disposableBean = (DisposableBean) stateMachine;
 			setObject(stateMachine);
+		}
+
+		@Override
+		public void destroy() throws Exception {
+			disposableBean.destroy();
 		}
 
 		@Override
