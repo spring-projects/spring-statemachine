@@ -415,6 +415,64 @@ is attached automatically and then a default _TaskExecutor_ can be found
 from there. If instances are used outside of a spring application context
 these methods must be used to setup needed facilities.
 
+[[sm-deferevents]]
+== Using Deferred Events
+When en event is sent it may fire an `EventTrigger` which then may cause
+a transition to happen if a state machine is in a state where trigger is
+evaluated successfully. Normally this may lead to a situation where
+an event is not accepted and is dropped. However it may be desirable to
+postpone this event until a state machine enters other state, in which
+it is possible to accept that event. In other words an event simply
+arrives at an inconvenient time.
+
+Spring Statemachine provides a mechanism for deferring events for later
+processing. Every state can have a list of deferred events. If an event
+in the current state’s deferred event list occurs, the event will be saved
+(deferred) for future processing until a state is entered that does not list
+the event in its deferred event list. When such a state is entered, the
+state machine will automatically recall any saved events that are no longer
+deferred and will then either consume or discard these events. It is possible
+for a superstate to have a transition defined on an event that is deferred
+by a substate. Following same hierarchical state machines concepts, the substate
+takes precedence over the superstate, the event will be deferred and the
+transition for the superstate will not be executed. With orthogonal regions
+where one orthogonal region defers an event and another accepts the event, the
+accept takes precedence and the event is consumed and not deferred.
+
+The most obvious use case for event deferring is when an event is causing
+a transition into a particular state and state machine is then returned back
+to its original state where second event should cause a same transition. Lets
+take this with a simple example.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests2.java[tags=snippetE]
+----
+
+In above state machine has state _READY_ which indicates that machine is
+ready to process events which would take it into a _DEPLOY_ state where the
+actual deployment would happen. After deploy actions has been executed machine
+is then returned back into a _READY_ state. Sending multiple events in a
+_READY_ state is not causing any trouble if machine is using synchronous executor
+because event sending would block between event calls. However if executor is using
+threads then other events may get lost because machine is no longer in a state where
+event could be processed. Thus deferring some of these events allows machine to
+preserve these events.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests2.java[tags=snippetF]
+----
+
+In above state machine which is using nested states instead of a flat
+state model, event _DEPLOY_ can be deferred directly in a substate.
+It is also showing concept of deferring event _DONE_ in one of a
+sub-states which would then override anonymous transition between
+_DEPLOY_ and _DONE_ states if state machine happens to be in a
+_DEPLOYPREPARE_ state when _DONE_ event is dispatched. In
+_DEPLOYEXECUTE_ state _DONE_ event is not deferred, thus event would
+be handled in a super state.
+
 [[sm-scopes]]
 == Using Scopes
 Support for scopes in a state machine is very limited but it is possible

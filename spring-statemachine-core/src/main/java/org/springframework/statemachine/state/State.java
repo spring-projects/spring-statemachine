@@ -40,6 +40,14 @@ public interface State<S, E> {
 	boolean sendEvent(Message<E> event);
 
 	/**
+	 * Checks if state wants to defer an event.
+	 *
+	 * @param event the wrapped event
+	 * @return true if event should be deferred
+	 */
+	boolean shouldDefer(Message<E> event);
+
+	/**
 	 * Initiate an exit sequence for the state.
 	 *
 	 * @param context the state context

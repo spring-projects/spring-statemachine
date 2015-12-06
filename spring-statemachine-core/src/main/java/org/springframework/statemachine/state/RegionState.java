@@ -108,6 +108,25 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 	}
 
 	@Override
+	public boolean shouldDefer(Message<E> event) {
+		boolean defer = true;
+		if (getRegions() != null) {
+			for (Region<S, E> r : getRegions()) {
+				State<S, E> state = r.getState();
+				if (state != null) {
+					Collection<E> deferredEvents = state.getDeferredEvents();
+					if (deferredEvents != null && deferredEvents.contains(event.getPayload())) {
+						defer = defer & true;
+					} else {
+						defer = false;
+					}
+				}
+			}
+		}
+		return defer;
+	}
+
+	@Override
 	public void exit(StateContext<S, E> context) {
 		for (Region<S, E> region : getRegions()) {
 			if (region.getState() != null) {

@@ -239,6 +239,21 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 		return super.sendEvent(event);
 	}
 
+	@Override
+	public boolean shouldDefer(Message<E> event) {
+		StateMachine<S, E> machine = getSubmachine();
+		if (machine != null) {
+			State<S, E> state = machine.getState();
+			if (state != null) {
+				Collection<E> deferredEvents = state.getDeferredEvents();
+				if (deferredEvents != null && deferredEvents.contains(event.getPayload())) {
+					return true;
+				}
+			}
+		}
+		return super.shouldDefer(event);
+	}
+
 	private boolean isLocal(StateContext<S, E> context) {
 		Transition<S, E> transition = context.getTransition();
 		if (transition != null && TransitionKind.LOCAL == transition.getKind() && this == transition.getTarget()) {

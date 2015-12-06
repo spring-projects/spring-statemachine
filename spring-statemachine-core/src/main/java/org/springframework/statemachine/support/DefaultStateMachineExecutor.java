@@ -128,6 +128,7 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 
 	@Override
 	public void queueTrigger(Trigger<S, E> trigger, Message<E> message) {
+		log.debug("Queue trigger " + trigger);
 		triggerQueue.add(new TriggerQueueItem(trigger, message));
 	}
 
@@ -227,10 +228,19 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 		Runnable task = new Runnable() {
 			@Override
 			public void run() {
-				processEventQueue();
-				processTriggerQueue();
-				while (processDeferList()) {
+				boolean eventProcessed = false;
+				while (processEventQueue()) {
+					eventProcessed = true;
 					processTriggerQueue();
+					while (processDeferList()) {
+						processTriggerQueue();
+					}
+				}
+				if (!eventProcessed) {
+					processTriggerQueue();
+					while (processDeferList()) {
+						processTriggerQueue();
+					}
 				}
 				taskRef.set(null);
 				if (requestTask.getAndSet(false)) {
@@ -246,32 +256,30 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 		}
 	}
 
-	private void processEventQueue() {
+	private boolean processEventQueue() {
 		if (log.isDebugEnabled()) {
 			log.debug("Process event queue, size=" + eventQueue.size());
 		}
-		Message<E> queuedEvent = null;
+		Message<E> queuedEvent = eventQueue.poll();
 		State<S,E> currentState = stateMachine.getState();
-		while ((queuedEvent = eventQueue.poll()) != null) {
-			Message<E> defer = null;
-			for (Transition<S, E> transition : transitions) {
-				State<S, E> source = transition.getSource();
+		if (queuedEvent != null) {
+			if ((currentState != null && currentState.shouldDefer(queuedEvent))) {
+				queueDeferredEvent(queuedEvent);
+				return true;
+			}
+			for (Transition<S,E> transition : transitions) {
+				State<S,E> source = transition.getSource();
 				Trigger<S, E> trigger = transition.getTrigger();
 
 				if (StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
 					if (trigger != null && trigger.evaluate(new DefaultTriggerContext<S, E>(queuedEvent.getPayload()))) {
-						triggerQueue.add(new TriggerQueueItem(trigger, queuedEvent));
-					} else if (source.getDeferredEvents() != null
-							&& source.getDeferredEvents().contains(queuedEvent.getPayload())) {
-						defer = queuedEvent;
+						queueTrigger(trigger, queuedEvent);
+						return true;
 					}
 				}
 			}
-			if (defer != null) {
-				log.info("Deferring event " + defer);
-				deferList.addLast(defer);
-			}
 		}
+		return false;
 	}
 
 	private void processTriggerQueue() {
@@ -290,19 +298,16 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 			return;
 		}
 		if (log.isDebugEnabled()) {
-			log.debug("Process trigger queue, size=" + triggerQueue.size());
+			log.debug("Process trigger queue, size=" + triggerQueue.size() + " " + this);
 		}
-		TriggerQueueItem queueItem = null;
-		// keep last message here so that we can
+		TriggerQueueItem queueItem = triggerQueue.poll();
+		// keep message here so that we can
 		// pass it to triggerless transitions
-		while ((queueItem = triggerQueue.poll()) != null) {
-
-			State<S,E> currentState = stateMachine.getState();
-
-			if (currentState == null) {
-				continue;
+		State<S,E> currentState = stateMachine.getState();
+		if (queueItem != null && currentState != null) {
+			if (log.isDebugEnabled()) {
+				log.debug("Process trigger item " + queueItem + " " + this);
 			}
-
 			// queued message is kept on a class level order to let
 			// triggerless transition to receive this message if it doesn't
 			// kick in in this poll loop.
@@ -351,15 +356,18 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 		}
 	}
 
-	private boolean processDeferList() {
+	private synchronized boolean processDeferList() {
 		if (log.isDebugEnabled()) {
 			log.debug("Process defer list, size=" + deferList.size());
 		}
-		boolean triggered = false;
 		ListIterator<Message<E>> iterator = deferList.listIterator();
 		State<S,E> currentState = stateMachine.getState();
 		while (iterator.hasNext()) {
 			Message<E> event = iterator.next();
+			if (currentState.shouldDefer(event)) {
+				// if current state still defers, just continue with others
+				continue;
+			}
 			for (Transition<S, E> transition : transitions) {
 				State<S, E> source = transition.getSource();
 				Trigger<S, E> trigger = transition.getTrigger();
@@ -367,12 +375,13 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 					if (trigger != null && trigger.evaluate(new DefaultTriggerContext<S, E>(event.getPayload()))) {
 						triggerQueue.add(new TriggerQueueItem(trigger, event));
 						iterator.remove();
-						triggered = true;
+						// bail out when first deferred message is causing a trigger to fire
+						return true;
 					}
 				}
 			}
 		}
-		return triggered;
+		return false;
 	}
 
 	private StateContext<S, E> buildStateContext(Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
