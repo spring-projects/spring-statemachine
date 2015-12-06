@@ -571,35 +571,30 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	protected boolean acceptEvent(Message<E> message) {
-		boolean accepted = (currentState != null && currentState.sendEvent(message));
-		if (accepted) {
+		if ((currentState != null && currentState.shouldDefer(message))) {
+			log.info("Current state " + currentState + " deferred event " + message);
+			stateMachineExecutor.queueDeferredEvent(message);
+			return true;
+		}
+		if ((currentState != null && currentState.sendEvent(message))) {
 			return true;
 		}
 
 		if (log.isDebugEnabled()) {
-			log.debug("Queue event " + message);
+			log.debug("Queue event " + message + " " + this);
 		}
 
-		Message<E> defer = null;
 		for (Transition<S,E> transition : transitions) {
 			State<S,E> source = transition.getSource();
 			Trigger<S, E> trigger = transition.getTrigger();
 
 			if (StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
 				if (trigger != null && trigger.evaluate(new DefaultTriggerContext<S, E>(message.getPayload()))) {
-					stateMachineExecutor.queueTrigger(trigger, message);
+					stateMachineExecutor.queueEvent(message);
 					return true;
-				} else if (source.getDeferredEvents() != null && source.getDeferredEvents().contains(message.getPayload())) {
-					defer = message;
 				}
 			}
 		}
-		if (defer != null) {
-			log.info("Deferring event " + defer);
-			stateMachineExecutor.queueDeferredEvent(defer);
-			return true;
-		}
-
 		return false;
 	}
 

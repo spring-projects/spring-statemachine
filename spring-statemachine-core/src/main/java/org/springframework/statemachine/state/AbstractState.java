@@ -153,6 +153,11 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	}
 
 	@Override
+	public boolean shouldDefer(Message<E> event) {
+		return deferred != null && deferred.contains(event.getPayload());
+	}
+
+	@Override
 	public abstract void exit(StateContext<S, E> context);
 
 	@Override
