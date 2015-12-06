@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hamcrest.Matcher;
+import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.test.StateMachineTestPlanBuilder.StateMachineTestPlanStep;
 import org.springframework.statemachine.test.support.LatchStateMachineListener;
@@ -119,7 +120,7 @@ public class StateMachineTestPlan<S, E> {
 				}
 			}
 
-			if (step.sendEvent != null) {
+			if (!step.sendEvent.isEmpty()) {
 				ArrayList<StateMachine<S, E>> sendVia = new ArrayList<StateMachine<S, E>>();
 				if (step.sendEventMachineId != null) {
 					sendVia.add(stateMachines.get(step.sendEventMachineId));
@@ -131,13 +132,17 @@ public class StateMachineTestPlan<S, E> {
 				assertThat("Error finding machine to send via", sendVia, not(empty()));
 				if (!step.sendEventParallel) {
 					for (StateMachine<S, E> machine : sendVia) {
-						log.info("Sending test event " + step.sendEvent + " via machine " + machine);
-						machine.sendEvent(step.sendEvent);
+						for (E event : step.sendEvent) {
+							log.info("Sending test event " + event + " via machine " + machine);
+							machine.sendEvent(event);
+						}
 					}
 				} else {
-					sendEventParallel(sendVia, step.sendEvent);
+					for (E event : step.sendEvent) {
+						sendEventParallel(sendVia, event);
+					}
 				}
-			} else if (step.sendMessage != null) {
+			} else if (!step.sendMessage.isEmpty()) {
 				ArrayList<StateMachine<S, E>> sendVia = new ArrayList<StateMachine<S, E>>();
 				if (step.sendEventMachineId != null) {
 					sendVia.add(stateMachines.get(step.sendEventMachineId));
@@ -148,8 +153,10 @@ public class StateMachineTestPlan<S, E> {
 				}
 				assertThat("Error finding machine to send via", sendVia, not(empty()));
 				for (StateMachine<S, E> machine : sendVia) {
-					log.info("Sending test event " + step.sendEvent + " via machine " + machine);
-					machine.sendEvent(step.sendMessage);
+					for (Message<E> event : step.sendMessage) {
+						log.info("Sending test event " + event + " via machine " + machine);
+						machine.sendEvent(event);
+					}
 				}
 			}
 
