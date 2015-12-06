@@ -65,6 +65,28 @@ public class StateMachineTestingTests extends AbstractStateMachineTests {
 		plan.test();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testMultipleEvents() throws Exception {
+		registerAndRefresh(Config3.class);
+		StateMachine<String, String> machine =	context.getBean(StateMachine.class);
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.stateMachine(machine)
+					.step().expectStateMachineStarted(1).and()
+					.step().expectState("READY").and()
+					.step()
+						.sendEvent("DEPLOY")
+						.sendEvent("DEPLOY")
+						.expectStateChanged(6)
+						.expectState("READY")
+						.and()
+					.build();
+
+		plan.test();
+	}
+
 	@Override
 	protected AnnotationConfigApplicationContext buildContext() {
 		return new AnnotationConfigApplicationContext();
@@ -140,6 +162,36 @@ public class StateMachineTestingTests extends AbstractStateMachineTests {
 			return taskExecutor;
 		}
 
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config3 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states)
+				throws Exception {
+			states
+				.withStates()
+					.initial("READY")
+					.state("DEPLOYPREPARE", "DEPLOY")
+					.state("DEPLOYEXECUTE", "DEPLOY");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions)
+				throws Exception {
+			transitions
+				.withExternal()
+					.source("READY").target("DEPLOYPREPARE")
+					.event("DEPLOY")
+					.and()
+				.withExternal()
+					.source("DEPLOYPREPARE").target("DEPLOYEXECUTE")
+					.and()
+				.withExternal()
+					.source("DEPLOYEXECUTE").target("READY");
+		}
 	}
 
 }

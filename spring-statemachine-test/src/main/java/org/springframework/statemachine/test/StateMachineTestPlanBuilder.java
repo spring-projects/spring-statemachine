@@ -110,8 +110,8 @@ public class StateMachineTestPlanBuilder<S, E> {
 	 */
 	public class StateMachineTestPlanStepBuilder {
 
-		E sendEvent;
-		Message<E> sendMessage;
+		final List<E> sendEvent = new ArrayList<E>();
+		final List<Message<E>> sendMessage = new ArrayList<Message<E>>();
 		Object sendEventMachineId;
 		boolean sendEventToAll = false;
 		boolean sendEventParallel = false;
@@ -156,6 +156,8 @@ public class StateMachineTestPlanBuilder<S, E> {
 		/**
 		 * Send an event {@code E}. In case multiple state machines
 		 * exists, a random one will be chosen to send this event.
+		 * Multiple events can be defined which are then send in
+		 * defined order.
 		 *
 		 * @param event the event
 		 * @return the state machine test plan step builder
@@ -166,7 +168,8 @@ public class StateMachineTestPlanBuilder<S, E> {
 
 		/**
 		 * Send an event {@code E}. If {@code sendToAll} is set to {@code TRUE} event
-		 * will be send to all existing machines.
+		 * will be send to all existing machines. Multiple events can be defined
+		 * which are then send in defined order.
 		 *
 		 * @param event the event
 		 * @param sendToAll send to all machines
@@ -181,6 +184,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 		 * Send an event {@code E}. If {@code sendToAll} is set to {@code TRUE} event
 		 * will be send to all existing machines. If {@code sendPalallel} is set to
 		 * {@code TRUE} event to all machines will be send by parallel threads.
+		 * Multiple events can be defined which are then send in defined order.
 		 *
 		 * @param event the event
 		 * @param sendToAll send to all machines
@@ -188,7 +192,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 		 * @return the state machine test plan step builder
 		 */
 		public StateMachineTestPlanStepBuilder sendEvent(E event, boolean sendToAll, boolean sendParallel) {
-			this.sendEvent = event;
+			this.sendEvent.add(event);
 			this.sendEventMachineId = null;
 			this.sendEventToAll = sendToAll;
 			this.sendEventParallel = sendParallel;
@@ -197,21 +201,23 @@ public class StateMachineTestPlanBuilder<S, E> {
 
 		/**
 		 * Send an event {@code E} into a state machine identified
-		 * by {@code machineId}.
+		 * by {@code machineId}. Multiple events can be defined
+		 * which are then send in defined order.
 		 *
 		 * @param event the event
 		 * @param machineId the machine identifier for sending event
 		 * @return the state machine test plan step builder
 		 */
 		public StateMachineTestPlanStepBuilder sendEvent(E event, Object machineId) {
-			this.sendEvent = event;
+			this.sendEvent.add(event);
 			this.sendEventMachineId = machineId;
 			return this;
 		}
 
 		/**
 		 * Send a message {@code Message<E>}. In case multiple state machines
-		 * exists, a random one will be chosen to send this event.
+		 * exists, a random one will be chosen to send this event. Multiple
+		 * events can be defined which are then send in defined order.
 		 *
 		 * @param event the event
 		 * @return the state machine test plan step builder
@@ -222,14 +228,15 @@ public class StateMachineTestPlanBuilder<S, E> {
 
 		/**
 		 * Send a message {@code Message<E>}. If {@code sendToAll} is set to {@code TRUE} event
-		 * will be send to all existing machines.
+		 * will be send to all existing machines.Multiple events can be defined which are
+		 * then send in defined order.
 		 *
 		 * @param event the event
 		 * @param sendToAll send to all machines
 		 * @return the state machine test plan step builder
 		 */
 		public StateMachineTestPlanStepBuilder sendEvent(Message<E> event, boolean sendToAll) {
-			this.sendMessage = event;
+			this.sendMessage.add(event);
 			this.sendEventMachineId = null;
 			this.sendEventToAll = sendToAll;
 			return this;
@@ -237,14 +244,15 @@ public class StateMachineTestPlanBuilder<S, E> {
 
 		/**
 		 * Send a message {@code Message<E>} into a state machine identified
-		 * by {@code machineId}.
+		 * by {@code machineId}. Multiple events can be defined which are then
+		 * send in defined order.
 		 *
 		 * @param event the event
 		 * @param machineId the machine identifier for sending event
 		 * @return the state machine test plan step builder
 		 */
 		public StateMachineTestPlanStepBuilder sendEvent(Message<E> event, Object machineId) {
-			this.sendMessage = event;
+			this.sendMessage.add(event);
 			this.sendEventMachineId = machineId;
 			return this;
 		}
@@ -432,8 +440,8 @@ public class StateMachineTestPlanBuilder<S, E> {
 	}
 
 	static class StateMachineTestPlanStep<S, E> {
-		E sendEvent;
-		Message<E> sendMessage;
+		final List<E> sendEvent;
+		final List<Message<E>> sendMessage;
 		Object sendEventMachineId;
 		boolean sendEventToAll = false;
 		boolean sendEventParallel = false;
@@ -451,7 +459,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 		final Collection<Object> expectVariableKeys;
 		final Map<Object, Object> expectVariables;
 
-		public StateMachineTestPlanStep(E sendEvent, Message<E> sendMessage, Object sendEventMachineId,
+		public StateMachineTestPlanStep(List<E> sendEvent, List<Message<E>> sendMessage, Object sendEventMachineId,
 				boolean sendEventToAll, boolean sendEventParallel, Collection<S> expectStates,
 				Integer expectStateChanged, Integer expectStateEntered, Integer expectStateExited,
 				Integer expectEventNotAccepted, Integer expectTransition, Integer expectTransitionStarted,
