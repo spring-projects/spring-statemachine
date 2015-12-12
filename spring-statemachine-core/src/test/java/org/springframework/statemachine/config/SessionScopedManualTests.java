@@ -114,6 +114,17 @@ public class SessionScopedManualTests {
 		assertThat(TestUtils.readField("running", machine), is(false));
 	}
 
+	@Test
+	public void testAutoStart() throws Exception {
+		MockHttpSession session1 = new MockHttpSession();
+		mvc.
+			perform(get("/ping").session(session1)).
+			andExpect(status().isOk());
+		Object machine = session1.getAttribute("scopedTarget.stateMachine");
+		assertThat(machine, notNullValue());
+		assertThat(TestUtils.callMethod("isRunning", machine), is(true));
+	}
+
 	@Configuration
 	static class Config {
 
@@ -149,6 +160,13 @@ public class SessionScopedManualTests {
 
 		@Autowired
 		StateMachine<String, String> stateMachine;
+
+		@RequestMapping(path="/ping", method=RequestMethod.GET)
+		public HttpEntity<Void> dummyPing() {
+			// dummy ping to instantiate session and then create machine
+			stateMachine.getState();
+			return new ResponseEntity<Void>(HttpStatus.OK);
+		}
 
 		@RequestMapping(path="/state", method=RequestMethod.POST)
 		public HttpEntity<Void> setState(@RequestParam("event") String event) {
