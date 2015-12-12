@@ -149,6 +149,7 @@ public class StateMachineConfiguration<S, E> extends
 			stateMachineFactory.setBeanFactory(getBeanFactory());
 			stateMachineFactory.setContextEventsEnabled(contextEvents);
 			stateMachineFactory.setBeanName(beanName);
+			stateMachineFactory.setHandleAutostartup(stateMachineConfigurationConfig.isAutoStart());
 			StateMachine<S, E> stateMachine = stateMachineFactory.getStateMachine();
 			this.lifecycle = (SmartLifecycle) stateMachine;
 			this.disposableBean = (DisposableBean) stateMachine;
