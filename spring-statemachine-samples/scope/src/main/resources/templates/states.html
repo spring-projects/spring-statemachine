@@ -1,0 +1,16 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Spring Statemachine Scope Demo</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<p th:text="'States: ' + ${states}" />
+	<form action="#" data-th-action="@{/states}" data-th-object="${model}" method="post">
+		<button type="submit" name="event" value="A">Send A</button>
+		<button type="submit" name="event" value="B">Send B</button>
+		<button type="submit" name="event" value="C">Send C</button>
+	</form>
+	<pre th:text="${stateChartModel}"/>
+</body>
+</html>

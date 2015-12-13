@@ -483,6 +483,11 @@ these simply needs an a `@Scope` to be present where _scopeName_ is set to
 _session_ and _proxyMode_ to `ScopedProxyMode.TARGET_CLASS`. Examples for
 both use cases are shown below.
 
+[TIP]
+====
+See sample <<statemachine-examples-scope>> how to use session scoping.
+====
+
 [source,java,indent=0]
 ----
 include::samples/DocsConfigurationSampleTests2.java[tags=snippetB]
@@ -506,6 +511,14 @@ include::samples/DocsConfigurationSampleTests2.java[tags=snippetD]
 ====
 Using state machines in a `session` scopes needs a careful planning
 mostly because it is a relatively heavy component.
+====
+
+[NOTE]
+====
+Spring Statemachine poms don't have any dependencies to Spring MVC
+classes which you will need to work with session scope. But if you're
+working with a web application, you've already pulled those deps
+directly from Spring MVC or Spring Boot.
 ====
 
 [[sm-actions]]

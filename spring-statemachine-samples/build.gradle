@@ -45,3 +45,12 @@ project('spring-statemachine-samples-web') {
 		compile("org.springframework.session:spring-session:$springSessionVersion")
 	}
 }
+
+project('spring-statemachine-samples-scope') {
+	description = 'Spring State Machine Web Scope Sample'
+	dependencies {
+		compile("org.springframework.boot:spring-boot-starter-thymeleaf:$springBootVersion")
+//		compile("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
+//		compile("org.springframework:spring-webmvc:$springVersion")
+	}
+}

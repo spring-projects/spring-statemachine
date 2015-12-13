@@ -26,6 +26,8 @@ normal build cycle. Samples in this chapter are:
 
 <<statemachine-examples-web>> Web.
 
+<<statemachine-examples-scope>> Scope.
+
 
 [source,text]
 ----
@@ -36,6 +38,13 @@ Every sample is located in its own directory under
 `spring-statemachine-samples`. Samples are based on spring-boot and
 spring-shell and you will find usual boot fat jars under every sample
 projects `build/libs` directory.
+
+[NOTE]
+====
+Filenames for jars we refer in this section are populated during a
+build of this document, meaning if you're building samples from a
+master, you have files with `BUILD-SNAPSHOT` postfix.
+====
 
 [[statemachine-examples-turnstile]]
 == Turnstile
@@ -68,9 +77,9 @@ include::samples/demo/turnstile/Application.java[tags=snippetA]
 
 You can see how this sample state machine interacts with event by
 running `turnstile` sample.
-[source,text]
+[source,text,subs="verbatim,attributes"]
 ----
-$ java -jar spring-statemachine-samples-turnstile-1.0.0.BUILD-SNAPSHOT.jar 
+$ java -jar spring-statemachine-samples-turnstile-{revnumber}.jar
 
 sm>sm print
 +----------------------------------------------------------------+
@@ -915,8 +924,12 @@ include::samples/demo/zookeeper/Application.java[tags=snippetB]
 ----
 
 Let's go through a simple example where two different shell instances are
-started with command `java -jar
-spring-statemachine-samples-zookeeper-1.0.0.BUILD-SNAPSHOT.jar`.
+started with command
+
+[source,text,subs="attributes"]
+----
+@n1:~# java -jar spring-statemachine-samples-zookeeper-{revnumber}.jar
+----
 
 First open first shell instance(do not start second instance yet).
 When state machine is started it will end up into its initial state
@@ -993,21 +1006,19 @@ be available from a localhost for every individual sample instance.
 ====
 
 Let's go through a simple example where three different sample instances are
-started with command `java -jar
-spring-statemachine-samples-web-1.0.0.BUILD-SNAPSHOT.jar`. If you are
-running different instances on a same host you need to distinguish
-used port by adding `--server.port=<myport>` to the command. Otherwise
-default port for each host will be `8080`.
+started.  If you are running different instances on a same host you need to
+distinguish used port by adding `--server.port=<myport>` to the command.
+Otherwise default port for each host will be `8080`.
 
 In this sample run we have three hosts, `n1`, `n2` and `n3` which all
 have a local zookeeper instance running and a state machine sample running
 on a port `8080`.
 
-[source,text]
+[source,text,subs="attributes"]
 ----
-@n1:~# java -jar spring-statemachine-samples-web-1.0.0.BUILD-SNAPSHOT.jar
-@n2:~# java -jar spring-statemachine-samples-web-1.0.0.BUILD-SNAPSHOT.jar
-@n3:~# java -jar spring-statemachine-samples-web-1.0.0.BUILD-SNAPSHOT.jar
+@n1:~# java -jar spring-statemachine-samples-web-{revnumber}.jar
+@n2:~# java -jar spring-statemachine-samples-web-{revnumber}.jar
+@n3:~# java -jar spring-statemachine-samples-web-{revnumber}.jar
 ----
 
 When all instances are running you should see all showing similar
@@ -1037,3 +1048,25 @@ all browser sessions.
 
 image::images/sm-dist-n1-4.png[width=500]
 
+[[statemachine-examples-scope]]
+== Scope
+Scope is a state machine example using a session scope to provide
+individual instance for every user.
+
+image::images/statechart12.png[width=500]
+
+This is a simple state machine having states `S0`, `S1` and `S2`.
+Transitions between those are controlled via events `A`, `B` and `C`
+as shown in a state chart.
+
+[source,text,subs="attributes"]
+----
+@n1:~# java -jar spring-statemachine-samples-scope-{revnumber}.jar
+----
+
+When instance is running you can open a browser and play with a state
+machine. If you open same page using a different browser, i.e one in
+_Chrome_ and one in _Firefox_, you should get a new state machine
+instance per user session.
+
+image::images/sm-scope-1.png[width=500]
