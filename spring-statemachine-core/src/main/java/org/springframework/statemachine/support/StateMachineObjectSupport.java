@@ -51,26 +51,26 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	/** Flag for application context events */
 	private boolean contextEventsEnabled = true;
 
-    private final StateMachineInterceptorList<S, E> interceptors =
-            new StateMachineInterceptorList<S, E>();
-    
-    private String beanName;
+	private final StateMachineInterceptorList<S, E> interceptors =
+			new StateMachineInterceptorList<S, E>();
 
-    @Override
-    public void setBeanName(String name) {
-    	beanName = name;
-    }
-    
-    /**
-     * Returns a bean name known to context per contract
-     * with {@link BeanNameAware}.
-     * 
-     * @return a bean name 
-     */
-    protected String getBeanName() {
+	private String beanName;
+
+	@Override
+	public void setBeanName(String name) {
+		beanName = name;
+	}
+
+	/**
+	 * Returns a bean name known to context per contract
+	 * with {@link BeanNameAware}.
+	 *
+	 * @return a bean name
+	 */
+	protected String getBeanName() {
 		return beanName;
 	}
-    
+
 	/**
 	 * Gets the state machine event publisher.
 	 *
@@ -166,7 +166,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
-				eventPublisher.publishTransitionEnd(this, transition);
+				eventPublisher.publishTransition(this, transition);
 			}
 		}
 	}
@@ -176,7 +176,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
-				eventPublisher.publishTransition(this, transition);
+				eventPublisher.publishTransitionEnd(this, transition);
 			}
 		}
 	}
@@ -237,7 +237,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 
 	protected void setStateMachineInterceptors(List<StateMachineInterceptor<S,E>> interceptors) {
 		Collections.sort(interceptors, new OrderComparator());
-	    this.interceptors.set(interceptors);
+		this.interceptors.set(interceptors);
 	}
 
 	/**
