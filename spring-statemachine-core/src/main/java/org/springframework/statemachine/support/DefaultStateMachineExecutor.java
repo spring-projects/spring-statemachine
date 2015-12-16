@@ -35,7 +35,6 @@ import org.springframework.context.Lifecycle;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
-import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
@@ -61,8 +60,6 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 	private final StateMachine<S, E> stateMachine;
 
 	private final StateMachine<S, E> relayStateMachine;
-
-	private final ExtendedState extendedState;
 
 	private final Queue<Message<E>> eventQueue = new ConcurrentLinkedQueue<Message<E>>();
 
@@ -100,7 +97,6 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 	 *
 	 * @param stateMachine the state machine
 	 * @param relayStateMachine the relay state machine
-	 * @param extendedState the extended state
 	 * @param transitions the transitions
 	 * @param triggerToTransitionMap the trigger to transition map
 	 * @param triggerlessTransitions the triggerless transitions
@@ -108,11 +104,10 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 	 * @param initialEvent the initial event
 	 */
 	public DefaultStateMachineExecutor(StateMachine<S, E> stateMachine, StateMachine<S, E> relayStateMachine,
-			ExtendedState extendedState, Collection<Transition<S, E>> transitions, Map<Trigger<S, E>, Transition<S, E>> triggerToTransitionMap,
+			Collection<Transition<S, E>> transitions, Map<Trigger<S, E>, Transition<S, E>> triggerToTransitionMap,
 			List<Transition<S, E>> triggerlessTransitions, Transition<S, E> initialTransition, Message<E> initialEvent) {
 		this.stateMachine = stateMachine;
 		this.relayStateMachine = relayStateMachine;
-		this.extendedState = extendedState;
 		this.triggerToTransitionMap = triggerToTransitionMap;
 		this.triggerlessTransitions = triggerlessTransitions;
 		this.transitions = transitions;
@@ -400,7 +395,7 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 			// we want to keep the originating sm id
 			map.put(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER, stateMachine.getId());
 		}
-		return new DefaultStateContext<S, E>(event, new MessageHeaders(map), extendedState, transition, stateMachine);
+		return new DefaultStateContext<S, E>(event, new MessageHeaders(map), stateMachine.getExtendedState(), transition, stateMachine);
 	}
 
 	private void registerTriggerListener() {

@@ -17,6 +17,7 @@ package org.springframework.statemachine;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.guard.Guard;
@@ -190,6 +192,37 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S31));
 	}
 
+	@Test
+	public void testResetUpdateExtendedStateVariables() {
+		context.register(Config3.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachine<States, Events> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count"), nullValue());
+		machine.sendEvent(Events.A);
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count"), is(1));
+
+		machine.stop();
+		Map<Object, Object> variables = new HashMap<Object, Object>();
+		variables.putAll(machine.getExtendedState().getVariables());
+		ExtendedState extendedState = new DefaultExtendedState(variables);
+		DefaultStateMachineContext<States,Events> stateMachineContext = new DefaultStateMachineContext<States, Events>(States.S0, null, null, extendedState);
+
+		machine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<States,Events>>() {
+
+			@Override
+			public void apply(StateMachineAccess<States, Events> function) {
+				function.resetStateMachine(stateMachineContext);
+			}
+		});
+
+		machine.start();
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count"), is(1));
+		machine.sendEvent(Events.A);
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count"), is(2));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	static class Config1 extends EnumStateMachineConfigurerAdapter<States, Events> {
@@ -311,12 +344,60 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 
 	}
 
+	@Configuration
+	@EnableStateMachine
+	static class Config3 extends EnumStateMachineConfigurerAdapter<States, Events> {
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<States, Events> config)
+				throws Exception {
+			config
+				.withConfiguration()
+					.autoStartup(true);
+		}
+
+		@Override
+		public void configure(StateMachineStateConfigurer<States, Events> states)
+				throws Exception {
+			states
+				.withStates()
+					.initial(States.S0);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<States, Events> transitions)
+				throws Exception {
+			transitions
+				.withInternal()
+					.source(States.S0)
+					.event(Events.A)
+					.action(updateAction());
+		}
+
+		@Bean
+		public Action<States, Events> updateAction() {
+			return new Action<States, Events>() {
+
+				@Override
+				public void execute(StateContext<States, Events> context) {
+					Integer count = context.getExtendedState().get("count", Integer.class);
+					if (count == null) {
+						context.getExtendedState().getVariables().put("count", 1);
+					} else {
+						context.getExtendedState().getVariables().put("count", (count + 1));
+					}
+				}
+			};
+		}
+
+	}
+
 	public static enum States {
-	    S0, S1, S11, S12, S2, S21, S211, S212
+		S0, S1, S11, S12, S2, S21, S211, S212
 	}
 
 	public static enum Events {
-	    A, B, C, D, E, F, G, H, I
+		A, B, C, D, E, F, G, H, I
 	}
 
 	private static class FooAction implements Action<States, Events> {

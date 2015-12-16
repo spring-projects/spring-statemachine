@@ -255,8 +255,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			}
 		}
 
-		DefaultStateMachineExecutor<S, E> executor = new DefaultStateMachineExecutor<S, E>(this, getRelayStateMachine(), extendedState,
-				transitions, triggerToTransitionMap, triggerlessTransitions, initialTransition, initialEvent);
+		DefaultStateMachineExecutor<S, E> executor = new DefaultStateMachineExecutor<S, E>(this, getRelayStateMachine(), transitions,
+				triggerToTransitionMap, triggerlessTransitions, initialTransition, initialEvent);
 		if (getBeanFactory() != null) {
 			executor.setBeanFactory(getBeanFactory());
 		}
