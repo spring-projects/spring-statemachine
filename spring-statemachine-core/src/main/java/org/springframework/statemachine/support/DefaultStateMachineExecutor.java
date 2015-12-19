@@ -195,7 +195,11 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 				break;
 			}
 
-			transit = t.transit(stateContext);
+			try {
+				transit = t.transit(stateContext);
+			} catch (Exception e) {
+				log.warn("Transition " + t + " caused error " + e);
+			}
 			if (transit) {
 				stateMachineExecutorTransit.transit(t, stateContext, queuedMessage);
 				interceptors.postTransition(stateContext);
