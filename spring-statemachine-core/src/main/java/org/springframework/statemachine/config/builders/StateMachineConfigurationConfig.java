@@ -20,8 +20,10 @@ import java.util.List;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 import org.springframework.statemachine.listener.StateMachineListener;
+import org.springframework.statemachine.security.SecurityRule;
 
 /**
  * Configuration object used to keep things together in {@link StateMachineConfigurationBuilder}.
@@ -39,6 +41,11 @@ public class StateMachineConfigurationConfig<S, E> {
 	private final boolean autoStart;
 	private final StateMachineEnsemble<S, E> ensemble;
 	private final List<StateMachineListener<S, E>> listeners;
+	private final boolean securityEnabled;
+	private final AccessDecisionManager transitionSecurityAccessDecisionManager;
+	private final AccessDecisionManager eventSecurityAccessDecisionManager;
+	private final SecurityRule eventSecurityRule;
+	private final SecurityRule transitionSecurityRule;
 
 	/**
 	 * Instantiates a new state machine configuration config.
@@ -49,16 +56,28 @@ public class StateMachineConfigurationConfig<S, E> {
 	 * @param autoStart the autostart flag
 	 * @param ensemble the state machine ensemble
 	 * @param listeners the state machine listeners
+	 * @param securityEnabled the security enabled flag
+	 * @param transitionSecurityAccessDecisionManager the transition security access decision manager
+	 * @param eventSecurityAccessDecisionManager the event security access decision manager
+	 * @param eventSecurityRule the event security rule
+	 * @param transitionSecurityRule the transition security rule
 	 */
 	public StateMachineConfigurationConfig(BeanFactory beanFactory, TaskExecutor taskExecutor,
 			TaskScheduler taskScheduler, boolean autoStart, StateMachineEnsemble<S, E> ensemble,
-			List<StateMachineListener<S, E>> listeners) {
+			List<StateMachineListener<S, E>> listeners, boolean securityEnabled,
+			AccessDecisionManager transitionSecurityAccessDecisionManager, AccessDecisionManager eventSecurityAccessDecisionManager,
+			SecurityRule eventSecurityRule, SecurityRule transitionSecurityRule) {
 		this.beanFactory = beanFactory;
 		this.taskExecutor = taskExecutor;
 		this.taskScheduler = taskScheduler;
 		this.autoStart = autoStart;
 		this.ensemble = ensemble;
 		this.listeners = listeners;
+		this.securityEnabled = securityEnabled;
+		this.transitionSecurityAccessDecisionManager = transitionSecurityAccessDecisionManager;
+		this.eventSecurityAccessDecisionManager = eventSecurityAccessDecisionManager;
+		this.eventSecurityRule = eventSecurityRule;
+		this.transitionSecurityRule = transitionSecurityRule;
 	}
 
 	/**
@@ -113,6 +132,51 @@ public class StateMachineConfigurationConfig<S, E> {
 	 */
 	public List<StateMachineListener<S, E>> getStateMachineListeners() {
 		return listeners;
+	}
+
+	/**
+	 * Checks if is security is enabled.
+	 *
+	 * @return true, if is security is enabled
+	 */
+	public boolean isSecurityEnabled() {
+		return securityEnabled;
+	}
+
+	/**
+	 * Gets the transition security access decision manager.
+	 *
+	 * @return the security access decision manager
+	 */
+	public AccessDecisionManager getTransitionSecurityAccessDecisionManager() {
+		return transitionSecurityAccessDecisionManager;
+	}
+
+	/**
+	 * Gets the event security access decision manager.
+	 *
+	 * @return the event security access decision manager
+	 */
+	public AccessDecisionManager getEventSecurityAccessDecisionManager() {
+		return eventSecurityAccessDecisionManager;
+	}
+
+	/**
+	 * Gets the event security rule.
+	 *
+	 * @return the event security rule
+	 */
+	public SecurityRule getEventSecurityRule() {
+		return eventSecurityRule;
+	}
+
+	/**
+	 * Gets the transition security rule.
+	 *
+	 * @return the transition security rule
+	 */
+	public SecurityRule getTransitionSecurityRule() {
+		return transitionSecurityRule;
 	}
 
 }

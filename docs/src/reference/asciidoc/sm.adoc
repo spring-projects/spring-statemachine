@@ -894,6 +894,170 @@ More about error handling shown in above example, see section
 <<sm-error-handling>>.
 ====
 
+[[sm-security]]
+== State Machine Security
+Security features are build atop of functionality from a _Spring
+Security_. Security features are handy when it is required to protect
+part of a state machine execution and interaction with it. More
+detailed info can be found from section <<sm-security-details>>.
+
+[IMPORTANT]
+====
+We expect user to be fairly familiar with a _Spring Security_ meaning
+we don't go into details of how overall security framework works. For
+this read _Spring Security_ reference documentation.
+====
+
+[TIP]
+====
+For complete example, see sample <<statemachine-examples-security>>.
+====
+
+=== Configuring Security
+All generic configurations for security are done from
+`SecurityConfigurer` which is obtained from
+`StateMachineConfigurationConfigurer`. Security is disabled on
+default even if _Spring Security_ classes are
+present.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests3.java[tags=snippetD]
+----
+
+If absolutely needed `AccessDecisionManager` for both events and
+transitions can be customised. If decision managers are not defined or
+are set to `null`, default managers are created internally.
+
+=== Securing Events
+Event security is defined on a global level within a
+`SecurityConfigurer`.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests3.java[tags=snippetA]
+----
+
+In above configuration we use expression `true` which always evaluates
+to _TRUE_. Using an expression which always evaluates to _TRUE_
+would not make sense in a real application but gives a point that
+expression needs to return either _TRUE_ or _FALSE_. We also defined
+attribute `ROLE_ANONYMOUS` and `ComparisonType` `ANY`. Using attributes
+and expressions, see section <<sm-security-attributes-expressions>>.
+
+=== Securing Transitions
+Transition security can be defined globally.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests3.java[tags=snippetF]
+----
+
+If security is defined in a transition itself it will override any
+globally set security.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests3.java[tags=snippetB]
+----
+
+Using attributes and expressions, see section <<sm-security-attributes-expressions>>.
+
+=== Securing Actions
+There are no dedicated security definitions for actions in a state
+machine, but it can be accomplished using a global method security
+from a _Spring Security_. This simply needs that an `Action` is
+defined as a proxied `@Bean` and its `execute` method annotated with a
+`@Secured`.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests3.java[tags=snippetC]
+----
+
+Global method security needs to be enabled with a _Spring Security_
+which is done with along a lines shown below. See _Spring Security_
+reference docs for more details.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests3.java[tags=snippetE]
+----
+
+[[sm-security-attributes-expressions]]
+=== Using Security Attributes and Expressions
+Generally there are two ways to define security properties, firstly
+using security attributes and secondly using security expressions.
+Attributes are easier to use but are relatively limited in terms of
+functionality. Expressions provide more features but are a little bit
+of harder to use.
+
+This section is splitted into different subsections because we're
+re-using something from a _Spring Security_ and then do custom
+attributes and expression handling for events and transitions.
+
+==== Generic Attribute Usage
+On default `AccessDecisionManager` instances for events and
+transitions use a `RoleVoter`, meaning you can use role attributes.
+
+For attributes we have 3 different comparison types, `ANY`, `ALL` and
+`MAJORITY` which maps into voters `AffirmativeBased`, `UnanimousBased`
+and `ConsensusBased` respectively.
+
+==== Generic Expression Usage
+Security expressions needs to return either _TRUE_ or _FALSE_.
+
+==== Event Attributes
+Event id can be matched by using prefix _EVENT__. For example matching
+event `A` would match with attribte _EVENT_A_.
+
+==== Event Expressions
+For generic options for expressions, see _Spring Security_ docs. We
+inherit from `SecurityExpressionRoot` and options from there are
+available.
+
+==== Transition Attributes
+Matching transition sources and targets, use prefixes
+_TRANSITION_SOURCE__ and  _TRANSITION_TARGET__ respectively.
+
+==== Transition Expressions
+For generic options for expressions, see _Spring Security_ docs. We
+inherit from `SecurityExpressionRoot` and options from there are
+available.
+
+[[sm-security-details]]
+=== Understanding Security
+This section provides more detailed info how security works within a
+state machine. Not really something you'd need to know but it is
+always better to be transparent instead of hiding all the magic what
+happens behind a scenes.
+
+Security only makes sense if _State Machine_ is executed in a wallet
+garden where user don't have direct access to the application thus
+could modify Spring Security's `SecurityContext` hold in a thread
+local. If user controls the jvm, then effectively there is no security
+at all.
+
+Integration point for security is done with a
+`StateMachineInterceptor` which is then added automatically into a
+state machine if security is enabled. Specific class is a
+`StateMachineSecurityInterceptor` which intercepts events and
+transitions. This interceptor then consults Spring Security's
+`AccessDecisionManager` if event can be send or if transition can be
+executed. Effectively if decision or vote with a `AccessDecisionManager`
+will result an exception, event or transition is denied.
+
+Due to way how `AccessDecisionManager` from Spring Security works, we
+need one instance of it per secured object. This is a reason why there
+is a different manager for events and transitions. In this case events
+and transitions are different class objects we're securing.
+
+On default for events, voters `EventExpressionVoter`, `EventVoter` and
+`RoleVoter` are added into a `AccessDecisionManager`.
+
+On default for transitions, voters `TransitionExpressionVoter`,
+`TransitionVoter` and `RoleVoter` are added into a `AccessDecisionManager`.
+
 [[sm-error-handling]]
 == State Machine Error Handling
 If state machine detects an internal error during a state transition

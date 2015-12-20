@@ -19,6 +19,7 @@ import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerBuilder;
 import org.springframework.statemachine.guard.Guard;
+import org.springframework.statemachine.security.SecurityRule.ComparisonType;
 import org.springframework.statemachine.transition.Transition;
 
 /**
@@ -43,7 +44,7 @@ public interface TransitionConfigurer<T, S, E> extends
 
 	/**
 	 * Specify a state this transition should belong to.
-	 * 
+	 *
 	 * @param state the state {@code S}
 	 * @return configurer for chaining
 	 */
@@ -60,7 +61,7 @@ public interface TransitionConfigurer<T, S, E> extends
 
 	/**
 	 * Specify that this transition is triggered by a time.
-	 * 
+	 *
 	 * @param period timer period in millis
 	 * @return configurer for chaining
 	 */
@@ -89,5 +90,23 @@ public interface TransitionConfigurer<T, S, E> extends
 	 * @return configurer for chaining
 	 */
 	T guardExpression(String expression);
+
+
+	/**
+	 * Specify a security attributes for this {@link Transition}.
+	 *
+	 * @param attributes the security attributes
+	 * @param match the match type
+	 * @return configurer for chaining
+	 */
+	T secured(String attributes, ComparisonType match);
+
+	/**
+	 * Specify a security expression for this {@link Transition}.
+	 *
+	 * @param expression the security expression
+	 * @return configurer for chaining
+	 */
+	T secured(String expression);
 
 }

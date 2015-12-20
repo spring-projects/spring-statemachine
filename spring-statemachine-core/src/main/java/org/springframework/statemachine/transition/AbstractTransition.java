@@ -20,6 +20,7 @@ import java.util.Collection;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
+import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.util.Assert;
@@ -44,10 +45,17 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 
 	private final Guard<S, E> guard;
 
-	private Trigger<S, E> trigger;
+	private final Trigger<S, E> trigger;
+
+	private final SecurityRule securityRule;
 
 	public AbstractTransition(State<S, E> source, State<S, E> target, Collection<Action<S, E>> actions, E event,
 			TransitionKind kind, Guard<S, E> guard, Trigger<S, E> trigger) {
+		this(source, target, actions, event, kind, guard, trigger, null);
+	}
+
+	public AbstractTransition(State<S, E> source, State<S, E> target, Collection<Action<S, E>> actions, E event,
+			TransitionKind kind, Guard<S, E> guard, Trigger<S, E> trigger, SecurityRule securityRule) {
 		Assert.notNull(source, "Source must be set");
 		Assert.notNull(kind, "Transition type must be set");
 		this.source = source;
@@ -56,6 +64,7 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 		this.kind = kind;
 		this.guard = guard;
 		this.trigger = trigger;
+		this.securityRule = securityRule;
 	}
 
 	@Override
@@ -96,6 +105,11 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 	@Override
 	public TransitionKind getKind() {
 		return kind;
+	}
+
+	@Override
+	public SecurityRule getSecurityRule() {
+		return securityRule;
 	}
 
 }

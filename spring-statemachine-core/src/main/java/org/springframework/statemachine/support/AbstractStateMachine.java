@@ -195,6 +195,15 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			notifyEventNotAccepted(event);
 			return false;
 		}
+
+		try {
+			event = getStateMachineInterceptors().preEvent(event, this);
+		} catch (Exception e) {
+			log.info("Event " + event + " threw exception in interceptors, not accepting event");
+			notifyEventNotAccepted(event);
+			return false;
+		}
+
 		if (isComplete() || !isRunning()) {
 			notifyEventNotAccepted(event);
 			return false;

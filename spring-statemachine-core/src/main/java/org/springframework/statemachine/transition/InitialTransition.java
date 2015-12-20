@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.trigger.Trigger;
 
@@ -106,6 +107,12 @@ public class InitialTransition<S, E> implements Transition<S, E> {
 	@Override
 	public TransitionKind getKind() {
 		return TransitionKind.INITIAL;
+	}
+
+	@Override
+	public SecurityRule getSecurityRule() {
+		// initial cannot have security
+		return null;
 	}
 
 }

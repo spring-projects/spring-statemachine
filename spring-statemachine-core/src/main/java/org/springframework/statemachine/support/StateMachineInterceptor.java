@@ -33,6 +33,16 @@ import org.springframework.statemachine.transition.Transition;
 public interface StateMachineInterceptor<S, E> {
 
 	/**
+	 * Called before message is sent to processing. Throwing exception or
+	 * returning null will skip the message.
+	 *
+	 * @param message the message
+	 * @param stateMachine the state machine
+	 * @return the intercepted message
+	 */
+	Message<E> preEvent(Message<E> message, StateMachine<S, E> stateMachine);
+
+	/**
 	 * Called prior of a state change. Throwing an exception
 	 * from this method will stop a state change logic.
 	 *

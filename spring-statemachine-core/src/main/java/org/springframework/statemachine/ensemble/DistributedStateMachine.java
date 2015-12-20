@@ -186,6 +186,11 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 	private class LocalStateMachineInterceptor implements StateMachineInterceptor<S, E> {
 
 		@Override
+		public Message<E> preEvent(Message<E> message, StateMachine<S, E> stateMachine) {
+			return message;
+		}
+
+		@Override
 		public void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
 				StateMachine<S, E> stateMachine) {
 			if (log.isTraceEnabled()) {

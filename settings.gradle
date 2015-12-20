@@ -16,6 +16,7 @@ include 'spring-statemachine-samples:zookeeper'
 include 'spring-statemachine-samples:persist'
 include 'spring-statemachine-samples:web'
 include 'spring-statemachine-samples:scope'
+include 'spring-statemachine-samples:security'
 
 rootProject.children.find {
 	if (it.name == 'spring-statemachine-recipes') {

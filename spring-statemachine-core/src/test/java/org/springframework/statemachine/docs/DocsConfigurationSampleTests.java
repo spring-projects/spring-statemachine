@@ -957,6 +957,11 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 					.withRegion().addStateMachineInterceptor(new StateMachineInterceptor<String, String>() {
 
 						@Override
+						public Message<String> preEvent(Message<String> message, StateMachine<String, String> stateMachine) {
+							return message;
+						}
+
+						@Override
 						public StateContext<String, String> preTransition(StateContext<String, String> stateContext) {
 							return stateContext;
 						}
@@ -1021,7 +1026,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 
 			@Override
 			public void stateMachineError(StateMachine<String, String> stateMachine, Exception exception) {
-	    		// do something with error
+				// do something with error
 			}
 		}
 // end::snippet2[]
@@ -1030,12 +1035,12 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 		public class GenericApplicationEventListener
 				implements ApplicationListener<StateMachineEvent> {
 
-		    @Override
-		    public void onApplicationEvent(StateMachineEvent event) {
-		    	if (event instanceof OnStateMachineError) {
-		    		// do something with error
-		    	}
-		    }
+			@Override
+			public void onApplicationEvent(StateMachineEvent event) {
+				if (event instanceof OnStateMachineError) {
+					// do something with error
+				}
+			}
 		}
 // end::snippet3[]
 
@@ -1045,7 +1050,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 
 			@Override
 			public void onApplicationEvent(OnStateMachineError event) {
-	    		// do something with error
+				// do something with error
 			}
 		}
 // end::snippet4[]

@@ -28,6 +28,8 @@ normal build cycle. Samples in this chapter are:
 
 <<statemachine-examples-scope>> Scope.
 
+<<statemachine-examples-security>> Security.
+
 
 [source,text]
 ----
@@ -1070,3 +1072,62 @@ _Chrome_ and one in _Firefox_, you should get a new state machine
 instance per user session.
 
 image::images/sm-scope-1.png[width=500]
+
+[[statemachine-examples-security]]
+== Security
+Security is a state machine example using most of a compinations of
+securing a state machine. It is securing sending events, transitions
+and actions.
+
+image::images/statechart13.png[width=500]
+
+[source,text,subs="attributes"]
+----
+@n1:~# java -jar spring-statemachine-samples-secure-{revnumber}.jar
+----
+
+We secure event sending with a users having a role `USER`. None of
+a other users imposed by a _Spring Security_ can't send events into a
+state machine.
+
+[source,java,indent=0]
+----
+include::samples/demo/security/StateMachineConfig.java[tags=snippetA]
+----
+
+In this sample we define two users, _user_ having a role `USER` and
+_admin_ having both roles `USER` and `ADMIN`. Authentication for both
+user for password is `password`.
+
+[source,java,indent=0]
+----
+include::samples/demo/security/StateMachineConfig.java[tags=snippetE]
+----
+
+We define various transitions between states according to a statechart
+seen above. Only a user with active `ADMIN` role can execute
+external transitions between `S2` and `S3`. Similarly `ADMIN` can only
+execute internal transition in a state `S1`.
+
+[source,java,indent=0]
+----
+include::samples/demo/security/StateMachineConfig.java[tags=snippetB]
+----
+
+`Action` `adminAction` is secured with a role `ADMIN`.
+
+[source,java,indent=0]
+----
+include::samples/demo/security/StateMachineConfig.java[tags=snippetC]
+----
+
+Below `Action` would only be executed with internal transition in a
+state `S1` when event `F` is send. Transition itself is secured with a
+role `ADMIN` so this transition will not be executed if current user
+does not hate that role.
+
+[source,java,indent=0]
+----
+include::samples/demo/security/StateMachineConfig.java[tags=snippetD]
+----
+

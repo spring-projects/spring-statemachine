@@ -32,6 +32,11 @@ import org.springframework.statemachine.transition.Transition;
 public class StateMachineInterceptorAdapter<S, E> implements StateMachineInterceptor<S, E> {
 
 	@Override
+	public Message<E> preEvent(Message<E> message, StateMachine<S, E> stateMachine) {
+		return message;
+	}
+
+	@Override
 	public void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
 			StateMachine<S, E> stateMachine) {
 	}

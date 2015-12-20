@@ -15,19 +15,14 @@
  */
 package org.springframework.statemachine.config.configurers;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.springframework.expression.spel.SpelCompilerMode;
 import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.builders.StateMachineTransitionBuilder;
-import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
-import org.springframework.statemachine.config.builders.StateMachineTransitions;
-import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerAdapter;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.guard.SpelExpressionGuard;
+import org.springframework.statemachine.security.SecurityRule.ComparisonType;
 import org.springframework.statemachine.transition.TransitionKind;
 
 /**
@@ -38,68 +33,53 @@ import org.springframework.statemachine.transition.TransitionKind;
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public class DefaultLocalTransitionConfigurer<S, E>
-		extends AnnotationConfigurerAdapter<StateMachineTransitions<S, E>, StateMachineTransitionConfigurer<S, E>, StateMachineTransitionBuilder<S, E>>
-		implements LocalTransitionConfigurer<S, E> {
-
-	private S source;
-
-	private S target;
-
-	private S state;
-
-	private E event;
-
-	private Long period;
-
-	private Collection<Action<S, E>> actions = new ArrayList<Action<S, E>>();
-
-	private Guard<S, E> guard;
+public class DefaultLocalTransitionConfigurer<S, E> extends AbstractTransitionConfigurer<S, E> implements LocalTransitionConfigurer<S, E> {
 
 	@Override
 	public void configure(StateMachineTransitionBuilder<S, E> builder) throws Exception {
-		builder.add(source, target, state, event, period, actions, guard, TransitionKind.LOCAL);
+		builder.add(getSource(), getTarget(), getState(), getEvent(), getPeriod(), getActions(), getGuard(), TransitionKind.LOCAL,
+				getSecurityRule());
 	}
 
 	@Override
 	public LocalTransitionConfigurer<S, E> source(S source) {
-		this.source = source;
+		setSource(source);
 		return this;
 	}
 
 	@Override
 	public LocalTransitionConfigurer<S, E> target(S target) {
-		this.target = target;
+		setTarget(target);
 		return this;
 	}
 
 	@Override
 	public LocalTransitionConfigurer<S, E> state(S state) {
-		this.state = state;
+		setState(state);
 		return this;
 	}
 
 	@Override
 	public LocalTransitionConfigurer<S, E> event(E event) {
-		this.event = event;
+		setEvent(event);
 		return this;
 	}
 
 	@Override
 	public LocalTransitionConfigurer<S, E> timer(long period) {
-		this.period = period;
+		setPeriod(period);
 		return this;
 	}
 
 	@Override
 	public LocalTransitionConfigurer<S, E> action(Action<S, E> action) {
-		actions.add(action);
+		addAction(action);
 		return this;
 	}
 
 	@Override
 	public LocalTransitionConfigurer<S, E> guard(Guard<S, E> guard) {
-		this.guard = guard;
+		setGuard(guard);
 		return this;
 	}
 
@@ -107,7 +87,19 @@ public class DefaultLocalTransitionConfigurer<S, E>
 	public LocalTransitionConfigurer<S, E> guardExpression(String expression) {
 		SpelExpressionParser parser = new SpelExpressionParser(
 				new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
-		this.guard = new SpelExpressionGuard<S, E>(parser.parseExpression(expression));
+		setGuard(new SpelExpressionGuard<S, E>(parser.parseExpression(expression)));
+		return this;
+	}
+
+	@Override
+	public LocalTransitionConfigurer<S, E> secured(String attributes, ComparisonType match) {
+		setSecurityRule(attributes, match);
+		return this;
+	}
+
+	@Override
+	public LocalTransitionConfigurer<S, E> secured(String expression) {
+		setSecurityRule(expression);
 		return this;
 	}
 

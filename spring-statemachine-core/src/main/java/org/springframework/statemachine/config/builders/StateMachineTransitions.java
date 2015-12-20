@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
+import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.transition.TransitionKind;
 
 /**
@@ -105,6 +106,7 @@ public class StateMachineTransitions<S, E> {
 		private final Collection<Action<S, E>> actions;
 		private final Guard<S, E> guard;
 		private final TransitionKind kind;
+		private final SecurityRule securityRule;
 
 		/**
 		 * Instantiates a new transition data.
@@ -117,9 +119,10 @@ public class StateMachineTransitions<S, E> {
 		 * @param actions the actions
 		 * @param guard the guard
 		 * @param kind the kind
+		 * @param securityRule the security rule
 		 */
 		public TransitionData(S source, S target, S state, E event, Long period, Collection<Action<S, E>> actions,
-				Guard<S, E> guard, TransitionKind kind) {
+				Guard<S, E> guard, TransitionKind kind, SecurityRule securityRule) {
 			this.source = source;
 			this.target = target;
 			this.state = state;
@@ -128,6 +131,7 @@ public class StateMachineTransitions<S, E> {
 			this.actions = actions;
 			this.guard = guard;
 			this.kind = kind;
+			this.securityRule = securityRule;
 		}
 
 		/**
@@ -200,6 +204,15 @@ public class StateMachineTransitions<S, E> {
 		 */
 		public TransitionKind getKind() {
 			return kind;
+		}
+
+		/**
+		 * Gets the security rule.
+		 *
+		 * @return the security rule
+		 */
+		public SecurityRule getSecurityRule() {
+			return securityRule;
 		}
 	}
 

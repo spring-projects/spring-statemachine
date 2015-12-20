@@ -17,6 +17,8 @@ package org.springframework.statemachine.state;
 
 import java.util.Collection;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
@@ -31,6 +33,8 @@ import org.springframework.statemachine.region.Region;
  * @param <E> the type of event
  */
 public class ObjectState<S, E> extends AbstractSimpleState<S, E> {
+
+	private static final Log log = LogFactory.getLog(ObjectState.class);
 
 	/**
 	 * Instantiates a new object state.
@@ -122,7 +126,11 @@ public class ObjectState<S, E> extends AbstractSimpleState<S, E> {
 		Collection<? extends Action<S, E>> actions = getExitActions();
 		if (actions != null) {
 			for (Action<S, E> action : actions) {
-				action.execute(context);
+				try {
+					action.execute(context);
+				} catch (Exception e) {
+					log.error("Action execution resulted error", e);
+				}
 			}
 		}
 	}
@@ -132,7 +140,11 @@ public class ObjectState<S, E> extends AbstractSimpleState<S, E> {
 		Collection<? extends Action<S, E>> actions = getEntryActions();
 		if (actions != null) {
 			for (Action<S, E> action : actions) {
-				action.execute(context);
+				try {
+					action.execute(context);
+				} catch (Exception e) {
+					log.error("Action execution resulted error", e);
+				}
 			}
 		}
 	}

@@ -25,12 +25,15 @@ public class StateMachineConfigBuilder<S, E>
 	@SuppressWarnings("unchecked")
 	@Override
 	protected StateMachineConfig<S, E> performBuild() throws Exception {
-		StateMachineTransitionBuilder<?, ?> sharedObject = getSharedObject(StateMachineTransitionBuilder.class);
-		StateMachineStateBuilder<?, ?> sharedObject2 = getSharedObject(StateMachineStateBuilder.class);
-		StateMachineConfigurationBuilder<?, ?> sharedObject3 = getSharedObject(StateMachineConfigurationBuilder.class);
-		StateMachineTransitions<S, E> transitions = (StateMachineTransitions<S, E>) sharedObject.build();
-		StateMachineStates<S, E> states = (StateMachineStates<S, E>) sharedObject2.build();
-		StateMachineConfigurationConfig<S, E> config = (StateMachineConfigurationConfig<S, E>) sharedObject3.build();
+		StateMachineConfigurationBuilder<?, ?> configurationBuilder = getSharedObject(StateMachineConfigurationBuilder.class);
+		StateMachineTransitionBuilder<?, ?> transitionBuilder = getSharedObject(StateMachineTransitionBuilder.class);
+		StateMachineStateBuilder<?, ?> stateBuilder = getSharedObject(StateMachineStateBuilder.class);
+
+		// build config first as it's shared with transition builder
+		StateMachineConfigurationConfig<S, E> config = (StateMachineConfigurationConfig<S, E>) configurationBuilder.build();
+		transitionBuilder.setSharedObject(StateMachineConfigurationConfig.class, config);
+		StateMachineTransitions<S, E> transitions = (StateMachineTransitions<S, E>) transitionBuilder.build();
+		StateMachineStates<S, E> states = (StateMachineStates<S, E>) stateBuilder.build();
 		StateMachineConfig<S, E> bean = new StateMachineConfig<S, E>(config, transitions, states);
 		return bean;
 	}

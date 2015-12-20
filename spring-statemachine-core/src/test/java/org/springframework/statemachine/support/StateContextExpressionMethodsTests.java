@@ -36,6 +36,7 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.listener.StateMachineListener;
+import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.EnumState;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
@@ -123,6 +124,11 @@ public class StateContextExpressionMethodsTests {
 
 		@Override
 		public TransitionKind getKind() {
+			return null;
+		}
+
+		@Override
+		public SecurityRule getSecurityRule() {
 			return null;
 		}
 

@@ -8,6 +8,7 @@ build
 *.log
 *.ipr
 *.iws
+*.swp
 metastore_db
 /src/test/resources/s3.properties
 /.idea/

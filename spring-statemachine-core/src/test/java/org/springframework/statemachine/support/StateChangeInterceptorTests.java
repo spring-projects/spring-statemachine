@@ -211,11 +211,11 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 	}
 
 	public static enum States {
-	    S0, S1, S11, S12, S2, S21, S211, S212
+		S0, S1, S11, S12, S2, S21, S211, S212
 	}
 
 	public static enum Events {
-	    A, B, C, D, E, F, G, H, I
+		A, B, C, D, E, F, G, H, I
 	}
 
 	private static class FooAction implements Action<States, Events> {
@@ -271,6 +271,11 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 
 		volatile CountDownLatch preStateChangeLatch = new CountDownLatch(1);
 		volatile int preStateChangeCount = 0;
+
+		@Override
+		public Message<Events> preEvent(Message<Events> message, StateMachine<States, Events> stateMachine) {
+			return message;
+		}
 
 		@Override
 		public void preStateChange(State<States, Events> state, Message<Events> message,

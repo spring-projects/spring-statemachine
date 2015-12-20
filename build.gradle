@@ -27,7 +27,7 @@ configure(allprojects) {
 	apply plugin: 'java'
 	apply plugin: 'eclipse'
 	apply plugin: 'idea'
-	
+	apply plugin: 'propdeps'
 
 	compileJava {
 		sourceCompatibility = 1.7
@@ -59,9 +59,9 @@ configure(allprojects) {
 	// servlet-api (2.5) and tomcat-servlet-api (3.0) classpath entries should not be
 	// exported to dependent projects in Eclipse to avoid false compilation errors due
 	// to changing APIs across these versions
-	eclipse.classpath.file.whenMerged { classpath ->
-		classpath.entries.findAll { entry -> entry.path.contains('servlet-api') }*.exported = false
-	}
+//	eclipse.classpath.file.whenMerged { classpath ->
+//		classpath.entries.findAll { entry -> entry.path.contains('servlet-api') }*.exported = false
+//	}
 }
 
 configure(subprojects) { subproject ->
@@ -116,6 +116,7 @@ project('spring-statemachine-core') {
 	dependencies {
 		compile "org.springframework:spring-tx:$springVersion"
 		compile "org.springframework:spring-messaging:$springVersion"
+		optional "org.springframework.security:spring-security-core:$springSecurityVersion"
 
 		testCompile "org.springframework:spring-test:$springVersion"
 		testCompile "org.springframework:spring-web:$springVersion"
@@ -124,8 +125,14 @@ project('spring-statemachine-core') {
 		testCompile "org.apache.tomcat.embed:tomcat-embed-logging-juli:$tomcatEmbedVersion"
 		testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"
 		testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
+		testCompile("org.mockito:mockito-core:$mockitoVersion") { dep ->
+			exclude group: "org.hamcrest"
+		}
 		testCompile "junit:junit:$junitVersion"
-		testRuntime("log4j:log4j:$log4jVersion")
+		testCompile "org.springframework.security:spring-security-config:$springSecurityVersion"
+		testCompile "org.springframework.security:spring-security-test:$springSecurityVersion"
+		testCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
+		testRuntime "log4j:log4j:$log4jVersion"
 	}
 }
 
@@ -264,6 +271,7 @@ configure(rootProject) {
 		from 'spring-statemachine-samples/cdplayer/src/main/java/'
 		from 'spring-statemachine-samples/persist/src/main/java/'
 		from 'spring-statemachine-samples/zookeeper/src/main/java/'
+		from 'spring-statemachine-samples/security/src/main/java/'
 		include '**/*.java'
 		into 'docs/src/reference/asciidoc/samples'
 	}

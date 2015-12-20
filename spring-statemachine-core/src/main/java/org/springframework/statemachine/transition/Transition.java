@@ -19,6 +19,7 @@ import java.util.Collection;
 
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.trigger.Trigger;
 
@@ -27,7 +28,7 @@ import org.springframework.statemachine.trigger.Trigger;
  * changes.
  *
  * @author Janne Valkealahti
- * 
+ *
  * @param <S> the type of state
  * @param <E> the type of event
  */
@@ -40,7 +41,7 @@ public interface Transition<S, E> {
 	 * @return true, if transition happened, false otherwise
 	 */
 	boolean transit(StateContext<S, E> context);
-	
+
 	/**
 	 * Gets the source state of this transition.
 	 *
@@ -75,5 +76,12 @@ public interface Transition<S, E> {
 	 * @return the transition kind
 	 */
 	TransitionKind getKind();
+
+	/**
+	 * Gets the security rule.
+	 *
+	 * @return the security rule
+	 */
+	SecurityRule getSecurityRule();
 
 }

@@ -17,6 +17,7 @@ package org.springframework.statemachine.config.builders;
 
 import org.springframework.statemachine.config.configurers.ConfigurationConfigurer;
 import org.springframework.statemachine.config.configurers.DistributedStateMachineConfigurer;
+import org.springframework.statemachine.config.configurers.SecurityConfigurer;
 
 /**
  * Configurer interface exposing generic config.
@@ -43,5 +44,13 @@ public interface StateMachineConfigurationConfigurer<S, E> {
 	 * @throws Exception if configuration error happens
 	 */
 	DistributedStateMachineConfigurer<S, E> withDistributed() throws Exception;
+
+	/**
+	 * Gets a configurer for securing state machine.
+	 *
+	 * @return {@link SecurityConfigurer} for chaining
+	 * @throws Exception if configuration error happens
+	 */
+	SecurityConfigurer<S, E> withSecurity() throws Exception;
 
 }

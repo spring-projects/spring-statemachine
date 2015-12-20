@@ -190,7 +190,15 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 			}
 
 			StateContext<S, E> stateContext = buildStateContext(queuedMessage, t, relayStateMachine);
-			stateContext = interceptors.preTransition(stateContext);
+			try {
+				stateContext = interceptors.preTransition(stateContext);
+			} catch (Exception e) {
+				// currently expect that if exception is
+				// thrown, this transition will not match.
+				// i.e. security may throw AccessDeniedException
+				log.info("Interceptors threw exception", e);
+				stateContext = null;
+			}
 			if (stateContext == null) {
 				break;
 			}

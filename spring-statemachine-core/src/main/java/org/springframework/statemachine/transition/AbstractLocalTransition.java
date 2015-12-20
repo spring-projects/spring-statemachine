@@ -19,13 +19,20 @@ import java.util.Collection;
 
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
+import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.trigger.Trigger;
 
-public class AbstractLocalTransition <S, E> extends AbstractTransition<S, E> implements Transition<S, E> {
+public class AbstractLocalTransition<S, E> extends AbstractTransition<S, E> implements Transition<S, E> {
 
-	public AbstractLocalTransition(State<S, E> source, State<S,E> target,Collection<Action<S, E>> actions, E event, Guard<S, E> guard, Trigger<S, E> trigger) {
+	public AbstractLocalTransition(State<S, E> source, State<S, E> target, Collection<Action<S, E>> actions, E event,
+			Guard<S, E> guard, Trigger<S, E> trigger) {
 		super(source, target, actions, event, TransitionKind.LOCAL, guard, trigger);
+	}
+
+	public AbstractLocalTransition(State<S, E> source, State<S, E> target, Collection<Action<S, E>> actions, E event,
+			Guard<S, E> guard, Trigger<S, E> trigger, SecurityRule securityRule) {
+		super(source, target, actions, event, TransitionKind.LOCAL, guard, trigger, securityRule);
 	}
 
 }

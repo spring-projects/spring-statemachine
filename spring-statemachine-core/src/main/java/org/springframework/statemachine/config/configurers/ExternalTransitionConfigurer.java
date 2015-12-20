@@ -19,7 +19,7 @@ import org.springframework.statemachine.transition.Transition;
 
 /**
  * {@code TransitionConfigurer} interface for configuring external {@link Transition}s.
- * 
+ *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state

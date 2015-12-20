@@ -72,6 +72,22 @@ public class StateMachineInterceptorList<S, E> {
 	}
 
 	/**
+	 * Pre event.
+	 *
+	 * @param message the message
+	 * @param stateMachine the state machine
+	 * @return the message
+	 */
+	public Message<E> preEvent(Message<E> message, StateMachine<S, E> stateMachine) {
+		for (StateMachineInterceptor<S, E> interceptor : interceptors) {
+			if ((message = interceptor.preEvent(message, stateMachine)) == null) {
+				break;
+			}
+		}
+		return message;
+	}
+
+	/**
 	 * Pre state change.
 	 *
 	 * @param state the state

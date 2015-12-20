@@ -21,15 +21,19 @@ import java.util.List;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.statemachine.config.common.annotation.AbstractConfiguredAnnotationBuilder;
 import org.springframework.statemachine.config.common.annotation.AnnotationBuilder;
 import org.springframework.statemachine.config.common.annotation.ObjectPostProcessor;
 import org.springframework.statemachine.config.configurers.ConfigurationConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultConfigurationConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultDistributedStateMachineConfigurer;
+import org.springframework.statemachine.config.configurers.DefaultSecurityConfigurer;
 import org.springframework.statemachine.config.configurers.DistributedStateMachineConfigurer;
+import org.springframework.statemachine.config.configurers.SecurityConfigurer;
 import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 import org.springframework.statemachine.listener.StateMachineListener;
+import org.springframework.statemachine.security.SecurityRule;
 
 /**
  * {@link AnnotationBuilder} for {@link StateMachineStates}.
@@ -49,6 +53,11 @@ public class StateMachineConfigurationBuilder<S, E>
 	private boolean autoStart = false;
 	private StateMachineEnsemble<S, E> ensemble;
 	private final List<StateMachineListener<S, E>> listeners = new ArrayList<StateMachineListener<S, E>>();
+	private boolean securityEnabled = false;
+	private AccessDecisionManager transitionSecurityAccessDecisionManager;
+	private AccessDecisionManager eventSecurityAccessDecisionManager;
+	private SecurityRule eventSecurityRule;
+	private SecurityRule transitionSecurityRule;
 
 	/**
 	 * Instantiates a new state machine configuration builder.
@@ -88,8 +97,15 @@ public class StateMachineConfigurationBuilder<S, E>
 	}
 
 	@Override
+	public SecurityConfigurer<S, E> withSecurity() throws Exception {
+		return apply(new DefaultSecurityConfigurer<S, E>());
+	}
+
+	@Override
 	protected StateMachineConfigurationConfig<S, E> performBuild() throws Exception {
-		return new StateMachineConfigurationConfig<>(beanFactory, taskExecutor, taskScheculer, autoStart, ensemble, listeners);
+		return new StateMachineConfigurationConfig<S, E>(beanFactory, taskExecutor, taskScheculer, autoStart, ensemble, listeners,
+				securityEnabled, transitionSecurityAccessDecisionManager, eventSecurityAccessDecisionManager, eventSecurityRule,
+				transitionSecurityRule);
 	}
 
 	/**
@@ -145,6 +161,51 @@ public class StateMachineConfigurationBuilder<S, E>
 	public void setStateMachineListeners(List<StateMachineListener<S, E>> listeners) {
 		this.listeners.clear();
 		this.listeners.addAll(listeners);
+	}
+
+	/**
+	 * Sets the security enabled.
+	 *
+	 * @param securityEnabled the new security enabled
+	 */
+	public void setSecurityEnabled(boolean securityEnabled) {
+		this.securityEnabled = securityEnabled;
+	}
+
+	/**
+	 * Sets the security transition access decision manager.
+	 *
+	 * @param transitionSecurityAccessDecisionManager the new security transition access decision manager
+	 */
+	public void setTransitionSecurityAccessDecisionManager(AccessDecisionManager transitionSecurityAccessDecisionManager) {
+		this.transitionSecurityAccessDecisionManager = transitionSecurityAccessDecisionManager;
+	}
+
+	/**
+	 * Sets the security event access decision manager.
+	 *
+	 * @param eventSecurityAccessDecisionManager the new security event access decision manager
+	 */
+	public void setEventSecurityAccessDecisionManager(AccessDecisionManager eventSecurityAccessDecisionManager) {
+		this.eventSecurityAccessDecisionManager = eventSecurityAccessDecisionManager;
+	}
+
+	/**
+	 * Sets the event security rule.
+	 *
+	 * @param eventSecurityRule the new event security rule
+	 */
+	public void setEventSecurityRule(SecurityRule eventSecurityRule) {
+		this.eventSecurityRule = eventSecurityRule;
+	}
+
+	/**
+	 * Sets the transition security rule.
+	 *
+	 * @param transitionSecurityRule the new event security rule
+	 */
+	public void setTransitionSecurityRule(SecurityRule transitionSecurityRule) {
+		this.transitionSecurityRule = transitionSecurityRule;
 	}
 
 }

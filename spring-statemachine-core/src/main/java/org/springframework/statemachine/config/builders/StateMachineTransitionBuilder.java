@@ -40,6 +40,7 @@ import org.springframework.statemachine.config.configurers.InternalTransitionCon
 import org.springframework.statemachine.config.configurers.JoinTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.LocalTransitionConfigurer;
 import org.springframework.statemachine.guard.Guard;
+import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.transition.TransitionKind;
 
 /**
@@ -109,8 +110,14 @@ public class StateMachineTransitionBuilder<S, E>
 	}
 
 	public void add(S source, S target, S state, E event, Long period, Collection<Action<S, E>> actions,
-			Guard<S, E> guard, TransitionKind kind) {
-		transitionData.add(new TransitionData<S, E>(source, target, state, event, period, actions, guard, kind));
+			Guard<S, E> guard, TransitionKind kind, SecurityRule securityRule) {
+		// if rule not given, get it from global
+		if (securityRule == null) {
+			@SuppressWarnings("unchecked")
+			StateMachineConfigurationConfig<S, E> config = getSharedObject(StateMachineConfigurationConfig.class);
+			securityRule = config.getTransitionSecurityRule();
+		}
+		transitionData.add(new TransitionData<S, E>(source, target, state, event, period, actions, guard, kind, securityRule));
 	}
 
 	public void add(S source, List<ChoiceData<S, E>> choices) {

@@ -54,3 +54,13 @@ project('spring-statemachine-samples-scope') {
 //		compile("org.springframework:spring-webmvc:$springVersion")
 	}
 }
+
+project('spring-statemachine-samples-security') {
+	description = 'Spring State Machine Web Security Sample'
+	dependencies {
+		compile("org.springframework.boot:spring-boot-starter-thymeleaf:$springBootVersion")
+		compile("org.springframework.boot:spring-boot-starter-security:$springBootVersion")
+		compile("org.springframework.security:spring-security-config:$springSecurityVersion")
+		compile("org.springframework.security:spring-security-web:$springSecurityVersion")
+	}
+}

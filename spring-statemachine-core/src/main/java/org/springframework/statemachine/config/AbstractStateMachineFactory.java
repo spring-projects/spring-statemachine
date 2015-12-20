@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.context.SmartLifecycle;
@@ -43,6 +45,7 @@ import org.springframework.statemachine.config.builders.StateMachineTransitions.
 import org.springframework.statemachine.ensemble.DistributedStateMachine;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.region.Region;
+import org.springframework.statemachine.security.StateMachineSecurityInterceptor;
 import org.springframework.statemachine.state.ChoicePseudoState;
 import org.springframework.statemachine.state.ChoicePseudoState.ChoiceStateData;
 import org.springframework.statemachine.state.DefaultPseudoState;
@@ -80,6 +83,8 @@ import org.springframework.util.ObjectUtils;
 public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectSupport implements
 		StateMachineFactory<S, E>, BeanNameAware {
 
+	private final Log log = LogFactory.getLog(AbstractStateMachineFactory.class);
+
 	private final StateMachineTransitions<S, E> stateMachineTransitions;
 
 	private final StateMachineStates<S, E> stateMachineStates;
@@ -105,7 +110,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		this.stateMachineTransitions = stateMachineTransitions;
 		this.stateMachineStates = stateMachineStates;
 	}
-	
+
 	@Override
 	public void setBeanName(String name) {
 		this.beanName = name;
@@ -204,7 +209,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		if (machine instanceof LifecycleObjectSupport) {
 			((LifecycleObjectSupport)machine).setAutoStartup(stateMachineConfigurationConfig.isAutoStart());
 		}
-		
+
 		// set top-level machine as relay
 		final StateMachine<S, E> fmachine = machine;
 		fmachine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<S, E>>() {
@@ -213,8 +218,23 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			public void apply(StateMachineAccess<S, E> function) {
 				function.setRelay(fmachine);
 			}
-
 		});
+
+		// TODO: should error out if sec is enabled but spring-security is not in cp
+		if (stateMachineConfigurationConfig.isSecurityEnabled()) {
+			final StateMachineSecurityInterceptor<S, E> securityInterceptor = new StateMachineSecurityInterceptor<S, E>(
+					stateMachineConfigurationConfig.getTransitionSecurityAccessDecisionManager(),
+					stateMachineConfigurationConfig.getEventSecurityAccessDecisionManager(),
+					stateMachineConfigurationConfig.getEventSecurityRule());
+			log.info("Adding security interceptor " + securityInterceptor);
+			fmachine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<S, E>>() {
+
+				@Override
+				public void apply(StateMachineAccess<S, E> function) {
+					function.addStateMachineInterceptor(securityInterceptor);
+				}
+			});
+		}
 
 		// setup distributed state machine if needed.
 		// we wrap previously build machine with a distributed
@@ -533,12 +553,14 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 					continue;
 				}
 				DefaultExternalTransition<S, E> transition = new DefaultExternalTransition<S, E>(stateMap.get(source),
-						stateMap.get(target), transitionData.getActions(), event, transitionData.getGuard(), trigger);
+						stateMap.get(target), transitionData.getActions(), event, transitionData.getGuard(), trigger,
+						transitionData.getSecurityRule());
 				transitions.add(transition);
 
 			} else if (transitionData.getKind() == TransitionKind.INTERNAL) {
 				DefaultInternalTransition<S, E> transition = new DefaultInternalTransition<S, E>(stateMap.get(source),
-						transitionData.getActions(), event, transitionData.getGuard(), trigger);
+						transitionData.getActions(), event, transitionData.getGuard(), trigger,
+						transitionData.getSecurityRule());
 				transitions.add(transition);
 			}
 		}
@@ -569,10 +591,10 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		}
 
 		TreeTraverser<Node<StateData<S, E>>> traverser = new TreeTraverser<Node<StateData<S, E>>>() {
-		    @Override
-		    public Iterable<Node<StateData<S, E>>> children(Node<StateData<S, E>> root) {
-		        return root.getChildren();
-		    }
+			@Override
+			public Iterable<Node<StateData<S, E>>> children(Node<StateData<S, E>> root) {
+				return root.getChildren();
+			}
 		};
 
 		Iterable<Node<StateData<S, E>>> postOrderTraversal = traverser.postOrderTraversal(tree.getRoot());
