@@ -154,7 +154,7 @@ project('spring-statemachine-kryo') {
 
 	dependencies {
 		compile project(":spring-statemachine-core")
-		compile "com.esotericsoftware.kryo:kryo:$kryoVersion"
+		compile "com.esotericsoftware:kryo:$kryoVersion"
 
 		testCompile project(":spring-statemachine-test")
 		testCompile "org.springframework:spring-test:$springVersion"
@@ -172,7 +172,6 @@ project('spring-statemachine-zookeeper') {
 		compile project(":spring-statemachine-core")
 		compile project(":spring-statemachine-kryo")
 		compile "org.apache.curator:curator-recipes:$curatorVersion"
-		compile "com.esotericsoftware.kryo:kryo:$kryoVersion"
 
 		testCompile project(":spring-statemachine-test")
 		testCompile "org.apache.curator:curator-test:$curatorVersion"
