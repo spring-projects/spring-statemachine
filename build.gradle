@@ -149,11 +149,28 @@ project('spring-statemachine-test') {
 	}
 }
 
-project('spring-statemachine-zookeeper') {
-	description = "Spring State Machine Zookeeper"
-    
+project('spring-statemachine-kryo') {
+	description = "Spring State Machine Kryo"
+
 	dependencies {
 		compile project(":spring-statemachine-core")
+		compile "com.esotericsoftware.kryo:kryo:$kryoVersion"
+
+		testCompile project(":spring-statemachine-test")
+		testCompile "org.springframework:spring-test:$springVersion"
+		testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"
+		testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
+		testCompile "junit:junit:$junitVersion"
+		testRuntime "log4j:log4j:$log4jVersion"
+	}
+}
+
+project('spring-statemachine-zookeeper') {
+	description = "Spring State Machine Zookeeper"
+
+	dependencies {
+		compile project(":spring-statemachine-core")
+		compile project(":spring-statemachine-kryo")
 		compile "org.apache.curator:curator-recipes:$curatorVersion"
 		compile "com.esotericsoftware.kryo:kryo:$kryoVersion"
 
@@ -163,7 +180,25 @@ project('spring-statemachine-zookeeper') {
 		testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"
 		testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
 		testCompile "junit:junit:$junitVersion"
-		testRuntime("log4j:log4j:$log4jVersion")
+		testRuntime "log4j:log4j:$log4jVersion"
+	}
+}
+
+project('spring-statemachine-redis') {
+	description = "Spring State Machine Redis"
+
+	dependencies {
+		compile project(":spring-statemachine-core")
+		compile project(":spring-statemachine-kryo")
+		compile "org.springframework.data:spring-data-redis:$springDataRedisVersion"
+		compile "redis.clients:jedis:$jedisVersion"
+
+		testCompile project(":spring-statemachine-test")
+		testCompile "org.springframework:spring-test:$springVersion"
+		testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"
+		testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
+		testCompile "junit:junit:$junitVersion"
+		testRuntime "log4j:log4j:$log4jVersion"
 	}
 }
 

@@ -2,7 +2,9 @@ rootProject.name = 'spring-statemachine'
 
 include 'spring-statemachine-core'
 include 'spring-statemachine-test'
+include 'spring-statemachine-kryo'
 include 'spring-statemachine-zookeeper'
+include 'spring-statemachine-redis'
 
 include 'spring-statemachine-recipes'
 
