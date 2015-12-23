@@ -30,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.core.MethodParameter;
+import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.expression.EvaluationException;
@@ -39,7 +40,9 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
+import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.annotation.EventHeaders;
+import org.springframework.statemachine.annotation.ExtendedStateVariable;
 import org.springframework.statemachine.support.AbstractExpressionEvaluator;
 import org.springframework.statemachine.support.AnnotatedMethodFilter;
 import org.springframework.statemachine.support.FixedMethodFilter;
@@ -431,17 +434,24 @@ public class StateMachineMethodInvokerHelper<T, S, E> extends AbstractExpression
 
 					if (annotationType.equals(EventHeaders.class)) {
 						sb.append("headers");
+					} else if (annotationType.equals(ExtendedStateVariable.class)) {
+						AnnotationAttributes annotationAttributes = AnnotationAttributes
+								.fromMap(AnnotationUtils.getAnnotationAttributes(mappingAnnotation));
+						String key = annotationAttributes.getAliasedString("value", ExtendedStateVariable.class, null);
+						sb.append("variables.get('" + key + "')");
 					}
 
 				} else if (ExtendedState.class.isAssignableFrom(parameterType)) {
 					sb.append("extendedState");
+				} else if (StateMachine.class.isAssignableFrom(parameterType)) {
+					sb.append("stateMachine");
 				}
 			}
 			if (hasUnqualifiedMapParameter) {
 				if (targetParameterType != null && Map.class.isAssignableFrom(this.targetParameterType)) {
 					throw new IllegalArgumentException(
 							"Unable to determine payload matching parameter due to ambiguous Map typed parameters. "
-									+ "Consider adding the @Payload and or @Headers annotations as appropriate.");
+									+ "Consider adding the @EventHeaders and or @ExtendedStateVariable annotations as appropriate.");
 				}
 			}
 			sb.append(")");
@@ -459,6 +469,14 @@ public class StateMachineMethodInvokerHelper<T, S, E> extends AbstractExpression
 			for (Annotation annotation : annotations) {
 				Class<? extends Annotation> type = annotation.annotationType();
 				if (type.equals(EventHeaders.class)) {
+					if (match != null) {
+						throw new IllegalArgumentException(
+								"At most one parameter annotation can be provided for message mapping, "
+										+ "but found two: [" + match.annotationType().getName() + "] and ["
+										+ annotation.annotationType().getName() + "]");
+					}
+					match = annotation;
+				} else if (type.equals(ExtendedStateVariable.class)) {
 					if (match != null) {
 						throw new IllegalArgumentException(
 								"At most one parameter annotation can be provided for message mapping, "
@@ -494,6 +512,14 @@ public class StateMachineMethodInvokerHelper<T, S, E> extends AbstractExpression
 
 		public ExtendedState getExtendedState() {
 			return stateContext.getExtendedState();
+		}
+
+		public Map<Object, Object> getVariables() {
+			return getExtendedState().getVariables();
+		}
+
+		public StateMachine<SS, EE> getStateMachine() {
+			return stateContext.getStateMachine();
 		}
 
 	}

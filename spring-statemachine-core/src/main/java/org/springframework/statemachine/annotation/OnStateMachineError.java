@@ -24,12 +24,12 @@ import java.lang.annotation.Target;
 import java.util.Map;
 
 import org.springframework.statemachine.ExtendedState;
-import org.springframework.statemachine.transition.Transition;
 
 /**
- * Indicates that a method is candidate to be called with a {@link Transition}.
+ * Indicates that a method is candidate to be called when state machine
+ * has been entered in error it cannot recover.
  * <p>
- * A method annotated with @OnTransition may accept a parameter of type
+ * A method annotated with @OnStateMachineError may accept a parameter of type
  * {@link ExtendedState} or {@link Map} if map argument is itself is annotated
  * with {@link EventHeaders}.
  * <p>
@@ -42,20 +42,5 @@ import org.springframework.statemachine.transition.Transition;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface OnTransition {
-
-	/**
-	 * The source states.
-	 *
-	 * @return the source states.
-	 */
-	String[] source() default {};
-
-	/**
-	 * The target states.
-	 *
-	 * @return the target states.
-	 */
-	String[] target() default {};
-
+public @interface OnStateMachineError {
 }

@@ -21,17 +21,15 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Map;
 
-import org.springframework.statemachine.ExtendedState;
-import org.springframework.statemachine.transition.Transition;
+import org.springframework.statemachine.StateMachine;
 
 /**
- * Indicates that a method is candidate to be called with a {@link Transition}.
+ * Indicates that a method is a candidate to be called when state machine
+ * is started.
  * <p>
- * A method annotated with @OnTransition may accept a parameter of type
- * {@link ExtendedState} or {@link Map} if map argument is itself is annotated
- * with {@link EventHeaders}.
+ * A method annotated with @OnStateMachineStart may accept a parameter of type
+ * {@link StateMachine}.
  * <p>
  * Return value can be anything and is effectively discarded.
  *
@@ -42,20 +40,5 @@ import org.springframework.statemachine.transition.Transition;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface OnTransition {
-
-	/**
-	 * The source states.
-	 *
-	 * @return the source states.
-	 */
-	String[] source() default {};
-
-	/**
-	 * The target states.
-	 *
-	 * @return the target states.
-	 */
-	String[] target() default {};
-
+public @interface OnStateMachineStart {
 }

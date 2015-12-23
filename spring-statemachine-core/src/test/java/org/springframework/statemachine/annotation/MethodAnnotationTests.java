@@ -32,7 +32,10 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.ObjectStateMachine;
+import org.springframework.statemachine.StateContext;
+import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
+import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
@@ -40,39 +43,124 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 
 public class MethodAnnotationTests extends AbstractStateMachineTests {
 
+	@Override
+	protected AnnotationConfigApplicationContext buildContext() {
+		return new AnnotationConfigApplicationContext();
+	}
+
 	@Test
 	@SuppressWarnings("unchecked")
-	public void testMethodAnnotations() throws Exception {
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(BaseConfig.class, BeanConfig1.class, Config1.class);
+	public void testOnTransition() throws Exception {
+		context.register(BaseConfig.class, BeanConfig1.class, Config1.class);
+		context.refresh();
 
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		assertThat(context.containsBean("fooMachine"), is(true));
 		Bean1 bean1 = context.getBean(Bean1.class);
+
+		bean1.reset(1, 1, 1, 1, 1, 1, 1, 1);
 		machine.start();
 
-		assertThat(bean1.onMethod1Latch.await(2, TimeUnit.SECONDS), is(false));
-		assertThat(bean1.onOnTransitionLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(bean1.onMethod1Count, is(0));
-		assertThat(bean1.onOnTransitionCount, is(1));
+		assertThat(bean1.onTransitionFromS1ToS2Latch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(bean1.onTransitionLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean1.onTransitionFromS1ToS2Count, is(0));
+		assertThat(bean1.onTransitionCount, is(1));
 
-		bean1.reset(1, 1);
-
-		// this event should cause 'method1' to get called
+		bean1.reset(1, 1, 1, 1, 1, 1, 1, 1);
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
 
-		assertThat(bean1.onMethod1Latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(bean1.onOnTransitionLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(bean1.onMethod1Count, is(1));
-		assertThat(bean1.onOnTransitionCount, is(1));
+		assertThat(bean1.onTransitionFromS1ToS2Latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(bean1.onTransitionLatch.await(1, TimeUnit.SECONDS), is(true));
 
-		context.close();
+		assertThat(bean1.onTransitionFromS1ToS2Count, is(1));
+		assertThat(bean1.onTransitionCount, is(1));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testOnStateChanged() throws Exception {
+		context.register(BaseConfig.class, BeanConfig1.class, Config1.class);
+		context.refresh();
+
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		assertThat(context.containsBean("fooMachine"), is(true));
+		Bean1 bean1 = context.getBean(Bean1.class);
+
+		bean1.reset(1, 1, 1, 1, 1, 1, 1, 1);
+		machine.start();
+
+		assertThat(bean1.onStateChangedFromS1ToS2Latch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(bean1.onStateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(bean1.onStateChangedFromS1ToS2Count, is(0));
+		assertThat(bean1.onStateChangedCount, is(1));
+
+		bean1.reset(1, 1, 1, 1, 1, 1, 1, 1);
+
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
+
+		assertThat(bean1.onStateChangedFromS1ToS2Latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(bean1.onStateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(bean1.onStateChangedFromS1ToS2Count, is(1));
+		assertThat(bean1.onStateChangedCount, is(1));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testOnStateMachineStartStop() throws Exception {
+		context.register(BaseConfig.class, BeanConfig1.class, Config1.class);
+		context.refresh();
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		assertThat(context.containsBean("fooMachine"), is(true));
+		Bean1 bean1 = context.getBean(Bean1.class);
+
+		bean1.reset(1, 1, 1, 1, 1, 1, 1, 1);
+
+		machine.start();
+		assertThat(bean1.onStateMachineStartLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(bean1.onStateMachineStartCount, is(1));
+		assertThat(bean1.onStateMachineStopLatch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(bean1.onStateMachineStopCount, is(0));
+
+		bean1.reset(1, 1, 1, 1, 1, 1, 1, 1);
+		machine.stop();
+		assertThat(bean1.onStateMachineStartLatch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(bean1.onStateMachineStartCount, is(0));
+		assertThat(bean1.onStateMachineStopLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(bean1.onStateMachineStopCount, is(1));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testOnExtendedStateChanged() throws Exception {
+		context.register(BaseConfig.class, BeanConfig5.class, Config1.class);
+		context.refresh();
+
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		assertThat(context.containsBean("fooMachine"), is(true));
+		Bean5 bean5 = context.getBean(Bean5.class);
+		machine.start();
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("V1", "V1val").build());
+
+		assertThat(bean5.onExtendedStateChanged1Latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(bean5.onExtendedStateChanged1Count, is(1));
+
+		assertThat(bean5.onExtendedStateChanged2Latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(bean5.onExtendedStateChanged2Count, is(1));
+		assertThat(bean5.onExtendedStateChanged2Value, is("V1val"));
+
+		assertThat(bean5.onExtendedStateChangedKeyV2Latch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(bean5.onExtendedStateChangedKeyV2Count, is(0));
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testMethodAnnotations2() throws Exception {
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(BaseConfig.class, BeanConfig2.class, Config1.class);
+		context.register(BaseConfig.class, BeanConfig2.class, Config1.class);
+		context.refresh();
 
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -93,35 +181,161 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		assertThat(bean2.onMethod2Latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(bean2.variable, notNullValue());
 		assertThat((String)bean2.variable, is("jee"));
+	}
 
-		context.close();
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testMethodAnnotations3() throws Exception {
+		context.register(BaseConfig.class, BeanConfig3.class, Config1.class);
+		context.refresh();
+
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		assertThat(context.containsBean("fooMachine"), is(true));
+		machine.start();
+
+		Bean3 bean3 = context.getBean(Bean3.class);
+
+		// this event should cause 'method1' to get called
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
+
+		assertThat(bean3.onStateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testMethodAnnotations4() throws Exception {
+		context.register(BaseConfig.class, BeanConfig4.class, Config1.class);
+		context.refresh();
+
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		assertThat(context.containsBean("fooMachine"), is(true));
+		Bean4 bean4 = context.getBean(Bean4.class);
+		machine.start();
+
+		assertThat(bean4.onStateEntryLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean4.onStateExitLatch.await(2, TimeUnit.SECONDS), is(false));
+		assertThat(bean4.onStateEntryCount, is(1));
+		assertThat(bean4.onStateExitCount, is(0));
+
+		bean4.reset(1, 1);
+
+		// this event should cause 'method1' to get called
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
+		assertThat(bean4.onStateEntryLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean4.onStateExitLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean4.onStateEntryCount, is(1));
+		assertThat(bean4.onStateExitCount, is(1));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testMethodAnnotations5() throws Exception {
+		context.register(BaseConfig.class, BeanConfig6.class, Config1.class);
+		context.refresh();
+
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		Bean6 bean6 = context.getBean(Bean6.class);
+		machine.start();
+
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E4).build());
+		assertThat(bean6.onEventNotAcceptedLatch.await(2, TimeUnit.SECONDS), is(true));
 	}
 
 	@WithStateMachine
 	static class Bean1 {
-
-		CountDownLatch onMethod1Latch = new CountDownLatch(1);
-		CountDownLatch onOnTransitionLatch = new CountDownLatch(1);
-		int onMethod1Count;
-		int onOnTransitionCount;
+		CountDownLatch onTransitionFromS1ToS2Latch = new CountDownLatch(1);
+		CountDownLatch onTransitionLatch = new CountDownLatch(1);
+		CountDownLatch onStateChangedFromS1ToS2Latch = new CountDownLatch(1);
+		CountDownLatch onStateChangedLatch = new CountDownLatch(1);
+		CountDownLatch onTransitionEndLatch = new CountDownLatch(1);
+		CountDownLatch onTransitionStartLatch = new CountDownLatch(1);
+		CountDownLatch onStateMachineStartLatch = new CountDownLatch(1);
+		CountDownLatch onStateMachineStopLatch = new CountDownLatch(1);
+		int onTransitionFromS1ToS2Count = 0;
+		int onTransitionCount = 0;
+		int onStateChangedFromS1ToS2Count = 0;
+		int onStateChangedCount = 0;
+		int onTransitionEndCount = 0;
+		int onTransitionStartCount = 0;
+		int onStateMachineStartCount = 0;
+		int onStateMachineStopCount = 0;
 
 		@OnTransition(source = "S1", target = "S2")
-		public void method1() {
-			onMethod1Count++;
-			onMethod1Latch.countDown();
+		public void onTransitionFromS1ToS2() {
+			onTransitionFromS1ToS2Count++;
+			onTransitionFromS1ToS2Latch.countDown();
 		}
 
 		@OnTransition
 		public void onTransition() {
-			onOnTransitionCount++;
-			onOnTransitionLatch.countDown();
+			onTransitionCount++;
+			onTransitionLatch.countDown();
 		}
 
-		public void reset(int a1, int a2) {
-			onMethod1Latch = new CountDownLatch(a1);
-			onOnTransitionLatch = new CountDownLatch(a2);
-			onMethod1Count = 0;
-			onOnTransitionCount = 0;
+		@OnTransitionEnd
+		public void onTransitionEnd() {
+			onTransitionEndCount++;
+			onTransitionEndLatch.countDown();
+		}
+
+		@OnTransitionStart
+		public void onTransitionStart() {
+			onTransitionStartCount++;
+			onTransitionStartLatch.countDown();
+		}
+
+		@OnStateChanged(source = "S1", target = "S2")
+		public void onStateChangedFromS1ToS2() {
+			onStateChangedFromS1ToS2Count++;
+			onStateChangedFromS1ToS2Latch.countDown();
+		}
+
+		@OnStateChanged
+		public void onStateChanged() {
+			onStateChangedCount++;
+			onStateChangedLatch.countDown();
+		}
+
+		@OnStateMachineStart
+		public void onStateMachineStart() {
+			onStateMachineStartLatch.countDown();
+			onStateMachineStartCount++;
+		}
+
+		@OnStateMachineStart
+		public void onStateMachineStartWithParam(StateMachine<TestStates,TestEvents> machine) {
+		}
+
+		@OnStateMachineStop
+		public void onStateMachineStop() {
+			onStateMachineStopLatch.countDown();
+			onStateMachineStopCount++;
+		}
+
+		@OnStateMachineStop
+		public void onStateMachineStopWithParam(StateMachine<TestStates,TestEvents> machine) {
+		}
+
+		public void reset(int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) {
+			onTransitionFromS1ToS2Latch = new CountDownLatch(a1);
+			onTransitionLatch = new CountDownLatch(a2);
+			onStateChangedFromS1ToS2Latch = new CountDownLatch(a3);
+			onStateChangedLatch = new CountDownLatch(a4);
+			onTransitionEndLatch = new CountDownLatch(a5);
+			onTransitionStartLatch = new CountDownLatch(a6);
+			onStateMachineStartLatch = new CountDownLatch(a7);
+			onStateMachineStopLatch = new CountDownLatch(a8);
+			onTransitionFromS1ToS2Count = 0;
+			onTransitionCount = 0;
+			onStateChangedFromS1ToS2Count = 0;
+			onStateChangedCount = 0;
+			onTransitionEndCount = 0;
+			onTransitionStartCount = 0;
+			onStateMachineStartCount = 0;
+			onStateMachineStopCount = 0;
 		}
 
 	}
@@ -151,6 +365,100 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 
 	}
 
+	@WithStateMachine
+	static class Bean3 {
+
+		CountDownLatch onStateChangedLatch = new CountDownLatch(1);
+
+		@OnStateChanged
+		public void onStateChanged() {
+			onStateChangedLatch.countDown();
+		}
+
+	}
+
+	@WithStateMachine
+	static class Bean4 {
+
+		CountDownLatch onStateEntryLatch = new CountDownLatch(1);
+		CountDownLatch onStateExitLatch = new CountDownLatch(1);
+		int onStateEntryCount = 0;
+		int onStateExitCount = 0;
+
+		@OnStateEntry
+		public void onStateEntry() {
+			onStateEntryCount++;
+			onStateEntryLatch.countDown();
+		}
+
+		@OnStateExit
+		public void onStateExit() {
+			onStateExitCount++;
+			onStateExitLatch.countDown();
+		}
+
+		public void reset(int a1, int a2) {
+			onStateEntryCount = 0;
+			onStateExitCount = 0;
+			onStateEntryLatch = new CountDownLatch(a1);
+			onStateExitLatch = new CountDownLatch(a2);
+		}
+
+	}
+
+	@WithStateMachine
+	static class Bean5 {
+
+		CountDownLatch onExtendedStateChanged1Latch = new CountDownLatch(1);
+		CountDownLatch onExtendedStateChanged2Latch = new CountDownLatch(1);
+		CountDownLatch onExtendedStateChangedKeyV2Latch = new CountDownLatch(1);
+		int onExtendedStateChanged1Count = 0;
+		int onExtendedStateChanged2Count = 0;
+		Object onExtendedStateChanged2Value = null;
+		int onExtendedStateChangedKeyV2Count = 0;
+
+		@OnExtendedStateChanged
+		public void onExtendedStateChanged1() {
+			onExtendedStateChanged1Count++;
+			onExtendedStateChanged1Latch.countDown();
+		}
+
+		@OnExtendedStateChanged
+		public void onExtendedStateChanged2(@ExtendedStateVariable("V1") Object value) {
+			onExtendedStateChanged2Value = value;
+			onExtendedStateChanged2Count++;
+			onExtendedStateChanged2Latch.countDown();
+		}
+
+		@OnExtendedStateChanged(key = "V2")
+		public void onExtendedStateChangedKeyV2() {
+			onExtendedStateChangedKeyV2Count++;
+			onExtendedStateChangedKeyV2Latch.countDown();
+		}
+
+		public void reset(int a1, int a2, int a3) {
+			onExtendedStateChanged1Latch = new CountDownLatch(a1);
+			onExtendedStateChanged2Latch = new CountDownLatch(a2);
+			onExtendedStateChangedKeyV2Latch = new CountDownLatch(a3);
+			onExtendedStateChanged1Count = 0;
+			onExtendedStateChanged2Count = 0;
+			onExtendedStateChanged2Value = null;
+			onExtendedStateChangedKeyV2Count = 0;
+		}
+
+	}
+
+	@WithStateMachine
+	static class Bean6 {
+		CountDownLatch onEventNotAcceptedLatch = new CountDownLatch(1);
+
+		@OnEventNotAccepted
+		public void onEventNotAcceptedLatch() {
+			onEventNotAcceptedLatch.countDown();
+		}
+
+	}
+
 	@Configuration
 	static class BeanConfig1 {
 
@@ -167,6 +475,46 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		@Bean
 		public Bean2 bean2() {
 			return new Bean2();
+		}
+
+	}
+
+	@Configuration
+	static class BeanConfig3 {
+
+		@Bean
+		public Bean3 bean3() {
+			return new Bean3();
+		}
+
+	}
+
+	@Configuration
+	static class BeanConfig4 {
+
+		@Bean
+		public Bean4 bean4() {
+			return new Bean4();
+		}
+
+	}
+
+	@Configuration
+	static class BeanConfig5 {
+
+		@Bean
+		public Bean5 bean5() {
+			return new Bean5();
+		}
+
+	}
+
+	@Configuration
+	static class BeanConfig6 {
+
+		@Bean
+		public Bean6 bean6() {
+			return new Bean6();
 		}
 
 	}
@@ -192,6 +540,7 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 					.event(TestEvents.E1)
 					.guard(testGuard())
 					.action(testAction())
+					.action(extendedStateAction())
 					.and()
 				.withExternal()
 					.source(TestStates.S2)
@@ -212,6 +561,20 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		@Bean
 		public TestAction testAction() {
 			return new TestAction();
+		}
+
+		@Bean
+		public Action<TestStates, TestEvents> extendedStateAction() {
+			return new Action<TestStates, TestEvents>() {
+
+				@Override
+				public void execute(StateContext<TestStates, TestEvents> context) {
+					String e1 = context.getMessageHeaders().get("V1", String.class);
+					if (e1 != null) {
+						context.getExtendedState().getVariables().put("V1", e1);
+					}
+				}
+			};
 		}
 
 	}

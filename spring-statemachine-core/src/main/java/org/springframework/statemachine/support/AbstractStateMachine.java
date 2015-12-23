@@ -15,15 +15,12 @@
  */
 package org.springframework.statemachine.support;
 
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.apache.commons.logging.Log;
@@ -31,9 +28,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.ListableBeanFactory;
-import org.springframework.core.OrderComparator;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.MessageBuilder;
@@ -45,12 +39,7 @@ import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.access.StateMachineFunction;
-import org.springframework.statemachine.annotation.OnTransition;
-import org.springframework.statemachine.annotation.WithStateMachine;
 import org.springframework.statemachine.listener.StateMachineListener;
-import org.springframework.statemachine.processor.StateMachineHandler;
-import org.springframework.statemachine.processor.StateMachineOnTransitionHandler;
-import org.springframework.statemachine.processor.StateMachineRuntime;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.AbstractState;
 import org.springframework.statemachine.state.ForkPseudoState;
@@ -67,7 +56,6 @@ import org.springframework.statemachine.transition.TransitionKind;
 import org.springframework.statemachine.trigger.DefaultTriggerContext;
 import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.util.Assert;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -100,10 +88,6 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	private volatile Exception currentError;
 
 	private volatile PseudoState<S, E> history;
-
-	private final Map<String, StateMachineOnTransitionHandler<S, E>> handlers = new HashMap<String, StateMachineOnTransitionHandler<S,E>>();
-
-	private volatile boolean handlersInitialized;
 
 	private final Map<Trigger<S, E>, Transition<S,E>> triggerToTransitionMap = new HashMap<Trigger<S,E>, Transition<S,E>>();
 
@@ -192,7 +176,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	public boolean sendEvent(Message<E> event) {
 		if (hasStateMachineError()) {
 			// TODO: should we throw exception?
-			notifyEventNotAccepted(event);
+			notifyEventNotAccepted(event, buildStateContext(null, null, getRelayStateMachine()));
 			return false;
 		}
 
@@ -200,18 +184,18 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			event = getStateMachineInterceptors().preEvent(event, this);
 		} catch (Exception e) {
 			log.info("Event " + event + " threw exception in interceptors, not accepting event");
-			notifyEventNotAccepted(event);
+			notifyEventNotAccepted(event, buildStateContext(null, null, getRelayStateMachine()));
 			return false;
 		}
 
 		if (isComplete() || !isRunning()) {
-			notifyEventNotAccepted(event);
+			notifyEventNotAccepted(event, buildStateContext(null, null, getRelayStateMachine()));
 			return false;
 		}
 		boolean accepted = acceptEvent(event);
 		stateMachineExecutor.execute();
 		if (!accepted) {
-			notifyEventNotAccepted(event);
+			notifyEventNotAccepted(event, buildStateContext(null, null, getRelayStateMachine()));
 		}
 		return accepted;
 	}
@@ -232,7 +216,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		extendedState.setExtendedStateChangeListener(new ExtendedStateChangeListener() {
 			@Override
 			public void changed(Object key, Object value) {
-				notifyExtendedStateChanged(key, value);
+				notifyExtendedStateChanged(key, value, buildStateContext(null, null, getRelayStateMachine()));
 			}
 		});
 
@@ -277,16 +261,17 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 			@Override
 			public void transit(Transition<S, E> t, StateContext<S, E> stateContext, Message<E> queuedMessage) {
-				notifyTransitionStart(t);
-				callHandlers(t.getSource(), t.getTarget(), queuedMessage);
+				StateContext<S, E> stateContext2 = buildStateContext(queuedMessage, null, getRelayStateMachine());
+				notifyTransitionStart(t, queuedMessage, buildStateContext(queuedMessage, null, getRelayStateMachine()));
+				notifyTransition(t, queuedMessage, buildStateContext(queuedMessage, null, getRelayStateMachine()));
 				if (t.getKind() == TransitionKind.INITIAL) {
 					switchToState(t.getTarget(), queuedMessage, t, getRelayStateMachine());
-					notifyStateMachineStarted(getRelayStateMachine());
+					notifyStateMachineStarted(getRelayStateMachine(), stateContext2);
 				} else if (t.getKind() != TransitionKind.INTERNAL) {
 					switchToState(t.getTarget(), queuedMessage, t, getRelayStateMachine());
 				}
-				notifyTransition(t);
-				notifyTransitionEnd(t);
+				// TODO: looks like events should be called here and anno processing earlier
+				notifyTransitionEnd(t, queuedMessage, buildStateContext(queuedMessage, null, getRelayStateMachine()));
 			}
 		});
 		stateMachineExecutor = executor;
@@ -307,6 +292,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	@Override
 	protected void doStart() {
+		super.doStart();
 		// if state is set assume nothing to do
 		if (currentState != null) {
 			if (log.isDebugEnabled()) {
@@ -317,7 +303,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			// assume that state was set/reseted so we need to
 			// dispatch started event which would net getting
 			// dispatched via executor
-			notifyStateMachineStarted(getRelayStateMachine());
+			StateContext<S, E> stateContext = buildStateContext(null, null, getRelayStateMachine());
+			notifyStateMachineStarted(getRelayStateMachine(), stateContext);
 			return;
 		}
 		registerPseudoStateListener();
@@ -338,7 +325,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	@Override
 	protected void doStop() {
 		stateMachineExecutor.stop();
-		notifyStateMachineStopped(this);
+		notifyStateMachineStopped(this, buildStateContext(null, null, this));
 		currentState = null;
 		initialEnabled = null;
 	}
@@ -359,7 +346,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			currentError = exception;
 		}
 		if (currentError != null) {
-			notifyStateMachineError(this, currentError);
+			notifyStateMachineError(this, currentError, buildStateContext(null, null, this));
 		}
 	}
 
@@ -697,6 +684,13 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		return new DefaultStateContext<S, E>(event, messageHeaders, extendedState, transition, stateMachine);
 	}
 
+	private StateContext<S, E> buildStateContext(Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine, State<S, E> source, State<S, E> target) {
+		E event = message != null ? message.getPayload() : null;
+		MessageHeaders messageHeaders = message != null ? message.getHeaders() : new MessageHeaders(
+				new HashMap<String, Object>());
+		return new DefaultStateContext<S, E>(event, messageHeaders, extendedState, transition, stateMachine, source, target);
+	}
+
 	private State<S, E> findDeepParent(State<S, E> state) {
 		for (State<S, E> s : states) {
 			if (s.getStates().contains(state)) {
@@ -729,7 +723,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				start();
 			}
 			entryToState(state, message, transition, stateMachine);
-			notifyStateChanged(notifyFrom, state);
+			notifyStateChanged(notifyFrom, state, message, buildStateContext(message, null, getRelayStateMachine(), notifyFrom, state));
 			nonDeepStatePresent = true;
 		} else if (currentState == null && StateMachineUtils.isSubstate(findDeep, state)) {
 			if (exit) {
@@ -741,7 +735,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				start();
 			}
 			entryToState(findDeep, message, transition, stateMachine);
-			notifyStateChanged(notifyFrom, findDeep);
+			notifyStateChanged(notifyFrom, findDeep, message, buildStateContext(message, null, getRelayStateMachine(), notifyFrom, findDeep));
 		}
 
 		if (currentState != null && !nonDeepStatePresent) {
@@ -854,7 +848,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 		log.debug("Exit state=[" + state + "]");
 		state.exit(stateContext);
-		notifyStateExited(state);
+
+		notifyStateExited(state, message, buildStateContext(message, null, getRelayStateMachine(), state, null));
 	}
 
 	private void entryToState(State<S, E> state, Message<E> message, Transition<S, E> transition, StateMachine<S, E> stateMachine) {
@@ -882,115 +877,9 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			}
 		}
 
-		notifyStateEntered(state);
+		notifyStateEntered(state, message, buildStateContext(message, null, getRelayStateMachine(), null, state));
 		log.debug("Enter state=[" + state + "]");
 		state.entry(stateContext);
-	}
-
-	private void callHandlers(State<S,E> sourceState, State<S,E> targetState, Message<E> message) {
-		StateContext<S, E> stateContext = buildStateContext(message, null, getRelayStateMachine());
-		getStateMachineHandlerResults(getStateMachineHandlers(sourceState, targetState), stateContext);
-	}
-
-	private List<Object> getStateMachineHandlerResults(List<StateMachineHandler<S, E>> stateMachineHandlers,
-			final StateContext<S, E> stateContext) {
-		StateMachineRuntime<S, E> runtime = new StateMachineRuntime<S, E>() {
-			@Override
-			public StateContext<S, E> getStateContext() {
-				return stateContext;
-			}
-		};
-		List<Object> results = new ArrayList<Object>();
-		for (StateMachineHandler<S, E> handler : stateMachineHandlers) {
-			results.add(handler.handle(runtime));
-		}
-		return results;
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private synchronized List<StateMachineHandler<S, E>> getStateMachineHandlers(State<S, E> sourceState,
-			State<S, E> targetState) {
-		BeanFactory beanFactory = getBeanFactory();
-
-		// TODO think how to handle null bf
-		if (beanFactory == null) {
-			return Collections.emptyList();
-		}
-		Assert.state(beanFactory instanceof ListableBeanFactory, "Bean factory must be instance of ListableBeanFactory");
-
-		if (!handlersInitialized) {
-			Map<String, StateMachineOnTransitionHandler> handlersMap = ((ListableBeanFactory) beanFactory)
-					.getBeansOfType(StateMachineOnTransitionHandler.class);
-			for (Entry<String, StateMachineOnTransitionHandler> entry : handlersMap.entrySet()) {
-				handlers.put(entry.getKey(), entry.getValue());
-			}
-			handlersInitialized = true;
-		}
-
-		List<StateMachineHandler<S, E>> handlersList = new ArrayList<StateMachineHandler<S, E>>();
-
-		for (Entry<String, StateMachineOnTransitionHandler<S, E>> entry : handlers.entrySet()) {
-			// add only matching names from beanName and WithStateMachine name field
-			WithStateMachine withStateMachine = AnnotationUtils.findAnnotation(entry.getValue().getBeanClass(), WithStateMachine.class);
-			if (withStateMachine == null || !ObjectUtils.nullSafeEquals(withStateMachine.name(), getBeanName())) {
-				continue;
-			}
-			OnTransition metaAnnotation = entry.getValue().getMetaAnnotation();
-			Annotation annotation = entry.getValue().getAnnotation();
-			if (transitionHandlerMatch(metaAnnotation, annotation, sourceState, targetState)) {
-				handlersList.add(entry.getValue());
-			}
-		}
-
-		OrderComparator comparator = new OrderComparator();
-		Collections.sort(handlersList, comparator);
-		return handlersList;
-	}
-
-	private boolean transitionHandlerMatch(OnTransition metaAnnotation, Annotation annotation, State<S, E> sourceState, State<S, E> targetState) {
-		String[] msources = metaAnnotation.source();
-		String[] mtargets = metaAnnotation.target();
-
-		Map<String, Object> annotationAttributes = AnnotationUtils.getAnnotationAttributes(annotation);
-		Object source = annotationAttributes.get("source");
-		Object target = annotationAttributes.get("target");
-
-		Collection<String> scoll = StateMachineUtils.toStringCollection(source);
-		if (scoll.isEmpty()) {
-			scoll = Arrays.asList(msources);
-		}
-		Collection<String> tcoll = StateMachineUtils.toStringCollection(target);
-		if (tcoll.isEmpty()) {
-			tcoll = Arrays.asList(mtargets);
-		}
-
-		boolean handle = false;
-		if (!scoll.isEmpty() && !tcoll.isEmpty()) {
-			if (sourceState != null
-					&& targetState != null
-					&& StateMachineUtils.containsAtleastOne(scoll,
-							StateMachineUtils.toStringCollection(sourceState.getIds()))
-					&& StateMachineUtils.containsAtleastOne(tcoll,
-							StateMachineUtils.toStringCollection(targetState.getIds()))) {
-				handle = true;
-			}
-		} else if (!scoll.isEmpty()) {
-			if (sourceState != null
-					&& StateMachineUtils.containsAtleastOne(scoll,
-							StateMachineUtils.toStringCollection(sourceState.getIds()))) {
-				handle = true;
-			}
-		} else if (!tcoll.isEmpty()) {
-			if (targetState != null
-					&& StateMachineUtils.containsAtleastOne(tcoll,
-							StateMachineUtils.toStringCollection(targetState.getIds()))) {
-				handle = true;
-			}
-		} else if (scoll.isEmpty() && tcoll.isEmpty()) {
-			handle = true;
-		}
-
-		return handle;
 	}
 
 }

@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.junit.Test;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SyncTaskExecutor;
@@ -83,8 +85,10 @@ public class SubmachineStateTests extends AbstractStateMachineTests {
 		transitions.add(transitionFromS2ToS3);
 
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
+		BeanFactory beanFactory = new DefaultListableBeanFactory();
 		ObjectStateMachine<TestStates, TestEvents> machine = new ObjectStateMachine<TestStates, TestEvents>(states, transitions, stateSI);
 		machine.setTaskExecutor(taskExecutor);
+		machine.setBeanFactory(beanFactory);
 		machine.afterPropertiesSet();
 		machine.start();
 

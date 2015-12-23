@@ -15,35 +15,46 @@
  */
 package org.springframework.statemachine.support;
 
+import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 
 public class DefaultStateContext<S, E> implements StateContext<S, E> {
 
 	private final E event;
-	
 	private final MessageHeaders messageHeaders;
-
 	private final ExtendedState extendedState;
-
 	private final Transition<S,E> transition;
-
 	private final StateMachine<S, E> stateMachine;
+	private final State<S, E> source;
+	private final State<S, E> target;
 
 	public DefaultStateContext(E event, MessageHeaders messageHeaders, ExtendedState extendedState, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
+		this(event, messageHeaders, extendedState, transition, stateMachine, null, null);
+	}
+
+	public DefaultStateContext(E event, MessageHeaders messageHeaders, ExtendedState extendedState, Transition<S,E> transition, StateMachine<S, E> stateMachine, State<S, E> source, State<S, E> target) {
 		this.event = event;
 		this.messageHeaders = messageHeaders;
 		this.extendedState = extendedState;
 		this.transition = transition;
 		this.stateMachine = stateMachine;
+		this.source = source;
+		this.target = target;
 	}
-	
+
 	@Override
 	public E getEvent() {
 		return event;
+	}
+
+	@Override
+	public Message<E> getMessage() {
+		return null;
 	}
 
 	@Override
@@ -76,4 +87,18 @@ public class DefaultStateContext<S, E> implements StateContext<S, E> {
 		return stateMachine;
 	}
 
+	@Override
+	public State<S, E> getSource() {
+		return source;
+	}
+
+	@Override
+	public State<S, E> getTarget() {
+		return target;
+	}
+
+	@Override
+	public Exception getException() {
+		return null;
+	}
 }

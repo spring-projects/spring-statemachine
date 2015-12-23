@@ -23,15 +23,8 @@ import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.annotation.OrderUtils;
-import org.springframework.statemachine.annotation.OnTransition;
 
-/**
- * Post-processor for Methods annotated with {@link OnTransition}.
- *
- * @author Janne Valkealahti
- *
- */
-public class StateMachineActivatorAnnotationPostProcessor implements MethodAnnotationPostProcessor<OnTransition>{
+public class StateMachineActivatorAnnotationPostProcessor<T extends Annotation> implements MethodAnnotationPostProcessor<T>{
 
 	protected final BeanFactory beanFactory;
 
@@ -40,8 +33,8 @@ public class StateMachineActivatorAnnotationPostProcessor implements MethodAnnot
 	}
 
 	@Override
-	public Object postProcess(Class<?> beanClass, Object bean, String beanName, Method method, OnTransition metaAnnotation, Annotation annotation) {
-		StateMachineHandler<Object, Object> handler = new StateMachineOnTransitionHandler<Object, Object>(beanClass, bean, method, metaAnnotation, annotation);
+	public Object postProcess(Class<?> beanClass, Object bean, String beanName, Method method, T metaAnnotation, Annotation annotation) {
+		StateMachineHandler<T, Object, Object> handler = new StateMachineHandler<T, Object, Object>(beanClass, bean, method, metaAnnotation, annotation);
 
 		Integer order = findOrder(bean, method);
 		if (order != null) {

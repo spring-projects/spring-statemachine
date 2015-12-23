@@ -23,10 +23,12 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.core.OrderComparator;
 import org.springframework.messaging.Message;
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.event.StateMachineEventPublisher;
 import org.springframework.statemachine.listener.CompositeStateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListener;
+import org.springframework.statemachine.processor.StateMachineHandlerCallHelper;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.util.Assert;
@@ -51,10 +53,25 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	/** Flag for application context events */
 	private boolean contextEventsEnabled = true;
 
-	private final StateMachineInterceptorList<S, E> interceptors =
-			new StateMachineInterceptorList<S, E>();
-
+	private final StateMachineInterceptorList<S, E> interceptors = new StateMachineInterceptorList<S, E>();
 	private String beanName;
+	private volatile boolean handlersInitialized;
+	private final StateMachineHandlerCallHelper<S, E> stateMachineHandlerCallHelper = new StateMachineHandlerCallHelper<S, E>();
+
+	@Override
+	protected void doStart() {
+		super.doStart();
+		if (!handlersInitialized) {
+			try {
+				stateMachineHandlerCallHelper.setBeanFactory(getBeanFactory());
+				stateMachineHandlerCallHelper.afterPropertiesSet();
+			} catch (Exception e) {
+				log.error("Unable to initialize annotation handlers", e);
+			} finally {
+				handlersInitialized = true;
+			}
+		}
+	}
 
 	@Override
 	public void setBeanName(String name) {
@@ -111,7 +128,8 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		return stateListener;
 	}
 
-	protected void notifyStateChanged(State<S,E> source, State<S,E> target) {
+	protected void notifyStateChanged(State<S,E> source, State<S,E> target, Message<E> message, StateContext<S, E> stateContext) {
+		stateMachineHandlerCallHelper.callOnStateChanged(getBeanName(), null, message, stateContext);
 		stateListener.stateChanged(source, target);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
@@ -121,7 +139,8 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		}
 	}
 
-	protected void notifyStateEntered(State<S,E> state) {
+	protected void notifyStateEntered(State<S,E> state, Message<E> message, StateContext<S, E> stateContext) {
+		stateMachineHandlerCallHelper.callOnStateEntry(getBeanName(), null, message, stateContext);
 		stateListener.stateEntered(state);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
@@ -131,7 +150,8 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		}
 	}
 
-	protected void notifyStateExited(State<S,E> state) {
+	protected void notifyStateExited(State<S,E> state, Message<E> message, StateContext<S, E> stateContext) {
+		stateMachineHandlerCallHelper.callOnStateExit(getBeanName(), null, message, stateContext);
 		stateListener.stateExited(state);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
@@ -141,7 +161,8 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		}
 	}
 
-	protected void notifyEventNotAccepted(Message<E> event) {
+	protected void notifyEventNotAccepted(Message<E> event, StateContext<S, E> stateContext) {
+		stateMachineHandlerCallHelper.callOnEventNotAccepted(getBeanName(), stateContext);
 		stateListener.eventNotAccepted(event);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
@@ -151,7 +172,8 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		}
 	}
 
-	protected void notifyTransitionStart(Transition<S,E> transition) {
+	protected void notifyTransitionStart(Transition<S,E> transition, Message<E> message, StateContext<S, E> stateContext) {
+		stateMachineHandlerCallHelper.callOnTransitionStart(getBeanName(), transition, message, stateContext);
 		stateListener.transitionStarted(transition);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
@@ -161,7 +183,8 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		}
 	}
 
-	protected void notifyTransition(Transition<S,E> transition) {
+	protected void notifyTransition(Transition<S,E> transition, Message<E> message, StateContext<S, E> stateContext) {
+		stateMachineHandlerCallHelper.callOnTransition(getBeanName(), transition, message, stateContext);
 		stateListener.transition(transition);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
@@ -171,7 +194,8 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		}
 	}
 
-	protected void notifyTransitionEnd(Transition<S,E> transition) {
+	protected void notifyTransitionEnd(Transition<S,E> transition, Message<E> message, StateContext<S, E> stateContext) {
+		stateMachineHandlerCallHelper.callOnTransitionEnd(getBeanName(), transition, message, stateContext);
 		stateListener.transitionEnded(transition);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
@@ -181,7 +205,8 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		}
 	}
 
-	protected void notifyStateMachineStarted(StateMachine<S, E> stateMachine) {
+	protected void notifyStateMachineStarted(StateMachine<S, E> stateMachine, StateContext<S, E> stateContext) {
+		stateMachineHandlerCallHelper.callOnStateMachineStart(getBeanName(), stateContext);
 		stateListener.stateMachineStarted(stateMachine);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
@@ -191,7 +216,8 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		}
 	}
 
-	protected void notifyStateMachineStopped(StateMachine<S, E> stateMachine) {
+	protected void notifyStateMachineStopped(StateMachine<S, E> stateMachine, StateContext<S, E> stateContext) {
+		stateMachineHandlerCallHelper.callOnStateMachineStop(getBeanName(), stateContext);
 		stateListener.stateMachineStopped(stateMachine);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
@@ -201,7 +227,8 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		}
 	}
 
-	protected void notifyStateMachineError(StateMachine<S, E> stateMachine, Exception exception) {
+	protected void notifyStateMachineError(StateMachine<S, E> stateMachine, Exception exception, StateContext<S, E> stateContext) {
+		stateMachineHandlerCallHelper.callOnStateMachineError(getBeanName(), stateContext);
 		stateListener.stateMachineError(stateMachine, exception);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
@@ -211,7 +238,8 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		}
 	}
 
-	protected void notifyExtendedStateChanged(Object key, Object value) {
+	protected void notifyExtendedStateChanged(Object key, Object value, StateContext<S, E> stateContext) {
+		stateMachineHandlerCallHelper.callOnExtendedStateChanged(getBeanName(), key, value, stateContext);
 		stateListener.extendedStateChanged(key, value);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();

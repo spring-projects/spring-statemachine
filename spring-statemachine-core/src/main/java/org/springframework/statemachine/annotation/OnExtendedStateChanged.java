@@ -21,41 +21,29 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Map;
 
 import org.springframework.statemachine.ExtendedState;
-import org.springframework.statemachine.transition.Transition;
 
 /**
- * Indicates that a method is candidate to be called with a {@link Transition}.
- * <p>
- * A method annotated with @OnTransition may accept a parameter of type
- * {@link ExtendedState} or {@link Map} if map argument is itself is annotated
- * with {@link EventHeaders}.
+ * Indicates that a method is candidate to be called when {@link ExtendedState}
+ * is changed.
  * <p>
  * Return value can be anything and is effectively discarded.
  *
  * @author Janne Valkealahti
  *
  */
-@Target({ ElementType.TYPE, ElementType.METHOD })
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface OnTransition {
+public @interface OnExtendedStateChanged {
 
 	/**
-	 * The source states.
+	 * The extended state variable keys.
 	 *
-	 * @return the source states.
+	 * @return The extended state variable keys
 	 */
-	String[] source() default {};
-
-	/**
-	 * The target states.
-	 *
-	 * @return the target states.
-	 */
-	String[] target() default {};
+	String[] key() default {};
 
 }

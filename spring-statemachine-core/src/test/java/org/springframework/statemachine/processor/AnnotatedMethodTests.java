@@ -363,7 +363,6 @@ public class AnnotatedMethodTests extends AbstractStateMachineTests {
 
 	}
 
-
 	@Configuration
 	@EnableStateMachine
 	static class Config4 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {

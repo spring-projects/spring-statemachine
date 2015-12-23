@@ -15,15 +15,22 @@
  */
 package org.springframework.statemachine;
 
+import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
+import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 
 /**
- * {@code StateContext} is representing a current context used in
+ * {@code StateContext} is representing of a current context used in
+ * various stages in a state machine execution. These include for example
  * {@link Transition}s, {@link Action}s and {@link Guard}s order to get access
  * to event headers and {@link ExtendedState}.
+ * <p>
+ * Context really is not a current state of a state machine but
+ * more like a snapshot of where state machine is when this context
+ * is passed to various methods.
  *
  * @author Janne Valkealahti
  *
@@ -31,13 +38,21 @@ import org.springframework.statemachine.transition.Transition;
 public interface StateContext<S, E> {
 
 	/**
+	 * Gets the message associated with a context. Message may be null if transition
+	 * is not triggered by a signal.
+	 *
+	 * @return the message
+	 */
+	Message<E> getMessage();
+
+	/**
 	 * Gets the event associated with a context. Event may be null if transition
 	 * is not triggered by a signal.
-	 * 
+	 *
 	 * @return the event
 	 */
 	E getEvent();
-	
+
 	/**
 	 * Gets the event message headers.
 	 *
@@ -74,5 +89,30 @@ public interface StateContext<S, E> {
 	 * @return the state machine
 	 */
 	StateMachine<S, E> getStateMachine();
+
+	/**
+	 * Gets the source state of this context. Generally source
+	 * is where a state machine is coming from which may be different
+	 * than what the transition source is.
+	 *
+	 * @return the source state
+	 */
+	State<S,E> getSource();
+
+	/**
+	 * Gets the tarter state of this context. Generally target
+	 * is where a state machine going to which may be different
+	 * than what the transition target is.
+	 *
+	 * @return the target state
+	 */
+	State<S,E> getTarget();
+
+	/**
+	 * Gets the exception associated with a context.
+	 *
+	 * @return the exception
+	 */
+	Exception getException();
 
 }

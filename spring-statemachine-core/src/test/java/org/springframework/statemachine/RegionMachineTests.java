@@ -29,6 +29,8 @@ import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -102,9 +104,11 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 		transitions.add(transitionFromS2ToS3);
 
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
+		BeanFactory beanFactory = new DefaultListableBeanFactory();
 		Transition<TestStates,TestEvents> initialTransition = new InitialTransition<TestStates,TestEvents>(stateSI);
 		ObjectStateMachine<TestStates, TestEvents> machine = new ObjectStateMachine<TestStates, TestEvents>(states, transitions, stateSI, initialTransition, null, null);
 		machine.setTaskExecutor(taskExecutor);
+		machine.setBeanFactory(beanFactory);
 		machine.afterPropertiesSet();
 		machine.start();
 
@@ -131,6 +135,7 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 	@Test
 	public void testMultiRegionBuildRaw() throws Exception {
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
+		BeanFactory beanFactory = new DefaultListableBeanFactory();
 		PseudoState<TestStates,TestEvents> pseudoState = new DefaultPseudoState<TestStates,TestEvents>(PseudoStateKind.INITIAL);
 		State<TestStates,TestEvents> stateSI = new EnumState<TestStates,TestEvents>(TestStates.SI, pseudoState);
 
@@ -169,6 +174,7 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 		Transition<TestStates,TestEvents> initialTransition11 = new InitialTransition<TestStates,TestEvents>(stateS111);
 		ObjectStateMachine<TestStates, TestEvents> machine11 = new ObjectStateMachine<TestStates, TestEvents>(states11, transitions11, stateS111, initialTransition11, null, null);
 		machine11.setTaskExecutor(taskExecutor);
+		machine11.setBeanFactory(beanFactory);
 		machine11.afterPropertiesSet();
 
 		Collection<State<TestStates,TestEvents>> states12 = new ArrayList<State<TestStates,TestEvents>>();
@@ -181,6 +187,7 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 		Transition<TestStates,TestEvents> initialTransition12 = new InitialTransition<TestStates,TestEvents>(stateS121);
 		ObjectStateMachine<TestStates, TestEvents> machine12 = new ObjectStateMachine<TestStates, TestEvents>(states12, transitions12, stateS121, initialTransition12, null, null);
 		machine12.setTaskExecutor(taskExecutor);
+		machine12.setBeanFactory(beanFactory);
 		machine12.afterPropertiesSet();
 
 		Collection<Region<TestStates,TestEvents>> regions = new ArrayList<Region<TestStates,TestEvents>>();
@@ -198,6 +205,7 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 		ObjectStateMachine<TestStates, TestEvents> machine = new ObjectStateMachine<TestStates, TestEvents>(states, transitions, stateR, initialTransition, null, null);
 
 		machine.setTaskExecutor(taskExecutor);
+		machine.setBeanFactory(beanFactory);
 		machine.afterPropertiesSet();
 		machine.start();
 

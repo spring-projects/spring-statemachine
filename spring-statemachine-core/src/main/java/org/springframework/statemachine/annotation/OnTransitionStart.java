@@ -29,7 +29,7 @@ import org.springframework.statemachine.transition.Transition;
 /**
  * Indicates that a method is candidate to be called with a {@link Transition}.
  * <p>
- * A method annotated with @OnTransition may accept a parameter of type
+ * A method annotated with @OnTransitionStart may accept a parameter of type
  * {@link ExtendedState} or {@link Map} if map argument is itself is annotated
  * with {@link EventHeaders}.
  * <p>
@@ -42,7 +42,7 @@ import org.springframework.statemachine.transition.Transition;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface OnTransition {
+public @interface OnTransitionStart {
 
 	/**
 	 * The source states.

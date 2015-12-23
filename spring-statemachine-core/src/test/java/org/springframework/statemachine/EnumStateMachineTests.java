@@ -24,6 +24,8 @@ import java.util.Collection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.action.Action;
@@ -75,8 +77,10 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 		transitions.add(transitionFromS2ToS3);
 
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
+		BeanFactory beanFactory = new DefaultListableBeanFactory();
 		ObjectStateMachine<TestStates, TestEvents> machine = new ObjectStateMachine<TestStates, TestEvents>(states, transitions, stateSI);
 		machine.setTaskExecutor(taskExecutor);
+		machine.setBeanFactory(beanFactory);
 		machine.afterPropertiesSet();
 		machine.start();
 
@@ -148,8 +152,10 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 
 		// create machine
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
+		BeanFactory beanFactory = new DefaultListableBeanFactory();
 		ObjectStateMachine<TestStates, TestEvents> machine = new ObjectStateMachine<TestStates, TestEvents>(states, transitions, stateSI);
 		machine.setTaskExecutor(taskExecutor);
+		machine.setBeanFactory(beanFactory);
 		machine.afterPropertiesSet();
 		machine.start();
 
@@ -189,8 +195,10 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 		transitions.add(transitionInternalSI);
 
 		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
+		BeanFactory beanFactory = new DefaultListableBeanFactory();
 		ObjectStateMachine<TestStates, TestEvents> machine = new ObjectStateMachine<TestStates, TestEvents>(states, transitions, stateSI);
 		machine.setTaskExecutor(taskExecutor);
+		machine.setBeanFactory(beanFactory);
 		machine.afterPropertiesSet();
 		machine.start();
 

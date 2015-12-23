@@ -41,7 +41,17 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.Lifecycle;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.statemachine.annotation.OnEventNotAccepted;
+import org.springframework.statemachine.annotation.OnExtendedStateChanged;
+import org.springframework.statemachine.annotation.OnStateChanged;
+import org.springframework.statemachine.annotation.OnStateEntry;
+import org.springframework.statemachine.annotation.OnStateExit;
+import org.springframework.statemachine.annotation.OnStateMachineError;
+import org.springframework.statemachine.annotation.OnStateMachineStart;
+import org.springframework.statemachine.annotation.OnStateMachineStop;
 import org.springframework.statemachine.annotation.OnTransition;
+import org.springframework.statemachine.annotation.OnTransitionEnd;
+import org.springframework.statemachine.annotation.OnTransitionStart;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -93,7 +103,28 @@ public class StateMachineAnnotationPostProcessor implements BeanPostProcessor, B
 	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(beanFactory, "BeanFactory must not be null");
-		postProcessors.put(OnTransition.class, new StateMachineActivatorAnnotationPostProcessor(beanFactory));
+		postProcessors.put(OnTransition.class,
+				new StateMachineActivatorAnnotationPostProcessor<OnTransition>(beanFactory));
+		postProcessors.put(OnTransitionStart.class,
+				new StateMachineActivatorAnnotationPostProcessor<OnTransitionStart>(beanFactory));
+		postProcessors.put(OnTransitionEnd.class,
+				new StateMachineActivatorAnnotationPostProcessor<OnTransitionEnd>(beanFactory));
+		postProcessors.put(OnStateChanged.class,
+				new StateMachineActivatorAnnotationPostProcessor<OnStateChanged>(beanFactory));
+		postProcessors.put(OnStateEntry.class,
+				new StateMachineActivatorAnnotationPostProcessor<OnStateEntry>(beanFactory));
+		postProcessors.put(OnStateExit.class,
+				new StateMachineActivatorAnnotationPostProcessor<OnStateExit>(beanFactory));
+		postProcessors.put(OnStateMachineStart.class,
+				new StateMachineActivatorAnnotationPostProcessor<OnStateMachineStart>(beanFactory));
+		postProcessors.put(OnStateMachineStop.class,
+				new StateMachineActivatorAnnotationPostProcessor<OnStateMachineStop>(beanFactory));
+		postProcessors.put(OnEventNotAccepted.class,
+				new StateMachineActivatorAnnotationPostProcessor<OnEventNotAccepted>(beanFactory));
+		postProcessors.put(OnStateMachineError.class,
+				new StateMachineActivatorAnnotationPostProcessor<OnStateMachineError>(beanFactory));
+		postProcessors.put(OnExtendedStateChanged.class,
+				new StateMachineActivatorAnnotationPostProcessor<OnExtendedStateChanged>(beanFactory));
 	}
 
 	@Override
@@ -115,51 +146,42 @@ public class StateMachineAnnotationPostProcessor implements BeanPostProcessor, B
 
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			public void doWith(Method method) throws IllegalArgumentException, IllegalAccessException {
-				Annotation[] annotations = AnnotationUtils.getAnnotations(method);
-
-				for (Annotation annotation : annotations) {
-
-					Annotation metaAnnotation = null;
-					for (Class<? extends Annotation> ppa : postProcessors.keySet()) {
-						Annotation a = AnnotationUtils.getAnnotation(annotation,ppa);
-						if (a != null && annotation.getClass().equals(a.getClass())) {
-							metaAnnotation = a;
-						} else {
-							metaAnnotation = a;
-						}
+				for (Class<? extends Annotation> ppa : postProcessors.keySet()) {
+					Annotation metaAnnotation = AnnotationUtils.findAnnotation(method, ppa);
+					if (metaAnnotation == null) {
+						continue;
 					}
+					for (Annotation a : AnnotationUtils.getAnnotations(method)) {
+							MethodAnnotationPostProcessor postProcessor = metaAnnotation != null ? postProcessors
+									.get(metaAnnotation.annotationType()) : null;
+						if (postProcessor != null && shouldCreateHandler(a)) {
+							Object result = postProcessor.postProcess(beanClass, bean, beanName, method, metaAnnotation, a);
+							if (result != null && result instanceof StateMachineHandler) {
+								String endpointBeanName = generateBeanName(beanName, method, a.annotationType());
 
-					MethodAnnotationPostProcessor postProcessor = metaAnnotation != null ? postProcessors
-							.get(metaAnnotation.annotationType()) : null;
-
-					if (postProcessor != null && shouldCreateHandler(annotation)) {
-						Object result = postProcessor.postProcess(beanClass, bean, beanName, method, metaAnnotation, annotation);
-
-						if (result != null && result instanceof StateMachineHandler) {
-							String endpointBeanName = generateBeanName(beanName, method, annotation.annotationType());
-
-							if (result instanceof BeanNameAware) {
-								((BeanNameAware) result).setBeanName(endpointBeanName);
-							}
-							beanFactory.registerSingleton(endpointBeanName, result);
-							if (result instanceof BeanFactoryAware) {
-								((BeanFactoryAware) result).setBeanFactory(beanFactory);
-							}
-							if (result instanceof InitializingBean) {
-								try {
-									((InitializingBean) result).afterPropertiesSet();
-								} catch (Exception e) {
-									throw new BeanInitializationException("failed to initialize annotated component", e);
+								if (result instanceof BeanNameAware) {
+									((BeanNameAware) result).setBeanName(endpointBeanName);
 								}
-							}
-							if (result instanceof Lifecycle) {
-								lifecycles.add((Lifecycle) result);
-								if (result instanceof SmartLifecycle && ((SmartLifecycle) result).isAutoStartup()) {
-									((SmartLifecycle) result).start();
+								beanFactory.registerSingleton(endpointBeanName, result);
+								if (result instanceof BeanFactoryAware) {
+									((BeanFactoryAware) result).setBeanFactory(beanFactory);
 								}
-							}
-							if (result instanceof ApplicationListener) {
-								listeners.add((ApplicationListener) result);
+								if (result instanceof InitializingBean) {
+									try {
+										((InitializingBean) result).afterPropertiesSet();
+									} catch (Exception e) {
+										throw new BeanInitializationException("failed to initialize annotated component", e);
+									}
+								}
+								if (result instanceof Lifecycle) {
+									lifecycles.add((Lifecycle) result);
+									if (result instanceof SmartLifecycle && ((SmartLifecycle) result).isAutoStartup()) {
+										((SmartLifecycle) result).start();
+									}
+								}
+								if (result instanceof ApplicationListener) {
+									listeners.add((ApplicationListener) result);
+								}
 							}
 						}
 					}

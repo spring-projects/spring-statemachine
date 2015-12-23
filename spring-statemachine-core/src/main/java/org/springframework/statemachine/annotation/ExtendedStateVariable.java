@@ -17,45 +17,21 @@ package org.springframework.statemachine.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Map;
 
-import org.springframework.statemachine.ExtendedState;
-import org.springframework.statemachine.transition.Transition;
+import org.springframework.core.annotation.AliasFor;
 
-/**
- * Indicates that a method is candidate to be called with a {@link Transition}.
- * <p>
- * A method annotated with @OnTransition may accept a parameter of type
- * {@link ExtendedState} or {@link Map} if map argument is itself is annotated
- * with {@link EventHeaders}.
- * <p>
- * Return value can be anything and is effectively discarded.
- *
- * @author Janne Valkealahti
- *
- */
-@Target({ ElementType.TYPE, ElementType.METHOD })
+@Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-@Inherited
 @Documented
-public @interface OnTransition {
+public @interface ExtendedStateVariable {
 
-	/**
-	 * The source states.
-	 *
-	 * @return the source states.
-	 */
-	String[] source() default {};
+	@AliasFor("key")
+	String value() default "";
 
-	/**
-	 * The target states.
-	 *
-	 * @return the target states.
-	 */
-	String[] target() default {};
+	@AliasFor("value")
+	String key() default "";
 
 }

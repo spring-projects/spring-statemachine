@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine.processor;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import org.springframework.core.Ordered;
@@ -28,15 +29,16 @@ import org.springframework.statemachine.annotation.WithStateMachine;
  *
  * @author Janne Valkealahti
  *
+ * @param <T> the type of annotation
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public class StateMachineHandler<S, E> implements Ordered {
+public class StateMachineHandler<T extends Annotation, S, E> implements Ordered {
 
 	private final Class<?> beanClass;
-	
 	private final StateMachineRuntimeProcessor<?, S, E> processor;
-
+	private final T metaAnnotation;
+	private final Annotation annotation;
 	private int order = Ordered.LOWEST_PRECEDENCE;
 
 	/**
@@ -44,10 +46,12 @@ public class StateMachineHandler<S, E> implements Ordered {
 	 *
 	 * @param beanClass the bean class
 	 * @param target the target bean
+	 * @param metaAnnotation the meta annotation
+	 * @param annotation the annotation
 	 * @param method the method
 	 */
-	public StateMachineHandler(Class<?> beanClass, Object target, Method method) {
-		this(beanClass, new MethodInvokingStateMachineRuntimeProcessor<Object, S, E>(target, method));
+	public StateMachineHandler(Class<?> beanClass, Object target, Method method, T metaAnnotation, Annotation annotation) {
+		this(beanClass, metaAnnotation, annotation, new MethodInvokingStateMachineRuntimeProcessor<T, S, E>(target, method));
 	}
 
 	/**
@@ -56,31 +60,55 @@ public class StateMachineHandler<S, E> implements Ordered {
 	 * @param beanClass the bean class
 	 * @param target the target bean
 	 * @param methodName the method name
+	 * @param metaAnnotation the meta annotation
+	 * @param annotation the annotation
 	 */
-	public StateMachineHandler(Class<?> beanClass, Object target, String methodName) {
-		this(beanClass, new MethodInvokingStateMachineRuntimeProcessor<Object, S, E>(target, methodName));
+	public StateMachineHandler(Class<?> beanClass, Object target, String methodName, T metaAnnotation, Annotation annotation) {
+		this(beanClass, metaAnnotation, annotation, new MethodInvokingStateMachineRuntimeProcessor<T, S, E>(target, methodName));
 	}
 
 	/**
 	 * Instantiates a new container handler.
 	 *
-	 * @param <T> the generic type
 	 * @param beanClass the bean class
+	 * @param metaAnnotation the meta annotation
+	 * @param annotation the annotation
 	 * @param processor the processor
 	 */
-	public <T> StateMachineHandler(Class<?> beanClass, MethodInvokingStateMachineRuntimeProcessor<T, S, E> processor) {
+	public StateMachineHandler(Class<?> beanClass, T metaAnnotation, Annotation annotation,
+			MethodInvokingStateMachineRuntimeProcessor<T, S, E> processor) {
 		this.beanClass = beanClass;
 		this.processor = processor;
+		this.metaAnnotation = metaAnnotation;
+		this.annotation = annotation;
 	}
 
 	@Override
 	public int getOrder() {
 		return order;
 	}
-	
+
+	/**
+	 * Gets the meta annotation.
+	 *
+	 * @return the meta annotation
+	 */
+	public T getMetaAnnotation() {
+		return metaAnnotation;
+	}
+
+	/**
+	 * Gets the annotation.
+	 *
+	 * @return the annotation
+	 */
+	public Annotation getAnnotation() {
+		return annotation;
+	}
+
 	/**
 	 * Gets the bean class.
-	 * 
+	 *
 	 * @return the bean class
 	 */
 	public Class<?> getBeanClass() {
