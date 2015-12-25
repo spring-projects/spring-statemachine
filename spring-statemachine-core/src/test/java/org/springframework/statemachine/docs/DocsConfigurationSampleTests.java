@@ -15,14 +15,9 @@
  */
 package org.springframework.statemachine.docs;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.StaticListableBeanFactory;
@@ -37,16 +32,12 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.statemachine.AbstractStateMachineTests;
-import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.action.SpelExpressionAction;
-import org.springframework.statemachine.annotation.EventHeaders;
-import org.springframework.statemachine.annotation.OnTransition;
-import org.springframework.statemachine.annotation.WithStateMachine;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
@@ -407,52 +398,6 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 		}
 	}
 // end::snippetH[]
-
-// tag::snippetI[]
-	@WithStateMachine
-	public class Bean1 {
-
-		@OnTransition(source = "S1", target = "S2")
-		public void fromS1ToS2() {
-		}
-
-		@OnTransition
-		public void anyTransition() {
-		}
-	}
-// end::snippetI[]
-
-// tag::snippetII[]
-	@WithStateMachine
-	public class Bean4 {
-
-		@StatesOnTransition(source = States.S1, target = States.S2)
-		public void fromS1ToS2(@EventHeaders Map<String, Object> headers, ExtendedState extendedState) {
-		}
-	}
-// end::snippetII[]
-
-// tag::snippetJ[]
-	@Target(ElementType.METHOD)
-	@Retention(RetentionPolicy.RUNTIME)
-	@OnTransition
-	public @interface StatesOnTransition {
-
-		States[] source() default {};
-
-		States[] target() default {};
-	}
-// end::snippetJ[]
-
-// tag::snippetK[]
-	@WithStateMachine
-	public class Bean2 {
-
-		@StatesOnTransition(source = States.S1, target = States.S2)
-		public void fromS1ToS2() {
-		}
-	}
-// end::snippetK[]
 
 // tag::snippetL[]
 	public class Bean3 {

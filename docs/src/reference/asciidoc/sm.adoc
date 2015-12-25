@@ -771,15 +771,80 @@ working with. For this specific use case we have made a spring style
 context integration which easily attach state machine functionality
 into your beans.
 
-=== Annotation Support
+Available annotations has been harmonised to enable access to same
+state machine execution points than what is available from
+<<sm-listeners>>.
+
 _@WithStateMachine_ annotation can be used to associate a state
-machine with a existing bean. Within this annotation a property's
+machine with an existing bean. Then it is possible to start adding
+supported annotations to methods of that bean.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetA]
+----
+
+It is also possible to attach to any other state machine from an
+application context by using annotation `name` field.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetAA]
+----
+
+[NOTE]
+====
+Return type of these methods doesn't matter and is effectively
+discard.
+====
+
+=== Method Parameters
+Every annotation is supporting exactly same set of possible method
+parameters but runtime behaviour is different depending on an
+annotation itself and a stage where annotated method is called. To
+better understand how context works see
+<<sm-statecontext>>.
+
+[NOTE]
+====
+For differences between method parameters, see individual annotation
+docs below.
+====
+
+Effectively all annotated methods are called using Spring SPel
+expressions which are build dynamically during the process. As to make
+this work these expressions needs to have a root object it evaluates
+against. This root object is a `StateContext` and we have also made some
+tweaks internally so that it is possible to  access `StateContext` methods
+directly without going through the context handle.
+
+Simplest method parameter would naturally be a `StateContext` itself.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetB]
+----
+
+Rest of the `StateContext` content can be accessed as shown below.
+Number of parameters or order of those doesn't matter.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetBB]
+----
+
+=== Transition Annotations
+Annotations for transitions are `OnTransition`, `OnTransitionStart`
+and `OnTransitionEnd`.
+
+These annotations behave exactly same and lets
+see how `OnTransition` is used. Within this annotation a property's
 _source_ and _target_ can be used to qualify a transition. If
 _source_ and _target_ is left empty then any transition is matched.
 
 [source,java,indent=0]
 ----
-include::samples/DocsConfigurationSampleTests.java[tags=snippetI]
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetC]
 ----
 
 Default _@OnTransition_ annotation can't be used with a state and
@@ -792,7 +857,7 @@ is then called automatically with these arguments.
 
 [source,java,indent=0]
 ----
-include::samples/DocsConfigurationSampleTests.java[tags=snippetII]
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetD]
 ----
 
 However if you want to have a type safe annotation it is possible to
@@ -802,7 +867,7 @@ events enums and framework will try to match these in a same way.
 
 [source,java,indent=0]
 ----
-include::samples/DocsConfigurationSampleTests.java[tags=snippetJ]
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetE]
 ----
 
 Above we created a _@StatesOnTransition_ annotation which defines
@@ -810,11 +875,87 @@ Above we created a _@StatesOnTransition_ annotation which defines
 
 [source,java,indent=0]
 ----
-include::samples/DocsConfigurationSampleTests.java[tags=snippetK]
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetF]
 ----
 
 In your own bean you can then use this _@StatesOnTransition_ as is and
 use type safe `source` and `target`.
+
+=== State Annotations
+Annotations for states are `OnStateChanged`, `OnStateEntry` and
+`OnStateExit`.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetG]
+----
+
+In a same way that in transition anotations it's possible to define
+target and source states.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetGG]
+----
+
+For type safety a new annotation needs to be created for enums with
+`OnStateChanged` as a meta annotation.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetGGG]
+----
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetGGGG]
+----
+
+Methods for state entry and exit behave in a same way.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetGGGGG]
+----
+
+=== Event Annotation
+There is one event related annotation named `OnEventNotAccepted`. It
+is possible to listen only specific event by defining `event` property
+with the annotation.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetH]
+----
+
+=== State Machine Annotations
+Annotations for state machine are `OnStateMachineStart`,
+`OnStateMachineStop` and `OnStateMachineError`.
+
+During a state machine start and stop lifecycle methods are called.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetI]
+----
+
+In case a state machine goes into an error with exception, below
+annotation is called.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetII]
+----
+
+=== Extended State Annotation
+There is one extended state related annotation named
+`OnExtendedStateChanged`. It's also possible to listen changes only
+for specific `key` changes.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetJ]
+----
 
 [[sm-accessor]]
 == State Machine Accessor

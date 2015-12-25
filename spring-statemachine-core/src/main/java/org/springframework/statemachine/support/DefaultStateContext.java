@@ -23,38 +23,50 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 
+/**
+ * Default implementation of a {@link StateContext}.
+ *
+ * @author Janne Valkealahti
+ *
+ * @param <S> the type of state
+ * @param <E> the type of event
+ */
 public class DefaultStateContext<S, E> implements StateContext<S, E> {
 
-	private final E event;
+	private final Message<E> message;
 	private final MessageHeaders messageHeaders;
 	private final ExtendedState extendedState;
 	private final Transition<S,E> transition;
 	private final StateMachine<S, E> stateMachine;
 	private final State<S, E> source;
 	private final State<S, E> target;
+	private final Exception exception;
 
-	public DefaultStateContext(E event, MessageHeaders messageHeaders, ExtendedState extendedState, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
-		this(event, messageHeaders, extendedState, transition, stateMachine, null, null);
+	public DefaultStateContext(Message<E> message, MessageHeaders messageHeaders, ExtendedState extendedState, Transition<S, E> transition,
+			StateMachine<S, E> stateMachine) {
+		this(message, messageHeaders, extendedState, transition, stateMachine, null, null, null);
 	}
 
-	public DefaultStateContext(E event, MessageHeaders messageHeaders, ExtendedState extendedState, Transition<S,E> transition, StateMachine<S, E> stateMachine, State<S, E> source, State<S, E> target) {
-		this.event = event;
+	public DefaultStateContext(Message<E> message, MessageHeaders messageHeaders, ExtendedState extendedState, Transition<S, E> transition,
+			StateMachine<S, E> stateMachine, State<S, E> source, State<S, E> target, Exception exception) {
+		this.message = message;
 		this.messageHeaders = messageHeaders;
 		this.extendedState = extendedState;
 		this.transition = transition;
 		this.stateMachine = stateMachine;
 		this.source = source;
 		this.target = target;
+		this.exception = exception;
 	}
 
 	@Override
 	public E getEvent() {
-		return event;
+		return message != null ? message.getPayload() : null;
 	}
 
 	@Override
 	public Message<E> getMessage() {
-		return null;
+		return message;
 	}
 
 	@Override
@@ -99,6 +111,6 @@ public class DefaultStateContext<S, E> implements StateContext<S, E> {
 
 	@Override
 	public Exception getException() {
-		return null;
+		return exception;
 	}
 }

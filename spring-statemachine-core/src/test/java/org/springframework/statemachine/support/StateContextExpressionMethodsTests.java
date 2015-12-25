@@ -91,7 +91,7 @@ public class StateContextExpressionMethodsTests {
 		extendedState.getVariables().put("boolean1", true);
 		extendedState.getVariables().put("boolean2", false);
 		StateContext<SpelStates, SpelEvents> stateContext = new DefaultStateContext<SpelStates, SpelEvents>(
-				SpelEvents.E1, messageHeaders, extendedState, new MockTransition(), stateMachine);
+				MessageBuilder.withPayload(SpelEvents.E1).build(), messageHeaders, extendedState, new MockTransition(), stateMachine);
 		return stateContext;
 	}
 

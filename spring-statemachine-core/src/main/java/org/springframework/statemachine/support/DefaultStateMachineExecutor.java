@@ -392,8 +392,6 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 	}
 
 	private StateContext<S, E> buildStateContext(Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
-		E event = message != null ? message.getPayload() : null;
-
 		// TODO: maybe a direct use of MessageHeaders is wring, combine
 		//       payload and headers as a message?
 
@@ -407,7 +405,7 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 			// we want to keep the originating sm id
 			map.put(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER, stateMachine.getId());
 		}
-		return new DefaultStateContext<S, E>(event, new MessageHeaders(map), stateMachine.getExtendedState(), transition, stateMachine);
+		return new DefaultStateContext<S, E>(message, new MessageHeaders(map), stateMachine.getExtendedState(), transition, stateMachine);
 	}
 
 	private void registerTriggerListener() {

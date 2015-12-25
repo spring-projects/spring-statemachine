@@ -156,7 +156,14 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 			return;
 		}
 		for (CacheEntry entry : list) {
-			handlersList.add(entry.handler);
+			E event = stateContext.getEvent();
+			if (event != null) {
+				if (annotationHandlerEventVariableMatch(entry.metaAnnotation, new String[]{event.toString()})) {
+					handlersList.add(entry.handler);
+				}
+			} else {
+				handlersList.add(entry.handler);
+			}
 		}
 		getStateMachineHandlerResults(handlersList, stateContext);
 	}
@@ -271,6 +278,21 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 		boolean handle = false;
 		Map<String, Object> annotationAttributes = AnnotationUtils.getAnnotationAttributes(annotation);
 		Object object = annotationAttributes.get("key");
+		Collection<String> scoll = StateMachineUtils.toStringCollection(object);
+		if (!scoll.isEmpty()) {
+			if (StateMachineUtils.containsAtleastOne(scoll, StateMachineUtils.toStringCollection(key))) {
+				handle = true;
+			}
+		} else {
+			handle = true;
+		}
+		return handle;
+	}
+
+	private boolean annotationHandlerEventVariableMatch(Annotation annotation, Object key) {
+		boolean handle = false;
+		Map<String, Object> annotationAttributes = AnnotationUtils.getAnnotationAttributes(annotation);
+		Object object = annotationAttributes.get("event");
 		Collection<String> scoll = StateMachineUtils.toStringCollection(object);
 		if (!scoll.isEmpty()) {
 			if (StateMachineUtils.containsAtleastOne(scoll, StateMachineUtils.toStringCollection(key))) {

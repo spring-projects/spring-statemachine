@@ -38,6 +38,7 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.TypeConverter;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.messaging.Message;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
@@ -441,10 +442,16 @@ public class StateMachineMethodInvokerHelper<T, S, E> extends AbstractExpression
 						sb.append("variables.get('" + key + "')");
 					}
 
+				} else if (StateContext.class.isAssignableFrom(parameterType)) {
+					sb.append("stateContext");
 				} else if (ExtendedState.class.isAssignableFrom(parameterType)) {
 					sb.append("extendedState");
 				} else if (StateMachine.class.isAssignableFrom(parameterType)) {
 					sb.append("stateMachine");
+				} else if (Message.class.isAssignableFrom(parameterType)) {
+					sb.append("message");
+				} else if (Exception.class.isAssignableFrom(parameterType)) {
+					sb.append("exception");
 				}
 			}
 			if (hasUnqualifiedMapParameter) {
@@ -520,6 +527,14 @@ public class StateMachineMethodInvokerHelper<T, S, E> extends AbstractExpression
 
 		public StateMachine<SS, EE> getStateMachine() {
 			return stateContext.getStateMachine();
+		}
+
+		public Message<EE> getMessage() {
+			return stateContext.getMessage();
+		}
+
+		public Exception getException() {
+			return stateContext.getException();
 		}
 
 	}

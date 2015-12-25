@@ -176,7 +176,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	public boolean sendEvent(Message<E> event) {
 		if (hasStateMachineError()) {
 			// TODO: should we throw exception?
-			notifyEventNotAccepted(event, buildStateContext(null, null, getRelayStateMachine()));
+			notifyEventNotAccepted(event, buildStateContext(event, null, getRelayStateMachine()));
 			return false;
 		}
 
@@ -184,18 +184,18 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			event = getStateMachineInterceptors().preEvent(event, this);
 		} catch (Exception e) {
 			log.info("Event " + event + " threw exception in interceptors, not accepting event");
-			notifyEventNotAccepted(event, buildStateContext(null, null, getRelayStateMachine()));
+			notifyEventNotAccepted(event, buildStateContext(event, null, getRelayStateMachine()));
 			return false;
 		}
 
 		if (isComplete() || !isRunning()) {
-			notifyEventNotAccepted(event, buildStateContext(null, null, getRelayStateMachine()));
+			notifyEventNotAccepted(event, buildStateContext(event, null, getRelayStateMachine()));
 			return false;
 		}
 		boolean accepted = acceptEvent(event);
 		stateMachineExecutor.execute();
 		if (!accepted) {
-			notifyEventNotAccepted(event, buildStateContext(null, null, getRelayStateMachine()));
+			notifyEventNotAccepted(event, buildStateContext(event, null, getRelayStateMachine()));
 		}
 		return accepted;
 	}
@@ -346,7 +346,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			currentError = exception;
 		}
 		if (currentError != null) {
-			notifyStateMachineError(this, currentError, buildStateContext(null, null, this));
+			notifyStateMachineError(this, currentError, buildStateContext(null, null, this, currentError));
 		}
 	}
 
@@ -678,17 +678,21 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	private StateContext<S, E> buildStateContext(Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
-		E event = message != null ? message.getPayload() : null;
 		MessageHeaders messageHeaders = message != null ? message.getHeaders() : new MessageHeaders(
 				new HashMap<String, Object>());
-		return new DefaultStateContext<S, E>(event, messageHeaders, extendedState, transition, stateMachine);
+		return new DefaultStateContext<S, E>(message, messageHeaders, extendedState, transition, stateMachine);
+	}
+
+	private StateContext<S, E> buildStateContext(Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine, Exception exception) {
+		MessageHeaders messageHeaders = message != null ? message.getHeaders() : new MessageHeaders(
+				new HashMap<String, Object>());
+		return new DefaultStateContext<S, E>(message, messageHeaders, extendedState, transition, stateMachine, null, null, exception);
 	}
 
 	private StateContext<S, E> buildStateContext(Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine, State<S, E> source, State<S, E> target) {
-		E event = message != null ? message.getPayload() : null;
 		MessageHeaders messageHeaders = message != null ? message.getHeaders() : new MessageHeaders(
 				new HashMap<String, Object>());
-		return new DefaultStateContext<S, E>(event, messageHeaders, extendedState, transition, stateMachine, source, target);
+		return new DefaultStateContext<S, E>(message, messageHeaders, extendedState, transition, stateMachine, source, target, null);
 	}
 
 	private State<S, E> findDeepParent(State<S, E> state) {

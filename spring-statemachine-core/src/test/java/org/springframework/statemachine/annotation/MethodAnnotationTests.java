@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.ExtendedState;
@@ -241,7 +242,33 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		machine.start();
 
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E4).build());
-		assertThat(bean6.onEventNotAcceptedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean6.onEventNotAccepted1Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean6.onEventNotAccepted2Latch.await(2, TimeUnit.SECONDS), is(false));
+		assertThat(bean6.onEventNotAccepted3Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean6.onEventNotAccepted4Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean6.onEventNotAccepted4Message, notNullValue());
+		assertThat(bean6.onEventNotAccepted4Message.getPayload(), is(TestEvents.E4));
+		assertThat(bean6.onEventNotAccepted5Latch.await(2, TimeUnit.SECONDS), is(true));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testMethodAnnotations6() throws Exception {
+		context.register(BaseConfig.class, BeanConfig7.class, Config1.class);
+		context.refresh();
+
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		Bean7 bean7 = context.getBean(Bean7.class);
+		machine.start();
+
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E4).build());
+
+		machine.setStateMachineError(new RuntimeException());
+
+		assertThat(bean7.OnStateMachineError1Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean7.OnStateMachineError2Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean7.OnStateMachineError2Exception, notNullValue());
 	}
 
 	@WithStateMachine
@@ -450,14 +477,67 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 
 	@WithStateMachine
 	static class Bean6 {
-		CountDownLatch onEventNotAcceptedLatch = new CountDownLatch(1);
+		CountDownLatch onEventNotAccepted1Latch = new CountDownLatch(1);
+		CountDownLatch onEventNotAccepted2Latch = new CountDownLatch(1);
+		CountDownLatch onEventNotAccepted3Latch = new CountDownLatch(1);
+		CountDownLatch onEventNotAccepted4Latch = new CountDownLatch(1);
+		CountDownLatch onEventNotAccepted5Latch = new CountDownLatch(1);
+		Message<TestEvents> onEventNotAccepted4Message;
 
 		@OnEventNotAccepted
-		public void onEventNotAcceptedLatch() {
-			onEventNotAcceptedLatch.countDown();
+		public void onEventNotAccepted1() {
+			onEventNotAccepted1Latch.countDown();
+		}
+
+		@OnEventNotAccepted(event = "E1")
+		public void onEventNotAccepted2() {
+			onEventNotAccepted2Latch.countDown();
+		}
+
+		@OnEventNotAccepted(event = "E4")
+		public void onEventNotAccepted3() {
+			onEventNotAccepted3Latch.countDown();
+		}
+
+		@OnEventNotAccepted()
+		public void onEventNotAccepted4(Message<TestEvents> message) {
+			onEventNotAccepted4Message = message;
+			onEventNotAccepted4Latch.countDown();
+		}
+
+		@OnEventNotAccepted(event = {"E1", "E4"})
+		public void onEventNotAccepted5() {
+			onEventNotAccepted5Latch.countDown();
+		}
+
+		void reset() {
+			onEventNotAccepted1Latch = new CountDownLatch(1);
+			onEventNotAccepted2Latch = new CountDownLatch(1);
+			onEventNotAccepted3Latch = new CountDownLatch(1);
+			onEventNotAccepted4Latch = new CountDownLatch(1);
+			onEventNotAccepted4Message = null;
+		}
+	}
+
+	@WithStateMachine
+	static class Bean7 {
+		CountDownLatch OnStateMachineError1Latch = new CountDownLatch(1);
+		CountDownLatch OnStateMachineError2Latch = new CountDownLatch(1);
+		Exception OnStateMachineError2Exception;
+
+		@OnStateMachineError
+		public void OnStateMachineError1() {
+			OnStateMachineError1Latch.countDown();
+		}
+
+		@OnStateMachineError
+		public void OnStateMachineError2(Exception e) {
+			OnStateMachineError2Exception = e;
+			OnStateMachineError2Latch.countDown();
 		}
 
 	}
+
 
 	@Configuration
 	static class BeanConfig1 {
@@ -515,6 +595,16 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		@Bean
 		public Bean6 bean6() {
 			return new Bean6();
+		}
+
+	}
+
+	@Configuration
+	static class BeanConfig7 {
+
+		@Bean
+		public Bean7 bean7() {
+			return new Bean7();
 		}
 
 	}

@@ -27,10 +27,10 @@ import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.transition.Transition;
 
 /**
- * Indicates that a method is candidate to be called with a {@link Transition}.
+ * Indicates that a method is a candidate to be called with a {@link Transition}.
  * <p>
  * A method annotated with @OnTransition may accept a parameter of type
- * {@link ExtendedState} or {@link Map} if map argument is itself is annotated
+ * {@link ExtendedState} or {@link Map} if map argument itself is annotated
  * with {@link EventHeaders}.
  * <p>
  * Return value can be anything and is effectively discarded.
