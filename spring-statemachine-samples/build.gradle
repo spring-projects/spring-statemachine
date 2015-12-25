@@ -1,27 +1,30 @@
 description = 'Spring State Machine Samples Common'
 
 project('spring-statemachine-samples-turnstile') {
-  description = 'Spring State Machine Turnstile Sample'
+	description = 'Spring State Machine Turnstile Sample'
 }
 
 project('spring-statemachine-samples-showcase') {
-  description = 'Spring State Machine Showcase Sample'
+	description = 'Spring State Machine Showcase Sample'
 }
 
 project('spring-statemachine-samples-cdplayer') {
-  description = 'Spring State Machine CD Player Sample'
+	description = 'Spring State Machine CD Player Sample'
 }
 
 project('spring-statemachine-samples-tasks') {
-  description = 'Spring State Machine Parallel Regions Sample'
+	description = 'Spring State Machine Parallel Regions Sample'
 }
 
 project('spring-statemachine-samples-washer') {
-  description = 'Spring State Machine History State Sample'
+	description = 'Spring State Machine History State Sample'
 }
 
 project('spring-statemachine-samples-zookeeper') {
-  description = 'Spring State Machine Distributed Sample'
+	description = 'Spring State Machine Distributed Sample'
+	dependencies {
+		compile project(":spring-statemachine-zookeeper")
+	}
 }
 
 project('spring-statemachine-samples-persist') {
@@ -36,6 +39,7 @@ project('spring-statemachine-samples-persist') {
 project('spring-statemachine-samples-web') {
 	description = 'Spring State Machine Web Sample'
 	dependencies {
+		compile project(":spring-statemachine-zookeeper")
 		compile("org.springframework.boot:spring-boot-starter-security:$springBootVersion")
 		compile("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
 		compile("org.springframework.boot:spring-boot-starter-websocket:$springBootVersion")
@@ -50,8 +54,6 @@ project('spring-statemachine-samples-scope') {
 	description = 'Spring State Machine Web Scope Sample'
 	dependencies {
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf:$springBootVersion")
-//		compile("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
-//		compile("org.springframework:spring-webmvc:$springVersion")
 	}
 }
 

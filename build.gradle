@@ -227,7 +227,6 @@ configure(sampleProjects()) {
 	tasks.findByPath("artifactoryPublish")?.enabled = false
 	dependencies {
 		compile project(":spring-statemachine-samples-common")
-		compile project(":spring-statemachine-zookeeper")
 		compile "org.springframework:spring-context-support:$springVersion"
 		testCompile "org.springframework:spring-test:$springVersion"
 		testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"
