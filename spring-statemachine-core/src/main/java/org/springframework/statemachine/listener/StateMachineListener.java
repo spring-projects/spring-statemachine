@@ -16,6 +16,8 @@
 package org.springframework.statemachine.listener;
 
 import org.springframework.messaging.Message;
+import org.springframework.statemachine.StateContext;
+import org.springframework.statemachine.StateContext.Stage;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
@@ -109,5 +111,12 @@ public interface StateMachineListener<S,E> {
 	 * @param value the variable value
 	 */
 	void extendedStateChanged(Object key, Object value);
+
+	/**
+	 * Notified on various {@link Stage}s about a {@link StateContext}.
+	 *
+	 * @param stateContext the state context
+	 */
+	void stateContext(StateContext<S, E> stateContext);
 
 }

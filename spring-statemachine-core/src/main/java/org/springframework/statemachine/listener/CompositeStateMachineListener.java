@@ -18,6 +18,7 @@ package org.springframework.statemachine.listener;
 import java.util.Iterator;
 
 import org.springframework.messaging.Message;
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
@@ -30,8 +31,8 @@ import org.springframework.statemachine.transition.Transition;
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public class CompositeStateMachineListener<S,E> extends AbstractCompositeListener<StateMachineListener<S,E>> implements
-		StateMachineListener<S, E> {
+public class CompositeStateMachineListener<S, E> extends AbstractCompositeListener<StateMachineListener<S, E>>
+		implements StateMachineListener<S, E> {
 
 	@Override
 	public void stateChanged(State<S, E> from, State<S, E> to) {
@@ -118,6 +119,14 @@ public class CompositeStateMachineListener<S,E> extends AbstractCompositeListene
 		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
 			StateMachineListener<S, E> listener = iterator.next();
 			listener.extendedStateChanged(key, value);
+		}
+	}
+
+	@Override
+	public void stateContext(StateContext<S, E> stateContext) {
+		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
+			StateMachineListener<S, E> listener = iterator.next();
+			listener.stateContext(stateContext);
 		}
 	}
 

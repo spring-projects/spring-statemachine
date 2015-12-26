@@ -219,6 +219,10 @@ public class ListenerTests extends AbstractStateMachineTests {
 			extendedLatch.countDown();
 		}
 
+		@Override
+		public void stateContext(StateContext<TestStates, TestEvents> stateContext) {
+		}
+
 	}
 
 	@Configuration

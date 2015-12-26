@@ -29,6 +29,7 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
+import org.springframework.statemachine.StateContext.Stage;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.annotation.EventHeaders;
 import org.springframework.statemachine.annotation.OnTransition;
@@ -62,7 +63,7 @@ public class MethodParameterTests {
 		StateMachineRuntime<String, String> runtime = new StateMachineRuntime<String, String>() {
 			@Override
 			public StateContext<String, String> getStateContext() {
-				return new DefaultStateContext<String, String>(message, messageHeaders, extendedState, transition, stateMachine, source,
+				return new DefaultStateContext<String, String>(Stage.TRANSITION, message, messageHeaders, extendedState, transition, stateMachine, source,
 						target, exception);
 			}
 		};

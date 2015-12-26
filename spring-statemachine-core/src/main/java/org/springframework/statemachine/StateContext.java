@@ -38,6 +38,13 @@ import org.springframework.statemachine.transition.Transition;
 public interface StateContext<S, E> {
 
 	/**
+	 * Gets the stage this context is attached.
+	 *
+	 * @return the stage
+	 */
+	Stage getStage();
+
+	/**
 	 * Gets the message associated with a context. Message may be null if transition
 	 * is not triggered by a signal.
 	 *
@@ -114,5 +121,22 @@ public interface StateContext<S, E> {
 	 * @return the exception
 	 */
 	Exception getException();
+
+	/**
+	 * Enumeration of possible stages context is attached.
+	 */
+	public static enum Stage {
+		EVENT_NOT_ACCEPTED,
+		EXTENDED_STATE_CHANGED,
+		STATE_CHANGED,
+		STATE_ENTRY,
+		STATE_EXIT,
+		STATEMACHINE_ERROR,
+		STATEMACHINE_START,
+		STATEMACHINE_STOP,
+		TRANSITION,
+		TRANSITION_START,
+		TRANSITION_END;
+	}
 
 }

@@ -38,7 +38,7 @@ public abstract class StateMachineEvent extends ApplicationEvent {
 
 	@Override
 	public String toString() {
-		return "AbstractStateMachineEvent [source=" + source + "]";
+		return "StateMachineEvent [source=" + source + "]";
 	}
 
 }

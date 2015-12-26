@@ -50,7 +50,7 @@ public abstract class TransitionEvent extends StateMachineEvent {
 
 	@Override
 	public String toString() {
-		return "OnTransitionStartEvent [transition=" + transition + "]";
+		return "TransitionEvent [transition=" + transition + "]";
 	}
 
 }

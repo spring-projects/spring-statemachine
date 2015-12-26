@@ -33,6 +33,7 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.ExtendedState.ExtendedStateChangeListener;
+import org.springframework.statemachine.StateContext.Stage;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
@@ -176,7 +177,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	public boolean sendEvent(Message<E> event) {
 		if (hasStateMachineError()) {
 			// TODO: should we throw exception?
-			notifyEventNotAccepted(event, buildStateContext(event, null, getRelayStateMachine()));
+			notifyEventNotAccepted(event, buildStateContext(Stage.EVENT_NOT_ACCEPTED, event, null, getRelayStateMachine()));
 			return false;
 		}
 
@@ -184,18 +185,18 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			event = getStateMachineInterceptors().preEvent(event, this);
 		} catch (Exception e) {
 			log.info("Event " + event + " threw exception in interceptors, not accepting event");
-			notifyEventNotAccepted(event, buildStateContext(event, null, getRelayStateMachine()));
+			notifyEventNotAccepted(event, buildStateContext(Stage.EVENT_NOT_ACCEPTED, event, null, getRelayStateMachine()));
 			return false;
 		}
 
 		if (isComplete() || !isRunning()) {
-			notifyEventNotAccepted(event, buildStateContext(event, null, getRelayStateMachine()));
+			notifyEventNotAccepted(event, buildStateContext(Stage.EVENT_NOT_ACCEPTED, event, null, getRelayStateMachine()));
 			return false;
 		}
 		boolean accepted = acceptEvent(event);
 		stateMachineExecutor.execute();
 		if (!accepted) {
-			notifyEventNotAccepted(event, buildStateContext(event, null, getRelayStateMachine()));
+			notifyEventNotAccepted(event, buildStateContext(Stage.EVENT_NOT_ACCEPTED, event, null, getRelayStateMachine()));
 		}
 		return accepted;
 	}
@@ -216,7 +217,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		extendedState.setExtendedStateChangeListener(new ExtendedStateChangeListener() {
 			@Override
 			public void changed(Object key, Object value) {
-				notifyExtendedStateChanged(key, value, buildStateContext(null, null, getRelayStateMachine()));
+				notifyExtendedStateChanged(key, value, buildStateContext(Stage.EXTENDED_STATE_CHANGED, null, null, getRelayStateMachine()));
 			}
 		});
 
@@ -261,17 +262,17 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 			@Override
 			public void transit(Transition<S, E> t, StateContext<S, E> stateContext, Message<E> queuedMessage) {
-				StateContext<S, E> stateContext2 = buildStateContext(queuedMessage, null, getRelayStateMachine());
-				notifyTransitionStart(t, queuedMessage, buildStateContext(queuedMessage, null, getRelayStateMachine()));
-				notifyTransition(t, queuedMessage, buildStateContext(queuedMessage, null, getRelayStateMachine()));
+				// TODO: fix above stateContext as it's not used
+				notifyTransitionStart(t, queuedMessage, buildStateContext(Stage.TRANSITION_START, queuedMessage, null, getRelayStateMachine()));
+				notifyTransition(t, queuedMessage, buildStateContext(Stage.TRANSITION, queuedMessage, null, getRelayStateMachine()));
 				if (t.getKind() == TransitionKind.INITIAL) {
 					switchToState(t.getTarget(), queuedMessage, t, getRelayStateMachine());
-					notifyStateMachineStarted(getRelayStateMachine(), stateContext2);
+					notifyStateMachineStarted(getRelayStateMachine(), buildStateContext(Stage.STATEMACHINE_START, queuedMessage, null, getRelayStateMachine()));
 				} else if (t.getKind() != TransitionKind.INTERNAL) {
 					switchToState(t.getTarget(), queuedMessage, t, getRelayStateMachine());
 				}
 				// TODO: looks like events should be called here and anno processing earlier
-				notifyTransitionEnd(t, queuedMessage, buildStateContext(queuedMessage, null, getRelayStateMachine()));
+				notifyTransitionEnd(t, queuedMessage, buildStateContext(Stage.TRANSITION_END, queuedMessage, null, getRelayStateMachine()));
 			}
 		});
 		stateMachineExecutor = executor;
@@ -303,7 +304,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			// assume that state was set/reseted so we need to
 			// dispatch started event which would net getting
 			// dispatched via executor
-			StateContext<S, E> stateContext = buildStateContext(null, null, getRelayStateMachine());
+			StateContext<S, E> stateContext = buildStateContext(Stage.STATEMACHINE_START, null, null, getRelayStateMachine());
 			notifyStateMachineStarted(getRelayStateMachine(), stateContext);
 			return;
 		}
@@ -325,7 +326,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	@Override
 	protected void doStop() {
 		stateMachineExecutor.stop();
-		notifyStateMachineStopped(this, buildStateContext(null, null, this));
+		notifyStateMachineStopped(this, buildStateContext(Stage.STATEMACHINE_STOP, null, null, this));
 		currentState = null;
 		initialEnabled = null;
 	}
@@ -346,7 +347,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			currentError = exception;
 		}
 		if (currentError != null) {
-			notifyStateMachineError(this, currentError, buildStateContext(null, null, this, currentError));
+			notifyStateMachineError(this, currentError, buildStateContext(Stage.STATEMACHINE_ERROR, null, null, this, currentError));
 		}
 	}
 
@@ -624,7 +625,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		PseudoStateKind kind = state.getPseudoState() != null ? state.getPseudoState().getKind() : null;
 		if (kind == PseudoStateKind.CHOICE || kind == PseudoStateKind.HISTORY_SHALLOW
 				|| kind == PseudoStateKind.HISTORY_DEEP) {
-			StateContext<S, E> stateContext = buildStateContext(message, transition, stateMachine);
+			StateContext<S, E> stateContext = buildStateContext(Stage.STATE_CHANGED, message, transition, stateMachine);
 			State<S, E> toState = state.getPseudoState().entry(stateContext);
 
 			if (kind == PseudoStateKind.CHOICE) {
@@ -659,7 +660,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 					public void onContext(PseudoStateContext<S, E> context) {
 						PseudoState<S, E> pseudoState = context.getPseudoState();
 						State<S, E> toState = findStateWithPseudoState(pseudoState);
-						StateContext<S, E> stateContext = buildStateContext(null, null, getRelayStateMachine());
+						StateContext<S, E> stateContext = buildStateContext(Stage.STATE_EXIT, null, null, getRelayStateMachine());
 						pseudoState.exit(stateContext);
 						switchToState(toState, null, null, getRelayStateMachine());
 					}
@@ -677,22 +678,22 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		return null;
 	}
 
-	private StateContext<S, E> buildStateContext(Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
+	private StateContext<S, E> buildStateContext(Stage stage, Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
 		MessageHeaders messageHeaders = message != null ? message.getHeaders() : new MessageHeaders(
 				new HashMap<String, Object>());
-		return new DefaultStateContext<S, E>(message, messageHeaders, extendedState, transition, stateMachine);
+		return new DefaultStateContext<S, E>(stage, message, messageHeaders, extendedState, transition, stateMachine, null, null, null);
 	}
 
-	private StateContext<S, E> buildStateContext(Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine, Exception exception) {
+	private StateContext<S, E> buildStateContext(Stage stage, Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine, Exception exception) {
 		MessageHeaders messageHeaders = message != null ? message.getHeaders() : new MessageHeaders(
 				new HashMap<String, Object>());
-		return new DefaultStateContext<S, E>(message, messageHeaders, extendedState, transition, stateMachine, null, null, exception);
+		return new DefaultStateContext<S, E>(stage, message, messageHeaders, extendedState, transition, stateMachine, null, null, exception);
 	}
 
-	private StateContext<S, E> buildStateContext(Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine, State<S, E> source, State<S, E> target) {
+	private StateContext<S, E> buildStateContext(Stage stage, Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine, State<S, E> source, State<S, E> target) {
 		MessageHeaders messageHeaders = message != null ? message.getHeaders() : new MessageHeaders(
 				new HashMap<String, Object>());
-		return new DefaultStateContext<S, E>(message, messageHeaders, extendedState, transition, stateMachine, source, target, null);
+		return new DefaultStateContext<S, E>(stage, message, messageHeaders, extendedState, transition, stateMachine, source, target, null);
 	}
 
 	private State<S, E> findDeepParent(State<S, E> state) {
@@ -727,7 +728,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				start();
 			}
 			entryToState(state, message, transition, stateMachine);
-			notifyStateChanged(notifyFrom, state, message, buildStateContext(message, null, getRelayStateMachine(), notifyFrom, state));
+			notifyStateChanged(notifyFrom, state, message, buildStateContext(Stage.STATE_CHANGED, message, null, getRelayStateMachine(), notifyFrom, state));
 			nonDeepStatePresent = true;
 		} else if (currentState == null && StateMachineUtils.isSubstate(findDeep, state)) {
 			if (exit) {
@@ -739,7 +740,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				start();
 			}
 			entryToState(findDeep, message, transition, stateMachine);
-			notifyStateChanged(notifyFrom, findDeep, message, buildStateContext(message, null, getRelayStateMachine(), notifyFrom, findDeep));
+			notifyStateChanged(notifyFrom, findDeep, message, buildStateContext(Stage.STATE_CHANGED, message, null, getRelayStateMachine(), notifyFrom, findDeep));
 		}
 
 		if (currentState != null && !nonDeepStatePresent) {
@@ -826,7 +827,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			return;
 		}
 		log.trace("Trying Exit state=[" + state + "]");
-		StateContext<S, E> stateContext = buildStateContext(message, transition, stateMachine);
+		StateContext<S, E> stateContext = buildStateContext(Stage.STATE_EXIT, message, transition, stateMachine);
 
 		if (transition != null) {
 
@@ -853,7 +854,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		log.debug("Exit state=[" + state + "]");
 		state.exit(stateContext);
 
-		notifyStateExited(state, message, buildStateContext(message, null, getRelayStateMachine(), state, null));
+		notifyStateExited(state, message, buildStateContext(Stage.STATE_EXIT, message, null, getRelayStateMachine(), state, null));
 	}
 
 	private void entryToState(State<S, E> state, Message<E> message, Transition<S, E> transition, StateMachine<S, E> stateMachine) {
@@ -861,7 +862,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			return;
 		}
 		log.trace("Trying Enter state=[" + state + "]");
-		StateContext<S, E> stateContext = buildStateContext(message, transition, stateMachine);
+		StateContext<S, E> stateContext = buildStateContext(Stage.STATE_ENTRY, message, transition, stateMachine);
 
 		if (transition != null) {
 			State<S, E> findDeep1 = findDeepParent(transition.getTarget());
@@ -881,7 +882,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			}
 		}
 
-		notifyStateEntered(state, message, buildStateContext(message, null, getRelayStateMachine(), null, state));
+		notifyStateEntered(state, message, buildStateContext(Stage.STATE_ENTRY, message, null, getRelayStateMachine(), null, state));
 		log.debug("Enter state=[" + state + "]");
 		state.entry(stateContext);
 	}

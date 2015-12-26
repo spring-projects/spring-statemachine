@@ -633,7 +633,7 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippet6]
 
 [[sm-statecontext]]
 == Using StateContext
-_StateContext_ is a domain object representing a current status of a
+{sm-statecontext}[_StateContext_] is a domain object representing a current status of a
 state machine within a transition or an action. Context gives an
 access to a various information like event, message headers, extended
 state variables, current transition and a top-level state machine in

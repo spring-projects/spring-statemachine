@@ -38,6 +38,7 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
+import org.springframework.statemachine.StateContext.Stage;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.trigger.DefaultTriggerContext;
@@ -405,7 +406,7 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 			// we want to keep the originating sm id
 			map.put(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER, stateMachine.getId());
 		}
-		return new DefaultStateContext<S, E>(message, new MessageHeaders(map), stateMachine.getExtendedState(), transition, stateMachine);
+		return new DefaultStateContext<S, E>(Stage.TRANSITION, message, new MessageHeaders(map), stateMachine.getExtendedState(), transition, stateMachine, null, null, null);
 	}
 
 	private void registerTriggerListener() {

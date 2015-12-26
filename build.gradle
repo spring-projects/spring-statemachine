@@ -283,7 +283,7 @@ configure(rootProject) {
 			idseparator: '-',
 			doctype: 'book',
 			numbered: '',
-			'spring-hadoop-version' : project.version,
+			'spring-statemachine-version' : project.version,
 			'spring-version' : springVersion,
 			revnumber : project.version
 	}

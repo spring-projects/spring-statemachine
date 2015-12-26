@@ -131,6 +131,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyStateChanged(State<S,E> source, State<S,E> target, Message<E> message, StateContext<S, E> stateContext) {
 		stateMachineHandlerCallHelper.callOnStateChanged(getBeanName(), null, message, stateContext);
 		stateListener.stateChanged(source, target);
+		stateListener.stateContext(stateContext);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
@@ -142,6 +143,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyStateEntered(State<S,E> state, Message<E> message, StateContext<S, E> stateContext) {
 		stateMachineHandlerCallHelper.callOnStateEntry(getBeanName(), null, message, stateContext);
 		stateListener.stateEntered(state);
+		stateListener.stateContext(stateContext);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
@@ -153,6 +155,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyStateExited(State<S,E> state, Message<E> message, StateContext<S, E> stateContext) {
 		stateMachineHandlerCallHelper.callOnStateExit(getBeanName(), null, message, stateContext);
 		stateListener.stateExited(state);
+		stateListener.stateContext(stateContext);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
@@ -164,6 +167,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyEventNotAccepted(Message<E> event, StateContext<S, E> stateContext) {
 		stateMachineHandlerCallHelper.callOnEventNotAccepted(getBeanName(), stateContext);
 		stateListener.eventNotAccepted(event);
+		stateListener.stateContext(stateContext);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
@@ -175,6 +179,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyTransitionStart(Transition<S,E> transition, Message<E> message, StateContext<S, E> stateContext) {
 		stateMachineHandlerCallHelper.callOnTransitionStart(getBeanName(), transition, message, stateContext);
 		stateListener.transitionStarted(transition);
+		stateListener.stateContext(stateContext);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
@@ -186,6 +191,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyTransition(Transition<S,E> transition, Message<E> message, StateContext<S, E> stateContext) {
 		stateMachineHandlerCallHelper.callOnTransition(getBeanName(), transition, message, stateContext);
 		stateListener.transition(transition);
+		stateListener.stateContext(stateContext);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
@@ -197,6 +203,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyTransitionEnd(Transition<S,E> transition, Message<E> message, StateContext<S, E> stateContext) {
 		stateMachineHandlerCallHelper.callOnTransitionEnd(getBeanName(), transition, message, stateContext);
 		stateListener.transitionEnded(transition);
+		stateListener.stateContext(stateContext);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
@@ -208,6 +215,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyStateMachineStarted(StateMachine<S, E> stateMachine, StateContext<S, E> stateContext) {
 		stateMachineHandlerCallHelper.callOnStateMachineStart(getBeanName(), stateContext);
 		stateListener.stateMachineStarted(stateMachine);
+		stateListener.stateContext(stateContext);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
@@ -219,6 +227,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyStateMachineStopped(StateMachine<S, E> stateMachine, StateContext<S, E> stateContext) {
 		stateMachineHandlerCallHelper.callOnStateMachineStop(getBeanName(), stateContext);
 		stateListener.stateMachineStopped(stateMachine);
+		stateListener.stateContext(stateContext);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
@@ -230,6 +239,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyStateMachineError(StateMachine<S, E> stateMachine, Exception exception, StateContext<S, E> stateContext) {
 		stateMachineHandlerCallHelper.callOnStateMachineError(getBeanName(), stateContext);
 		stateListener.stateMachineError(stateMachine, exception);
+		stateListener.stateContext(stateContext);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
@@ -241,6 +251,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyExtendedStateChanged(Object key, Object value, StateContext<S, E> stateContext) {
 		stateMachineHandlerCallHelper.callOnExtendedStateChanged(getBeanName(), key, value, stateContext);
 		stateListener.extendedStateChanged(key, value);
+		stateListener.stateContext(stateContext);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
@@ -329,6 +340,11 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		@Override
 		public void extendedStateChanged(Object key, Object value) {
 			stateListener.extendedStateChanged(key, value);
+		}
+
+		@Override
+		public void stateContext(StateContext<S, E> stateContext) {
+			stateListener.stateContext(stateContext);
 		}
 
 	}

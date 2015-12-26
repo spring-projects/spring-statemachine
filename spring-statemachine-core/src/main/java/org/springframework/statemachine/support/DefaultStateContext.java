@@ -33,6 +33,7 @@ import org.springframework.statemachine.transition.Transition;
  */
 public class DefaultStateContext<S, E> implements StateContext<S, E> {
 
+	private final Stage stage;
 	private final Message<E> message;
 	private final MessageHeaders messageHeaders;
 	private final ExtendedState extendedState;
@@ -42,13 +43,22 @@ public class DefaultStateContext<S, E> implements StateContext<S, E> {
 	private final State<S, E> target;
 	private final Exception exception;
 
-	public DefaultStateContext(Message<E> message, MessageHeaders messageHeaders, ExtendedState extendedState, Transition<S, E> transition,
-			StateMachine<S, E> stateMachine) {
-		this(message, messageHeaders, extendedState, transition, stateMachine, null, null, null);
-	}
-
-	public DefaultStateContext(Message<E> message, MessageHeaders messageHeaders, ExtendedState extendedState, Transition<S, E> transition,
-			StateMachine<S, E> stateMachine, State<S, E> source, State<S, E> target, Exception exception) {
+	/**
+	 * Instantiates a new default state context.
+	 *
+	 * @param stage the stage
+	 * @param message the message
+	 * @param messageHeaders the message headers
+	 * @param extendedState the extended state
+	 * @param transition the transition
+	 * @param stateMachine the state machine
+	 * @param source the source
+	 * @param target the target
+	 * @param exception the exception
+	 */
+	public DefaultStateContext(Stage stage, Message<E> message, MessageHeaders messageHeaders, ExtendedState extendedState,
+			Transition<S, E> transition, StateMachine<S, E> stateMachine, State<S, E> source, State<S, E> target, Exception exception) {
+		this.stage = stage;
 		this.message = message;
 		this.messageHeaders = messageHeaders;
 		this.extendedState = extendedState;
@@ -57,6 +67,11 @@ public class DefaultStateContext<S, E> implements StateContext<S, E> {
 		this.source = source;
 		this.target = target;
 		this.exception = exception;
+	}
+
+	@Override
+	public Stage getStage() {
+		return stage;
 	}
 
 	@Override
@@ -113,4 +128,12 @@ public class DefaultStateContext<S, E> implements StateContext<S, E> {
 	public Exception getException() {
 		return exception;
 	}
+
+	@Override
+	public String toString() {
+		return "DefaultStateContext [stage=" + stage + ", message=" + message + ", messageHeaders=" + messageHeaders + ", extendedState="
+				+ extendedState + ", transition=" + transition + ", stateMachine=" + stateMachine + ", source=" + source + ", target="
+				+ target + ", exception=" + exception + "]";
+	}
+
 }
