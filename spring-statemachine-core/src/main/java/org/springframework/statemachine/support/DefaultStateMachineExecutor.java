@@ -259,6 +259,7 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 		State<S,E> currentState = stateMachine.getState();
 		if (queuedEvent != null) {
 			if ((currentState != null && currentState.shouldDefer(queuedEvent))) {
+				log.info("Current state " + currentState + " deferred event " + queuedEvent);
 				queueDeferredEvent(queuedEvent);
 				return true;
 			}

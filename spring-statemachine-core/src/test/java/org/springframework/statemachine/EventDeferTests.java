@@ -154,6 +154,39 @@ public class EventDeferTests extends AbstractStateMachineTests {
 	}
 
 	@Test
+	public void testDeferWithSubs2ThreadExecutor() throws Exception {
+		context.register(Config1.class, ExecutorConfig.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachine<String, String> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		TestListener listener = new TestListener();
+		machine.addStateListener(listener);
+		machine.start();
+
+		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedLatch.await(3, TimeUnit.SECONDS), is(true));
+
+		listener.reset(0, 0, 2, 0);
+		machine.sendEvent("E2");
+		machine.sendEvent("E2");
+
+		assertThat(listener.readyStateEnteredLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener.readyStateEnteredCount, is(2));
+
+		assertThat(machine.getState().getIds(), contains("READY"));
+	}
+
+	@Test
+	public void testDeferWithSubs2ThreadExecutorSmoke() throws Exception {
+		// smoke above test to see threading issues
+		for (int i = 0; i < 500; i++) {
+			setup();
+			testDeferWithSubs2ThreadExecutor();
+			clean();
+		}
+	}
+
+	@Test
 	public void testSubNotDeferOverrideSuperTransition() throws Exception {
 		context.register(Config3.class);
 		context.refresh();
