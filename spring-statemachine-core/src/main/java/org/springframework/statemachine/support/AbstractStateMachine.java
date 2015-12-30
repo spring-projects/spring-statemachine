@@ -570,7 +570,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		return id;
 	}
 
-	protected boolean acceptEvent(Message<E> message) {
+	protected synchronized boolean acceptEvent(Message<E> message) {
 		if ((currentState != null && currentState.shouldDefer(message))) {
 			log.info("Current state " + currentState + " deferred event " + message);
 			stateMachineExecutor.queueDeferredEvent(message);
@@ -704,7 +704,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		return null;
 	}
 
-	void setCurrentState(State<S, E> state, Message<E> message, Transition<S, E> transition, boolean exit, StateMachine<S, E> stateMachine) {
+	synchronized void setCurrentState(State<S, E> state, Message<E> message, Transition<S, E> transition, boolean exit, StateMachine<S, E> stateMachine) {
 
 		State<S, E> findDeep = findDeepParent(state);
 		boolean isTargetSubOf = false;
