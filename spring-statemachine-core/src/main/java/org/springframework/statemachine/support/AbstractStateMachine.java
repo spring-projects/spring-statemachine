@@ -592,6 +592,13 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				}
 			}
 		}
+		// if we're about to not accept event, check defer again in case
+		// state was changed between original check and now
+		if ((currentState != null && currentState.shouldDefer(message))) {
+			log.info("Current state " + currentState + " deferred event " + message);
+			stateMachineExecutor.queueDeferredEvent(message);
+			return true;
+		}
 		return false;
 	}
 
