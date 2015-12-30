@@ -4,6 +4,22 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 1.0.2 (2015-12-30)
+-------------------------------------
+* Backport: DefaultStateMachineExecutor using wrong extended state #146 backport [#147]
+* Backport: notifyTransition and notifyTransitionEnd call wrong publish methods #144 backport [#145]
+* Backport: Document session deps usage #137 backport [#143]
+* Backport: Machine not started with session scope and annotation config #141 backport [#142]
+* Backport: StateMachineTestPlan with multiple events #134 backport [#136]
+* Backport: Event deferring doesn't work with nested states #131 backport [#135]
+* Machine as @Bean may not properly set BeanFactory bug [#130]
+* Typo in OnStateMachineStop bug [#129]
+* Empty @OnTransition not called with @WithStateMachine bug [#128]
+* Document @OnTransition method arguments docs [#124]
+* Reference doc: error in sample code for 16.1 Annotation Support docs [#123]
+* Config trouble with default package bug [#122]
+* Support use of session @Scope enhancement [#112]
+
 Changes in version 1.0.1 (2015-11-18)
 -------------------------------------
 * autoStart via @EnableStateMachineFactory doesn't work [#113]
