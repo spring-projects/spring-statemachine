@@ -116,12 +116,12 @@ public class DefaultStateContext<S, E> implements StateContext<S, E> {
 
 	@Override
 	public State<S, E> getSource() {
-		return source;
+		return source != null ? source : (transition != null ? transition.getSource() : null);
 	}
 
 	@Override
 	public State<S, E> getTarget() {
-		return target;
+		return target != null ? target : (transition != null ? transition.getTarget() : null);
 	}
 
 	@Override

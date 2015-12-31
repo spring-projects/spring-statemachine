@@ -396,6 +396,10 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 		@Override
 		public void stateMachineError(StateMachine<States, Events> stateMachine, Exception exception) {
 		}
+
+		@Override
+		public void stateContext(StateContext<States, Events> stateContext) {
+		}
 	}
 // end::snippetH[]
 

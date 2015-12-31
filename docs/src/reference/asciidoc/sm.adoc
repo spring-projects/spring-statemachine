@@ -633,11 +633,46 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippet6]
 
 [[sm-statecontext]]
 == Using StateContext
-{sm-statecontext}[_StateContext_] is a domain object representing a current status of a
-state machine within a transition or an action. Context gives an
-access to a various information like event, message headers, extended
-state variables, current transition and a top-level state machine in
-case there is a need to send events to a further processing.
+{sm-statecontext}[_StateContext_] is a one of a most important objects
+when working with a state machine as it is passed into various methods
+and callbacks to give status of a current state of a state machine and
+where it is possibly going. If simplifying things a little it can be
+considered to be a snapshot of a current state machine stage where it
+is at a time _StateContext_ is passed on.
+
+[NOTE]
+====
+In `Spring Statemachine 1.0.x` _StateContext_ usage were relatively naive
+in terms of how it was used to just pass stuff around as a simple `POJO`.
+Starting from `Spring Statemachine 1.1.x` its role has been greatly
+improved by making it a first class citizen in a state machine.
+====
+
+In overall _StateContext_ can be used as.
+
+* Access to current `Message`, `Event` or their
+  `MessageHeaders` if known.
+* Access to state machine `Extended State`.
+* Access to `StateMachine` itself.
+* Access to possible state machine error.
+* Access to current `Transition` if applicable.
+* Access to _source_ and _target_ states where state machine is
+  possibly getting from and going to.
+* Access to current `Stage` as described in <<sm-statecontext-stage>>.
+
+_StateContext_ is passed into various components interacting with user
+like `Action` and `Guard`.
+
+[[sm-statecontext-stage]]
+=== Stages
+{sm-statecontext-stage}[_Stage_] is representation of a `stage` on
+which a state machine is currently interacting with a user. Current
+stages are `EVENT_NOT_ACCEPTED`, `EXTENDED_STATE_CHANGED`,
+`STATE_CHANGED`, `STATE_ENTRY`, `STATE_EXIT`, `STATEMACHINE_ERROR`,
+`STATEMACHINE_START`, `STATEMACHINE_STOP`, `TRANSITION`,
+`TRANSITION_START` and `TRANSITION_END` which look very familiar as
+those match how user can interact with listeners as described in
+<<sm-listeners>>.
 
 [[sm-triggers]]
 == Triggering Transitions
@@ -736,6 +771,10 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippetH]
 In above example we simply created our own listener class
 _StateMachineEventListener_ which extends
 _StateMachineListenerAdapter_.
+
+Listener method `stateContext` gives an access to various
+_StateContext_ changes on a different stages. More about about it in
+section <<sm-statecontext>>.
 
 Once you have your own listener defined, it can be registered into a
 state machine via its interface as shown below. It's just a matter of

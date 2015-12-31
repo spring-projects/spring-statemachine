@@ -15,17 +15,25 @@
  */
 package org.springframework.statemachine;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.hamcrest.FeatureMatcher;
+import org.hamcrest.Matcher;
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.statemachine.StateContext.Stage;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
@@ -41,11 +49,11 @@ public class StateContextTests extends AbstractStateMachineTests {
 		return new AnnotationConfigApplicationContext();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testStartCycles() throws Exception {
 		context.register(Config1.class);
 		context.refresh();
-		@SuppressWarnings("unchecked")
 		StateMachine<States, Events> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
 
 		TestStateMachineListener listener = new TestStateMachineListener();
@@ -53,8 +61,87 @@ public class StateContextTests extends AbstractStateMachineTests {
 
 		machine.start();
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S1, States.S11));
-		assertThat(listener.contexts.size(), is(19));
-		// TODO: continue with other tests to verify context fields
+		assertThat(listener.contexts, hasSize(19));
+
+		assertThat(listener.contexts, contains(
+				hasStage(Stage.EXTENDED_STATE_CHANGED),
+				hasStage(Stage.TRANSITION_START),
+				hasStage(Stage.TRANSITION),
+				hasStage(Stage.STATE_ENTRY),
+				hasStage(Stage.TRANSITION_START),
+				hasStage(Stage.TRANSITION),
+				hasStage(Stage.STATE_ENTRY),
+				hasStage(Stage.TRANSITION_START),
+				hasStage(Stage.TRANSITION),
+				hasStage(Stage.STATE_ENTRY),
+				hasStage(Stage.STATE_CHANGED),
+				hasStage(Stage.STATEMACHINE_START),
+				hasStage(Stage.TRANSITION_END),
+				hasStage(Stage.STATE_CHANGED),
+				hasStage(Stage.STATEMACHINE_START),
+				hasStage(Stage.TRANSITION_END),
+				hasStage(Stage.STATE_CHANGED),
+				hasStage(Stage.STATEMACHINE_START),
+				hasStage(Stage.TRANSITION_END)
+		));
+
+		assertThat(listener.contexts.get(0).getStage(), is(Stage.EXTENDED_STATE_CHANGED));
+
+		assertThat(listener.contexts.get(1).getStage(), is(Stage.TRANSITION_START));
+
+		assertThat(listener.contexts.get(2).getStage(), is(Stage.TRANSITION));
+		assertThat(listener.contexts.get(2).getTransition(), notNullValue());
+		assertThat(listener.contexts.get(2).getTransition().getSource(), nullValue());
+		assertThat(listener.contexts.get(2).getTransition().getTarget(), notNullValue());
+		assertThat(listener.contexts.get(2).getTransition().getTarget().getId(), is(States.S0));
+		assertThat(listener.contexts.get(2).getSource(), nullValue());
+		assertThat(listener.contexts.get(2).getTarget(), notNullValue());
+
+
+		assertThat(listener.contexts.get(3).getStage(), is(Stage.STATE_ENTRY));
+		assertThat(listener.contexts.get(3).getTarget(), notNullValue());
+		assertThat(listener.contexts.get(3).getTarget().getId(), is(States.S0));
+		assertThat(listener.contexts.get(3).getTransition(), notNullValue());
+
+		assertThat(listener.contexts.get(4).getStage(), is(Stage.TRANSITION_START));
+
+		assertThat(listener.contexts.get(5).getStage(), is(Stage.TRANSITION));
+
+		assertThat(listener.contexts.get(6).getStage(), is(Stage.STATE_ENTRY));
+		assertThat(listener.contexts.get(6).getTarget(), notNullValue());
+		assertThat(listener.contexts.get(6).getTarget().getId(), is(States.S1));
+//		assertThat(listener.contexts.get(6).getTransition(), notNullValue());
+
+		assertThat(listener.contexts.get(7).getStage(), is(Stage.TRANSITION_START));
+
+		assertThat(listener.contexts.get(8).getStage(), is(Stage.TRANSITION));
+
+		assertThat(listener.contexts.get(9).getStage(), is(Stage.STATE_ENTRY));
+		assertThat(listener.contexts.get(9).getTarget(), notNullValue());
+		assertThat(listener.contexts.get(9).getTarget().getId(), is(States.S11));
+//		assertThat(listener.contexts.get(9).getTransition(), notNullValue());
+
+		assertThat(listener.contexts.get(10).getStage(), is(Stage.STATE_CHANGED));
+
+		assertThat(listener.contexts.get(11).getStage(), is(Stage.STATEMACHINE_START));
+		assertThat(listener.contexts.get(11).getTransition(), notNullValue());
+
+		assertThat(listener.contexts.get(12).getStage(), is(Stage.TRANSITION_END));
+
+		assertThat(listener.contexts.get(13).getStage(), is(Stage.STATE_CHANGED));
+
+		assertThat(listener.contexts.get(14).getStage(), is(Stage.STATEMACHINE_START));
+		assertThat(listener.contexts.get(14).getTransition(), notNullValue());
+
+		assertThat(listener.contexts.get(15).getStage(), is(Stage.TRANSITION_END));
+
+		assertThat(listener.contexts.get(16).getStage(), is(Stage.STATE_CHANGED));
+
+		assertThat(listener.contexts.get(17).getStage(), is(Stage.STATEMACHINE_START));
+		assertThat(listener.contexts.get(17).getTransition(), notNullValue());
+
+		assertThat(listener.contexts.get(18).getStage(), is(Stage.TRANSITION_END));
+//		assertThat(listener.contexts.get(18).getTransition(), notNullValue());
 	}
 
 	static class TestStateMachineListener extends StateMachineListenerAdapter<States, Events> {
@@ -65,6 +152,15 @@ public class StateContextTests extends AbstractStateMachineTests {
 		public void stateContext(StateContext<States, Events> stateContext) {
 			contexts.add(stateContext);
 		}
+	}
+
+	private static Matcher<StateContext<?, ?>> hasStage(final Stage stage) {
+		return new FeatureMatcher<StateContext<?, ?>, Stage>(equalTo(stage), "stage", "stage") {
+			@Override
+			protected Stage featureValueOf(final StateContext<?, ?> actual) {
+				return actual.getStage();
+			}
+		};
 	}
 
 	@Configuration

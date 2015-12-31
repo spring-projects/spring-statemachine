@@ -261,18 +261,18 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		executor.setStateMachineExecutorTransit(new StateMachineExecutorTransit<S, E>() {
 
 			@Override
-			public void transit(Transition<S, E> t, StateContext<S, E> stateContext, Message<E> queuedMessage) {
+			public void transit(Transition<S, E> t, StateContext<S, E> ctx, Message<E> message) {
 				// TODO: fix above stateContext as it's not used
-				notifyTransitionStart(t, queuedMessage, buildStateContext(Stage.TRANSITION_START, queuedMessage, null, getRelayStateMachine()));
-				notifyTransition(t, queuedMessage, buildStateContext(Stage.TRANSITION, queuedMessage, null, getRelayStateMachine()));
+				notifyTransitionStart(t, message, buildStateContext(Stage.TRANSITION_START, message, t, getRelayStateMachine()));
+				notifyTransition(t, message, buildStateContext(Stage.TRANSITION, message, t, getRelayStateMachine()));
 				if (t.getKind() == TransitionKind.INITIAL) {
-					switchToState(t.getTarget(), queuedMessage, t, getRelayStateMachine());
-					notifyStateMachineStarted(getRelayStateMachine(), buildStateContext(Stage.STATEMACHINE_START, queuedMessage, null, getRelayStateMachine()));
+					switchToState(t.getTarget(), message, t, getRelayStateMachine());
+					notifyStateMachineStarted(getRelayStateMachine(), buildStateContext(Stage.STATEMACHINE_START, message, t, getRelayStateMachine()));
 				} else if (t.getKind() != TransitionKind.INTERNAL) {
-					switchToState(t.getTarget(), queuedMessage, t, getRelayStateMachine());
+					switchToState(t.getTarget(), message, t, getRelayStateMachine());
 				}
 				// TODO: looks like events should be called here and anno processing earlier
-				notifyTransitionEnd(t, queuedMessage, buildStateContext(Stage.TRANSITION_END, queuedMessage, null, getRelayStateMachine()));
+				notifyTransitionEnd(t, message, buildStateContext(Stage.TRANSITION_END, message, t, getRelayStateMachine()));
 			}
 		});
 		stateMachineExecutor = executor;
@@ -889,7 +889,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			}
 		}
 
-		notifyStateEntered(state, message, buildStateContext(Stage.STATE_ENTRY, message, null, getRelayStateMachine(), null, state));
+		notifyStateEntered(state, message, buildStateContext(Stage.STATE_ENTRY, message, transition, getRelayStateMachine(), null, state));
 		log.debug("Enter state=[" + state + "]");
 		state.entry(stateContext);
 	}
