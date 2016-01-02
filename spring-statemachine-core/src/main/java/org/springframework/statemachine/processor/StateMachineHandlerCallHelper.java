@@ -31,7 +31,6 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.annotation.OnEventNotAccepted;
 import org.springframework.statemachine.annotation.OnExtendedStateChanged;
@@ -47,7 +46,6 @@ import org.springframework.statemachine.annotation.OnTransitionStart;
 import org.springframework.statemachine.annotation.WithStateMachine;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.StateMachineUtils;
-import org.springframework.statemachine.transition.Transition;
 import org.springframework.util.Assert;
 
 /**
@@ -97,7 +95,7 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 		this.beanFactory = (ListableBeanFactory)beanFactory;
 	}
 
-	public void callOnStateChanged(String stateMachineId, Transition<S,E> transition, Message<E> message, StateContext<S, E> stateContext) {
+	public void callOnStateChanged(String stateMachineId, StateContext<S, E> stateContext) {
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnStateChanged.class.getName() + stateMachineId;
 		List<CacheEntry> list = cache.get(cacheKey);
@@ -114,7 +112,7 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 		getStateMachineHandlerResults(handlersList, stateContext);
 	}
 
-	public void callOnStateEntry(String stateMachineId, Transition<S,E> transition, Message<E> message, StateContext<S, E> stateContext) {
+	public void callOnStateEntry(String stateMachineId, StateContext<S, E> stateContext) {
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnStateEntry.class.getName() + stateMachineId;
 		List<CacheEntry> list = cache.get(cacheKey);
@@ -131,7 +129,7 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 		getStateMachineHandlerResults(handlersList, stateContext);
 	}
 
-	public void callOnStateExit(String stateMachineId, Transition<S,E> transition, Message<E> message, StateContext<S, E> stateContext) {
+	public void callOnStateExit(String stateMachineId, StateContext<S, E> stateContext) {
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnStateExit.class.getName() + stateMachineId;
 		List<CacheEntry> list = cache.get(cacheKey);
@@ -169,7 +167,7 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	}
 
 
-	public void callOnTransitionStart(String stateMachineId, Transition<S,E> transition, Message<E> message, StateContext<S, E> stateContext) {
+	public void callOnTransitionStart(String stateMachineId, StateContext<S, E> stateContext) {
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnTransitionStart.class.getName() + stateMachineId;
 		List<CacheEntry> list = cache.get(cacheKey);
@@ -178,15 +176,15 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 		}
 		for (CacheEntry entry : list) {
 			if (annotationHandlerSourceTargetMatch((String[]) AnnotationUtils.getValue(entry.metaAnnotation, "source"),
-					(String[]) AnnotationUtils.getValue(entry.metaAnnotation, "target"), entry.annotation, transition.getSource(),
-					transition.getTarget())) {
+					(String[]) AnnotationUtils.getValue(entry.metaAnnotation, "target"), entry.annotation,
+					stateContext.getTransition().getSource(), stateContext.getTransition().getTarget())) {
 				handlersList.add(entry.handler);
 			}
 		}
 		getStateMachineHandlerResults(handlersList, stateContext);
 	}
 
-	public void callOnTransition(String stateMachineId, Transition<S,E> transition, Message<E> message, StateContext<S, E> stateContext) {
+	public void callOnTransition(String stateMachineId, StateContext<S, E> stateContext) {
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnTransition.class.getName() + stateMachineId;
 		List<CacheEntry> list = cache.get(cacheKey);
@@ -195,15 +193,15 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 		}
 		for (CacheEntry entry : list) {
 			if (annotationHandlerSourceTargetMatch((String[]) AnnotationUtils.getValue(entry.metaAnnotation, "source"),
-					(String[]) AnnotationUtils.getValue(entry.metaAnnotation, "target"), entry.annotation, transition.getSource(),
-					transition.getTarget())) {
+					(String[]) AnnotationUtils.getValue(entry.metaAnnotation, "target"), entry.annotation,
+					stateContext.getTransition().getSource(), stateContext.getTransition().getTarget())) {
 				handlersList.add(entry.handler);
 			}
 		}
 		getStateMachineHandlerResults(handlersList, stateContext);
 	}
 
-	public void callOnTransitionEnd(String stateMachineId, Transition<S,E> transition, Message<E> message, StateContext<S, E> stateContext) {
+	public void callOnTransitionEnd(String stateMachineId, StateContext<S, E> stateContext) {
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnTransitionEnd.class.getName() + stateMachineId;
 		List<CacheEntry> list = cache.get(cacheKey);
@@ -212,8 +210,8 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 		}
 		for (CacheEntry entry : list) {
 			if (annotationHandlerSourceTargetMatch((String[]) AnnotationUtils.getValue(entry.metaAnnotation, "source"),
-					(String[]) AnnotationUtils.getValue(entry.metaAnnotation, "target"), entry.annotation, transition.getSource(),
-					transition.getTarget())) {
+					(String[]) AnnotationUtils.getValue(entry.metaAnnotation, "target"), entry.annotation,
+					stateContext.getTransition().getSource(), stateContext.getTransition().getTarget())) {
 				handlersList.add(entry.handler);
 			}
 		}

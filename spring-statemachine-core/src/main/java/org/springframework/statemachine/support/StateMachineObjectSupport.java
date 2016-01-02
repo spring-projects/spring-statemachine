@@ -128,122 +128,122 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		return stateListener;
 	}
 
-	protected void notifyStateChanged(State<S,E> source, State<S,E> target, Message<E> message, StateContext<S, E> stateContext) {
-		stateMachineHandlerCallHelper.callOnStateChanged(getBeanName(), null, message, stateContext);
-		stateListener.stateChanged(source, target);
+	protected void notifyStateChanged(StateContext<S, E> stateContext) {
+		stateMachineHandlerCallHelper.callOnStateChanged(getBeanName(), stateContext);
+		stateListener.stateChanged(stateContext.getSource(), stateContext.getTarget());
 		stateListener.stateContext(stateContext);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
-				eventPublisher.publishStateChanged(this, source, target);
+				eventPublisher.publishStateChanged(this, stateContext.getSource(), stateContext.getTarget());
 			}
 		}
 	}
 
-	protected void notifyStateEntered(State<S,E> state, Message<E> message, StateContext<S, E> stateContext) {
-		stateMachineHandlerCallHelper.callOnStateEntry(getBeanName(), null, message, stateContext);
-		stateListener.stateEntered(state);
+	protected void notifyStateEntered(StateContext<S, E> stateContext) {
+		stateMachineHandlerCallHelper.callOnStateEntry(getBeanName(), stateContext);
+		stateListener.stateEntered(stateContext.getTarget());
 		stateListener.stateContext(stateContext);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
-				eventPublisher.publishStateEntered(this, state);
+				eventPublisher.publishStateEntered(this, stateContext.getTarget());
 			}
 		}
 	}
 
-	protected void notifyStateExited(State<S,E> state, Message<E> message, StateContext<S, E> stateContext) {
-		stateMachineHandlerCallHelper.callOnStateExit(getBeanName(), null, message, stateContext);
-		stateListener.stateExited(state);
+	protected void notifyStateExited(StateContext<S, E> stateContext) {
+		stateMachineHandlerCallHelper.callOnStateExit(getBeanName(), stateContext);
+		stateListener.stateExited(stateContext.getSource());
 		stateListener.stateContext(stateContext);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
-				eventPublisher.publishStateExited(this, state);
+				eventPublisher.publishStateExited(this, stateContext.getSource());
 			}
 		}
 	}
 
-	protected void notifyEventNotAccepted(Message<E> event, StateContext<S, E> stateContext) {
+	protected void notifyEventNotAccepted(StateContext<S, E> stateContext) {
 		stateMachineHandlerCallHelper.callOnEventNotAccepted(getBeanName(), stateContext);
-		stateListener.eventNotAccepted(event);
+		stateListener.eventNotAccepted(stateContext.getMessage());
 		stateListener.stateContext(stateContext);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
-				eventPublisher.publishEventNotAccepted(this, event);
+				eventPublisher.publishEventNotAccepted(this, stateContext.getMessage());
 			}
 		}
 	}
 
-	protected void notifyTransitionStart(Transition<S,E> transition, Message<E> message, StateContext<S, E> stateContext) {
-		stateMachineHandlerCallHelper.callOnTransitionStart(getBeanName(), transition, message, stateContext);
-		stateListener.transitionStarted(transition);
+	protected void notifyTransitionStart(StateContext<S, E> stateContext) {
+		stateMachineHandlerCallHelper.callOnTransitionStart(getBeanName(), stateContext);
+		stateListener.transitionStarted(stateContext.getTransition());
 		stateListener.stateContext(stateContext);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
-				eventPublisher.publishTransitionStart(this, transition);
+				eventPublisher.publishTransitionStart(this, stateContext.getTransition());
 			}
 		}
 	}
 
-	protected void notifyTransition(Transition<S,E> transition, Message<E> message, StateContext<S, E> stateContext) {
-		stateMachineHandlerCallHelper.callOnTransition(getBeanName(), transition, message, stateContext);
-		stateListener.transition(transition);
+	protected void notifyTransition(StateContext<S, E> stateContext) {
+		stateMachineHandlerCallHelper.callOnTransition(getBeanName(), stateContext);
+		stateListener.transition(stateContext.getTransition());
 		stateListener.stateContext(stateContext);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
-				eventPublisher.publishTransition(this, transition);
+				eventPublisher.publishTransition(this, stateContext.getTransition());
 			}
 		}
 	}
 
-	protected void notifyTransitionEnd(Transition<S,E> transition, Message<E> message, StateContext<S, E> stateContext) {
-		stateMachineHandlerCallHelper.callOnTransitionEnd(getBeanName(), transition, message, stateContext);
-		stateListener.transitionEnded(transition);
+	protected void notifyTransitionEnd(StateContext<S, E> stateContext) {
+		stateMachineHandlerCallHelper.callOnTransitionEnd(getBeanName(), stateContext);
+		stateListener.transitionEnded(stateContext.getTransition());
 		stateListener.stateContext(stateContext);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
-				eventPublisher.publishTransitionEnd(this, transition);
+				eventPublisher.publishTransitionEnd(this, stateContext.getTransition());
 			}
 		}
 	}
 
-	protected void notifyStateMachineStarted(StateMachine<S, E> stateMachine, StateContext<S, E> stateContext) {
+	protected void notifyStateMachineStarted(StateContext<S, E> stateContext) {
 		stateMachineHandlerCallHelper.callOnStateMachineStart(getBeanName(), stateContext);
-		stateListener.stateMachineStarted(stateMachine);
+		stateListener.stateMachineStarted(stateContext.getStateMachine());
 		stateListener.stateContext(stateContext);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
-				eventPublisher.publishStateMachineStart(this, stateMachine);
+				eventPublisher.publishStateMachineStart(this, stateContext.getStateMachine());
 			}
 		}
 	}
 
-	protected void notifyStateMachineStopped(StateMachine<S, E> stateMachine, StateContext<S, E> stateContext) {
+	protected void notifyStateMachineStopped(StateContext<S, E> stateContext) {
 		stateMachineHandlerCallHelper.callOnStateMachineStop(getBeanName(), stateContext);
-		stateListener.stateMachineStopped(stateMachine);
+		stateListener.stateMachineStopped(stateContext.getStateMachine());
 		stateListener.stateContext(stateContext);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
-				eventPublisher.publishStateMachineStop(this, stateMachine);
+				eventPublisher.publishStateMachineStop(this, stateContext.getStateMachine());
 			}
 		}
 	}
 
-	protected void notifyStateMachineError(StateMachine<S, E> stateMachine, Exception exception, StateContext<S, E> stateContext) {
+	protected void notifyStateMachineError(StateContext<S, E> stateContext) {
 		stateMachineHandlerCallHelper.callOnStateMachineError(getBeanName(), stateContext);
-		stateListener.stateMachineError(stateMachine, exception);
+		stateListener.stateMachineError(stateContext.getStateMachine(), stateContext.getException());
 		stateListener.stateContext(stateContext);
 		if (contextEventsEnabled) {
 			StateMachineEventPublisher eventPublisher = getStateMachineEventPublisher();
 			if (eventPublisher != null) {
-				eventPublisher.publishStateMachineError(this, stateMachine, exception);
+				eventPublisher.publishStateMachineError(this, stateContext.getStateMachine(), stateContext.getException());
 			}
 		}
 	}
