@@ -11,6 +11,7 @@
 :core-jdbc-JdbcTemplate: http://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/jdbc.html#jdbc-JdbcTemplate
 :sm-statecontext: http://docs.spring.io/spring-statemachine/docs/{spring-statemachine-version}/api/org/springframework/statemachine/StateContext.html
 :sm-statecontext-stage: http://docs.spring.io/spring-statemachine/docs/{spring-statemachine-version}/api/org/springframework/statemachine/StateContext.Stage.html
+:spring-security-site: http://projects.spring.io/spring-security
 
 = Spring Statemachine - Reference Documentation
 

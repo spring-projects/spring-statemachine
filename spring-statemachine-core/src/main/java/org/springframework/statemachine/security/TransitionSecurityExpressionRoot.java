@@ -45,8 +45,8 @@ public class TransitionSecurityExpressionRoot extends SecurityExpressionRoot {
 		return ObjectUtils.nullSafeEquals(source, transition.getSource().getId());
 	}
 
-	public final boolean hasTarget(Object source) {
-		return ObjectUtils.nullSafeEquals(source, transition.getTarget().getId());
+	public final boolean hasTarget(Object target) {
+		return ObjectUtils.nullSafeEquals(target, transition.getTarget().getId());
 	}
 
 }

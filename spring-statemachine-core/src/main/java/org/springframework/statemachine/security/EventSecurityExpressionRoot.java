@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.statemachine.security;
 import org.springframework.messaging.Message;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.ObjectUtils;
 
 /**
  * The {@link SecurityExpressionRoot} used for {@link Message} expressions.
@@ -29,8 +30,19 @@ public class EventSecurityExpressionRoot extends SecurityExpressionRoot {
 
 	public final Message<?> message;
 
+	/**
+	 * Instantiates a new event security expression root.
+	 *
+	 * @param authentication the authentication
+	 * @param message the message
+	 */
 	public EventSecurityExpressionRoot(Authentication authentication, Message<?> message) {
 		super(authentication);
 		this.message = message;
 	}
+
+	public final boolean hasEvent(Object source) {
+		return ObjectUtils.nullSafeEquals(source, message.getPayload());
+	}
+
 }
