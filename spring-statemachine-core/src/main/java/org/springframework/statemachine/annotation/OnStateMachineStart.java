@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,9 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Map;
 
+import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateMachine;
 
 /**
@@ -29,7 +31,8 @@ import org.springframework.statemachine.StateMachine;
  * is started.
  * <p>
  * A method annotated with @OnStateMachineStart may accept a parameter of type
- * {@link StateMachine}.
+ * {@link ExtendedState}, {@link Map} if map argument itself is annotated
+ * with {@link EventHeaders}, {@link StateMachine}, {@link Message} or {@link Exception}.
  * <p>
  * Return value can be anything and is effectively discarded.
  *
