@@ -23,7 +23,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Map;
 
+import org.springframework.messaging.Message;
 import org.springframework.statemachine.ExtendedState;
+import org.springframework.statemachine.StateMachine;
 
 /**
  * Indicates that a method is candidate to be called when event
