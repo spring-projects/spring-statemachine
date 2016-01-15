@@ -408,7 +408,10 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 		traceLogWrappers(currentWrapper, notifyWrapper, newWrapper);
 
 		if (currentWrapper.version + 1 == newWrapper.version
+				&& notifyWrapper.version >= currentWrapper.version
 				&& stateRef.compareAndSet(currentWrapper, newWrapper)) {
+			// simply used to check if we don't need to replay, if so
+			// we can just try to notify
 			mayNotifyStateChanged(newWrapper);
 		} else {
 			final int start = (notifyWrapper != null ? (notifyWrapper.version) : 0) % logSize;
