@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.springframework.statemachine.config;
 
+import org.springframework.core.task.SyncTaskExecutor;
+import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineException;
 import org.springframework.statemachine.config.builders.StateMachineConfigBuilder;
@@ -121,9 +123,13 @@ public class StateMachineBuilder {
 				}
 				if (stateMachineConfigurationConfig.getTaskExecutor() != null) {
 					stateMachineFactory.setTaskExecutor(stateMachineConfigurationConfig.getTaskExecutor());
+				} else {
+					stateMachineFactory.setTaskExecutor(new SyncTaskExecutor());
 				}
 				if (stateMachineConfigurationConfig.getTaskScheduler() != null) {
 					stateMachineFactory.setTaskScheduler(stateMachineConfigurationConfig.getTaskScheduler());
+				} else {
+					stateMachineFactory.setTaskScheduler(new ConcurrentTaskScheduler());
 				}
 				return stateMachineFactory.getStateMachine();
 			} catch (Exception e) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
+import org.springframework.statemachine.TestUtils;
 import org.springframework.statemachine.config.StateMachineBuilder.Builder;
 import org.springframework.statemachine.config.builders.StateMachineConfigBuilder;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfig;
@@ -185,6 +186,28 @@ public class ManualBuilderTests {
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(stateMachine, notNullValue());
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
+	}
+
+	@Test
+	public void testManualBuildDefaultTaskExecutor() throws Exception {
+		Builder<String, String> builder = StateMachineBuilder.builder();
+
+		builder.configureStates()
+			.withStates()
+				.initial("S1").state("S2");
+
+		builder.configureTransitions()
+			.withExternal()
+				.source("S1").target("S2").event("E1")
+				.and()
+			.withExternal()
+				.source("S2").target("S1").event("E2");
+
+		StateMachine<String, String> stateMachine = builder.build();
+		assertThat(stateMachine, notNullValue());
+
+		assertThat(TestUtils.readField("taskExecutor", stateMachine), notNullValue());
+		assertThat(TestUtils.readField("taskScheduler", stateMachine), notNullValue());
 	}
 
 	@Test
