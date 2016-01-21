@@ -33,6 +33,7 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
@@ -92,6 +93,32 @@ public class TimerTriggerTests extends AbstractStateMachineTests {
 		assertThat(action.count, greaterThan(90));
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testTimerExternalTransitions() throws Exception {
+		context.register(Config3.class);
+		context.refresh();
+		StateMachine<String, String> machine = context.getBean(StateMachine.class);
+		TestTimerAction2 action = context.getBean("testTimerAction2", TestTimerAction2.class);
+		TestListener2 listener = new TestListener2();
+		machine.addStateListener(listener);
+
+		machine.start();
+		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), containsInAnyOrder("READY"));
+
+		for (int i = 0; i < 4; i++) {
+			listener.reset(2);
+			action.reset();
+			machine.sendEvent("SWITCH_TO_RUNNING");
+			assertThat(action.latch.await(5, TimeUnit.SECONDS), is(true));
+			assertThat(action.count, is(1));
+			assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS), is(true));
+			assertThat(listener.stateChangedCount, is(2));
+			assertThat(machine.getState().getIds(), containsInAnyOrder("RUNNING_TESTING"));
+		}
+	}
+
 	static class Config1 {
 
 		@Bean
@@ -133,13 +160,84 @@ public class TimerTriggerTests extends AbstractStateMachineTests {
 
 	}
 
+	@Configuration
+	@EnableStateMachine
+	static class Config3 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("READY")
+					.state("RUNNING")
+					.state("RUNNING_TESTING")
+					.end("SHUTDOWN");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("READY")
+					.target("RUNNING")
+					.event("SWITCH_TO_RUNNING")
+					.and()
+				.withExternal()
+					.source("RUNNING")
+					.target("RUNNING_TESTING")
+					.timer(1000)
+					.action(testTimerAction2())
+					.and()
+				.withExternal()
+					.source("RUNNING_TESTING")
+					.target("RUNNING")
+					.event("SWITCH_TO_RUNNING")
+					.and()
+				.withExternal()
+					.source("RUNNING")
+					.target("SHUTDOWN")
+					.event("SWITCH_TO_SHUTDOWN")
+					.and()
+				.withExternal()
+					.source("RUNNING_TESTING")
+					.target("SHUTDOWN")
+					.event("SWITCH_TO_SHUTDOWN");
+		}
+
+		@Bean
+		public TestTimerAction2 testTimerAction2() {
+			return new TestTimerAction2();
+		}
+
+	}
+
 	private static class TestTimerAction implements Action<TestStates, TestEvents> {
 
 		int count = 0;
+		volatile CountDownLatch latch = new CountDownLatch(1);
 
 		@Override
 		public void execute(StateContext<TestStates, TestEvents> context) {
 			count++;
+			latch.countDown();
+		}
+
+	}
+
+	private static class TestTimerAction2 implements Action<String, String> {
+
+		int count = 0;
+		volatile CountDownLatch latch = new CountDownLatch(1);
+
+		@Override
+		public void execute(StateContext<String, String> context) {
+			count++;
+			latch.countDown();
+		}
+
+		public void reset() {
+			count = 0;
+			latch = new CountDownLatch(1);
 		}
 
 	}
@@ -164,6 +262,41 @@ public class TimerTriggerTests extends AbstractStateMachineTests {
 
 		@Override
 		public void transition(Transition<TestStates, TestEvents> transition) {
+			transitionLatch.countDown();
+		}
+
+		public void reset(int c1) {
+			reset(c1, 0);
+		}
+
+		public void reset(int c1, int c2) {
+			stateChangedLatch = new CountDownLatch(c1);
+			transitionLatch = new CountDownLatch(c2);
+			stateChangedCount = 0;
+		}
+
+	}
+
+	private static class TestListener2 extends StateMachineListenerAdapter<String, String> {
+
+		volatile CountDownLatch stateMachineStartedLatch = new CountDownLatch(1);
+		volatile CountDownLatch stateChangedLatch = new CountDownLatch(1);
+		volatile CountDownLatch transitionLatch = new CountDownLatch(0);
+		volatile int stateChangedCount = 0;
+
+		@Override
+		public void stateMachineStarted(StateMachine<String, String> stateMachine) {
+			stateMachineStartedLatch.countDown();
+		}
+
+		@Override
+		public void stateChanged(State<String, String> from, State<String, String> to) {
+			stateChangedCount++;
+			stateChangedLatch.countDown();
+		}
+
+		@Override
+		public void transition(Transition<String, String> transition) {
 			transitionLatch.countDown();
 		}
 
