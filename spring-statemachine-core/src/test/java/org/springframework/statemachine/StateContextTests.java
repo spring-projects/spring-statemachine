@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -150,6 +151,55 @@ public class StateContextTests extends AbstractStateMachineTests {
 		assertThat(listener.contexts.get(18).getTransition(), notNullValue());
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testEventNotAccepted() throws Exception {
+		context.register(Config1.class);
+		context.refresh();
+		StateMachine<States, Events> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+
+		TestStateMachineListener listener = new TestStateMachineListener();
+		machine.addStateListener(listener);
+
+		machine.start();
+		listener.contexts.clear();
+
+		machine.sendEvent(Events.J);
+
+		// all nested machines sends these
+		assertThat(listener.contexts, contains(
+				hasStage(Stage.EVENT_NOT_ACCEPTED),
+				hasStage(Stage.EVENT_NOT_ACCEPTED),
+				hasStage(Stage.EVENT_NOT_ACCEPTED)
+		));
+
+
+		assertThat(listener.contexts.get(0).getStage(), is(Stage.EVENT_NOT_ACCEPTED));
+		assertThat(listener.contexts.get(0).getTransition(), nullValue());
+		assertThat(listener.contexts.get(0).getEvent(), is(Events.J));
+		assertThat(listener.contexts.get(0).getSource(), notNullValue());
+		assertThat(listener.contexts.get(0).getSource().getId(), is(States.S11));
+		assertThat(listener.contexts.get(0).getTarget(), nullValue());
+
+		assertThat(listener.contexts.get(1).getStage(), is(Stage.EVENT_NOT_ACCEPTED));
+		assertThat(listener.contexts.get(1).getTransition(), nullValue());
+		assertThat(listener.contexts.get(1).getEvent(), is(Events.J));
+		assertThat(listener.contexts.get(1).getSource(), notNullValue());
+		assertThat(listener.contexts.get(1).getSource().getId(), is(States.S1));
+		assertThat(listener.contexts.get(1).getTarget(), nullValue());
+
+		assertThat(listener.contexts.get(2).getStage(), is(Stage.EVENT_NOT_ACCEPTED));
+		assertThat(listener.contexts.get(2).getTransition(), nullValue());
+		assertThat(listener.contexts.get(2).getEvent(), is(Events.J));
+		assertThat(listener.contexts.get(2).getSource(), notNullValue());
+		assertThat(listener.contexts.get(2).getSource().getId(), is(States.S0));
+		assertThat(listener.contexts.get(2).getTarget(), nullValue());
+
+		// TODO: I wonder if these should be different machines
+		assertThat(listener.contexts.get(0).getStateMachine(), sameInstance(listener.contexts.get(1).getStateMachine()));
+		assertThat(listener.contexts.get(0).getStateMachine(), sameInstance(listener.contexts.get(2).getStateMachine()));
+	}
+
 	static class TestStateMachineListener extends StateMachineListenerAdapter<States, Events> {
 
 		ArrayList<StateContext<States, Events>> contexts = new ArrayList<>();
@@ -269,7 +319,10 @@ public class StateContextTests extends AbstractStateMachineTests {
 					.source(States.S211).target(States.S212).event(Events.I)
 					.and()
 				.withExternal()
-					.source(States.S12).target(States.S212).event(Events.I);
+					.source(States.S12).target(States.S212).event(Events.I)
+					.and()
+				.withExternal()
+					.source(States.S212).target(States.S211).event(Events.J);
 
 		}
 
@@ -295,7 +348,7 @@ public class StateContextTests extends AbstractStateMachineTests {
 	}
 
 	public static enum Events {
-		A, B, C, D, E, F, G, H, I
+		A, B, C, D, E, F, G, H, I, J
 	}
 
 	private static class FooAction implements Action<States, Events> {

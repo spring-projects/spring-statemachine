@@ -177,7 +177,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	public boolean sendEvent(Message<E> event) {
 		if (hasStateMachineError()) {
 			// TODO: should we throw exception?
-			notifyEventNotAccepted(buildStateContext(Stage.EVENT_NOT_ACCEPTED, event, null, getRelayStateMachine()));
+			notifyEventNotAccepted(buildStateContext(Stage.EVENT_NOT_ACCEPTED, event, null, getRelayStateMachine(), getState(), null));
 			return false;
 		}
 
@@ -185,18 +185,18 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			event = getStateMachineInterceptors().preEvent(event, this);
 		} catch (Exception e) {
 			log.info("Event " + event + " threw exception in interceptors, not accepting event");
-			notifyEventNotAccepted(buildStateContext(Stage.EVENT_NOT_ACCEPTED, event, null, getRelayStateMachine()));
+			notifyEventNotAccepted(buildStateContext(Stage.EVENT_NOT_ACCEPTED, event, null, getRelayStateMachine(), getState(), null));
 			return false;
 		}
 
 		if (isComplete() || !isRunning()) {
-			notifyEventNotAccepted(buildStateContext(Stage.EVENT_NOT_ACCEPTED, event, null, getRelayStateMachine()));
+			notifyEventNotAccepted(buildStateContext(Stage.EVENT_NOT_ACCEPTED, event, null, getRelayStateMachine(), getState(), null));
 			return false;
 		}
 		boolean accepted = acceptEvent(event);
 		stateMachineExecutor.execute();
 		if (!accepted) {
-			notifyEventNotAccepted(buildStateContext(Stage.EVENT_NOT_ACCEPTED, event, null, getRelayStateMachine()));
+			notifyEventNotAccepted(buildStateContext(Stage.EVENT_NOT_ACCEPTED, event, null, getRelayStateMachine(), getState(), null));
 		}
 		return accepted;
 	}

@@ -107,7 +107,7 @@ public interface StateContext<S, E> {
 	State<S,E> getSource();
 
 	/**
-	 * Gets the tarter state of this context. Generally target
+	 * Gets the target state of this context. Generally target
 	 * is where a state machine going to which may be different
 	 * than what the transition target is.
 	 *
