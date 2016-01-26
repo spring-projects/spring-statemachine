@@ -2,27 +2,43 @@ description = 'Spring State Machine Samples Common'
 
 project('spring-statemachine-samples-turnstile') {
 	description = 'Spring State Machine Turnstile Sample'
+	dependencies {
+		compile project(":spring-statemachine-samples-common")
+	}
 }
 
 project('spring-statemachine-samples-showcase') {
 	description = 'Spring State Machine Showcase Sample'
+	dependencies {
+		compile project(":spring-statemachine-samples-common")
+	}
 }
 
 project('spring-statemachine-samples-cdplayer') {
 	description = 'Spring State Machine CD Player Sample'
+	dependencies {
+		compile project(":spring-statemachine-samples-common")
+	}
 }
 
 project('spring-statemachine-samples-tasks') {
 	description = 'Spring State Machine Parallel Regions Sample'
+	dependencies {
+		compile project(":spring-statemachine-samples-common")
+	}
 }
 
 project('spring-statemachine-samples-washer') {
 	description = 'Spring State Machine History State Sample'
+	dependencies {
+		compile project(":spring-statemachine-samples-common")
+	}
 }
 
 project('spring-statemachine-samples-zookeeper') {
 	description = 'Spring State Machine Distributed Sample'
 	dependencies {
+		compile project(":spring-statemachine-samples-common")
 		compile project(":spring-statemachine-zookeeper")
 	}
 }
@@ -30,6 +46,7 @@ project('spring-statemachine-samples-zookeeper') {
 project('spring-statemachine-samples-persist') {
 	description = 'Spring State Machine Persist Sample'
 	dependencies {
+		compile project(":spring-statemachine-samples-common")
 		compile project(":spring-statemachine-recipes-common")
 		compile ("org.hsqldb:hsqldb:2.3.1")
 		compile ("org.springframework:spring-jdbc:$springVersion")
@@ -64,5 +81,15 @@ project('spring-statemachine-samples-security') {
 		compile("org.springframework.boot:spring-boot-starter-security:$springBootVersion")
 		compile("org.springframework.security:spring-security-config:$springSecurityVersion")
 		compile("org.springframework.security:spring-security-web:$springSecurityVersion")
+	}
+}
+
+project('spring-statemachine-samples-eventservice') {
+	description = 'Spring State Machine Event Service Sample'
+	dependencies {
+		compile project(":spring-statemachine-redis")
+		compile("org.springframework.boot:spring-boot-starter-thymeleaf:$springBootVersion")
+//		compile("org.springframework.boot:spring-boot-starter-redis:$springBootVersion")
+		compile("org.apache.commons:commons-pool2:2.4.2")
 	}
 }

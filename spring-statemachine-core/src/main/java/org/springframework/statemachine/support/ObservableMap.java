@@ -132,6 +132,11 @@ public class ObservableMap<K, V> implements Map<K, V> {
 		return delegate.entrySet();
 	}
 
+	@Override
+	public String toString() {
+		return delegate.toString();
+	}
+
 	/**
 	 * Gets the delegating map instance.
 	 *
