@@ -223,6 +223,34 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 		assertThat((Integer)machine.getExtendedState().getVariables().get("count"), is(2));
 	}
 
+	@Test
+	public void testResetWithNullContext() throws Exception {
+		context.register(Config1.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachine<States, Events> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+
+		machine.start();
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S1, States.S11));
+		assertThat((Integer)machine.getExtendedState().getVariables().get("foo"), is(0));
+
+		machine.sendEvent(Events.I);
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S1, States.S12));
+		assertThat((Integer)machine.getExtendedState().getVariables().get("foo"), is(0));
+
+		machine.stop();
+		machine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<States,Events>>() {
+
+			@Override
+			public void apply(StateMachineAccess<States, Events> function) {
+				function.resetStateMachine(null);
+			}
+		});
+		machine.start();
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S1, States.S11));
+		assertThat(machine.getExtendedState().getVariables().size(), is(0));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	static class Config1 extends EnumStateMachineConfigurerAdapter<States, Events> {

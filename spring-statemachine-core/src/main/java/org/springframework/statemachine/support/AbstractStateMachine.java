@@ -494,6 +494,9 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	@Override
 	public void resetStateMachine(StateMachineContext<S, E> stateMachineContext) {
 		if (stateMachineContext == null) {
+			log.info("Got null context, resetting to initial state and clearing extended state");
+			currentState = initialState;
+			extendedState.getVariables().clear();
 			return;
 		}
 		if (log.isDebugEnabled()) {
