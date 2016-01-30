@@ -1425,12 +1425,18 @@ the interceptors are discussed in <<sm-interceptor>>.
 === Using Redis
 Support for persisting State Machine into Redis is done via
 `RepositoryStateMachinePersist` which implements
-`StateMachinePersist`.
+`StateMachinePersist`. Specific implementation is a
+`RedisStateMachineContextRepository` whic uses `kryo` serialization to
+persist a `StateMachineContext` into `Redis`.
 
 [TIP]
 ====
 Check sample <<statemachine-examples-eventservice>> for detailed usage.
 ====
+
+`RedisStateMachineContextRepository` will need a
+`RedisConnectionFactory` for it to work and we recommend a
+`JedisConnectionFactory` for it as seeing from above example.
 
 [[sm-distributed]]
 == Using Distributed States

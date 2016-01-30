@@ -214,7 +214,7 @@ public class StateMachineConfig {
 				new RedisStateMachineContextRepository<States, Events>(connectionFactory);
 		return new RepositoryStateMachinePersist<States, Events>(repository);
 	}
-	//end::snippetD[]
+//end::snippetD[]
 
 	@Bean
 	public String stateChartModel() throws IOException {

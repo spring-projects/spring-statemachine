@@ -1185,7 +1185,7 @@ include::samples/demo/eventservice/StateMachineConfig.java[tags=snippetC]
 
 In below config we setup a `RedisConnectionFactory` which defaults to
 localhost and default ports. We also use `StateMachinePersist` with
-`RepositoryStateMachinePersist` implementation. These are then later
+`RepositoryStateMachinePersist` implementation. These are used
 in a `Controller` handling `REST` calls.
 
 [source,java,indent=0]
@@ -1313,4 +1313,6 @@ should see `COUNT` variable to increase with every call.
 image::images/sm-eventservice-4.png[width=500]
 
 Order to implement actual logic to track user behaviour, you'd then
-define this in a various `Actions` in a state machine.
+define these in a various `Actions` in a state machine. You can
+associate different `Actions` with transitions, state entry's or state
+exits' and with various listener methods.
