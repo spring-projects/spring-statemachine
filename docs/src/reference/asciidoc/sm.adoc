@@ -1421,6 +1421,17 @@ state change attempt will be halted and instead of ending into an
 inconsistent state, user can then handle this error manually. Using
 the interceptors are discussed in <<sm-interceptor>>.
 
+[[sm-persist-redis]]
+=== Using Redis
+Support for persisting State Machine into Redis is done via
+`RepositoryStateMachinePersist` which implements
+`StateMachinePersist`.
+
+[TIP]
+====
+Check sample <<statemachine-examples-eventservice>> for detailed usage.
+====
+
 [[sm-distributed]]
 == Using Distributed States
 Distributed state is probably one of a most compicated concepts of a

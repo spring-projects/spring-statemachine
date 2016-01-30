@@ -306,6 +306,7 @@ configure(rootProject) {
 		from 'spring-statemachine-samples/persist/src/main/java/'
 		from 'spring-statemachine-samples/zookeeper/src/main/java/'
 		from 'spring-statemachine-samples/security/src/main/java/'
+		from 'spring-statemachine-samples/eventservice/src/main/java/'
 		include '**/*.java'
 		into 'docs/src/reference/asciidoc/samples'
 	}

@@ -1,0 +1,16 @@
+[[whatsnew]]
+= What's New
+
+== In 1.1
+_Spring Statemachine 1.1_ is focusing on security and a better
+interoperability with web applications.
+
+* Comprehensive support for _Spring Security_ is added, <<sm-security>>
+* Context integration with `@WithStateMachine' has been greatly
+  enhanced, <<sm-context>>
+* `StateContext` is now a first class citizen with how user can
+  interact with a State Machine, <<sm-statecontext>>.
+* Features around persistence has been enhanced with a build-in
+  support for redis, <<sm-persist-redis>>
+* New samples, <<statemachine-examples-security>>, <<statemachine-examples-eventservice>>
+

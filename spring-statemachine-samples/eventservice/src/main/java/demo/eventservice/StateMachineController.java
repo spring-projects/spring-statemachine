@@ -39,11 +39,13 @@ import demo.eventservice.StateMachineConfig.States;
 @Controller
 public class StateMachineController {
 
+//tag::snippetA[]
 	@Autowired
 	private StateMachine<States, Events> stateMachine;
 
 	@Autowired
 	private StateMachinePersist<States, Events, String> stateMachinePersist;
+//end::snippetA[]
 
 	@Autowired
 	private String stateChartModel;
@@ -53,6 +55,7 @@ public class StateMachineController {
 		return "redirect:/state";
 	}
 
+//tag::snippetB[]
 	@RequestMapping("/state")
 	public String feedAndGetState(@RequestParam(value = "user", required = false) String user,
 			@RequestParam(value = "id", required = false) Events id, Model model) throws Exception {
@@ -71,7 +74,9 @@ public class StateMachineController {
 		}
 		return "states";
 	}
+//end::snippetB[]
 
+//tag::snippetC[]
 	@RequestMapping(value = "/feed",method= RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
 	public void feedPageview(@RequestBody(required = true) Pageview event) throws Exception {
@@ -80,13 +85,17 @@ public class StateMachineController {
 		resetStateMachineFromStore(event.getUser());
 		feedMachine(event.getUser(), event.getId());
 	}
+//end::snippetC[]
 
+//tag::snippetD[]
 	private void feedMachine(String user, Events id) throws Exception {
 		stateMachine.sendEvent(id);
 		stateMachinePersist.write(new DefaultStateMachineContext<States, Events>(stateMachine.getState().getId(), null, null,
 				stateMachine.getExtendedState()), "testprefix:" + user);
 	}
+//end::snippetD[]
 
+//tag::snippetE[]
 	private StateMachine<States, Events> resetStateMachineFromStore(String user) throws Exception {
 		final StateMachineContext<States, Events> context = stateMachinePersist.read("testprefix:" + user);
 		stateMachine.stop();
@@ -101,4 +110,5 @@ public class StateMachineController {
 		stateMachine.start();
 		return stateMachine;
 	}
+//end::snippetE[]
 }

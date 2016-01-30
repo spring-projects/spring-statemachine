@@ -31,6 +31,12 @@ The following modules are available for Spring Statemachine.
 |Common recipes which doesn't require dependencies outside of a core
 framework.
 
+|spring-statemachine-kryo
+|`Kryo` serializers for state machine.
+
+|spring-statemachine-redis
+|`Redis` related features for state machine.
+
 |spring-statemachine-zookeeper
 |`Zookeeper` integration for a distributed state machine.
 

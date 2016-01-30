@@ -41,6 +41,7 @@ import org.springframework.statemachine.support.RepositoryStateMachinePersist;
 @Configuration
 public class StateMachineConfig {
 
+//tag::snippetA[]
 	@Bean
 	@Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
 	public ProxyFactoryBean stateMachine() {
@@ -48,7 +49,9 @@ public class StateMachineConfig {
 		pfb.setTargetSource(poolTargetSource());
 		return pfb;
 	}
+//end::snippetA[]
 
+//tag::snippetB[]
 	@Bean
 	public CommonsPool2TargetSource poolTargetSource() {
 		CommonsPool2TargetSource pool = new CommonsPool2TargetSource();
@@ -56,7 +59,9 @@ public class StateMachineConfig {
 		pool.setTargetBeanName("stateMachineTarget");
 		return pool;
 	}
+//end::snippetB[]
 
+//tag::snippetC[]
 	@Bean(name = "stateMachineTarget")
 	@Scope(scopeName="prototype")
 	public StateMachine<States, Events> stateMachineTarget() throws Exception {
@@ -126,6 +131,7 @@ public class StateMachineConfig {
 
 		return builder.build();
 	}
+//end::snippetC[]
 
 	@Bean
 	public Action<States, Events> pageviewAction() {
@@ -196,6 +202,7 @@ public class StateMachineConfig {
 		};
 	}
 
+//tag::snippetD[]
 	@Bean
 	public RedisConnectionFactory redisConnectionFactory() {
 		return new JedisConnectionFactory();
@@ -203,8 +210,11 @@ public class StateMachineConfig {
 
 	@Bean
 	public StateMachinePersist<States, Events, String> stateMachinePersist(RedisConnectionFactory connectionFactory) {
-		return new RepositoryStateMachinePersist<States, Events>(new RedisStateMachineContextRepository<States, Events>(connectionFactory));
+		RedisStateMachineContextRepository<States, Events> repository =
+				new RedisStateMachineContextRepository<States, Events>(connectionFactory);
+		return new RepositoryStateMachinePersist<States, Events>(repository);
 	}
+	//end::snippetD[]
 
 	@Bean
 	public String stateChartModel() throws IOException {
