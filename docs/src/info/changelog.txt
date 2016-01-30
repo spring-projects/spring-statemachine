@@ -4,6 +4,27 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 1.1.0.M1 (2016-02-01)
+----------------------------------------
+* Support persisting into redis [#110]
+* Protect transitions and actions via spring security [#114]
+* Match annotations with @WithStateMachine vs. StateMachineListener [#126]
+* Event deferring doesn't work with nested states [#131]
+* StateMachineTestPlan with multiple events [#134]
+* Document session deps usage [#137]
+* Pass StateContext to StateMachineListener methods [#138]
+* Upgrade to kryo 3 [#139]
+* Machine not started with session scope and annotation config [#141]
+* notifyTransition and notifyTransitionEnd call wrong publish methods [#144]
+* DefaultStateMachineExecutor using wrong extended state [#146]
+* Exception in action in transition may cause machine to malfunction [#148]
+* Harmonise use of StateContext [#150]
+* Distributed machine with zk may miss events [#152]
+* Add redis persist sample [#160]
+* Add default taskExecutor/taskScheduler for machine via builder [#161]
+* Reset machine with null context [#166]
+* Update docs for 1.1.0.M1 release [#168]
+
 Changes in version 1.0.1 (2015-11-18)
 -------------------------------------
 * autoStart via @EnableStateMachineFactory doesn't work [#113]
