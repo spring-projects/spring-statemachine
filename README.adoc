@@ -10,6 +10,12 @@ Statemachine Project Page].
 The git repo master branch may be relatively unstable when new features are
 added into the source code.
 
+== Code of Conduct
+This project adheres to the Contributor Covenant
+link:CODE_OF_CONDUCT.adoc[code of conduct].
+By participating, you  are expected to uphold this code. Please report
+unacceptable behavior to spring-code-of-conduct@pivotal.io.
+
 == Downloading Artifacts
 See
 https://github.com/spring-projects/spring-framework/wiki/Downloading-Spring-artifacts[downloading
