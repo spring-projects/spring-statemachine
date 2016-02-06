@@ -27,6 +27,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.Message;
 import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -35,8 +36,11 @@ import org.springframework.statemachine.config.builders.StateMachineStateConfigu
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.event.OnStateMachineError;
 import org.springframework.statemachine.event.StateMachineEvent;
+import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
+import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.StateMachineInterceptorAdapter;
+import org.springframework.statemachine.transition.Transition;
 
 /**
  * Tests for various errors and error handling.
@@ -53,7 +57,7 @@ public class StateMachineErrorTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testEvents() throws Exception {
-		context.register(Config.class, Config1.class);
+		context.register(EventListenerConfig1.class, Config1.class);
 		context.refresh();
 
 		TestApplicationEventListener1 listener1 = context.getBean(TestApplicationEventListener1.class);
@@ -82,7 +86,7 @@ public class StateMachineErrorTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testInterceptHandlesError() throws Exception {
-		context.register(Config.class, Config1.class);
+		context.register(EventListenerConfig1.class, Config1.class);
 		context.refresh();
 
 		TestApplicationEventListener1 listener1 = context.getBean(TestApplicationEventListener1.class);
@@ -138,6 +142,27 @@ public class StateMachineErrorTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S1));
 	}
 
+	@Test
+	public void testListenerErrorsCauseNoMalfunction() throws Exception {
+		context.register(EventListenerConfig2.class, Config1.class);
+		context.refresh();
+
+		@SuppressWarnings("unchecked")
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		StartedStateMachineListener listener1 = new StartedStateMachineListener();
+		ErroringStateMachineListener listener2 = new ErroringStateMachineListener();
+		StateChangedStateMachineListener listener3 = new StateChangedStateMachineListener();
+		machine.addStateListener(listener1);
+		machine.addStateListener(listener2);
+
+		machine.start();
+		assertThat(listener1.latch.await(2, TimeUnit.SECONDS), is(true));
+		machine.addStateListener(listener3);
+		machine.sendEvent(TestEvents.E1);
+		assertThat(listener3.latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2));
+	}
 
 	@Configuration
 	@EnableStateMachine
@@ -180,7 +205,36 @@ public class StateMachineErrorTests extends AbstractStateMachineTests {
 	}
 
 	@Configuration
-	static class Config {
+	@EnableStateMachine
+	static class Config2 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S2)
+					.state(TestStates.S3);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S2)
+					.target(TestStates.S3)
+					.event(TestEvents.E2);
+		}
+
+	}
+
+	@Configuration
+	static class EventListenerConfig1 {
 
 		@Bean
 		public TestApplicationEventListener1 testApplicationEventListener1() {
@@ -193,6 +247,15 @@ public class StateMachineErrorTests extends AbstractStateMachineTests {
 		}
 	}
 
+	@Configuration
+	static class EventListenerConfig2 {
+
+		@Bean
+		public ErroringApplicationEventListener1 erroringApplicationEventListener1() {
+			return new ErroringApplicationEventListener1();
+		}
+	}
+
 	static class TestStateMachineListener extends StateMachineListenerAdapter<TestStates, TestEvents> {
 
 		CountDownLatch latch = new CountDownLatch(1);
@@ -200,8 +263,8 @@ public class StateMachineErrorTests extends AbstractStateMachineTests {
 
 		@Override
 		public void stateMachineError(StateMachine<TestStates, TestEvents> stateMachine, Exception exception) {
-	    	count++;
-	    	latch.countDown();
+			count++;
+			latch.countDown();
 		}
 	}
 
@@ -210,13 +273,13 @@ public class StateMachineErrorTests extends AbstractStateMachineTests {
 		CountDownLatch latch = new CountDownLatch(1);
 		int count = 0;
 
-	    @Override
-	    public void onApplicationEvent(StateMachineEvent event) {
-	    	if (event instanceof OnStateMachineError) {
-		    	count++;
-		    	latch.countDown();
-	    	}
-	    }
+		@Override
+		public void onApplicationEvent(StateMachineEvent event) {
+			if (event instanceof OnStateMachineError) {
+				count++;
+				latch.countDown();
+			}
+		}
 	}
 
 	static class TestApplicationEventListener2 implements ApplicationListener<OnStateMachineError> {
@@ -226,10 +289,106 @@ public class StateMachineErrorTests extends AbstractStateMachineTests {
 
 		@Override
 		public void onApplicationEvent(OnStateMachineError event) {
-	    	count++;
-	    	latch.countDown();
+			count++;
+			latch.countDown();
 		}
 
+	}
+
+	static class ErroringApplicationEventListener1 implements ApplicationListener<StateMachineEvent> {
+
+		@Override
+		public void onApplicationEvent(StateMachineEvent event) {
+			throw new RuntimeException();
+		}
+	}
+
+
+	static class StateChangedStateMachineListener extends StateMachineListenerAdapter<TestStates, TestEvents> {
+
+		CountDownLatch latch = new CountDownLatch(1);
+
+		@Override
+		public void stateChanged(State<TestStates, TestEvents> from, State<TestStates, TestEvents> to) {
+			latch.countDown();
+		}
+
+		void reset(int a) {
+			latch = new CountDownLatch(a);
+		}
+	}
+
+	static class StartedStateMachineListener extends StateMachineListenerAdapter<TestStates, TestEvents> {
+
+		CountDownLatch latch = new CountDownLatch(1);
+
+		@Override
+		public void stateMachineStarted(StateMachine<TestStates, TestEvents> stateMachine) {
+			latch.countDown();
+		}
+	}
+
+	static class ErroringStateMachineListener implements StateMachineListener<TestStates, TestEvents> {
+
+		@Override
+		public void stateChanged(State<TestStates, TestEvents> from, State<TestStates, TestEvents> to) {
+			throw new RuntimeException();
+		}
+
+		@Override
+		public void stateEntered(State<TestStates, TestEvents> state) {
+			throw new RuntimeException();
+		}
+
+		@Override
+		public void stateExited(State<TestStates, TestEvents> state) {
+			throw new RuntimeException();
+		}
+
+		@Override
+		public void eventNotAccepted(Message<TestEvents> event) {
+			throw new RuntimeException();
+		}
+
+		@Override
+		public void transition(Transition<TestStates, TestEvents> transition) {
+			throw new RuntimeException();
+		}
+
+		@Override
+		public void transitionStarted(Transition<TestStates, TestEvents> transition) {
+			throw new RuntimeException();
+		}
+
+		@Override
+		public void transitionEnded(Transition<TestStates, TestEvents> transition) {
+			throw new RuntimeException();
+		}
+
+		@Override
+		public void stateMachineStarted(StateMachine<TestStates, TestEvents> stateMachine) {
+			throw new RuntimeException();
+		}
+
+		@Override
+		public void stateMachineStopped(StateMachine<TestStates, TestEvents> stateMachine) {
+			throw new RuntimeException();
+		}
+
+		@Override
+		public void stateMachineError(StateMachine<TestStates, TestEvents> stateMachine, Exception exception) {
+			throw new RuntimeException();
+		}
+
+		@Override
+		public void extendedStateChanged(Object key, Object value) {
+			throw new RuntimeException();
+		}
+
+		@Override
+		public void stateContext(StateContext<TestStates, TestEvents> stateContext) {
+			throw new RuntimeException();
+		}
 	}
 
 }

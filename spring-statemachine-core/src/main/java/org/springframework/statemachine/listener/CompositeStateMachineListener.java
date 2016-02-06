@@ -17,6 +17,8 @@ package org.springframework.statemachine.listener;
 
 import java.util.Iterator;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
@@ -34,11 +36,17 @@ import org.springframework.statemachine.transition.Transition;
 public class CompositeStateMachineListener<S, E> extends AbstractCompositeListener<StateMachineListener<S, E>>
 		implements StateMachineListener<S, E> {
 
+	private final static Log log = LogFactory.getLog(CompositeStateMachineListener.class);
+
 	@Override
 	public void stateChanged(State<S, E> from, State<S, E> to) {
 		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
 			StateMachineListener<S, E> listener = iterator.next();
-			listener.stateChanged(from, to);
+			try {
+				listener.stateChanged(from, to);
+			} catch (Exception e) {
+				log.warn("Error during stateChanged", e);
+			}
 		}
 	}
 
@@ -46,7 +54,11 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 	public void stateEntered(State<S, E> state) {
 		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
 			StateMachineListener<S, E> listener = iterator.next();
-			listener.stateEntered(state);
+			try {
+				listener.stateEntered(state);
+			} catch (Exception e) {
+				log.warn("Error during stateEntered", e);
+			}
 		}
 	}
 
@@ -54,7 +66,11 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 	public void stateExited(State<S, E> state) {
 		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
 			StateMachineListener<S, E> listener = iterator.next();
-			listener.stateExited(state);
+			try {
+				listener.stateExited(state);
+			} catch (Exception e) {
+				log.warn("Error during stateExited", e);
+			}
 		}
 	}
 
@@ -62,7 +78,11 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 	public void eventNotAccepted(Message<E> event) {
 		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
 			StateMachineListener<S, E> listener = iterator.next();
-			listener.eventNotAccepted(event);
+			try {
+				listener.eventNotAccepted(event);
+			} catch (Exception e) {
+				log.warn("Error during eventNotAccepted", e);
+			}
 		}
 	}
 
@@ -70,7 +90,11 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 	public void transition(Transition<S, E> transition) {
 		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
 			StateMachineListener<S, E> listener = iterator.next();
-			listener.transition(transition);
+			try {
+				listener.transition(transition);
+			} catch (Exception e) {
+				log.warn("Error during transition", e);
+			}
 		}
 	}
 
@@ -78,7 +102,11 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 	public void transitionStarted(Transition<S, E> transition) {
 		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
 			StateMachineListener<S, E> listener = iterator.next();
-			listener.transitionStarted(transition);
+			try {
+				listener.transitionStarted(transition);
+			} catch (Exception e) {
+				log.warn("Error during transitionStarted", e);
+			}
 		}
 	}
 
@@ -86,7 +114,11 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 	public void transitionEnded(Transition<S, E> transition) {
 		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
 			StateMachineListener<S, E> listener = iterator.next();
-			listener.transitionEnded(transition);
+			try {
+				listener.transitionEnded(transition);
+			} catch (Exception e) {
+				log.warn("Error during transitionEnded", e);
+			}
 		}
 	}
 
@@ -94,7 +126,11 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 	public void stateMachineStarted(StateMachine<S, E> stateMachine) {
 		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
 			StateMachineListener<S, E> listener = iterator.next();
-			listener.stateMachineStarted(stateMachine);
+			try {
+				listener.stateMachineStarted(stateMachine);
+			} catch (Exception e) {
+				log.warn("Error during stateMachineStarted", e);
+			}
 		}
 	}
 
@@ -102,7 +138,11 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 	public void stateMachineStopped(StateMachine<S, E> stateMachine) {
 		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
 			StateMachineListener<S, E> listener = iterator.next();
-			listener.stateMachineStopped(stateMachine);
+			try {
+				listener.stateMachineStopped(stateMachine);
+			} catch (Exception e) {
+				log.warn("Error during stateMachineStopped", e);
+			}
 		}
 	}
 
@@ -110,7 +150,11 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 	public void stateMachineError(StateMachine<S, E> stateMachine, Exception exception) {
 		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
 			StateMachineListener<S, E> listener = iterator.next();
-			listener.stateMachineError(stateMachine, exception);
+			try {
+				listener.stateMachineError(stateMachine, exception);
+			} catch (Exception e) {
+				log.warn("Error during stateMachineError", e);
+			}
 		}
 	}
 
@@ -118,7 +162,11 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 	public void extendedStateChanged(Object key, Object value) {
 		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
 			StateMachineListener<S, E> listener = iterator.next();
-			listener.extendedStateChanged(key, value);
+			try {
+				listener.extendedStateChanged(key, value);
+			} catch (Exception e) {
+				log.warn("Error during extendedStateChanged", e);
+			}
 		}
 	}
 
@@ -126,7 +174,11 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 	public void stateContext(StateContext<S, E> stateContext) {
 		for (Iterator<StateMachineListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
 			StateMachineListener<S, E> listener = iterator.next();
-			listener.stateContext(stateContext);
+			try {
+				listener.stateContext(stateContext);
+			} catch (Exception e) {
+				log.warn("Error during stateContext", e);
+			}
 		}
 	}
 
