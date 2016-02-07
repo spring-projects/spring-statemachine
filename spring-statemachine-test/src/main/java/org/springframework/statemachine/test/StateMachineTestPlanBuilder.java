@@ -116,6 +116,8 @@ public class StateMachineTestPlanBuilder<S, E> {
 		boolean sendEventToAll = false;
 		boolean sendEventParallel = false;
 		final Collection<S> expectStates = new ArrayList<S>();
+		final Collection<S> expectStatesEntrered = new ArrayList<S>();
+		final Collection<S> expectStatesExited = new ArrayList<S>();
 		Integer expectStateChanged;
 		Integer expectStateEntered;
 		Integer expectStateExited;
@@ -296,6 +298,30 @@ public class StateMachineTestPlanBuilder<S, E> {
 		}
 
 		/**
+		 * Expect states entered in order given.
+		 *
+		 * @param states the states entered
+		 * @return the state machine test plan step builder
+		 */
+		@SuppressWarnings("unchecked")
+		public StateMachineTestPlanStepBuilder expectStateEntered(S... states) {
+			this.expectStatesEntrered.addAll(Arrays.asList(states));
+			return this;
+		}
+
+		/**
+		 * Expect states exited in order given.
+		 *
+		 * @param states the states exited
+		 * @return the state machine test plan step builder
+		 */
+		@SuppressWarnings("unchecked")
+		public StateMachineTestPlanStepBuilder expectStateExited(S... states) {
+			this.expectStatesExited.addAll(Arrays.asList(states));
+			return this;
+		}
+
+		/**
 		 * Expect state enter happening {@code count} times.
 		 *
 		 * @param count the count
@@ -433,7 +459,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 					sendEventParallel, expectStates, expectStateChanged, expectStateEntered, expectStateExited,
 					expectEventNotAccepted, expectTransition, expectTransitionStarted, expectTransitionEnded,
 					expectStateMachineStarted, expectStateMachineStopped, expectVariableKeys, expectVariables,
-					expectExtendedStateChanged));
+					expectExtendedStateChanged, expectStatesEntrered, expectStatesExited));
 			return StateMachineTestPlanBuilder.this;
 		}
 
@@ -446,6 +472,8 @@ public class StateMachineTestPlanBuilder<S, E> {
 		boolean sendEventToAll = false;
 		boolean sendEventParallel = false;
 		final Collection<S> expectStates;
+		final Collection<S> expectStatesEntrered;
+		final Collection<S> expectStatesExited;
 		Integer expectStateChanged;
 		Integer expectStateEntered;
 		Integer expectStateExited;
@@ -465,7 +493,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 				Integer expectEventNotAccepted, Integer expectTransition, Integer expectTransitionStarted,
 				Integer expectTransitionEnded, Integer expectStateMachineStarted, Integer expectStateMachineStopped,
 				Collection<Object> expectVariableKeys, Map<Object, Object> expectVariables,
-				Integer expectExtendedStateChanged) {
+				Integer expectExtendedStateChanged, Collection<S> expectStatesEntrered, Collection<S> expectStatesExited) {
 			this.sendEvent = sendEvent;
 			this.sendMessage = sendMessage;
 			this.sendEventMachineId = sendEventMachineId;
@@ -484,6 +512,8 @@ public class StateMachineTestPlanBuilder<S, E> {
 			this.expectVariableKeys = expectVariableKeys;
 			this.expectVariables = expectVariables;
 			this.expectExtendedStateChanged = expectExtendedStateChanged;
+			this.expectStatesEntrered = expectStatesEntrered;
+			this.expectStatesExited = expectStatesExited;
 		}
 
 	}

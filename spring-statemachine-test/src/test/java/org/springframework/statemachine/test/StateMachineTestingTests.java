@@ -87,6 +87,24 @@ public class StateMachineTestingTests extends AbstractStateMachineTests {
 		plan.test();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testIntermediate() throws Exception {
+		registerAndRefresh(Config4.class);
+		StateMachine<String, String> machine =	context.getBean(StateMachine.class);
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.stateMachine(machine)
+					.step().expectStateMachineStarted(1).and()
+					.step().expectState("SI").and()
+					.step().sendEvent("E1").expectStateChanged(1).expectState("S1").and()
+					.step().sendEvent("E2").expectStateChanged(2).expectStateEntered("S2", "S3").expectStateExited("S1", "S2").expectState("S3").and()
+					.build();
+
+		plan.test();
+	}
+
 	@Override
 	protected AnnotationConfigApplicationContext buildContext() {
 		return new AnnotationConfigApplicationContext();
@@ -192,6 +210,40 @@ public class StateMachineTestingTests extends AbstractStateMachineTests {
 				.withExternal()
 					.source("DEPLOYEXECUTE").target("READY");
 		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config4 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("SI")
+					.state("S1")
+					.state("S2")
+					.state("S3");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("SI")
+					.target("S1")
+					.event("E1")
+					.and()
+				.withExternal()
+					.source("S1")
+					.target("S2")
+					.event("E2")
+					.and()
+				.withExternal()
+					.source("S2")
+					.target("S3");
+		}
+
 	}
 
 }

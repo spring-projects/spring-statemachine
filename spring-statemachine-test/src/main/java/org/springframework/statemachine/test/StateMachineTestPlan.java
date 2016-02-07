@@ -15,11 +15,12 @@
  */
 package org.springframework.statemachine.test;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hamcrest.Matcher;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.test.StateMachineTestPlanBuilder.StateMachineTestPlanStep;
 import org.springframework.statemachine.test.support.LatchStateMachineListener;
 import org.springframework.util.StringUtils;
@@ -226,6 +228,26 @@ public class StateMachineTestPlan<S, E> {
 						itemMatchers.add(is(expectState));
 					}
 					assertThat(stateMachine.getState().getIds(), containsInAnyOrder(itemMatchers));
+				}
+			}
+
+			if (!step.expectStatesEntrered.isEmpty()) {
+				for (LatchStateMachineListener<S, E> listener : listeners.values()) {
+					Collection<S> states = new ArrayList<S>();
+					for (State<S, E> s : listener.getStateEntered()) {
+						states.add(s.getId());
+					}
+					assertThat(step.expectStatesEntrered, contains(states.toArray()));
+				}
+			}
+
+			if (!step.expectStatesExited.isEmpty()) {
+				for (LatchStateMachineListener<S, E> listener : listeners.values()) {
+					Collection<S> states = new ArrayList<S>();
+					for (State<S, E> s : listener.getStateExited()) {
+						states.add(s.getId());
+					}
+					assertThat(step.expectStatesExited, contains(states.toArray()));
 				}
 			}
 
