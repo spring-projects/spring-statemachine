@@ -154,7 +154,7 @@ project('spring-statemachine-kryo') {
 
 	dependencies {
 		compile project(":spring-statemachine-core")
-		compile "com.esotericsoftware:kryo:$kryoVersion"
+		compile "com.esotericsoftware:kryo-shaded:$kryoVersion"
 
 		testCompile project(":spring-statemachine-test")
 		testCompile "org.springframework:spring-test:$springVersion"
