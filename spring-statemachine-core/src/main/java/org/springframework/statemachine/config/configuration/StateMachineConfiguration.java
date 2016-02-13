@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,12 +35,12 @@ import org.springframework.statemachine.config.ObjectStateMachineFactory;
 import org.springframework.statemachine.config.StateMachineConfig;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigBuilder;
-import org.springframework.statemachine.config.builders.StateMachineConfigurationConfig;
 import org.springframework.statemachine.config.builders.StateMachineConfigurer;
-import org.springframework.statemachine.config.builders.StateMachineStates;
-import org.springframework.statemachine.config.builders.StateMachineTransitions;
 import org.springframework.statemachine.config.common.annotation.AbstractImportingAnnotationConfiguration;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurer;
+import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
+import org.springframework.statemachine.config.model.StateMachineStates;
+import org.springframework.statemachine.config.model.StateMachineTransitions;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 

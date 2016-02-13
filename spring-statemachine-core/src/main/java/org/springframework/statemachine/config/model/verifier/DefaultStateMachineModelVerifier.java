@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,31 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.config.builders;
+package org.springframework.statemachine.config.model.verifier;
 
-import java.util.Collection;
-
-import org.springframework.statemachine.config.StateData;
-import org.springframework.statemachine.config.configurers.StateConfigurer;
+import org.springframework.statemachine.config.model.StateMachineModel;
 
 /**
- * Data object used return and build data from a {@link StateConfigurer}.
+ * Default implementation of a {@link StateMachineModelVerifier}.
  *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public class StateMachineStates<S, E> {
+public class DefaultStateMachineModelVerifier<S, E> implements StateMachineModelVerifier<S, E> {
 
-	private final Collection<StateData<S, E>> stateDatas;
-
-	public StateMachineStates(Collection<StateData<S, E>> stateDatas) {
-		this.stateDatas = stateDatas;
+	@Override
+	public void verify(StateMachineModel<S, E> model) {
 	}
-
-	public Collection<StateData<S, E>> getStateDatas() {
-		return stateDatas;
-	}
-
 }

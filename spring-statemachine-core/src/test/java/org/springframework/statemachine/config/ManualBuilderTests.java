@@ -33,11 +33,11 @@ import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.TestUtils;
 import org.springframework.statemachine.config.StateMachineBuilder.Builder;
 import org.springframework.statemachine.config.builders.StateMachineConfigBuilder;
-import org.springframework.statemachine.config.builders.StateMachineConfigurationConfig;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
-import org.springframework.statemachine.config.builders.StateMachineStates;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
-import org.springframework.statemachine.config.builders.StateMachineTransitions;
+import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
+import org.springframework.statemachine.config.model.StateMachineStates;
+import org.springframework.statemachine.config.model.StateMachineTransitions;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
 

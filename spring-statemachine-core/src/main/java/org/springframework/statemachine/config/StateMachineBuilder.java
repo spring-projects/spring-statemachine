@@ -21,17 +21,17 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineException;
 import org.springframework.statemachine.config.builders.StateMachineConfigBuilder;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationBuilder;
-import org.springframework.statemachine.config.builders.StateMachineConfigurationConfig;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateBuilder;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
-import org.springframework.statemachine.config.builders.StateMachineStates;
 import org.springframework.statemachine.config.builders.StateMachineTransitionBuilder;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
-import org.springframework.statemachine.config.builders.StateMachineTransitions;
 import org.springframework.statemachine.config.common.annotation.AnnotationBuilder;
 import org.springframework.statemachine.config.common.annotation.ObjectPostProcessor;
+import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
+import org.springframework.statemachine.config.model.StateMachineStates;
+import org.springframework.statemachine.config.model.StateMachineTransitions;
 
 /**
  * {@code StateMachineBuilder} provides a builder pattern for

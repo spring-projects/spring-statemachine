@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,13 @@ package org.springframework.statemachine.config.builders;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.springframework.statemachine.config.StateData;
 import org.springframework.statemachine.config.common.annotation.AbstractConfiguredAnnotationBuilder;
 import org.springframework.statemachine.config.common.annotation.AnnotationBuilder;
 import org.springframework.statemachine.config.common.annotation.ObjectPostProcessor;
 import org.springframework.statemachine.config.configurers.DefaultStateConfigurer;
 import org.springframework.statemachine.config.configurers.StateConfigurer;
+import org.springframework.statemachine.config.model.StateData;
+import org.springframework.statemachine.config.model.StateMachineStates;
 
 /**
  * {@link AnnotationBuilder} for {@link StateMachineStates}.

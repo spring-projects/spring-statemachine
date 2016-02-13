@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,11 +37,16 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.action.Action;
-import org.springframework.statemachine.config.builders.StateMachineConfigurationConfig;
-import org.springframework.statemachine.config.builders.StateMachineStates;
-import org.springframework.statemachine.config.builders.StateMachineTransitions;
-import org.springframework.statemachine.config.builders.StateMachineTransitions.ChoiceData;
-import org.springframework.statemachine.config.builders.StateMachineTransitions.TransitionData;
+import org.springframework.statemachine.config.model.ChoiceData;
+import org.springframework.statemachine.config.model.DefaultStateMachineModel;
+import org.springframework.statemachine.config.model.StateData;
+import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
+import org.springframework.statemachine.config.model.StateMachineModel;
+import org.springframework.statemachine.config.model.StateMachineStates;
+import org.springframework.statemachine.config.model.StateMachineTransitions;
+import org.springframework.statemachine.config.model.TransitionData;
+import org.springframework.statemachine.config.model.verifier.CompositeStateMachineModelVerifier;
+import org.springframework.statemachine.config.model.verifier.StateMachineModelVerifier;
 import org.springframework.statemachine.ensemble.DistributedStateMachine;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.region.Region;
@@ -97,6 +102,10 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 	private String beanName;
 
+	// TODO: we want to make this configurable via annotation model
+	//       so that user can turn it off or customise
+	private final StateMachineModelVerifier<S, E> verifier = new CompositeStateMachineModelVerifier<S, E>();
+
 	/**
 	 * Instantiates a new enum state machine factory.
 	 *
@@ -119,6 +128,9 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 	@SuppressWarnings("unchecked")
 	@Override
 	public StateMachine<S, E> getStateMachine() {
+		// TODO: should pass model into constructor
+		StateMachineModel<S, E> model = new DefaultStateMachineModel<>(stateMachineConfigurationConfig, stateMachineStates, stateMachineTransitions);
+		verifier.verify(model);
 
 		// shared
 		DefaultExtendedState defaultExtendedState = new DefaultExtendedState();

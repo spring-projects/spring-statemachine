@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.config.builders;
+package org.springframework.statemachine.config.model;
 
 import java.util.List;
 
@@ -21,6 +21,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.statemachine.config.builders.StateMachineConfigurationBuilder;
 import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.security.SecurityRule;

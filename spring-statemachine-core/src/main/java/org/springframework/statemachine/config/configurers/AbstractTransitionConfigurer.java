@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import java.util.Collection;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.builders.StateMachineTransitionBuilder;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
-import org.springframework.statemachine.config.builders.StateMachineTransitions;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerAdapter;
+import org.springframework.statemachine.config.model.StateMachineTransitions;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.security.SecurityRule.ComparisonType;

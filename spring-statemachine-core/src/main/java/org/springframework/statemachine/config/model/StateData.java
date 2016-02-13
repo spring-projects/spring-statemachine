@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.config;
+package org.springframework.statemachine.config.model;
 
 import java.util.Collection;
 
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.State;
 
@@ -61,7 +62,7 @@ public class StateData<S, E> {
 	public Collection<E> getDeferred() {
 		return deferred;
 	}
-	
+
 	public void setDeferred(Collection<E> deferred) {
 		this.deferred = deferred;
 	}
@@ -69,7 +70,7 @@ public class StateData<S, E> {
 	public Collection<? extends Action<S, E>> getEntryActions() {
 		return entryActions;
 	}
-	
+
 	public void setEntryActions(Collection<? extends Action<S, E>> entryActions) {
 		this.entryActions = entryActions;
 	}
@@ -77,7 +78,7 @@ public class StateData<S, E> {
 	public Collection<? extends Action<S, E>> getExitActions() {
 		return exitActions;
 	}
-	
+
 	public void setExitActions(Collection<? extends Action<S, E>> exitActions) {
 		this.exitActions = exitActions;
 	}

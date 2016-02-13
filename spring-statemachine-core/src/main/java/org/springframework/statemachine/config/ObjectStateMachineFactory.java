@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@ import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
-import org.springframework.statemachine.config.builders.StateMachineConfigurationConfig;
-import org.springframework.statemachine.config.builders.StateMachineStates;
-import org.springframework.statemachine.config.builders.StateMachineTransitions;
+import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
+import org.springframework.statemachine.config.model.StateMachineStates;
+import org.springframework.statemachine.config.model.StateMachineTransitions;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.ObjectState;
 import org.springframework.statemachine.state.PseudoState;
