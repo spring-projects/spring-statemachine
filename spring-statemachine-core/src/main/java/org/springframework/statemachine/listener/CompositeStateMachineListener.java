@@ -44,7 +44,7 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 			StateMachineListener<S, E> listener = iterator.next();
 			try {
 				listener.stateChanged(from, to);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				log.warn("Error during stateChanged", e);
 			}
 		}
@@ -56,7 +56,7 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 			StateMachineListener<S, E> listener = iterator.next();
 			try {
 				listener.stateEntered(state);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				log.warn("Error during stateEntered", e);
 			}
 		}
@@ -68,7 +68,7 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 			StateMachineListener<S, E> listener = iterator.next();
 			try {
 				listener.stateExited(state);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				log.warn("Error during stateExited", e);
 			}
 		}
@@ -80,7 +80,7 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 			StateMachineListener<S, E> listener = iterator.next();
 			try {
 				listener.eventNotAccepted(event);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				log.warn("Error during eventNotAccepted", e);
 			}
 		}
@@ -92,7 +92,7 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 			StateMachineListener<S, E> listener = iterator.next();
 			try {
 				listener.transition(transition);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				log.warn("Error during transition", e);
 			}
 		}
@@ -104,7 +104,7 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 			StateMachineListener<S, E> listener = iterator.next();
 			try {
 				listener.transitionStarted(transition);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				log.warn("Error during transitionStarted", e);
 			}
 		}
@@ -116,7 +116,7 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 			StateMachineListener<S, E> listener = iterator.next();
 			try {
 				listener.transitionEnded(transition);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				log.warn("Error during transitionEnded", e);
 			}
 		}
@@ -128,7 +128,7 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 			StateMachineListener<S, E> listener = iterator.next();
 			try {
 				listener.stateMachineStarted(stateMachine);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				log.warn("Error during stateMachineStarted", e);
 			}
 		}
@@ -140,7 +140,7 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 			StateMachineListener<S, E> listener = iterator.next();
 			try {
 				listener.stateMachineStopped(stateMachine);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				log.warn("Error during stateMachineStopped", e);
 			}
 		}
@@ -152,7 +152,7 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 			StateMachineListener<S, E> listener = iterator.next();
 			try {
 				listener.stateMachineError(stateMachine, exception);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				log.warn("Error during stateMachineError", e);
 			}
 		}
@@ -164,7 +164,7 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 			StateMachineListener<S, E> listener = iterator.next();
 			try {
 				listener.extendedStateChanged(key, value);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				log.warn("Error during extendedStateChanged", e);
 			}
 		}
@@ -176,7 +176,7 @@ public class CompositeStateMachineListener<S, E> extends AbstractCompositeListen
 			StateMachineListener<S, E> listener = iterator.next();
 			try {
 				listener.stateContext(stateContext);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				log.warn("Error during stateContext", e);
 			}
 		}

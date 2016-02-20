@@ -139,7 +139,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 					eventPublisher.publishStateChanged(this, stateContext.getSource(), stateContext.getTarget());
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			log.warn("Error during notifyStateChanged", e);
 		}
 	}
@@ -155,7 +155,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 					eventPublisher.publishStateEntered(this, stateContext.getTarget());
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			log.warn("Error during notifyStateEntered", e);
 		}
 	}
@@ -171,7 +171,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 					eventPublisher.publishStateExited(this, stateContext.getSource());
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			log.warn("Error during notifyStateExited", e);
 		}
 	}
@@ -187,7 +187,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 					eventPublisher.publishEventNotAccepted(this, stateContext.getMessage());
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			log.warn("Error during notifyEventNotAccepted", e);
 		}
 	}
@@ -203,7 +203,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 					eventPublisher.publishTransitionStart(this, stateContext.getTransition());
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			log.warn("Error during notifyTransitionStart", e);
 		}
 	}
@@ -219,7 +219,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 					eventPublisher.publishTransition(this, stateContext.getTransition());
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			log.warn("Error during notifyTransition", e);
 		}
 	}
@@ -235,7 +235,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 					eventPublisher.publishTransitionEnd(this, stateContext.getTransition());
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			log.warn("Error during notifyTransitionEnd", e);
 		}
 	}
@@ -251,7 +251,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 					eventPublisher.publishStateMachineStart(this, stateContext.getStateMachine());
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			log.warn("Error during notifyStateMachineStarted", e);
 		}
 	}
@@ -267,7 +267,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 					eventPublisher.publishStateMachineStop(this, stateContext.getStateMachine());
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			log.warn("Error during notifyStateMachineStopped", e);
 		}
 	}
@@ -283,7 +283,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 					eventPublisher.publishStateMachineError(this, stateContext.getStateMachine(), stateContext.getException());
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			log.warn("Error during notifyStateMachineError", e);
 		}
 	}
@@ -299,7 +299,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 					eventPublisher.publishExtendedStateChanged(this, key, value);
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			log.warn("Error during notifyExtendedStateChanged", e);
 		}
 	}

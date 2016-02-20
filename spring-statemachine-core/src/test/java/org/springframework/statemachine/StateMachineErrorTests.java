@@ -164,6 +164,28 @@ public class StateMachineErrorTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2));
 	}
 
+	@Test
+	public void testListenerErrorsCauseNoMalfunction2() throws Exception {
+		context.register(EventListenerConfig2.class, Config1.class);
+		context.refresh();
+
+		@SuppressWarnings("unchecked")
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		StartedStateMachineListener listener1 = new StartedStateMachineListener();
+		ErroringStateMachineListener2 listener2 = new ErroringStateMachineListener2();
+		StateChangedStateMachineListener listener3 = new StateChangedStateMachineListener();
+		machine.addStateListener(listener1);
+		machine.addStateListener(listener2);
+
+		machine.start();
+		assertThat(listener1.latch.await(2, TimeUnit.SECONDS), is(true));
+		machine.addStateListener(listener3);
+		machine.sendEvent(TestEvents.E1);
+		assertThat(listener3.latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
@@ -388,6 +410,69 @@ public class StateMachineErrorTests extends AbstractStateMachineTests {
 		@Override
 		public void stateContext(StateContext<TestStates, TestEvents> stateContext) {
 			throw new RuntimeException();
+		}
+	}
+
+	static class ErroringStateMachineListener2 implements StateMachineListener<TestStates, TestEvents> {
+
+		@Override
+		public void stateChanged(State<TestStates, TestEvents> from, State<TestStates, TestEvents> to) {
+			throw new Error();
+		}
+
+		@Override
+		public void stateEntered(State<TestStates, TestEvents> state) {
+			throw new Error();
+		}
+
+		@Override
+		public void stateExited(State<TestStates, TestEvents> state) {
+			throw new Error();
+		}
+
+		@Override
+		public void eventNotAccepted(Message<TestEvents> event) {
+			throw new Error();
+		}
+
+		@Override
+		public void transition(Transition<TestStates, TestEvents> transition) {
+			throw new Error();
+		}
+
+		@Override
+		public void transitionStarted(Transition<TestStates, TestEvents> transition) {
+			throw new Error();
+		}
+
+		@Override
+		public void transitionEnded(Transition<TestStates, TestEvents> transition) {
+			throw new Error();
+		}
+
+		@Override
+		public void stateMachineStarted(StateMachine<TestStates, TestEvents> stateMachine) {
+			throw new Error();
+		}
+
+		@Override
+		public void stateMachineStopped(StateMachine<TestStates, TestEvents> stateMachine) {
+			throw new Error();
+		}
+
+		@Override
+		public void stateMachineError(StateMachine<TestStates, TestEvents> stateMachine, Exception exception) {
+			throw new Error();
+		}
+
+		@Override
+		public void extendedStateChanged(Object key, Object value) {
+			throw new Error();
+		}
+
+		@Override
+		public void stateContext(StateContext<TestStates, TestEvents> stateContext) {
+			throw new Error();
 		}
 	}
 
