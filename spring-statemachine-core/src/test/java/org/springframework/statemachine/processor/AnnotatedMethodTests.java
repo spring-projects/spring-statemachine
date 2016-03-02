@@ -143,6 +143,18 @@ public class AnnotatedMethodTests extends AbstractStateMachineTests {
 		assertThat(bean1.onMethod9Latch.await(2, TimeUnit.SECONDS), is(true));
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testMetaAnnotation1() throws Exception {
+		context.register(Config1.class, BeanConfig2.class);
+		context.refresh();
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		Bean2 bean2 = context.getBean(Bean2.class);
+		machine.start();
+		assertThat(bean2.onMethod0Latch.await(2, TimeUnit.SECONDS), is(true));
+	}
+
 	@WithStateMachine
 	static class Bean1 {
 
@@ -220,12 +232,39 @@ public class AnnotatedMethodTests extends AbstractStateMachineTests {
 
 	}
 
+	@Target({ ElementType.TYPE, ElementType.METHOD })
+	@Retention(RetentionPolicy.RUNTIME)
+	@WithStateMachine
+	public @interface WithStateMachineMeta1 {
+	}
+
+	@WithStateMachineMeta1
+	static class Bean2 {
+
+		CountDownLatch onMethod0Latch = new CountDownLatch(1);
+
+		@OnTransition(target = "S1")
+		public void method0() {
+			onMethod0Latch.countDown();
+		}
+	}
+
 	@Configuration
 	static class BeanConfig1 {
 
 		@Bean
 		public Bean1 bean1() {
 			return new Bean1();
+		}
+
+	}
+
+	@Configuration
+	static class BeanConfig2 {
+
+		@Bean
+		public Bean2 bean2() {
+			return new Bean2();
 		}
 
 	}

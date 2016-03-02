@@ -60,6 +60,14 @@ public class DocsConfigurationSampleTests4 extends AbstractStateMachineTests {
 	}
 // end::snippetAA[]
 
+// tag::snippetAAA[]
+	@Target(ElementType.TYPE)
+	@Retention(RetentionPolicy.RUNTIME)
+	@WithStateMachine(name = "myMachineBeanName")
+	public @interface WithMyBean {
+	}
+// end::snippetAAA[]
+
 // tag::snippetB[]
 	@WithStateMachine
 	public class Bean3 {

@@ -17,11 +17,8 @@ package org.springframework.statemachine.processor;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -52,7 +49,7 @@ import org.springframework.statemachine.annotation.OnStateMachineStop;
 import org.springframework.statemachine.annotation.OnTransition;
 import org.springframework.statemachine.annotation.OnTransitionEnd;
 import org.springframework.statemachine.annotation.OnTransitionStart;
-import org.springframework.stereotype.Component;
+import org.springframework.statemachine.annotation.WithStateMachine;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
@@ -137,10 +134,12 @@ public class StateMachineAnnotationPostProcessor implements BeanPostProcessor, B
 		Assert.notNull(beanFactory, "BeanFactory must not be null");
 		final Class<?> beanClass = getBeanClass(bean);
 
-		if (!isStereotype(beanClass)) {
-			// we only post-process stereotype components
+		if (AnnotationUtils.findAnnotation(beanClass, WithStateMachine.class) == null) {
+			// we only post-process beans having WithStateMachine
+			// in it or as a meta annotation
 			return bean;
 		}
+
 
 		ReflectionUtils.doWithMethods(beanClass, new ReflectionUtils.MethodCallback() {
 
@@ -245,28 +244,6 @@ public class StateMachineAnnotationPostProcessor implements BeanPostProcessor, B
 	private Class<?> getBeanClass(Object bean) {
 		Class<?> targetClass = AopUtils.getTargetClass(bean);
 		return (targetClass != null) ? targetClass : bean.getClass();
-	}
-
-	/**
-	 * Checks if class is a stereotype meaning if there is
-	 * a Component annotation present.
-	 *
-	 * @param beanClass the bean class
-	 * @return true, if is stereotype
-	 */
-	private boolean isStereotype(Class<?> beanClass) {
-		List<Annotation> annotations = new ArrayList<Annotation>(Arrays.asList(beanClass.getAnnotations()));
-		Class<?>[] interfaces = beanClass.getInterfaces();
-		for (Class<?> iface : interfaces) {
-			annotations.addAll(Arrays.asList(iface.getAnnotations()));
-		}
-		for (Annotation annotation : annotations) {
-			Class<? extends Annotation> annotationType = annotation.annotationType();
-			if (annotationType.equals(Component.class) || annotationType.isAnnotationPresent(Component.class)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	private String generateBeanName(String originalBeanName, Method method, Class<? extends Annotation> annotationType) {

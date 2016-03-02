@@ -831,6 +831,14 @@ application context by using annotation `name` field.
 include::samples/DocsConfigurationSampleTests4.java[tags=snippetAA]
 ----
 
+_@WithStateMachine_ can also be used as a meta-annotation as shown
+above. In this case you could annotate your bean with _WithMyBean_.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetAAA]
+----
+
 [NOTE]
 ====
 Return type of these methods doesn't matter and is effectively

@@ -18,6 +18,10 @@ package org.springframework.statemachine.annotation;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -41,7 +45,7 @@ public class ClassAnnotationTests extends AbstractStateMachineTests {
 	@SuppressWarnings("unchecked")
 	public void testClassAnnotations() throws Exception {
 		AnnotationConfigApplicationContext context =
-				new AnnotationConfigApplicationContext(BaseConfig.class, BeanConfig.class, FooConfig.class, BarConfig.class);
+				new AnnotationConfigApplicationContext(BaseConfig.class, BeanConfig1.class, FooConfig.class, BarConfig.class);
 
 		ObjectStateMachine<TestStates,TestEvents> fooMachine =
 				context.getBean("fooMachine", ObjectStateMachine.class);
@@ -76,6 +80,28 @@ public class ClassAnnotationTests extends AbstractStateMachineTests {
 		context.close();
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testClassAnnotationsWithMeta() throws Exception {
+		AnnotationConfigApplicationContext context =
+				new AnnotationConfigApplicationContext(BaseConfig.class, BeanConfig2.class, JeeConfig.class, FooConfig.class);
+
+		ObjectStateMachine<TestStates,TestEvents> jeeMachine =
+				context.getBean("jeeMachine", ObjectStateMachine.class);
+
+		assertThat(context.containsBean("fooMachine"), is(true));
+		assertThat(context.containsBean("jeeMachine"), is(true));
+
+		JeeBean jeeBean = context.getBean(JeeBean.class);
+		FooBean fooBean = context.getBean(FooBean.class);
+		fooBean.resetMethodLatch();
+		jeeMachine.start();
+		jeeMachine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
+		assertThat(jeeBean.onJeeMethodLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(fooBean.onFooMethodLatch.await(2, TimeUnit.SECONDS), is(false));
+		context.close();
+	}
+
 	@WithStateMachine(name = "fooMachine")
 	static class FooBean {
 
@@ -104,8 +130,26 @@ public class ClassAnnotationTests extends AbstractStateMachineTests {
 
 	}
 
+	@Target({ ElementType.TYPE, ElementType.METHOD })
+	@Retention(RetentionPolicy.RUNTIME)
+	@WithStateMachine(name = "jeeMachine")
+	public @interface WithJeeMachine {
+	}
+
+	@WithJeeMachine
+	static class JeeBean {
+
+		CountDownLatch onJeeMethodLatch = new CountDownLatch(1);
+
+		@OnTransition(source = "S1", target = "S2")
+		public void jeeMethod() {
+			onJeeMethodLatch.countDown();
+		}
+
+	}
+
 	@Configuration
-	static class BeanConfig {
+	static class BeanConfig1 {
 
 		@Bean
 		public FooBean fooBean() {
@@ -115,6 +159,21 @@ public class ClassAnnotationTests extends AbstractStateMachineTests {
 		@Bean
 		public BarBean barBean() {
 			return new BarBean();
+		}
+
+	}
+
+	@Configuration
+	static class BeanConfig2 {
+
+		@Bean
+		public FooBean fooBean() {
+			return new FooBean();
+		}
+
+		@Bean
+		public JeeBean jeeBean() {
+			return new JeeBean();
 		}
 
 	}
@@ -157,6 +216,41 @@ public class ClassAnnotationTests extends AbstractStateMachineTests {
 	@Configuration
 	@EnableStateMachine(name = "barMachine")
 	static class BarConfig extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S2);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.guard(testGuard())
+					.action(testAction());
+		}
+
+		@Bean
+		public TestGuard testGuard() {
+			return new TestGuard();
+		}
+
+		@Bean
+		public TestAction testAction() {
+			return new TestAction();
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine(name = "jeeMachine")
+	static class JeeConfig extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
 
 		@Override
 		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
