@@ -556,10 +556,12 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 				if (beanFactory != null) {
 					t.setBeanFactory(beanFactory);
 				}
-                                if( taskScheduler != null )
-                                {
-                                        t.setTaskScheduler(taskScheduler);
-                                }
+				if (taskExecutor != null) {
+					t.setTaskExecutor(taskExecutor);
+				}
+				if (taskScheduler != null) {
+					t.setTaskScheduler(taskScheduler);
+				}
 				trigger = t;
 			}
 
