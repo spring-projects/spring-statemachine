@@ -68,6 +68,14 @@ public interface TransitionConfigurer<T, S, E> extends
 	T timer(long period);
 
 	/**
+	 * Specify that this transition is triggered once by a time after a delay.
+	 *
+	 * @param period timer period in millis
+	 * @return configurer for chaining
+	 */
+	T timerOnce(long period);
+
+	/**
 	 * Specify {@link Action} for this {@link Transition}.
 	 *
 	 * @param action the action

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ public class TransitionData<S, E> {
 	private final S state;
 	private final E event;
 	private final Long period;
+	private final Integer count;
 	private final Collection<Action<S, E>> actions;
 	private final Guard<S, E> guard;
 	private final TransitionKind kind;
@@ -47,18 +48,20 @@ public class TransitionData<S, E> {
 	 * @param state the state
 	 * @param event the event
 	 * @param period the period
+	 * @param count the count
 	 * @param actions the actions
 	 * @param guard the guard
 	 * @param kind the kind
 	 * @param securityRule the security rule
 	 */
-	public TransitionData(S source, S target, S state, E event, Long period, Collection<Action<S, E>> actions,
+	public TransitionData(S source, S target, S state, E event, Long period, Integer count, Collection<Action<S, E>> actions,
 			Guard<S, E> guard, TransitionKind kind, SecurityRule securityRule) {
 		this.source = source;
 		this.target = target;
 		this.state = state;
 		this.event = event;
 		this.period = period;
+		this.count = count;
 		this.actions = actions;
 		this.guard = guard;
 		this.kind = kind;
@@ -108,6 +111,15 @@ public class TransitionData<S, E> {
 	 */
 	public Long getPeriod() {
 		return period;
+	}
+
+	/**
+	 * Gets the count.
+	 *
+	 * @return the count
+	 */
+	public Integer getCount() {
+		return count;
 	}
 
 	/**

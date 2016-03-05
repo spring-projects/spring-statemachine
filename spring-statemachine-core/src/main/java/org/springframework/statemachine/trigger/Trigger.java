@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,4 +51,15 @@ public interface Trigger<S,E> {
 	 */
 	E getEvent();
 
+	/**
+	 * Arm a trigger. After trigger has been armed a {@link TriggerListener}
+	 * may receive events.
+	 */
+	void arm();
+
+	/**
+	 * Disarm a trigger. After trigger has been disarmed a {@link TriggerListener}
+	 * will not receive events.
+	 */
+	void disarm();
 }

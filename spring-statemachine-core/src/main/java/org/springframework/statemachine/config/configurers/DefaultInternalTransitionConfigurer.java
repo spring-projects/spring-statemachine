@@ -38,7 +38,7 @@ public class DefaultInternalTransitionConfigurer<S, E> extends AbstractTransitio
 
 	@Override
 	public void configure(StateMachineTransitionBuilder<S, E> builder) throws Exception {
-		builder.add(getSource(), getTarget(), getState(), getEvent(), getPeriod(), getActions(), getGuard(), TransitionKind.INTERNAL,
+		builder.add(getSource(), getTarget(), getState(), getEvent(), getPeriod(), getCount(), getActions(), getGuard(), TransitionKind.INTERNAL,
 				getSecurityRule());
 	}
 
@@ -63,6 +63,13 @@ public class DefaultInternalTransitionConfigurer<S, E> extends AbstractTransitio
 	@Override
 	public InternalTransitionConfigurer<S, E> timer(long period) {
 		setPeriod(period);
+		return this;
+	}
+
+	@Override
+	public InternalTransitionConfigurer<S, E> timerOnce(long period) {
+		setPeriod(period);
+		setCount(1);
 		return this;
 	}
 

@@ -111,7 +111,7 @@ public class StateMachineTransitionBuilder<S, E>
 		return apply(new DefaultJoinTransitionConfigurer<S, E>());
 	}
 
-	public void add(S source, S target, S state, E event, Long period, Collection<Action<S, E>> actions,
+	public void add(S source, S target, S state, E event, Long period, Integer count, Collection<Action<S, E>> actions,
 			Guard<S, E> guard, TransitionKind kind, SecurityRule securityRule) {
 		// if rule not given, get it from global
 		if (securityRule == null) {
@@ -119,7 +119,7 @@ public class StateMachineTransitionBuilder<S, E>
 			StateMachineConfigurationConfig<S, E> config = getSharedObject(StateMachineConfigurationConfig.class);
 			securityRule = config.getTransitionSecurityRule();
 		}
-		transitionData.add(new TransitionData<S, E>(source, target, state, event, period, actions, guard, kind, securityRule));
+		transitionData.add(new TransitionData<S, E>(source, target, state, event, period, count, actions, guard, kind, securityRule));
 	}
 
 	public void add(S source, List<ChoiceData<S, E>> choices) {

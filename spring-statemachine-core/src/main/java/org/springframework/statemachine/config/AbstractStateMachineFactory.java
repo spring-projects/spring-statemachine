@@ -51,6 +51,7 @@ import org.springframework.statemachine.ensemble.DistributedStateMachine;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.security.StateMachineSecurityInterceptor;
+import org.springframework.statemachine.state.AbstractState;
 import org.springframework.statemachine.state.ChoicePseudoState;
 import org.springframework.statemachine.state.ChoicePseudoState.ChoiceStateData;
 import org.springframework.statemachine.state.DefaultPseudoState;
@@ -547,12 +548,13 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			S target = transitionData.getTarget();
 			E event = transitionData.getEvent();
 			Long period = transitionData.getPeriod();
+			Integer count = transitionData.getCount();
 
 			Trigger<S, E> trigger = null;
 			if (event != null) {
 				trigger = new EventTrigger<S, E>(event);
 			} else if (period != null) {
-				TimerTrigger<S, E> t = new TimerTrigger<S, E>(period);
+				TimerTrigger<S, E> t = new TimerTrigger<S, E>(period, count != null ? count : 0);
 				if (beanFactory != null) {
 					t.setBeanFactory(beanFactory);
 				}
@@ -563,6 +565,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 					t.setTaskScheduler(taskScheduler);
 				}
 				trigger = t;
+				((AbstractState<S, E>)stateMap.get(source)).getTriggers().add(trigger);
 			}
 
 			if (transitionData.getKind() == TransitionKind.EXTERNAL) {

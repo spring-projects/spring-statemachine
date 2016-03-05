@@ -182,7 +182,7 @@ public class CdPlayerTests {
 		assertThat(listener.transitionCount, is(1));
 
 		listener.reset(0, 0, 0, 2);
-		assertThat(listener.transitionLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.transitionLatch.await(2100, TimeUnit.MILLISECONDS), is(true));
 		assertThat(listener.transitionCount, is(2));
 		assertLcdStatusNotContains("00:02");
 	}

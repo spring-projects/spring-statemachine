@@ -17,12 +17,14 @@ package org.springframework.statemachine.state;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.region.Region;
+import org.springframework.statemachine.trigger.Trigger;
 
 /**
  * Base implementation of a {@link State}.
@@ -41,6 +43,7 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	private final Collection<? extends Action<S, E>> exitActions;
 	private final Collection<Region<S, E>> regions = new ArrayList<Region<S, E>>();
 	private final StateMachine<S, E> submachine;
+	private List<Trigger<S, E>> triggers = new ArrayList<Trigger<S, E>>();
 
 	/**
 	 * Instantiates a new abstract state.
@@ -158,10 +161,18 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	}
 
 	@Override
-	public abstract void exit(StateContext<S, E> context);
+	public void exit(StateContext<S, E> context) {
+		for (Trigger<S, E> trigger : triggers) {
+			trigger.disarm();
+		}
+	}
 
 	@Override
-	public abstract void entry(StateContext<S, E> context);
+	public void entry(StateContext<S, E> context) {
+		for (Trigger<S, E> trigger : triggers) {
+			trigger.arm();
+		}
+	}
 
 	@Override
 	public S getId() {
@@ -230,6 +241,14 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	 */
 	public Collection<Region<S, E>> getRegions() {
 		return regions;
+	}
+
+	public void setTriggers(List<Trigger<S, E>> triggers) {
+		this.triggers = triggers;
+	}
+
+	public List<Trigger<S, E>> getTriggers() {
+		return triggers;
 	}
 
 	@Override

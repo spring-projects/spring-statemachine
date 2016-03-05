@@ -18,8 +18,11 @@ package org.springframework.statemachine.trigger;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -30,6 +33,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.TestUtils;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
@@ -117,6 +121,55 @@ public class TimerTriggerTests extends AbstractStateMachineTests {
 			assertThat(listener.stateChangedCount, is(2));
 			assertThat(machine.getState().getIds(), containsInAnyOrder("RUNNING_TESTING"));
 		}
+	}
+
+	private class TestTriggerListener implements TriggerListener {
+
+		CountDownLatch latch = new CountDownLatch(1);
+
+		@Override
+		public void triggered() {
+			latch.countDown();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testTimerDelayFireOnlyOnState() throws Exception {
+		context.register(BaseConfig.class, Config4.class);
+		context.refresh();
+		StateMachine<TestStates, TestEvents> machine = context.getBean(StateMachine.class);
+		TestTimerAction action = context.getBean("testTimerAction", TestTimerAction.class);
+		TestListener listener = new TestListener();
+		machine.addStateListener(listener);
+
+		TimerTrigger<?, ?> trigger = null;
+		Map<Trigger<?, ?>, Transition<?, ?>> triggerToTransitionMap = TestUtils.readField("triggerToTransitionMap", machine);
+		for (Entry<Trigger<?, ?>, Transition<?, ?>> entry : triggerToTransitionMap.entrySet()) {
+			if (entry.getKey() instanceof TimerTrigger) {
+				trigger = (TimerTrigger<?, ?>) entry.getKey();
+				continue;
+			}
+		}
+		assertThat(trigger, notNullValue());
+		TestTriggerListener tlistener = new TestTriggerListener();
+		trigger.addTriggerListener(tlistener);
+
+		machine.start();
+		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S1));
+
+		assertThat(tlistener.latch.await(2, TimeUnit.SECONDS), is(false));
+
+		listener.reset(1);
+		machine.sendEvent(TestEvents.E1);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2));
+
+		assertThat(action.latch.await(2, TimeUnit.SECONDS), is(true));
+		action.reset(1);
+		assertThat(action.latch.await(2, TimeUnit.SECONDS), is(false));
 	}
 
 	static class Config1 {
@@ -211,6 +264,39 @@ public class TimerTriggerTests extends AbstractStateMachineTests {
 
 	}
 
+	@Configuration
+	@EnableStateMachine
+	static class Config4 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S2);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withInternal()
+					.source(TestStates.S2)
+					.action(testTimerAction())
+					.timerOnce(1000);
+		}
+
+		@Bean
+		public TestTimerAction testTimerAction() {
+			return new TestTimerAction();
+		}
+
+	}
+
 	private static class TestTimerAction implements Action<TestStates, TestEvents> {
 
 		int count = 0;
@@ -222,6 +308,10 @@ public class TimerTriggerTests extends AbstractStateMachineTests {
 			latch.countDown();
 		}
 
+		void reset(int a) {
+			latch = new CountDownLatch(a);
+			count = 0;
+		}
 	}
 
 	private static class TestTimerAction2 implements Action<String, String> {

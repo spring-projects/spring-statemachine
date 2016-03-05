@@ -416,7 +416,9 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 				((TimerTrigger<?, ?>) trigger).addTriggerListener(new TriggerListener() {
 					@Override
 					public void triggered() {
-						log.debug("TimedTrigger triggered " + trigger);
+						if (log.isDebugEnabled()) {
+							log.debug("TimedTrigger triggered " + trigger);
+						}
 						triggerQueue.add(new TriggerQueueItem(trigger, null));
 						scheduleEventQueueProcessing();
 					}

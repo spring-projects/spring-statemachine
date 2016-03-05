@@ -43,6 +43,7 @@ public abstract class AbstractTransitionConfigurer<S, E> extends
 	private S state;
 	private E event;
 	private Long period;
+	private Integer count;
 	private final Collection<Action<S, E>> actions = new ArrayList<Action<S, E>>();
 	private Guard<S, E> guard;
 	private SecurityRule securityRule;
@@ -65,6 +66,10 @@ public abstract class AbstractTransitionConfigurer<S, E> extends
 
 	protected Long getPeriod() {
 		return period;
+	}
+
+	public Integer getCount() {
+		return count;
 	}
 
 	protected Collection<Action<S, E>> getActions() {
@@ -97,6 +102,10 @@ public abstract class AbstractTransitionConfigurer<S, E> extends
 
 	protected void setPeriod(long period) {
 		this.period = period;
+	}
+
+	public void setCount(Integer count) {
+		this.count = count;
 	}
 
 	protected void addAction(Action<S, E> action) {

@@ -40,4 +40,13 @@ public class EventTrigger<S, E> implements Trigger<S, E> {
 		return event;
 	}
 
+	@Override
+	public void arm() {
+		// no-opt
+	}
+
+	@Override
+	public void disarm() {
+		// no-opt
+	}
 }

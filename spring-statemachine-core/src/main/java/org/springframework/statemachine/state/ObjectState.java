@@ -123,6 +123,7 @@ public class ObjectState<S, E> extends AbstractSimpleState<S, E> {
 
 	@Override
 	public void exit(StateContext<S, E> context) {
+		super.exit(context);
 		Collection<? extends Action<S, E>> actions = getExitActions();
 		if (actions != null) {
 			for (Action<S, E> action : actions) {
@@ -137,6 +138,7 @@ public class ObjectState<S, E> extends AbstractSimpleState<S, E> {
 
 	@Override
 	public void entry(StateContext<S, E> context) {
+		super.entry(context);
 		Collection<? extends Action<S, E>> actions = getEntryActions();
 		if (actions != null) {
 			for (Action<S, E> action : actions) {
