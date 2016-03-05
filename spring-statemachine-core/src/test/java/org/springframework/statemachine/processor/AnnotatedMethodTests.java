@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine.processor;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -155,6 +156,25 @@ public class AnnotatedMethodTests extends AbstractStateMachineTests {
 		assertThat(bean2.onMethod0Latch.await(2, TimeUnit.SECONDS), is(true));
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testMethodsThrowDoesNotBreakMachine() throws Exception {
+		context.register(Config6.class, BeanConfig3.class);
+		context.refresh();
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		Bean3 bean3 = context.getBean(Bean3.class);
+		machine.start();
+		assertThat(bean3.onMethod0Latch.await(2, TimeUnit.SECONDS), is(true));
+		machine.sendEvent(TestEvents.E1);
+		assertThat(bean3.onMethod1Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean3.onMethod11Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2));
+		machine.sendEvent(TestEvents.E2);
+		assertThat(bean3.onMethod2Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S3));
+	}
+
 	@WithStateMachine
 	static class Bean1 {
 
@@ -249,6 +269,39 @@ public class AnnotatedMethodTests extends AbstractStateMachineTests {
 		}
 	}
 
+	@WithStateMachine
+	static class Bean3 {
+
+		CountDownLatch onMethod0Latch = new CountDownLatch(1);
+		CountDownLatch onMethod1Latch = new CountDownLatch(1);
+		CountDownLatch onMethod11Latch = new CountDownLatch(1);
+		CountDownLatch onMethod2Latch = new CountDownLatch(1);
+
+		@OnTransition(target = "S1")
+		public void method0() {
+			onMethod0Latch.countDown();
+			throw new RuntimeException();
+		}
+
+		@OnTransition(source = "S1", target = "S2")
+		public void method1() {
+			onMethod1Latch.countDown();
+			throw new Error();
+		}
+
+		@OnTransition(source = "S1", target = "S2")
+		public void method11() {
+			onMethod11Latch.countDown();
+			throw new Error();
+		}
+
+		@OnTransition(source = "S2", target = "S3")
+		public void method2() {
+			onMethod2Latch.countDown();
+			throw new RuntimeException();
+		}
+	}
+
 	@Configuration
 	static class BeanConfig1 {
 
@@ -265,6 +318,16 @@ public class AnnotatedMethodTests extends AbstractStateMachineTests {
 		@Bean
 		public Bean2 bean2() {
 			return new Bean2();
+		}
+
+	}
+
+	@Configuration
+	static class BeanConfig3 {
+
+		@Bean
+		public Bean3 bean3() {
+			return new Bean3();
 		}
 
 	}
@@ -489,6 +552,34 @@ public class AnnotatedMethodTests extends AbstractStateMachineTests {
 				.withFork()
 					.source(TestStates.S1)
 					.target(TestStates.S2);
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config6 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.states(EnumSet.allOf(TestStates.class));
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S2)
+					.target(TestStates.S3)
+					.event(TestEvents.E2);
 		}
 
 	}

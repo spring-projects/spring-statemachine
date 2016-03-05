@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,14 +32,32 @@ public class MethodInvokingStateMachineRuntimeProcessor<T, S, E> implements Stat
 
 	private final StateMachineMethodInvokerHelper<T, S, E> delegate;
 
+	/**
+	 * Instantiates a new method invoking state machine runtime processor.
+	 *
+	 * @param targetObject the target object
+	 * @param method the method
+	 */
 	public MethodInvokingStateMachineRuntimeProcessor(Object targetObject, Method method) {
 		delegate = new StateMachineMethodInvokerHelper<T, S, E>(targetObject, method);
 	}
 
+	/**
+	 * Instantiates a new method invoking state machine runtime processor.
+	 *
+	 * @param targetObject the target object
+	 * @param methodName the method name
+	 */
 	public MethodInvokingStateMachineRuntimeProcessor(Object targetObject, String methodName) {
 		delegate = new StateMachineMethodInvokerHelper<T, S, E>(targetObject, methodName);
 	}
 
+	/**
+	 * Instantiates a new method invoking state machine runtime processor.
+	 *
+	 * @param targetObject the target object
+	 * @param annotationType the annotation type
+	 */
 	public MethodInvokingStateMachineRuntimeProcessor(Object targetObject, Class<? extends Annotation> annotationType) {
 		delegate = new StateMachineMethodInvokerHelper<T, S, E>(targetObject, annotationType);
 	}
@@ -48,9 +66,8 @@ public class MethodInvokingStateMachineRuntimeProcessor<T, S, E> implements Stat
 	public T process(StateMachineRuntime<S, E> stateMachineRuntime) {
 		try {
 			return delegate.process(stateMachineRuntime);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw new RuntimeException("Error processing bean", e);
 		}
 	}
-
 }
