@@ -88,7 +88,7 @@ public class TimerTriggerTests extends AbstractStateMachineTests {
 
 		listener.reset(1);
 		machine.sendEvent(TestEvents.E1);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedLatch.await(2100, TimeUnit.MILLISECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2));
 
