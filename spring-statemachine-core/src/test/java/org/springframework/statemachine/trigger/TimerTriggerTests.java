@@ -93,8 +93,8 @@ public class TimerTriggerTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2));
 
 		Thread.sleep(1000);
-		// we should have 100, just test 90 due to timing
-		assertThat(action.count, greaterThan(90));
+		// we should have 100, just test 80 due to timing
+		assertThat(action.count, greaterThan(80));
 	}
 
 	@SuppressWarnings("unchecked")
