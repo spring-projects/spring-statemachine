@@ -35,8 +35,8 @@ import org.springframework.statemachine.StateMachinePersist;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.StateMachineBuilder;
 import org.springframework.statemachine.config.StateMachineBuilder.Builder;
+import org.springframework.statemachine.persist.RepositoryStateMachinePersist;
 import org.springframework.statemachine.redis.RedisStateMachineContextRepository;
-import org.springframework.statemachine.support.RepositoryStateMachinePersist;
 
 @Configuration
 public class StateMachineConfig {

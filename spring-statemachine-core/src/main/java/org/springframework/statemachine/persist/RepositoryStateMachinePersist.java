@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.support;
+package org.springframework.statemachine.persist;
 
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.StateMachineContextRepository;
