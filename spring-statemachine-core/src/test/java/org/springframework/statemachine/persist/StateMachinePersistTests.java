@@ -1,0 +1,361 @@
+/*
+ * Copyright 2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.springframework.statemachine.persist;
+
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
+import java.util.HashMap;
+
+import org.junit.Test;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.statemachine.AbstractStateMachineTests;
+import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.StateMachineContext;
+import org.springframework.statemachine.StateMachinePersist;
+import org.springframework.statemachine.StateMachineSystemConstants;
+import org.springframework.statemachine.config.EnableStateMachine;
+import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
+import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+
+public class StateMachinePersistTests extends AbstractStateMachineTests {
+
+	@Override
+	protected AnnotationConfigApplicationContext buildContext() {
+		return new AnnotationConfigApplicationContext();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testSimplePersist1() throws Exception {
+		context.register(Config1.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		stateMachine.start();
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), contains("S2"));
+
+		InMemoryStateMachinePersist1 stateMachinePersist = new InMemoryStateMachinePersist1();
+		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(stateMachinePersist);
+
+		persister.persist(stateMachine, "xxx");
+		persister.reset(stateMachine, "xxx");
+		assertThat(stateMachine.getState().getIds(), contains("S2"));
+
+		stateMachine.sendEvent("E2");
+		assertThat(stateMachine.getState().getIds(), contains("S3"));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testSimplePersist2() throws Exception {
+		context.register(Config2.class);
+		context.refresh();
+		StateMachine<TestStates, TestEvents> stateMachine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		stateMachine.start();
+		stateMachine.sendEvent(TestEvents.E1);
+		assertThat(stateMachine.getState().getIds(), contains(TestStates.S2));
+
+		InMemoryStateMachinePersist2 stateMachinePersist = new InMemoryStateMachinePersist2();
+		StateMachinePersister<TestStates, TestEvents, String> persister = new DefaultStateMachinePersister<>(stateMachinePersist);
+
+		persister.persist(stateMachine, "xxx");
+		persister.reset(stateMachine, "xxx");
+		assertThat(stateMachine.getState().getIds(), contains(TestStates.S2));
+
+		stateMachine.sendEvent(TestEvents.E2);
+		assertThat(stateMachine.getState().getIds(), contains(TestStates.S3));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testExtendedState() throws Exception {
+		context.register(Config1.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		stateMachine.start();
+
+		stateMachine.getExtendedState().getVariables().put("foo", "bar");
+
+		InMemoryStateMachinePersist1 stateMachinePersist = new InMemoryStateMachinePersist1();
+		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(stateMachinePersist);
+
+		persister.persist(stateMachine, "xxx");
+		stateMachine.getExtendedState().getVariables().remove("foo");
+		stateMachine = persister.reset(stateMachine, "xxx");
+
+		assertThat(stateMachine.getExtendedState().get("foo", String.class), is("bar"));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testSubStates() throws Exception {
+		context.register(Config3.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		stateMachine.start();
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
+		stateMachine.sendEvent("E3");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
+
+		InMemoryStateMachinePersist1 stateMachinePersist = new InMemoryStateMachinePersist1();
+		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(stateMachinePersist);
+
+		persister.persist(stateMachine, "xxx");
+		stateMachine = persister.reset(stateMachine, "xxx");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
+
+		stateMachine.sendEvent("E2");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S3", "S31"));
+
+		stateMachine = persister.reset(stateMachine, "xxx");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testRegions() throws Exception {
+		context.register(Config4.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		stateMachine.start();
+
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S11", "S21", "S31"));
+
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S12", "S21", "S31"));
+		stateMachine.sendEvent("E2");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S12", "S22", "S31"));
+		stateMachine.sendEvent("E3");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S12", "S22", "S32"));
+
+		InMemoryStateMachinePersist1 stateMachinePersist = new InMemoryStateMachinePersist1();
+		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(stateMachinePersist);
+
+		persister.persist(stateMachine, "xxx");
+		stateMachine = persister.reset(stateMachine, "xxx");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S12", "S22", "S32"));
+
+		stateMachine.sendEvent("E4");
+		stateMachine.sendEvent("E5");
+		stateMachine.sendEvent("E6");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S13", "S23", "S33"));
+
+		stateMachine = persister.reset(stateMachine, "xxx");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S12", "S22", "S32"));
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config1 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("S1")
+					.state("S1")
+					.state("S2")
+					.state("S3");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("S1")
+					.target("S2")
+					.event("E1")
+					.and()
+				.withExternal()
+					.source("S2")
+					.target("S3")
+					.event("E2");
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config2 extends StateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S1)
+					.state(TestStates.S2)
+					.state(TestStates.S3);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S2)
+					.target(TestStates.S3)
+					.event(TestEvents.E2);
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config3 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("S1")
+					.state("S1")
+					.state("S2")
+					.state("S3")
+					.and()
+					.withStates()
+						.parent("S2")
+						.initial("S21")
+						.state("S21")
+						.state("S22")
+					.and()
+					.withStates()
+						.parent("S3")
+						.initial("S31")
+						.state("S31")
+						.state("S32");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("S1")
+					.target("S2")
+					.event("E1")
+					.and()
+				.withExternal()
+					.source("S2")
+					.target("S3")
+					.event("E2")
+					.and()
+				.withExternal()
+					.source("S21")
+					.target("S22")
+					.event("E3");
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config4 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("S11")
+					.state("S11")
+					.state("S12")
+					.state("S13")
+					.and()
+				.withStates()
+					.initial("S21")
+					.state("S21")
+					.state("S22")
+					.state("S23")
+					.and()
+				.withStates()
+					.initial("S31")
+					.state("S31")
+					.state("S32")
+					.state("S33");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("S11")
+					.target("S12")
+					.event("E1")
+					.and()
+				.withExternal()
+					.source("S21")
+					.target("S22")
+					.event("E2")
+					.and()
+				.withExternal()
+					.source("S31")
+					.target("S32")
+					.event("E3")
+					.and()
+				.withExternal()
+					.source("S12")
+					.target("S13")
+					.event("E4")
+					.and()
+				.withExternal()
+					.source("S22")
+					.target("S23")
+					.event("E5")
+					.and()
+				.withExternal()
+					.source("S32")
+					.target("S33")
+					.event("E6");
+		}
+	}
+
+	static class InMemoryStateMachinePersist1 implements StateMachinePersist<String, String, String> {
+
+		private final HashMap<String, StateMachineContext<String, String>> contexts = new HashMap<>();
+
+		@Override
+		public void write(StateMachineContext<String, String> context, String contextOjb) throws Exception {
+			contexts.put(contextOjb, context);
+		}
+
+		@Override
+		public StateMachineContext<String, String> read(String contextOjb) throws Exception {
+			return contexts.get(contextOjb);
+		}
+	}
+
+	static class InMemoryStateMachinePersist2 implements StateMachinePersist<TestStates, TestEvents, String> {
+
+		private final HashMap<String, StateMachineContext<TestStates, TestEvents>> contexts = new HashMap<>();
+
+		@Override
+		public void write(StateMachineContext<TestStates, TestEvents> context, String contextOjb) throws Exception {
+			contexts.put(contextOjb, context);
+		}
+
+		@Override
+		public StateMachineContext<TestStates, TestEvents> read(String contextOjb) throws Exception {
+			return contexts.get(contextOjb);
+		}
+	}
+
+}

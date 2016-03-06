@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -493,6 +493,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	@Override
 	public void resetStateMachine(StateMachineContext<S, E> stateMachineContext) {
+		// TODO: this function needs a serious rewrite
 		if (stateMachineContext == null) {
 			log.info("Got null context, resetting to initial state and clearing extended state");
 			currentState = initialState;
@@ -503,13 +504,10 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			log.debug("Request to reset state machine: stateMachine=[" + this + "] stateMachineContext=[" + stateMachineContext + "]");
 		}
 		S state = stateMachineContext.getState();
-		if (state == null) {
-			return;
-		}
 		boolean stateSet = false;
 		for (State<S, E> s : getStates()) {
 			for (State<S, E> ss : s.getStates()) {
-				if (ss.getIds().contains(state)) {
+				if (state != null && ss.getIds().contains(state)) {
 					currentState = s;
 					// TODO: not sure about starting submachine/regions here, though
 					//       needed if we only transit to super state or reset regions
@@ -548,6 +546,25 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 					}
 					stateSet = true;
 					break;
+				} else if (!stateMachineContext.getChilds().isEmpty()) {
+					// we're here because root machine only have regions
+					if (s.isOrthogonal()) {
+						Collection<Region<S, E>> regions = ((AbstractState<S, E>)s).getRegions();
+						for (Region<S, E> region : regions) {
+							for (final StateMachineContext<S, E> child : stateMachineContext.getChilds()) {
+								((StateMachine<S, E>)region).getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S,E>>() {
+
+									@Override
+									public void apply(StateMachineAccess<S, E> function) {
+										function.resetStateMachine(child);
+									}
+								});
+							}
+						}
+						for (Region<S, E> region : regions) {
+							region.start();
+						}
+					}
 				}
 			}
 			if (stateSet) {
