@@ -1184,9 +1184,12 @@ include::samples/demo/eventservice/StateMachineConfig.java[tags=snippetC]
 ----
 
 In below config we setup a `RedisConnectionFactory` which defaults to
-localhost and default ports. We also use `StateMachinePersist` with
-`RepositoryStateMachinePersist` implementation. These are used
-in a `Controller` handling `REST` calls.
+localhost and default port. We use `StateMachinePersist` with a
+`RepositoryStateMachinePersist` implementation. Finally we create a
+`RedisStateMachinePersister` which underneath uses a previously
+created `StateMachinePersist` bean.
+
+These are then used in a `Controller` handling `REST` calls.
 
 [source,java,indent=0]
 ----
@@ -1258,14 +1261,14 @@ include::samples/demo/eventservice/StateMachineController.java[tags=snippetC]
 ----
 
 Below `feedMachine` will send event into a `StateMachine` and persists
-its state using a `StateMachinePersist`.
+its state using a `StateMachinePersister`.
 
 [source,java,indent=0]
 ----
 include::samples/demo/eventservice/StateMachineController.java[tags=snippetD]
 ----
 
-Below `resetStateMachineFromStore` is used to reset a state machine
+Below `resetStateMachineFromStore` is used to restore a state machine
 for a particular user.
 
 [source,java,indent=0]

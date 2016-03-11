@@ -1429,6 +1429,57 @@ state change attempt will be halted and instead of ending into an
 inconsistent state, user can then handle this error manually. Using
 the interceptors are discussed in <<sm-interceptor>>.
 
+[[sm-persist-statemachinecontext]]
+=== Using StateMachineContext
+It is impossible to persist a _StateMachine_ using normal java
+serialization as object graph is too rich and contains too much
+dependencies into other Spring context classes. `StateMachineContext`
+is a runtime representation of a state machine which can be used to
+restore an existing machine into a state represented by a particular
+`StateMachineContext` object.
+
+[[sm-persist-statemachinepersister]]
+=== Using StateMachinePersister
+Building a `StateMachineContext` and then restoring a state machine
+from it has always been a little bit of a black magic if done
+manually. Interface `StateMachinePersister` aims to ease these
+operations by providing _persist_ and _restore_ methods. Default
+implementation of this interface is `DefaultStateMachinePersister`
+
+Usage of a `StateMachinePersister` is easy to demonstrate by following
+a snippets from tests. We start by creating to two similar configs for
+a state machine `machine1` and `machine2`. We could build different
+machines for this demonstration using various other ways but this
+servers a purpose for this case.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests5.java[tags=snippetA]
+----
+
+As we're using a `StateMachinePersist` we simply create an in-memory
+implementation.
+
+[NOTE]
+====
+In-memory sample is just for demostration purposes, use a real
+persistent storage implementations.
+====
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests5.java[tags=snippetB]
+----
+
+After we have instantiated two different machines we can transfer
+`machine1` into state `S2` via event `E1`, then persist it and restore
+`machine2`.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests5.java[tags=snippetC]
+----
+
 [[sm-persist-redis]]
 === Using Redis
 Support for persisting State Machine into Redis is done via
@@ -1436,6 +1487,10 @@ Support for persisting State Machine into Redis is done via
 `StateMachinePersist`. Specific implementation is a
 `RedisStateMachineContextRepository` whic uses `kryo` serialization to
 persist a `StateMachineContext` into `Redis`.
+
+For `StateMachinePersister` we have a redis related
+`RedisStateMachinePersister` implementation which takes an instance of
+a `StateMachinePersist` and uses _String_ as its context object.
 
 [TIP]
 ====

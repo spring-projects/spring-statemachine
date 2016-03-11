@@ -33,7 +33,7 @@ import org.springframework.util.Assert;
 
 /**
  * Base implementation of a {@link StateMachinePersister} easing persist
- * operations with a {@link StateMachinePersist}.
+ * and restore operations with a {@link StateMachinePersist}.
  *
  * @author Janne Valkealahti
  *
@@ -61,7 +61,7 @@ public abstract class AbstractStateMachinePersister<S, E, T> implements StateMac
 	}
 
 	@Override
-	public final StateMachine<S, E> reset(StateMachine<S, E> stateMachine, T contextOjb) throws Exception {
+	public final StateMachine<S, E> restore(StateMachine<S, E> stateMachine, T contextOjb) throws Exception {
 		final StateMachineContext<S, E> context = stateMachinePersist.read(contextOjb);
 		stateMachine.stop();
 		stateMachine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<S, E>>() {

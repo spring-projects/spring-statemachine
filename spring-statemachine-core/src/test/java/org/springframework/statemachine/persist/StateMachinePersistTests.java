@@ -56,7 +56,7 @@ public class StateMachinePersistTests extends AbstractStateMachineTests {
 		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(stateMachinePersist);
 
 		persister.persist(stateMachine, "xxx");
-		persister.reset(stateMachine, "xxx");
+		persister.restore(stateMachine, "xxx");
 		assertThat(stateMachine.getState().getIds(), contains("S2"));
 
 		stateMachine.sendEvent("E2");
@@ -77,7 +77,7 @@ public class StateMachinePersistTests extends AbstractStateMachineTests {
 		StateMachinePersister<TestStates, TestEvents, String> persister = new DefaultStateMachinePersister<>(stateMachinePersist);
 
 		persister.persist(stateMachine, "xxx");
-		persister.reset(stateMachine, "xxx");
+		persister.restore(stateMachine, "xxx");
 		assertThat(stateMachine.getState().getIds(), contains(TestStates.S2));
 
 		stateMachine.sendEvent(TestEvents.E2);
@@ -99,7 +99,7 @@ public class StateMachinePersistTests extends AbstractStateMachineTests {
 
 		persister.persist(stateMachine, "xxx");
 		stateMachine.getExtendedState().getVariables().remove("foo");
-		stateMachine = persister.reset(stateMachine, "xxx");
+		stateMachine = persister.restore(stateMachine, "xxx");
 
 		assertThat(stateMachine.getExtendedState().get("foo", String.class), is("bar"));
 	}
@@ -120,13 +120,13 @@ public class StateMachinePersistTests extends AbstractStateMachineTests {
 		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(stateMachinePersist);
 
 		persister.persist(stateMachine, "xxx");
-		stateMachine = persister.reset(stateMachine, "xxx");
+		stateMachine = persister.restore(stateMachine, "xxx");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
 
 		stateMachine.sendEvent("E2");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S3", "S31"));
 
-		stateMachine = persister.reset(stateMachine, "xxx");
+		stateMachine = persister.restore(stateMachine, "xxx");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
 	}
 
@@ -151,7 +151,7 @@ public class StateMachinePersistTests extends AbstractStateMachineTests {
 		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(stateMachinePersist);
 
 		persister.persist(stateMachine, "xxx");
-		stateMachine = persister.reset(stateMachine, "xxx");
+		stateMachine = persister.restore(stateMachine, "xxx");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S12", "S22", "S32"));
 
 		stateMachine.sendEvent("E4");
@@ -159,8 +159,41 @@ public class StateMachinePersistTests extends AbstractStateMachineTests {
 		stateMachine.sendEvent("E6");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S13", "S23", "S33"));
 
-		stateMachine = persister.reset(stateMachine, "xxx");
+		stateMachine = persister.restore(stateMachine, "xxx");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S12", "S22", "S32"));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testSubsInRegions() throws Exception {
+		context.register(Config51.class, Config52.class);
+		context.refresh();
+
+		InMemoryStateMachinePersist1 stateMachinePersist = new InMemoryStateMachinePersist1();
+		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(stateMachinePersist);
+
+		StateMachine<String, String> stateMachine1 = context.getBean("machine1", StateMachine.class);
+		StateMachine<String, String> stateMachine2 = context.getBean("machine2", StateMachine.class);
+		stateMachine1.start();
+
+		assertThat(stateMachine1.getState().getIds(), containsInAnyOrder("S11", "S111", "S21"));
+		persister.persist(stateMachine1, "xxx");
+		stateMachine2 = persister.restore(stateMachine2, "xxx");
+		assertThat(stateMachine2.getState().getIds(), containsInAnyOrder("S11", "S111", "S21"));
+
+		stateMachine1.sendEvent("E1");
+		assertThat(stateMachine1.getState().getIds(), containsInAnyOrder("S12", "S21"));
+		persister.persist(stateMachine1, "xxx");
+		assertThat(stateMachine2.getState().getIds(), containsInAnyOrder("S11", "S111", "S21"));
+		stateMachine2 = persister.restore(stateMachine2, "xxx");
+		assertThat(stateMachine2.getState().getIds(), containsInAnyOrder("S12", "S21"));
+
+		stateMachine1.sendEvent("E2");
+		assertThat(stateMachine1.getState().getIds(), containsInAnyOrder("S12", "S22", "S221"));
+		persister.persist(stateMachine1, "xxx");
+		assertThat(stateMachine2.getState().getIds(), containsInAnyOrder("S12", "S21"));
+		stateMachine2 = persister.restore(stateMachine2, "xxx");
+		assertThat(stateMachine2.getState().getIds(), containsInAnyOrder("S12", "S22", "S221"));
 	}
 
 	@Configuration
@@ -326,6 +359,62 @@ public class StateMachinePersistTests extends AbstractStateMachineTests {
 					.target("S33")
 					.event("E6");
 		}
+	}
+
+	static class Config5 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("S11")
+					.state("S11")
+					.state("S12")
+					.state("S13")
+					.and()
+					.withStates()
+						.parent("S11")
+						.initial("S111")
+						.state("S111")
+						.state("S112")
+						.and()
+				.withStates()
+					.initial("S21")
+					.state("S21")
+					.state("S22")
+					.state("S23")
+					.and()
+					.withStates()
+						.parent("S22")
+						.initial("S221")
+						.state("S221")
+						.state("S222");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("S11")
+					.target("S12")
+					.event("E1")
+					.and()
+				.withExternal()
+					.source("S21")
+					.target("S22")
+					.event("E2");
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine(name = "machine1")
+	static class Config51 extends Config5 {
+	}
+
+	@Configuration
+	@EnableStateMachine(name = "machine2")
+	static class Config52 extends Config5 {
 	}
 
 	static class InMemoryStateMachinePersist1 implements StateMachinePersist<String, String, String> {

@@ -18,11 +18,7 @@ package demo.eventservice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.StateMachineContext;
-import org.springframework.statemachine.StateMachinePersist;
-import org.springframework.statemachine.access.StateMachineAccess;
-import org.springframework.statemachine.access.StateMachineFunction;
-import org.springframework.statemachine.support.DefaultStateMachineContext;
+import org.springframework.statemachine.persist.StateMachinePersister;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.Assert;
@@ -44,7 +40,7 @@ public class StateMachineController {
 	private StateMachine<States, Events> stateMachine;
 
 	@Autowired
-	private StateMachinePersist<States, Events, String> stateMachinePersist;
+	private StateMachinePersister<States, Events, String> stateMachinePersister;
 //end::snippetA[]
 
 	@Autowired
@@ -90,25 +86,13 @@ public class StateMachineController {
 //tag::snippetD[]
 	private void feedMachine(String user, Events id) throws Exception {
 		stateMachine.sendEvent(id);
-		stateMachinePersist.write(new DefaultStateMachineContext<States, Events>(stateMachine.getState().getId(), null, null,
-				stateMachine.getExtendedState()), "testprefix:" + user);
+		stateMachinePersister.persist(stateMachine, "testprefix:" + user);
 	}
 //end::snippetD[]
 
 //tag::snippetE[]
 	private StateMachine<States, Events> resetStateMachineFromStore(String user) throws Exception {
-		final StateMachineContext<States, Events> context = stateMachinePersist.read("testprefix:" + user);
-		stateMachine.stop();
-		stateMachine.getStateMachineAccessor()
-			.doWithAllRegions(new StateMachineFunction<StateMachineAccess<States, Events>>() {
-
-			@Override
-			public void apply(StateMachineAccess<States, Events> function) {
-				function.resetStateMachine(context);
-			}
-		});
-		stateMachine.start();
-		return stateMachine;
+		return stateMachinePersister.restore(stateMachine, "testprefix:" + user);
 	}
 //end::snippetE[]
 }

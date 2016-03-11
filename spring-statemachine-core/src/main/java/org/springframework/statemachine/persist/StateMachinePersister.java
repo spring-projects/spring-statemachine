@@ -18,7 +18,8 @@ package org.springframework.statemachine.persist;
 import org.springframework.statemachine.StateMachine;
 
 /**
- * Interface persisting a {@link StateMachine}.
+ * Interface persisting and restoring a {@link StateMachine} from
+ * a persistent storage.
  *
  * @author Janne Valkealahti
  *
@@ -46,5 +47,5 @@ public interface StateMachinePersister<S, E, T> {
 	 * @return the state machine
 	 * @throws Exception the exception in case or any persist error
 	 */
-	StateMachine<S, E> reset(StateMachine<S, E> stateMachine, T contextOjb) throws Exception;
+	StateMachine<S, E> restore(StateMachine<S, E> stateMachine, T contextOjb) throws Exception;
 }
