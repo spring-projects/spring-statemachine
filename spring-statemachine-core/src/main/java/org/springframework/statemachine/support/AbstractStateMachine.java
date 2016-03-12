@@ -173,6 +173,10 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		this.history = history;
 	}
 
+	public PseudoState<S, E> getHistoryState() {
+		return history;
+	}
+
 	@Override
 	public boolean sendEvent(Message<E> event) {
 		if (hasStateMachineError()) {
@@ -509,10 +513,41 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			for (State<S, E> ss : s.getStates()) {
 				if (state != null && ss.getIds().contains(state)) {
 					currentState = s;
+
+					// setting history for 'this' machine
+					if (history != null && stateMachineContext.getHistoryStates() != null) {
+						State<S, E> h = null;
+						for (State<S, E> hh : getStates()) {
+							if (hh.getId().equals(stateMachineContext.getHistoryStates().get(null))) {
+								h = hh;
+								break;
+							}
+						}
+						if (h != null) {
+							((HistoryPseudoState<S, E>)history).setState(h);
+						}
+					}
+
 					// TODO: not sure about starting submachine/regions here, though
 					//       needed if we only transit to super state or reset regions
 					if (s.isSubmachineState()) {
 						StateMachine<S, E> submachine = ((AbstractState<S, E>)s).getSubmachine();
+
+						// setting history for submachine state machine
+						PseudoState<S, E> submachineHistory = ((AbstractStateMachine<S, E>)submachine).getHistoryState();
+						if (submachineHistory != null) {
+							State<S, E> h = null;
+							for (State<S, E> hh : submachine.getStates()) {
+								if (hh.getId().equals(stateMachineContext.getHistoryStates().get(s.getId()))) {
+									h = hh;
+									break;
+								}
+							}
+							if (h != null) {
+								((HistoryPseudoState<S, E>)submachineHistory).setState(h);
+							}
+						}
+
 						for (final StateMachineContext<S, E> child : stateMachineContext.getChilds()) {
 							submachine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S,E>>() {
 
@@ -826,7 +861,12 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				}
 			}
 		}
-		if (history != null) {
+		if (history != null && transition.getKind() != TransitionKind.INITIAL) {
+			// do not set history if this is initial transition as
+			// it would break history state set via reset as
+			// we get here i.e. when machine is started in reset.
+			// and it really doesn't make sense to set initial state for history
+			// if we get here via initial transition
 			if (history.getKind() == PseudoStateKind.HISTORY_SHALLOW) {
 				((HistoryPseudoState<S, E>)history).setState(findDeep);
 			} else if (history.getKind() == PseudoStateKind.HISTORY_DEEP){

@@ -18,6 +18,7 @@ package org.springframework.statemachine.persist;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import java.util.HashMap;
@@ -30,10 +31,13 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.StateMachinePersist;
 import org.springframework.statemachine.StateMachineSystemConstants;
+import org.springframework.statemachine.TestUtils;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.StateConfigurer.History;
+import org.springframework.statemachine.state.HistoryPseudoState;
 
 public class StateMachinePersistTests extends AbstractStateMachineTests {
 
@@ -194,6 +198,75 @@ public class StateMachinePersistTests extends AbstractStateMachineTests {
 		assertThat(stateMachine2.getState().getIds(), containsInAnyOrder("S12", "S21"));
 		stateMachine2 = persister.restore(stateMachine2, "xxx");
 		assertThat(stateMachine2.getState().getIds(), containsInAnyOrder("S12", "S22", "S221"));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testHistoryFlatShallow() throws Exception {
+		// not sure if this test makes any sense as it was done for
+		// gh182, but persisting history state which is transitient
+		// is not exactly possible
+		context.register(Config61.class, Config62.class);
+		context.refresh();
+
+		InMemoryStateMachinePersist1 stateMachinePersist = new InMemoryStateMachinePersist1();
+		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(stateMachinePersist);
+
+		StateMachine<String, String> stateMachine1 = context.getBean("machine1", StateMachine.class);
+		StateMachine<String, String> stateMachine2 = context.getBean("machine2", StateMachine.class);
+		// start gets in state S1
+		stateMachine1.start();
+
+		// event E1 takes into state S2
+		stateMachine1.sendEvent("E1");
+		assertThat(stateMachine1.getState().getIds(), contains("S2"));
+		Object history = readHistoryState(stateMachine1);
+		assertThat(history, is("S2"));
+
+		// we persist with state S2 and history keeps same S2
+		persister.persist(stateMachine1, "xxx");
+
+		stateMachine2 = persister.restore(stateMachine2, "xxx");
+		history = readHistoryState(stateMachine2);
+		assertThat(history, is("S2"));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testHistorySubShallow() throws Exception {
+		// not sure if this test makes any sense as it was done for
+		// gh182, but persisting history state which is transitient
+		// is not exactly possible
+		context.register(Config71.class, Config72.class);
+		context.refresh();
+
+		InMemoryStateMachinePersist1 stateMachinePersist = new InMemoryStateMachinePersist1();
+		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(stateMachinePersist);
+
+		StateMachine<String, String> stateMachine1 = context.getBean("machine1", StateMachine.class);
+		StateMachine<String, String> stateMachine2 = context.getBean("machine2", StateMachine.class);
+		stateMachine1.start();
+
+		stateMachine1.sendEvent("E1");
+		assertThat(stateMachine1.getState().getIds(), containsInAnyOrder("S2", "S21"));
+
+		stateMachine1.sendEvent("E3");
+		assertThat(stateMachine1.getState().getIds(), containsInAnyOrder("S2", "S22"));
+		persister.persist(stateMachine1, "xxx");
+
+		stateMachine1.sendEvent("E2");
+		assertThat(stateMachine1.getState().getIds(), containsInAnyOrder("S1"));
+
+
+		stateMachine2 = persister.restore(stateMachine2, "xxx");
+		Object history = TestUtils.readField("history", stateMachine1);
+		assertThat(history, notNullValue());
+		assertThat(stateMachine2.getState().getIds(), containsInAnyOrder("S2", "S22"));
+
+		stateMachine2.sendEvent("E2");
+		assertThat(stateMachine2.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine2.sendEvent("EH3");
+		assertThat(stateMachine2.getState().getIds(), containsInAnyOrder("S2", "S22"));
 	}
 
 	@Configuration
@@ -417,6 +490,113 @@ public class StateMachinePersistTests extends AbstractStateMachineTests {
 	static class Config52 extends Config5 {
 	}
 
+	@Configuration
+	@EnableStateMachine(name = "machine1")
+	static class Config61 extends Config6 {
+	}
+
+	@Configuration
+	@EnableStateMachine(name = "machine2")
+	static class Config62 extends Config6 {
+	}
+
+	static class Config6 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("S1")
+					.state("S1")
+					.state("S2")
+					.state("S3")
+					.state("S4")
+					.history("SH", History.SHALLOW);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("S1").target("S2").event("E1")
+					.and()
+				.withExternal()
+					.source("S2").target("S3").event("E2")
+					.and()
+				.withExternal()
+					.source("S1").target("S4").event("E3")
+					.and()
+				.withExternal()
+					.source("S2").target("S4").event("E3")
+					.and()
+				.withExternal()
+					.source("S3").target("S4").event("E3")
+					.and()
+				.withExternal()
+					.source("S1").target("SH").event("EH")
+					.and()
+				.withExternal()
+					.source("S2").target("SH").event("EH")
+					.and()
+				.withExternal()
+					.source("S3").target("SH").event("EH");
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine(name = "machine1")
+	static class Config71 extends Config7 {
+	}
+
+	@Configuration
+	@EnableStateMachine(name = "machine2")
+	static class Config72 extends Config7 {
+	}
+
+	static class Config7 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("S1")
+					.state("S1")
+					.state("S2")
+					.history("SH", History.SHALLOW)
+					.and()
+					.withStates()
+						.parent("S2")
+						.initial("S21")
+						.state("S22")
+						.history("S2H", History.SHALLOW);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("S1").target("S2").event("E1")
+					.and()
+				.withExternal()
+					.source("S2").target("S1").event("E2")
+					.and()
+				.withExternal()
+					.source("S21").target("S22").event("E3")
+					.and()
+				.withExternal()
+					.source("S1").target("SH").event("EH1")
+					.and()
+				.withExternal()
+					.source("S2").target("SH").event("EH2")
+					.and()
+				.withExternal()
+					.source("S1").target("S2H").event("EH3")
+					.and()
+				.withExternal()
+					.source("S2").target("S2H").event("EH3");
+		}
+	}
+
 	static class InMemoryStateMachinePersist1 implements StateMachinePersist<String, String, String> {
 
 		private final HashMap<String, StateMachineContext<String, String>> contexts = new HashMap<>();
@@ -447,4 +627,14 @@ public class StateMachinePersistTests extends AbstractStateMachineTests {
 		}
 	}
 
+	private static Object readHistoryState(Object stateMachine) throws Exception {
+		Object pseudo = TestUtils.readField("history", stateMachine);
+		if (pseudo instanceof HistoryPseudoState) {
+			Object state = TestUtils.readField("state", pseudo);
+			if (state != null) {
+				return TestUtils.callMethod("getId", state);
+			}
+		}
+		return null;
+	}
 }

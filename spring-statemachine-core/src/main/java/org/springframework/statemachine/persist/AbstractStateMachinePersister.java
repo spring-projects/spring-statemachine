@@ -17,6 +17,8 @@ package org.springframework.statemachine.persist;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateMachine;
@@ -26,7 +28,10 @@ import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.AbstractState;
+import org.springframework.statemachine.state.HistoryPseudoState;
+import org.springframework.statemachine.state.PseudoState;
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.support.AbstractStateMachine;
 import org.springframework.statemachine.support.DefaultExtendedState;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.util.Assert;
@@ -105,7 +110,22 @@ public abstract class AbstractStateMachinePersister<S, E, T> implements StateMac
 			id = state.getId();
 		}
 
-		return new DefaultStateMachineContext<S, E>(childs, id, null, null,
-				extendedState);
+		// building history state mappings
+		Map<S, S> historyStates = new HashMap<S, S>();
+		PseudoState<S, E> historyState = ((AbstractStateMachine<S, E>) stateMachine).getHistoryState();
+		if (historyState != null) {
+			historyStates.put(null, ((HistoryPseudoState<S, E>)historyState).getState().getId());
+		}
+		Collection<State<S, E>> states = stateMachine.getStates();
+		for (State<S, E> ss : states) {
+			if (ss.isSubmachineState()) {
+				StateMachine<S, E> submachine = ((AbstractState<S, E>) ss).getSubmachine();
+				PseudoState<S, E> hh = ((AbstractStateMachine<S, E>) submachine).getHistoryState();
+				if (hh != null) {
+					historyStates.put(ss.getId(), ((HistoryPseudoState<S, E>)hh).getState().getId());
+				}
+			}
+		}
+		return new DefaultStateMachineContext<S, E>(childs, id, null, null, extendedState, historyStates);
 	}
 }

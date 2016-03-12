@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,13 @@ public interface StateMachineContext<S, E> {
 	E getEvent();
 
 	/**
+	 * Gets the history state mappings
+	 *
+	 * @return the history state mappings
+	 */
+	Map<S, S> getHistoryStates();
+
+	/**
 	 * Gets the event headers.
 	 *
 	 * @return the event headers
@@ -62,5 +69,4 @@ public interface StateMachineContext<S, E> {
 	 * @return the extended state
 	 */
 	ExtendedState getExtendedState();
-
 }

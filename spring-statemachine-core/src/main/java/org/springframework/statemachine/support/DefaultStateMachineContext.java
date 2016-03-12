@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.springframework.statemachine.support;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +35,7 @@ public class DefaultStateMachineContext<S, E> implements StateMachineContext<S, 
 
 	private final List<StateMachineContext<S, E>> childs;
 	private final S state;
+	private final Map<S, S> historyStates;
 	private final E event;
 	private final Map<String, Object> eventHeaders;
 	private final ExtendedState extendedState;
@@ -53,6 +55,20 @@ public class DefaultStateMachineContext<S, E> implements StateMachineContext<S, 
 	/**
 	 * Instantiates a new default state machine context.
 	 *
+	 * @param state the state
+	 * @param event the event
+	 * @param eventHeaders the event headers
+	 * @param extendedState the extended state
+	 * @param historyStates the history state mappings
+	 */
+	public DefaultStateMachineContext(S state, E event, Map<String, Object> eventHeaders, ExtendedState extendedState,
+			Map<S, S> historyStates) {
+		this(new ArrayList<StateMachineContext<S, E>>(), state, event, eventHeaders, extendedState, historyStates);
+	}
+
+	/**
+	 * Instantiates a new default state machine context.
+	 *
 	 * @param childs the child state machine contexts
 	 * @param state the state
 	 * @param event the event
@@ -61,11 +77,27 @@ public class DefaultStateMachineContext<S, E> implements StateMachineContext<S, 
 	 */
 	public DefaultStateMachineContext(List<StateMachineContext<S, E>> childs, S state, E event,
 			Map<String, Object> eventHeaders, ExtendedState extendedState) {
+		this(childs, state, event, eventHeaders, extendedState, null);
+	}
+
+	/**
+	 * Instantiates a new default state machine context.
+	 *
+	 * @param childs the child state machine contexts
+	 * @param state the state
+	 * @param event the event
+	 * @param eventHeaders the event headers
+	 * @param extendedState the extended state
+	 * @param historyStates the history state mappings
+	 */
+	public DefaultStateMachineContext(List<StateMachineContext<S, E>> childs, S state, E event,
+			Map<String, Object> eventHeaders, ExtendedState extendedState, Map<S, S> historyStates) {
 		this.childs = childs;
 		this.state = state;
 		this.event = event;
 		this.eventHeaders = eventHeaders;
 		this.extendedState = extendedState;
+		this.historyStates = historyStates != null ? historyStates : new HashMap<S, S>();
 	}
 
 	@Override
@@ -76,6 +108,11 @@ public class DefaultStateMachineContext<S, E> implements StateMachineContext<S, 
 	@Override
 	public S getState() {
 		return state;
+	}
+
+	@Override
+	public Map<S, S> getHistoryStates() {
+		return historyStates;
 	}
 
 	@Override
@@ -95,8 +132,7 @@ public class DefaultStateMachineContext<S, E> implements StateMachineContext<S, 
 
 	@Override
 	public String toString() {
-		return "DefaultStateMachineContext [childs=" + childs + ", state=" + state + ", event=" + event
+		return "DefaultStateMachineContext [childs=" + childs + ", state=" + state + ", historyStates=" + historyStates + ", event=" + event
 				+ ", eventHeaders=" + eventHeaders + ", extendedState=" + extendedState + "]";
 	}
-
 }
