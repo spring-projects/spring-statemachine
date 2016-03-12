@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,8 @@ public class DocsConfigurationSampleTests2 extends AbstractStateMachineTests {
 			states
 				.withStates()
 					.initial("S1")
-					.state("S2");
+					.state("S2")
+					.state("S3");
 		}
 
 		@Override
@@ -80,14 +81,20 @@ public class DocsConfigurationSampleTests2 extends AbstractStateMachineTests {
 				throws Exception {
 			transitions
 				.withExternal()
-					.source("S1")
-					.target("S2")
-					.event("E1")
+					.source("S1").target("S2").event("E1")
+					.and()
+				.withExternal()
+					.source("S1").target("S3").event("E2")
 					.and()
 				.withInternal()
 					.source("S2")
 					.action(timerAction())
-					.timer(1000);
+					.timer(1000)
+					.and()
+				.withInternal()
+					.source("S3")
+					.action(timerAction())
+					.timerOnce(1000);
 		}
 
 		@Bean

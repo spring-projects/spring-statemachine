@@ -703,20 +703,47 @@ _TimerTrigger_ is useful when something needs to be triggered
 automatically without any user interaction. `Trigger` is added to a
 transition by associating a timer with it during a configuration.
 
+Currently there are two types of timers supported, one which fires
+continously and one which fires once a source state is entered.
+
 [source,java,indent=0]
 ----
 include::samples/DocsConfigurationSampleTests2.java[tags=snippetA]
 ----
 
-In above we have two states, `S1` and `S2`. We have a normal external
-transition from `S1` to `S2` with event `E1` but interesting part is
-when we define internal transition with source state `S2` and
-associate it with `Action` bean `timerAction` and `timer` value of
-`1000ms`. Once a state machine receive event `E1` it does a transition
+In above we have three states, `S1`, `S2` and `S3`. We have a normal
+external transition from `S1` to `S2` and from `S1` to `S3` with
+events `E1` and `E2` respectively. Interesting parts are when we define
+internal transitions for source states `S2` and `S3`.
+
+For both transitions we associate `Action` bean `timerAction` where
+source state `S2` will use `timer` and `S3` will use `timerOnce`.
+Values given are with milliseconds which in these cases mean `1000ms`.
+
+Once a state machine receive event `E1` it does a transition
 from `S1` to `S2` and timer kicks in. As long as state is kept in `S2`
 `TimerTrigger` executes and causes a transition associated with that
 state which in this case is the internal transition which has the
 `timerAction` defined.
+
+Once a state machine receive event `E2` it does a transition
+from `S1` to `S3` and timer kicks in. This timer is executed only once
+after state is entered after a delay defined in a timer.
+
+[NOTE]
+====
+Behind a scenes timers are a simple triggers which may cause an
+transition to happen. Defining a transition with a `timer()` will keep
+firing triggers and only causes transition if source state is active.
+Transtition with `timerOnce()` is a little different as it will only
+trigger after a delay when source state is actually entered.
+====
+
+[TIP]
+====
+Use `timerOnce()` if you want something to happen after a delay
+exactly once when state is entered.
+====
 
 [[sm-listeners]]
 == Listening State Machine Events
