@@ -38,8 +38,12 @@ public class BaseStructureVerifier<S, E> implements StateMachineModelVerifier<S,
 
 	@Override
 	public void verify(StateMachineModel<S, E> model) {
-		// TODO: just a base root initial state check for now
-		//       further development needed
+		// verify that we have transitions
+		if (model.getTransitions().getTransitions().isEmpty()) {
+			MalformedConfigurationException exception = new MalformedConfigurationException("Must have at least one transition");
+			throw exception;
+		}
+		// verify that we have initial state
 		Iterator<Node<StateData<S, E>>> iterator = buildStateDataIterator(model.getStates());
 		while (iterator.hasNext()) {
 			Node<StateData<S, E>> node = iterator.next();

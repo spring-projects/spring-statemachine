@@ -47,8 +47,15 @@ import org.springframework.statemachine.transition.Transition;
  */
 public class ObjectStateMachineFactory<S, E> extends AbstractStateMachineFactory<S, E> {
 
-	public ObjectStateMachineFactory(StateMachineConfigurationConfig<S,E> stateMachineConfigurationConfig, StateMachineTransitions<S, E> stateMachineTransitions,
-			StateMachineStates<S, E> stateMachineStates) {
+	/**
+	 * Instantiates a new object state machine factory.
+	 *
+	 * @param stateMachineConfigurationConfig the state machine generic config
+	 * @param stateMachineTransitions the state machine transitions
+	 * @param stateMachineStates the state machine states
+	 */
+	public ObjectStateMachineFactory(StateMachineConfigurationConfig<S, E> stateMachineConfigurationConfig,
+			StateMachineTransitions<S, E> stateMachineTransitions, StateMachineStates<S, E> stateMachineStates) {
 		super(stateMachineConfigurationConfig, stateMachineTransitions, stateMachineStates);
 	}
 

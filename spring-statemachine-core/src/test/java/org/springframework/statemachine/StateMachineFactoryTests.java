@@ -154,6 +154,9 @@ public class StateMachineFactoryTests extends AbstractStateMachineTests {
 		@Override
 		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
 			config
+				.withVerifier()
+					.enabled(false)
+					.and()
 				.withConfiguration()
 					.autoStartup(true);
 		}
@@ -175,6 +178,9 @@ public class StateMachineFactoryTests extends AbstractStateMachineTests {
 		@Override
 		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
 			config
+				.withVerifier()
+					.enabled(false)
+					.and()
 				.withConfiguration()
 					.autoStartup(false);
 		}

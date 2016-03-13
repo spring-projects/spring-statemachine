@@ -41,7 +41,6 @@ import org.springframework.statemachine.config.model.ChoiceData;
 import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.StateData;
 import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
-import org.springframework.statemachine.config.model.StateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineStates;
 import org.springframework.statemachine.config.model.StateMachineTransitions;
 import org.springframework.statemachine.config.model.TransitionData;
@@ -103,10 +102,6 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 	private String beanName;
 
-	// TODO: we want to make this configurable via annotation model
-	//       so that user can turn it off or customise
-	private final StateMachineModelVerifier<S, E> verifier = new CompositeStateMachineModelVerifier<S, E>();
-
 	/**
 	 * Instantiates a new enum state machine factory.
 	 *
@@ -130,8 +125,13 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 	@Override
 	public StateMachine<S, E> getStateMachine() {
 		// TODO: should pass model into constructor
-		StateMachineModel<S, E> model = new DefaultStateMachineModel<>(stateMachineConfigurationConfig, stateMachineStates, stateMachineTransitions);
-		verifier.verify(model);
+		if (stateMachineConfigurationConfig.isVerifierEnabled()) {
+			StateMachineModelVerifier<S, E> verifier = stateMachineConfigurationConfig.getVerifier();
+			if (verifier == null) {
+				verifier = new CompositeStateMachineModelVerifier<S, E>();
+			}
+			verifier.verify(new DefaultStateMachineModel<S, E>(stateMachineConfigurationConfig, stateMachineStates, stateMachineTransitions));
+		}
 
 		// shared
 		DefaultExtendedState defaultExtendedState = new DefaultExtendedState();

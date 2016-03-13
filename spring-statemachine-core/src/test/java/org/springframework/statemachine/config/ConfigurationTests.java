@@ -543,6 +543,13 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 	static class Config8 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
 
 		@Override
+		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
+			config
+				.withVerifier()
+					.enabled(false);
+		}
+
+		@Override
 		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
 			states
 				.withStates()
@@ -570,6 +577,9 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		@Override
 		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
 			config
+				.withVerifier()
+					.enabled(false)
+					.and()
 				.withConfiguration()
 					.autoStartup(true);
 		}
@@ -591,6 +601,9 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		@Override
 		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
 			config
+				.withVerifier()
+					.enabled(false)
+					.and()
 				.withConfiguration()
 					.listener(new StateMachineListenerAdapter<TestStates, TestEvents>())
 					.listener(new StateMachineListenerAdapter<TestStates, TestEvents>());
@@ -613,6 +626,9 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		@Override
 		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
 			config
+				.withVerifier()
+					.enabled(false)
+					.and()
 				.withConfiguration()
 					.autoStartup(false);
 		}

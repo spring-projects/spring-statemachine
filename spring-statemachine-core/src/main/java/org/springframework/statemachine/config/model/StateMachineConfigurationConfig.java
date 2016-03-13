@@ -22,6 +22,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationBuilder;
+import org.springframework.statemachine.config.model.verifier.StateMachineModelVerifier;
 import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.security.SecurityRule;
@@ -43,6 +44,8 @@ public class StateMachineConfigurationConfig<S, E> {
 	private final StateMachineEnsemble<S, E> ensemble;
 	private final List<StateMachineListener<S, E>> listeners;
 	private final boolean securityEnabled;
+	private final boolean verifierEnabled;
+	private final StateMachineModelVerifier<S, E> verifier;
 	private final AccessDecisionManager transitionSecurityAccessDecisionManager;
 	private final AccessDecisionManager eventSecurityAccessDecisionManager;
 	private final SecurityRule eventSecurityRule;
@@ -62,12 +65,15 @@ public class StateMachineConfigurationConfig<S, E> {
 	 * @param eventSecurityAccessDecisionManager the event security access decision manager
 	 * @param eventSecurityRule the event security rule
 	 * @param transitionSecurityRule the transition security rule
+	 * @param verifierEnabled the verifier enabled flag
+	 * @param verifier the state machine model verifier
 	 */
 	public StateMachineConfigurationConfig(BeanFactory beanFactory, TaskExecutor taskExecutor,
 			TaskScheduler taskScheduler, boolean autoStart, StateMachineEnsemble<S, E> ensemble,
 			List<StateMachineListener<S, E>> listeners, boolean securityEnabled,
 			AccessDecisionManager transitionSecurityAccessDecisionManager, AccessDecisionManager eventSecurityAccessDecisionManager,
-			SecurityRule eventSecurityRule, SecurityRule transitionSecurityRule) {
+			SecurityRule eventSecurityRule, SecurityRule transitionSecurityRule, boolean verifierEnabled,
+			StateMachineModelVerifier<S, E> verifier) {
 		this.beanFactory = beanFactory;
 		this.taskExecutor = taskExecutor;
 		this.taskScheduler = taskScheduler;
@@ -79,6 +85,8 @@ public class StateMachineConfigurationConfig<S, E> {
 		this.eventSecurityAccessDecisionManager = eventSecurityAccessDecisionManager;
 		this.eventSecurityRule = eventSecurityRule;
 		this.transitionSecurityRule = transitionSecurityRule;
+		this.verifierEnabled = verifierEnabled;
+		this.verifier = verifier;
 	}
 
 	/**
@@ -136,12 +144,30 @@ public class StateMachineConfigurationConfig<S, E> {
 	}
 
 	/**
-	 * Checks if is security is enabled.
+	 * Checks if security is enabled.
 	 *
-	 * @return true, if is security is enabled
+	 * @return true, if security is enabled
 	 */
 	public boolean isSecurityEnabled() {
 		return securityEnabled;
+	}
+
+	/**
+	 * Checks if verifier is enabled.
+	 *
+	 * @return true, if verifier is enabled
+	 */
+	public boolean isVerifierEnabled() {
+		return verifierEnabled;
+	}
+
+	/**
+	 * Gets the state machine model verifier.
+	 *
+	 * @return the state machine model verifier
+	 */
+	public StateMachineModelVerifier<S, E> getVerifier() {
+		return verifier;
 	}
 
 	/**
@@ -179,5 +205,4 @@ public class StateMachineConfigurationConfig<S, E> {
 	public SecurityRule getTransitionSecurityRule() {
 		return transitionSecurityRule;
 	}
-
 }

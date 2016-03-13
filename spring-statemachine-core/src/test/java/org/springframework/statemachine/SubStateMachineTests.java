@@ -36,6 +36,7 @@ import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.state.DefaultPseudoState;
@@ -487,6 +488,13 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 	@Configuration
 	@EnableStateMachine
 	static class Config2 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
+			config
+				.withVerifier()
+					.enabled(false);
+		}
 
 		@Override
 		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {

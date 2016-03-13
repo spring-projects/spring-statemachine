@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.statemachine.config.builders;
 import org.springframework.statemachine.config.configurers.ConfigurationConfigurer;
 import org.springframework.statemachine.config.configurers.DistributedStateMachineConfigurer;
 import org.springframework.statemachine.config.configurers.SecurityConfigurer;
+import org.springframework.statemachine.config.configurers.VerifierConfigurer;
 
 /**
  * Configurer interface exposing generic config.
@@ -53,4 +54,11 @@ public interface StateMachineConfigurationConfigurer<S, E> {
 	 */
 	SecurityConfigurer<S, E> withSecurity() throws Exception;
 
+	/**
+	 * Gets a configurer for state machine model verifier.
+	 *
+	 * @return {@link VerifierConfigurer} for chaining
+	 * @throws Exception if configuration error happens
+	 */
+	VerifierConfigurer<S, E> withVerifier() throws Exception;
 }

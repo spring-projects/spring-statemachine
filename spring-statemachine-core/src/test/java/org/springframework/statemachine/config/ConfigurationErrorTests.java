@@ -15,7 +15,12 @@
  */
 package org.springframework.statemachine.config;
 
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
+import static org.junit.Assert.assertThat;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,6 +32,8 @@ import org.springframework.statemachine.config.StateMachineBuilder.Builder;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.config.model.MalformedConfigurationException;
+import org.springframework.statemachine.config.model.StateMachineModel;
+import org.springframework.statemachine.config.model.verifier.StateMachineModelVerifier;
 
 public class ConfigurationErrorTests extends AbstractStateMachineTests {
 
@@ -39,14 +46,14 @@ public class ConfigurationErrorTests extends AbstractStateMachineTests {
 	}
 
 	@Test
-	public void testFoo1() {
+	public void testInitialStateNotSet1() {
 		expectedException.expectCause(isA(MalformedConfigurationException.class));
 		context.register(Config1.class);
 		context.refresh();
 	}
 
 	@Test
-	public void testFoo2() throws Exception {
+	public void testInitialStateNotSet2() throws Exception {
 		expectedException.expectCause(isA(MalformedConfigurationException.class));
 		Builder<String, String> builder = StateMachineBuilder.builder();
 		builder
@@ -62,6 +69,54 @@ public class ConfigurationErrorTests extends AbstractStateMachineTests {
 					.event("E1");
 
 		builder.build();
+	}
+
+	@Test
+	public void testNoTransitions() throws Exception {
+		expectedException.expectCause(isA(MalformedConfigurationException.class));
+		Builder<String, String> builder = StateMachineBuilder.builder();
+		builder
+			.configureStates()
+				.withStates()
+					.initial("S1")
+					.state("S1")
+					.state("S2");
+		builder.build();
+	}
+
+	@Test
+	public void testVerifierDisabled() throws Exception {
+		// should fail for no transitions but verifier is disabled
+		Builder<String, String> builder = StateMachineBuilder.builder();
+		builder
+			.configureConfiguration()
+				.withVerifier()
+					.enabled(false);
+		builder
+			.configureStates()
+				.withStates()
+					.initial("S1")
+					.state("S1")
+					.state("S2");
+		builder.build();
+	}
+
+	@Test
+	public void testCustomVerifier() throws Exception {
+		TestStateMachineModelVerifier verifier = new TestStateMachineModelVerifier();
+		Builder<String, String> builder = StateMachineBuilder.builder();
+		builder
+			.configureConfiguration()
+				.withVerifier()
+					.verifier(verifier);
+		builder
+			.configureStates()
+				.withStates()
+					.initial("S1")
+					.state("S1")
+					.state("S2");
+		builder.build();
+		assertThat(verifier.latch.await(2, TimeUnit.SECONDS), is(true));
 	}
 
 	@Configuration
@@ -85,6 +140,16 @@ public class ConfigurationErrorTests extends AbstractStateMachineTests {
 					.source("S1")
 					.target("S2")
 					.event("E1");
+		}
+	}
+
+	static class TestStateMachineModelVerifier implements StateMachineModelVerifier<String, String> {
+
+		CountDownLatch latch = new CountDownLatch(1);
+
+		@Override
+		public void verify(StateMachineModel<String, String> model) {
+			latch.countDown();
 		}
 	}
 
