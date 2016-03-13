@@ -38,9 +38,9 @@ import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.model.ChoiceData;
-import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.StateData;
 import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
+import org.springframework.statemachine.config.model.StateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineStates;
 import org.springframework.statemachine.config.model.StateMachineTransitions;
 import org.springframework.statemachine.config.model.TransitionData;
@@ -75,6 +75,7 @@ import org.springframework.statemachine.transition.TransitionKind;
 import org.springframework.statemachine.trigger.EventTrigger;
 import org.springframework.statemachine.trigger.TimerTrigger;
 import org.springframework.statemachine.trigger.Trigger;
+import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 /**
@@ -94,7 +95,9 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 	private final StateMachineStates<S, E> stateMachineStates;
 
-	private final StateMachineConfigurationConfig<S,E> stateMachineConfigurationConfig;
+	private final StateMachineConfigurationConfig<S, E> stateMachineConfigurationConfig;
+
+	private final StateMachineModel<S, E> stateMachineModel;
 
 	private Boolean contextEvents;
 
@@ -103,17 +106,16 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 	private String beanName;
 
 	/**
-	 * Instantiates a new enum state machine factory.
+	 * Instantiates a new abstract state machine factory.
 	 *
-	 * @param stateMachineConfigurationConfig the state machine generic config
-	 * @param stateMachineTransitions the state machine transitions
-	 * @param stateMachineStates the state machine states
+	 * @param stateMachineModel the state machine model
 	 */
-	public AbstractStateMachineFactory(StateMachineConfigurationConfig<S, E> stateMachineConfigurationConfig,
-			StateMachineTransitions<S, E> stateMachineTransitions, StateMachineStates<S, E> stateMachineStates) {
-		this.stateMachineConfigurationConfig = stateMachineConfigurationConfig;
-		this.stateMachineTransitions = stateMachineTransitions;
-		this.stateMachineStates = stateMachineStates;
+	public AbstractStateMachineFactory(StateMachineModel<S, E> stateMachineModel) {
+		Assert.notNull(stateMachineModel, "StateMachineModel must be set");
+		this.stateMachineModel = stateMachineModel;
+		this.stateMachineConfigurationConfig = stateMachineModel.getConfiguration();
+		this.stateMachineTransitions = stateMachineModel.getTransitions();
+		this.stateMachineStates = stateMachineModel.getStates();
 	}
 
 	@Override
@@ -124,13 +126,12 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 	@SuppressWarnings("unchecked")
 	@Override
 	public StateMachine<S, E> getStateMachine() {
-		// TODO: should pass model into constructor
 		if (stateMachineConfigurationConfig.isVerifierEnabled()) {
 			StateMachineModelVerifier<S, E> verifier = stateMachineConfigurationConfig.getVerifier();
 			if (verifier == null) {
 				verifier = new CompositeStateMachineModelVerifier<S, E>();
 			}
-			verifier.verify(new DefaultStateMachineModel<S, E>(stateMachineConfigurationConfig, stateMachineStates, stateMachineTransitions));
+			verifier.verify(stateMachineModel);
 		}
 
 		// shared

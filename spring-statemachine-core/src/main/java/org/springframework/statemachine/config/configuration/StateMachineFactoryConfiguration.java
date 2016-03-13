@@ -39,6 +39,7 @@ import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.config.builders.StateMachineConfigBuilder;
 import org.springframework.statemachine.config.common.annotation.AbstractImportingAnnotationConfiguration;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurer;
+import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
 import org.springframework.statemachine.config.model.StateMachineStates;
 import org.springframework.statemachine.config.model.StateMachineTransitions;
@@ -134,7 +135,7 @@ public class StateMachineFactoryConfiguration<S, E> extends
 			StateMachineConfigurationConfig<S, E> stateMachineConfigurationConfig = stateMachineConfig
 					.getStateMachineConfigurationConfig();
 			ObjectStateMachineFactory<S, E> objectStateMachineFactory = new ObjectStateMachineFactory<S, E>(
-					stateMachineConfigurationConfig, stateMachineTransitions, stateMachineStates);
+					new DefaultStateMachineModel<S, E>(stateMachineConfigurationConfig, stateMachineStates, stateMachineTransitions));
 			objectStateMachineFactory.setBeanFactory(beanFactory);
 			objectStateMachineFactory.setContextEventsEnabled(contextEvents);
 			// explicitly tell factory to handle auto-start because

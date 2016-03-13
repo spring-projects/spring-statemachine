@@ -35,6 +35,7 @@ import org.springframework.statemachine.config.StateMachineBuilder.Builder;
 import org.springframework.statemachine.config.builders.StateMachineConfigBuilder;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
 import org.springframework.statemachine.config.model.StateMachineStates;
 import org.springframework.statemachine.config.model.StateMachineTransitions;
@@ -54,7 +55,7 @@ public class ManualBuilderTests {
 		StateMachineStates<String, String> stateMachineStates = stateMachineConfig.getStates();
 		StateMachineConfigurationConfig<String, String> stateMachineConfigurationConfig = stateMachineConfig.getStateMachineConfigurationConfig();
 		ObjectStateMachineFactory<String, String> stateMachineFactory = new ObjectStateMachineFactory<String, String>(
-				stateMachineConfigurationConfig, stateMachineTransitions, stateMachineStates);
+				new DefaultStateMachineModel<String, String>(stateMachineConfigurationConfig, stateMachineStates, stateMachineTransitions));
 
 		StaticListableBeanFactory beanFactory = new StaticListableBeanFactory();
 		beanFactory.addBean(StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME, new SyncTaskExecutor());

@@ -29,6 +29,7 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionBu
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationBuilder;
 import org.springframework.statemachine.config.common.annotation.ObjectPostProcessor;
+import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
 import org.springframework.statemachine.config.model.StateMachineStates;
 import org.springframework.statemachine.config.model.StateMachineTransitions;
@@ -115,7 +116,8 @@ public class StateMachineBuilder {
 				StateMachineStates<S, E> stateMachineStates = stateMachineConfig.getStates();
 				StateMachineConfigurationConfig<S, E> stateMachineConfigurationConfig = stateMachineConfig.getStateMachineConfigurationConfig();
 				ObjectStateMachineFactory<S, E> stateMachineFactory = new ObjectStateMachineFactory<S, E>(
-						stateMachineConfigurationConfig, stateMachineTransitions, stateMachineStates);
+						new DefaultStateMachineModel<S, E>(stateMachineConfigurationConfig, stateMachineStates, stateMachineTransitions));
+
 				stateMachineFactory.setHandleAutostartup(stateMachineConfigurationConfig.isAutoStart());
 
 				if (stateMachineConfigurationConfig.getBeanFactory() != null) {

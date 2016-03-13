@@ -26,9 +26,7 @@ import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
-import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
-import org.springframework.statemachine.config.model.StateMachineStates;
-import org.springframework.statemachine.config.model.StateMachineTransitions;
+import org.springframework.statemachine.config.model.StateMachineModel;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.ObjectState;
 import org.springframework.statemachine.state.PseudoState;
@@ -50,13 +48,10 @@ public class ObjectStateMachineFactory<S, E> extends AbstractStateMachineFactory
 	/**
 	 * Instantiates a new object state machine factory.
 	 *
-	 * @param stateMachineConfigurationConfig the state machine generic config
-	 * @param stateMachineTransitions the state machine transitions
-	 * @param stateMachineStates the state machine states
+	 * @param stateMachineModel the state machine model
 	 */
-	public ObjectStateMachineFactory(StateMachineConfigurationConfig<S, E> stateMachineConfigurationConfig,
-			StateMachineTransitions<S, E> stateMachineTransitions, StateMachineStates<S, E> stateMachineStates) {
-		super(stateMachineConfigurationConfig, stateMachineTransitions, stateMachineStates);
+	public ObjectStateMachineFactory(StateMachineModel<S, E> stateMachineModel) {
+		super(stateMachineModel);
 	}
 
 	@Override

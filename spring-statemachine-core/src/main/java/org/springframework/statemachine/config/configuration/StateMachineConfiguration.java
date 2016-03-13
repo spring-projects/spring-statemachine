@@ -38,6 +38,7 @@ import org.springframework.statemachine.config.builders.StateMachineConfigBuilde
 import org.springframework.statemachine.config.builders.StateMachineConfigurer;
 import org.springframework.statemachine.config.common.annotation.AbstractImportingAnnotationConfiguration;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurer;
+import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
 import org.springframework.statemachine.config.model.StateMachineStates;
 import org.springframework.statemachine.config.model.StateMachineTransitions;
@@ -145,7 +146,7 @@ public class StateMachineConfiguration<S, E> extends
 			StateMachineStates<S, E> stateMachineStates = stateMachineConfig.getStates();
 			StateMachineConfigurationConfig<S, E> stateMachineConfigurationConfig = stateMachineConfig.getStateMachineConfigurationConfig();
 			ObjectStateMachineFactory<S, E> stateMachineFactory = new ObjectStateMachineFactory<S, E>(
-					stateMachineConfigurationConfig, stateMachineTransitions, stateMachineStates);
+					new DefaultStateMachineModel<S, E>(stateMachineConfigurationConfig, stateMachineStates, stateMachineTransitions));
 			stateMachineFactory.setBeanFactory(getBeanFactory());
 			stateMachineFactory.setContextEventsEnabled(contextEvents);
 			stateMachineFactory.setBeanName(beanName);
