@@ -120,9 +120,12 @@ public abstract class AbstractStateMachinePersister<S, E, T> implements StateMac
 		for (State<S, E> ss : states) {
 			if (ss.isSubmachineState()) {
 				StateMachine<S, E> submachine = ((AbstractState<S, E>) ss).getSubmachine();
-				PseudoState<S, E> hh = ((AbstractStateMachine<S, E>) submachine).getHistoryState();
-				if (hh != null) {
-					historyStates.put(ss.getId(), ((HistoryPseudoState<S, E>)hh).getState().getId());
+				PseudoState<S, E> ps = ((AbstractStateMachine<S, E>) submachine).getHistoryState();
+				if (ps != null) {
+					State<S, E> pss = ((HistoryPseudoState<S, E>)ps).getState();
+					if (pss != null) {
+						historyStates.put(ss.getId(), pss.getId());
+					}
 				}
 			}
 		}
