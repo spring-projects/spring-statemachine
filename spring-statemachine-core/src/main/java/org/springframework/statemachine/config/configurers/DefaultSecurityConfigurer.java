@@ -19,7 +19,7 @@ import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationBuilder;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerAdapter;
-import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
+import org.springframework.statemachine.config.model.ConfigurationData;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.security.SecurityRule.ComparisonType;
 
@@ -32,7 +32,7 @@ import org.springframework.statemachine.security.SecurityRule.ComparisonType;
  * @param <E> the type of event
  */
 public class DefaultSecurityConfigurer<S, E>
-		extends AnnotationConfigurerAdapter<StateMachineConfigurationConfig<S, E>, StateMachineConfigurationConfigurer<S, E>, StateMachineConfigurationBuilder<S, E>>
+		extends AnnotationConfigurerAdapter<ConfigurationData<S, E>, StateMachineConfigurationConfigurer<S, E>, StateMachineConfigurationBuilder<S, E>>
 		implements SecurityConfigurer<S, E> {
 
 	private boolean enabled = true;

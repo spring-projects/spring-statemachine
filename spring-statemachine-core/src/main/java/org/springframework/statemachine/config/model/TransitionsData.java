@@ -27,7 +27,7 @@ import java.util.Map;
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public class StateMachineTransitions<S, E> {
+public class TransitionsData<S, E> {
 
 	private final Collection<TransitionData<S, E>> transitions;
 	private final Map<S, List<ChoiceData<S, E>>> choices;
@@ -42,7 +42,7 @@ public class StateMachineTransitions<S, E> {
 	 * @param forks the forks
 	 * @param joins the joins
 	 */
-	public StateMachineTransitions(Collection<TransitionData<S, E>> transitions,
+	public TransitionsData(Collection<TransitionData<S, E>> transitions,
 			Map<S, List<ChoiceData<S, E>>> choices, Map<S, List<S>> forks, Map<S, List<S>> joins) {
 		this.transitions = transitions;
 		this.choices = choices;

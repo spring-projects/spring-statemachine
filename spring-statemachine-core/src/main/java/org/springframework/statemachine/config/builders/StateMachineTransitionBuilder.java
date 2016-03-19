@@ -38,15 +38,15 @@ import org.springframework.statemachine.config.configurers.InternalTransitionCon
 import org.springframework.statemachine.config.configurers.JoinTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.LocalTransitionConfigurer;
 import org.springframework.statemachine.config.model.ChoiceData;
-import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
-import org.springframework.statemachine.config.model.StateMachineTransitions;
+import org.springframework.statemachine.config.model.ConfigurationData;
+import org.springframework.statemachine.config.model.TransitionsData;
 import org.springframework.statemachine.config.model.TransitionData;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.transition.TransitionKind;
 
 /**
- * {@link AnnotationBuilder} for {@link StateMachineTransitions}.
+ * {@link AnnotationBuilder} for {@link TransitionsData}.
  *
  * @author Janne Valkealahti
  *
@@ -55,7 +55,7 @@ import org.springframework.statemachine.transition.TransitionKind;
  */
 public class StateMachineTransitionBuilder<S, E>
 		extends
-		AbstractConfiguredAnnotationBuilder<StateMachineTransitions<S, E>, StateMachineTransitionConfigurer<S, E>, StateMachineTransitionBuilder<S, E>>
+		AbstractConfiguredAnnotationBuilder<TransitionsData<S, E>, StateMachineTransitionConfigurer<S, E>, StateMachineTransitionBuilder<S, E>>
 		implements StateMachineTransitionConfigurer<S, E> {
 
 	private final Collection<TransitionData<S, E>> transitionData = new ArrayList<TransitionData<S, E>>();
@@ -77,8 +77,8 @@ public class StateMachineTransitionBuilder<S, E>
 	}
 
 	@Override
-	protected StateMachineTransitions<S, E> performBuild() throws Exception {
-		return new StateMachineTransitions<S, E>(transitionData, choices, forks, joins);
+	protected TransitionsData<S, E> performBuild() throws Exception {
+		return new TransitionsData<S, E>(transitionData, choices, forks, joins);
 	}
 
 	@Override
@@ -116,7 +116,7 @@ public class StateMachineTransitionBuilder<S, E>
 		// if rule not given, get it from global
 		if (securityRule == null) {
 			@SuppressWarnings("unchecked")
-			StateMachineConfigurationConfig<S, E> config = getSharedObject(StateMachineConfigurationConfig.class);
+			ConfigurationData<S, E> config = getSharedObject(ConfigurationData.class);
 			securityRule = config.getTransitionSecurityRule();
 		}
 		transitionData.add(new TransitionData<S, E>(source, target, state, event, period, count, actions, guard, kind, securityRule));

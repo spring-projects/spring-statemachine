@@ -21,7 +21,7 @@ import java.util.List;
 import org.springframework.statemachine.config.builders.StateMachineTransitionBuilder;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerAdapter;
-import org.springframework.statemachine.config.model.StateMachineTransitions;
+import org.springframework.statemachine.config.model.TransitionsData;
 
 /**
  * Default implementation of a {@link ForkTransitionConfigurer}.
@@ -32,7 +32,7 @@ import org.springframework.statemachine.config.model.StateMachineTransitions;
  * @param <E> the type of event
  */
 public class DefaultForkTransitionConfigurer<S, E>
-		extends	AnnotationConfigurerAdapter<StateMachineTransitions<S, E>, StateMachineTransitionConfigurer<S, E>, StateMachineTransitionBuilder<S, E>>
+		extends	AnnotationConfigurerAdapter<TransitionsData<S, E>, StateMachineTransitionConfigurer<S, E>, StateMachineTransitionBuilder<S, E>>
 		implements ForkTransitionConfigurer<S, E> {
 
 	private S source;

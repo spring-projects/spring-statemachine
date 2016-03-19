@@ -17,9 +17,9 @@ package org.springframework.statemachine.config.builders;
 
 import org.springframework.statemachine.config.StateMachineConfig;
 import org.springframework.statemachine.config.common.annotation.AbstractConfiguredAnnotationBuilder;
-import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
-import org.springframework.statemachine.config.model.StateMachineStates;
-import org.springframework.statemachine.config.model.StateMachineTransitions;
+import org.springframework.statemachine.config.model.ConfigurationData;
+import org.springframework.statemachine.config.model.StatesData;
+import org.springframework.statemachine.config.model.TransitionsData;
 
 public class StateMachineConfigBuilder<S, E>
 		extends
@@ -33,10 +33,10 @@ public class StateMachineConfigBuilder<S, E>
 		StateMachineStateBuilder<?, ?> stateBuilder = getSharedObject(StateMachineStateBuilder.class);
 
 		// build config first as it's shared with transition builder
-		StateMachineConfigurationConfig<S, E> config = (StateMachineConfigurationConfig<S, E>) configurationBuilder.build();
-		transitionBuilder.setSharedObject(StateMachineConfigurationConfig.class, config);
-		StateMachineTransitions<S, E> transitions = (StateMachineTransitions<S, E>) transitionBuilder.build();
-		StateMachineStates<S, E> states = (StateMachineStates<S, E>) stateBuilder.build();
+		ConfigurationData<S, E> config = (ConfigurationData<S, E>) configurationBuilder.build();
+		transitionBuilder.setSharedObject(ConfigurationData.class, config);
+		TransitionsData<S, E> transitions = (TransitionsData<S, E>) transitionBuilder.build();
+		StatesData<S, E> states = (StatesData<S, E>) stateBuilder.build();
 		StateMachineConfig<S, E> bean = new StateMachineConfig<S, E>(config, transitions, states);
 		return bean;
 	}

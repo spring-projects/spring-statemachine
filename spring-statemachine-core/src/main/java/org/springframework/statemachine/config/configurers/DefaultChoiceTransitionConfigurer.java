@@ -22,7 +22,7 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionBu
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerAdapter;
 import org.springframework.statemachine.config.model.ChoiceData;
-import org.springframework.statemachine.config.model.StateMachineTransitions;
+import org.springframework.statemachine.config.model.TransitionsData;
 import org.springframework.statemachine.guard.Guard;
 
 /**
@@ -34,7 +34,7 @@ import org.springframework.statemachine.guard.Guard;
  * @param <E> the type of event
  */
 public class DefaultChoiceTransitionConfigurer<S, E>
-		extends	AnnotationConfigurerAdapter<StateMachineTransitions<S, E>, StateMachineTransitionConfigurer<S, E>, StateMachineTransitionBuilder<S, E>>
+		extends	AnnotationConfigurerAdapter<TransitionsData<S, E>, StateMachineTransitionConfigurer<S, E>, StateMachineTransitionBuilder<S, E>>
 		implements ChoiceTransitionConfigurer<S, E> {
 
 	private S source;

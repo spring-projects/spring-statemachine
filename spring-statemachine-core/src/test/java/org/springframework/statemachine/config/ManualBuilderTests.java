@@ -36,9 +36,9 @@ import org.springframework.statemachine.config.builders.StateMachineConfigBuilde
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.config.model.DefaultStateMachineModel;
-import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
-import org.springframework.statemachine.config.model.StateMachineStates;
-import org.springframework.statemachine.config.model.StateMachineTransitions;
+import org.springframework.statemachine.config.model.ConfigurationData;
+import org.springframework.statemachine.config.model.StatesData;
+import org.springframework.statemachine.config.model.TransitionsData;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
 
@@ -51,9 +51,9 @@ public class ManualBuilderTests {
 		builder.apply(config);
 		StateMachineConfig<String, String> stateMachineConfig = builder.getOrBuild();
 
-		StateMachineTransitions<String, String> stateMachineTransitions = stateMachineConfig.getTransitions();
-		StateMachineStates<String, String> stateMachineStates = stateMachineConfig.getStates();
-		StateMachineConfigurationConfig<String, String> stateMachineConfigurationConfig = stateMachineConfig.getStateMachineConfigurationConfig();
+		TransitionsData<String, String> stateMachineTransitions = stateMachineConfig.getTransitions();
+		StatesData<String, String> stateMachineStates = stateMachineConfig.getStates();
+		ConfigurationData<String, String> stateMachineConfigurationConfig = stateMachineConfig.getStateMachineConfigurationConfig();
 		ObjectStateMachineFactory<String, String> stateMachineFactory = new ObjectStateMachineFactory<String, String>(
 				new DefaultStateMachineModel<String, String>(stateMachineConfigurationConfig, stateMachineStates, stateMachineTransitions));
 

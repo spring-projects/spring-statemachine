@@ -35,7 +35,7 @@ import org.springframework.statemachine.security.SecurityRule;
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public class StateMachineConfigurationConfig<S, E> {
+public class ConfigurationData<S, E> {
 
 	private final BeanFactory beanFactory;
 	private final TaskExecutor taskExecutor;
@@ -68,7 +68,7 @@ public class StateMachineConfigurationConfig<S, E> {
 	 * @param verifierEnabled the verifier enabled flag
 	 * @param verifier the state machine model verifier
 	 */
-	public StateMachineConfigurationConfig(BeanFactory beanFactory, TaskExecutor taskExecutor,
+	public ConfigurationData(BeanFactory beanFactory, TaskExecutor taskExecutor,
 			TaskScheduler taskScheduler, boolean autoStart, StateMachineEnsemble<S, E> ensemble,
 			List<StateMachineListener<S, E>> listeners, boolean securityEnabled,
 			AccessDecisionManager transitionSecurityAccessDecisionManager, AccessDecisionManager eventSecurityAccessDecisionManager,

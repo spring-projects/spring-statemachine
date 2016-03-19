@@ -45,6 +45,16 @@ public class StateData<S, E> {
 	private boolean end = false;
 	private PseudoStateKind pseudoStateKind;
 
+	/**
+	 * Instantiates a new state data.
+	 *
+	 * @param parent the parent
+	 * @param region the region
+	 * @param state the state
+	 * @param deferred the deferred
+	 * @param entryActions the entry actions
+	 * @param exitActions the exit actions
+	 */
 	public StateData(Object parent, Object region, S state, Collection<E> deferred,
 			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions) {
 		this.state = state;
@@ -55,58 +65,128 @@ public class StateData<S, E> {
 		this.region = region;
 	}
 
+	/**
+	 * Gets the state.
+	 *
+	 * @return the state
+	 */
 	public S getState() {
 		return state;
 	}
 
+	/**
+	 * Gets the deferred.
+	 *
+	 * @return the deferred
+	 */
 	public Collection<E> getDeferred() {
 		return deferred;
 	}
 
+	/**
+	 * Sets the deferred.
+	 *
+	 * @param deferred the new deferred
+	 */
 	public void setDeferred(Collection<E> deferred) {
 		this.deferred = deferred;
 	}
 
+	/**
+	 * Gets the entry actions.
+	 *
+	 * @return the entry actions
+	 */
 	public Collection<? extends Action<S, E>> getEntryActions() {
 		return entryActions;
 	}
 
+	/**
+	 * Sets the entry actions.
+	 *
+	 * @param entryActions the entry actions
+	 */
 	public void setEntryActions(Collection<? extends Action<S, E>> entryActions) {
 		this.entryActions = entryActions;
 	}
 
+	/**
+	 * Gets the exit actions.
+	 *
+	 * @return the exit actions
+	 */
 	public Collection<? extends Action<S, E>> getExitActions() {
 		return exitActions;
 	}
 
+	/**
+	 * Sets the exit actions.
+	 *
+	 * @param exitActions the exit actions
+	 */
 	public void setExitActions(Collection<? extends Action<S, E>> exitActions) {
 		this.exitActions = exitActions;
 	}
 
+	/**
+	 * Gets the parent.
+	 *
+	 * @return the parent
+	 */
 	public Object getParent() {
 		return parent;
 	}
 
+	/**
+	 * Sets the parent.
+	 *
+	 * @param parent the new parent
+	 */
 	public void setParent(Object parent) {
 		this.parent = parent;
 	}
 
+	/**
+	 * Gets the region.
+	 *
+	 * @return the region
+	 */
 	public Object getRegion() {
 		return region;
 	}
 
+	/**
+	 * Sets the region.
+	 *
+	 * @param region the new region
+	 */
 	public void setRegion(Object region) {
 		this.region = region;
 	}
 
+	/**
+	 * Checks if is initial.
+	 *
+	 * @return true, if is initial
+	 */
 	public boolean isInitial() {
 		return initial;
 	}
 
+	/**
+	 * Sets the initial.
+	 *
+	 * @param initial the new initial
+	 */
 	public void setInitial(boolean initial) {
 		this.initial = initial;
 	}
 
+	/**
+	 * Sets the initial action.
+	 *
+	 * @param action the action
+	 */
 	public void setInitialAction(Action<S, E> action) {
 		this.initialAction = action;
 	}
@@ -115,18 +195,38 @@ public class StateData<S, E> {
 		return initialAction;
 	}
 
+	/**
+	 * Checks if is end.
+	 *
+	 * @return true, if is end
+	 */
 	public boolean isEnd() {
 		return end;
 	}
 
+	/**
+	 * Sets the end.
+	 *
+	 * @param end the new end
+	 */
 	public void setEnd(boolean end) {
 		this.end = end;
 	}
 
+	/**
+	 * Gets the pseudo state kind.
+	 *
+	 * @return the pseudo state kind
+	 */
 	public PseudoStateKind getPseudoStateKind() {
 		return pseudoStateKind;
 	}
 
+	/**
+	 * Sets the pseudo state kind.
+	 *
+	 * @param pseudoStateKind the new pseudo state kind
+	 */
 	public void setPseudoStateKind(PseudoStateKind pseudoStateKind) {
 		this.pseudoStateKind = pseudoStateKind;
 	}

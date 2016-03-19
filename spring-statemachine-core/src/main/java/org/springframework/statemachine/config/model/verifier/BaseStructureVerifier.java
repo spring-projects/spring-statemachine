@@ -20,7 +20,7 @@ import java.util.Iterator;
 import org.springframework.statemachine.config.model.MalformedConfigurationException;
 import org.springframework.statemachine.config.model.StateData;
 import org.springframework.statemachine.config.model.StateMachineModel;
-import org.springframework.statemachine.config.model.StateMachineStates;
+import org.springframework.statemachine.config.model.StatesData;
 import org.springframework.statemachine.support.tree.Tree;
 import org.springframework.statemachine.support.tree.Tree.Node;
 import org.springframework.statemachine.support.tree.TreeTraverser;
@@ -39,12 +39,12 @@ public class BaseStructureVerifier<S, E> implements StateMachineModelVerifier<S,
 	@Override
 	public void verify(StateMachineModel<S, E> model) {
 		// verify that we have transitions
-		if (model.getTransitions().getTransitions().isEmpty()) {
+		if (model.getTransitionsData().getTransitions().isEmpty()) {
 			MalformedConfigurationException exception = new MalformedConfigurationException("Must have at least one transition");
 			throw exception;
 		}
 		// verify that we have initial state
-		Iterator<Node<StateData<S, E>>> iterator = buildStateDataIterator(model.getStates());
+		Iterator<Node<StateData<S, E>>> iterator = buildStateDataIterator(model.getStatesData());
 		while (iterator.hasNext()) {
 			Node<StateData<S, E>> node = iterator.next();
 			if (node.getData() == null) {
@@ -66,10 +66,10 @@ public class BaseStructureVerifier<S, E> implements StateMachineModelVerifier<S,
 		}
 	}
 
-	private Iterator<Node<StateData<S, E>>> buildStateDataIterator(StateMachineStates<S, E> stateMachineStates) {
+	private Iterator<Node<StateData<S, E>>> buildStateDataIterator(StatesData<S, E> stateMachineStates) {
 		Tree<StateData<S, E>> tree = new Tree<StateData<S, E>>();
 
-		for (StateData<S, E> stateData : stateMachineStates.getStateDatas()) {
+		for (StateData<S, E> stateData : stateMachineStates.getStateData()) {
 			Object id = stateData.getState();
 			Object parent = stateData.getParent();
 			tree.add(stateData, id, parent);

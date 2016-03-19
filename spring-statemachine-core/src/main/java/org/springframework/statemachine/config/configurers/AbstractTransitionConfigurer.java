@@ -22,7 +22,7 @@ import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.builders.StateMachineTransitionBuilder;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerAdapter;
-import org.springframework.statemachine.config.model.StateMachineTransitions;
+import org.springframework.statemachine.config.model.TransitionsData;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.security.SecurityRule.ComparisonType;
@@ -36,7 +36,7 @@ import org.springframework.statemachine.security.SecurityRule.ComparisonType;
  * @param <E> the type of event
  */
 public abstract class AbstractTransitionConfigurer<S, E> extends
-		AnnotationConfigurerAdapter<StateMachineTransitions<S, E>, StateMachineTransitionConfigurer<S, E>, StateMachineTransitionBuilder<S, E>> {
+		AnnotationConfigurerAdapter<TransitionsData<S, E>, StateMachineTransitionConfigurer<S, E>, StateMachineTransitionBuilder<S, E>> {
 
 	private S source;
 	private S target;

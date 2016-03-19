@@ -15,6 +15,8 @@
  */
 package org.springframework.statemachine.config.model;
 
+import org.springframework.util.Assert;
+
 /**
  * Default implementation of a {@link StateMachineModel}.
  *
@@ -25,36 +27,39 @@ package org.springframework.statemachine.config.model;
  */
 public class DefaultStateMachineModel<S, E> extends StateMachineModel<S, E> {
 
-	private final StateMachineConfigurationConfig<S, E> configuration;
-	private final StateMachineStates<S, E> states;
-	private final StateMachineTransitions<S, E> transitions;
+	private final ConfigurationData<S, E> configuration;
+	private final StatesData<S, E> states;
+	private final TransitionsData<S, E> transitions;
 
 	/**
 	 * Instantiates a new default state machine model.
 	 *
-	 * @param configuration the configuration
-	 * @param states the states
-	 * @param transitions the transitions
+	 * @param configurationData the configuration
+	 * @param statesData the states
+	 * @param transitionsData the transitions
 	 */
-	public DefaultStateMachineModel(StateMachineConfigurationConfig<S, E> configuration, StateMachineStates<S, E> states,
-			StateMachineTransitions<S, E> transitions) {
-		this.configuration = configuration;
-		this.states = states;
-		this.transitions = transitions;
+	public DefaultStateMachineModel(ConfigurationData<S, E> configurationData, StatesData<S, E> statesData,
+			TransitionsData<S, E> transitionsData) {
+		Assert.notNull(configurationData, "Configuration must be set");
+		Assert.notNull(statesData, "States must be set");
+		Assert.notNull(transitionsData, "Transitions must be set");
+		this.configuration = configurationData;
+		this.states = statesData;
+		this.transitions = transitionsData;
 	}
 
 	@Override
-	public StateMachineConfigurationConfig<S, E> getConfiguration() {
+	public ConfigurationData<S, E> getConfigurationData() {
 		return configuration;
 	}
 
 	@Override
-	public StateMachineStates<S, E> getStates() {
+	public StatesData<S, E> getStatesData() {
 		return states;
 	}
 
 	@Override
-	public StateMachineTransitions<S, E> getTransitions() {
+	public TransitionsData<S, E> getTransitionsData() {
 		return transitions;
 	}
 }

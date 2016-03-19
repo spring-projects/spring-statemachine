@@ -39,11 +39,9 @@ import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.model.ChoiceData;
 import org.springframework.statemachine.config.model.StateData;
-import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
 import org.springframework.statemachine.config.model.StateMachineModel;
-import org.springframework.statemachine.config.model.StateMachineStates;
-import org.springframework.statemachine.config.model.StateMachineTransitions;
 import org.springframework.statemachine.config.model.TransitionData;
+import org.springframework.statemachine.config.model.TransitionsData;
 import org.springframework.statemachine.config.model.verifier.CompositeStateMachineModelVerifier;
 import org.springframework.statemachine.config.model.verifier.StateMachineModelVerifier;
 import org.springframework.statemachine.ensemble.DistributedStateMachine;
@@ -91,12 +89,6 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 	private final Log log = LogFactory.getLog(AbstractStateMachineFactory.class);
 
-	private final StateMachineTransitions<S, E> stateMachineTransitions;
-
-	private final StateMachineStates<S, E> stateMachineStates;
-
-	private final StateMachineConfigurationConfig<S, E> stateMachineConfigurationConfig;
-
 	private final StateMachineModel<S, E> stateMachineModel;
 
 	private Boolean contextEvents;
@@ -113,9 +105,6 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 	public AbstractStateMachineFactory(StateMachineModel<S, E> stateMachineModel) {
 		Assert.notNull(stateMachineModel, "StateMachineModel must be set");
 		this.stateMachineModel = stateMachineModel;
-		this.stateMachineConfigurationConfig = stateMachineModel.getConfiguration();
-		this.stateMachineTransitions = stateMachineModel.getTransitions();
-		this.stateMachineStates = stateMachineModel.getStates();
 	}
 
 	@Override
@@ -126,8 +115,8 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 	@SuppressWarnings("unchecked")
 	@Override
 	public StateMachine<S, E> getStateMachine() {
-		if (stateMachineConfigurationConfig.isVerifierEnabled()) {
-			StateMachineModelVerifier<S, E> verifier = stateMachineConfigurationConfig.getVerifier();
+		if (stateMachineModel.getConfigurationData().isVerifierEnabled()) {
+			StateMachineModelVerifier<S, E> verifier = stateMachineModel.getConfigurationData().getVerifier();
 			if (verifier == null) {
 				verifier = new CompositeStateMachineModelVerifier<S, E>();
 			}
@@ -183,7 +172,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			if (initialCount > 1) {
 				for (Collection<StateData<S, E>> regionStateDatas : regionsStateDatas) {
 					machine = buildMachine(machineMap, stateMap, regionStateDatas, transitionsData, resolveBeanFactory(),
-							contextEvents, defaultExtendedState, stateMachineTransitions, resolveTaskExecutor(),
+							contextEvents, defaultExtendedState, stateMachineModel.getTransitionsData(), resolveTaskExecutor(),
 							resolveTaskScheduler());
 					regionStack.push(new MachineStackItem<S, E>(machine));
 				}
@@ -210,7 +199,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 				}
 			} else {
 				machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, resolveBeanFactory(),
-						contextEvents, defaultExtendedState, stateMachineTransitions, resolveTaskExecutor(), resolveTaskScheduler());
+						contextEvents, defaultExtendedState, stateMachineModel.getTransitionsData(), resolveTaskExecutor(), resolveTaskScheduler());
 				if (peek.isInitial() || (!peek.isInitial() && !machineMap.containsKey(peek.getParent()))) {
 					machineMap.put(peek.getParent(), machine);
 				}
@@ -221,7 +210,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 		// setup autostart for top-level machine
 		if (machine instanceof LifecycleObjectSupport) {
-			((LifecycleObjectSupport)machine).setAutoStartup(stateMachineConfigurationConfig.isAutoStart());
+			((LifecycleObjectSupport)machine).setAutoStartup(stateMachineModel.getConfigurationData().isAutoStart());
 		}
 
 		// set top-level machine as relay
@@ -235,11 +224,11 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		});
 
 		// TODO: should error out if sec is enabled but spring-security is not in cp
-		if (stateMachineConfigurationConfig.isSecurityEnabled()) {
+		if (stateMachineModel.getConfigurationData().isSecurityEnabled()) {
 			final StateMachineSecurityInterceptor<S, E> securityInterceptor = new StateMachineSecurityInterceptor<S, E>(
-					stateMachineConfigurationConfig.getTransitionSecurityAccessDecisionManager(),
-					stateMachineConfigurationConfig.getEventSecurityAccessDecisionManager(),
-					stateMachineConfigurationConfig.getEventSecurityRule());
+					stateMachineModel.getConfigurationData().getTransitionSecurityAccessDecisionManager(),
+					stateMachineModel.getConfigurationData().getEventSecurityAccessDecisionManager(),
+					stateMachineModel.getConfigurationData().getEventSecurityRule());
 			log.info("Adding security interceptor " + securityInterceptor);
 			fmachine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<S, E>>() {
 
@@ -253,15 +242,15 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		// setup distributed state machine if needed.
 		// we wrap previously build machine with a distributed
 		// state machine and set it to use given ensemble.
-		if (stateMachineConfigurationConfig.getStateMachineEnsemble() != null) {
+		if (stateMachineModel.getConfigurationData().getStateMachineEnsemble() != null) {
 			DistributedStateMachine<S, E> distributedStateMachine = new DistributedStateMachine<S, E>(
-					stateMachineConfigurationConfig.getStateMachineEnsemble(), machine);
-			distributedStateMachine.setAutoStartup(stateMachineConfigurationConfig.isAutoStart());
+					stateMachineModel.getConfigurationData().getStateMachineEnsemble(), machine);
+			distributedStateMachine.setAutoStartup(stateMachineModel.getConfigurationData().isAutoStart());
 			distributedStateMachine.afterPropertiesSet();
 			machine = distributedStateMachine;
 		}
 
-		for (StateMachineListener<S, E> listener : stateMachineConfigurationConfig.getStateMachineListeners()) {
+		for (StateMachineListener<S, E> listener : stateMachineModel.getConfigurationData().getStateMachineListeners()) {
 			machine.addStateListener(listener);
 		}
 
@@ -295,24 +284,24 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 	}
 
 	private BeanFactory resolveBeanFactory() {
-		if (stateMachineConfigurationConfig.getBeanFactory() != null) {
-			return stateMachineConfigurationConfig.getBeanFactory();
+		if (stateMachineModel.getConfigurationData().getBeanFactory() != null) {
+			return stateMachineModel.getConfigurationData().getBeanFactory();
 		} else {
 			return getBeanFactory();
 		}
 	}
 
 	private TaskExecutor resolveTaskExecutor() {
-		if (stateMachineConfigurationConfig.getTaskExecutor() != null) {
-			return stateMachineConfigurationConfig.getTaskExecutor();
+		if (stateMachineModel.getConfigurationData().getTaskExecutor() != null) {
+			return stateMachineModel.getConfigurationData().getTaskExecutor();
 		} else {
 			return getTaskExecutor();
 		}
 	}
 
 	private TaskScheduler resolveTaskScheduler() {
-		if (stateMachineConfigurationConfig.getTaskScheduler() != null) {
-			return stateMachineConfigurationConfig.getTaskScheduler();
+		if (stateMachineModel.getConfigurationData().getTaskScheduler() != null) {
+			return stateMachineModel.getConfigurationData().getTaskScheduler();
 		} else {
 			return getTaskScheduler();
 		}
@@ -343,9 +332,9 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 	private Collection<TransitionData<S, E>> getTransitionData(boolean roots, Collection<StateData<S, E>> stateDatas) {
 		if (roots) {
-			return resolveTransitionData(stateMachineTransitions.getTransitions(), stateDatas);
+			return resolveTransitionData(stateMachineModel.getTransitionsData().getTransitions(), stateDatas);
 		} else {
-			return resolveTransitionData2(stateMachineTransitions.getTransitions());
+			return resolveTransitionData2(stateMachineModel.getTransitionsData().getTransitions());
 		}
 	}
 
@@ -405,7 +394,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			Map<Object, StateMachine<S, E>> machineMap, Map<S, State<S, E>> stateMap,
 			Collection<StateData<S, E>> stateDatas, Collection<TransitionData<S, E>> transitionsData,
 			BeanFactory beanFactory, Boolean contextEvents, DefaultExtendedState defaultExtendedState,
-			StateMachineTransitions<S, E> stateMachineTransitions, TaskExecutor taskExecutor,
+			TransitionsData<S, E> stateMachineTransitions, TaskExecutor taskExecutor,
 			TaskScheduler taskScheduler) {
 		State<S, E> state = null;
 		State<S, E> initialState = null;
@@ -606,7 +595,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 	private Iterator<Node<StateData<S, E>>> buildStateDataIterator() {
 		Tree<StateData<S, E>> tree = new Tree<StateData<S, E>>();
 
-		for (StateData<S, E> stateData : stateMachineStates.getStateDatas()) {
+		for (StateData<S, E> stateData : stateMachineModel.getStatesData().getStateData()) {
 			Object id = stateData.getState();
 			Object parent = stateData.getParent();
 			tree.add(stateData, id, parent);

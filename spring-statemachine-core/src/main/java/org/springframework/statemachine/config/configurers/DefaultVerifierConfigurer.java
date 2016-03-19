@@ -18,7 +18,7 @@ package org.springframework.statemachine.config.configurers;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationBuilder;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerAdapter;
-import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
+import org.springframework.statemachine.config.model.ConfigurationData;
 import org.springframework.statemachine.config.model.verifier.CompositeStateMachineModelVerifier;
 import org.springframework.statemachine.config.model.verifier.StateMachineModelVerifier;
 
@@ -31,7 +31,7 @@ import org.springframework.statemachine.config.model.verifier.StateMachineModelV
  * @param <E> the type of event
  */
 public class DefaultVerifierConfigurer <S, E>
-		extends AnnotationConfigurerAdapter<StateMachineConfigurationConfig<S, E>, StateMachineConfigurationConfigurer<S, E>, StateMachineConfigurationBuilder<S, E>>
+		extends AnnotationConfigurerAdapter<ConfigurationData<S, E>, StateMachineConfigurationConfigurer<S, E>, StateMachineConfigurationBuilder<S, E>>
 		implements VerifierConfigurer<S, E> {
 
 	private boolean enabled = true;

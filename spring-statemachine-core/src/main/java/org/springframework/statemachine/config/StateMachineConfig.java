@@ -15,33 +15,33 @@
  */
 package org.springframework.statemachine.config;
 
-import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
-import org.springframework.statemachine.config.model.StateMachineStates;
-import org.springframework.statemachine.config.model.StateMachineTransitions;
+import org.springframework.statemachine.config.model.ConfigurationData;
+import org.springframework.statemachine.config.model.StatesData;
+import org.springframework.statemachine.config.model.TransitionsData;
 
 public class StateMachineConfig<S, E> {
 
-	public final StateMachineConfigurationConfig<S, E> stateMachineConfigurationConfig;
+	public final ConfigurationData<S, E> stateMachineConfigurationConfig;
 
-	public final StateMachineTransitions<S, E> transitions;
+	public final TransitionsData<S, E> transitions;
 
-	public final StateMachineStates<S, E> states;
+	public final StatesData<S, E> states;
 
-	public StateMachineConfig(StateMachineConfigurationConfig<S, E> stateMachineConfigurationConfig, StateMachineTransitions<S, E> transitions, StateMachineStates<S, E> states) {
+	public StateMachineConfig(ConfigurationData<S, E> stateMachineConfigurationConfig, TransitionsData<S, E> transitions, StatesData<S, E> states) {
 		this.stateMachineConfigurationConfig = stateMachineConfigurationConfig;
 		this.transitions = transitions;
 		this.states = states;
 	}
 
-	public StateMachineConfigurationConfig<S, E> getStateMachineConfigurationConfig() {
+	public ConfigurationData<S, E> getStateMachineConfigurationConfig() {
 		return stateMachineConfigurationConfig;
 	}
 
-	public StateMachineTransitions<S, E> getTransitions() {
+	public TransitionsData<S, E> getTransitions() {
 		return transitions;
 	}
 
-	public StateMachineStates<S, E> getStates() {
+	public StatesData<S, E> getStates() {
 		return states;
 	}
 

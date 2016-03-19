@@ -28,7 +28,7 @@ import org.springframework.statemachine.config.builders.StateMachineStateBuilder
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerAdapter;
 import org.springframework.statemachine.config.model.StateData;
-import org.springframework.statemachine.config.model.StateMachineStates;
+import org.springframework.statemachine.config.model.StatesData;
 import org.springframework.statemachine.state.PseudoStateKind;
 
 /**
@@ -40,7 +40,7 @@ import org.springframework.statemachine.state.PseudoStateKind;
  * @param <E> the type of event
  */
 public class DefaultStateConfigurer<S, E>
-		extends AnnotationConfigurerAdapter<StateMachineStates<S, E>, StateMachineStateConfigurer<S, E>, StateMachineStateBuilder<S, E>>
+		extends AnnotationConfigurerAdapter<StatesData<S, E>, StateMachineStateConfigurer<S, E>, StateMachineStateBuilder<S, E>>
 		implements StateConfigurer<S, E> {
 
 	private Object parent;

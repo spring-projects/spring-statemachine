@@ -26,23 +26,23 @@ package org.springframework.statemachine.config.model;
 public abstract class StateMachineModel<S, E> {
 
 	/**
-	 * Gets the configuration config.
+	 * Gets the configuration config data.
 	 *
-	 * @return the configuration config
+	 * @return the configuration config data
 	 */
-	public abstract StateMachineConfigurationConfig<S, E> getConfiguration();
+	public abstract ConfigurationData<S, E> getConfigurationData();
 
 	/**
-	 * Gets the states config.
+	 * Gets the states config data.
 	 *
-	 * @return the states config
+	 * @return the states config data
 	 */
-	public abstract StateMachineStates<S, E> getStates();
+	public abstract StatesData<S, E> getStatesData();
 
 	/**
-	 * Gets the transitions config.
+	 * Gets the transitions config data.
 	 *
-	 * @return the transitions config
+	 * @return the transitions config data
 	 */
-	public abstract StateMachineTransitions<S, E> getTransitions();
+	public abstract TransitionsData<S, E> getTransitionsData();
 }

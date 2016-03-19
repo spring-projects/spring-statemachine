@@ -33,15 +33,15 @@ import org.springframework.statemachine.config.configurers.DefaultVerifierConfig
 import org.springframework.statemachine.config.configurers.DistributedStateMachineConfigurer;
 import org.springframework.statemachine.config.configurers.SecurityConfigurer;
 import org.springframework.statemachine.config.configurers.VerifierConfigurer;
-import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
-import org.springframework.statemachine.config.model.StateMachineStates;
+import org.springframework.statemachine.config.model.ConfigurationData;
+import org.springframework.statemachine.config.model.StatesData;
 import org.springframework.statemachine.config.model.verifier.StateMachineModelVerifier;
 import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.security.SecurityRule;
 
 /**
- * {@link AnnotationBuilder} for {@link StateMachineStates}.
+ * {@link AnnotationBuilder} for {@link StatesData}.
  *
  * @author Janne Valkealahti
  *
@@ -49,7 +49,7 @@ import org.springframework.statemachine.security.SecurityRule;
  * @param <E> the type of event
  */
 public class StateMachineConfigurationBuilder<S, E>
-		extends AbstractConfiguredAnnotationBuilder<StateMachineConfigurationConfig<S, E>, StateMachineConfigurationConfigurer<S, E>, StateMachineConfigurationBuilder<S, E>>
+		extends AbstractConfiguredAnnotationBuilder<ConfigurationData<S, E>, StateMachineConfigurationConfigurer<S, E>, StateMachineConfigurationBuilder<S, E>>
 		implements StateMachineConfigurationConfigurer<S, E> {
 
 	private BeanFactory beanFactory;
@@ -114,8 +114,8 @@ public class StateMachineConfigurationBuilder<S, E>
 	}
 
 	@Override
-	protected StateMachineConfigurationConfig<S, E> performBuild() throws Exception {
-		return new StateMachineConfigurationConfig<S, E>(beanFactory, taskExecutor, taskScheculer, autoStart, ensemble, listeners,
+	protected ConfigurationData<S, E> performBuild() throws Exception {
+		return new ConfigurationData<S, E>(beanFactory, taskExecutor, taskScheculer, autoStart, ensemble, listeners,
 				securityEnabled, transitionSecurityAccessDecisionManager, eventSecurityAccessDecisionManager, eventSecurityRule,
 				transitionSecurityRule, verifierEnabled, verifier);
 	}

@@ -27,16 +27,26 @@ import org.springframework.statemachine.config.configurers.StateConfigurer;
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public class StateMachineStates<S, E> {
+public class StatesData<S, E> {
 
-	private final Collection<StateData<S, E>> stateDatas;
+	private final Collection<StateData<S, E>> stateData;
 
-	public StateMachineStates(Collection<StateData<S, E>> stateDatas) {
-		this.stateDatas = stateDatas;
+	/**
+	 * Instantiates a new states data.
+	 *
+	 * @param stateData the state data
+	 */
+	public StatesData(Collection<StateData<S, E>> stateData) {
+		this.stateData = stateData;
 	}
 
-	public Collection<StateData<S, E>> getStateDatas() {
-		return stateDatas;
+	/**
+	 * Gets the state data.
+	 *
+	 * @return the state data
+	 */
+	public Collection<StateData<S, E>> getStateData() {
+		return stateData;
 	}
 
 }

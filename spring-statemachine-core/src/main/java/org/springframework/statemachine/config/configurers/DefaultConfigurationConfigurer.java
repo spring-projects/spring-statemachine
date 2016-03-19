@@ -24,7 +24,7 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationBuilder;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerAdapter;
-import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
+import org.springframework.statemachine.config.model.ConfigurationData;
 import org.springframework.statemachine.listener.StateMachineListener;
 
 /**
@@ -36,7 +36,7 @@ import org.springframework.statemachine.listener.StateMachineListener;
  * @param <E> the type of event
  */
 public class DefaultConfigurationConfigurer<S, E>
-		extends AnnotationConfigurerAdapter<StateMachineConfigurationConfig<S, E>, StateMachineConfigurationConfigurer<S, E>, StateMachineConfigurationBuilder<S, E>>
+		extends AnnotationConfigurerAdapter<ConfigurationData<S, E>, StateMachineConfigurationConfigurer<S, E>, StateMachineConfigurationBuilder<S, E>>
 		implements ConfigurationConfigurer<S, E> {
 
 	private BeanFactory beanFactory;

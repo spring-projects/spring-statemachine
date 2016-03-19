@@ -18,7 +18,7 @@ package org.springframework.statemachine.config.configurers;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationBuilder;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerAdapter;
-import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
+import org.springframework.statemachine.config.model.ConfigurationData;
 import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 
 /**
@@ -30,7 +30,7 @@ import org.springframework.statemachine.ensemble.StateMachineEnsemble;
  * @param <E> the type of event
  */
 public class DefaultDistributedStateMachineConfigurer<S, E>
-		extends AnnotationConfigurerAdapter<StateMachineConfigurationConfig<S, E>, StateMachineConfigurationConfigurer<S, E>, StateMachineConfigurationBuilder<S, E>>
+		extends AnnotationConfigurerAdapter<ConfigurationData<S, E>, StateMachineConfigurationConfigurer<S, E>, StateMachineConfigurationBuilder<S, E>>
 		implements DistributedStateMachineConfigurer<S, E> {
 
 	private StateMachineEnsemble<S, E> ensemble;

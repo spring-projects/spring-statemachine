@@ -39,9 +39,9 @@ import org.springframework.statemachine.config.builders.StateMachineConfigurer;
 import org.springframework.statemachine.config.common.annotation.AbstractImportingAnnotationConfiguration;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurer;
 import org.springframework.statemachine.config.model.DefaultStateMachineModel;
-import org.springframework.statemachine.config.model.StateMachineConfigurationConfig;
-import org.springframework.statemachine.config.model.StateMachineStates;
-import org.springframework.statemachine.config.model.StateMachineTransitions;
+import org.springframework.statemachine.config.model.ConfigurationData;
+import org.springframework.statemachine.config.model.StatesData;
+import org.springframework.statemachine.config.model.TransitionsData;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
@@ -142,9 +142,9 @@ public class StateMachineConfiguration<S, E> extends
 				}
 			}
 			StateMachineConfig<S, E> stateMachineConfig = getBuilder().getOrBuild();
-			StateMachineTransitions<S, E> stateMachineTransitions = stateMachineConfig.getTransitions();
-			StateMachineStates<S, E> stateMachineStates = stateMachineConfig.getStates();
-			StateMachineConfigurationConfig<S, E> stateMachineConfigurationConfig = stateMachineConfig.getStateMachineConfigurationConfig();
+			TransitionsData<S, E> stateMachineTransitions = stateMachineConfig.getTransitions();
+			StatesData<S, E> stateMachineStates = stateMachineConfig.getStates();
+			ConfigurationData<S, E> stateMachineConfigurationConfig = stateMachineConfig.getStateMachineConfigurationConfig();
 			ObjectStateMachineFactory<S, E> stateMachineFactory = new ObjectStateMachineFactory<S, E>(
 					new DefaultStateMachineModel<S, E>(stateMachineConfigurationConfig, stateMachineStates, stateMachineTransitions));
 			stateMachineFactory.setBeanFactory(getBeanFactory());

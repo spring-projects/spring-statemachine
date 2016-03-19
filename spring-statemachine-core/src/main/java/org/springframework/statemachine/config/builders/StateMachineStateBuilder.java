@@ -24,10 +24,10 @@ import org.springframework.statemachine.config.common.annotation.ObjectPostProce
 import org.springframework.statemachine.config.configurers.DefaultStateConfigurer;
 import org.springframework.statemachine.config.configurers.StateConfigurer;
 import org.springframework.statemachine.config.model.StateData;
-import org.springframework.statemachine.config.model.StateMachineStates;
+import org.springframework.statemachine.config.model.StatesData;
 
 /**
- * {@link AnnotationBuilder} for {@link StateMachineStates}.
+ * {@link AnnotationBuilder} for {@link StatesData}.
  *
  * @author Janne Valkealahti
  *
@@ -35,7 +35,7 @@ import org.springframework.statemachine.config.model.StateMachineStates;
  * @param <E> the type of event
  */
 public class StateMachineStateBuilder<S, E>
-		extends AbstractConfiguredAnnotationBuilder<StateMachineStates<S, E>, StateMachineStateConfigurer<S, E>, StateMachineStateBuilder<S, E>>
+		extends AbstractConfiguredAnnotationBuilder<StatesData<S, E>, StateMachineStateConfigurer<S, E>, StateMachineStateBuilder<S, E>>
 		implements StateMachineStateConfigurer<S, E> {
 
 	private final Collection<StateData<S, E>> stateDatas = new ArrayList<StateData<S,E>>();
@@ -54,8 +54,8 @@ public class StateMachineStateBuilder<S, E>
 	}
 
 	@Override
-	protected StateMachineStates<S, E> performBuild() throws Exception {
-		return new StateMachineStates<S, E>(stateDatas);
+	protected StatesData<S, E> performBuild() throws Exception {
+		return new StatesData<S, E>(stateDatas);
 	}
 
 	@Override
