@@ -4,6 +4,21 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 1.1.0.M2 (2016-03-21)
+----------------------------------------
+* Better config error handling [#103]
+* Support testing intermediate state changes [#154]
+* Listener error should not cause malfunction [#164]
+* Timer interval reset for states [#165]
+* Make config data classes as a public api [#172]
+* Use kryo shaded [#175]
+* StateMachineBuilder TimerTrigger NullPointerException [#178]
+* Support @WithStateMachine as meta annotation [#179]
+* Error Handling does not work when using annotations [#180]
+* Support history state with persist [#182]
+* Ease persisting a state machine [#184]
+* Update docs for 1.1.0.M2 [#185]
+
 Changes in version 1.1.0.M1 (2016-02-01)
 ----------------------------------------
 * Support persisting into redis [#110]
