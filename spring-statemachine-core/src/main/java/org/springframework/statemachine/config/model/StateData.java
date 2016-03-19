@@ -48,6 +48,25 @@ public class StateData<S, E> {
 	/**
 	 * Instantiates a new state data.
 	 *
+	 * @param state the state
+	 */
+	public StateData(S state) {
+		this(state, false);
+	}
+
+	/**
+	 * Instantiates a new state data.
+	 *
+	 * @param state the state
+	 * @param initial the initial
+	 */
+	public StateData(S state, boolean initial) {
+		this(null, null, state, null, null, null, initial);
+	}
+
+	/**
+	 * Instantiates a new state data.
+	 *
 	 * @param parent the parent
 	 * @param region the region
 	 * @param state the state
@@ -57,12 +76,29 @@ public class StateData<S, E> {
 	 */
 	public StateData(Object parent, Object region, S state, Collection<E> deferred,
 			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions) {
+		this(parent, region, state, deferred, entryActions, exitActions, false);
+	}
+
+	/**
+	 * Instantiates a new state data.
+	 *
+	 * @param parent the parent
+	 * @param region the region
+	 * @param state the state
+	 * @param deferred the deferred
+	 * @param entryActions the entry actions
+	 * @param exitActions the exit actions
+	 * @param initial the initial
+	 */
+	public StateData(Object parent, Object region, S state, Collection<E> deferred,
+			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions, boolean initial) {
 		this.state = state;
 		this.deferred = deferred;
 		this.entryActions = entryActions;
 		this.exitActions = exitActions;
 		this.parent = parent;
 		this.region = region;
+		this.initial = initial;
 	}
 
 	/**

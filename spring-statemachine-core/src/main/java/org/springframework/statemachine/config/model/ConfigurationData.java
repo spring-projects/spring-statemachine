@@ -15,13 +15,17 @@
  */
 package org.springframework.statemachine.config.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationBuilder;
+import org.springframework.statemachine.config.model.verifier.DefaultStateMachineModelVerifier;
 import org.springframework.statemachine.config.model.verifier.StateMachineModelVerifier;
 import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 import org.springframework.statemachine.listener.StateMachineListener;
@@ -52,7 +56,15 @@ public class ConfigurationData<S, E> {
 	private final SecurityRule transitionSecurityRule;
 
 	/**
-	 * Instantiates a new state machine configuration config.
+	 * Instantiates a new state machine configuration config data.
+	 */
+	public ConfigurationData() {
+		this(null, new SyncTaskExecutor(), new ConcurrentTaskScheduler(), false, null, new ArrayList<StateMachineListener<S, E>>(), false,
+				null, null, null, null, true, new DefaultStateMachineModelVerifier<S, E>());
+	}
+
+	/**
+	 * Instantiates a new state machine configuration config data.
 	 *
 	 * @param beanFactory the bean factory
 	 * @param taskExecutor the task executor

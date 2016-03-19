@@ -330,6 +330,22 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippetYB]
 
 More about distributed states, refer to section <<sm-distributed>>.
 
+`StateMachineModelVerifier` is an interface what is used internally to
+do some sanity checks for a state machine structure. Its purpose is to
+fail fast early instead of letting common configuration errors into a
+state machine itself. On default verifier is automatically enabled and
+`DefaultStateMachineModelVerifier` implementation is used.
+
+With `withVerifier()` user can disable verifier or set a custom one if
+needed.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetYC]
+----
+
+More about config model, refer to section <<devdocs-configmodel>>.
+
 [[sm-factories]]
 == State Machine Factories
 There are use cases when state machine needs to be created dynamically

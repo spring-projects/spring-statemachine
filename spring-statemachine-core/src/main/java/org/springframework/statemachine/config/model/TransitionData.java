@@ -45,6 +45,17 @@ public class TransitionData<S, E> {
 	 *
 	 * @param source the source
 	 * @param target the target
+	 * @param event the event
+	 */
+	public TransitionData(S source, S target, E event) {
+		this(source, target, null, event, null, null, null, null, TransitionKind.EXTERNAL, null);
+	}
+
+	/**
+	 * Instantiates a new transition data.
+	 *
+	 * @param source the source
+	 * @param target the target
 	 * @param state the state
 	 * @param event the event
 	 * @param period the period

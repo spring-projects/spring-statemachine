@@ -626,3 +626,24 @@ What's happening in above chart:
 * At a same time we request states from all machines and plot it.
 * Finally we do a simple transition back to `S21` from `S211` to make
   sure that all state machines are still functioning properly.
+
+[[devdocs]]
+== Developer Documentation
+This appendix provides generic information for a developers who may
+want to contribute or other people who want to understand how state
+machine works or what are its internal concepts.
+
+[[devdocs-configmodel]]
+=== StateMachine Config Model
+`StateMachineModel` and other related SPI classes are an abstraction
+between various configuration and factory classes. This also allows
+easier integation for others to build state machines.
+
+As shown above a state machine can be instantiated by building a model
+using configuration data classes and then asking a factory to build a
+state machine.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests6.java[tags=snippetA]
+----

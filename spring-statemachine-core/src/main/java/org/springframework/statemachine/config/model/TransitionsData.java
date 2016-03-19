@@ -35,16 +35,25 @@ public class TransitionsData<S, E> {
 	private final Map<S, List<S>> joins;
 
 	/**
+	 * Instantiates a new transitions data.
+	 *
+	 * @param transitionsData the transitions data
+	 */
+	public TransitionsData(Collection<TransitionData<S, E>> transitionsData) {
+		this(transitionsData, null, null, null);
+	}
+
+	/**
 	 * Instantiates a new state machine transitions.
 	 *
-	 * @param transitions the transitions
+	 * @param transitionsData the transitions data
 	 * @param choices the choices
 	 * @param forks the forks
 	 * @param joins the joins
 	 */
-	public TransitionsData(Collection<TransitionData<S, E>> transitions,
+	public TransitionsData(Collection<TransitionData<S, E>> transitionsData,
 			Map<S, List<ChoiceData<S, E>>> choices, Map<S, List<S>> forks, Map<S, List<S>> joins) {
-		this.transitions = transitions;
+		this.transitions = transitionsData;
 		this.choices = choices;
 		this.forks = forks;
 		this.joins = joins;

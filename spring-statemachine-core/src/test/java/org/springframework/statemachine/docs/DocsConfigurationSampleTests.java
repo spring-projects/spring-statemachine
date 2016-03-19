@@ -49,6 +49,8 @@ import org.springframework.statemachine.config.builders.StateMachineConfiguratio
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.StateConfigurer.History;
+import org.springframework.statemachine.config.model.StateMachineModel;
+import org.springframework.statemachine.config.model.verifier.StateMachineModelVerifier;
 import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 import org.springframework.statemachine.event.OnExtendedStateChanged;
 import org.springframework.statemachine.event.OnStateMachineError;
@@ -814,7 +816,6 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 						.taskScheduler(new ConcurrentTaskScheduler())
 						.listener(new StateMachineListenerAdapter<States, Events>());
 			}
-
 		}
 // end::snippetYA[]
 
@@ -838,9 +839,36 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 				// naturally not null but should return ensemble instance
 				return null;
 			}
-
 		}
 // end::snippetYB[]
+
+// tag::snippetYC[]
+		@Configuration
+		@EnableStateMachine
+		public class Config19
+				extends EnumStateMachineConfigurerAdapter<States, Events> {
+
+			@Override
+			public void configure(StateMachineConfigurationConfigurer<States, Events> config)
+					throws Exception {
+				config
+					.withVerifier()
+						.enabled(true)
+						.verifier(verifier());
+			}
+
+			@Bean
+			public StateMachineModelVerifier<States, Events> verifier() {
+				return new StateMachineModelVerifier<States, Events>() {
+
+					@Override
+					public void verify(StateMachineModel<States, Events> model) {
+						// throw exception indicating malformed model
+					}
+				};
+			}
+		}
+// end::snippetYC[]
 
 		public class AccessorSamples {
 
