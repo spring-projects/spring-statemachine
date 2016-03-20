@@ -44,7 +44,7 @@ http://www.oracle.com/technetwork/java/javase/downloads[JDK8 build].
 
 Be sure that your `JAVA_HOME` environment variable points to the
 `jdk` folder extracted from the JDK download. While build requires
-`JDK8`, created artifacts are with `JDK7` compatible.
+`JDK8`, created artifacts are `JDK7` compatible.
 
 === Check out sources
 [indent=0]
