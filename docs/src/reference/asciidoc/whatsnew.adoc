@@ -11,6 +11,11 @@ interoperability with web applications.
 * `StateContext` is now a first class citizen with how user can
   interact with a State Machine, <<sm-statecontext>>.
 * Features around persistence has been enhanced with a build-in
-  support for redis, <<sm-persist-redis>>
+  support for redis, <<sm-persist-redis>>.
+* New feature helping with persist operations,
+  <<sm-persist-statemachinepersister>>.
+* Configuration model classes are now a public API.
+* New features in timer based events.
+* Configuration model verifier.
 * New samples, <<statemachine-examples-security>>, <<statemachine-examples-eventservice>>
 
