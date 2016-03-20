@@ -19,6 +19,7 @@ Changes in version 1.1.0.M2 (2016-03-21)
 * Support history state with persist [#182]
 * Ease persisting a state machine [#184]
 * Update docs for 1.1.0.M2 [#185]
+* ZookeeperStateMachineEnsemble may fail to join [#187]
 
 Changes in version 1.1.0.M1 (2016-02-01)
 ----------------------------------------
