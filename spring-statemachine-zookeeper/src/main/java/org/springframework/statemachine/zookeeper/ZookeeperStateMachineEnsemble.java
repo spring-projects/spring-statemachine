@@ -134,6 +134,11 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 			}
 		}
 		curatorClient.getConnectionStateListenable().addListener(connectionListener);
+		if (curatorClient.getState() == CuratorFrameworkState.STARTED) {
+			handleZkConnect();
+		} else {
+			curatorClient.start();
+		}
 	}
 
 	@Override

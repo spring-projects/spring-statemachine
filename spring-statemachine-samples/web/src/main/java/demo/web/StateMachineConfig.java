@@ -197,11 +197,11 @@ public class StateMachineConfig {
 	}
 
 	public enum States {
-	    S0, S1, S11, S12, S2, S21, S211, S212
+		S0, S1, S11, S12, S2, S21, S211, S212
 	}
 
 	public enum Events {
-	    A, B, C, D, E, F, G, H, I, J, K
+		A, B, C, D, E, F, G, H, I, J, K
 	}
 
 	private static class FooAction implements Action<States, Events> {
