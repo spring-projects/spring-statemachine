@@ -55,13 +55,6 @@ configure(allprojects) {
 	test {
 		exclude '**/*IntegrationTests.*'
 	}
-    
-	// servlet-api (2.5) and tomcat-servlet-api (3.0) classpath entries should not be
-	// exported to dependent projects in Eclipse to avoid false compilation errors due
-	// to changing APIs across these versions
-//	eclipse.classpath.file.whenMerged { classpath ->
-//		classpath.entries.findAll { entry -> entry.path.contains('servlet-api') }*.exported = false
-//	}
 }
 
 configure(subprojects) { subproject ->
@@ -226,7 +219,6 @@ configure(sampleProjects()) {
 	configurations.archives.artifacts.removeAll { it.archiveTask.is jar }
 	tasks.findByPath("artifactoryPublish")?.enabled = false
 	dependencies {
-//		compile project(":spring-statemachine-samples-common")
 		compile project(":spring-statemachine-core")
 		compile "org.springframework:spring-context-support:$springVersion"
 		testCompile "org.springframework:spring-test:$springVersion"
