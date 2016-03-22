@@ -509,45 +509,15 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		}
 		S state = stateMachineContext.getState();
 		boolean stateSet = false;
+		// handle state reset
 		for (State<S, E> s : getStates()) {
 			for (State<S, E> ss : s.getStates()) {
 				if (state != null && ss.getIds().contains(state)) {
 					currentState = s;
-
-					// setting history for 'this' machine
-					if (history != null && stateMachineContext.getHistoryStates() != null) {
-						State<S, E> h = null;
-						for (State<S, E> hh : getStates()) {
-							if (hh.getId().equals(stateMachineContext.getHistoryStates().get(null))) {
-								h = hh;
-								break;
-							}
-						}
-						if (h != null) {
-							((HistoryPseudoState<S, E>)history).setState(h);
-						}
-					}
-
 					// TODO: not sure about starting submachine/regions here, though
 					//       needed if we only transit to super state or reset regions
 					if (s.isSubmachineState()) {
 						StateMachine<S, E> submachine = ((AbstractState<S, E>)s).getSubmachine();
-
-						// setting history for submachine state machine
-						PseudoState<S, E> submachineHistory = ((AbstractStateMachine<S, E>)submachine).getHistoryState();
-						if (submachineHistory != null) {
-							State<S, E> h = null;
-							for (State<S, E> hh : submachine.getStates()) {
-								if (hh.getId().equals(stateMachineContext.getHistoryStates().get(s.getId()))) {
-									h = hh;
-									break;
-								}
-							}
-							if (h != null) {
-								((HistoryPseudoState<S, E>)submachineHistory).setState(h);
-							}
-						}
-
 						for (final StateMachineContext<S, E> child : stateMachineContext.getChilds()) {
 							submachine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S,E>>() {
 
@@ -604,6 +574,41 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			}
 			if (stateSet) {
 				break;
+			}
+		}
+
+		// handle history reset here as above state reset loop breaks out
+		if (history != null && stateMachineContext.getHistoryStates() != null) {
+			// setting history for 'this' machine
+			State<S, E> h = null;
+			for (State<S, E> hh : getStates()) {
+				if (hh.getId().equals(stateMachineContext.getHistoryStates().get(null))) {
+					h = hh;
+					break;
+				}
+			}
+			if (h != null) {
+				((HistoryPseudoState<S, E>) history).setState(h);
+			}
+		}
+		for (State<S, E> s : getStates()) {
+			// setting history for 'submachines'
+			if (s.isSubmachineState()) {
+				StateMachine<S, E> submachine = ((AbstractState<S, E>) s).getSubmachine();
+				PseudoState<S, E> submachineHistory = ((AbstractStateMachine<S, E>) submachine).getHistoryState();
+				if (submachineHistory != null) {
+					State<S, E> h = null;
+					for (State<S, E> hh : submachine.getStates()) {
+						if (hh.getId().equals(stateMachineContext.getHistoryStates().get(s.getId()))) {
+							h = hh;
+							break;
+						}
+					}
+					if (h != null) {
+						((HistoryPseudoState<S, E>) submachineHistory).setState(h);
+					}
+				}
+
 			}
 		}
 		if (stateSet && stateMachineContext.getExtendedState() != null) {
