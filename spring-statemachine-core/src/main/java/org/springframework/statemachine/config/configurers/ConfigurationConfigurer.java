@@ -33,6 +33,8 @@ import org.springframework.statemachine.listener.StateMachineListener;
 public interface ConfigurationConfigurer<S, E> extends
 		AnnotationConfigurerBuilder<StateMachineConfigurationConfigurer<S, E>> {
 
+	ConfigurationConfigurer<S, E> machineId(String id);
+
 	/**
 	 * Specify a {@link BeanFactory}.
 	 *

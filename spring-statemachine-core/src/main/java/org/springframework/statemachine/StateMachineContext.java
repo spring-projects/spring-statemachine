@@ -29,6 +29,13 @@ import java.util.Map;
 public interface StateMachineContext<S, E> {
 
 	/**
+	 * Gets the machine id.
+	 *
+	 * @return the machine id
+	 */
+	String getId();
+
+	/**
 	 * Gets the child contexts if any.
 	 *
 	 * @return the child contexts

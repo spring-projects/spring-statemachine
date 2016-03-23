@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.springframework.statemachine.ensemble;
 
 import java.util.Collection;
+import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -105,7 +106,7 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 		// adding state machine id to the message so that
 		// listeners can know from where a state change originates
 		return delegate.sendEvent(MessageBuilder.fromMessage(event)
-				.setHeader(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER, delegate.getId()).build());
+				.setHeader(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER, delegate.getUuid()).build());
 	}
 
 	@Override
@@ -169,6 +170,11 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 	}
 
 	@Override
+	public UUID getUuid() {
+		return delegate.getUuid();
+	}
+
+	@Override
 	public String getId() {
 		return delegate.getId();
 	}
@@ -198,7 +204,7 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 			}
 			// only handle if state change originates from this dist machine
 			if (message != null
-					&& ObjectUtils.nullSafeEquals(delegate.getId(),
+					&& ObjectUtils.nullSafeEquals(delegate.getUuid(),
 							message.getHeaders().get(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER))) {
 				ensemble.setState(new DefaultStateMachineContext<S, E>(transition.getTarget().getId(), message
 						.getPayload(), message.getHeaders(), stateMachine.getExtendedState()));
@@ -220,7 +226,7 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 			// only handle if state change originates from this dist machine
 			if (stateContext.getTransition() != null
 					&& stateContext.getTransition().getKind() == TransitionKind.INTERNAL
-					&& ObjectUtils.nullSafeEquals(delegate.getId(),
+					&& ObjectUtils.nullSafeEquals(delegate.getUuid(),
 							stateContext.getMessageHeader(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER))) {
 				StateMachineContext<S, E> current = ensemble.getState();
 				if (current != null) {
@@ -276,7 +282,7 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 					});
 				}
 				log.info("Requesting to start delegating state machine " + delegate);
-				log.info("Delegating machine id " + delegate.getId());
+				log.info("Delegating machine id " + delegate.getUuid());
 				delegate.start();
 			}
 		}
@@ -292,7 +298,7 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 		@Override
 		public void stateChanged(StateMachineContext<S, E> context) {
 			// do not pass if state change was originated from this dist machine
-			if (!ObjectUtils.nullSafeEquals(delegate.getId(),
+			if (!ObjectUtils.nullSafeEquals(delegate.getUuid(),
 					context.getEventHeaders().get(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER))) {
 				delegate.sendEvent(MessageBuilder.withPayload(context.getEvent())
 						.copyHeaders(context.getEventHeaders()).build());

@@ -52,6 +52,7 @@ public class StateMachineConfigurationBuilder<S, E>
 		extends AbstractConfiguredAnnotationBuilder<ConfigurationData<S, E>, StateMachineConfigurationConfigurer<S, E>, StateMachineConfigurationBuilder<S, E>>
 		implements StateMachineConfigurationConfigurer<S, E> {
 
+	private String machineId;
 	private BeanFactory beanFactory;
 	private TaskExecutor taskExecutor;
 	private TaskScheduler taskScheculer;
@@ -117,7 +118,16 @@ public class StateMachineConfigurationBuilder<S, E>
 	protected ConfigurationData<S, E> performBuild() throws Exception {
 		return new ConfigurationData<S, E>(beanFactory, taskExecutor, taskScheculer, autoStart, ensemble, listeners,
 				securityEnabled, transitionSecurityAccessDecisionManager, eventSecurityAccessDecisionManager, eventSecurityRule,
-				transitionSecurityRule, verifierEnabled, verifier);
+				transitionSecurityRule, verifierEnabled, verifier, machineId);
+	}
+
+	/**
+	 * Sets the machine id.
+	 *
+	 * @param machineId the new machine id
+	 */
+	public void setMachineId(String machineId) {
+		this.machineId = machineId;
 	}
 
 	/**

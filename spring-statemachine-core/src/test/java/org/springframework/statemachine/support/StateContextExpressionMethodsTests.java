@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.junit.Test;
 import org.springframework.expression.ExpressionParser;
@@ -206,6 +207,11 @@ public class StateContextExpressionMethodsTests {
 
 		@Override
 		public ExtendedState getExtendedState() {
+			return null;
+		}
+
+		@Override
+		public UUID getUuid() {
 			return null;
 		}
 

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -753,6 +754,11 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 
 		@Override
 		public ExtendedState getExtendedState() {
+			return null;
+		}
+
+		@Override
+		public UUID getUuid() {
 			return null;
 		}
 

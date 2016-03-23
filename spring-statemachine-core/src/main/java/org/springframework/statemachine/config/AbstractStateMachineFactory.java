@@ -112,9 +112,14 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		this.beanName = name;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public StateMachine<S, E> getStateMachine() {
+		return getStateMachine(null);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public StateMachine<S, E> getStateMachine(String machineId) {
 		if (stateMachineModel.getConfigurationData().isVerifierEnabled()) {
 			StateMachineModelVerifier<S, E> verifier = stateMachineModel.getConfigurationData().getVerifier();
 			if (verifier == null) {
@@ -173,7 +178,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 				for (Collection<StateData<S, E>> regionStateDatas : regionsStateDatas) {
 					machine = buildMachine(machineMap, stateMap, regionStateDatas, transitionsData, resolveBeanFactory(),
 							contextEvents, defaultExtendedState, stateMachineModel.getTransitionsData(), resolveTaskExecutor(),
-							resolveTaskScheduler());
+							resolveTaskScheduler(), machineId);
 					regionStack.push(new MachineStackItem<S, E>(machine));
 				}
 
@@ -192,14 +197,16 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 					Collection<State<S, E>> states = new ArrayList<State<S, E>>();
 					states.add(rstate);
 					Transition<S, E> initialTransition = new InitialTransition<S, E>(rstate);
-					StateMachine<S, E> m = buildStateMachineInternal(states, new ArrayList<Transition<S, E>>(), rstate,
-							initialTransition, null, defaultExtendedState, null, contextEvents, resolveBeanFactory(),
-							resolveTaskExecutor(), resolveTaskScheduler(), beanName);
+					StateMachine<S, E> m = buildStateMachineInternal(states, new ArrayList<Transition<S, E>>(), rstate, initialTransition,
+							null, defaultExtendedState, null, contextEvents, resolveBeanFactory(), resolveTaskExecutor(),
+							resolveTaskScheduler(), beanName,
+							machineId != null ? machineId : stateMachineModel.getConfigurationData().getMachineId());
 					machine = m;
 				}
 			} else {
-				machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, resolveBeanFactory(),
-						contextEvents, defaultExtendedState, stateMachineModel.getTransitionsData(), resolveTaskExecutor(), resolveTaskScheduler());
+				machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, resolveBeanFactory(), contextEvents,
+						defaultExtendedState, stateMachineModel.getTransitionsData(), resolveTaskExecutor(), resolveTaskScheduler(),
+						machineId);
 				if (peek.isInitial() || (!peek.isInitial() && !machineMap.containsKey(peek.getParent()))) {
 					machineMap.put(peek.getParent(), machine);
 				}
@@ -395,7 +402,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			Collection<StateData<S, E>> stateDatas, Collection<TransitionData<S, E>> transitionsData,
 			BeanFactory beanFactory, Boolean contextEvents, DefaultExtendedState defaultExtendedState,
 			TransitionsData<S, E> stateMachineTransitions, TaskExecutor taskExecutor,
-			TaskScheduler taskScheduler) {
+			TaskScheduler taskScheduler, String machineId) {
 		State<S, E> state = null;
 		State<S, E> initialState = null;
 		PseudoState<S, E> historyState = null;
@@ -579,7 +586,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		Transition<S, E> initialTransition = new InitialTransition<S, E>(initialState, initialAction);
 		StateMachine<S, E> machine = buildStateMachineInternal(states, transitions, initialState, initialTransition,
 				null, defaultExtendedState, historyState, contextEvents, beanFactory, taskExecutor, taskScheduler,
-				beanName);
+				beanName, machineId != null ? machineId : stateMachineModel.getConfigurationData().getMachineId());
 		return machine;
 	}
 
@@ -587,7 +594,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			Collection<Transition<S, E>> transitions, State<S, E> initialState, Transition<S, E> initialTransition,
 			Message<E> initialEvent, ExtendedState extendedState, PseudoState<S, E> historyState,
 			Boolean contextEventsEnabled, BeanFactory beanFactory, TaskExecutor taskExecutor,
-			TaskScheduler taskScheduler, String beanName);
+			TaskScheduler taskScheduler, String beanName, String machineId);
 
 	protected abstract State<S, E> buildStateInternal(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
 			PseudoState<S, E> pseudoState);

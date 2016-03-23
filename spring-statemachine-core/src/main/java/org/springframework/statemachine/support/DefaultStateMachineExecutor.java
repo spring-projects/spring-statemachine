@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -405,7 +405,7 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 		if (!map.containsKey(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER)) {
 			// don't set sm id if it's already present because
 			// we want to keep the originating sm id
-			map.put(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER, stateMachine.getId());
+			map.put(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER, stateMachine.getUuid());
 		}
 		return new DefaultStateContext<S, E>(Stage.TRANSITION, message, new MessageHeaders(map), stateMachine.getExtendedState(), transition, stateMachine, null, null, null);
 	}
