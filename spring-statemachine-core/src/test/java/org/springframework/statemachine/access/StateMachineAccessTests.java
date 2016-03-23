@@ -21,6 +21,7 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.Test;
 import org.springframework.messaging.Message;
@@ -171,6 +172,11 @@ public class StateMachineAccessTests {
 
 		@Override
 		public void setInitialEnabled(boolean enabled) {
+		}
+
+		@Override
+		public UUID getUuid() {
+			return null;
 		}
 
 		@Override

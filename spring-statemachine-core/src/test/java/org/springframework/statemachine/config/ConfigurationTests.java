@@ -242,6 +242,31 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		assertThat(bfFromMachine, sameInstance(Config16.beanFactory));
 	}
 
+	@Test
+	public void testMachineIdFlat() {
+		context.register(Config17.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		assertThat(stateMachine, notNullValue());
+		assertThat(stateMachine.getId(), is("testid1"));
+	}
+
+	@Test
+	public void testMachineIdViaFactory() {
+		context.register(Config18.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
+		StateMachine<String,String> stateMachine = stateMachineFactory.getStateMachine();
+		assertThat(stateMachine, notNullValue());
+		assertThat(stateMachine.getId(), is("testid1"));
+
+		stateMachine = stateMachineFactory.getStateMachine("testid2");
+		assertThat(stateMachine, notNullValue());
+		assertThat(stateMachine.getId(), is("testid2"));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
@@ -729,6 +754,64 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 			return stateMachine;
 		}
 
+	}
+
+	@Configuration
+	public static class Config17 {
+
+		public static BeanFactory beanFactory = new DefaultListableBeanFactory();
+
+		@Bean
+		StateMachine<String, String> stateMachine() throws Exception {
+			Builder<String, String> builder = StateMachineBuilder.builder();
+			builder.configureConfiguration()
+				.withConfiguration()
+					.machineId("testid1")
+					.autoStartup(false)
+					.beanFactory(beanFactory);
+			builder.configureStates()
+				.withStates()
+					.initial("S1").state("S2");
+			builder.configureTransitions()
+				.withExternal()
+					.source("S1").target("S2").event("E1")
+					.and()
+				.withExternal()
+					.source("S2").target("S1").event("E2");
+			StateMachine<String, String> stateMachine = builder.build();
+			return stateMachine;
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachineFactory
+	public static class Config18 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<String, String> config) throws Exception {
+			config
+				.withConfiguration()
+					.machineId("testid1")
+					.autoStartup(true);
+		}
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("S1")
+					.state("S2");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("S1")
+					.target("S2")
+					.event("E1");
+		}
 	}
 
 }

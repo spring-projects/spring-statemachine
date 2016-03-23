@@ -100,7 +100,9 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	private Boolean initialEnabled = null;
 
-	private String id = UUID.randomUUID().toString();
+	private UUID uuid = UUID.randomUUID();
+
+	private String id;
 
 	private volatile Message<E> forwardedInitialEvent;
 
@@ -490,6 +492,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		if (currentState != null) {
 			buf.append(StringUtils.collectionToCommaDelimitedString(currentState.getIds()));
 		}
+		buf.append(" / uuid=");
+		buf.append(uuid);
 		buf.append(" / id=");
 		buf.append(id);
 		return buf.toString();
@@ -507,6 +511,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		if (log.isDebugEnabled()) {
 			log.debug("Request to reset state machine: stateMachine=[" + this + "] stateMachineContext=[" + stateMachineContext + "]");
 		}
+		setId(stateMachineContext.getId());
 		S state = stateMachineContext.getState();
 		boolean stateSet = false;
 		// handle state reset
@@ -623,8 +628,22 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	@Override
+	public UUID getUuid() {
+		return uuid;
+	}
+
+	@Override
 	public String getId() {
 		return id;
+	}
+
+	/**
+	 * Sets the machine id.
+	 *
+	 * @param id the new machine id
+	 */
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	protected synchronized boolean acceptEvent(Message<E> message) {
