@@ -129,6 +129,6 @@ public abstract class AbstractStateMachinePersister<S, E, T> implements StateMac
 				}
 			}
 		}
-		return new DefaultStateMachineContext<S, E>(childs, id, null, null, extendedState, historyStates);
+		return new DefaultStateMachineContext<S, E>(childs, id, null, null, extendedState, historyStates, stateMachine.getId());
 	}
 }

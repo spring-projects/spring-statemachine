@@ -19,7 +19,7 @@ import org.springframework.statemachine.StateMachine;
 
 /**
  * {@code StateMachineFactory} is a strategy interface building {@link StateMachine}s.
- * 
+ *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
@@ -29,9 +29,17 @@ public interface StateMachineFactory<S, E> {
 
 	/**
 	 * Build a new {@link StateMachine} instance.
-	 * 
+	 *
 	 * @return a new state machine instance.
 	 */
 	StateMachine<S, E> getStateMachine();
 
+	/**
+	 * Build a new {@link StateMachine} instance
+	 * with a given machine id.
+	 *
+	 * @param machineId the machine id
+	 * @return a new state machine instance.
+	 */
+	StateMachine<S, E> getStateMachine(String machineId);
 }

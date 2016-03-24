@@ -41,6 +41,7 @@ import org.springframework.statemachine.security.SecurityRule;
  */
 public class ConfigurationData<S, E> {
 
+	private final String machineId;
 	private final BeanFactory beanFactory;
 	private final TaskExecutor taskExecutor;
 	private final TaskScheduler taskScheduler;
@@ -60,7 +61,7 @@ public class ConfigurationData<S, E> {
 	 */
 	public ConfigurationData() {
 		this(null, new SyncTaskExecutor(), new ConcurrentTaskScheduler(), false, null, new ArrayList<StateMachineListener<S, E>>(), false,
-				null, null, null, null, true, new DefaultStateMachineModelVerifier<S, E>());
+				null, null, null, null, true, new DefaultStateMachineModelVerifier<S, E>(), null);
 	}
 
 	/**
@@ -79,13 +80,14 @@ public class ConfigurationData<S, E> {
 	 * @param transitionSecurityRule the transition security rule
 	 * @param verifierEnabled the verifier enabled flag
 	 * @param verifier the state machine model verifier
+	 * @param machineId the machine id
 	 */
 	public ConfigurationData(BeanFactory beanFactory, TaskExecutor taskExecutor,
 			TaskScheduler taskScheduler, boolean autoStart, StateMachineEnsemble<S, E> ensemble,
 			List<StateMachineListener<S, E>> listeners, boolean securityEnabled,
 			AccessDecisionManager transitionSecurityAccessDecisionManager, AccessDecisionManager eventSecurityAccessDecisionManager,
 			SecurityRule eventSecurityRule, SecurityRule transitionSecurityRule, boolean verifierEnabled,
-			StateMachineModelVerifier<S, E> verifier) {
+			StateMachineModelVerifier<S, E> verifier, String machineId) {
 		this.beanFactory = beanFactory;
 		this.taskExecutor = taskExecutor;
 		this.taskScheduler = taskScheduler;
@@ -99,6 +101,11 @@ public class ConfigurationData<S, E> {
 		this.transitionSecurityRule = transitionSecurityRule;
 		this.verifierEnabled = verifierEnabled;
 		this.verifier = verifier;
+		this.machineId = machineId;
+	}
+
+	public String getMachineId() {
+		return machineId;
 	}
 
 	/**

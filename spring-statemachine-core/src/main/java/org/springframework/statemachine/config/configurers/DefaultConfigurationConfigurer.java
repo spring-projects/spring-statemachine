@@ -39,6 +39,7 @@ public class DefaultConfigurationConfigurer<S, E>
 		extends AnnotationConfigurerAdapter<ConfigurationData<S, E>, StateMachineConfigurationConfigurer<S, E>, StateMachineConfigurationBuilder<S, E>>
 		implements ConfigurationConfigurer<S, E> {
 
+	private String machineId;
 	private BeanFactory beanFactory;
 	private TaskExecutor taskExecutor;
 	private TaskScheduler taskScheculer;
@@ -47,11 +48,18 @@ public class DefaultConfigurationConfigurer<S, E>
 
 	@Override
 	public void configure(StateMachineConfigurationBuilder<S, E> builder) throws Exception {
+		builder.setMachineId(machineId);
 		builder.setBeanFactory(beanFactory);
 		builder.setTaskExecutor(taskExecutor);
 		builder.setTaskScheculer(taskScheculer);
 		builder.setAutoStart(autoStart);
 		builder.setStateMachineListeners(listeners);
+	}
+
+	@Override
+	public ConfigurationConfigurer<S, E> machineId(String id) {
+		this.machineId = id;
+		return this;
 	}
 
 	@Override

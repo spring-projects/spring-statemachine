@@ -59,9 +59,10 @@ public class ObjectStateMachineFactory<S, E> extends AbstractStateMachineFactory
 			Collection<Transition<S, E>> transitions, State<S, E> initialState, Transition<S, E> initialTransition,
 			Message<E> initialEvent, ExtendedState extendedState, PseudoState<S, E> historyState,
 			Boolean contextEventsEnabled, BeanFactory beanFactory, TaskExecutor taskExecutor,
-			TaskScheduler taskScheduler, String beanName) {
+			TaskScheduler taskScheduler, String beanName, String machineId) {
 		ObjectStateMachine<S, E> machine = new ObjectStateMachine<S, E>(states, transitions, initialState, initialTransition, initialEvent,
 				extendedState);
+		machine.setId(machineId);
 		machine.setHistoryState(historyState);
 		if (contextEventsEnabled != null) {
 			machine.setContextEventsEnabled(contextEventsEnabled);
@@ -73,7 +74,7 @@ public class ObjectStateMachineFactory<S, E> extends AbstractStateMachineFactory
 			machine.setTaskExecutor(taskExecutor);
 		}
 		if (taskScheduler != null) {
-			machine.setTaskScheduler(taskScheduler);;
+			machine.setTaskScheduler(taskScheduler);
 		}
 		if (machine instanceof BeanNameAware) {
 			((BeanNameAware)machine).setBeanName(beanName);

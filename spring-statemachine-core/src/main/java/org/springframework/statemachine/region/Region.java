@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.springframework.statemachine.region;
 
 import java.util.Collection;
+import java.util.UUID;
 
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.listener.StateMachineListener;
@@ -37,6 +38,15 @@ public interface Region<S, E> {
 	 * Gets the region and state machine unique id.
 	 *
 	 * @return the region and state machine unique id
+	 */
+	UUID getUuid();
+
+	/**
+	 * Gets the region and state machine id. This identifier
+	 * is provided for users disposal and can be set from
+	 * a various ways to build a machines.
+	 *
+	 * @return the region and state machine id
 	 */
 	String getId();
 

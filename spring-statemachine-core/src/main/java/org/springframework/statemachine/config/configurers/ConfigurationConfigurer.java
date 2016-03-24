@@ -18,6 +18,7 @@ package org.springframework.statemachine.config.configurers;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerBuilder;
 import org.springframework.statemachine.listener.StateMachineListener;
@@ -32,6 +33,15 @@ import org.springframework.statemachine.listener.StateMachineListener;
  */
 public interface ConfigurationConfigurer<S, E> extends
 		AnnotationConfigurerBuilder<StateMachineConfigurationConfigurer<S, E>> {
+
+	/**
+	 * Specify a machine identifier.
+	 *
+	 * @param id the machine identifier
+	 * @return configurer for chaining
+	 * @see StateMachine#getId()
+	 */
+	ConfigurationConfigurer<S, E> machineId(String id);
 
 	/**
 	 * Specify a {@link BeanFactory}.
