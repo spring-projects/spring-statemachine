@@ -18,7 +18,7 @@ package org.springframework.statemachine.transition;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -102,8 +102,9 @@ public class TransitionTests extends AbstractStateMachineTests {
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		machine.start();
-		// end state terminates sm so state is null
-		assertThat(machine.getState(), nullValue());
+		// end state terminates sm so check machine still gives it
+		assertThat(machine.getState(), notNullValue());
+		assertThat(machine.getState().getIds(), contains(TestStates.SF));
 		assertThat(machine.isComplete(), is(true));
 		assertThat(machine.isRunning(), is(false));
 	}

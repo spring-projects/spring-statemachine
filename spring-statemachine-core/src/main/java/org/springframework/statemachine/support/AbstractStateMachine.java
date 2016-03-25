@@ -86,6 +86,10 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	private volatile State<S,E> currentState;
 
+	// using this to log last state when machine stops, as
+	// it's a bit difficult to keep currentState non-null after stop.
+	private volatile State<S,E> lastState;
+
 	private volatile Exception currentError;
 
 	private volatile PseudoState<S, E> history;
@@ -158,7 +162,13 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	@Override
 	public State<S,E> getState() {
-		return currentState;
+		// if we're complete assume we're stopped
+		// and state was stashed into lastState
+		if (isComplete()) {
+			return lastState;
+		} else {
+			return currentState;
+		}
 	}
 
 	@Override
@@ -219,7 +229,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		Assert.state(initialState.getPseudoState() != null
 				&& initialState.getPseudoState().getKind() == PseudoStateKind.INITIAL,
 				"Initial state's pseudostate kind must be INITIAL");
-
+		lastState = null;
 		extendedState.setExtendedStateChangeListener(new ExtendedStateChangeListener() {
 			@Override
 			public void changed(Object key, Object value) {
@@ -333,6 +343,9 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	protected void doStop() {
 		stateMachineExecutor.stop();
 		notifyStateMachineStopped(buildStateContext(Stage.STATEMACHINE_STOP, null, null, this));
+		// stash current state before we null it so that
+		// we can still return where we 'were' when machine is stopped
+		lastState = currentState;
 		currentState = null;
 		initialEnabled = null;
 	}
@@ -519,6 +532,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			for (State<S, E> ss : s.getStates()) {
 				if (state != null && ss.getIds().contains(state)) {
 					currentState = s;
+					// setting lastState here is needed for restore
+					lastState = currentState;
 					// TODO: not sure about starting submachine/regions here, though
 					//       needed if we only transit to super state or reset regions
 					if (s.isSubmachineState()) {
@@ -838,7 +853,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 					if (currentState.isSubmachineState()) {
 						StateMachine<S, E> submachine = ((AbstractState<S, E>)currentState).getSubmachine();
-						if (submachine.getState() == state) {
+						// need to check complete as submachine may now return non null
+						if (!submachine.isComplete() && submachine.getState() == state) {
 							if (currentState == findDeep) {
 								if (isTargetSubOf) {
 									entryToState(currentState, message, transition, stateMachine);
@@ -896,6 +912,11 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			} else if (history.getKind() == PseudoStateKind.HISTORY_DEEP){
 				((HistoryPseudoState<S, E>)history).setState(state);
 			}
+		}
+		// if state was set from parent and we're now complete
+		// also initiate stop
+		if (stateMachine != this && isComplete()) {
+			stop();
 		}
 	}
 

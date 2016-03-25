@@ -33,7 +33,10 @@ import org.springframework.statemachine.StateMachinePersist;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.TestUtils;
 import org.springframework.statemachine.config.EnableStateMachine;
+import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.StateMachineFactory;
+import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.StateConfigurer.History;
@@ -267,6 +270,33 @@ public class StateMachinePersistTests extends AbstractStateMachineTests {
 		assertThat(stateMachine2.getState().getIds(), containsInAnyOrder("S1"));
 		stateMachine2.sendEvent("EH3");
 		assertThat(stateMachine2.getState().getIds(), containsInAnyOrder("S2", "S22"));
+	}
+
+	@Test
+	public void testPersistWithEnd() throws Exception {
+		context.register(Config8.class);
+		context.refresh();
+		InMemoryStateMachinePersist1 stateMachinePersist = new InMemoryStateMachinePersist1();
+		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(stateMachinePersist);
+		@SuppressWarnings("unchecked")
+		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
+
+		StateMachine<String,String> stateMachine = stateMachineFactory.getStateMachine();
+		assertThat(stateMachine, notNullValue());
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
+		assertThat(stateMachine.isComplete(), is(true));
+
+		persister.persist(stateMachine, "xxx");
+
+		stateMachine = stateMachineFactory.getStateMachine();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+
+		stateMachine = persister.restore(stateMachine, "xxx");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
+		assertThat(stateMachine.isComplete(), is(true));
 	}
 
 	@Configuration
@@ -594,6 +624,35 @@ public class StateMachinePersistTests extends AbstractStateMachineTests {
 					.and()
 				.withExternal()
 					.source("S2").target("S2H").event("EH3");
+		}
+	}
+
+	@Configuration
+	@EnableStateMachineFactory
+	static class Config8 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<String, String> config) throws Exception {
+			config
+				.withConfiguration()
+					.autoStartup(true);
+		}
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("S1")
+					.end("S2");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("S1")
+					.target("S2")
+					.event("E1");
 		}
 	}
 

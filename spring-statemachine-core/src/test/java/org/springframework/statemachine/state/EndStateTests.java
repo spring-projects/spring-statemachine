@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,6 +65,7 @@ public class EndStateTests extends AbstractStateMachineTests {
 		assertThat(machine.isComplete(), is(false));
 		machine.sendEvent(TestEvents.EF);
 		assertThat(machine.isComplete(), is(true));
+		assertThat(machine.getState().getIds(), contains(TestStates.SF));
 	}
 
 	@Test
@@ -91,6 +92,32 @@ public class EndStateTests extends AbstractStateMachineTests {
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
 		assertThat(machine.getState().getIds(), contains(TestStates3.READY));
+	}
+
+	@Test
+	public void testEndStateCompletesSubmachine() {
+		context.register(Config4.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		@SuppressWarnings("unchecked")
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		machine.start();
+		assertThat(machine, notNullValue());
+		assertThat(machine.isComplete(), is(false));
+		assertThat(machine.getState().getIds(), contains(TestStates.SI));
+
+		machine.sendEvent(TestEvents.E1);
+		assertThat(machine.isComplete(), is(false));
+		assertThat(machine.getState().getIds(), contains(TestStates.S1, TestStates.S11));
+
+		machine.sendEvent(TestEvents.E2);
+		assertThat(machine.isComplete(), is(false));
+		assertThat(machine.getState().getIds(), contains(TestStates.S1, TestStates.S12));
+
+		machine.sendEvent(TestEvents.E3);
+		assertThat(machine.isComplete(), is(false));
+		assertThat(machine.getState().getIds(), contains(TestStates.S1, TestStates.SF));
 	}
 
 	@Configuration
@@ -278,4 +305,46 @@ public class EndStateTests extends AbstractStateMachineTests {
 
 	}
 
+	@Configuration
+	@EnableStateMachine
+	static class Config4 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.SI)
+					.state(TestStates.S1)
+					.and()
+					.withStates()
+						.parent(TestStates.S1)
+						.initial(TestStates.S11)
+						.state(TestStates.S12)
+						.end(TestStates.SF);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.SI)
+					.target(TestStates.S1)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S11)
+					.target(TestStates.S12)
+					.event(TestEvents.E2)
+					.and()
+				.withExternal()
+					.source(TestStates.S12)
+					.target(TestStates.SF)
+					.event(TestEvents.E3);
+		}
+
+		@Bean
+		public TaskExecutor taskExecutor() {
+			return new SyncTaskExecutor();
+		}
+	}
 }
