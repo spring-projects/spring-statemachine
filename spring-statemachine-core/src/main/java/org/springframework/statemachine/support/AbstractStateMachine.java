@@ -988,6 +988,9 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			} else if (isComingFromOtherSubmachine) {
 			} else if (!isSubOfSource && !isSubOfTarget && findDeep2 == null) {
 			} else if (isSubOfSource && !isSubOfTarget && currentState == transition.getTarget()) {
+				if (isDirectSubstate(transition.getSource(), transition.getTarget())) {
+					return;
+				}
 			} else if (!isSubOfSource && !isSubOfTarget && (transition.getSource() == currentState && StateMachineUtils.isSubstate(currentState, transition.getTarget()))) {
 			} else if (!isSubOfSource && !isSubOfTarget) {
 				return;
@@ -997,6 +1000,16 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		notifyStateEntered(buildStateContext(Stage.STATE_ENTRY, message, transition, getRelayStateMachine(), null, state));
 		log.debug("Enter state=[" + state + "]");
 		state.entry(stateContext);
+	}
+
+	private static <S, E> boolean isDirectSubstate(State<S, E> left, State<S, E> right) {
+		// Checks if right hand side is a direct substate of a left hand side.
+		if (left != null && left.isSubmachineState()) {
+			StateMachine<S, E> submachine = ((AbstractState<S, E>)left).getSubmachine();
+			return submachine.getStates().contains(right);
+		} else {
+			return false;
+		}
 	}
 
 }

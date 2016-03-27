@@ -82,6 +82,8 @@ public class ShowcaseTests {
 		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateExitedLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(listener.statesExited.size(), is(2));
+		assertThat(listener.statesEntered.size(), is(2));
 		assertThat(machine.getState().getIds(), contains(States.S0, States.S1, States.S11));
 	}
 
