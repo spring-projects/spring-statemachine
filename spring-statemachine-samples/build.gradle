@@ -56,7 +56,7 @@ project('spring-statemachine-samples-persist') {
 project('spring-statemachine-samples-web') {
 	description = 'Spring State Machine Web Sample'
 	dependencies {
-		compile project(":spring-statemachine-zookeeper")
+		compile project(":spring-statemachine-cluster")
 		compile("org.springframework.boot:spring-boot-starter-security:$springBootVersion")
 		compile("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
 		compile("org.springframework.boot:spring-boot-starter-websocket:$springBootVersion")

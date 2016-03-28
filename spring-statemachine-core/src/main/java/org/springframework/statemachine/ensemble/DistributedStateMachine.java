@@ -312,6 +312,13 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 			throw exception;
 		}
 
+		@Override
+		public void ensembleLeaderGranted(StateMachine<S, E> stateMachine) {
+		}
+
+		@Override
+		public void ensembleLeaderRevoked(StateMachine<S, E> stateMachine) {
+		}
 	}
 
 }

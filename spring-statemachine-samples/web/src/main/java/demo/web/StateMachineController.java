@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,8 @@ import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineException;
+import org.springframework.statemachine.ensemble.EnsembleListenerAdapter;
+import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
@@ -58,6 +60,9 @@ public class StateMachineController {
 
 	@Autowired
 	private StateMachine<States, Events> stateMachine;
+
+	@Autowired
+	private StateMachineEnsemble<States, Events> stateMachineEnsemble;
 
 	@PostConstruct
 	public void setup() {
@@ -102,6 +107,28 @@ public class StateMachineController {
 			}
 
 		});
+
+		stateMachineEnsemble.addEnsembleListener(new EnsembleListenerAdapter<States, Events>() {
+
+			@Override
+			public void ensembleLeaderGranted(StateMachine<States, Events> stateMachine) {
+				StateMachineMessage message = new StateMachineMessage();
+				message.setMessage("Leader granted " + stateMachine.getUuid().toString());
+				simpMessagingTemplate.convertAndSend("/topic/sm.message", message);
+			}
+
+			@Override
+			public void ensembleLeaderRevoked(StateMachine<States, Events> stateMachine) {
+				StateMachineMessage message = new StateMachineMessage();
+				message.setMessage("Leader revoked " + stateMachine.getUuid().toString());
+				simpMessagingTemplate.convertAndSend("/topic/sm.message", message);
+			}
+		});
+	}
+
+	@SubscribeMapping("/sm.uuid")
+	public String retrieveUuid() {
+		return stateMachine.getUuid().toString();
 	}
 
 	@SubscribeMapping("/sm.states")
@@ -123,12 +150,24 @@ public class StateMachineController {
 	public void sendEvent(@RequestParam(value = "id") Events id,
 			@RequestParam(value = "testVariable", required = false) String testVariable) {
 		log.info("Got request to send event " + id + " testVariable " + testVariable);
-	    Message<Events> message = MessageBuilder
-	            .withPayload(id)
-	            .setHeader("testVariable", testVariable)
-	            .build();
-	    stateMachine.sendEvent(message);
-    }
+		Message<Events> message = MessageBuilder
+				.withPayload(id)
+				.setHeader("testVariable", testVariable)
+				.build();
+		stateMachine.sendEvent(message);
+	}
+
+	@RequestMapping("/join")
+	@ResponseStatus(HttpStatus.OK)
+	public void joinEnsemble() {
+		stateMachineEnsemble.join(stateMachine);
+	}
+
+	@RequestMapping("/leave")
+	@ResponseStatus(HttpStatus.OK)
+	public void leaveEnsemble() {
+		stateMachineEnsemble.leave(stateMachine);
+	}
 
 	@RequestMapping(value = "/states", method = RequestMethod.GET, produces="application/json")
 	@ResponseBody

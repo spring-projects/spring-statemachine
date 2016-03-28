@@ -671,6 +671,14 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 			errorLatch.countDown();
 		}
 
+		@Override
+		public void ensembleLeaderGranted(StateMachine<String, String> stateMachine) {
+		}
+
+		@Override
+		public void ensembleLeaderRevoked(StateMachine<String, String> stateMachine) {
+		}
+
 		public void reset(int c1, int c2) {
 			reset(c1, c2, 0);
 		}

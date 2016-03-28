@@ -5,6 +5,7 @@ include 'spring-statemachine-test'
 include 'spring-statemachine-kryo'
 include 'spring-statemachine-zookeeper'
 include 'spring-statemachine-redis'
+include 'spring-statemachine-cluster'
 
 include 'spring-statemachine-recipes'
 

@@ -64,4 +64,19 @@ public class CompositeEnsembleListener<S, E> extends AbstractCompositeListener<E
 		}
 	}
 
+	@Override
+	public void ensembleLeaderGranted(StateMachine<S, E> stateMachine) {
+		for (Iterator<EnsembleListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
+			EnsembleListener<S, E> listener = iterator.next();
+			listener.ensembleLeaderGranted(stateMachine);
+		}
+	}
+
+	@Override
+	public void ensembleLeaderRevoked(StateMachine<S, E> stateMachine) {
+		for (Iterator<EnsembleListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
+			EnsembleListener<S, E> listener = iterator.next();
+			listener.ensembleLeaderRevoked(stateMachine);
+		}
+	}
 }

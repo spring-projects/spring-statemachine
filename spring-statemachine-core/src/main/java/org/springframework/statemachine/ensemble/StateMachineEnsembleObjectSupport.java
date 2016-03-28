@@ -63,11 +63,18 @@ public abstract class StateMachineEnsembleObjectSupport<S, E> extends LifecycleO
 		ensembleListener.ensembleError(exception);
 	}
 
+	protected void notifyGranted(StateMachine<S, E> stateMachine) {
+		ensembleListener.ensembleLeaderGranted(stateMachine);
+	}
+
+	protected void notifyRevoked(StateMachine<S, E> stateMachine) {
+		ensembleListener.ensembleLeaderRevoked(stateMachine);
+	}
+
 	protected void notifyStateChanged(StateMachineContext<S, E> context) {
 		if (log.isTraceEnabled()) {
 			log.trace("Notify notifyStateChanged " + context);
 		}
 		ensembleListener.stateChanged(context);
 	}
-
 }

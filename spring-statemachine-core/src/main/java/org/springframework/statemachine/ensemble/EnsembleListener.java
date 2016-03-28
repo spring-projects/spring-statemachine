@@ -69,4 +69,19 @@ public interface EnsembleListener<S, E> {
 	 */
 	void ensembleError(StateMachineEnsembleException exception);
 
+	/**
+	 * Called when a state machine is granted a leader role
+	 * in an ensemble.
+	 *
+	 * @param stateMachine the state machine
+	 */
+	void ensembleLeaderGranted(StateMachine<S, E> stateMachine);
+
+	/**
+	 * Called when a state machine is revoked from a leader role
+	 * in an ensemble.
+	 *
+	 * @param stateMachine the state machine
+	 */
+	void ensembleLeaderRevoked(StateMachine<S, E> stateMachine);
 }

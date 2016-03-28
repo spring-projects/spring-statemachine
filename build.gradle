@@ -46,6 +46,7 @@ configure(allprojects) {
 	repositories {
 		mavenCentral()
 		maven { url "http://repo.springsource.org/libs-release" }
+		maven { url "http://repo.springsource.org/libs-milestone" }
 	}
 
 	task integrationTest(type: Test) {
@@ -186,6 +187,23 @@ project('spring-statemachine-redis') {
 		compile "redis.clients:jedis:$jedisVersion"
 
 		testCompile project(":spring-statemachine-test")
+		testCompile "org.springframework:spring-test:$springVersion"
+		testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"
+		testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
+		testCompile "junit:junit:$junitVersion"
+		testRuntime "log4j:log4j:$log4jVersion"
+	}
+}
+
+project('spring-statemachine-cluster') {
+	description = "Spring State Machine Cluster"
+
+	dependencies {
+		compile project(":spring-statemachine-zookeeper")
+		compile "org.springframework.cloud:spring-cloud-cluster-zookeeper:$springCloudClusterVersion"
+
+		testCompile project(":spring-statemachine-test")
+		testCompile "org.apache.curator:curator-test:$curatorVersion"
 		testCompile "org.springframework:spring-test:$springVersion"
 		testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"
 		testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"

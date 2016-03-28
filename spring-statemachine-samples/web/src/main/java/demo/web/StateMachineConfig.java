@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,14 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.action.DistributedLeaderAction;
+import org.springframework.statemachine.cluster.LeaderZookeeperStateMachineEnsemble;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
@@ -33,7 +37,6 @@ import org.springframework.statemachine.config.builders.StateMachineStateConfigu
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 import org.springframework.statemachine.guard.Guard;
-import org.springframework.statemachine.zookeeper.ZookeeperStateMachineEnsemble;
 
 @Configuration
 public class StateMachineConfig {
@@ -45,8 +48,12 @@ public class StateMachineConfig {
 	static class Config
 			extends EnumStateMachineConfigurerAdapter<States, Events> {
 
+		@Autowired
+		private SimpMessagingTemplate simpMessagingTemplate;
+
 		@Override
-		public void configure(StateMachineConfigurationConfigurer<States, Events> config) throws Exception {
+		public void configure(StateMachineConfigurationConfigurer<States, Events> config)
+				throws Exception {
 			config
 				.withDistributed()
 					.ensemble(stateMachineEnsemble())
@@ -72,7 +79,7 @@ public class StateMachineConfig {
 							.parent(States.S1)
 							.initial(States.S11)
 							.state(States.S11)
-							.state(States.S12)
+							.state(States.S12, distAction(), null)
 							.and()
 					.withStates()
 						.parent(States.S0)
@@ -179,8 +186,13 @@ public class StateMachineConfig {
 		}
 
 		@Bean
+		public DistributedLeaderAction<States, Events> distAction() throws Exception {
+			return new DistributedLeaderAction<>(new HelloAction(simpMessagingTemplate), stateMachineEnsemble());
+		}
+
+		@Bean
 		public StateMachineEnsemble<States, Events> stateMachineEnsemble() throws Exception {
-			return new ZookeeperStateMachineEnsemble<States, Events>(curatorClient(), "/foo");
+			return new LeaderZookeeperStateMachineEnsemble<States, Events>(curatorClient(), "/foo");
 		}
 
 		@Bean
@@ -193,7 +205,6 @@ public class StateMachineConfig {
 			client.start();
 			return client;
 		}
-
 	}
 
 	public enum States {
@@ -247,7 +258,22 @@ public class StateMachineConfig {
 				context.getExtendedState().getVariables().put("testVariable", testVariable);
 			}
 		}
-
 	}
 
+	private static class HelloAction implements Action<States, Events> {
+
+		SimpMessagingTemplate simpMessagingTemplate;
+
+		public HelloAction(SimpMessagingTemplate simpMessagingTemplate) {
+			this.simpMessagingTemplate = simpMessagingTemplate;
+		}
+
+		@Override
+		public void execute(StateContext<States, Events> context) {
+			log.info("Hello");
+			StateMachineMessage message = new StateMachineMessage();
+			message.setMessage("Hello action");
+			simpMessagingTemplate.convertAndSend("/topic/sm.message", message);
+		}
+	}
 }
