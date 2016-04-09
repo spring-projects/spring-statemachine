@@ -93,11 +93,15 @@ public class UmlModelParser {
 				State state = (State)vertex;
 				// find parent state if submachine state, root states have null parent
 				String parent = null;
+				String regionId = null;
 				if (state.getContainer().getOwner() instanceof State) {
 					parent = ((State)state.getContainer().getOwner()).getName();
 				}
+				if (state.getOwner() instanceof Region) {
+					regionId = ((Region)state.getOwner()).getName();
+				}
 				StateData<String, String> stateData = handleActions(
-						new StateData<String, String>(parent, null, state.getName(), UmlUtils.isInitialState(state)), state);
+						new StateData<String, String>(parent, regionId, state.getName(), UmlUtils.isInitialState(state)), state);
 				stateDatas.add(stateData);
 				// do recursive handling of regions
 				for (Region sub : state.getRegions()) {

@@ -16,6 +16,7 @@
 package org.springframework.statemachine.uml;
 
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -102,6 +103,36 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 	}
 
 	@Test
+	public void testSimpleRootRegions() {
+		context.refresh();
+		Resource model1 = new ClassPathResource("org/springframework/statemachine/uml/simple-root-regions.uml");
+		UmlStateMachineModelFactory builder = new UmlStateMachineModelFactory(model1);
+		builder.setBeanFactory(context);
+		assertThat(model1.exists(), is(true));
+		StateMachineModel<String, String> stateMachineModel = builder.build();
+		assertThat(stateMachineModel, notNullValue());
+		Collection<StateData<String, String>> stateDatas = stateMachineModel.getStatesData().getStateData();
+		assertThat(stateDatas.size(), is(4));
+		for (StateData<String, String> stateData : stateDatas) {
+			if (stateData.getState().equals("S1")) {
+				assertThat(stateData.isInitial(), is(true));
+				assertThat(stateData.getRegion(), notNullValue());
+			} else if (stateData.getState().equals("S2")) {
+				assertThat(stateData.isInitial(), is(false));
+				assertThat(stateData.getRegion(), notNullValue());
+			} else if (stateData.getState().equals("S3")) {
+				assertThat(stateData.isInitial(), is(true));
+				assertThat(stateData.getRegion(), notNullValue());
+			} else if (stateData.getState().equals("S4")) {
+				assertThat(stateData.isInitial(), is(false));
+				assertThat(stateData.getRegion(), notNullValue());
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+	}
+
+	@Test
 	@SuppressWarnings("unchecked")
 	public void testSimpleFlatMachine() throws Exception {
 		context.register(Config2.class);
@@ -129,6 +160,21 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(stateMachine.getState().getIds(), contains("S1", "S12"));
 		stateMachine.sendEvent("E2");
 		assertThat(stateMachine.getState().getIds(), contains("S2"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleRootRegionsMachine() throws Exception {
+		context.register(Config4.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1", "S3"));
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S3"));
+		stateMachine.sendEvent("E2");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S4"));
 	}
 
 	@Configuration
@@ -168,6 +214,29 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		@Bean
 		public StateMachineModelFactory<String, String> modelFactory() {
 			Resource model = new ClassPathResource("org/springframework/statemachine/uml/simple-submachine.uml");
+			return new UmlStateMachineModelFactory(model);
+		}
+
+		@Bean
+		public Action<String, String> action1() {
+			return new LatchAction();
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config4 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			Resource model = new ClassPathResource("org/springframework/statemachine/uml/simple-root-regions.uml");
 			return new UmlStateMachineModelFactory(model);
 		}
 
