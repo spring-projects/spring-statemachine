@@ -23,6 +23,8 @@ import org.springframework.statemachine.config.builders.StateMachineConfigBuilde
 import org.springframework.statemachine.config.builders.StateMachineConfigurationBuilder;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineConfigurer;
+import org.springframework.statemachine.config.builders.StateMachineModelBuilder;
+import org.springframework.statemachine.config.builders.StateMachineModelConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateBuilder;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionBuilder;
@@ -73,6 +75,15 @@ public class StateMachineBuilder {
 		public Builder() {
 			adapter = new BuilderStateMachineConfigurerAdapter<S, E>();
 			builder = new StateMachineConfigBuilder<S, E>();
+		}
+
+		/**
+		 * Configure model.
+		 *
+		 * @return the state machine model configurer
+		 */
+		public StateMachineModelConfigurer<S, E> configureModel() {
+			return adapter.modelBuilder;
 		}
 
 		/**
@@ -144,12 +155,14 @@ public class StateMachineBuilder {
 	private static class BuilderStateMachineConfigurerAdapter<S extends Object, E extends Object>
 			implements StateMachineConfigurer<S, E> {
 
+		private StateMachineModelBuilder<S, E> modelBuilder;
 		private StateMachineTransitionBuilder<S, E> transitionBuilder;
 		private StateMachineStateBuilder<S, E> stateBuilder;
 		private StateMachineConfigurationBuilder<S, E> configurationBuilder;
 
 		BuilderStateMachineConfigurerAdapter() {
 			try {
+				getStateMachineModelBuilder();
 				getStateMachineTransitionBuilder();
 				getStateMachineStateBuilder();
 				getStateMachineConfigurationBuilder();
@@ -160,6 +173,7 @@ public class StateMachineBuilder {
 
 		@Override
 		public void init(StateMachineConfigBuilder<S, E> config) throws Exception {
+			config.setSharedObject(StateMachineModelBuilder.class, getStateMachineModelBuilder());
 			config.setSharedObject(StateMachineTransitionBuilder.class, getStateMachineTransitionBuilder());
 			config.setSharedObject(StateMachineStateBuilder.class, getStateMachineStateBuilder());
 			config.setSharedObject(StateMachineConfigurationBuilder.class, getStateMachineConfigurationBuilder());
@@ -175,6 +189,10 @@ public class StateMachineBuilder {
 		}
 
 		@Override
+		public void configure(StateMachineModelConfigurer<S, E> model) throws Exception {
+		}
+
+		@Override
 		public void configure(StateMachineConfigurationConfigurer<S, E> config) throws Exception {
 		}
 
@@ -184,6 +202,15 @@ public class StateMachineBuilder {
 
 		@Override
 		public void configure(StateMachineTransitionConfigurer<S, E> transitions) throws Exception {
+		}
+
+		protected final StateMachineModelBuilder<S, E> getStateMachineModelBuilder() throws Exception {
+			if (modelBuilder != null) {
+				return modelBuilder;
+			}
+			modelBuilder = new StateMachineModelBuilder<S, E>(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR, true);
+			configure(modelBuilder);
+			return modelBuilder;
 		}
 
 		protected final StateMachineTransitionBuilder<S, E> getStateMachineTransitionBuilder() throws Exception {
@@ -209,7 +236,5 @@ public class StateMachineBuilder {
 			configurationBuilder = new StateMachineConfigurationBuilder<S, E>(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR, true);
 			return configurationBuilder;
 		}
-
 	}
-
 }

@@ -17,10 +17,21 @@ package org.springframework.statemachine.config.builders;
 
 import org.springframework.statemachine.config.StateMachineConfig;
 import org.springframework.statemachine.config.common.annotation.AbstractConfiguredAnnotationBuilder;
+import org.springframework.statemachine.config.common.annotation.AnnotationBuilder;
 import org.springframework.statemachine.config.model.ConfigurationData;
+import org.springframework.statemachine.config.model.StateMachineModel;
 import org.springframework.statemachine.config.model.StatesData;
 import org.springframework.statemachine.config.model.TransitionsData;
 
+/**
+ * {@link AnnotationBuilder} handling all shared builders which effectively contructs
+ * full configuration for {@link StateMachineConfig}.
+ *
+ * @author Janne Valkealahti
+ *
+ * @param <S> the type of state
+ * @param <E> the type of event
+ */
 public class StateMachineConfigBuilder<S, E>
 		extends
 		AbstractConfiguredAnnotationBuilder<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>, StateMachineConfigBuilder<S, E>> {
@@ -28,17 +39,30 @@ public class StateMachineConfigBuilder<S, E>
 	@SuppressWarnings("unchecked")
 	@Override
 	protected StateMachineConfig<S, E> performBuild() throws Exception {
+		// TODO: should prevent calling state/transition builder if model is given
+		StateMachineModelBuilder<?, ?> modelBuilder = getSharedObject(StateMachineModelBuilder.class);
 		StateMachineConfigurationBuilder<?, ?> configurationBuilder = getSharedObject(StateMachineConfigurationBuilder.class);
 		StateMachineTransitionBuilder<?, ?> transitionBuilder = getSharedObject(StateMachineTransitionBuilder.class);
 		StateMachineStateBuilder<?, ?> stateBuilder = getSharedObject(StateMachineStateBuilder.class);
 
-		// build config first as it's shared with transition builder
-		ConfigurationData<S, E> config = (ConfigurationData<S, E>) configurationBuilder.build();
-		transitionBuilder.setSharedObject(ConfigurationData.class, config);
-		TransitionsData<S, E> transitions = (TransitionsData<S, E>) transitionBuilder.build();
-		StatesData<S, E> states = (StatesData<S, E>) stateBuilder.build();
-		StateMachineConfig<S, E> bean = new StateMachineConfig<S, E>(config, transitions, states);
-		return bean;
-	}
+		ModelData<S, E> model = (ModelData<S, E>) modelBuilder.build();
+		ConfigurationData<S, E> stateMachineConfigurationConfig = null;
+		TransitionsData<S, E> transitions = null;
+		StatesData<S, E> states = null;
 
+		if (model.getFactory() != null) {
+			StateMachineModel<S,E> stateMachineModel = model.getFactory().build();
+			transitions = stateMachineModel.getTransitionsData();
+			states = stateMachineModel.getStatesData();
+		}
+		stateMachineConfigurationConfig = (ConfigurationData<S, E>) configurationBuilder.build();
+		if (transitions == null) {
+			transitionBuilder.setSharedObject(ConfigurationData.class, stateMachineConfigurationConfig);
+			transitions = (TransitionsData<S, E>) transitionBuilder.build();
+		}
+		if (states == null) {
+			states = (StatesData<S, E>) stateBuilder.build();
+		}
+		return new StateMachineConfig<S, E>(stateMachineConfigurationConfig, transitions, states);
+	}
 }

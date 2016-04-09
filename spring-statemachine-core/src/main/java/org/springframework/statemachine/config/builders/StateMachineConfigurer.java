@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,14 @@ public interface StateMachineConfigurer<S, E> extends
 		AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>> {
 
 	/**
+	 * Callback for {@link StateMachineModelConfigurer}.
+	 *
+	 * @param model the {@link StateMachineModelConfigurer}
+	 * @throws Exception if configuration error happens
+	 */
+	void configure(StateMachineModelConfigurer<S, E> model) throws Exception;
+
+	/**
 	 * Callback for {@link StateMachineConfigurationConfigurer}.
 	 *
 	 * @param config the {@link StateMachineConfigurationConfigurer}
@@ -52,5 +60,4 @@ public interface StateMachineConfigurer<S, E> extends
 	 * @throws Exception if configuration error happens
 	 */
 	void configure(StateMachineTransitionConfigurer<S, E> transitions) throws Exception;
-
 }

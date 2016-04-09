@@ -212,6 +212,43 @@ project('spring-statemachine-cluster') {
 	}
 }
 
+project('spring-statemachine-uml') {
+	description = "Spring State Machine Uml"
+
+	dependencies {
+		compile project(":spring-statemachine-core")
+		optional "org.springframework.security:spring-security-core:$springSecurityVersion"
+
+		// these eclipse maven deps are simply broken
+		compile("org.eclipse.uml2:uml:$eclipseUml2UmlVersion") { dep ->
+			exclude group: "org.eclipse.core", module: "runtime"
+			exclude group: "org.eclipse.emf", module: "ecore"
+			exclude group: "org.eclipse.emf.ecore", module: "xmi"
+			exclude group: "org.eclipse.emf.mapping", module: "ecore2xml"
+			exclude group: "org.eclipse.uml2", module: "common"
+			exclude group: "org.eclipse.uml2", module: "types"
+		}
+		compile("org.eclipse.uml2:types:$eclipseUml2TypesVersion") { dep ->
+			exclude group: "org.eclipse.core", module: "runtime"
+			exclude group: "org.eclipse.emf", module: "ecore"
+			exclude group: "org.eclipse.uml2", module: "common"
+		}
+		compile("org.eclipse.uml2:common:$eclipseUml2CommonVersion") { dep ->
+			exclude group: "org.eclipse.core", module: "runtime"
+			exclude group: "org.eclipse.emf", module: "ecore"
+		}
+		compile "org.eclipse.emf:org.eclipse.emf.ecore.xmi:$eclipseEmfXmiVersion"
+		compile "org.eclipse.emf:org.eclipse.emf.ecore:$eclipseEmfEcoreVersion"
+		compile "org.eclipse.emf:org.eclipse.emf.common:$eclipseEmfCommonVersion"
+
+		testCompile "org.springframework:spring-test:$springVersion"
+		testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"
+		testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
+		testCompile "junit:junit:$junitVersion"
+		testRuntime "log4j:log4j:$log4jVersion"
+	}
+}
+
 configure(recipeProjects()) {
 	dependencies {
 		compile project(":spring-statemachine-recipes-common")

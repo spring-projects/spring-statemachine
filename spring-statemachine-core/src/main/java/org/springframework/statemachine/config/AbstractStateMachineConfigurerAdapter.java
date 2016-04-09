@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ import org.springframework.statemachine.config.builders.StateMachineConfigBuilde
 import org.springframework.statemachine.config.builders.StateMachineConfigurationBuilder;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineConfigurer;
+import org.springframework.statemachine.config.builders.StateMachineModelBuilder;
+import org.springframework.statemachine.config.builders.StateMachineModelConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateBuilder;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionBuilder;
@@ -36,12 +38,14 @@ import org.springframework.statemachine.config.common.annotation.ObjectPostProce
  */
 public abstract class AbstractStateMachineConfigurerAdapter<S, E> implements StateMachineConfigurer<S, E> {
 
+	private StateMachineModelBuilder<S, E> modelBuilder;
 	private StateMachineTransitionBuilder<S, E> transitionBuilder;
 	private StateMachineStateBuilder<S, E> stateBuilder;
 	private StateMachineConfigurationBuilder<S, E> configurationBuilder;
 
 	@Override
 	public final void init(StateMachineConfigBuilder<S, E> config) throws Exception {
+		config.setSharedObject(StateMachineModelBuilder.class, getStateMachineModelBuilder());
 		config.setSharedObject(StateMachineTransitionBuilder.class, getStateMachineTransitionBuilder());
 		config.setSharedObject(StateMachineStateBuilder.class, getStateMachineStateBuilder());
 		config.setSharedObject(StateMachineConfigurationBuilder.class, getStateMachineConfigurationBuilder());
@@ -49,6 +53,10 @@ public abstract class AbstractStateMachineConfigurerAdapter<S, E> implements Sta
 
 	@Override
 	public void configure(StateMachineConfigBuilder<S, E> config) throws Exception {
+	}
+
+	@Override
+	public void configure(StateMachineModelConfigurer<S, E> model) throws Exception {
 	}
 
 	@Override
@@ -66,6 +74,15 @@ public abstract class AbstractStateMachineConfigurerAdapter<S, E> implements Sta
 	@Override
 	public boolean isAssignable(AnnotationBuilder<StateMachineConfig<S, E>> builder) {
 		return builder instanceof StateMachineConfigBuilder;
+	}
+
+	protected final StateMachineModelBuilder<S, E> getStateMachineModelBuilder() throws Exception {
+		if (modelBuilder != null) {
+			return modelBuilder;
+		}
+		modelBuilder = new StateMachineModelBuilder<S, E>(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR, true);
+		configure(modelBuilder);
+		return modelBuilder;
 	}
 
 	protected final StateMachineTransitionBuilder<S, E> getStateMachineTransitionBuilder() throws Exception {

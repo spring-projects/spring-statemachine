@@ -70,6 +70,18 @@ public class StateData<S, E> {
 	 * @param parent the parent
 	 * @param region the region
 	 * @param state the state
+	 * @param initial the initial
+	 */
+	public StateData(Object parent, Object region, S state, boolean initial) {
+		this(parent, region, state, null, null, null, initial);
+	}
+
+	/**
+	 * Instantiates a new state data.
+	 *
+	 * @param parent the parent
+	 * @param region the region
+	 * @param state the state
 	 * @param deferred the deferred
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
