@@ -734,6 +734,14 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			}
 
 			setCurrentState(toState, message, transition, true, stateMachine);
+		} else if (kind == PseudoStateKind.ENTRY) {
+			StateContext<S, E> stateContext = buildStateContext(Stage.STATE_CHANGED, message, transition, stateMachine);
+			State<S, E> toState = state.getPseudoState().entry(stateContext);
+			setCurrentState(toState, message, transition, true, stateMachine);
+		} else if (kind == PseudoStateKind.EXIT) {
+			StateContext<S, E> stateContext = buildStateContext(Stage.STATE_CHANGED, message, transition, stateMachine);
+			State<S, E> toState = state.getPseudoState().entry(stateContext);
+			setCurrentState(toState, message, transition, true, stateMachine);
 		} else if (kind == PseudoStateKind.FORK) {
 			ForkPseudoState<S, E> fps = (ForkPseudoState<S, E>) state.getPseudoState();
 			for (State<S, E> ss : fps.getForks()) {

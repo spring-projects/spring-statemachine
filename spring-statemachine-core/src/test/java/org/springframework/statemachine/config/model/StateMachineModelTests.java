@@ -76,7 +76,7 @@ public class StateMachineModelTests {
 		Map<String, List<ChoiceData<String, String>>> choices = new HashMap<>();
 		Map<String, List<String>> forks = new HashMap<>();
 		Map<String, List<String>> joins = new HashMap<>();
-		TransitionsData<String, String> transitionsData = new TransitionsData<>(transitions, choices, forks, joins);
+		TransitionsData<String, String> transitionsData = new TransitionsData<>(transitions, choices, forks, joins, null, null);
 
 		StateMachineModel<String, String> stateMachineModel = new DefaultStateMachineModel<>(configurationData, statesData, transitionsData);
 		ObjectStateMachineFactory<String, String> factory = new ObjectStateMachineFactory<>(stateMachineModel);

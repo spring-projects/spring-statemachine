@@ -44,26 +44,18 @@ public class DefaultStateConfigurer<S, E>
 		implements StateConfigurer<S, E> {
 
 	private Object parent;
-
 	private final Object region = UUID.randomUUID().toString();
-
 	private final Map<S, StateData<S, E>> incomplete = new HashMap<S, StateData<S, E>>();
-
 	private S initialState;
-
 	private Action<S, E> initialAction;
-
 	private S end;
-
 	private S history;
-
 	private History historyType;
-
 	private final Collection<S> choices = new ArrayList<S>();
-
 	private final Collection<S> forks = new ArrayList<S>();
-
 	private final Collection<S> joins = new ArrayList<S>();
+	private final Collection<S> exits = new ArrayList<S>();
+	private final Collection<S> entrys = new ArrayList<S>();
 
 	@Override
 	public void configure(StateMachineStateBuilder<S, E> builder) throws Exception {
@@ -86,6 +78,10 @@ public class DefaultStateConfigurer<S, E>
 				s.setPseudoStateKind(PseudoStateKind.FORK);
 			} else if (joins.contains(s.getState())) {
 				s.setPseudoStateKind(PseudoStateKind.JOIN);
+			} else if (entrys.contains(s.getState())) {
+				s.setPseudoStateKind(PseudoStateKind.ENTRY);
+			} else if (exits.contains(s.getState())) {
+				s.setPseudoStateKind(PseudoStateKind.EXIT);
 			}
 			if (s.getState() == history) {
 				if (History.SHALLOW == historyType) {
@@ -196,6 +192,20 @@ public class DefaultStateConfigurer<S, E>
 		this.history = history;
 		this.historyType = type;
 		state(history);
+		return this;
+	}
+
+	@Override
+	public StateConfigurer<S, E> entry(S entry) {
+		state(entry);
+		entrys.add(entry);
+		return this;
+	}
+
+	@Override
+	public StateConfigurer<S, E> exit(S exit) {
+		state(exit);
+		exits.add(exit);
 		return this;
 	}
 

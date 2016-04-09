@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,38 +16,41 @@
 package org.springframework.statemachine.state;
 
 /**
- * Defines enumeration of a {@link PseudoState} kind. This is used within a
- * transitive states indicating its kind.
+ * Utility class using holder pattern to keep a {@link State} reference.
  *
  * @author Janne Valkealahti
  *
+ * @param <S> the type of state
+ * @param <E> the type of event
  */
-public enum PseudoStateKind {
+public class StateHolder<S, E> {
 
-	/** Indicates an initial kind. */
-	INITIAL,
+	private State<S, E> state;
 
-	/** End or terminate kind */
-	END,
+	/**
+	 * Instantiates a new state holder.
+	 *
+	 * @param state the state
+	 */
+	public StateHolder(State<S, E> state) {
+		this.state = state;
+	}
 
-	/** Choice kind */
-	CHOICE,
+	/**
+	 * Gets the state.
+	 *
+	 * @return the state
+	 */
+	public State<S, E> getState() {
+		return state;
+	}
 
-	/** History deep kind */
-	HISTORY_DEEP,
-
-	/** History shallow kind */
-	HISTORY_SHALLOW,
-
-	/** Fork kind */
-	FORK,
-
-	/** Join kind */
-	JOIN,
-
-	/** Entrypoint kind */
-	ENTRY,
-
-	/** Exitpoint kind */
-	EXIT
+	/**
+	 * Sets the state.
+	 *
+	 * @param state the state
+	 */
+	public void setState(State<S, E> state) {
+		this.state = state;
+	}
 }

@@ -38,6 +38,8 @@ import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.model.ChoiceData;
+import org.springframework.statemachine.config.model.EntryData;
+import org.springframework.statemachine.config.model.ExitData;
 import org.springframework.statemachine.config.model.StateData;
 import org.springframework.statemachine.config.model.StateMachineModel;
 import org.springframework.statemachine.config.model.TransitionData;
@@ -52,6 +54,8 @@ import org.springframework.statemachine.state.AbstractState;
 import org.springframework.statemachine.state.ChoicePseudoState;
 import org.springframework.statemachine.state.ChoicePseudoState.ChoiceStateData;
 import org.springframework.statemachine.state.DefaultPseudoState;
+import org.springframework.statemachine.state.EntryPseudoState;
+import org.springframework.statemachine.state.ExitPseudoState;
 import org.springframework.statemachine.state.ForkPseudoState;
 import org.springframework.statemachine.state.HistoryPseudoState;
 import org.springframework.statemachine.state.JoinPseudoState;
@@ -59,6 +63,7 @@ import org.springframework.statemachine.state.PseudoState;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.RegionState;
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.state.StateHolder;
 import org.springframework.statemachine.state.StateMachineState;
 import org.springframework.statemachine.support.DefaultExtendedState;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
@@ -141,6 +146,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		Stack<MachineStackItem<S, E>> regionStack = new Stack<MachineStackItem<S, E>>();
 		Stack<StateData<S, E>> stateStack = new Stack<StateData<S, E>>();
 		Map<Object, StateMachine<S, E>> machineMap = new HashMap<Object, StateMachine<S,E>>();
+		Map<S, StateHolder<S, E>> holderMap = new HashMap<S, StateHolder<S, E>>();
 
 		Iterator<Node<StateData<S, E>>> iterator = buildStateDataIterator();
 		while (iterator.hasNext()) {
@@ -176,7 +182,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 			if (initialCount > 1) {
 				for (Collection<StateData<S, E>> regionStateDatas : regionsStateDatas) {
-					machine = buildMachine(machineMap, stateMap, regionStateDatas, transitionsData, resolveBeanFactory(),
+					machine = buildMachine(machineMap, stateMap, holderMap, regionStateDatas, transitionsData, resolveBeanFactory(),
 							contextEvents, defaultExtendedState, stateMachineModel.getTransitionsData(), resolveTaskExecutor(),
 							resolveTaskScheduler(), machineId);
 					regionStack.push(new MachineStackItem<S, E>(machine));
@@ -204,7 +210,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 					machine = m;
 				}
 			} else {
-				machine = buildMachine(machineMap, stateMap, stateDatas, transitionsData, resolveBeanFactory(), contextEvents,
+				machine = buildMachine(machineMap, stateMap, holderMap, stateDatas, transitionsData, resolveBeanFactory(), contextEvents,
 						defaultExtendedState, stateMachineModel.getTransitionsData(), resolveTaskExecutor(), resolveTaskScheduler(),
 						machineId);
 				if (peek.isInitial() || (!peek.isInitial() && !machineMap.containsKey(peek.getParent()))) {
@@ -259,6 +265,12 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 		for (StateMachineListener<S, E> listener : stateMachineModel.getConfigurationData().getStateMachineListeners()) {
 			machine.addStateListener(listener);
+		}
+
+		// go through holders and fix state references which
+		// were not known at a time holder was created
+		for (Entry<S, StateHolder<S, E>> holder : holderMap.entrySet()) {
+			holder.getValue().setState(stateMap.get(holder.getKey()));
 		}
 
 		return delegateAutoStartup(machine);
@@ -397,12 +409,10 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 	}
 
 
-	private StateMachine<S, E> buildMachine(
-			Map<Object, StateMachine<S, E>> machineMap, Map<S, State<S, E>> stateMap,
-			Collection<StateData<S, E>> stateDatas, Collection<TransitionData<S, E>> transitionsData,
+	private StateMachine<S, E> buildMachine(Map<Object, StateMachine<S, E>> machineMap, Map<S, State<S, E>> stateMap,
+			Map<S, StateHolder<S, E>> holderMap, Collection<StateData<S, E>> stateDatas, Collection<TransitionData<S, E>> transitionsData,
 			BeanFactory beanFactory, Boolean contextEvents, DefaultExtendedState defaultExtendedState,
-			TransitionsData<S, E> stateMachineTransitions, TaskExecutor taskExecutor,
-			TaskScheduler taskScheduler, String machineId) {
+			TransitionsData<S, E> stateMachineTransitions, TaskExecutor taskExecutor, TaskScheduler taskScheduler, String machineId) {
 		State<S, E> state = null;
 		State<S, E> initialState = null;
 		PseudoState<S, E> historyState = null;
@@ -456,6 +466,10 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 					continue;
 				} else if (stateData.getPseudoStateKind() == PseudoStateKind.CHOICE) {
 					continue;
+				} else if (stateData.getPseudoStateKind() == PseudoStateKind.ENTRY) {
+					continue;
+				} else if (stateData.getPseudoStateKind() == PseudoStateKind.EXIT) {
+					continue;
 				}
 				state = buildStateInternal(stateData.getState(), stateData.getDeferred(), stateData.getEntryActions(),
 						stateData.getExitActions(), pseudoState);
@@ -482,6 +496,36 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 						stateData.getExitActions(), pseudoState);
 				states.add(state);
 				stateMap.put(stateData.getState(), state);
+			} else if (stateData.getPseudoStateKind() == PseudoStateKind.ENTRY) {
+				S s = stateData.getState();
+				Collection<EntryData<S, E>> entrys = stateMachineTransitions.getEntrys();
+				for (EntryData<S, E> entry : entrys) {
+					if (s.equals(entry.getSource())) {
+						PseudoState<S, E> pseudoState = new EntryPseudoState<S, E>(stateMap.get(entry.getTarget()));
+						state = buildStateInternal(stateData.getState(), stateData.getDeferred(), stateData.getEntryActions(),
+								stateData.getExitActions(), pseudoState);
+						states.add(state);
+						stateMap.put(stateData.getState(), state);
+						break;
+					}
+				}
+			} else if (stateData.getPseudoStateKind() == PseudoStateKind.EXIT) {
+				S s = stateData.getState();
+				Collection<ExitData<S, E>> exits = stateMachineTransitions.getExits();
+				for (ExitData<S, E> entry : exits) {
+					if (s.equals(entry.getSource())) {
+						StateHolder<S, E> holder = new StateHolder<S, E>(stateMap.get(entry.getTarget()));
+						if (holder.getState() == null) {
+							holderMap.put(entry.getTarget(), holder);
+						}
+						PseudoState<S, E> pseudoState = new ExitPseudoState<S, E>(holder);
+						state = buildStateInternal(stateData.getState(), stateData.getDeferred(), stateData.getEntryActions(),
+								stateData.getExitActions(), pseudoState);
+						states.add(state);
+						stateMap.put(stateData.getState(), state);
+						break;
+					}
+				}
 			} else if (stateData.getPseudoStateKind() == PseudoStateKind.FORK) {
 				S s = stateData.getState();
 				List<S> list = stateMachineTransitions.getForks().get(s);

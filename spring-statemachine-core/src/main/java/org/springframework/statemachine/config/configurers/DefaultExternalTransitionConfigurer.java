@@ -38,7 +38,7 @@ public class DefaultExternalTransitionConfigurer<S, E> extends AbstractTransitio
 
 	@Override
 	public void configure(StateMachineTransitionBuilder<S, E> builder) throws Exception {
-		builder.add(getSource(), getTarget(), getState(), getEvent(), getPeriod(), getCount(), getActions(), getGuard(), TransitionKind.EXTERNAL,
+		builder.addTransition(getSource(), getTarget(), getState(), getEvent(), getPeriod(), getCount(), getActions(), getGuard(), TransitionKind.EXTERNAL,
 				getSecurityRule());
 	}
 

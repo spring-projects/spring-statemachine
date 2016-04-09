@@ -150,6 +150,22 @@ public interface StateConfigurer<S, E> extends
 	StateConfigurer<S, E> history(S history, History type);
 
 	/**
+	 * Specify a state {@code S} to be entrypoint pseudo state.
+	 *
+	 * @param entry the entrypoint pseudo state
+	 * @return configurer for chaining
+	 */
+	StateConfigurer<S, E> entry(S entry);
+
+	/**
+	 * Specify a state {@code S} to be exitpoint pseudo state.
+	 *
+	 * @param exit the exitpoint pseudo state
+	 * @return configurer for chaining
+	 */
+	StateConfigurer<S, E> exit(S exit);
+
+	/**
 	 * Enumeration of a possible history pseudostate type.
 	 */
 	public enum History {
@@ -166,5 +182,4 @@ public interface StateConfigurer<S, E> extends
 		 */
 		DEEP
 	}
-
 }

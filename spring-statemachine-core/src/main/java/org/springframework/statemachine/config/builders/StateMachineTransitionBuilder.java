@@ -27,11 +27,15 @@ import org.springframework.statemachine.config.common.annotation.AnnotationBuild
 import org.springframework.statemachine.config.common.annotation.ObjectPostProcessor;
 import org.springframework.statemachine.config.configurers.ChoiceTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultChoiceTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.DefaultEntryTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.DefaultExitTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultExternalTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultForkTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultInternalTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultJoinTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultLocalTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.EntryTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.ExitTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.ExternalTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.ForkTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.InternalTransitionConfigurer;
@@ -39,6 +43,8 @@ import org.springframework.statemachine.config.configurers.JoinTransitionConfigu
 import org.springframework.statemachine.config.configurers.LocalTransitionConfigurer;
 import org.springframework.statemachine.config.model.ChoiceData;
 import org.springframework.statemachine.config.model.ConfigurationData;
+import org.springframework.statemachine.config.model.EntryData;
+import org.springframework.statemachine.config.model.ExitData;
 import org.springframework.statemachine.config.model.TransitionsData;
 import org.springframework.statemachine.config.model.TransitionData;
 import org.springframework.statemachine.guard.Guard;
@@ -62,23 +68,39 @@ public class StateMachineTransitionBuilder<S, E>
 	private final Map<S, List<ChoiceData<S, E>>> choices = new HashMap<S, List<ChoiceData<S, E>>>();
 	private final Map<S, List<S>> forks = new HashMap<S, List<S>>();
 	private final Map<S, List<S>> joins = new HashMap<S, List<S>>();
+	private final Collection<EntryData<S, E>> entryData = new ArrayList<EntryData<S, E>>();
+	private final Collection<ExitData<S, E>> exitData = new ArrayList<ExitData<S, E>>();
 
+	/**
+	 * Instantiates a new state machine transition builder.
+	 */
 	public StateMachineTransitionBuilder() {
 		super();
 	}
 
+	/**
+	 * Instantiates a new state machine transition builder.
+	 *
+	 * @param objectPostProcessor the object post processor
+	 * @param allowConfigurersOfSameType the allow configurers of same type
+	 */
 	public StateMachineTransitionBuilder(ObjectPostProcessor<Object> objectPostProcessor,
 			boolean allowConfigurersOfSameType) {
 		super(objectPostProcessor, allowConfigurersOfSameType);
 	}
 
+	/**
+	 * Instantiates a new state machine transition builder.
+	 *
+	 * @param objectPostProcessor the object post processor
+	 */
 	public StateMachineTransitionBuilder(ObjectPostProcessor<Object> objectPostProcessor) {
 		super(objectPostProcessor);
 	}
 
 	@Override
 	protected TransitionsData<S, E> performBuild() throws Exception {
-		return new TransitionsData<S, E>(transitionData, choices, forks, joins);
+		return new TransitionsData<S, E>(transitionData, choices, forks, joins, entryData, exitData);
 	}
 
 	@Override
@@ -111,7 +133,31 @@ public class StateMachineTransitionBuilder<S, E>
 		return apply(new DefaultJoinTransitionConfigurer<S, E>());
 	}
 
-	public void add(S source, S target, S state, E event, Long period, Integer count, Collection<Action<S, E>> actions,
+	@Override
+	public EntryTransitionConfigurer<S, E> withEntry() throws Exception {
+		return apply(new DefaultEntryTransitionConfigurer<S, E>());
+	}
+
+	@Override
+	public ExitTransitionConfigurer<S, E> withExit() throws Exception {
+		return apply(new DefaultExitTransitionConfigurer<S, E>());
+	}
+
+	/**
+	 * Adds the transition.
+	 *
+	 * @param source the source
+	 * @param target the target
+	 * @param state the state
+	 * @param event the event
+	 * @param period the period
+	 * @param count the count
+	 * @param actions the actions
+	 * @param guard the guard
+	 * @param kind the kind
+	 * @param securityRule the security rule
+	 */
+	public void addTransition(S source, S target, S state, E event, Long period, Integer count, Collection<Action<S, E>> actions,
 			Guard<S, E> guard, TransitionKind kind, SecurityRule securityRule) {
 		// if rule not given, get it from global
 		if (securityRule == null) {
@@ -122,16 +168,53 @@ public class StateMachineTransitionBuilder<S, E>
 		transitionData.add(new TransitionData<S, E>(source, target, state, event, period, count, actions, guard, kind, securityRule));
 	}
 
-	public void add(S source, List<ChoiceData<S, E>> choices) {
+	/**
+	 * Adds the choice.
+	 *
+	 * @param source the source
+	 * @param choices the choices
+	 */
+	public void addChoice(S source, List<ChoiceData<S, E>> choices) {
 		this.choices.put(source, choices);
 	}
 
+	/**
+	 * Adds the entry.
+	 *
+	 * @param source the source
+	 * @param target the target
+	 */
+	public void addEntry(S source, S target) {
+		this.entryData.add(new EntryData<S, E>(source, target));
+	}
+
+	/**
+	 * Adds the exit.
+	 *
+	 * @param source the source
+	 * @param target the target
+	 */
+	public void addExit(S source, S target) {
+		this.exitData.add(new ExitData<S, E>(source, target));
+	}
+
+	/**
+	 * Adds the fork.
+	 *
+	 * @param source the source
+	 * @param targets the targets
+	 */
 	public void addFork(S source, List<S> targets) {
 		this.forks.put(source, targets);
 	}
 
+	/**
+	 * Adds the join.
+	 *
+	 * @param target the target
+	 * @param sources the sources
+	 */
 	public void addJoin(S target, List<S> sources) {
 		this.joins.put(target, sources);
 	}
-
 }
