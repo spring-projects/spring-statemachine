@@ -42,6 +42,12 @@ framework.
 
 |spring-statemachine-test
 |Support module for state machine testing.
+
+|spring-statemachine-cluster
+|Support module for Spring Cloud Cluster.
+
+|spring-statemachine-uml
+|Support module for UI uml modeling.
 |===
 
 == Using Gradle

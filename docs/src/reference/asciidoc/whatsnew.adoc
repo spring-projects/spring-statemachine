@@ -17,5 +17,6 @@ interoperability with web applications.
 * Configuration model classes are now a public API.
 * New features in timer based events.
 * Configuration model verifier.
-* New samples, <<statemachine-examples-security>>, <<statemachine-examples-eventservice>>
+* New samples, <<statemachine-examples-security>>, <<statemachine-examples-eventservice>>.
+* UI modeling support using Eclipse Papyrus, <<sm-papyrus>>.
 

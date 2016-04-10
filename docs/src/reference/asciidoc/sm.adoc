@@ -346,6 +346,38 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippetYC]
 
 More about config model, refer to section <<devdocs-configmodel>>.
 
+=== Configuring Model
+`StateMachineModelFactory` is a hook to configure statemachine model
+without using a manual configuration. Essentially it is a thirt party
+integration to integrate into a configuration model.
+`StateMachineModelFactory` can be hooked into a configuration model by
+using a `StateMachineModelConfigurer` as shown above.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests8.java[tags=snippetA]
+----
+
+As a custom example `CustomStateMachineModelFactory` would simply
+define two states, _S1_ and _S2_ and an event _E1_ between those
+states.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests8.java[tags=snippetB]
+----
+
+[NOTE]
+====
+Defining a custom model is usually not what end user is looking for,
+although it is possible, however it is a central concept of allowing
+external access to this configuration model.
+====
+
+Example of using this model factory integration can be found from
+<<sm-papyrus>>. More generic info about custom model integration can
+be found from <<devdocs>>.
+
 [[statemachine-config-thingstoremember]]
 === Things to Remember
 
@@ -1672,3 +1704,39 @@ event is sent to particular, random or all machines.
 All possible options for expected are documented in javadocs
 {sm-statemachinetestplanbuilder-statemachinetestplanstepbuilder}[_StateMachineTestPlanStepBuilder_].
 ====
+
+[[sm-papyrus]]
+== Eclipse Modeling Support
+Defining a state machine configuration with UI modeling is supported
+via Eclipse Papyrus framework.
+
+From eclipse wizard create a new _Papyrus Model_ with `UML` _Diagram
+Language_. In this example it's named as `simple-machine`. Then you've
+given an option to choose various diagram kind's and a `StateMachine
+Diagram` mush be chooce.
+
+We want to create a machine having two states, `S1` and `S2` where
+`S1` is initial state. Then event `E1` is created to do a transition
+from `S1` to `S2`. In papyrus a machine would then look like something
+shown below.
+
+image::images/simple-machine.png[width=500]
+
+Behind a scenes a raw uml file would look like.
+
+[source,xml,indent=0]
+----
+include::samples/simple-machine.uml[]
+----
+
+After uml file is in place in your project, it can be imported into
+configuration using `StateMachineModelConfigurer` where
+`StateMachineModelFactory` is associated with a model.
+`UmlStateMachineModelFactory` is a special factory which knows howto
+process eclipse's uml structure.
+
+[source,java,indent=0]
+----
+include::samples/DocsUmlSampleTests1.java[tags=snippetA]
+----
+
