@@ -41,6 +41,7 @@ import org.springframework.statemachine.config.builders.StateMachineModelConfigu
 import org.springframework.statemachine.config.model.StateData;
 import org.springframework.statemachine.config.model.StateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineModelFactory;
+import org.springframework.statemachine.state.PseudoStateKind;
 
 public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 
@@ -159,6 +160,44 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 	}
 
 	@Test
+	public void testSimpleEntryExit() {
+		context.refresh();
+		Resource model1 = new ClassPathResource("org/springframework/statemachine/uml/simple-entryexit.uml");
+		UmlStateMachineModelFactory builder = new UmlStateMachineModelFactory(model1);
+		builder.setBeanFactory(context);
+		assertThat(model1.exists(), is(true));
+		StateMachineModel<String, String> stateMachineModel = builder.build();
+		assertThat(stateMachineModel, notNullValue());
+		Collection<StateData<String, String>> stateDatas = stateMachineModel.getStatesData().getStateData();
+		assertThat(stateDatas.size(), is(8));
+		for (StateData<String, String> stateData : stateDatas) {
+			if (stateData.getState().equals("S1")) {
+				assertThat(stateData.isInitial(), is(true));
+			} else if (stateData.getState().equals("S2")) {
+				assertThat(stateData.isInitial(), is(false));
+			} else if (stateData.getState().equals("S21")) {
+				assertThat(stateData.isInitial(), is(true));
+			} else if (stateData.getState().equals("S22")) {
+				assertThat(stateData.isInitial(), is(false));
+			} else if (stateData.getState().equals("S3")) {
+				assertThat(stateData.isInitial(), is(false));
+			} else if (stateData.getState().equals("S4")) {
+				assertThat(stateData.isInitial(), is(false));
+			} else if (stateData.getState().equals("ENTRY")) {
+				assertThat(stateData.isInitial(), is(false));
+				assertThat(stateData.getPseudoStateKind(), is(PseudoStateKind.ENTRY));
+			} else if (stateData.getState().equals("EXIT")) {
+				assertThat(stateData.getPseudoStateKind(), is(PseudoStateKind.EXIT));
+				assertThat(stateData.isInitial(), is(false));
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+		assertThat(stateMachineModel.getTransitionsData().getEntrys().size(), is(1));
+		assertThat(stateMachineModel.getTransitionsData().getExits().size(), is(1));
+	}
+
+	@Test
 	@SuppressWarnings("unchecked")
 	public void testSimpleFlatMachine() throws Exception {
 		context.register(Config2.class);
@@ -203,6 +242,21 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S4"));
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleEntryExitMachine() throws Exception {
+		context.register(Config5.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent("E3");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
+		stateMachine.sendEvent("E4");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S4"));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config2 extends StateMachineConfigurerAdapter<String, String> {
@@ -242,11 +296,6 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 			Resource model = new ClassPathResource("org/springframework/statemachine/uml/simple-submachine.uml");
 			return new UmlStateMachineModelFactory(model);
 		}
-
-		@Bean
-		public Action<String, String> action1() {
-			return new LatchAction();
-		}
 	}
 
 	@Configuration
@@ -265,10 +314,23 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 			Resource model = new ClassPathResource("org/springframework/statemachine/uml/simple-root-regions.uml");
 			return new UmlStateMachineModelFactory(model);
 		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config5 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
 
 		@Bean
-		public Action<String, String> action1() {
-			return new LatchAction();
+		public StateMachineModelFactory<String, String> modelFactory() {
+			Resource model = new ClassPathResource("org/springframework/statemachine/uml/simple-entryexit.uml");
+			return new UmlStateMachineModelFactory(model);
 		}
 	}
 

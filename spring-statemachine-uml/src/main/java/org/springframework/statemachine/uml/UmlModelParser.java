@@ -24,6 +24,8 @@ import org.eclipse.uml2.uml.Activity;
 import org.eclipse.uml2.uml.Event;
 import org.eclipse.uml2.uml.Model;
 import org.eclipse.uml2.uml.PackageableElement;
+import org.eclipse.uml2.uml.Pseudostate;
+import org.eclipse.uml2.uml.PseudostateKind;
 import org.eclipse.uml2.uml.Region;
 import org.eclipse.uml2.uml.Signal;
 import org.eclipse.uml2.uml.SignalEvent;
@@ -34,11 +36,14 @@ import org.eclipse.uml2.uml.Trigger;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.eclipse.uml2.uml.Vertex;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.config.model.EntryData;
+import org.springframework.statemachine.config.model.ExitData;
 import org.springframework.statemachine.config.model.StateData;
 import org.springframework.statemachine.config.model.StateMachineComponentResolver;
 import org.springframework.statemachine.config.model.StatesData;
 import org.springframework.statemachine.config.model.TransitionData;
 import org.springframework.statemachine.config.model.TransitionsData;
+import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.util.Assert;
 
 /**
@@ -53,6 +58,8 @@ public class UmlModelParser {
 	private final StateMachineComponentResolver<String, String> resolver;
 	private final Collection<StateData<String, String>> stateDatas = new ArrayList<StateData<String, String>>();
 	private final Collection<TransitionData<String, String>> transitionDatas = new ArrayList<TransitionData<String, String>>();
+	private final Collection<EntryData<String, String>> entrys = new ArrayList<EntryData<String, String>>();
+	private final Collection<ExitData<String, String>> exits = new ArrayList<ExitData<String, String>>();
 
 	/**
 	 * Instantiates a new uml model parser.
@@ -83,7 +90,7 @@ public class UmlModelParser {
 		for (Region region : stateMachine.getRegions()) {
 			handleRegion(region);
 		}
-		return new DataHolder(new StatesData<>(stateDatas), new TransitionsData<String, String>(transitionDatas));
+		return new DataHolder(new StatesData<>(stateDatas), new TransitionsData<String, String>(transitionDatas, null, null, null, entrys, exits));
 	}
 
 	private void handleRegion(Region region) {
@@ -106,6 +113,22 @@ public class UmlModelParser {
 					stateData.setEnd(true);
 				}
 				stateDatas.add(stateData);
+
+				// add states via entry/exit points
+				for (Pseudostate cp : state.getConnectionPoints()) {
+					PseudoStateKind kind = null;
+					if (cp.getKind() == PseudostateKind.ENTRY_POINT_LITERAL) {
+						kind = PseudoStateKind.ENTRY;
+					} else if (cp.getKind() == PseudostateKind.EXIT_POINT_LITERAL) {
+						kind = PseudoStateKind.EXIT;
+					}
+					if (kind != null) {
+						StateData<String, String> cpStateData = new StateData<>(parent, regionId, cp.getName(), false);
+						cpStateData.setPseudoStateKind(kind);
+						stateDatas.add(cpStateData);
+					}
+				}
+
 				// do recursive handling of regions
 				for (Region sub : state.getRegions()) {
 					handleRegion(sub);
@@ -115,6 +138,22 @@ public class UmlModelParser {
 
 		// build transitions
 		for (Transition transition : region.getTransitions()) {
+			// for entry/exit points we need to create these outside
+			// of triggers as link from point to a state is most likely
+			// just a link and don't have any triggers.
+			// little unclear for now if link from points to a state should
+			// have trigger?
+			// anyway, we need to add entrys and exits to a model
+			if (transition.getSource() instanceof Pseudostate) {
+				if (((Pseudostate)transition.getSource()).getKind() == PseudostateKind.ENTRY_POINT_LITERAL) {
+					entrys.add(new EntryData<String, String>(transition.getSource().getName(), transition.getTarget().getName()));
+				} else if (((Pseudostate)transition.getSource()).getKind() == PseudostateKind.EXIT_POINT_LITERAL) {
+					exits.add(new ExitData<String, String>(transition.getSource().getName(), transition.getTarget().getName()));
+				}
+			}
+
+			// go through all triggers and create transition
+			// from signals
 			for (Trigger trigger : transition.getTriggers()) {
 				Event event = trigger.getEvent();
 				if (event instanceof SignalEvent) {
@@ -126,7 +165,6 @@ public class UmlModelParser {
 				}
 			}
 		}
-
 	}
 
 	private StateData<String, String> handleActions(StateData<String, String> stateData, State state) {
