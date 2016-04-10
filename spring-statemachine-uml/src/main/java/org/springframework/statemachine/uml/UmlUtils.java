@@ -20,6 +20,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.uml2.uml.FinalState;
 import org.eclipse.uml2.uml.Model;
 import org.eclipse.uml2.uml.Pseudostate;
 import org.eclipse.uml2.uml.PseudostateKind;
@@ -68,5 +69,15 @@ public abstract class UmlUtils {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Checks if {@link State} is a final state.
+	 *
+	 * @param state the state
+	 * @return true, if is final state
+	 */
+	public static boolean isFinalState(State state) {
+		return state instanceof FinalState;
 	}
 }

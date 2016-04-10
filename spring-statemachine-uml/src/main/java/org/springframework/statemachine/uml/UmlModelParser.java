@@ -102,6 +102,9 @@ public class UmlModelParser {
 				}
 				StateData<String, String> stateData = handleActions(
 						new StateData<String, String>(parent, regionId, state.getName(), UmlUtils.isInitialState(state)), state);
+				if (UmlUtils.isFinalState(state)) {
+					stateData.setEnd(true);
+				}
 				stateDatas.add(stateData);
 				// do recursive handling of regions
 				for (Region sub : state.getRegions()) {

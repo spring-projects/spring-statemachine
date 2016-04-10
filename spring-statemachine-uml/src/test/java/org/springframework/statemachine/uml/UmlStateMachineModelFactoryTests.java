@@ -133,6 +133,32 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 	}
 
 	@Test
+	public void testSimpleFlatEnd() {
+		context.refresh();
+		Resource model1 = new ClassPathResource("org/springframework/statemachine/uml/simple-flat-end.uml");
+		UmlStateMachineModelFactory builder = new UmlStateMachineModelFactory(model1);
+		builder.setBeanFactory(context);
+		assertThat(model1.exists(), is(true));
+		StateMachineModel<String, String> stateMachineModel = builder.build();
+		assertThat(stateMachineModel, notNullValue());
+		Collection<StateData<String, String>> stateDatas = stateMachineModel.getStatesData().getStateData();
+		assertThat(stateDatas.size(), is(3));
+		for (StateData<String, String> stateData : stateDatas) {
+			if (stateData.getState().equals("S1")) {
+				assertThat(stateData.isInitial(), is(true));
+				assertThat(stateData.isEnd(), is(false));
+			} else if (stateData.getState().equals("S2")) {
+				assertThat(stateData.isInitial(), is(false));
+				assertThat(stateData.isEnd(), is(false));
+			} else if (stateData.getState().equals("S3")) {
+				assertThat(stateData.isEnd(), is(true));
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+	}
+
+	@Test
 	@SuppressWarnings("unchecked")
 	public void testSimpleFlatMachine() throws Exception {
 		context.register(Config2.class);
