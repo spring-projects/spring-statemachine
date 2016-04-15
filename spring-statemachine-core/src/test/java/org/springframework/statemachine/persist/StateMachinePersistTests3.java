@@ -29,6 +29,8 @@ import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.StateMachinePersist;
+import org.springframework.statemachine.TestUtils;
+import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.StateMachineFactory;
@@ -66,9 +68,83 @@ public class StateMachinePersistTests3 extends AbstractStateMachineTests {
 		assertThat(stateMachine.getId(), is("testid2"));
 	}
 
+	@Test
+	public void testPersistMachineId2() throws Exception {
+		context.register(Config1.class);
+		context.refresh();
+		InMemoryStateMachinePersist1 stateMachinePersist = new InMemoryStateMachinePersist1();
+		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(stateMachinePersist);
+		@SuppressWarnings("unchecked")
+		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
+
+		StateMachine<String,String> stateMachine = stateMachineFactory.getStateMachine("testid2");
+		assertThat(stateMachine, notNullValue());
+		assertThat(stateMachine.getId(), is("testid2"));
+		TestUtils.setField("id", stateMachine, "newid");
+		assertThat(stateMachine.getId(), is("newid"));
+
+		persister.persist(stateMachine, "xxx");
+
+		stateMachine = stateMachineFactory.getStateMachine();
+		assertThat(stateMachine, notNullValue());
+		assertThat(stateMachine.getId(), nullValue());
+
+		stateMachine = persister.restore(stateMachine, "xxx");
+		assertThat(stateMachine.getId(), is("newid"));
+	}
+
+	@Test
+	public void testPersistMachineId3() throws Exception {
+		context.register(Config2.class);
+		context.refresh();
+		InMemoryStateMachinePersist1 stateMachinePersist = new InMemoryStateMachinePersist1();
+		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(stateMachinePersist);
+		@SuppressWarnings("unchecked")
+		StateMachine<String,String> stateMachine = context.getBean(StateMachine.class);
+		assertThat(stateMachine, notNullValue());
+		assertThat(stateMachine.getId(), nullValue());
+		TestUtils.setField("id", stateMachine, "newid");
+		assertThat(stateMachine.getId(), is("newid"));
+
+		persister.persist(stateMachine, "xxx");
+		TestUtils.setField("id", stateMachine, "xxx");
+
+		stateMachine = persister.restore(stateMachine, "xxx");
+		assertThat(stateMachine.getId(), is("newid"));
+	}
+
 	@Configuration
 	@EnableStateMachineFactory
 	public static class Config1 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<String, String> config) throws Exception {
+			config
+				.withConfiguration()
+					.autoStartup(true);
+		}
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("S1")
+					.state("S2");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("S1")
+					.target("S2")
+					.event("E1");
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config2 extends StateMachineConfigurerAdapter<String, String> {
 
 		@Override
 		public void configure(StateMachineConfigurationConfigurer<String, String> config) throws Exception {
