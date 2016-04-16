@@ -45,6 +45,7 @@ import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.model.ChoiceData;
 import org.springframework.statemachine.config.model.EntryData;
 import org.springframework.statemachine.config.model.ExitData;
+import org.springframework.statemachine.config.model.JunctionData;
 import org.springframework.statemachine.config.model.StateData;
 import org.springframework.statemachine.config.model.StateMachineComponentResolver;
 import org.springframework.statemachine.config.model.StatesData;
@@ -70,6 +71,7 @@ public class UmlModelParser {
 	private final Collection<EntryData<String, String>> entrys = new ArrayList<EntryData<String, String>>();
 	private final Collection<ExitData<String, String>> exits = new ArrayList<ExitData<String, String>>();
 	private final Map<String, LinkedList<ChoiceData<String, String>>> choices = new HashMap<String, LinkedList<ChoiceData<String,String>>>();
+	private final Map<String, LinkedList<JunctionData<String, String>>> junctions = new HashMap<String, LinkedList<JunctionData<String,String>>>();
 	private final Map<String, List<String>> forks = new HashMap<String, List<String>>();
 	private final Map<String, List<String>> joins = new HashMap<String, List<String>>();
 
@@ -105,8 +107,10 @@ public class UmlModelParser {
 		// LinkedList can be passed due to generics, need to copy
 		HashMap<String, List<ChoiceData<String, String>>> choicesCopy = new HashMap<String, List<ChoiceData<String, String>>>();
 		choicesCopy.putAll(choices);
+		HashMap<String, List<JunctionData<String, String>>> junctionsCopy = new HashMap<String, List<JunctionData<String, String>>>();
+		junctionsCopy.putAll(junctions);
 		return new DataHolder(new StatesData<>(stateDatas),
-				new TransitionsData<String, String>(transitionDatas, choicesCopy, null, forks, joins, entrys, exits));
+				new TransitionsData<String, String>(transitionDatas, choicesCopy, junctionsCopy, forks, joins, entrys, exits));
 	}
 
 	private void handleRegion(Region region) {
@@ -166,6 +170,10 @@ public class UmlModelParser {
 					StateData<String, String> cpStateData = new StateData<>(parent, regionId, state.getName(), false);
 					cpStateData.setPseudoStateKind(PseudoStateKind.CHOICE);
 					stateDatas.add(cpStateData);
+				} else if (state.getKind() == PseudostateKind.JUNCTION_LITERAL) {
+					StateData<String, String> cpStateData = new StateData<>(parent, regionId, state.getName(), false);
+					cpStateData.setPseudoStateKind(PseudoStateKind.JUNCTION);
+					stateDatas.add(cpStateData);
 				} else if (state.getKind() == PseudostateKind.FORK_LITERAL) {
 					StateData<String, String> cpStateData = new StateData<>(parent, regionId, state.getName(), false);
 					cpStateData.setPseudoStateKind(PseudoStateKind.FORK);
@@ -219,6 +227,27 @@ public class UmlModelParser {
 						list.addLast(new ChoiceData<String, String>(transition.getSource().getName(), transition.getTarget().getName(), guard));
 					} else {
 						list.addFirst(new ChoiceData<String, String>(transition.getSource().getName(), transition.getTarget().getName(), guard));
+					}
+				} else if (((Pseudostate)transition.getSource()).getKind() == PseudostateKind.JUNCTION_LITERAL) {
+					LinkedList<JunctionData<String, String>> list = junctions.get(transition.getSource().getName());
+					if (list == null) {
+						list = new LinkedList<JunctionData<String, String>>();
+						junctions.put(transition.getSource().getName(), list);
+					}
+					Guard<String, String> guard = null;
+					for (Constraint c : transition.getOwnedRules()) {
+						if (c.getSpecification() instanceof OpaqueExpression) {
+							OpaqueExpression oe = (OpaqueExpression)c.getSpecification();
+							if (oe.getBodies().size() == 1) {
+								guard = resolver.resolveGuard(oe.getBodies().get(0).trim());
+							}
+						}
+					}
+					// we want null guards to be at the end
+					if (guard == null) {
+						list.addLast(new JunctionData<String, String>(transition.getSource().getName(), transition.getTarget().getName(), guard));
+					} else {
+						list.addFirst(new JunctionData<String, String>(transition.getSource().getName(), transition.getTarget().getName(), guard));
 					}
 				} else if (((Pseudostate)transition.getSource()).getKind() == PseudostateKind.FORK_LITERAL) {
 					List<String> list = forks.get(transition.getSource().getName());

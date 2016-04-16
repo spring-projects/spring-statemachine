@@ -348,6 +348,48 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21", "S212"));
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleJunction1() {
+		context.register(Config10.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
+		stateMachine.sendEvent(MessageBuilder.withPayload("E4").setHeader("junction", "s5").build());
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S5"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleJunction2() {
+		context.register(Config10.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent("E2");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S3"));
+		stateMachine.sendEvent(MessageBuilder.withPayload("E4").setHeader("junction", "s6").build());
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S6"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleJunction3() {
+		context.register(Config10.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent("E3");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S4"));
+		stateMachine.sendEvent("E4");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S7"));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config2 extends StateMachineConfigurerAdapter<String, String> {
@@ -507,6 +549,34 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		}
 	}
 
+	@Configuration
+	@EnableStateMachine
+	public static class Config10 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			Resource model = new ClassPathResource("org/springframework/statemachine/uml/simple-junction.uml");
+			return new UmlStateMachineModelFactory(model);
+		}
+
+		@Bean
+		public JunctionGuard s5Guard() {
+			return new JunctionGuard("s5");
+		}
+
+		@Bean
+		public JunctionGuard s6Guard() {
+			return new JunctionGuard("s6");
+		}
+	}
+
 	public static class LatchAction implements Action<String, String> {
 		CountDownLatch latch = new CountDownLatch(1);
 		@Override
@@ -529,4 +599,17 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		}
 	}
 
+	private static class JunctionGuard implements Guard<String, String> {
+
+		private final String match;
+
+		public JunctionGuard(String match) {
+			this.match = match;
+		}
+
+		@Override
+		public boolean evaluate(StateContext<String, String> context) {
+			return ObjectUtils.nullSafeEquals(match, context.getMessageHeaders().get("junction", String.class));
+		}
+	}
 }
