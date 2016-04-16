@@ -53,6 +53,7 @@ import org.springframework.statemachine.config.model.TransitionsData;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Model parser which constructs states and transitions data out from
@@ -69,6 +70,8 @@ public class UmlModelParser {
 	private final Collection<EntryData<String, String>> entrys = new ArrayList<EntryData<String, String>>();
 	private final Collection<ExitData<String, String>> exits = new ArrayList<ExitData<String, String>>();
 	private final Map<String, LinkedList<ChoiceData<String, String>>> choices = new HashMap<String, LinkedList<ChoiceData<String,String>>>();
+	private final Map<String, List<String>> forks = new HashMap<String, List<String>>();
+	private final Map<String, List<String>> joins = new HashMap<String, List<String>>();
 
 	/**
 	 * Instantiates a new uml model parser.
@@ -100,9 +103,10 @@ public class UmlModelParser {
 			handleRegion(region);
 		}
 		// LinkedList can be passed due to generics, need to copy
-		HashMap<String, List<ChoiceData<String, String>>> choicesCopy = new HashMap<String, List<ChoiceData<String,String>>>();
+		HashMap<String, List<ChoiceData<String, String>>> choicesCopy = new HashMap<String, List<ChoiceData<String, String>>>();
 		choicesCopy.putAll(choices);
-		return new DataHolder(new StatesData<>(stateDatas), new TransitionsData<String, String>(transitionDatas, choicesCopy, null, null, entrys, exits));
+		return new DataHolder(new StatesData<>(stateDatas),
+				new TransitionsData<String, String>(transitionDatas, choicesCopy, forks, joins, entrys, exits));
 	}
 
 	private void handleRegion(Region region) {
@@ -162,6 +166,14 @@ public class UmlModelParser {
 					StateData<String, String> cpStateData = new StateData<>(parent, regionId, state.getName(), false);
 					cpStateData.setPseudoStateKind(PseudoStateKind.CHOICE);
 					stateDatas.add(cpStateData);
+				} else if (state.getKind() == PseudostateKind.FORK_LITERAL) {
+					StateData<String, String> cpStateData = new StateData<>(parent, regionId, state.getName(), false);
+					cpStateData.setPseudoStateKind(PseudoStateKind.FORK);
+					stateDatas.add(cpStateData);
+				} else if (state.getKind() == PseudostateKind.JOIN_LITERAL) {
+					StateData<String, String> cpStateData = new StateData<>(parent, regionId, state.getName(), false);
+					cpStateData.setPseudoStateKind(PseudoStateKind.JOIN);
+					stateDatas.add(cpStateData);
 				}
 			}
 		}
@@ -200,6 +212,23 @@ public class UmlModelParser {
 					} else {
 						list.addFirst(new ChoiceData<String, String>(transition.getSource().getName(), transition.getTarget().getName(), guard));
 					}
+				} else if (((Pseudostate)transition.getSource()).getKind() == PseudostateKind.FORK_LITERAL) {
+					List<String> list = forks.get(transition.getSource().getName());
+					if (list == null) {
+						list = new ArrayList<String>();
+						forks.put(transition.getSource().getName(), list);
+					}
+					list.add(transition.getTarget().getName());
+				}
+			}
+			if (transition.getTarget() instanceof Pseudostate) {
+				if (((Pseudostate)transition.getTarget()).getKind() == PseudostateKind.JOIN_LITERAL) {
+					List<String> list = joins.get(transition.getTarget().getName());
+					if (list == null) {
+						list = new ArrayList<String>();
+						joins.put(transition.getTarget().getName(), list);
+					}
+					list.add(transition.getSource().getName());
 				}
 			}
 
@@ -215,7 +244,36 @@ public class UmlModelParser {
 					}
 				}
 			}
+
+			// create anonymous transition if needed
+			if (shouldCreateAnonymousTransition(transition)) {
+				transitionDatas.add(new TransitionData<String, String>(transition.getSource().getName(),
+						transition.getTarget().getName(), null));
+			}
 		}
+	}
+
+	private boolean shouldCreateAnonymousTransition(Transition transition) {
+		if (!transition.getTriggers().isEmpty()) {
+			return false;
+		}
+		if (!StringUtils.hasText(transition.getSource().getName())) {
+			return false;
+		}
+		if (!StringUtils.hasText(transition.getTarget().getName())) {
+			return false;
+		}
+		if (transition.getSource() instanceof Pseudostate) {
+			if (((Pseudostate)transition.getSource()).getKind() == PseudostateKind.FORK_LITERAL) {
+				return false;
+			}
+		}
+		if (transition.getTarget() instanceof Pseudostate) {
+			if (((Pseudostate)transition.getTarget()).getKind() == PseudostateKind.JOIN_LITERAL) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private StateData<String, String> handleActions(StateData<String, String> stateData, State state) {
