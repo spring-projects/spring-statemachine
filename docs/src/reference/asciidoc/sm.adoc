@@ -279,7 +279,7 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippetSS]
 [NOTE]
 ====
 Difference between choice and junction is purely academic as both are
-implemented with `first/then/last` stucture. However in theory based
+implemented with `first/then/last` structure. However in theory based
 on uml model, _choice_ allows only one incoming transition while
 _junction_ allows multiple incoming transitions. At a code level
 functionality is pretty much identical.
