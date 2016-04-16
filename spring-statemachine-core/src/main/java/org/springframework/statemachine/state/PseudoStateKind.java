@@ -33,6 +33,9 @@ public enum PseudoStateKind {
 	/** Choice kind */
 	CHOICE,
 
+	/** Junction kind */
+	JUNCTION,
+
 	/** History deep kind */
 	HISTORY_DEEP,
 

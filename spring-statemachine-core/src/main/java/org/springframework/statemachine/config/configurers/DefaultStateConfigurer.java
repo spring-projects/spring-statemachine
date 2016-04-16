@@ -52,6 +52,7 @@ public class DefaultStateConfigurer<S, E>
 	private S history;
 	private History historyType;
 	private final Collection<S> choices = new ArrayList<S>();
+	private final Collection<S> junctions = new ArrayList<S>();
 	private final Collection<S> forks = new ArrayList<S>();
 	private final Collection<S> joins = new ArrayList<S>();
 	private final Collection<S> exits = new ArrayList<S>();
@@ -74,6 +75,8 @@ public class DefaultStateConfigurer<S, E>
 			}
 			if (choices.contains(s.getState())) {
 				s.setPseudoStateKind(PseudoStateKind.CHOICE);
+			} else if (junctions.contains(s.getState())) {
+				s.setPseudoStateKind(PseudoStateKind.JUNCTION);
 			} else if (forks.contains(s.getState())) {
 				s.setPseudoStateKind(PseudoStateKind.FORK);
 			} else if (joins.contains(s.getState())) {
@@ -170,6 +173,13 @@ public class DefaultStateConfigurer<S, E>
 	public StateConfigurer<S, E> choice(S choice) {
 		state(choice);
 		choices.add(choice);
+		return this;
+	}
+
+	@Override
+	public StateConfigurer<S, E> junction(S junction) {
+		state(junction);
+		junctions.add(junction);
 		return this;
 	}
 

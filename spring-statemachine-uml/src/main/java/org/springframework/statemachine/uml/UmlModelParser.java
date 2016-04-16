@@ -106,7 +106,7 @@ public class UmlModelParser {
 		HashMap<String, List<ChoiceData<String, String>>> choicesCopy = new HashMap<String, List<ChoiceData<String, String>>>();
 		choicesCopy.putAll(choices);
 		return new DataHolder(new StatesData<>(stateDatas),
-				new TransitionsData<String, String>(transitionDatas, choicesCopy, forks, joins, entrys, exits));
+				new TransitionsData<String, String>(transitionDatas, choicesCopy, null, forks, joins, entrys, exits));
 	}
 
 	private void handleRegion(Region region) {

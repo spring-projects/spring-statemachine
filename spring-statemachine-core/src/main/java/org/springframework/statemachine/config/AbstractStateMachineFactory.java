@@ -40,6 +40,7 @@ import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.model.ChoiceData;
 import org.springframework.statemachine.config.model.EntryData;
 import org.springframework.statemachine.config.model.ExitData;
+import org.springframework.statemachine.config.model.JunctionData;
 import org.springframework.statemachine.config.model.StateData;
 import org.springframework.statemachine.config.model.StateMachineModel;
 import org.springframework.statemachine.config.model.TransitionData;
@@ -59,6 +60,8 @@ import org.springframework.statemachine.state.ExitPseudoState;
 import org.springframework.statemachine.state.ForkPseudoState;
 import org.springframework.statemachine.state.HistoryPseudoState;
 import org.springframework.statemachine.state.JoinPseudoState;
+import org.springframework.statemachine.state.JunctionPseudoState;
+import org.springframework.statemachine.state.JunctionPseudoState.JunctionStateData;
 import org.springframework.statemachine.state.PseudoState;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.RegionState;
@@ -466,6 +469,8 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 					continue;
 				} else if (stateData.getPseudoStateKind() == PseudoStateKind.CHOICE) {
 					continue;
+				} else if (stateData.getPseudoStateKind() == PseudoStateKind.JUNCTION) {
+					continue;
 				} else if (stateData.getPseudoStateKind() == PseudoStateKind.ENTRY) {
 					continue;
 				} else if (stateData.getPseudoStateKind() == PseudoStateKind.EXIT) {
@@ -496,6 +501,22 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 					choices.add(new ChoiceStateData<S, E>(holder, c.getGuard()));
 				}
 				PseudoState<S, E> pseudoState = new ChoicePseudoState<S, E>(choices);
+				state = buildStateInternal(stateData.getState(), stateData.getDeferred(), stateData.getEntryActions(),
+						stateData.getExitActions(), pseudoState);
+				states.add(state);
+				stateMap.put(stateData.getState(), state);
+			} else if (stateData.getPseudoStateKind() == PseudoStateKind.JUNCTION) {
+				S s = stateData.getState();
+				List<JunctionData<S, E>> list = stateMachineTransitions.getJunctions().get(s);
+				List<JunctionStateData<S, E>> junctions = new ArrayList<JunctionStateData<S, E>>();
+				for (JunctionData<S, E> c : list) {
+					StateHolder<S, E> holder = new StateHolder<S, E>(stateMap.get(c.getTarget()));
+					if (holder.getState() == null) {
+						holderMap.put(c.getTarget(), holder);
+					}
+					junctions.add(new JunctionStateData<S, E>(holder, c.getGuard()));
+				}
+				PseudoState<S, E> pseudoState = new JunctionPseudoState<S, E>(junctions);
 				state = buildStateInternal(stateData.getState(), stateData.getDeferred(), stateData.getEntryActions(),
 						stateData.getExitActions(), pseudoState);
 				states.add(state);

@@ -31,6 +31,7 @@ public class TransitionsData<S, E> {
 
 	private final Collection<TransitionData<S, E>> transitions;
 	private final Map<S, List<ChoiceData<S, E>>> choices;
+	private final Map<S, List<JunctionData<S, E>>> junctions;
 	private final Map<S, List<S>> forks;
 	private final Map<S, List<S>> joins;
 	private final Collection<EntryData<S, E>> entrys;
@@ -42,7 +43,7 @@ public class TransitionsData<S, E> {
 	 * @param transitionsData the transitions data
 	 */
 	public TransitionsData(Collection<TransitionData<S, E>> transitionsData) {
-		this(transitionsData, null, null, null, null, null);
+		this(transitionsData, null, null, null, null, null, null);
 	}
 
 	/**
@@ -50,15 +51,18 @@ public class TransitionsData<S, E> {
 	 *
 	 * @param transitionsData the transitions data
 	 * @param choices the choices
+	 * @param junctions the junctions
 	 * @param forks the forks
 	 * @param joins the joins
 	 * @param entrys the entrys
 	 * @param exits the exits
 	 */
-	public TransitionsData(Collection<TransitionData<S, E>> transitionsData, Map<S, List<ChoiceData<S, E>>> choices, Map<S, List<S>> forks,
-			Map<S, List<S>> joins, Collection<EntryData<S, E>> entrys, Collection<ExitData<S, E>> exits) {
+	public TransitionsData(Collection<TransitionData<S, E>> transitionsData, Map<S, List<ChoiceData<S, E>>> choices,
+			Map<S, List<JunctionData<S, E>>> junctions, Map<S, List<S>> forks, Map<S, List<S>> joins, Collection<EntryData<S, E>> entrys,
+			Collection<ExitData<S, E>> exits) {
 		this.transitions = transitionsData;
 		this.choices = choices;
+		this.junctions = junctions;
 		this.forks = forks;
 		this.joins = joins;
 		this.entrys = entrys;
@@ -81,6 +85,15 @@ public class TransitionsData<S, E> {
 	 */
 	public Map<S, List<ChoiceData<S, E>>> getChoices() {
 		return choices;
+	}
+
+	/**
+	 * Gets the junctions.
+	 *
+	 * @return the junctions
+	 */
+	public Map<S, List<JunctionData<S, E>>> getJunctions() {
+		return junctions;
 	}
 
 	/**

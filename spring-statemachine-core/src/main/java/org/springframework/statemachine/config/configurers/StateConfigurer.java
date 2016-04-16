@@ -125,6 +125,14 @@ public interface StateConfigurer<S, E> extends
 	StateConfigurer<S, E> choice(S choice);
 
 	/**
+	 * Specify a state {@code S} to be junction pseudo state.
+	 *
+	 * @param junction the junction pseudo state
+	 * @return configurer for chaining
+	 */
+	StateConfigurer<S, E> junction(S junction);
+
+	/**
 	 * Specify a state {@code S} to be fork pseudo state.
 	 *
 	 * @param fork the fork pseudo state

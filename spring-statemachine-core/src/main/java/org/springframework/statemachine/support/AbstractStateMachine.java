@@ -724,7 +724,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		// TODO: need to make below more clear when
 		//       we figure out rest of a pseudostates
 		PseudoStateKind kind = state.getPseudoState() != null ? state.getPseudoState().getKind() : null;
-		if (kind == PseudoStateKind.CHOICE || kind == PseudoStateKind.HISTORY_SHALLOW
+		if (kind == PseudoStateKind.CHOICE || kind == PseudoStateKind.JUNCTION || kind == PseudoStateKind.HISTORY_SHALLOW
 				|| kind == PseudoStateKind.HISTORY_DEEP) {
 			StateContext<S, E> stateContext = buildStateContext(Stage.STATE_CHANGED, message, transition, stateMachine);
 			State<S, E> toState = state.getPseudoState().entry(stateContext);
@@ -737,6 +737,16 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				}
 			}
 			if (kind == PseudoStateKind.CHOICE) {
+				callPreStateChangeInterceptors(toState, message, transition, stateMachine);
+			}
+
+			if (kind == PseudoStateKind.JUNCTION) {
+				while (toState != null && toState.getPseudoState() != null
+						&& toState.getPseudoState().getKind() != PseudoStateKind.INITIAL) {
+					toState = toState.getPseudoState().entry(stateContext);
+				}
+			}
+			if (kind == PseudoStateKind.JUNCTION) {
 				callPreStateChangeInterceptors(toState, message, transition, stateMachine);
 			}
 
