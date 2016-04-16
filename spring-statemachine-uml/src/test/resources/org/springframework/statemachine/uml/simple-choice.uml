@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_OqqwgAOpEeaiNLSABY7wHw" name="RootElement">
+  <packagedElement xmi:type="uml:StateMachine" xmi:id="_OrcMkAOpEeaiNLSABY7wHw" name="StateMachine">
+    <region xmi:type="uml:Region" xmi:id="_OrpA4AOpEeaiNLSABY7wHw" name="Region1">
+      <transition xmi:type="uml:Transition" xmi:id="_7V6s4AOpEeaiNLSABY7wHw" source="_fyGykAOpEeaiNLSABY7wHw" target="_e6aVkAOpEeaiNLSABY7wHw"/>
+      <transition xmi:type="uml:Transition" xmi:id="_X0EvkAOqEeaiNLSABY7wHw" source="_e6aVkAOpEeaiNLSABY7wHw" target="_in3ewAOpEeaiNLSABY7wHw">
+        <trigger xmi:type="uml:Trigger" xmi:id="_CVbtoAOzEeaiNLSABY7wHw" event="_9sMRoAOyEeaiNLSABY7wHw"/>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_arx8gAOqEeaiNLSABY7wHw" guard="_yT_ckAOtEeaiNLSABY7wHw" source="_in3ewAOpEeaiNLSABY7wHw" target="_hTUGoAOpEeaiNLSABY7wHw">
+        <ownedRule xmi:type="uml:Constraint" xmi:id="_yT_ckAOtEeaiNLSABY7wHw">
+          <specification xmi:type="uml:OpaqueExpression" xmi:id="_yT_ckQOtEeaiNLSABY7wHw">
+            <language>bean</language>
+            <body>s2Guard</body>
+          </specification>
+        </ownedRule>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_bfbnAAOqEeaiNLSABY7wHw" guard="_9yVIIAOtEeaiNLSABY7wHw" source="_in3ewAOpEeaiNLSABY7wHw" target="_hwr_IAOpEeaiNLSABY7wHw">
+        <ownedRule xmi:type="uml:Constraint" xmi:id="_9yVIIAOtEeaiNLSABY7wHw">
+          <specification xmi:type="uml:OpaqueExpression" xmi:id="_9yVIIQOtEeaiNLSABY7wHw">
+            <language>bean</language>
+            <body>s3Guard</body>
+          </specification>
+        </ownedRule>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_cIytEAOqEeaiNLSABY7wHw" source="_in3ewAOpEeaiNLSABY7wHw" target="_1f3fgAOpEeaiNLSABY7wHw"/>
+      <subvertex xmi:type="uml:State" xmi:id="_e6aVkAOpEeaiNLSABY7wHw" name="S1"/>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_fyGykAOpEeaiNLSABY7wHw"/>
+      <subvertex xmi:type="uml:State" xmi:id="_hTUGoAOpEeaiNLSABY7wHw" name="S2"/>
+      <subvertex xmi:type="uml:State" xmi:id="_hwr_IAOpEeaiNLSABY7wHw" name="S3"/>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_in3ewAOpEeaiNLSABY7wHw" name="CHOICE" kind="choice"/>
+      <subvertex xmi:type="uml:State" xmi:id="_1f3fgAOpEeaiNLSABY7wHw" name="S4"/>
+    </region>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Signal" xmi:id="_61ApIAOyEeaiNLSABY7wHw" name="E1"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_9sMRoAOyEeaiNLSABY7wHw" name="SignalEventE1" signal="_61ApIAOyEeaiNLSABY7wHw"/>
+</uml:Model>

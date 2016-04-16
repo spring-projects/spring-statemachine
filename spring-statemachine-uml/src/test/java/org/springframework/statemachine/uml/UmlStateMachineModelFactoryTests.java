@@ -32,6 +32,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
@@ -41,7 +42,9 @@ import org.springframework.statemachine.config.builders.StateMachineModelConfigu
 import org.springframework.statemachine.config.model.StateData;
 import org.springframework.statemachine.config.model.StateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineModelFactory;
+import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.state.PseudoStateKind;
+import org.springframework.util.ObjectUtils;
 
 public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 
@@ -257,6 +260,42 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S4"));
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleChoice1() {
+		context.register(Config6.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent(MessageBuilder.withPayload("E1").setHeader("choice", "s2").build());
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleChoice2() {
+		context.register(Config6.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent(MessageBuilder.withPayload("E1").setHeader("choice", "s3").build());
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S3"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleChoice3() {
+		context.register(Config6.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S4"));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config2 extends StateMachineConfigurerAdapter<String, String> {
@@ -334,6 +373,34 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		}
 	}
 
+	@Configuration
+	@EnableStateMachine
+	public static class Config6 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			Resource model = new ClassPathResource("org/springframework/statemachine/uml/simple-choice.uml");
+			return new UmlStateMachineModelFactory(model);
+		}
+
+		@Bean
+		public ChoiceGuard s2Guard() {
+			return new ChoiceGuard("s2");
+		}
+
+		@Bean
+		public ChoiceGuard s3Guard() {
+			return new ChoiceGuard("s3");
+		}
+	}
+
 	public static class LatchAction implements Action<String, String> {
 		CountDownLatch latch = new CountDownLatch(1);
 		@Override
@@ -341,4 +408,19 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 			latch.countDown();
 		}
 	}
+
+	private static class ChoiceGuard implements Guard<String, String> {
+
+		private final String match;
+
+		public ChoiceGuard(String match) {
+			this.match = match;
+		}
+
+		@Override
+		public boolean evaluate(StateContext<String, String> context) {
+			return ObjectUtils.nullSafeEquals(match, context.getMessageHeaders().get("choice", String.class));
+		}
+	}
+
 }
