@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.guard.Guard;
+import org.springframework.util.Assert;
 
 /**
  * Choice implementation of a {@link PseudoState}.
@@ -74,18 +75,28 @@ public class ChoicePseudoState<S, E> implements PseudoState<S, E> {
 	 * @param <E> the type of event
 	 */
 	public static class ChoiceStateData<S, E> {
-		private final State<S, E> state;
+		private final StateHolder<S, E> state;
 		private final Guard<S, E> guard;
 
 		/**
 		 * Instantiates a new choice state data.
 		 *
-		 * @param state the state
+		 * @param state the state holder
 		 * @param guard the guard
 		 */
-		public ChoiceStateData(State<S, E> state, Guard<S, E> guard) {
+		public ChoiceStateData(StateHolder<S, E> state, Guard<S, E> guard) {
+			Assert.notNull(state, "Holder must be set");
 			this.state = state;
 			this.guard = guard;
+		}
+
+		/**
+		 * Gets the state holder.
+		 *
+		 * @return the state holder
+		 */
+		public StateHolder<S, E> getStateHolder() {
+			return state;
 		}
 
 		/**
@@ -94,7 +105,7 @@ public class ChoicePseudoState<S, E> implements PseudoState<S, E> {
 		 * @return the state
 		 */
 		public State<S, E> getState() {
-			return state;
+			return state.getState();
 		}
 
 		/**
@@ -106,5 +117,4 @@ public class ChoicePseudoState<S, E> implements PseudoState<S, E> {
 			return guard;
 		}
 	}
-
 }

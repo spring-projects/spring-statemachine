@@ -114,6 +114,20 @@ public class ChoiceStateTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), contains(TestStates.S33));
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSubsequentChoiceStates() {
+		context.register(BaseConfig.class, Config3.class);
+		context.refresh();
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		assertThat(machine, notNullValue());
+		machine.start();
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("choice", "s2").build());
+
+		assertThat(machine.getState().getIds(), contains(TestStates.S21));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
@@ -160,6 +174,7 @@ public class ChoiceStateTests extends AbstractStateMachineTests {
 		}
 
 	}
+
 	@Configuration
 	@EnableStateMachine
 	static class Config2 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
@@ -184,9 +199,6 @@ public class ChoiceStateTests extends AbstractStateMachineTests {
 					.and()
 				.withChoice()
 					.source(TestStates.S3)
-//					.first(TestStates.S30, s30Guard())
-//					.then(TestStates.S31, s31Guard())
-//					.then(TestStates.S32, s32Guard())
 					.last(TestStates.S33);
 		}
 
@@ -207,6 +219,50 @@ public class ChoiceStateTests extends AbstractStateMachineTests {
 
 	}
 
+	@Configuration
+	@EnableStateMachine
+	static class Config3 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.SI)
+					.states(EnumSet.allOf(TestStates.class))
+					.choice(TestStates.S3)
+					.choice(TestStates.S2)
+					.end(TestStates.SF);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.SI)
+					.target(TestStates.S3)
+					.event(TestEvents.E1)
+					.and()
+				.withChoice()
+					.source(TestStates.S3)
+					.first(TestStates.S2, s2Guard())
+					.last(TestStates.S33)
+					.and()
+				.withChoice()
+					.source(TestStates.S2)
+					.first(TestStates.S20, s20Guard())
+					.last(TestStates.S21);
+		}
+
+		@Bean
+		public Guard<TestStates, TestEvents> s2Guard() {
+			return new ChoiceGuard("s2");
+		}
+
+		@Bean
+		public Guard<TestStates, TestEvents> s20Guard() {
+			return new ChoiceGuard("s20");
+		}
+	}
 
 	private static class ChoiceGuard implements Guard<TestStates, TestEvents> {
 

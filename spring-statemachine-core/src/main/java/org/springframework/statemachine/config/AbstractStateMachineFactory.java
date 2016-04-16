@@ -489,7 +489,11 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 				List<ChoiceData<S, E>> list = stateMachineTransitions.getChoices().get(s);
 				List<ChoiceStateData<S, E>> choices = new ArrayList<ChoiceStateData<S, E>>();
 				for (ChoiceData<S, E> c : list) {
-					choices.add(new ChoiceStateData<S, E>(stateMap.get(c.getTarget()), c.getGuard()));
+					StateHolder<S, E> holder = new StateHolder<S, E>(stateMap.get(c.getTarget()));
+					if (holder.getState() == null) {
+						holderMap.put(c.getTarget(), holder);
+					}
+					choices.add(new ChoiceStateData<S, E>(holder, c.getGuard()));
 				}
 				PseudoState<S, E> pseudoState = new ChoicePseudoState<S, E>(choices);
 				state = buildStateInternal(stateData.getState(), stateData.getDeferred(), stateData.getEntryActions(),

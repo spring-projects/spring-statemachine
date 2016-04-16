@@ -729,6 +729,13 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			StateContext<S, E> stateContext = buildStateContext(Stage.STATE_CHANGED, message, transition, stateMachine);
 			State<S, E> toState = state.getPseudoState().entry(stateContext);
 
+			// TODO: should do recursive linked pseudostates centrally
+			if (kind == PseudoStateKind.CHOICE) {
+				while (toState != null && toState.getPseudoState() != null
+						&& toState.getPseudoState().getKind() != PseudoStateKind.INITIAL) {
+					toState = toState.getPseudoState().entry(stateContext);
+				}
+			}
 			if (kind == PseudoStateKind.CHOICE) {
 				callPreStateChangeInterceptors(toState, message, transition, stateMachine);
 			}
