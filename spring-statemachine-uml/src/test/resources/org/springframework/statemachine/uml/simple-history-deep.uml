@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_FKAOkAPVEeaXyaQL1WyV3A" name="RootElement">
+  <packagedElement xmi:type="uml:StateMachine" xmi:id="_FKA1oAPVEeaXyaQL1WyV3A" name="StateMachine">
+    <region xmi:type="uml:Region" xmi:id="_FKBcsAPVEeaXyaQL1WyV3A" name="Region1">
+      <transition xmi:type="uml:Transition" xmi:id="_5hsSMAPVEeaXyaQL1WyV3A" source="_J15V8APVEeaXyaQL1WyV3A" target="_LaWyUAPVEeaXyaQL1WyV3A"/>
+      <transition xmi:type="uml:Transition" xmi:id="_AOXlkAPWEeaXyaQL1WyV3A" source="_LaWyUAPVEeaXyaQL1WyV3A" target="_WTsTZAPVEeaXyaQL1WyV3A">
+        <trigger xmi:type="uml:Trigger" xmi:id="_qLMz4APWEeaXyaQL1WyV3A" event="_erWFYAPWEeaXyaQL1WyV3A"/>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_KizCwAPWEeaXyaQL1WyV3A" source="_LaWyUAPVEeaXyaQL1WyV3A" target="_G3X54APWEeaXyaQL1WyV3A">
+        <trigger xmi:type="uml:Trigger" xmi:id="_2rtHEAPWEeaXyaQL1WyV3A" event="_i6KPMAPWEeaXyaQL1WyV3A"/>
+      </transition>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_J15V8APVEeaXyaQL1WyV3A"/>
+      <subvertex xmi:type="uml:State" xmi:id="_LaWyUAPVEeaXyaQL1WyV3A" name="S1"/>
+      <subvertex xmi:type="uml:State" xmi:id="_NBB1MAPVEeaXyaQL1WyV3A" name="S2">
+        <region xmi:type="uml:Region" xmi:id="_RY_T8APVEeaXyaQL1WyV3A" name="Region1">
+          <transition xmi:type="uml:Transition" xmi:id="_6QLv4APVEeaXyaQL1WyV3A" source="_jPfbcAPVEeaXyaQL1WyV3A" target="_RY_7BgPVEeaXyaQL1WyV3A"/>
+          <subvertex xmi:type="uml:State" xmi:id="_RY_7BgPVEeaXyaQL1WyV3A" name="S20"/>
+          <subvertex xmi:type="uml:State" xmi:id="_Tj5sUAPVEeaXyaQL1WyV3A" name="S21">
+            <region xmi:type="uml:Region" xmi:id="_WTrsUQPVEeaXyaQL1WyV3A" name="Region1">
+              <transition xmi:type="uml:Transition" xmi:id="_7ALpcAPVEeaXyaQL1WyV3A" source="_nr8_sAPVEeaXyaQL1WyV3A" target="_WTsTZAPVEeaXyaQL1WyV3A"/>
+              <transition xmi:type="uml:Transition" xmi:id="_B9YsIAPWEeaXyaQL1WyV3A" source="_WTsTZAPVEeaXyaQL1WyV3A" target="_Yq2YAAPVEeaXyaQL1WyV3A">
+                <trigger xmi:type="uml:Trigger" xmi:id="_vUisQAPWEeaXyaQL1WyV3A" event="_f-kAwAPWEeaXyaQL1WyV3A"/>
+              </transition>
+              <transition xmi:type="uml:Transition" xmi:id="_D-0_cAPWEeaXyaQL1WyV3A" source="_Yq2YAAPVEeaXyaQL1WyV3A" target="_LaWyUAPVEeaXyaQL1WyV3A">
+                <trigger xmi:type="uml:Trigger" xmi:id="_zNWw4APWEeaXyaQL1WyV3A" event="_hosnUAPWEeaXyaQL1WyV3A"/>
+              </transition>
+              <subvertex xmi:type="uml:State" xmi:id="_WTsTZAPVEeaXyaQL1WyV3A" name="S211"/>
+              <subvertex xmi:type="uml:State" xmi:id="_Yq2YAAPVEeaXyaQL1WyV3A" name="S212"/>
+              <subvertex xmi:type="uml:Pseudostate" xmi:id="_nr8_sAPVEeaXyaQL1WyV3A"/>
+            </region>
+          </subvertex>
+          <subvertex xmi:type="uml:Pseudostate" xmi:id="_jPfbcAPVEeaXyaQL1WyV3A"/>
+          <subvertex xmi:type="uml:Pseudostate" xmi:id="_G3X54APWEeaXyaQL1WyV3A" name="SH" kind="deepHistory"/>
+        </region>
+      </subvertex>
+    </region>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Signal" xmi:id="_ZwnQwAPWEeaXyaQL1WyV3A" name="E1"/>
+  <packagedElement xmi:type="uml:Signal" xmi:id="_bEsHwAPWEeaXyaQL1WyV3A" name="E2"/>
+  <packagedElement xmi:type="uml:Signal" xmi:id="_cUp60APWEeaXyaQL1WyV3A" name="E3"/>
+  <packagedElement xmi:type="uml:Signal" xmi:id="_dVklQAPWEeaXyaQL1WyV3A" name="E4"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_erWFYAPWEeaXyaQL1WyV3A" name="SignalEventE1" signal="_ZwnQwAPWEeaXyaQL1WyV3A"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_f-kAwAPWEeaXyaQL1WyV3A" name="SignalEventE2" signal="_bEsHwAPWEeaXyaQL1WyV3A"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_hosnUAPWEeaXyaQL1WyV3A" name="SignalEventE3" signal="_cUp60APWEeaXyaQL1WyV3A"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_i6KPMAPWEeaXyaQL1WyV3A" name="SignalEventE4" signal="_dVklQAPWEeaXyaQL1WyV3A"/>
+</uml:Model>

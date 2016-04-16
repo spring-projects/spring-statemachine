@@ -174,6 +174,14 @@ public class UmlModelParser {
 					StateData<String, String> cpStateData = new StateData<>(parent, regionId, state.getName(), false);
 					cpStateData.setPseudoStateKind(PseudoStateKind.JOIN);
 					stateDatas.add(cpStateData);
+				} else if (state.getKind() == PseudostateKind.SHALLOW_HISTORY_LITERAL) {
+					StateData<String, String> cpStateData = new StateData<>(parent, regionId, state.getName(), false);
+					cpStateData.setPseudoStateKind(PseudoStateKind.HISTORY_SHALLOW);
+					stateDatas.add(cpStateData);
+				} else if (state.getKind() == PseudostateKind.DEEP_HISTORY_LITERAL) {
+					StateData<String, String> cpStateData = new StateData<>(parent, regionId, state.getName(), false);
+					cpStateData.setPseudoStateKind(PseudoStateKind.HISTORY_DEEP);
+					stateDatas.add(cpStateData);
 				}
 			}
 		}
