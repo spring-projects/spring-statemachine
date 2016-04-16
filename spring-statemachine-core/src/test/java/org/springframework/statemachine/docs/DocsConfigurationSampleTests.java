@@ -605,6 +605,59 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 	}
 // end::snippetS[]
 
+// tag::snippetSS[]
+		@Configuration
+		@EnableStateMachine
+		public class Config20
+				extends EnumStateMachineConfigurerAdapter<States, Events> {
+
+			@Override
+			public void configure(StateMachineStateConfigurer<States, Events> states)
+					throws Exception {
+				states
+					.withStates()
+						.initial(States.SI)
+						.junction(States.S1)
+						.end(States.SF)
+						.states(EnumSet.allOf(States.class));
+			}
+
+			@Override
+			public void configure(StateMachineTransitionConfigurer<States, Events> transitions)
+					throws Exception {
+				transitions
+					.withJunction()
+						.source(States.S1)
+						.first(States.S2, s2Guard())
+						.then(States.S3, s3Guard())
+						.last(States.S4);
+			}
+
+			@Bean
+			public Guard<States, Events> s2Guard() {
+				return new Guard<States, Events>() {
+
+					@Override
+					public boolean evaluate(StateContext<States, Events> context) {
+						return false;
+					}
+				};
+			}
+
+			@Bean
+			public Guard<States, Events> s3Guard() {
+				return new Guard<States, Events>() {
+
+					@Override
+					public boolean evaluate(StateContext<States, Events> context) {
+						return true;
+					}
+				};
+			}
+
+		}
+// end::snippetSS[]
+
 // tag::snippetT[]
 	@Configuration
 	@EnableStateMachine

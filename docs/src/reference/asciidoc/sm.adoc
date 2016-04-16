@@ -257,6 +257,34 @@ Otherwise configuration is ill-formed.
 include::samples/DocsConfigurationSampleTests.java[tags=snippetS]
 ----
 
+==== Junction State
+Junction needs to be defined in both states and transitions to work
+properly. Mark particular state as choice state by using `junction()`
+method. This state needs to match source state when transition is
+configured for this choice.
+
+Transition is configured using `withJunction()` where you define source
+state and `first/then/last` structure which is equivalent to normal
+`if/elseif/else`. With `first` and `then` you can specify a guard just
+like you'd use a condition with `if/elseif` clauses.
+
+Transition needs to be able to exist so make sure `last` is used.
+Otherwise configuration is ill-formed.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetSS]
+----
+
+[NOTE]
+====
+Difference between choice and junction is purely academic as both are
+implemented with `first/then/last` stucture. However in theory based
+on uml model, _choice_ allows only one incoming transition while
+_junction_ allows multiple incoming transitions. At a code level
+functionality is pretty much identical.
+====
+
 ==== Fork State
 Fork needs to be defined in both states and transitions to work
 properly. Mark particular state as choice state by using `fork()`
