@@ -36,6 +36,7 @@ import org.eclipse.uml2.uml.Transition;
 import org.eclipse.uml2.uml.Trigger;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.eclipse.uml2.uml.resource.UMLResource;
+import org.springframework.statemachine.transition.TransitionKind;
 
 /**
  * Utilities for uml model processing.
@@ -120,5 +121,22 @@ public abstract class UmlUtils {
 			}
 		}
 		return events;
+	}
+
+	/**
+	 * Map uml transtion type.
+	 *
+	 * @param transition the transition
+	 * @return the transition kind
+	 */
+	public static TransitionKind mapUmlTransitionType(Transition transition) {
+		org.eclipse.uml2.uml.TransitionKind kind = transition.getKind();
+		if (kind == org.eclipse.uml2.uml.TransitionKind.LOCAL_LITERAL) {
+			return TransitionKind.LOCAL;
+		} else if (kind == org.eclipse.uml2.uml.TransitionKind.INTERNAL_LITERAL) {
+			return TransitionKind.INTERNAL;
+		} else {
+			return TransitionKind.EXTERNAL;
+		}
 	}
 }

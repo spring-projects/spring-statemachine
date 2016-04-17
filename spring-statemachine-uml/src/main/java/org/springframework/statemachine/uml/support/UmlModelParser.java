@@ -280,15 +280,16 @@ public class UmlModelParser {
 					Signal signal = ((SignalEvent)event).getSignal();
 					if (signal != null) {
 						transitionDatas.add(new TransitionData<String, String>(transition.getSource().getName(),
-								transition.getTarget().getName(), signal.getName(), resolveTransitionActions(transition), null, null));
+								transition.getTarget().getName(), signal.getName(), resolveTransitionActions(transition), null,
+								UmlUtils.mapUmlTransitionType(transition)));
 					}
 				}
 			}
 
 			// create anonymous transition if needed
 			if (shouldCreateAnonymousTransition(transition)) {
-				transitionDatas.add(new TransitionData<String, String>(transition.getSource().getName(),
-						transition.getTarget().getName(), null, resolveTransitionActions(transition), null, null));
+				transitionDatas.add(new TransitionData<String, String>(transition.getSource().getName(), transition.getTarget().getName(),
+						null, resolveTransitionActions(transition), null, UmlUtils.mapUmlTransitionType(transition)));
 			}
 		}
 	}

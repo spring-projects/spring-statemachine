@@ -42,8 +42,10 @@ import org.springframework.statemachine.config.builders.StateMachineModelConfigu
 import org.springframework.statemachine.config.model.StateData;
 import org.springframework.statemachine.config.model.StateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineModelFactory;
+import org.springframework.statemachine.config.model.TransitionData;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.state.PseudoStateKind;
+import org.springframework.statemachine.transition.TransitionKind;
 import org.springframework.util.ObjectUtils;
 
 public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
@@ -429,6 +431,31 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 			} else if (stateData.getState().equals("S3")) {
 				assertThat(stateData.isInitial(), is(false));
 				assertThat(stateData.getDeferred().size(), is(0));
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+	}
+
+	@Test
+	public void testSimpleTransitionTypes() {
+		context.refresh();
+		Resource model1 = new ClassPathResource("org/springframework/statemachine/uml/simple-transitiontypes.uml");
+		UmlStateMachineModelFactory builder = new UmlStateMachineModelFactory(model1);
+		assertThat(model1.exists(), is(true));
+		StateMachineModel<String, String> stateMachineModel = builder.build();
+		assertThat(stateMachineModel, notNullValue());
+		Collection<StateData<String, String>> stateDatas = stateMachineModel.getStatesData().getStateData();
+		Collection<TransitionData<String, String>> transitionDatas = stateMachineModel.getTransitionsData().getTransitions();
+		assertThat(stateDatas.size(), is(2));
+		assertThat(transitionDatas.size(), is(3));
+		for (TransitionData<String, String> transitionData : transitionDatas) {
+			if (transitionData.getEvent().equals("E1")) {
+				assertThat(transitionData.getKind(), is(TransitionKind.EXTERNAL));
+			} else if (transitionData.getEvent().equals("E2")) {
+				assertThat(transitionData.getKind(), is(TransitionKind.LOCAL));
+			} else if (transitionData.getEvent().equals("E3")) {
+				assertThat(transitionData.getKind(), is(TransitionKind.INTERNAL));
 			} else {
 				throw new IllegalArgumentException();
 			}

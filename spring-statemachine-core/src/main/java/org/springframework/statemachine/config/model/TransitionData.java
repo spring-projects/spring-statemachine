@@ -63,7 +63,7 @@ public class TransitionData<S, E> {
 	 */
 	public TransitionData(S source, S target, E event, Collection<Action<S, E>> actions,
 			Guard<S, E> guard, TransitionKind kind) {
-		this(source, target, null, event, null, null, actions, guard, TransitionKind.EXTERNAL, null);
+		this(source, target, null, event, null, null, actions, guard, kind, null);
 	}
 
 	/**
