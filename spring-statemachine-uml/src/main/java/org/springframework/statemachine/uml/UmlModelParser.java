@@ -25,9 +25,11 @@ import java.util.Map;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.uml2.uml.Activity;
+import org.eclipse.uml2.uml.BodyOwner;
 import org.eclipse.uml2.uml.Constraint;
 import org.eclipse.uml2.uml.Event;
 import org.eclipse.uml2.uml.Model;
+import org.eclipse.uml2.uml.OpaqueBehavior;
 import org.eclipse.uml2.uml.OpaqueExpression;
 import org.eclipse.uml2.uml.PackageableElement;
 import org.eclipse.uml2.uml.Pseudostate;
@@ -277,7 +279,7 @@ public class UmlModelParser {
 					Signal signal = ((SignalEvent)event).getSignal();
 					if (signal != null) {
 						transitionDatas.add(new TransitionData<String, String>(transition.getSource().getName(),
-								transition.getTarget().getName(), signal.getName()));
+								transition.getTarget().getName(), signal.getName(), resolveTransitionActions(transition), null, null));
 					}
 				}
 			}
@@ -285,9 +287,21 @@ public class UmlModelParser {
 			// create anonymous transition if needed
 			if (shouldCreateAnonymousTransition(transition)) {
 				transitionDatas.add(new TransitionData<String, String>(transition.getSource().getName(),
-						transition.getTarget().getName(), null));
+						transition.getTarget().getName(), null, resolveTransitionActions(transition), null, null));
 			}
 		}
+	}
+
+	private Collection<Action<String, String>> resolveTransitionActions(Transition transition) {
+		ArrayList<Action<String, String>> actions = new ArrayList<Action<String, String>>();
+		if (transition.getEffect() instanceof OpaqueBehavior) {
+			String beanId = resolveBodyLanguage("bean", (OpaqueBehavior)transition.getEffect());
+			Action<String, String> bean = resolver.resolveAction(beanId);
+			if (bean != null) {
+				actions.add(bean);
+			}
+		}
+		return actions;
 	}
 
 	private boolean shouldCreateAnonymousTransition(Transition transition) {
@@ -314,6 +328,28 @@ public class UmlModelParser {
 	}
 
 	private StateData<String, String> handleActions(StateData<String, String> stateData, State state) {
+		if (state.getEntry() instanceof OpaqueBehavior) {
+			String beanId = resolveBodyLanguage("bean", (OpaqueBehavior)state.getEntry());
+			if (StringUtils.hasText(beanId)) {
+				Action<String, String> bean = resolver.resolveAction(beanId);
+				if (bean != null) {
+					ArrayList<Action<String, String>> entrys = new ArrayList<Action<String, String>>();
+					entrys.add(bean);
+					stateData.setEntryActions(entrys);
+				}
+			}
+		}
+		if (state.getExit() instanceof OpaqueBehavior) {
+			String beanId = resolveBodyLanguage("bean", (OpaqueBehavior)state.getExit());
+			if (StringUtils.hasText(beanId)) {
+				Action<String, String> bean = resolver.resolveAction(beanId);
+				if (bean != null) {
+					ArrayList<Action<String, String>> entrys = new ArrayList<Action<String, String>>();
+					entrys.add(bean);
+					stateData.setExitActions(entrys);
+				}
+			}
+		}
 		if (state.getEntry() instanceof Activity) {
 			String beanId = ((Activity)state.getEntry()).getName();
 			Action<String, String> bean = resolver.resolveAction(beanId);
@@ -333,6 +369,14 @@ public class UmlModelParser {
 			}
 		}
 		return stateData;
+	}
+
+	private static String resolveBodyLanguage(String language, BodyOwner owner) {
+		try {
+			return owner.getBodies().get(owner.getLanguages().indexOf(language));
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	/**

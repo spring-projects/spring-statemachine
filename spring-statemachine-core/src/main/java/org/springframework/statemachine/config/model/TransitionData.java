@@ -56,6 +56,21 @@ public class TransitionData<S, E> {
 	 *
 	 * @param source the source
 	 * @param target the target
+	 * @param event the event
+	 * @param actions the actions
+	 * @param guard the guard
+	 * @param kind the kind
+	 */
+	public TransitionData(S source, S target, E event, Collection<Action<S, E>> actions,
+			Guard<S, E> guard, TransitionKind kind) {
+		this(source, target, null, event, null, null, actions, guard, TransitionKind.EXTERNAL, null);
+	}
+
+	/**
+	 * Instantiates a new transition data.
+	 *
+	 * @param source the source
+	 * @param target the target
 	 * @param state the state
 	 * @param event the event
 	 * @param period the period
