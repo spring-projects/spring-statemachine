@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.uml;
+package org.springframework.statemachine.uml.support;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.uml2.uml.BodyOwner;
 import org.eclipse.uml2.uml.FinalState;
 import org.eclipse.uml2.uml.Model;
 import org.eclipse.uml2.uml.Pseudostate;
@@ -79,5 +80,20 @@ public abstract class UmlUtils {
 	 */
 	public static boolean isFinalState(State state) {
 		return state instanceof FinalState;
+	}
+
+	/**
+	 * Resolve body by language.
+	 *
+	 * @param language the language
+	 * @param owner the owner
+	 * @return the body or null if not found
+	 */
+	public static String resolveBodyByLanguage(String language, BodyOwner owner) {
+		try {
+			return owner.getBodies().get(owner.getLanguages().indexOf(language)).trim();
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }

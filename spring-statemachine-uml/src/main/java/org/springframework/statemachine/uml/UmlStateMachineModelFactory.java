@@ -26,7 +26,9 @@ import org.springframework.statemachine.config.model.ConfigurationData;
 import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineModelFactory;
-import org.springframework.statemachine.uml.UmlModelParser.DataHolder;
+import org.springframework.statemachine.uml.support.UmlModelParser;
+import org.springframework.statemachine.uml.support.UmlUtils;
+import org.springframework.statemachine.uml.support.UmlModelParser.DataHolder;
 import org.springframework.util.Assert;
 
 /**

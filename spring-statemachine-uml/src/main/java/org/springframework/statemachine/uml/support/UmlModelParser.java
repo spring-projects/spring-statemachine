@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.uml;
+package org.springframework.statemachine.uml.support;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,7 +25,6 @@ import java.util.Map;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.uml2.uml.Activity;
-import org.eclipse.uml2.uml.BodyOwner;
 import org.eclipse.uml2.uml.Constraint;
 import org.eclipse.uml2.uml.Event;
 import org.eclipse.uml2.uml.Model;
@@ -66,6 +65,7 @@ import org.springframework.util.StringUtils;
  */
 public class UmlModelParser {
 
+	private final static String LANGUAGE_BEAN = "bean";
 	private final Model model;
 	private final StateMachineComponentResolver<String, String> resolver;
 	private final Collection<StateData<String, String>> stateDatas = new ArrayList<StateData<String, String>>();
@@ -218,9 +218,9 @@ public class UmlModelParser {
 					Guard<String, String> guard = null;
 					for (Constraint c : transition.getOwnedRules()) {
 						if (c.getSpecification() instanceof OpaqueExpression) {
-							OpaqueExpression oe = (OpaqueExpression)c.getSpecification();
-							if (oe.getBodies().size() == 1) {
-								guard = resolver.resolveGuard(oe.getBodies().get(0).trim());
+							String beanId = UmlUtils.resolveBodyByLanguage(LANGUAGE_BEAN, (OpaqueExpression)c.getSpecification());
+							if (StringUtils.hasText(beanId)) {
+								guard = resolver.resolveGuard(beanId);
 							}
 						}
 					}
@@ -239,9 +239,9 @@ public class UmlModelParser {
 					Guard<String, String> guard = null;
 					for (Constraint c : transition.getOwnedRules()) {
 						if (c.getSpecification() instanceof OpaqueExpression) {
-							OpaqueExpression oe = (OpaqueExpression)c.getSpecification();
-							if (oe.getBodies().size() == 1) {
-								guard = resolver.resolveGuard(oe.getBodies().get(0).trim());
+							String beanId = UmlUtils.resolveBodyByLanguage(LANGUAGE_BEAN, (OpaqueExpression)c.getSpecification());
+							if (StringUtils.hasText(beanId)) {
+								guard = resolver.resolveGuard(beanId);
 							}
 						}
 					}
@@ -295,7 +295,7 @@ public class UmlModelParser {
 	private Collection<Action<String, String>> resolveTransitionActions(Transition transition) {
 		ArrayList<Action<String, String>> actions = new ArrayList<Action<String, String>>();
 		if (transition.getEffect() instanceof OpaqueBehavior) {
-			String beanId = resolveBodyLanguage("bean", (OpaqueBehavior)transition.getEffect());
+			String beanId = UmlUtils.resolveBodyByLanguage(LANGUAGE_BEAN, (OpaqueBehavior)transition.getEffect());
 			Action<String, String> bean = resolver.resolveAction(beanId);
 			if (bean != null) {
 				actions.add(bean);
@@ -329,7 +329,7 @@ public class UmlModelParser {
 
 	private StateData<String, String> handleActions(StateData<String, String> stateData, State state) {
 		if (state.getEntry() instanceof OpaqueBehavior) {
-			String beanId = resolveBodyLanguage("bean", (OpaqueBehavior)state.getEntry());
+			String beanId = UmlUtils.resolveBodyByLanguage(LANGUAGE_BEAN, (OpaqueBehavior)state.getEntry());
 			if (StringUtils.hasText(beanId)) {
 				Action<String, String> bean = resolver.resolveAction(beanId);
 				if (bean != null) {
@@ -340,7 +340,7 @@ public class UmlModelParser {
 			}
 		}
 		if (state.getExit() instanceof OpaqueBehavior) {
-			String beanId = resolveBodyLanguage("bean", (OpaqueBehavior)state.getExit());
+			String beanId = UmlUtils.resolveBodyByLanguage(LANGUAGE_BEAN, (OpaqueBehavior)state.getExit());
 			if (StringUtils.hasText(beanId)) {
 				Action<String, String> bean = resolver.resolveAction(beanId);
 				if (bean != null) {
@@ -371,18 +371,10 @@ public class UmlModelParser {
 		return stateData;
 	}
 
-	private static String resolveBodyLanguage(String language, BodyOwner owner) {
-		try {
-			return owner.getBodies().get(owner.getLanguages().indexOf(language));
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
 	/**
 	 * Holder object for results returned from uml parser.
 	 */
-	protected class DataHolder {
+	public class DataHolder {
 		private final StatesData<String, String> statesData;
 		private final TransitionsData<String, String> transitionsData;
 
