@@ -1741,7 +1741,7 @@ via Eclipse Papyrus framework.
 From eclipse wizard create a new _Papyrus Model_ with `UML` _Diagram
 Language_. In this example it's named as `simple-machine`. Then you've
 given an option to choose various diagram kind's and a `StateMachine
-Diagram` mush be chooce.
+Diagram` must be chosen.
 
 We want to create a machine having two states, `S1` and `S2` where
 `S1` is initial state. Then event `E1` is created to do a transition
@@ -1760,11 +1760,52 @@ include::samples/simple-machine.uml[]
 After uml file is in place in your project, it can be imported into
 configuration using `StateMachineModelConfigurer` where
 `StateMachineModelFactory` is associated with a model.
-`UmlStateMachineModelFactory` is a special factory which knows howto
-process eclipse's uml structure.
+`UmlStateMachineModelFactory` is a special factory which knows how to
+process _Eclipse Papyrus_ generated uml structure.
 
 [source,java,indent=0]
 ----
 include::samples/DocsUmlSampleTests1.java[tags=snippetA]
 ----
 
+Uml model is relatively loose what comes for the implementation like
+_Spring StateMachine_ itself. There are choices what implementation
+need to take for uml support as it leaves a lot of features and
+functionalities for an implementation to decide. Below sections go
+through how _Spring StateMachine_ will implement uml model based on
+_Eclipse Papyrus plugin_.
+
+[IMPORTANT]
+====
+As usually _Spring StateMachine_ is working with _Guards_ and
+_Actions_ which are defined as bean, those need to be hooked into uml
+by its internal modeling structure. In a below sections you will see
+how customized bean references are defined within uml definitions.
+Thought it is also possible to register particular methods manually
+without defining those as beans.
+====
+
+=== Define States
+State identifier is simply coming from a component name in a diagram.
+You must have initial state in your machine which is done by adding
+_Initial_ and then drawing a transition to your own initial state.
+
+=== Define Transitions
+Transition is simply created by drawing _transition_ line between
+source and target states.
+
+=== Define Actions
+State entry and exit actions can be associated by using a behaviour,
+more about this in <<sm-papyrus-beanref>>.
+
+=== Define Guards
+Guard can be defined by first adding _Constraint_ and then defining
+its _Specification_ as _OpaqueExpression_ which works in a same way
+than <<sm-papyrus-beanref>>.
+
+[[sm-papyrus-beanref]]
+=== Define Bean Reference
+When there is a need to make a bean reference in any uml _effect_,
+_action_ or _guard_, supported method to do that is via
+`FunctionBehavior` or `OpaqueBehavior` where defined language needs to
+be _bean_ and language body having a bean reference id.
