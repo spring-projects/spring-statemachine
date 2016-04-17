@@ -18,7 +18,9 @@ package org.springframework.statemachine.uml;
 import java.io.IOException;
 
 import org.eclipse.uml2.uml.Model;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.statemachine.config.model.AbstractStateMachineModelFactory;
 import org.springframework.statemachine.config.model.ConfigurationData;
 import org.springframework.statemachine.config.model.DefaultStateMachineModel;
@@ -36,7 +38,8 @@ import org.springframework.util.Assert;
 public class UmlStateMachineModelFactory extends AbstractStateMachineModelFactory<String, String>
 		implements StateMachineModelFactory<String, String> {
 
-	private final Resource resource;
+	private Resource resource;
+	private String location;
 
 	/**
 	 * Instantiates a new uml state machine model factory.
@@ -48,17 +51,38 @@ public class UmlStateMachineModelFactory extends AbstractStateMachineModelFactor
 		this.resource = resource;
 	}
 
+	/**
+	 * Instantiates a new uml state machine model factory.
+	 *
+	 * @param location the resource location
+	 */
+	public UmlStateMachineModelFactory(String location) {
+		this.location = location;
+	}
+
 	@Override
 	public StateMachineModel<String, String> build() {
 		Model model = null;
 		try {
-			model = UmlUtils.getModel(resource.getURI().getPath());
+			model = UmlUtils.getModel(resolveResource().getURI().getPath());
 		} catch (IOException e) {
-			throw new IllegalArgumentException("Cannot build build model from resource " + resource, e);
+			throw new IllegalArgumentException("Cannot build build model from resource " + resource + " or location " + location, e);
 		}
 		UmlModelParser parser = new UmlModelParser(model, this);
 		DataHolder dataHolder = parser.parseModel();
 		ConfigurationData<String, String> configurationData = new ConfigurationData<>();
 		return new DefaultStateMachineModel<String, String>(configurationData, dataHolder.getStatesData(), dataHolder.getTransitionsData());
+	}
+
+	private Resource resolveResource() {
+		if (resource != null) {
+			return resource;
+		} else {
+			ResourceLoader loader = getResourceLoader();
+			if (loader == null) {
+				loader = new DefaultResourceLoader();
+			}
+			return loader.getResource(location);
+		}
 	}
 }

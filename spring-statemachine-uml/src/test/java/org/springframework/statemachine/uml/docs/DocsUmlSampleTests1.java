@@ -17,8 +17,6 @@ package org.springframework.statemachine.uml.docs;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineModelConfigurer;
@@ -41,8 +39,7 @@ public class DocsUmlSampleTests1 {
 
 		@Bean
 		public StateMachineModelFactory<String, String> modelFactory() {
-			Resource model = new ClassPathResource("org/springframework/statemachine/uml/docs/simple-machine.uml");
-			return new UmlStateMachineModelFactory(model);
+			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/uml/docs/simple-machine.uml");
 		}
 	}
 // end::snippetA[]

@@ -1761,7 +1761,8 @@ After uml file is in place in your project, it can be imported into
 configuration using `StateMachineModelConfigurer` where
 `StateMachineModelFactory` is associated with a model.
 `UmlStateMachineModelFactory` is a special factory which knows how to
-process _Eclipse Papyrus_ generated uml structure.
+process _Eclipse Papyrus_ generated uml structure. Source uml file can
+either be given as a Spring `Resource` or a normal location string.
 
 [source,java,indent=0]
 ----

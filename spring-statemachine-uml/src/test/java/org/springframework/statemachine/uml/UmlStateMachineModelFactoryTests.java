@@ -608,8 +608,7 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 
 		@Bean
 		public StateMachineModelFactory<String, String> modelFactory() {
-			Resource model = new ClassPathResource("org/springframework/statemachine/uml/simple-actions.uml");
-			return new UmlStateMachineModelFactory(model);
+			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/uml/simple-actions.uml");
 		}
 
 		@Bean

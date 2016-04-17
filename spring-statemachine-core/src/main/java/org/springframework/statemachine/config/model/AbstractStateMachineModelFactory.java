@@ -21,6 +21,8 @@ import java.util.Map;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.context.ResourceLoaderAware;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
 
@@ -38,15 +40,21 @@ import org.springframework.statemachine.guard.Guard;
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public abstract class AbstractStateMachineModelFactory<S, E> implements StateMachineComponentResolver<S, E>, BeanFactoryAware {
+public abstract class AbstractStateMachineModelFactory<S, E> implements StateMachineComponentResolver<S, E>, BeanFactoryAware, ResourceLoaderAware {
 
 	private BeanFactory beanFactory;
+	private ResourceLoader resourceLoader;
 	private final Map<String, Action<S, E>> registeredActions = new HashMap<>();
 	private final Map<String, Guard<S, E>> registeredGuards = new HashMap<>();
 
 	@Override
 	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
 		this.beanFactory = beanFactory;
+	}
+
+	@Override
+	public void setResourceLoader(ResourceLoader resourceLoader) {
+		this.resourceLoader = resourceLoader;
 	}
 
 	/**
@@ -76,6 +84,15 @@ public abstract class AbstractStateMachineModelFactory<S, E> implements StateMac
 	 */
 	protected final BeanFactory getBeanFactory() {
 		return beanFactory;
+	}
+
+	/**
+	 * Gets the resource loader.
+	 *
+	 * @return the resource loader
+	 */
+	protected ResourceLoader getResourceLoader() {
+		return resourceLoader;
 	}
 
 	/**
