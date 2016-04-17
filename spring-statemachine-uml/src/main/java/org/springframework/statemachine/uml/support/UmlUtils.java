@@ -15,18 +15,25 @@
  */
 package org.springframework.statemachine.uml.support;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.uml2.uml.BodyOwner;
+import org.eclipse.uml2.uml.Event;
 import org.eclipse.uml2.uml.FinalState;
 import org.eclipse.uml2.uml.Model;
 import org.eclipse.uml2.uml.Pseudostate;
 import org.eclipse.uml2.uml.PseudostateKind;
+import org.eclipse.uml2.uml.Signal;
+import org.eclipse.uml2.uml.SignalEvent;
 import org.eclipse.uml2.uml.State;
 import org.eclipse.uml2.uml.Transition;
+import org.eclipse.uml2.uml.Trigger;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.eclipse.uml2.uml.resource.UMLResource;
 
@@ -95,5 +102,23 @@ public abstract class UmlUtils {
 		} catch (Exception e) {
 			return null;
 		}
+	}
+
+	/**
+	 * Resolve dererred events from a state.
+	 *
+	 * @param state the state
+	 * @return the collection of deferred events
+	 */
+	public static Collection<String> resolveDererredEvents(State state) {
+		ArrayList<String> events = new ArrayList<String>();
+		for (Trigger trigger : state.getDeferrableTriggers()) {
+			Event event = trigger.getEvent();
+			if (event instanceof SignalEvent) {
+				Signal signal = ((SignalEvent)event).getSignal();
+				events.add(signal.getName());
+			}
+		}
+		return events;
 	}
 }

@@ -132,6 +132,7 @@ public class UmlModelParser {
 				}
 				StateData<String, String> stateData = handleActions(
 						new StateData<String, String>(parent, regionId, state.getName(), UmlUtils.isInitialState(state)), state);
+				stateData.setDeferred(UmlUtils.resolveDererredEvents(state));
 				if (UmlUtils.isFinalState(state)) {
 					stateData.setEnd(true);
 				}

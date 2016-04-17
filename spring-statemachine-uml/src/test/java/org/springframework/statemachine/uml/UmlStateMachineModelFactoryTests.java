@@ -408,6 +408,33 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(s2Entry.latch.await(1, TimeUnit.SECONDS), is(true));
 	}
 
+	@Test
+	public void testSimpleEventDefer() {
+		context.refresh();
+		Resource model1 = new ClassPathResource("org/springframework/statemachine/uml/simple-eventdefer.uml");
+		UmlStateMachineModelFactory builder = new UmlStateMachineModelFactory(model1);
+		assertThat(model1.exists(), is(true));
+		StateMachineModel<String, String> stateMachineModel = builder.build();
+		assertThat(stateMachineModel, notNullValue());
+		Collection<StateData<String, String>> stateDatas = stateMachineModel.getStatesData().getStateData();
+		assertThat(stateDatas.size(), is(3));
+		for (StateData<String, String> stateData : stateDatas) {
+			if (stateData.getState().equals("S1")) {
+				assertThat(stateData.isInitial(), is(true));
+				assertThat(stateData.getDeferred().size(), is(1));
+				assertThat(stateData.getDeferred().iterator().next(), is("E2"));
+			} else if (stateData.getState().equals("S2")) {
+				assertThat(stateData.isInitial(), is(false));
+				assertThat(stateData.getDeferred().size(), is(0));
+			} else if (stateData.getState().equals("S3")) {
+				assertThat(stateData.isInitial(), is(false));
+				assertThat(stateData.getDeferred().size(), is(0));
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config2 extends StateMachineConfigurerAdapter<String, String> {

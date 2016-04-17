@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_lTCa8ASuEeayEI1yTJhWhg" name="RootElement">
+  <packagedElement xmi:type="uml:StateMachine" xmi:id="_lTmboASuEeayEI1yTJhWhg" name="StateMachine">
+    <region xmi:type="uml:Region" xmi:id="_lTxawASuEeayEI1yTJhWhg" name="Region1">
+      <transition xmi:type="uml:Transition" xmi:id="_vTX3cASuEeayEI1yTJhWhg" source="_o1XSMASuEeayEI1yTJhWhg" target="_pn14AASuEeayEI1yTJhWhg"/>
+      <transition xmi:type="uml:Transition" xmi:id="_v6F5MASuEeayEI1yTJhWhg" source="_pn14AASuEeayEI1yTJhWhg" target="_rGiqoASuEeayEI1yTJhWhg">
+        <trigger xmi:type="uml:Trigger" xmi:id="_6ijssASuEeayEI1yTJhWhg" event="_1sTIYASuEeayEI1yTJhWhg"/>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_BvueAASvEeayEI1yTJhWhg" source="_rGiqoASuEeayEI1yTJhWhg" target="__98-YASuEeayEI1yTJhWhg">
+        <trigger xmi:type="uml:Trigger" xmi:id="_EO2L0ASvEeayEI1yTJhWhg" event="_3n9j0ASuEeayEI1yTJhWhg"/>
+      </transition>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_o1XSMASuEeayEI1yTJhWhg" name=""/>
+      <subvertex xmi:type="uml:State" xmi:id="_pn14AASuEeayEI1yTJhWhg" name="S1">
+        <deferrableTrigger xmi:type="uml:Trigger" xmi:id="_HCTx8ASvEeayEI1yTJhWhg" event="_3n9j0ASuEeayEI1yTJhWhg"/>
+      </subvertex>
+      <subvertex xmi:type="uml:State" xmi:id="_rGiqoASuEeayEI1yTJhWhg" name="S2"/>
+      <subvertex xmi:type="uml:State" xmi:id="__98-YASuEeayEI1yTJhWhg" name="S3"/>
+    </region>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Signal" xmi:id="_yqVMMASuEeayEI1yTJhWhg" name="E1"/>
+  <packagedElement xmi:type="uml:Signal" xmi:id="_0egfkASuEeayEI1yTJhWhg" name="E2"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_1sTIYASuEeayEI1yTJhWhg" name="SignalEventE1" signal="_yqVMMASuEeayEI1yTJhWhg"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_3n9j0ASuEeayEI1yTJhWhg" name="SignalEventE2" signal="_0egfkASuEeayEI1yTJhWhg"/>
+</uml:Model>
