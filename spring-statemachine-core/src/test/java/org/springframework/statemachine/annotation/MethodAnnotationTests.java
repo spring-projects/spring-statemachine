@@ -17,6 +17,7 @@ package org.springframework.statemachine.annotation;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
 
 import java.util.EnumSet;
@@ -41,6 +42,7 @@ import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.StateConfigurer.History;
 
 public class MethodAnnotationTests extends AbstractStateMachineTests {
 
@@ -269,6 +271,65 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		assertThat(bean7.OnStateMachineError1Latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(bean7.OnStateMachineError2Latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(bean7.OnStateMachineError2Exception, notNullValue());
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testMethodAnnotations7() throws Exception {
+		context.register(BaseConfig.class, BeanConfig8.class, Config1.class);
+		context.refresh();
+
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		Bean8 bean8 = context.getBean(Bean8.class);
+		machine.start();
+
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.EF).build());
+
+		assertThat(bean8.OnTransition1Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean8.OnTransition2Latch.await(2, TimeUnit.SECONDS), is(true));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testMethodAnnotations8() throws Exception {
+		context.register(BaseConfig.class, BeanConfig9.class, Config2.class);
+		context.refresh();
+
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		Bean9 bean9 = context.getBean(Bean9.class);
+		machine.start();
+
+		machine.sendEvent(TestEvents.E1);
+		machine.sendEvent(TestEvents.E2);
+		machine.sendEvent(TestEvents.E3);
+		machine.sendEvent(TestEvents.E4);
+
+		assertThat(machine.getState().getIds(), contains(TestStates.S2, TestStates.S21));
+		assertThat(bean9.OnStateEntry1Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean9.OnTransition1Latch.await(2, TimeUnit.SECONDS), is(true));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testMethodAnnotations9() throws Exception {
+		context.register(BaseConfig.class, BeanConfig10.class, Config3.class);
+		context.refresh();
+
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		Bean10 bean10 = context.getBean(Bean10.class);
+		machine.start();
+
+		machine.sendEvent(TestEvents.E1);
+		machine.sendEvent(TestEvents.E2);
+		machine.sendEvent(TestEvents.E3);
+		machine.sendEvent(TestEvents.E4);
+
+		assertThat(machine.getState().getIds(), contains(TestStates.S2, TestStates.S21));
+		assertThat(bean10.OnStateEntry1Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean10.OnTransition1Latch.await(2, TimeUnit.SECONDS), is(true));
 	}
 
 	@WithStateMachine
@@ -538,6 +599,53 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 
 	}
 
+	@WithStateMachine
+	static class Bean8 {
+		CountDownLatch OnTransition1Latch = new CountDownLatch(2);
+		CountDownLatch OnTransition2Latch = new CountDownLatch(1);
+
+		@OnTransition
+		public void OnTransition1() {
+			OnTransition1Latch.countDown();
+		}
+
+		@OnTransition(target = "SF")
+		public void OnTransition2() {
+			OnTransition2Latch.countDown();
+		}
+	}
+
+	@WithStateMachine
+	static class Bean9 {
+		CountDownLatch OnTransition1Latch = new CountDownLatch(1);
+		CountDownLatch OnStateEntry1Latch = new CountDownLatch(2);
+
+		@OnTransition(target = "S21")
+		public void OnTransition1() {
+			OnTransition1Latch.countDown();
+		}
+
+		@OnStateEntry(target = "S21")
+		public void OnStateEntry1() {
+			OnStateEntry1Latch.countDown();
+		}
+	}
+
+	@WithStateMachine
+	static class Bean10 {
+		CountDownLatch OnTransition1Latch = new CountDownLatch(1);
+		CountDownLatch OnStateEntry1Latch = new CountDownLatch(2);
+
+		@OnTransition(target = "S21")
+		public void OnTransition1() {
+			OnTransition1Latch.countDown();
+		}
+
+		@OnStateEntry(target = "S21")
+		public void OnStateEntry1() {
+			OnStateEntry1Latch.countDown();
+		}
+	}
 
 	@Configuration
 	static class BeanConfig1 {
@@ -610,6 +718,36 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 	}
 
 	@Configuration
+	static class BeanConfig8 {
+
+		@Bean
+		public Bean8 bean8() {
+			return new Bean8();
+		}
+
+	}
+
+	@Configuration
+	static class BeanConfig9 {
+
+		@Bean
+		public Bean9 bean9() {
+			return new Bean9();
+		}
+
+	}
+
+	@Configuration
+	static class BeanConfig10 {
+
+		@Bean
+		public Bean10 bean10() {
+			return new Bean10();
+		}
+
+	}
+
+	@Configuration
 	@EnableStateMachine(name = {StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, "fooMachine"})
 	static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
 
@@ -618,6 +756,7 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 			states
 				.withStates()
 					.initial(TestStates.S1)
+					.end(TestStates.SF)
 					.states(EnumSet.allOf(TestStates.class));
 		}
 
@@ -640,7 +779,12 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 				.withExternal()
 					.source(TestStates.S3)
 					.target(TestStates.S4)
-					.event(TestEvents.E3);
+					.event(TestEvents.E3)
+					.and()
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.SF)
+					.event(TestEvents.EF);
 		}
 
 		@Bean
@@ -669,4 +813,97 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 
 	}
 
+	@Configuration
+	@EnableStateMachine
+	static class Config2 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S1)
+					.state(TestStates.S2)
+					.and()
+					.withStates()
+						.parent(TestStates.S2)
+						.initial(TestStates.S20)
+						.state(TestStates.S20)
+						.state(TestStates.S21)
+						.history(TestStates.SH, History.SHALLOW);
+
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S20)
+					.target(TestStates.S21)
+					.event(TestEvents.E2)
+					.and()
+				.withExternal()
+					.source(TestStates.S2)
+					.target(TestStates.S1)
+					.event(TestEvents.E3)
+					.and()
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.SH)
+					.event(TestEvents.E4);
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config3 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S1)
+					.state(TestStates.S2)
+					.and()
+					.withStates()
+						.parent(TestStates.S2)
+						.initial(TestStates.S20)
+						.state(TestStates.S20)
+						.end(TestStates.S21)
+						.history(TestStates.SH, History.SHALLOW);
+
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S20)
+					.target(TestStates.S21)
+					.event(TestEvents.E2)
+					.and()
+				.withExternal()
+					.source(TestStates.S2)
+					.target(TestStates.S1)
+					.event(TestEvents.E3)
+					.and()
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.SH)
+					.event(TestEvents.E4);
+		}
+
+	}
 }
