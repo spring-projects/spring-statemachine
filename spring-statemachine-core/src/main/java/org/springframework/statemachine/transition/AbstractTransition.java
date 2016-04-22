@@ -17,6 +17,8 @@ package org.springframework.statemachine.transition;
 
 import java.util.Collection;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
@@ -34,6 +36,8 @@ import org.springframework.util.Assert;
  * @param <E> the type of event
  */
 public abstract class AbstractTransition<S, E> implements Transition<S, E> {
+
+	private final static Log log = LogFactory.getLog(AbstractTransition.class);
 
 	private final State<S,E> source;
 
@@ -90,7 +94,12 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 	@Override
 	public boolean transit(StateContext<S, E> context) {
 		if (guard != null) {
-			if (!guard.evaluate(context)) {
+			try {
+				if (!guard.evaluate(context)) {
+					return false;
+				}
+			} catch (Throwable t) {
+				log.warn("Deny guard due to throw as GUARD should not error", t);
 				return false;
 			}
 		}

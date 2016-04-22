@@ -17,6 +17,8 @@ package org.springframework.statemachine.state;
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.util.Assert;
@@ -31,6 +33,7 @@ import org.springframework.util.Assert;
  */
 public class ChoicePseudoState<S, E> implements PseudoState<S, E> {
 
+	private final static Log log = LogFactory.getLog(ChoicePseudoState.class);
 	private final List<ChoiceStateData<S, E>> choices;
 
 	/**
@@ -52,7 +55,7 @@ public class ChoicePseudoState<S, E> implements PseudoState<S, E> {
 		State<S, E> s = null;
 		for (ChoiceStateData<S, E> c : choices) {
 			s = c.getState();
-			if (c.guard != null && c.guard.evaluate(context)) {
+			if (c.guard != null && evaluateInternal(c.guard, context)) {
 				break;
 			}
 		}
@@ -65,6 +68,15 @@ public class ChoicePseudoState<S, E> implements PseudoState<S, E> {
 
 	@Override
 	public void addPseudoStateListener(PseudoStateListener<S, E> listener) {
+	}
+
+	private boolean evaluateInternal(Guard<S, E> guard, StateContext<S, E> context) {
+		try {
+			return guard.evaluate(context);
+		} catch (Throwable t) {
+			log.warn("Deny guard due to throw as GUARD should not error", t);
+			return false;
+		}
 	}
 
 	/**

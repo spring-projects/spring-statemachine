@@ -33,6 +33,7 @@ import org.springframework.statemachine.AbstractStateMachineTests.TestEvents;
 import org.springframework.statemachine.AbstractStateMachineTests.TestGuard;
 import org.springframework.statemachine.AbstractStateMachineTests.TestStates;
 import org.springframework.statemachine.ObjectStateMachine;
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
@@ -41,7 +42,7 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 
 /**
  * Tests for state machine guards.
- * 
+ *
  * @author Janne Valkealahti
  *
  */
@@ -57,12 +58,12 @@ public class GuardTests {
 		TestAction testAction = ctx.getBean("testAction", TestAction.class);
 		assertThat(testGuard, notNullValue());
 		assertThat(testAction, notNullValue());
-		
+
 		machine.start();
-		machine.sendEvent(TestEvents.E1);		
+		machine.sendEvent(TestEvents.E1);
 		assertThat(testGuard.onEvaluateLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testAction.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
-		
+
 		ctx.close();
 	}
 
@@ -76,18 +77,35 @@ public class GuardTests {
 		TestAction testAction = ctx.getBean("testAction", TestAction.class);
 		assertThat(testGuard, notNullValue());
 		assertThat(testAction, notNullValue());
-		
+
 		machine.start();
 		assertThat(machine.getState().getIds(), contains(TestStates.S1));
-		
-		machine.sendEvent(TestEvents.E1);		
+
+		machine.sendEvent(TestEvents.E1);
 		assertThat(testGuard.onEvaluateLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testAction.onExecuteLatch.await(2, TimeUnit.SECONDS), is(false));
 		assertThat(machine.getState().getIds(), contains(TestStates.S1));
-		
+
 		ctx.close();
 	}
-	
+
+	@SuppressWarnings({ "unchecked" })
+	@Test
+	public void testGuardThrows() throws Exception {
+		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config3.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		machine.start();
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		machine.sendEvent(TestEvents.E1);
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		machine.sendEvent(TestEvents.E2);
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		machine.sendEvent(TestEvents.E3);
+		assertThat(machine.getState().getIds(), contains(TestStates.S2));
+		ctx.close();
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
@@ -116,12 +134,12 @@ public class GuardTests {
 		public TestAction testAction() {
 			return new TestAction();
 		}
-		
+
 		@Bean
 		public TestGuard testGuard() {
 			return new TestGuard(true);
 		}
-		
+
 		@Bean
 		public TaskExecutor taskExecutor() {
 			return new SyncTaskExecutor();
@@ -152,12 +170,12 @@ public class GuardTests {
 					.action(testAction())
 					.guard(testGuard());
 		}
-		
+
 		@Bean
 		public TestGuard testGuard() {
 			return new TestGuard(false);
 		}
-		
+
 		@Bean
 		public TestAction testAction() {
 			return new TestAction();
@@ -169,5 +187,61 @@ public class GuardTests {
 		}
 
 	}
-	
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config3 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S1)
+					.state(TestStates.S2);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.guard(testGuard1())
+					.and()
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E2)
+					.guard(testGuard2())
+					.and()
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E3);
+		}
+
+		@Bean
+		public Guard<TestStates, TestEvents> testGuard1() {
+			return new Guard<TestStates, TestEvents>() {
+
+				@Override
+				public boolean evaluate(StateContext<TestStates, TestEvents> context) {
+					throw new RuntimeException();
+				}
+			};
+		}
+
+		@Bean
+		public Guard<TestStates, TestEvents> testGuard2() {
+			return new Guard<TestStates, TestEvents>() {
+
+				@Override
+				public boolean evaluate(StateContext<TestStates, TestEvents> context) {
+					throw new Error();
+				}
+			};
+		}
+	}
 }

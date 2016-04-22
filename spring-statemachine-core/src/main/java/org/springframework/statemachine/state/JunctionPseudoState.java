@@ -17,6 +17,8 @@ package org.springframework.statemachine.state;
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.util.Assert;
@@ -31,6 +33,7 @@ import org.springframework.util.Assert;
  */
 public class JunctionPseudoState<S, E> implements PseudoState<S, E> {
 
+	private final static Log log = LogFactory.getLog(JunctionPseudoState.class);
 	private final List<JunctionStateData<S, E>> junctions;
 
 	/**
@@ -52,7 +55,7 @@ public class JunctionPseudoState<S, E> implements PseudoState<S, E> {
 		State<S, E> s = null;
 		for (JunctionStateData<S, E> j : junctions) {
 			s = j.getState();
-			if (j.guard != null && j.guard.evaluate(context)) {
+			if (j.guard != null && evaluateInternal(j.guard, context)) {
 				break;
 			}
 		}
@@ -65,6 +68,15 @@ public class JunctionPseudoState<S, E> implements PseudoState<S, E> {
 
 	@Override
 	public void addPseudoStateListener(PseudoStateListener<S, E> listener) {
+	}
+
+	private boolean evaluateInternal(Guard<S, E> guard, StateContext<S, E> context) {
+		try {
+			return guard.evaluate(context);
+		} catch (Throwable t) {
+			log.warn("Deny guard due to throw as GUARD should not error", t);
+			return false;
+		}
 	}
 
 	/**
