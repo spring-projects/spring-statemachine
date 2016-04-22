@@ -1777,13 +1777,6 @@ either be given as a Spring `Resource` or a normal location string.
 include::samples/DocsUmlSampleTests1.java[tags=snippetA]
 ----
 
-Uml model is relatively loose what comes for the implementation like
-_Spring StateMachine_ itself. There are choices what implementation
-need to take for uml support as it leaves a lot of features and
-functionalities for an implementation to decide. Below sections go
-through how _Spring StateMachine_ will implement uml model based on
-_Eclipse Papyrus plugin_.
-
 [IMPORTANT]
 ====
 As usually _Spring StateMachine_ is working with _Guards_ and
@@ -1794,14 +1787,91 @@ Thought it is also possible to register particular methods manually
 without defining those as beans.
 ====
 
+[TIP]
+====
+When opening existing uml model defined as uml, you'll have three
+files, `.di`, `.notation` and `.uml`. If model was not created in your
+eclipse's session, it doesn't understand how to open an actual state
+chart. This is a known issue in a Papyrus plugin and there is an easy
+workaround. In a Papyrus _Perspective_ you'll see _Model Explorer_ for
+you model, double click _Diagram StateMachine Diagram_ which will
+instruct eclipse to open this specific model in its proper Papyrus
+modeling plugin.
+====
+
+Uml model is relatively loose what comes for the implementation like
+_Spring StateMachine_ itself. There are choices what implementation
+need to take for uml support as it leaves a lot of features and
+functionalities for an implementation to decide. Below sections go
+through how _Spring StateMachine_ will implement uml model based on
+_Eclipse Papyrus plugin_.
+
+=== Creating Model
+Let's start by creating an empty state machine model.
+
+image::images/papyrus-gs-1.png[width=300]
+
+You'll start by creating a new model and giving it a name.
+
+image::images/papyrus-gs-2.png[width=300]
+
+Then you need to choose a _StateMachine Diagram_.
+
+image::images/papyrus-gs-3.png[width=400]
+
+You end up having an empty state machine.
+
+In above sample named `model` you'll end up three files, `model.di`,
+`model.notation` and `model.uml` which can then be used in any other
+eclipse instance and `model.uml` can be used by importing it into a
+_Spring Statemachine_.
+
 === Define States
 State identifier is simply coming from a component name in a diagram.
 You must have initial state in your machine which is done by adding
 _Initial_ and then drawing a transition to your own initial state.
 
+image::images/papyrus-gs-4.png[width=400]
+
+In above we added one state `S1`, initial state, and draw a transition
+between those two to indicate that `S1` is an initial state.
+
+image::images/papyrus-gs-5.png[width=400]
+
+In above we added a second state `S2` and added a transition between
+those two.
+
+=== Define Events
+To associate an event for a transition you need to create a `Signal`
+`E1`. Done from _RootElement->New Child->Signal_.
+
+image::images/papyrus-gs-6.png[width=400]
+
+And then `SignalEvent` with defined signal `E1`. Done from
+_RootElement->New Child->SignalEvent_.
+
+image::images/papyrus-gs-7.png[width=400]
+
+
 === Define Transitions
 Transition is simply created by drawing _transition_ line between
-source and target states.
+source and target states. In above we have states `S1` and `S2` and
+anonymous trasition between those two. We want to associate event
+`E1` with that transition. We choose a transition, create a new
+trigger and define `SignalEventE1` for that.
+
+image::images/papyrus-gs-8.png[width=400]
+
+This well give you something like shown below.
+
+image::images/papyrus-gs-9.png[width=400]
+
+[IMPORTANT]
+====
+In rest of a sections we skip most of a screenshots as it's a waste of
+space. Reference to menu items and actions we do with UI can be found
+from _Model Explorer_ or other dialogs given by Papyrus plugin.
+====
 
 === Define Actions
 State entry and exit actions can be associated by using a behaviour,
