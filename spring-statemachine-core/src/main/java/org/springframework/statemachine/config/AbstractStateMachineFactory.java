@@ -40,6 +40,7 @@ import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.model.ChoiceData;
 import org.springframework.statemachine.config.model.EntryData;
 import org.springframework.statemachine.config.model.ExitData;
+import org.springframework.statemachine.config.model.HistoryData;
 import org.springframework.statemachine.config.model.JunctionData;
 import org.springframework.statemachine.config.model.StateData;
 import org.springframework.statemachine.config.model.StateMachineModel;
@@ -412,6 +413,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 	}
 
 
+	@SuppressWarnings("unchecked")
 	private StateMachine<S, E> buildMachine(Map<Object, StateMachine<S, E>> machineMap, Map<S, State<S, E>> stateMap,
 			Map<S, StateHolder<S, E>> holderMap, Collection<StateData<S, E>> stateDatas, Collection<TransitionData<S, E>> transitionsData,
 			BeanFactory beanFactory, Boolean contextEvents, DefaultExtendedState defaultExtendedState,
@@ -458,11 +460,9 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 				} else if (stateData.isEnd()) {
 					pseudoState = new DefaultPseudoState<S, E>(PseudoStateKind.END);
 				} else if (stateData.getPseudoStateKind() == PseudoStateKind.HISTORY_SHALLOW) {
-					pseudoState = new HistoryPseudoState<S, E>(PseudoStateKind.HISTORY_SHALLOW);
-					historyState = pseudoState;
+					continue;
 				} else if (stateData.getPseudoStateKind() == PseudoStateKind.HISTORY_DEEP) {
-					pseudoState = new HistoryPseudoState<S, E>(PseudoStateKind.HISTORY_DEEP);
-					historyState = pseudoState;
+					continue;
 				} else if (stateData.getPseudoStateKind() == PseudoStateKind.JOIN) {
 					continue;
 				} else if (stateData.getPseudoStateKind() == PseudoStateKind.FORK) {
@@ -489,6 +489,48 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		}
 
 		for (StateData<S, E> stateData : stateDatas) {
+			if (stateData.getPseudoStateKind() == PseudoStateKind.HISTORY_SHALLOW) {
+				State<S, E> defaultState = null;
+				S s = stateData.getState();
+				Collection<HistoryData<S,E>> historys = stateMachineTransitions.getHistorys();
+				for (HistoryData<S,E> history : historys) {
+					if (history.getSource().equals(s)) {
+						defaultState = stateMap.get(history.getTarget());
+					}
+				}
+				StateHolder<S, E> defaultStateHolder = new StateHolder<S, E>(defaultState);
+				StateHolder<S, E> containingStateHolder = new StateHolder<S, E>(stateMap.get(stateData.getParent()));
+				if (containingStateHolder.getState() == null) {
+					holderMap.put((S)stateData.getParent(), containingStateHolder);
+				}
+				PseudoState<S, E> pseudoState = new HistoryPseudoState<S, E>(PseudoStateKind.HISTORY_SHALLOW, defaultStateHolder, containingStateHolder);
+				state = buildStateInternal(stateData.getState(), stateData.getDeferred(), stateData.getEntryActions(),
+						stateData.getExitActions(), pseudoState);
+				states.add(state);
+				stateMap.put(stateData.getState(), state);
+				historyState = pseudoState;
+			} else if (stateData.getPseudoStateKind() == PseudoStateKind.HISTORY_DEEP) {
+				State<S, E> defaultState = null;
+				S s = stateData.getState();
+				Collection<HistoryData<S,E>> historys = stateMachineTransitions.getHistorys();
+				for (HistoryData<S,E> history : historys) {
+					if (history.getSource().equals(s)) {
+						defaultState = stateMap.get(history.getTarget());
+					}
+				}
+				StateHolder<S, E> defaultStateHolder = new StateHolder<S, E>(defaultState);
+				StateHolder<S, E> containingStateHolder = new StateHolder<S, E>(stateMap.get(stateData.getParent()));
+				if (containingStateHolder.getState() == null) {
+					holderMap.put((S)stateData.getParent(), containingStateHolder);
+				}
+				PseudoState<S, E> pseudoState = new HistoryPseudoState<S, E>(PseudoStateKind.HISTORY_DEEP, defaultStateHolder, containingStateHolder);
+				state = buildStateInternal(stateData.getState(), stateData.getDeferred(), stateData.getEntryActions(),
+						stateData.getExitActions(), pseudoState);
+				states.add(state);
+				stateMap.put(stateData.getState(), state);
+				historyState = pseudoState;
+			}
+
 			if (stateData.getPseudoStateKind() == PseudoStateKind.CHOICE) {
 				S s = stateData.getState();
 				List<ChoiceData<S, E>> list = stateMachineTransitions.getChoices().get(s);

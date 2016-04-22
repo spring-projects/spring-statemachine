@@ -20,6 +20,7 @@ import org.springframework.statemachine.config.configurers.EntryTransitionConfig
 import org.springframework.statemachine.config.configurers.ExitTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.ExternalTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.ForkTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.HistoryTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.InternalTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.JoinTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.JunctionTransitionConfigurer;
@@ -114,4 +115,12 @@ public interface StateMachineTransitionConfigurer<S, E> {
 	 * @throws Exception if configuration error happens
 	 */
 	ExitTransitionConfigurer<S, E> withExit() throws Exception;
+
+	/**
+	 * Gets a configurer for default history transition.
+	 *
+	 * @return {@link HistoryTransitionConfigurer} for chaining
+	 * @throws Exception if configuration error happens
+	 */
+	HistoryTransitionConfigurer<S, E> withHistory() throws Exception;
 }

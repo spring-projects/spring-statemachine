@@ -73,23 +73,23 @@ public abstract class AbstractStateMachineTests {
 	}
 
 	public enum TestEvents {
-		E1,E2,E3,E4,EF
+		E1,E2,E3,E4,EF,EH
 	}
 
 	public static enum TestStates2 {
-	    BUSY, PLAYING, PAUSED,
-	    IDLE, CLOSED, OPEN,
-	    PAUSED1, PAUSED2
+		BUSY, PLAYING, PAUSED,
+		IDLE, CLOSED, OPEN,
+		PAUSED1, PAUSED2
 	}
 
 	public static enum TestStates3 {
-	    READY,
-	    FORK, JOIN,
-	    TASKS, T1, T1E, T2, T2E, T3, T3E
+		READY,
+		FORK, JOIN,
+		TASKS, T1, T1E, T2, T2E, T3, T3E
 	}
 
 	public static enum TestEvents2 {
-	    PLAY, STOP, PAUSE, EJECT, LOAD
+		PLAY, STOP, PAUSE, EJECT, LOAD
 	}
 
 	@Configuration

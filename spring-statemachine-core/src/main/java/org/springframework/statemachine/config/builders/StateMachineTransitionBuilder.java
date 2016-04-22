@@ -31,6 +31,7 @@ import org.springframework.statemachine.config.configurers.DefaultEntryTransitio
 import org.springframework.statemachine.config.configurers.DefaultExitTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultExternalTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultForkTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.DefaultHistoryTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultInternalTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultJoinTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultJunctionTransitionConfigurer;
@@ -39,6 +40,7 @@ import org.springframework.statemachine.config.configurers.EntryTransitionConfig
 import org.springframework.statemachine.config.configurers.ExitTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.ExternalTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.ForkTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.HistoryTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.InternalTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.JoinTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.JunctionTransitionConfigurer;
@@ -47,6 +49,7 @@ import org.springframework.statemachine.config.model.ChoiceData;
 import org.springframework.statemachine.config.model.ConfigurationData;
 import org.springframework.statemachine.config.model.EntryData;
 import org.springframework.statemachine.config.model.ExitData;
+import org.springframework.statemachine.config.model.HistoryData;
 import org.springframework.statemachine.config.model.JunctionData;
 import org.springframework.statemachine.config.model.TransitionData;
 import org.springframework.statemachine.config.model.TransitionsData;
@@ -74,6 +77,7 @@ public class StateMachineTransitionBuilder<S, E>
 	private final Map<S, List<S>> joins = new HashMap<S, List<S>>();
 	private final Collection<EntryData<S, E>> entryData = new ArrayList<EntryData<S, E>>();
 	private final Collection<ExitData<S, E>> exitData = new ArrayList<ExitData<S, E>>();
+	private final Collection<HistoryData<S, E>> historyData = new ArrayList<HistoryData<S, E>>();
 
 	/**
 	 * Instantiates a new state machine transition builder.
@@ -104,7 +108,7 @@ public class StateMachineTransitionBuilder<S, E>
 
 	@Override
 	protected TransitionsData<S, E> performBuild() throws Exception {
-		return new TransitionsData<S, E>(transitionData, choices, junctions, forks, joins, entryData, exitData);
+		return new TransitionsData<S, E>(transitionData, choices, junctions, forks, joins, entryData, exitData, historyData);
 	}
 
 	@Override
@@ -150,6 +154,11 @@ public class StateMachineTransitionBuilder<S, E>
 	@Override
 	public ExitTransitionConfigurer<S, E> withExit() throws Exception {
 		return apply(new DefaultExitTransitionConfigurer<S, E>());
+	}
+
+	@Override
+	public HistoryTransitionConfigurer<S, E> withHistory() throws Exception {
+		return apply(new DefaultHistoryTransitionConfigurer<S, E>());
 	}
 
 	/**
@@ -235,5 +244,15 @@ public class StateMachineTransitionBuilder<S, E>
 	 */
 	public void addJoin(S target, List<S> sources) {
 		this.joins.put(target, sources);
+	}
+
+	/**
+	 * Adds the default history.
+	 *
+	 * @param source the source
+	 * @param target the target
+	 */
+	public void addDefaultHistory(S source, S target) {
+		this.historyData.add(new HistoryData<S, E>(source, target));
 	}
 }

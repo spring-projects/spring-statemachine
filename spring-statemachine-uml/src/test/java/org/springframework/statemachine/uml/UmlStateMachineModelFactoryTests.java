@@ -462,6 +462,18 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		}
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleHistoryDefault() {
+		context.register(Config12.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent("E4");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config2 extends StateMachineConfigurerAdapter<String, String> {
@@ -678,6 +690,23 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		@Bean
 		public LatchAction e1Action() {
 			return new LatchAction();
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config12 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/uml/simple-history-default.uml");
 		}
 	}
 

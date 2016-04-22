@@ -28,24 +28,57 @@ import org.springframework.util.Assert;
  */
 public class HistoryPseudoState<S, E> extends AbstractPseudoState<S, E> {
 
+	private final StateHolder<S, E> defaultState;
+	private final StateHolder<S, E> containingState;
 	private State<S, E> state;
 
 	/**
 	 * Instantiates a new history pseudo state.
 	 *
 	 * @param kind the kind
+	 * @param containingState the parent containing state
 	 */
-	public HistoryPseudoState(PseudoStateKind kind) {
+	public HistoryPseudoState(PseudoStateKind kind, StateHolder<S, E> containingState) {
+		this(kind, containingState, new StateHolder<S, E>(null));
+	}
+
+	/**
+	 * Instantiates a new history pseudo state.
+	 *
+	 * @param kind the kind
+	 * @param defaultState the default history state
+	 * @param containingState the parent containing state
+	 */
+	public HistoryPseudoState(PseudoStateKind kind, StateHolder<S, E> defaultState, StateHolder<S, E> containingState) {
 		super(kind);
 		Assert.isTrue(PseudoStateKind.HISTORY_SHALLOW == kind || PseudoStateKind.HISTORY_DEEP == kind,
 				"Pseudo state must be either shallow or deep");
+		Assert.notNull(defaultState, "Holder defaultState must be set");
+		Assert.notNull(containingState, "Holder containingState must be set");
+		this.defaultState = defaultState;
+		this.containingState = containingState;
 	}
 
 	@Override
 	public State<S, E> entry(StateContext<S, E> context) {
-		return state;
+		// if no logged history or history is final state,
+		// go to default state. go to containing parent if
+		// we have no history and there's no default state.
+		if (state == null) {
+			if (defaultState.getState() == null) {
+				return containingState.getState();
+			} else {
+				return defaultState.getState();
+			}
+		} else {
+			if (defaultState.getState() != null && state.getPseudoState() != null && state.getPseudoState().getKind() == PseudoStateKind.END) {
+				return defaultState.getState();
+			} else {
+				return state;
+			}
+		}
 	}
-	
+
 	/**
 	 * Sets the current recorded state.
 	 *
@@ -63,5 +96,4 @@ public class HistoryPseudoState<S, E> extends AbstractPseudoState<S, E> {
 	public State<S, E> getState() {
 		return state;
 	}
-
 }

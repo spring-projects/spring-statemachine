@@ -57,6 +57,20 @@ public class HistoryStateTests extends AbstractStateMachineTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
+	public void testShallowNoHistoryDefaultsNormalEntry() {
+		context.register(BaseConfig.class, Config1.class);
+		context.refresh();
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		assertThat(machine, notNullValue());
+		machine.start();
+		machine.sendEvent(TestEvents.E4);
+
+		assertThat(machine.getState().getIds(), contains(TestStates.S2, TestStates.S20));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
 	public void testDeep() {
 		context.register(BaseConfig.class, Config2.class);
 		context.refresh();
@@ -88,6 +102,40 @@ public class HistoryStateTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), contains(TestStates.S2, TestStates.S21, TestStates.S211));
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testDefaultNotEntered() {
+		context.register(BaseConfig.class, Config4.class);
+		context.refresh();
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		assertThat(machine, notNullValue());
+		machine.start();
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		machine.sendEvent(TestEvents.EH);
+		assertThat(machine.getState().getIds(), contains(TestStates.S3, TestStates.S33));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testDefaultHistoryIsFinal() {
+		context.register(BaseConfig.class, Config4.class);
+		context.refresh();
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		assertThat(machine, notNullValue());
+		machine.start();
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		machine.sendEvent(TestEvents.E1);
+		assertThat(machine.getState().getIds(), contains(TestStates.S3, TestStates.S30));
+		machine.sendEvent(TestEvents.EF);
+		assertThat(machine.getState().getIds(), contains(TestStates.S3, TestStates.SF));
+		machine.sendEvent(TestEvents.E4);
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		machine.sendEvent(TestEvents.EH);
+		assertThat(machine.getState().getIds(), contains(TestStates.S3, TestStates.S33));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
@@ -106,7 +154,6 @@ public class HistoryStateTests extends AbstractStateMachineTests {
 						.state(TestStates.S20)
 						.state(TestStates.S21)
 						.history(TestStates.SH, History.SHALLOW);
-
 		}
 
 		@Override
@@ -239,4 +286,64 @@ public class HistoryStateTests extends AbstractStateMachineTests {
 
 	}
 
+	@Configuration
+	@EnableStateMachine
+	static class Config4 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S1)
+					.state(TestStates.S3)
+					.and()
+					.withStates()
+						.parent(TestStates.S3)
+						.initial(TestStates.S30)
+						.state(TestStates.S31)
+						.state(TestStates.S32)
+						.state(TestStates.S33)
+						.end(TestStates.SF)
+						.history(TestStates.SH, History.SHALLOW);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S3)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S30)
+					.target(TestStates.S31)
+					.event(TestEvents.E2)
+					.and()
+				.withExternal()
+					.source(TestStates.S31)
+					.target(TestStates.S32)
+					.event(TestEvents.E3)
+					.and()
+				.withExternal()
+					.source(TestStates.S30)
+					.target(TestStates.SF)
+					.event(TestEvents.EF)
+					.and()
+				.withExternal()
+					.source(TestStates.S3)
+					.target(TestStates.S1)
+					.event(TestEvents.E4)
+					.and()
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.SH)
+					.event(TestEvents.EH)
+					.and()
+				.withHistory()
+					.source(TestStates.SH)
+					.target(TestStates.S33);
+		}
+	}
 }

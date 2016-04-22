@@ -46,6 +46,7 @@ import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.model.ChoiceData;
 import org.springframework.statemachine.config.model.EntryData;
 import org.springframework.statemachine.config.model.ExitData;
+import org.springframework.statemachine.config.model.HistoryData;
 import org.springframework.statemachine.config.model.JunctionData;
 import org.springframework.statemachine.config.model.StateData;
 import org.springframework.statemachine.config.model.StateMachineComponentResolver;
@@ -72,6 +73,7 @@ public class UmlModelParser {
 	private final Collection<TransitionData<String, String>> transitionDatas = new ArrayList<TransitionData<String, String>>();
 	private final Collection<EntryData<String, String>> entrys = new ArrayList<EntryData<String, String>>();
 	private final Collection<ExitData<String, String>> exits = new ArrayList<ExitData<String, String>>();
+	private final Collection<HistoryData<String, String>> historys = new ArrayList<HistoryData<String, String>>();
 	private final Map<String, LinkedList<ChoiceData<String, String>>> choices = new HashMap<String, LinkedList<ChoiceData<String,String>>>();
 	private final Map<String, LinkedList<JunctionData<String, String>>> junctions = new HashMap<String, LinkedList<JunctionData<String,String>>>();
 	private final Map<String, List<String>> forks = new HashMap<String, List<String>>();
@@ -112,7 +114,7 @@ public class UmlModelParser {
 		HashMap<String, List<JunctionData<String, String>>> junctionsCopy = new HashMap<String, List<JunctionData<String, String>>>();
 		junctionsCopy.putAll(junctions);
 		return new DataHolder(new StatesData<>(stateDatas),
-				new TransitionsData<String, String>(transitionDatas, choicesCopy, junctionsCopy, forks, joins, entrys, exits));
+				new TransitionsData<String, String>(transitionDatas, choicesCopy, junctionsCopy, forks, joins, entrys, exits, historys));
 	}
 
 	private void handleRegion(Region region) {
@@ -259,6 +261,10 @@ public class UmlModelParser {
 						forks.put(transition.getSource().getName(), list);
 					}
 					list.add(transition.getTarget().getName());
+				} else if (((Pseudostate)transition.getSource()).getKind() == PseudostateKind.SHALLOW_HISTORY_LITERAL) {
+					historys.add(new HistoryData<String, String>(transition.getSource().getName(), transition.getTarget().getName()));
+				} else if (((Pseudostate)transition.getSource()).getKind() == PseudostateKind.DEEP_HISTORY_LITERAL) {
+					historys.add(new HistoryData<String, String>(transition.getSource().getName(), transition.getTarget().getName()));
 				}
 			}
 			if (transition.getTarget() instanceof Pseudostate) {
