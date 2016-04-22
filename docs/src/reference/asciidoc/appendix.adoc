@@ -110,11 +110,22 @@ sub-machines.
 A pseudo state which allows to make a transition choice based of i.e.
 event headers or extended state variables.
 
+*Junction State*::
+A pseudo state which is relatively similar to choice state but allows
+multiple incoming transitions while choice only allows one incoming
+transition.
+
 *Fork State*::
 A pseudo state which gives a controlled entry into a regions.
 
 *Join State*::
 A pseudo state which gives a controlled exit from a regions.
+
+*Entry Point*::
+A pseudo state which allows a controlled entry into a submachine.
+
+*Exit Point*::
+A pseudo state which allows a controlled exit from a submachine.
 
 *Region*::
 A region is an orthogonal part of either a composite state or a state
@@ -183,6 +194,14 @@ simple if/elseif/else structure is used to make sure that at least one
 branch is selected. Otherwise state machine might end up in a deadlock
 and configuration would be ill-formed.
 
+===== Junction
+*Junction pseudostate* is functionally similar than choice as both are
+implemented with if/elseif/else structure. Only real difference is
+that junction allows multiple incoming transitions while choice only
+allows one. Thus difference is purely academic but have some
+differences i.e. when state machine is designed using real UI modeling
+framework.
+
 ===== History
 *History pseudostate* can be used to remember a last active state
 configuration. After state machine has been exited, history state can
@@ -197,6 +216,17 @@ Letting state machine itself to handle recording of history states
 makes things much simpler. What is left for user to do is simply do a
 transition into a history state and state machine will hand the needed
 logic to go back to its last known recorded state.
+
+In cases where a Transition terminates on a history state when the state
+has not been entered before (i.e., no prior history) or it had reached its
+End State, there is an option to force a transition to a specific substate,
+using the default history mechanism. This is a Transition that originates
+in the history state and terminates on a specific Vertex (the default history
+state) of the Region containing the history state. This Transition is only
+taken if execution leads to the history tate and the state had never been
+active before. Otherwise, the normal history entry into the Region is executed.
+If no default history transition is defined, then standard default entry of
+the region is performed.
 
 ===== Fork
 *Fork pseudostate* can be used to do an explicit entry into one or more regions.

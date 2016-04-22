@@ -537,16 +537,25 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 		public void configure(StateMachineStateConfigurer<States3, Events> states)
 				throws Exception {
 			states
-			.withStates()
-				.initial(States3.S1)
-				.state(States3.S2)
-				.and()
 				.withStates()
-					.parent(States3.S2)
-					.initial(States3.S2I)
-					.state(States3.S21)
-					.state(States3.S22)
-					.history(States3.SH, History.SHALLOW);
+					.initial(States3.S1)
+					.state(States3.S2)
+					.and()
+					.withStates()
+						.parent(States3.S2)
+						.initial(States3.S2I)
+						.state(States3.S21)
+						.state(States3.S22)
+						.history(States3.SH, History.SHALLOW);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<States3, Events> transitions)
+				throws Exception {
+			transitions
+				.withHistory()
+					.source(States3.SH)
+					.target(States3.S22);
 		}
 
 	}

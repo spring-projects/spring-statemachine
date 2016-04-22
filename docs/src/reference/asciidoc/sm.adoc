@@ -238,6 +238,14 @@ You need to choose its state identifier and `History.SHALLOW` or
 include::samples/DocsConfigurationSampleTests.java[tags=snippetR]
 ----
 
+Also as shown above, optionally it is possible to define a default
+transition from a history state into a state vertex in a same machine.
+This transition takes place as a default if for example machine has
+never been entered, thus no history would be available. If default
+state transition is not defined, then normal entry into a region is
+done. This default transition is also used if machine's history is
+a final state.
+
 ==== Choice State
 Choice needs to be defined in both states and transitions to work
 properly. Mark particular state as choice state by using `choice()`
