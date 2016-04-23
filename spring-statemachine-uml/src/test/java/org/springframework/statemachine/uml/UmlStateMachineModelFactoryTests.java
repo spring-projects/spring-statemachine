@@ -474,6 +474,34 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleTimers1() throws Exception {
+		context.register(Config13.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		LatchAction s3Entry = context.getBean("s3Entry", LatchAction.class);
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent("E1");
+		assertThat(s3Entry.latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S3"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleTimers2() throws Exception {
+		context.register(Config13.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		LatchAction s5Entry = context.getBean("s5Entry", LatchAction.class);
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent("E2");
+		assertThat(s5Entry.latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S5"));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config2 extends StateMachineConfigurerAdapter<String, String> {
@@ -707,6 +735,33 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		@Bean
 		public StateMachineModelFactory<String, String> modelFactory() {
 			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/uml/simple-history-default.uml");
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config13 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/uml/simple-timers.uml");
+		}
+
+		@Bean
+		public LatchAction s3Entry() {
+			return new LatchAction();
+		}
+
+		@Bean
+		public LatchAction s5Entry() {
+			return new LatchAction();
 		}
 	}
 

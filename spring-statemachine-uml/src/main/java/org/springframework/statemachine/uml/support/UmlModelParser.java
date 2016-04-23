@@ -38,6 +38,7 @@ import org.eclipse.uml2.uml.Signal;
 import org.eclipse.uml2.uml.SignalEvent;
 import org.eclipse.uml2.uml.State;
 import org.eclipse.uml2.uml.StateMachine;
+import org.eclipse.uml2.uml.TimeEvent;
 import org.eclipse.uml2.uml.Transition;
 import org.eclipse.uml2.uml.Trigger;
 import org.eclipse.uml2.uml.UMLPackage;
@@ -279,7 +280,7 @@ public class UmlModelParser {
 			}
 
 			// go through all triggers and create transition
-			// from signals
+			// from signals, or transitions from timers
 			for (Trigger trigger : transition.getTriggers()) {
 				Event event = trigger.getEvent();
 				if (event instanceof SignalEvent) {
@@ -287,6 +288,18 @@ public class UmlModelParser {
 					if (signal != null) {
 						transitionDatas.add(new TransitionData<String, String>(transition.getSource().getName(),
 								transition.getTarget().getName(), signal.getName(), resolveTransitionActions(transition), null,
+								UmlUtils.mapUmlTransitionType(transition)));
+					}
+				} else if (event instanceof TimeEvent) {
+					TimeEvent timeEvent = (TimeEvent)event;
+					Long period = getTimePeriod(timeEvent);
+					if (period != null) {
+						Integer count = null;
+						if (timeEvent.isRelative()) {
+							count = 1;
+						}
+						transitionDatas.add(new TransitionData<String, String>(transition.getSource().getName(),
+								transition.getTarget().getName(), period, count, resolveTransitionActions(transition), null,
 								UmlUtils.mapUmlTransitionType(transition)));
 					}
 				}
@@ -297,6 +310,14 @@ public class UmlModelParser {
 				transitionDatas.add(new TransitionData<String, String>(transition.getSource().getName(), transition.getTarget().getName(),
 						null, resolveTransitionActions(transition), null, UmlUtils.mapUmlTransitionType(transition)));
 			}
+		}
+	}
+
+	private Long getTimePeriod(TimeEvent event) {
+		try {
+			return Long.valueOf(event.getWhen().getExpr().integerValue());
+		} catch (Exception e) {
+			return null;
 		}
 	}
 
