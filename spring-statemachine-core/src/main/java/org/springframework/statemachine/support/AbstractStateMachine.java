@@ -754,10 +754,18 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		} else if (kind == PseudoStateKind.ENTRY) {
 			StateContext<S, E> stateContext = buildStateContext(Stage.STATE_CHANGED, message, transition, stateMachine);
 			State<S, E> toState = state.getPseudoState().entry(stateContext);
+			while (toState != null && toState.getPseudoState() != null
+					&& toState.getPseudoState().getKind() != PseudoStateKind.INITIAL) {
+				toState = toState.getPseudoState().entry(stateContext);
+			}
 			setCurrentState(toState, message, transition, true, stateMachine);
 		} else if (kind == PseudoStateKind.EXIT) {
 			StateContext<S, E> stateContext = buildStateContext(Stage.STATE_CHANGED, message, transition, stateMachine);
 			State<S, E> toState = state.getPseudoState().entry(stateContext);
+			while (toState != null && toState.getPseudoState() != null
+					&& toState.getPseudoState().getKind() != PseudoStateKind.INITIAL) {
+				toState = toState.getPseudoState().entry(stateContext);
+			}
 			setCurrentState(toState, message, transition, true, stateMachine);
 		} else if (kind == PseudoStateKind.FORK) {
 			ForkPseudoState<S, E> fps = (ForkPseudoState<S, E>) state.getPseudoState();
@@ -982,6 +990,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			} else if (isTargetSubOfOtherState) {
 			} else if (!isSubOfSource && !isSubOfTarget && findDeep == null) {
 			} else if (!isSubOfSource && !isSubOfTarget && (transition.getSource() == currentState && StateMachineUtils.isSubstate(currentState, transition.getTarget()))) {
+			} else if (StateMachineUtils.isNormalPseudoState(transition.getTarget())) {
 			} else if (!isSubOfSource && !isSubOfTarget) {
 				return;
 			}

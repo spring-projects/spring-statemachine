@@ -18,6 +18,8 @@ package org.springframework.statemachine.support;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.springframework.statemachine.state.PseudoState;
+import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.State;
 import org.springframework.util.ObjectUtils;
 
@@ -66,6 +68,31 @@ public abstract class StateMachineUtils {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Checks if state is a normal pseudo state, meaning it is a pseudostate
+	 * and its kind is not initial or end.
+	 *
+	 * @param <S> the type of state
+	 * @param <E> the type of event
+	 * @param state the state
+	 * @return true, if is normal pseudo state
+	 */
+	public static <S, E> boolean isNormalPseudoState(State<S, E> state) {
+		if (state == null) {
+			return false;
+		}
+		PseudoState<S, E> pseudoState = state.getPseudoState();
+		if (pseudoState == null) {
+			return false;
+		}
+		PseudoStateKind kind = pseudoState.getKind();
+		if (kind == PseudoStateKind.INITIAL || kind == PseudoStateKind.END) {
+			return false;
+		} else {
+			return true;
+		}
 	}
 
 	public static <S> Collection<String> toStringCollection(Collection<S> collection) {
