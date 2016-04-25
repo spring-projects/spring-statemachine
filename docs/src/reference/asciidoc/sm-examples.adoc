@@ -32,6 +32,8 @@ normal build cycle. Samples in this chapter are:
 
 <<statemachine-examples-eventservice>> Event Service.
 
+<<statemachine-examples-deploy>> Deploy.
+
 
 [source,text]
 ----
@@ -1315,7 +1317,60 @@ should see `COUNT` variable to increase with every call.
 
 image::images/sm-eventservice-4.png[width=500]
 
-Order to implement actual logic to track user behaviour, you'd then
-define these in a various `Actions` in a state machine. You can
-associate different `Actions` with transitions, state entry's or state
-exits' and with various listener methods.
+[[statemachine-examples-deploy]]
+== Deploy
+Deploy is an example how state machine concepts can be used with an
+uml modeling to provide a generic error handling state. This state
+machine is a relatively complex example of how various features can be
+used to provide a centralized error handling concept.
+
+image::images/model-deployer.png[width=500]
+
+[NOTE]
+====
+Above statechart is designed using _Eclipse Papyrus Plugin_
+<<sm-papyrus>> and imported into _Spring StateMachine_ via its uml
+model file. _Actions_ and _Guards_ defined in a model are resolved
+from a _Spring Application Context_.
+====
+
+In this state machice scenario we have two different behaviors,
+`DEPLOY` and `UNDEPLOY` what user tries to execute.
+
+What is happening a above statechart:
+
+* In `DEPLOY` state `INSTALL` and `START` states are entered
+  conditionally. We enter `START` directly if product is already
+  installed and no need to try to `START` if install fails.
+* In `UNDEPLOY` state we enter `STOP` conditionally if application is
+  already running.
+* Conditional choices for `DEPLOY` and `UNDEPLOY` are done via
+  _Choice_ pseudostate within those states and choices are selected
+  by _Guards_.
+* We used _Exit Point_ pseudostates to have more controlled exit from
+  `DEPLOY` and `UNDEPLOY` states.
+* After exit from `DEPLOY` and `UNDEPLOY` we go through a _Junction_
+  pseudostate to make a choice if we want to go though `ERROR` state
+  in case error was added into an _Extended State_.
+* Finally we go back to `READY` state to process new requests.
+
+Lets get into actual demo. Run the boot based sample application:
+
+[source,text,subs="attributes"]
+----
+# java -jar spring-statemachine-samples-deploy-{revnumber}.jar
+----
+
+In a browser you see something like:
+
+image::images/sm-deploy-1.png[width=500]
+
+[IMPORTANT]
+====
+As we don't have a real _install_, _start_ or _stop_ functionality we
+simulate failures by checking existence of particular message headers.
+====
+
+Now you can start to send event to a machine and choose various
+message headers which will drive a different functionality.
+

@@ -92,3 +92,11 @@ project('spring-statemachine-samples-eventservice') {
 		compile("org.apache.commons:commons-pool2:$commonsPool2Version")
 	}
 }
+
+project('spring-statemachine-samples-deploy') {
+	description = 'Spring State Machine Deploy Sample'
+	dependencies {
+		compile project(":spring-statemachine-uml")
+		compile("org.springframework.boot:spring-boot-starter-thymeleaf:$springBootVersion")
+	}
+}

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_aWepkAlKEeacC7Ug7AKYJw" name="RootElement">
+  <packagedElement xmi:type="uml:StateMachine" xmi:id="_aWlXQAlKEeacC7Ug7AKYJw" name="StateMachine">
+    <region xmi:type="uml:Region" xmi:id="_aWoakAlKEeacC7Ug7AKYJw" name="Region1">
+      <transition xmi:type="uml:Transition" xmi:id="_bFk5UAlMEeacC7Ug7AKYJw" source="_ZvIDwAlMEeacC7Ug7AKYJw" target="_4Yz_UAlLEeacC7Ug7AKYJw"/>
+      <transition xmi:type="uml:Transition" xmi:id="_2xHzUAlMEeacC7Ug7AKYJw" source="_4Yz_UAlLEeacC7Ug7AKYJw" target="_7RQzIAlLEeacC7Ug7AKYJw">
+        <trigger xmi:type="uml:Trigger" xmi:id="_4rw7EAlMEeacC7Ug7AKYJw" event="_xHrekAlMEeacC7Ug7AKYJw"/>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_t5omgAlSEeacC7Ug7AKYJw" source="_ETRmMAlMEeacC7Ug7AKYJw" target="_4Yz_UAlLEeacC7Ug7AKYJw"/>
+      <transition xmi:type="uml:Transition" xmi:id="_CX4zYAlTEeacC7Ug7AKYJw" source="_4Yz_UAlLEeacC7Ug7AKYJw" target="_8X2AsAlLEeacC7Ug7AKYJw">
+        <trigger xmi:type="uml:Trigger" xmi:id="_o5Oq4AlWEeacC7Ug7AKYJw" event="_-BZ7UAlSEeacC7Ug7AKYJw"/>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_3VTaQAlTEeacC7Ug7AKYJw" guard="_wLPjIAlaEeacC7Ug7AKYJw" source="_WzKZ8AnxEeacC7Ug7AKYJw" target="_ETRmMAlMEeacC7Ug7AKYJw">
+        <ownedRule xmi:type="uml:Constraint" xmi:id="_wLPjIAlaEeacC7Ug7AKYJw">
+          <specification xmi:type="uml:OpaqueExpression" xmi:id="_wLPjIQlaEeacC7Ug7AKYJw">
+            <language>bean</language>
+            <body>hasErrorGuard</body>
+          </specification>
+        </ownedRule>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_4b4n0AlTEeacC7Ug7AKYJw" source="_WzKZ8AnxEeacC7Ug7AKYJw" target="_4Yz_UAlLEeacC7Ug7AKYJw"/>
+      <transition xmi:type="uml:Transition" xmi:id="_HG8uEAlUEeacC7Ug7AKYJw" source="__I55cAlTEeacC7Ug7AKYJw" target="_WzKZ8AnxEeacC7Ug7AKYJw"/>
+      <transition xmi:type="uml:Transition" xmi:id="_v2Fr4AnxEeacC7Ug7AKYJw" source="_hgKvcAlSEeacC7Ug7AKYJw" target="_WzKZ8AnxEeacC7Ug7AKYJw"/>
+      <subvertex xmi:type="uml:State" xmi:id="_4Yz_UAlLEeacC7Ug7AKYJw" name="READY">
+        <entry xmi:type="uml:OpaqueBehavior" xmi:id="_3L51IAnsEeacC7Ug7AKYJw" name="readyEntryction">
+          <language>bean</language>
+          <body>readyEntryction</body>
+        </entry>
+        <exit xmi:type="uml:OpaqueBehavior" xmi:id="_QBLhEAn3EeacC7Ug7AKYJw" name="exitErrorAction">
+          <language>bean</language>
+          <body>exitErrorAction</body>
+        </exit>
+      </subvertex>
+      <subvertex xmi:type="uml:State" xmi:id="_7RQzIAlLEeacC7Ug7AKYJw" name="DEPLOY">
+        <connectionPoint xmi:type="uml:Pseudostate" xmi:id="__I55cAlTEeacC7Ug7AKYJw" name="EXITDEPLOY" kind="exitPoint"/>
+        <region xmi:type="uml:Region" xmi:id="_7JrLIAlQEeacC7Ug7AKYJw" name="Region1">
+          <transition xmi:type="uml:Transition" xmi:id="__m9ZUAlREeacC7Ug7AKYJw" source="_7JtAUAlQEeacC7Ug7AKYJw" target="_rOj80AlREeacC7Ug7AKYJw"/>
+          <transition xmi:type="uml:Transition" xmi:id="_A_X9wAlSEeacC7Ug7AKYJw" guard="_i4oTAAlZEeacC7Ug7AKYJw" source="_rOj80AlREeacC7Ug7AKYJw" target="_TFpcEAlREeacC7Ug7AKYJw">
+            <ownedRule xmi:type="uml:Constraint" xmi:id="_i4oTAAlZEeacC7Ug7AKYJw">
+              <specification xmi:type="uml:OpaqueExpression" xmi:id="_i4oTAQlZEeacC7Ug7AKYJw">
+                <language>bean</language>
+                <body>isInstalledGuard</body>
+              </specification>
+            </ownedRule>
+          </transition>
+          <transition xmi:type="uml:Transition" xmi:id="_CO7hIAlSEeacC7Ug7AKYJw" source="_rOj80AlREeacC7Ug7AKYJw" target="_WkruwAlREeacC7Ug7AKYJw"/>
+          <transition xmi:type="uml:Transition" xmi:id="_HctNkAlSEeacC7Ug7AKYJw" source="_GD19MAlSEeacC7Ug7AKYJw" target="_7JtAUAlQEeacC7Ug7AKYJw"/>
+          <transition xmi:type="uml:Transition" xmi:id="_Eyy6IAlUEeacC7Ug7AKYJw" source="_WkruwAlREeacC7Ug7AKYJw" target="__I55cAlTEeacC7Ug7AKYJw"/>
+          <transition xmi:type="uml:Transition" xmi:id="_cO5YMAlUEeacC7Ug7AKYJw" source="_TFpcEAlREeacC7Ug7AKYJw" target="_X6_6EAlUEeacC7Ug7AKYJw"/>
+          <transition xmi:type="uml:Transition" xmi:id="_dTlvYAlUEeacC7Ug7AKYJw" guard="_q5qKMAlZEeacC7Ug7AKYJw" source="_X6_6EAlUEeacC7Ug7AKYJw" target="_WkruwAlREeacC7Ug7AKYJw">
+            <ownedRule xmi:type="uml:Constraint" xmi:id="_q5qKMAlZEeacC7Ug7AKYJw">
+              <specification xmi:type="uml:OpaqueExpression" xmi:id="_q5qKMQlZEeacC7Ug7AKYJw">
+                <language>bean</language>
+                <body>installedOkGuard</body>
+              </specification>
+            </ownedRule>
+          </transition>
+          <transition xmi:type="uml:Transition" xmi:id="_eXmxIAlUEeacC7Ug7AKYJw" source="_X6_6EAlUEeacC7Ug7AKYJw" target="__I55cAlTEeacC7Ug7AKYJw"/>
+          <subvertex xmi:type="uml:State" xmi:id="_7JtAUAlQEeacC7Ug7AKYJw" name="PREPAREDEPLOY">
+            <entry xmi:type="uml:OpaqueBehavior" xmi:id="_N1qAwAlfEeacC7Ug7AKYJw" name="preparedeployEntryAction">
+              <language>bean</language>
+              <body>preparedeployEntryAction</body>
+            </entry>
+          </subvertex>
+          <subvertex xmi:type="uml:State" xmi:id="_TFpcEAlREeacC7Ug7AKYJw" name="INSTALL">
+            <entry xmi:type="uml:OpaqueBehavior" xmi:id="_ubLPgAlhEeacC7Ug7AKYJw" name="installEntryAction">
+              <language>bean</language>
+              <body>installEntryAction</body>
+            </entry>
+          </subvertex>
+          <subvertex xmi:type="uml:State" xmi:id="_WkruwAlREeacC7Ug7AKYJw" name="START">
+            <entry xmi:type="uml:OpaqueBehavior" xmi:id="_mt8-gAn4EeacC7Ug7AKYJw" name="startEntryAction">
+              <language>bean</language>
+              <body>startEntryAction</body>
+            </entry>
+          </subvertex>
+          <subvertex xmi:type="uml:Pseudostate" xmi:id="_rOj80AlREeacC7Ug7AKYJw" name="ISINSTALLED" kind="choice"/>
+          <subvertex xmi:type="uml:Pseudostate" xmi:id="_GD19MAlSEeacC7Ug7AKYJw" name=""/>
+          <subvertex xmi:type="uml:Pseudostate" xmi:id="_X6_6EAlUEeacC7Ug7AKYJw" name="INSTALLOK" kind="choice"/>
+        </region>
+      </subvertex>
+      <subvertex xmi:type="uml:State" xmi:id="_8X2AsAlLEeacC7Ug7AKYJw" name="UNDEPLOY">
+        <connectionPoint xmi:type="uml:Pseudostate" xmi:id="_hgKvcAlSEeacC7Ug7AKYJw" name="EXITUNDEPLOY" kind="exitPoint"/>
+        <region xmi:type="uml:Region" xmi:id="_z_V18QlREeacC7Ug7AKYJw" name="Region1">
+          <transition xmi:type="uml:Transition" xmi:id="_JkTMMAlSEeacC7Ug7AKYJw" source="_IeO8AAlSEeacC7Ug7AKYJw" target="_z_XEEAlREeacC7Ug7AKYJw"/>
+          <transition xmi:type="uml:Transition" xmi:id="_dkZdcAlSEeacC7Ug7AKYJw" source="_z_XEEAlREeacC7Ug7AKYJw" target="_TAKpsAlSEeacC7Ug7AKYJw"/>
+          <transition xmi:type="uml:Transition" xmi:id="_eX26sAlSEeacC7Ug7AKYJw" guard="_NU8SoAlaEeacC7Ug7AKYJw" source="_TAKpsAlSEeacC7Ug7AKYJw" target="_4dLTMAlREeacC7Ug7AKYJw">
+            <ownedRule xmi:type="uml:Constraint" xmi:id="_NU8SoAlaEeacC7Ug7AKYJw">
+              <specification xmi:type="uml:OpaqueExpression" xmi:id="_NU8SoQlaEeacC7Ug7AKYJw">
+                <language>bean</language>
+                <body>isRunningGuard</body>
+              </specification>
+            </ownedRule>
+          </transition>
+          <transition xmi:type="uml:Transition" xmi:id="_paVwsAlSEeacC7Ug7AKYJw" source="_TAKpsAlSEeacC7Ug7AKYJw" target="_hgKvcAlSEeacC7Ug7AKYJw"/>
+          <transition xmi:type="uml:Transition" xmi:id="_9AwhMAlTEeacC7Ug7AKYJw" source="_4dLTMAlREeacC7Ug7AKYJw" target="_hgKvcAlSEeacC7Ug7AKYJw"/>
+          <subvertex xmi:type="uml:State" xmi:id="_z_XEEAlREeacC7Ug7AKYJw" name="PREPAREUNDEPLOY"/>
+          <subvertex xmi:type="uml:State" xmi:id="_4dLTMAlREeacC7Ug7AKYJw" name="STOP">
+            <entry xmi:type="uml:OpaqueBehavior" xmi:id="_qS3PsAn4EeacC7Ug7AKYJw" name="stopEntryAction">
+              <language>bean</language>
+              <body>stopEntryAction</body>
+            </entry>
+          </subvertex>
+          <subvertex xmi:type="uml:Pseudostate" xmi:id="_IeO8AAlSEeacC7Ug7AKYJw" name=""/>
+          <subvertex xmi:type="uml:Pseudostate" xmi:id="_TAKpsAlSEeacC7Ug7AKYJw" name="ISRUNNING" kind="choice"/>
+        </region>
+      </subvertex>
+      <subvertex xmi:type="uml:State" xmi:id="_ETRmMAlMEeacC7Ug7AKYJw" name="ERROR">
+        <entry xmi:type="uml:OpaqueBehavior" xmi:id="_WLxmEAl-EeacC7Ug7AKYJw" name="errorEntryAction">
+          <language>bean</language>
+          <body>errorEntryAction</body>
+        </entry>
+      </subvertex>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_ZvIDwAlMEeacC7Ug7AKYJw" name=""/>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_WzKZ8AnxEeacC7Ug7AKYJw" name="HASERROR" kind="junction"/>
+    </region>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Signal" xmi:id="_uqGo4AlMEeacC7Ug7AKYJw" name="DEPLOY"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_xHrekAlMEeacC7Ug7AKYJw" name="SignalEventDEPLOY" signal="_uqGo4AlMEeacC7Ug7AKYJw"/>
+  <packagedElement xmi:type="uml:Signal" xmi:id="_8ElCQAlSEeacC7Ug7AKYJw" name="UNDEPLOY"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_-BZ7UAlSEeacC7Ug7AKYJw" name="SignalEventUNDEPLOY" signal="_8ElCQAlSEeacC7Ug7AKYJw"/>
+</uml:Model>

@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Spring Statemachine Deploy Demo</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div>
+		<p th:text="'States: ' + ${states}" />
+	</div>
+
+	<form action="#" data-th-action="@{/state}" data-th-object="${model}" method="post">
+		<div>
+			<p th:text="'Choose event'" />
+		</div>
+		<ul>
+			<li th:each="ty : ${allTypes}">
+				<input type="radio" name="event" th:value="${ty}" />
+				<label th:text="${ty}">replaced</label>
+			</li>
+		</ul>
+		<div>
+			<p th:text="'Choose event header(s)'" />
+		</div>
+		<ul>
+			<li th:each="ty : ${failTypes}">
+				<input type="checkbox" name="fail" th:value="${ty}" />
+				<label th:text="${ty}">replaced</label>
+			</li>
+		</ul>
+		<button type="submit">Send Event</button>
+	</form>
+
+	<div>
+		<p th:text="'Messages:'" />
+		<p th:each="ty : ${messages}" th:text="${ty}" />
+	</div>
+</body>
+</html>
