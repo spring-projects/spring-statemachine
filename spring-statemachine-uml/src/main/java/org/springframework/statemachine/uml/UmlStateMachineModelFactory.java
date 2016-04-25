@@ -15,7 +15,11 @@
  */
 package org.springframework.statemachine.uml;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.eclipse.uml2.uml.Model;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -30,6 +34,7 @@ import org.springframework.statemachine.uml.support.UmlModelParser;
 import org.springframework.statemachine.uml.support.UmlUtils;
 import org.springframework.statemachine.uml.support.UmlModelParser.DataHolder;
 import org.springframework.util.Assert;
+import org.springframework.util.FileCopyUtils;
 
 /**
  * {@link StateMachineModelFactory} which builds {@link StateMachineModel} from
@@ -66,7 +71,7 @@ public class UmlStateMachineModelFactory extends AbstractStateMachineModelFactor
 	public StateMachineModel<String, String> build() {
 		Model model = null;
 		try {
-			model = UmlUtils.getModel(resolveResource().getURI().getPath());
+			model = UmlUtils.getModel(getResourceUri(resolveResource()).getPath());
 		} catch (IOException e) {
 			throw new IllegalArgumentException("Cannot build build model from resource " + resource + " or location " + location, e);
 		}
@@ -86,5 +91,18 @@ public class UmlStateMachineModelFactory extends AbstractStateMachineModelFactor
 			}
 			return loader.getResource(location);
 		}
+	}
+
+	private URI getResourceUri(Resource resource) throws IOException {
+		// try to see if resource is an actual File and eclipse
+		// libs cannot use input stream. thus creating a tmp file with
+		// needed .uml prefix and getting URI from there.
+		try {
+			return resource.getFile().toURI();
+		} catch (Exception e) {
+		}
+		Path tempFile = Files.createTempFile(null, ".uml");
+		FileCopyUtils.copy(resource.getInputStream(), new FileOutputStream(tempFile.toFile()));
+		return tempFile.toUri();
 	}
 }
