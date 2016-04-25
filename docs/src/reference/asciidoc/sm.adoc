@@ -265,6 +265,7 @@ Otherwise configuration is ill-formed.
 include::samples/DocsConfigurationSampleTests.java[tags=snippetS]
 ----
 
+[[statemachine-config-states-junction]]
 ==== Junction State
 Junction needs to be defined in both states and transitions to work
 properly. Mark particular state as choice state by using `junction()`
@@ -324,6 +325,21 @@ states from a regions.
 ----
 include::samples/DocsConfigurationSampleTests.java[tags=snippetU]
 ----
+
+[[statemachine-config-states-exitentry]]
+==== Exit/Entry Point States
+Exit and Entry Points can be used to do more controlled exit and entry
+from and into a submachines.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetUU]
+----
+
+As shown above you need to mark particular states as _exit_ and
+_entry_ states. Then you create a normal transitions into those states
+and also specify _withExit()_ and _withEntry()_ where those states
+will exit and entry respectively.
 
 [[statemachine-config-commonsettings]]
 === Configuring Common Settings

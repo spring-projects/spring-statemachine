@@ -16,6 +16,8 @@ interoperability with web applications.
   <<sm-persist-statemachinepersister>>.
 * Configuration model classes are now a public API.
 * New features in timer based events.
+* New _Junction_ pseudostate <<statemachine-config-states-junction>>.
+* New _Exit Point_ and _Entry Point_ pseudostates <<statemachine-config-states-exitentry>>.
 * Configuration model verifier.
 * New samples, <<statemachine-examples-security>>, <<statemachine-examples-eventservice>>.
 * UI modeling support using Eclipse Papyrus, <<sm-papyrus>>.
