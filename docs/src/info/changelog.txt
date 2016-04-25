@@ -4,6 +4,29 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 1.1.0.RC1 (2016-04-25)
+----------------------------------------
+* Support junction pseudostate [#42]
+* Implement distributed action [#176]
+* Persisting state machine id [#186]
+* Restoring persisted context does not work with substates [#188]
+* Final state is lost when exiting from a submachine [#190]
+* Transition from direct parent to initial state enters too many times [#191]
+* Support exit/entry points [#192]
+* Support eclipse uml/papyrus model [#193]
+* Update docs for 1.1.0.RC1 [#194]
+* Subsequent choice states are not evaluated in sequence [#195]
+* Support FunctionBehavior for actions [#199]
+* Support resource loader in UmlStateMachineModelFactory [#200]
+* Support event deferring in uml [#201]
+* Support transition type in uml [#202]
+* Support default history state [#204]
+* Guard breaks with Throwable [#206]
+* Support timers in uml [#207]
+* State exit may fail with linked pseudostates [#208]
+* Add new deploy sample [#209]
+* UmlStateMachineModelFactory may fail for model loading [#210]
+
 Changes in version 1.1.0.M2 (2016-03-21)
 ----------------------------------------
 * Better config error handling [#103]
