@@ -219,15 +219,7 @@ public class UmlModelParser {
 						list = new LinkedList<ChoiceData<String, String>>();
 						choices.put(transition.getSource().getName(), list);
 					}
-					Guard<String, String> guard = null;
-					for (Constraint c : transition.getOwnedRules()) {
-						if (c.getSpecification() instanceof OpaqueExpression) {
-							String beanId = UmlUtils.resolveBodyByLanguage(LANGUAGE_BEAN, (OpaqueExpression)c.getSpecification());
-							if (StringUtils.hasText(beanId)) {
-								guard = resolver.resolveGuard(beanId);
-							}
-						}
-					}
+					Guard<String, String> guard = resolveGuard(transition);
 					// we want null guards to be at the end
 					if (guard == null) {
 						list.addLast(new ChoiceData<String, String>(transition.getSource().getName(), transition.getTarget().getName(), guard));
@@ -240,15 +232,7 @@ public class UmlModelParser {
 						list = new LinkedList<JunctionData<String, String>>();
 						junctions.put(transition.getSource().getName(), list);
 					}
-					Guard<String, String> guard = null;
-					for (Constraint c : transition.getOwnedRules()) {
-						if (c.getSpecification() instanceof OpaqueExpression) {
-							String beanId = UmlUtils.resolveBodyByLanguage(LANGUAGE_BEAN, (OpaqueExpression)c.getSpecification());
-							if (StringUtils.hasText(beanId)) {
-								guard = resolver.resolveGuard(beanId);
-							}
-						}
-					}
+					Guard<String, String> guard = resolveGuard(transition);
 					// we want null guards to be at the end
 					if (guard == null) {
 						list.addLast(new JunctionData<String, String>(transition.getSource().getName(), transition.getTarget().getName(), guard));
@@ -282,12 +266,13 @@ public class UmlModelParser {
 			// go through all triggers and create transition
 			// from signals, or transitions from timers
 			for (Trigger trigger : transition.getTriggers()) {
+				Guard<String, String> guard = resolveGuard(transition);
 				Event event = trigger.getEvent();
 				if (event instanceof SignalEvent) {
 					Signal signal = ((SignalEvent)event).getSignal();
 					if (signal != null) {
 						transitionDatas.add(new TransitionData<String, String>(transition.getSource().getName(),
-								transition.getTarget().getName(), signal.getName(), resolveTransitionActions(transition), null,
+								transition.getTarget().getName(), signal.getName(), resolveTransitionActions(transition), guard,
 								UmlUtils.mapUmlTransitionType(transition)));
 					}
 				} else if (event instanceof TimeEvent) {
@@ -299,7 +284,7 @@ public class UmlModelParser {
 							count = 1;
 						}
 						transitionDatas.add(new TransitionData<String, String>(transition.getSource().getName(),
-								transition.getTarget().getName(), period, count, resolveTransitionActions(transition), null,
+								transition.getTarget().getName(), period, count, resolveTransitionActions(transition), guard,
 								UmlUtils.mapUmlTransitionType(transition)));
 					}
 				}
@@ -308,9 +293,22 @@ public class UmlModelParser {
 			// create anonymous transition if needed
 			if (shouldCreateAnonymousTransition(transition)) {
 				transitionDatas.add(new TransitionData<String, String>(transition.getSource().getName(), transition.getTarget().getName(),
-						null, resolveTransitionActions(transition), null, UmlUtils.mapUmlTransitionType(transition)));
+						null, resolveTransitionActions(transition), resolveGuard(transition), UmlUtils.mapUmlTransitionType(transition)));
 			}
 		}
+	}
+
+	private Guard<String, String> resolveGuard(Transition transition) {
+		Guard<String, String> guard = null;
+		for (Constraint c : transition.getOwnedRules()) {
+			if (c.getSpecification() instanceof OpaqueExpression) {
+				String beanId = UmlUtils.resolveBodyByLanguage(LANGUAGE_BEAN, (OpaqueExpression)c.getSpecification());
+				if (StringUtils.hasText(beanId)) {
+					guard = resolver.resolveGuard(beanId);
+				}
+			}
+		}
+		return guard;
 	}
 
 	private Long getTimePeriod(TimeEvent event) {

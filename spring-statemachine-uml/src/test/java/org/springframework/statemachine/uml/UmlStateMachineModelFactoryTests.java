@@ -502,6 +502,30 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S5"));
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleGuardsDeny1() throws Exception {
+		context.register(Config14.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleGuardsDeny2() throws Exception {
+		context.register(Config14.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent("E2");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S3"));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config2 extends StateMachineConfigurerAdapter<String, String> {
@@ -765,6 +789,28 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		}
 	}
 
+	@Configuration
+	@EnableStateMachine
+	public static class Config14 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/uml/simple-guards.uml");
+		}
+
+		@Bean
+		public SimpleGuard denyGuard() {
+			return new SimpleGuard(false);
+		}
+	}
+
 	public static class LatchAction implements Action<String, String> {
 		CountDownLatch latch = new CountDownLatch(1);
 		@Override
@@ -786,6 +832,21 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 			return ObjectUtils.nullSafeEquals(match, context.getMessageHeaders().get("choice", String.class));
 		}
 	}
+
+	private static class SimpleGuard implements Guard<String, String> {
+
+		private final boolean deny;
+
+		public SimpleGuard(boolean deny) {
+			this.deny = deny;
+		}
+
+		@Override
+		public boolean evaluate(StateContext<String, String> context) {
+			return deny;
+		}
+	}
+
 
 	private static class JunctionGuard implements Guard<String, String> {
 
