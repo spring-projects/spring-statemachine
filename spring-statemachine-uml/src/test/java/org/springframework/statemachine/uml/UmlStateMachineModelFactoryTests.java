@@ -526,6 +526,18 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S3"));
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testInitialActions() throws Exception {
+		context.register(Config15.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		LatchAction initialAction = context.getBean("initialAction", LatchAction.class);
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		assertThat(initialAction.latch.await(1, TimeUnit.SECONDS), is(true));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config2 extends StateMachineConfigurerAdapter<String, String> {
@@ -808,6 +820,28 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		@Bean
 		public SimpleGuard denyGuard() {
 			return new SimpleGuard(false);
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config15 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/uml/initial-actions.uml");
+		}
+
+		@Bean
+		public LatchAction initialAction() {
+			return new LatchAction();
 		}
 	}
 

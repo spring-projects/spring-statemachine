@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_OwM20A7YEeaxyZlCCSfciw" name="RootElement">
+  <packagedElement xmi:type="uml:StateMachine" xmi:id="_OwOsAA7YEeaxyZlCCSfciw" name="StateMachine">
+    <region xmi:type="uml:Region" xmi:id="_OwPTEA7YEeaxyZlCCSfciw" name="Region1">
+      <transition xmi:type="uml:Transition" xmi:id="_12ANoA7YEeaxyZlCCSfciw" source="_puTcAA7YEeaxyZlCCSfciw" target="_q7IbgA7YEeaxyZlCCSfciw">
+        <trigger xmi:type="uml:Trigger" xmi:id="_KWX6YA7ZEeaxyZlCCSfciw" event="_v2ErgA7YEeaxyZlCCSfciw"/>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_8oGzkA7YEeaxyZlCCSfciw" source="_3jvh0A7YEeaxyZlCCSfciw" target="_puTcAA7YEeaxyZlCCSfciw">
+        <effect xmi:type="uml:OpaqueBehavior" xmi:id="_ZWIeQA7ZEeaxyZlCCSfciw" name="initialAction">
+          <language>bean</language>
+          <body>initialAction</body>
+        </effect>
+      </transition>
+      <subvertex xmi:type="uml:State" xmi:id="_puTcAA7YEeaxyZlCCSfciw" name="S1"/>
+      <subvertex xmi:type="uml:State" xmi:id="_q7IbgA7YEeaxyZlCCSfciw" name="S2"/>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_3jvh0A7YEeaxyZlCCSfciw"/>
+    </region>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Signal" xmi:id="_uJ9H8A7YEeaxyZlCCSfciw" name="E1"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_v2ErgA7YEeaxyZlCCSfciw" name="SignalEventE1" signal="_uJ9H8A7YEeaxyZlCCSfciw"/>
+</uml:Model>

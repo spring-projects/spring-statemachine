@@ -27,6 +27,7 @@ import org.eclipse.uml2.uml.BodyOwner;
 import org.eclipse.uml2.uml.Event;
 import org.eclipse.uml2.uml.FinalState;
 import org.eclipse.uml2.uml.Model;
+import org.eclipse.uml2.uml.OpaqueBehavior;
 import org.eclipse.uml2.uml.Pseudostate;
 import org.eclipse.uml2.uml.PseudostateKind;
 import org.eclipse.uml2.uml.Signal;
@@ -36,6 +37,8 @@ import org.eclipse.uml2.uml.Transition;
 import org.eclipse.uml2.uml.Trigger;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.eclipse.uml2.uml.resource.UMLResource;
+import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.config.model.StateMachineComponentResolver;
 import org.springframework.statemachine.transition.TransitionKind;
 
 /**
@@ -70,14 +73,62 @@ public abstract class UmlUtils {
 	 * @return true, if is initial state
 	 */
 	public static boolean isInitialState(State state) {
+		return resolveInitialTransition(state) != null;
+	}
+
+	/**
+	 * Resolve initial transition from a {@link State} if it
+	 * exists, otherwise null is returned.
+	 *
+	 * @param state the state
+	 * @return the transition
+	 */
+	public static Transition resolveInitialTransition(State state) {
 		for (Transition t : state.getIncomings()) {
 			if (t.getSource() instanceof Pseudostate) {
 				if (((Pseudostate)t.getSource()).getKind() == PseudostateKind.INITIAL_LITERAL) {
-					return true;
+					return t;
 				}
 			}
 		}
-		return false;
+		return null;
+	}
+
+	/**
+	 * Resolve transition actions.
+	 *
+	 * @param transition the transition
+	 * @param resolver the state machine component resolver
+	 * @return the collection of actions
+	 */
+	public static Collection<Action<String, String>> resolveTransitionActions(Transition transition,
+			StateMachineComponentResolver<String, String> resolver) {
+		ArrayList<Action<String, String>> actions = new ArrayList<Action<String, String>>();
+		Action<String, String> action = resolveTransitionAction(transition, resolver);
+		if (action != null) {
+			actions.add(action);
+		}
+		return actions;
+	}
+
+	/**
+	 * Resolve transition action or null if no action was found.
+	 *
+	 * @param transition the transition
+	 * @param resolver the state machine component resolver
+	 * @return the action
+	 */
+	public static Action<String, String> resolveTransitionAction(Transition transition,
+			StateMachineComponentResolver<String, String> resolver) {
+		Action<String, String> action = null;
+		if (transition.getEffect() instanceof OpaqueBehavior) {
+			String beanId = UmlUtils.resolveBodyByLanguage(UmlModelParser.LANGUAGE_BEAN, (OpaqueBehavior)transition.getEffect());
+			Action<String, String> bean = resolver.resolveAction(beanId);
+			if (bean != null) {
+				action = bean;
+			}
+		}
+		return action;
 	}
 
 	/**

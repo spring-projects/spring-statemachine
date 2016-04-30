@@ -67,7 +67,7 @@ import org.springframework.util.StringUtils;
  */
 public class UmlModelParser {
 
-	private final static String LANGUAGE_BEAN = "bean";
+	public final static String LANGUAGE_BEAN = "bean";
 	private final Model model;
 	private final StateMachineComponentResolver<String, String> resolver;
 	private final Collection<StateData<String, String>> stateDatas = new ArrayList<StateData<String, String>>();
@@ -133,8 +133,13 @@ public class UmlModelParser {
 				if (state.getOwner() instanceof Region) {
 					regionId = ((Region)state.getOwner()).getName();
 				}
+				boolean isInitialState = UmlUtils.isInitialState(state);
 				StateData<String, String> stateData = handleActions(
-						new StateData<String, String>(parent, regionId, state.getName(), UmlUtils.isInitialState(state)), state);
+						new StateData<String, String>(parent, regionId, state.getName(), isInitialState), state);
+				if (isInitialState) {
+					// set possible initial transition
+					stateData.setInitialAction(resolveInitialTransitionAction(state));
+				}
 				stateData.setDeferred(UmlUtils.resolveDererredEvents(state));
 				if (UmlUtils.isFinalState(state)) {
 					stateData.setEnd(true);
@@ -272,8 +277,8 @@ public class UmlModelParser {
 					Signal signal = ((SignalEvent)event).getSignal();
 					if (signal != null) {
 						transitionDatas.add(new TransitionData<String, String>(transition.getSource().getName(),
-								transition.getTarget().getName(), signal.getName(), resolveTransitionActions(transition), guard,
-								UmlUtils.mapUmlTransitionType(transition)));
+								transition.getTarget().getName(), signal.getName(), UmlUtils.resolveTransitionActions(transition, resolver),
+								guard, UmlUtils.mapUmlTransitionType(transition)));
 					}
 				} else if (event instanceof TimeEvent) {
 					TimeEvent timeEvent = (TimeEvent)event;
@@ -284,8 +289,8 @@ public class UmlModelParser {
 							count = 1;
 						}
 						transitionDatas.add(new TransitionData<String, String>(transition.getSource().getName(),
-								transition.getTarget().getName(), period, count, resolveTransitionActions(transition), guard,
-								UmlUtils.mapUmlTransitionType(transition)));
+								transition.getTarget().getName(), period, count, UmlUtils.resolveTransitionActions(transition, resolver),
+								guard, UmlUtils.mapUmlTransitionType(transition)));
 					}
 				}
 			}
@@ -293,7 +298,8 @@ public class UmlModelParser {
 			// create anonymous transition if needed
 			if (shouldCreateAnonymousTransition(transition)) {
 				transitionDatas.add(new TransitionData<String, String>(transition.getSource().getName(), transition.getTarget().getName(),
-						null, resolveTransitionActions(transition), resolveGuard(transition), UmlUtils.mapUmlTransitionType(transition)));
+						null, UmlUtils.resolveTransitionActions(transition, resolver), resolveGuard(transition),
+						UmlUtils.mapUmlTransitionType(transition)));
 			}
 		}
 	}
@@ -319,16 +325,13 @@ public class UmlModelParser {
 		}
 	}
 
-	private Collection<Action<String, String>> resolveTransitionActions(Transition transition) {
-		ArrayList<Action<String, String>> actions = new ArrayList<Action<String, String>>();
-		if (transition.getEffect() instanceof OpaqueBehavior) {
-			String beanId = UmlUtils.resolveBodyByLanguage(LANGUAGE_BEAN, (OpaqueBehavior)transition.getEffect());
-			Action<String, String> bean = resolver.resolveAction(beanId);
-			if (bean != null) {
-				actions.add(bean);
-			}
+	private Action<String, String> resolveInitialTransitionAction(State state) {
+		Transition transition = UmlUtils.resolveInitialTransition(state);
+		if (transition != null) {
+			return UmlUtils.resolveTransitionAction(transition, resolver);
+		} else {
+			return null;
 		}
-		return actions;
 	}
 
 	private boolean shouldCreateAnonymousTransition(Transition transition) {
