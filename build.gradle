@@ -251,6 +251,8 @@ project('spring-statemachine-uml') {
 
 project('spring-statemachine-build-tests') {
 	description = "Spring State Machine Build Tests"
+	configurations.archives.artifacts.removeAll { it.archiveTask.is jar }
+	tasks.findByPath("artifactoryPublish")?.enabled = false
 
 	dependencies {
 		testCompile project(":spring-statemachine-uml")
