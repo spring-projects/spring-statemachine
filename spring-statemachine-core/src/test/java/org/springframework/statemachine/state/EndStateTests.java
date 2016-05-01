@@ -34,6 +34,7 @@ import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
@@ -118,6 +119,18 @@ public class EndStateTests extends AbstractStateMachineTests {
 		machine.sendEvent(TestEvents.E3);
 		assertThat(machine.isComplete(), is(false));
 		assertThat(machine.getState().getIds(), contains(TestStates.S1, TestStates.SF));
+	}
+
+	@Test
+	public void testMultipleTransitionsToSameEndState() {
+		context.register(Config5.class);
+		context.refresh();
+	}
+
+	@Test
+	public void testMultipleTransitionsToSameEndStateFromChoices() {
+		context.register(Config6.class);
+		context.refresh();
 	}
 
 	@Configuration
@@ -345,6 +358,82 @@ public class EndStateTests extends AbstractStateMachineTests {
 		@Bean
 		public TaskExecutor taskExecutor() {
 			return new SyncTaskExecutor();
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config5 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.SI)
+					.state(TestStates.S1)
+					.state(TestStates.S2)
+					.end(TestStates.SF);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.SI)
+					.target(TestStates.S1)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.SI)
+					.target(TestStates.S2)
+					.event(TestEvents.E2)
+					.and()
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.SF)
+					.event(TestEvents.E3)
+					.and()
+					.withExternal()
+					.source(TestStates.S2)
+					.target(TestStates.SF)
+					.event(TestEvents.E3);
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config6 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("SI")
+					.choice("JOIN1")
+					.choice("JOIN2")
+					.end("SF");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("SI")
+					.target("JOIN1")
+					.event("E1")
+					.and()
+				.withExternal()
+					.source("SI")
+					.target("JOIN2")
+					.event("E2")
+					.and()
+				.withChoice()
+					.source("JOIN1")
+					.last("SF")
+					.and()
+				.withChoice()
+					.source("JOIN2")
+					.last("SF");
 		}
 	}
 }

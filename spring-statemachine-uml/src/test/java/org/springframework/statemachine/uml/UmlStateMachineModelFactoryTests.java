@@ -566,6 +566,18 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
 	}
 
+	@Test
+	public void testSimpleFlatMultipleToEnds() throws Exception {
+		context.register(Config17.class);
+		context.refresh();
+	}
+
+	@Test
+	public void testSimpleFlatMultipleToEndsViachoices() throws Exception {
+		context.register(Config18.class);
+		context.refresh();
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config2 extends StateMachineConfigurerAdapter<String, String> {
@@ -887,6 +899,40 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		@Bean
 		public StateMachineModelFactory<String, String> modelFactory() {
 			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/uml/simple-spels.uml");
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config17 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/uml/simple-flat-multiple-to-end.uml");
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config18 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/uml/simple-flat-multiple-to-end-viachoices.uml");
 		}
 	}
 
