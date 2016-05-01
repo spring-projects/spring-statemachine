@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_ut2b8A-YEeaqleSKKcvuHQ" name="RootElement">
+  <packagedElement xmi:type="uml:StateMachine" xmi:id="_uuCpMA-YEeaqleSKKcvuHQ" name="StateMachine">
+    <region xmi:type="uml:Region" xmi:id="_uuFFcA-YEeaqleSKKcvuHQ" name="Region1">
+      <transition xmi:type="uml:Transition" xmi:id="_DxzW4A-ZEeaqleSKKcvuHQ" source="_CT-G8A-ZEeaqleSKKcvuHQ" target="_ySvfAA-YEeaqleSKKcvuHQ"/>
+      <transition xmi:type="uml:Transition" xmi:id="_E-Qi8A-ZEeaqleSKKcvuHQ" guard="_VV1OUA-ZEeaqleSKKcvuHQ" source="_ySvfAA-YEeaqleSKKcvuHQ" target="_zmov0A-YEeaqleSKKcvuHQ">
+        <ownedRule xmi:type="uml:Constraint" xmi:id="_VV1OUA-ZEeaqleSKKcvuHQ">
+          <specification xmi:type="uml:OpaqueExpression" xmi:id="_VV1OUQ-ZEeaqleSKKcvuHQ" name="spelGuard">
+            <language>spel</language>
+            <body>messageHeaders.get('foo')=='bar'</body>
+          </specification>
+        </ownedRule>
+        <trigger xmi:type="uml:Trigger" xmi:id="_Kgk8AA-ZEeaqleSKKcvuHQ" event="_HSa98A-ZEeaqleSKKcvuHQ"/>
+      </transition>
+      <subvertex xmi:type="uml:State" xmi:id="_ySvfAA-YEeaqleSKKcvuHQ" name="S1">
+        <exit xmi:type="uml:OpaqueBehavior" xmi:id="_BsFY0A-fEeaqleSKKcvuHQ" name="spelAction">
+          <language>spel</language>
+          <body>extendedState.variables.put('myvar2','myvalue2')</body>
+        </exit>
+      </subvertex>
+      <subvertex xmi:type="uml:State" xmi:id="_zmov0A-YEeaqleSKKcvuHQ" name="S2">
+        <entry xmi:type="uml:OpaqueBehavior" xmi:id="_6kSpAA-ZEeaqleSKKcvuHQ" name="spelAction">
+          <language>spel</language>
+          <body>extendedState.variables.put('myvar1','myvalue1')</body>
+        </entry>
+      </subvertex>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_CT-G8A-ZEeaqleSKKcvuHQ" name=""/>
+    </region>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Signal" xmi:id="_GD-04A-ZEeaqleSKKcvuHQ" name="E1"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_HSa98A-ZEeaqleSKKcvuHQ" name="SignalEventE1" signal="_GD-04A-ZEeaqleSKKcvuHQ"/>
+</uml:Model>

@@ -43,7 +43,11 @@ import org.eclipse.uml2.uml.Transition;
 import org.eclipse.uml2.uml.Trigger;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.eclipse.uml2.uml.Vertex;
+import org.springframework.expression.spel.SpelCompilerMode;
+import org.springframework.expression.spel.SpelParserConfiguration;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.action.SpelExpressionAction;
 import org.springframework.statemachine.config.model.ChoiceData;
 import org.springframework.statemachine.config.model.EntryData;
 import org.springframework.statemachine.config.model.ExitData;
@@ -55,6 +59,7 @@ import org.springframework.statemachine.config.model.StatesData;
 import org.springframework.statemachine.config.model.TransitionData;
 import org.springframework.statemachine.config.model.TransitionsData;
 import org.springframework.statemachine.guard.Guard;
+import org.springframework.statemachine.guard.SpelExpressionGuard;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -68,6 +73,7 @@ import org.springframework.util.StringUtils;
 public class UmlModelParser {
 
 	public final static String LANGUAGE_BEAN = "bean";
+	public final static String LANGUAGE_SPEL = "spel";
 	private final Model model;
 	private final StateMachineComponentResolver<String, String> resolver;
 	private final Collection<StateData<String, String>> stateDatas = new ArrayList<StateData<String, String>>();
@@ -311,6 +317,13 @@ public class UmlModelParser {
 				String beanId = UmlUtils.resolveBodyByLanguage(LANGUAGE_BEAN, (OpaqueExpression)c.getSpecification());
 				if (StringUtils.hasText(beanId)) {
 					guard = resolver.resolveGuard(beanId);
+				} else {
+					String expression = UmlUtils.resolveBodyByLanguage(LANGUAGE_SPEL, (OpaqueExpression)c.getSpecification());
+					if (StringUtils.hasText(expression)) {
+						SpelExpressionParser parser = new SpelExpressionParser(
+								new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
+						guard = new SpelExpressionGuard<String, String>(parser.parseExpression(expression));
+					}
 				}
 			}
 		}
@@ -367,6 +380,15 @@ public class UmlModelParser {
 					entrys.add(bean);
 					stateData.setEntryActions(entrys);
 				}
+			} else {
+				String expression = UmlUtils.resolveBodyByLanguage(LANGUAGE_SPEL, (OpaqueBehavior)state.getEntry());
+				if (StringUtils.hasText(expression)) {
+					SpelExpressionParser parser = new SpelExpressionParser(
+							new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
+					ArrayList<Action<String, String>> entrys = new ArrayList<Action<String, String>>();
+					entrys.add(new SpelExpressionAction<String, String>(parser.parseExpression(expression)));
+					stateData.setEntryActions(entrys);
+				}
 			}
 		}
 		if (state.getExit() instanceof OpaqueBehavior) {
@@ -374,9 +396,18 @@ public class UmlModelParser {
 			if (StringUtils.hasText(beanId)) {
 				Action<String, String> bean = resolver.resolveAction(beanId);
 				if (bean != null) {
-					ArrayList<Action<String, String>> entrys = new ArrayList<Action<String, String>>();
-					entrys.add(bean);
-					stateData.setExitActions(entrys);
+					ArrayList<Action<String, String>> exits = new ArrayList<Action<String, String>>();
+					exits.add(bean);
+					stateData.setExitActions(exits);
+				}
+			} else {
+				String expression = UmlUtils.resolveBodyByLanguage(LANGUAGE_SPEL, (OpaqueBehavior)state.getExit());
+				if (StringUtils.hasText(expression)) {
+					SpelExpressionParser parser = new SpelExpressionParser(
+							new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
+					ArrayList<Action<String, String>> exits = new ArrayList<Action<String, String>>();
+					exits.add(new SpelExpressionAction<String, String>(parser.parseExpression(expression)));
+					stateData.setExitActions(exits);
 				}
 			}
 		}

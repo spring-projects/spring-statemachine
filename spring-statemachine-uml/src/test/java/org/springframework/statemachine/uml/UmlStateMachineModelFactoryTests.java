@@ -538,6 +538,34 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(initialAction.latch.await(1, TimeUnit.SECONDS), is(true));
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleSpelsAllow() throws Exception {
+		context.register(Config16.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent(MessageBuilder.withPayload("E1").setHeader("foo", "bar").build());
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
+		assertThat(stateMachine.getExtendedState().get("myvar1", String.class), is("myvalue1"));
+		assertThat(stateMachine.getExtendedState().get("myvar2", String.class), is("myvalue2"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleSpelsDeny() throws Exception {
+		context.register(Config16.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config2 extends StateMachineConfigurerAdapter<String, String> {
@@ -842,6 +870,23 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		@Bean
 		public LatchAction initialAction() {
 			return new LatchAction();
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config16 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/uml/simple-spels.uml");
 		}
 	}
 
