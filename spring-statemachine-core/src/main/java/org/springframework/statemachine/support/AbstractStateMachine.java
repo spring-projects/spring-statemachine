@@ -721,60 +721,24 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		if (!isInitialTransition(transition) && !callPreStateChangeInterceptors(state, message, transition, stateMachine)) {
 			return;
 		}
-		// TODO: need to make below more clear when
-		//       we figure out rest of a pseudostates
+
+		StateContext<S, E> stateContext = buildStateContext(Stage.STATE_CHANGED, message, transition, stateMachine);
+		State<S,E> toState = followLinkedPseudoStates(state, stateContext);
 		PseudoStateKind kind = state.getPseudoState() != null ? state.getPseudoState().getKind() : null;
-		if (kind == PseudoStateKind.CHOICE || kind == PseudoStateKind.JUNCTION || kind == PseudoStateKind.HISTORY_SHALLOW
-				|| kind == PseudoStateKind.HISTORY_DEEP) {
-			StateContext<S, E> stateContext = buildStateContext(Stage.STATE_CHANGED, message, transition, stateMachine);
-			State<S, E> toState = state.getPseudoState().entry(stateContext);
+		if (kind != null && (kind != PseudoStateKind.INITIAL && kind != PseudoStateKind.JOIN && kind != PseudoStateKind.FORK)) {
+			callPreStateChangeInterceptors(toState, message, transition, stateMachine);
+		}
 
-			// TODO: should do recursive linked pseudostates centrally
-			if (kind == PseudoStateKind.CHOICE) {
-				while (toState != null && toState.getPseudoState() != null
-						&& toState.getPseudoState().getKind() != PseudoStateKind.INITIAL) {
-					toState = toState.getPseudoState().entry(stateContext);
-				}
-			}
-			if (kind == PseudoStateKind.CHOICE) {
-				callPreStateChangeInterceptors(toState, message, transition, stateMachine);
-			}
-
-			if (kind == PseudoStateKind.JUNCTION) {
-				while (toState != null && toState.getPseudoState() != null
-						&& toState.getPseudoState().getKind() != PseudoStateKind.INITIAL) {
-					toState = toState.getPseudoState().entry(stateContext);
-				}
-			}
-			if (kind == PseudoStateKind.JUNCTION) {
-				callPreStateChangeInterceptors(toState, message, transition, stateMachine);
-			}
-
-			setCurrentState(toState, message, transition, true, stateMachine);
-		} else if (kind == PseudoStateKind.ENTRY) {
-			StateContext<S, E> stateContext = buildStateContext(Stage.STATE_CHANGED, message, transition, stateMachine);
-			State<S, E> toState = state.getPseudoState().entry(stateContext);
-			while (toState != null && toState.getPseudoState() != null
-					&& toState.getPseudoState().getKind() != PseudoStateKind.INITIAL) {
-				toState = toState.getPseudoState().entry(stateContext);
-			}
-			setCurrentState(toState, message, transition, true, stateMachine);
-		} else if (kind == PseudoStateKind.EXIT) {
-			StateContext<S, E> stateContext = buildStateContext(Stage.STATE_CHANGED, message, transition, stateMachine);
-			State<S, E> toState = state.getPseudoState().entry(stateContext);
-			while (toState != null && toState.getPseudoState() != null
-					&& toState.getPseudoState().getKind() != PseudoStateKind.INITIAL) {
-				toState = toState.getPseudoState().entry(stateContext);
-			}
-			setCurrentState(toState, message, transition, true, stateMachine);
-		} else if (kind == PseudoStateKind.FORK) {
-			ForkPseudoState<S, E> fps = (ForkPseudoState<S, E>) state.getPseudoState();
+		// need to check for from original state passed in
+		kind = toState.getPseudoState() != null ? toState.getPseudoState().getKind() : null;
+		if (kind == PseudoStateKind.FORK) {
+			ForkPseudoState<S, E> fps = (ForkPseudoState<S, E>) toState.getPseudoState();
 			for (State<S, E> ss : fps.getForks()) {
 				callPreStateChangeInterceptors(ss, message, transition, stateMachine);
 				setCurrentState(ss, message, transition, false, stateMachine);
 			}
 		} else {
-			setCurrentState(state, message, transition, true, stateMachine);
+			setCurrentState(toState, message, transition, true, stateMachine);
 		}
 
 		callPostStateChangeInterceptors(state, message, transition, stateMachine);
@@ -782,6 +746,22 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		stateMachineExecutor.execute();
 		if (isComplete()) {
 			stop();
+		}
+	}
+
+	private State<S,E> followLinkedPseudoStates(State<S,E> state, StateContext<S, E> stateContext) {
+		PseudoStateKind kind = state.getPseudoState() != null ? state.getPseudoState().getKind() : null;
+		if (kind == PseudoStateKind.INITIAL || kind == PseudoStateKind.JOIN || kind == PseudoStateKind.FORK) {
+			return state;
+		} else if (kind != null) {
+			State<S,E> toState = state.getPseudoState().entry(stateContext);
+			if (toState == null) {
+				return state;
+			} else {
+				return followLinkedPseudoStates(toState, stateContext);
+			}
+		} else {
+			return state;
 		}
 	}
 
