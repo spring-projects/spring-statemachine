@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.state;
+package org.springframework.statemachine.support;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -60,11 +60,26 @@ public class CountTrigger implements Trigger {
 	 * @param timeUnit the time unit
 	 */
 	public CountTrigger(int count, long period, TimeUnit timeUnit) {
+		this(count, period, 0, timeUnit);
+	}
+
+	/**
+	 * Create a trigger with the given count, period and time unit. The time unit will
+	 * apply not only to the period but also to any 'initialDelay' value, if
+	 * configured on this Trigger later via {@link #setInitialDelay(long)}.
+	 *
+	 * @param count the count
+	 * @param period the period
+	 * @param timeUnit the time unit
+	 * @param initialDelay the initial delay
+	 */
+	public CountTrigger(int count, long period, long initialDelay, TimeUnit timeUnit) {
 		Assert.isTrue(period >= 0, "period must not be negative");
 		Assert.isTrue(count >= 0, "count must not be negative");
 		this.timeUnit = (timeUnit != null ? timeUnit : TimeUnit.MILLISECONDS);
 		this.period = this.timeUnit.toMillis(period);
 		this.count = count;
+		setInitialDelay(initialDelay);
 	}
 
 	/**

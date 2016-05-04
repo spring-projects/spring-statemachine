@@ -18,7 +18,7 @@ package org.springframework.statemachine.trigger;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.statemachine.state.CountTrigger;
+import org.springframework.statemachine.support.CountTrigger;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
 
 /**
@@ -101,13 +101,14 @@ public class TimerTrigger<S, E> extends LifecycleObjectSupport implements Trigge
 	}
 
 	private void schedule() {
+		long initialDelay = count > 0 ? period : 0;
 		scheduled = getTaskScheduler().schedule(new Runnable() {
 
 			@Override
 			public void run() {
 				notifyTriggered();
 			}
-		}, new CountTrigger(count, period, TimeUnit.MILLISECONDS));
+		}, new CountTrigger(count, period, initialDelay, TimeUnit.MILLISECONDS));
 	}
 
 	private void notifyTriggered() {

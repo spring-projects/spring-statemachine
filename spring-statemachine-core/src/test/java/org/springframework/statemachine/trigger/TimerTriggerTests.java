@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -125,10 +126,12 @@ public class TimerTriggerTests extends AbstractStateMachineTests {
 
 	private class TestTriggerListener implements TriggerListener {
 
+		AtomicInteger count = new AtomicInteger();
 		CountDownLatch latch = new CountDownLatch(1);
 
 		@Override
 		public void triggered() {
+			count.incrementAndGet();
 			latch.countDown();
 		}
 	}
@@ -166,6 +169,11 @@ public class TimerTriggerTests extends AbstractStateMachineTests {
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2));
+
+		assertThat(tlistener.latch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(tlistener.count.get(), is(0));
+		assertThat(tlistener.latch.await(4, TimeUnit.SECONDS), is(true));
+		assertThat(tlistener.count.get(), is(1));
 
 		assertThat(action.latch.await(2, TimeUnit.SECONDS), is(true));
 		action.reset(1);
@@ -287,7 +295,7 @@ public class TimerTriggerTests extends AbstractStateMachineTests {
 				.withInternal()
 					.source(TestStates.S2)
 					.action(testTimerAction())
-					.timerOnce(1000);
+					.timerOnce(3000);
 		}
 
 		@Bean
