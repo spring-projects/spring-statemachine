@@ -631,7 +631,19 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 						joins.add(stateMap.get(fs));
 					}
 				}
-				JoinPseudoState<S, E> pseudoState = new JoinPseudoState<S, E>(joins);
+				S ss = null;
+				Collection<TransitionData<S, E>> transitions = stateMachineTransitions.getTransitions();
+				for (TransitionData<S, E> tt : transitions) {
+					if (tt.getSource() == s) {
+						ss = tt.getTarget();
+						break;
+					}
+				}
+				StateHolder<S, E> holder = new StateHolder<S, E>(stateMap.get(ss));
+				if (holder.getState() == null) {
+					holderMap.put(ss, holder);
+				}
+				JoinPseudoState<S, E> pseudoState = new JoinPseudoState<S, E>(joins, holder);
 				state = buildStateInternal(stateData.getState(), stateData.getDeferred(), stateData.getEntryActions(),
 						stateData.getExitActions(), pseudoState);
 				states.add(state);

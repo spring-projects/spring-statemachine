@@ -21,6 +21,7 @@ import java.util.List;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.PseudoStateContext.PseudoAction;
+import org.springframework.util.Assert;
 
 /**
  * Join implementation of a {@link PseudoState}.
@@ -34,22 +35,26 @@ public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 
 	private final List<State<S, E>> joins;
 	private volatile JoinTracker tracker;
+	private final StateHolder<S, E> state;
 
 	/**
 	 * Instantiates a new join pseudo state.
 	 *
 	 * @param joins the joins
+	 * @param state the holder for target state
 	 */
-	public JoinPseudoState(List<State<S, E>> joins) {
+	public JoinPseudoState(List<State<S, E>> joins, StateHolder<S, E> state) {
 		super(PseudoStateKind.JOIN);
+		Assert.notNull(state, "Holder must be set");
 		this.joins = joins;
+		this.state = state;
 	}
 
 	@Override
 	public State<S, E> entry(StateContext<S, E> context) {
 		tracker = new JoinTracker(this, new ArrayList<State<S,E>>(joins));
 		context.getStateMachine().addStateListener(tracker);
-		return null;
+		return state.getState();
 	}
 
 	@Override

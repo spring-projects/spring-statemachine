@@ -70,10 +70,10 @@ public class JoinStateTests extends AbstractStateMachineTests {
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 
-		listener.reset(3);
+		listener.reset(2);
 		machine.sendEvent(TestEvents.E3);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(3));
+		assertThat(listener.stateChangedCount, is(2));
 
 		assertThat(machine.getState().getIds(), contains(TestStates.S4));
 	}
@@ -144,10 +144,10 @@ public class JoinStateTests extends AbstractStateMachineTests {
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 
-		listener.reset(3);
+		listener.reset(2);
 		machine.sendEvent(TestEvents.E3);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(3));
+		assertThat(listener.stateChangedCount, is(2));
 
 		assertThat(machine.getState().getIds(), contains(TestStates.S4));
 	}

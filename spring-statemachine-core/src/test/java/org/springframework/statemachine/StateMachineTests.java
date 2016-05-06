@@ -146,10 +146,10 @@ public class StateMachineTests extends AbstractStateMachineTests {
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
 
-		listener.reset(3);
+		listener.reset(2);
 		machine.sendEvent(TestEvents.E3);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(3));
+		assertThat(listener.stateChangedCount, is(2));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S4));
 	}
 

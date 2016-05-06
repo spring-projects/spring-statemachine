@@ -47,7 +47,7 @@ public class TasksHandlerTests {
 				.build();
 
 		TestListener listener = new TestListener();
-		listener.reset(10, 0, 0);
+		listener.reset(9, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
 		machine.start();
@@ -56,7 +56,7 @@ public class TasksHandlerTests {
 		handler.runTasks();
 
 		assertThat(listener.stateChangedLatch.await(8, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(10));
+		assertThat(listener.stateChangedCount, is(9));
 		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_READY));
 		Map<Object, Object> variables = machine.getExtendedState().getVariables();
 		assertThat(variables.size(), is(3));
@@ -71,7 +71,7 @@ public class TasksHandlerTests {
 				.build();
 
 		TestListener listener = new TestListener();
-		listener.reset(12, 0, 0);
+		listener.reset(11, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
 		machine.start();
@@ -80,7 +80,7 @@ public class TasksHandlerTests {
 		handler.runTasks();
 
 		assertThat(listener.stateChangedLatch.await(8, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(12));
+		assertThat(listener.stateChangedCount, is(11));
 		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_ERROR, TasksHandler.STATE_MANUAL));
 		Map<Object, Object> variables = machine.getExtendedState().getVariables();
 		assertThat(variables.size(), is(3));
@@ -95,7 +95,7 @@ public class TasksHandlerTests {
 				.build();
 
 		TestListener listener = new TestListener();
-		listener.reset(12, 0, 0);
+		listener.reset(11, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
 		machine.start();
@@ -104,7 +104,7 @@ public class TasksHandlerTests {
 		handler.runTasks();
 
 		assertThat(listener.stateChangedLatch.await(8, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(12));
+		assertThat(listener.stateChangedCount, is(11));
 		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_ERROR, TasksHandler.STATE_MANUAL));
 
 		listener.reset(0, 0, 0, 0, 1);
@@ -139,11 +139,11 @@ public class TasksHandlerTests {
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 
-		listener.reset(11, 0, 0);
+		listener.reset(10, 0, 0);
 
 		handler.runTasks();
 		assertThat(listener.stateChangedLatch.await(4, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(11));
+		assertThat(listener.stateChangedCount, is(10));
 		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_READY));
 	}
 
@@ -156,7 +156,7 @@ public class TasksHandlerTests {
 				.build();
 
 		TestListener listener = new TestListener();
-		listener.reset(10, 0, 0);
+		listener.reset(9, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
 		machine.start();
@@ -165,7 +165,7 @@ public class TasksHandlerTests {
 		handler.runTasks();
 
 		assertThat(listener.stateChangedLatch.await(12, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(10));
+		assertThat(listener.stateChangedCount, is(9));
 		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_READY));
 		Map<Object, Object> variables = machine.getExtendedState().getVariables();
 		assertThat(variables.size(), is(3));
@@ -195,11 +195,11 @@ public class TasksHandlerTests {
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 
-		listener.reset(21, 0, 0);
+		listener.reset(20, 0, 0);
 		handler.runTasks();
 
 		assertThat(listener.stateChangedLatch.await(10, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(21));
+		assertThat(listener.stateChangedCount, is(20));
 		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_READY));
 		Map<Object, Object> variables = machine.getExtendedState().getVariables();
 		assertThat(variables.size(), is(9));
@@ -216,7 +216,7 @@ public class TasksHandlerTests {
 				.build();
 
 		TestListener listener = new TestListener();
-		listener.reset(10, 0, 0);
+		listener.reset(9, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
 		machine.start();
@@ -226,7 +226,7 @@ public class TasksHandlerTests {
 		handler.runTasks();
 
 		assertThat(listener.stateChangedLatch.await(8, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(10));
+		assertThat(listener.stateChangedCount, is(9));
 		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_READY));
 
 		assertThat(tasksListener.onTasksStartedLatch.await(1, TimeUnit.SECONDS), is(true));
@@ -253,7 +253,7 @@ public class TasksHandlerTests {
 				.build();
 
 		TestListener listener = new TestListener();
-		listener.reset(12, 0, 0);
+		listener.reset(11, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
 		machine.start();
@@ -263,7 +263,7 @@ public class TasksHandlerTests {
 		handler.runTasks();
 
 		assertThat(listener.stateChangedLatch.await(8, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(12));
+		assertThat(listener.stateChangedCount, is(11));
 
 		assertThat(tasksListener.onTasksStartedLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(tasksListener.onTasksStarted, is(1));
@@ -287,7 +287,7 @@ public class TasksHandlerTests {
 				.build();
 
 		TestListener listener = new TestListener();
-		listener.reset(12, 0, 0);
+		listener.reset(11, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
 		machine.start();
@@ -297,7 +297,7 @@ public class TasksHandlerTests {
 		handler.runTasks();
 
 		assertThat(listener.stateChangedLatch.await(8, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(12));
+		assertThat(listener.stateChangedCount, is(11));
 		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_ERROR, TasksHandler.STATE_MANUAL));
 
 		listener.reset(1, 0, 0);
@@ -322,7 +322,7 @@ public class TasksHandlerTests {
 				.build();
 
 		TestListener listener = new TestListener();
-		listener.reset(10, 0, 0);
+		listener.reset(9, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
 		machine.start();
@@ -333,7 +333,7 @@ public class TasksHandlerTests {
 		handler.runTasks();
 
 		assertThat(listener.stateChangedLatch.await(8, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(10));
+		assertThat(listener.stateChangedCount, is(9));
 		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_READY));
 		Map<Object, Object> variables = machine.getExtendedState().getVariables();
 		assertThat(variables.size(), is(3));
@@ -361,7 +361,7 @@ public class TasksHandlerTests {
 				.build();
 
 		TestListener listener = new TestListener();
-		listener.reset(12, 0, 0);
+		listener.reset(11, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
 		machine.start();
@@ -372,7 +372,7 @@ public class TasksHandlerTests {
 		handler.runTasks();
 
 		assertThat(listener.stateChangedLatch.await(8, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(12));
+		assertThat(listener.stateChangedCount, is(11));
 		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_ERROR, TasksHandler.STATE_MANUAL));
 		Map<Object, Object> variables = machine.getExtendedState().getVariables();
 		assertThat(variables.size(), is(3));

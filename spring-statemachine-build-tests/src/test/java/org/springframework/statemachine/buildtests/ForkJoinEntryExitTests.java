@@ -49,6 +49,29 @@ public class ForkJoinEntryExitTests extends AbstractBuildTests {
 		plan.test();
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testJoinExits() throws Exception {
+		context.register(Config1.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.stateMachine(stateMachine)
+					.step().expectState("S1").and()
+					.step()
+						.sendEvent("E1")
+						.expectStates("S2", "S210", "S220").and()
+					.step()
+						.sendEvent("E2")
+						.sendEvent("E3")
+						.expectStateEntered(3)
+						.expectStates("S3").and()
+					.build();
+		plan.test();
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config1 extends StateMachineConfigurerAdapter<String, String> {

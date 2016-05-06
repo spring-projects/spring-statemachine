@@ -751,7 +751,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	private State<S,E> followLinkedPseudoStates(State<S,E> state, StateContext<S, E> stateContext) {
 		PseudoStateKind kind = state.getPseudoState() != null ? state.getPseudoState().getKind() : null;
-		if (kind == PseudoStateKind.INITIAL || kind == PseudoStateKind.JOIN || kind == PseudoStateKind.FORK) {
+		if (kind == PseudoStateKind.INITIAL ||  kind == PseudoStateKind.FORK) {
 			return state;
 		} else if (kind != null) {
 			State<S,E> toState = state.getPseudoState().entry(stateContext);
@@ -776,6 +776,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 						State<S, E> toState = findStateWithPseudoState(pseudoState);
 						StateContext<S, E> stateContext = buildStateContext(Stage.STATE_EXIT, null, null, getRelayStateMachine());
 						pseudoState.exit(stateContext);
+						toState = followLinkedPseudoStates(toState, stateContext);
 						switchToState(toState, null, null, getRelayStateMachine());
 					}
 				});

@@ -146,7 +146,6 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 
 	@Override
 	public void entry(StateContext<S, E> context) {
-		System.out.println("XXXXXX " + context);
 		if (join != null) {
 			join.entry(context);
 		}
