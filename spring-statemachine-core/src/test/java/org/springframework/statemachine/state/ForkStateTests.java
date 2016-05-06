@@ -62,20 +62,18 @@ public class ForkStateTests extends AbstractStateMachineTests {
 		assertThat(machine, notNullValue());
 		machine.start();
 
-		listener.reset(4);
+		listener.reset(2);
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("foo", "bar").build());
 
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(4));
+		assertThat(listener.stateChangedCount, is(2));
 
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S31));
-		assertThat(s20EntryAction.stateContexts.size(), is(1));
+		assertThat(s20EntryAction.stateContexts.size(), is(0));
 		assertThat(s21EntryAction.stateContexts.size(), is(1));
-		assertThat(s30EntryAction.stateContexts.size(), is(1));
+		assertThat(s30EntryAction.stateContexts.size(), is(0));
 		assertThat(s31EntryAction.stateContexts.size(), is(1));
-		assertThat((String)s20EntryAction.stateContexts.get(0).getMessageHeader("foo"), nullValue());
 		assertThat((String)s21EntryAction.stateContexts.get(0).getMessageHeader("foo"), is("bar"));
-		assertThat((String)s30EntryAction.stateContexts.get(0).getMessageHeader("foo"), nullValue());
 		assertThat((String)s31EntryAction.stateContexts.get(0).getMessageHeader("foo"), is("bar"));
 	}
 
@@ -128,19 +126,18 @@ public class ForkStateTests extends AbstractStateMachineTests {
 		assertThat(machine, notNullValue());
 		machine.start();
 
-		listener.reset(3);
+		listener.reset(2);
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("foo", "bar").build());
 
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(3));
+		assertThat(listener.stateChangedCount, is(2));
 
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S31));
 		assertThat(s20EntryAction.stateContexts.size(), is(1));
 		assertThat(s21EntryAction.stateContexts.size(), is(0));
-		assertThat(s30EntryAction.stateContexts.size(), is(1));
+		assertThat(s30EntryAction.stateContexts.size(), is(0));
 		assertThat(s31EntryAction.stateContexts.size(), is(1));
 		assertThat((String)s20EntryAction.stateContexts.get(0).getMessageHeader("foo"), nullValue());
-		assertThat((String)s30EntryAction.stateContexts.get(0).getMessageHeader("foo"), nullValue());
 		assertThat((String)s31EntryAction.stateContexts.get(0).getMessageHeader("foo"), is("bar"));
 	}
 

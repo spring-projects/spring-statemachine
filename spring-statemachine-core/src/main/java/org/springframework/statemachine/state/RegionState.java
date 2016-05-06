@@ -17,11 +17,13 @@ package org.springframework.statemachine.state;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.region.Region;
+import org.springframework.statemachine.support.StateMachineUtils;
 
 /**
  * A {@link State} implementation where states are wrapped in a regions..
@@ -144,6 +146,7 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 
 	@Override
 	public void entry(StateContext<S, E> context) {
+		System.out.println("XXXXXX " + context);
 		if (join != null) {
 			join.entry(context);
 		}
@@ -156,7 +159,19 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 
 		if (getPseudoState() != null && getPseudoState().getKind() == PseudoStateKind.INITIAL) {
 			for (Region<S, E> region : getRegions()) {
-				region.start();
+				boolean start = true;
+				PseudoState<S, E> ps = context.getTransition().getTarget().getPseudoState();
+				if (ps != null && ps.getKind() == PseudoStateKind.FORK) {
+					List<State<S, E>> forks = ((ForkPseudoState<S, E>)ps).getForks();
+					if (StateMachineUtils.containsAtleastOne(region.getStates(), forks)) {
+						// it looks like fork will take directly into a state so don't start
+						// as we want to bypass initial entry logic.
+						start = false;
+					}
+				}
+				if (start) {
+					region.start();
+				}
 			}
 		} else {
 			for (Region<S, E> region : getRegions()) {
