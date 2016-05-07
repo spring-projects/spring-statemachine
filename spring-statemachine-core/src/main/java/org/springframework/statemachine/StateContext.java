@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package org.springframework.statemachine;
+
+import java.util.Collection;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
@@ -104,7 +106,17 @@ public interface StateContext<S, E> {
 	 *
 	 * @return the source state
 	 */
-	State<S,E> getSource();
+	State<S, E> getSource();
+
+	/**
+	 * Gets the source states of this context. Multiple sources are
+	 * only valid during a context when machine is joining from multiple
+	 * orthogonal regions.
+	 *
+	 * @return the source state
+	 * @see #getSource()
+	 */
+	Collection<State<S, E>> getSources();
 
 	/**
 	 * Gets the target state of this context. Generally target
@@ -113,7 +125,17 @@ public interface StateContext<S, E> {
 	 *
 	 * @return the target state
 	 */
-	State<S,E> getTarget();
+	State<S, E> getTarget();
+
+	/**
+	 * Gets the target states of this context. Multiple targets are
+	 * only valid during a context when machine is forking into multiple
+	 * orthogonal regions.
+	 *
+	 * @return the target states
+	 * @see #getTarget()
+	 */
+	Collection<State<S, E>> getTargets();
 
 	/**
 	 * Gets the exception associated with a context.
@@ -138,5 +160,4 @@ public interface StateContext<S, E> {
 		TRANSITION_START,
 		TRANSITION_END;
 	}
-
 }

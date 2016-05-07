@@ -735,7 +735,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			ForkPseudoState<S, E> fps = (ForkPseudoState<S, E>) toState.getPseudoState();
 			for (State<S, E> ss : fps.getForks()) {
 				callPreStateChangeInterceptors(ss, message, transition, stateMachine);
-				setCurrentState(ss, message, transition, false, stateMachine);
+				setCurrentState(ss, message, transition, false, stateMachine, null, fps.getForks());
 			}
 		} else {
 			setCurrentState(toState, message, transition, true, stateMachine);
@@ -811,6 +811,12 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		return new DefaultStateContext<S, E>(stage, message, messageHeaders, extendedState, transition, stateMachine, source, target, null);
 	}
 
+	private StateContext<S, E> buildStateContext(Stage stage, Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine, Collection<State<S, E>> sources, Collection<State<S, E>> targets) {
+		MessageHeaders messageHeaders = message != null ? message.getHeaders() : new MessageHeaders(
+				new HashMap<String, Object>());
+		return new DefaultStateContext<S, E>(stage, message, messageHeaders, extendedState, transition, stateMachine, null, null, sources, targets, null);
+	}
+
 	private State<S, E> findDeepParent(State<S, E> state) {
 		for (State<S, E> s : states) {
 			if (s.getStates().contains(state)) {
@@ -821,6 +827,11 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	synchronized void setCurrentState(State<S, E> state, Message<E> message, Transition<S, E> transition, boolean exit, StateMachine<S, E> stateMachine) {
+		setCurrentState(state, message, transition, exit, stateMachine, null, null);
+	}
+
+	synchronized void setCurrentState(State<S, E> state, Message<E> message, Transition<S, E> transition, boolean exit,
+			StateMachine<S, E> stateMachine, Collection<State<S, E>> sources, Collection<State<S, E>> targets) {
 
 		State<S, E> findDeep = findDeepParent(state);
 		boolean isTargetSubOf = false;
@@ -901,7 +912,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				}
 				currentState = findDeep;
 				if (shouldTryEntry) {
-					entryToState(currentState, message, transition, stateMachine);
+					entryToState(currentState, message, transition, stateMachine, sources, targets);
 				}
 
 				if (currentState.isSubmachineState()) {
@@ -985,11 +996,16 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	private void entryToState(State<S, E> state, Message<E> message, Transition<S, E> transition, StateMachine<S, E> stateMachine) {
+		entryToState(state, message, transition, stateMachine, null, null);
+	}
+
+	private void entryToState(State<S, E> state, Message<E> message, Transition<S, E> transition, StateMachine<S, E> stateMachine,
+			Collection<State<S, E>> sources, Collection<State<S, E>> targets) {
 		if (state == null) {
 			return;
 		}
 		log.trace("Trying Enter state=[" + state + "]");
-		StateContext<S, E> stateContext = buildStateContext(Stage.STATE_ENTRY, message, transition, stateMachine);
+		StateContext<S, E> stateContext = buildStateContext(Stage.STATE_ENTRY, message, transition, stateMachine, sources, targets);
 
 		if (transition != null) {
 			State<S, E> findDeep1 = findDeepParent(transition.getTarget());
@@ -1026,5 +1042,4 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			return false;
 		}
 	}
-
 }

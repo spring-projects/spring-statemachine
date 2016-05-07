@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package org.springframework.statemachine.support;
+
+import java.util.Collection;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
@@ -41,6 +43,8 @@ public class DefaultStateContext<S, E> implements StateContext<S, E> {
 	private final StateMachine<S, E> stateMachine;
 	private final State<S, E> source;
 	private final State<S, E> target;
+	private final Collection<State<S, E>> sources;
+	private final Collection<State<S, E>> targets;
 	private final Exception exception;
 
 	/**
@@ -66,6 +70,39 @@ public class DefaultStateContext<S, E> implements StateContext<S, E> {
 		this.stateMachine = stateMachine;
 		this.source = source;
 		this.target = target;
+		this.exception = exception;
+		this.sources = null;
+		this.targets = null;
+	}
+
+	/**
+	 * Instantiates a new default state context.
+	 *
+	 * @param stage the stage
+	 * @param message the message
+	 * @param messageHeaders the message headers
+	 * @param extendedState the extended state
+	 * @param transition the transition
+	 * @param stateMachine the state machine
+	 * @param source the source
+	 * @param target the target
+	 * @param sources the sources
+	 * @param targets the targets
+	 * @param exception the exception
+	 */
+	public DefaultStateContext(Stage stage, Message<E> message, MessageHeaders messageHeaders, ExtendedState extendedState,
+			Transition<S, E> transition, StateMachine<S, E> stateMachine, State<S, E> source, State<S, E> target,
+			Collection<State<S, E>> sources, Collection<State<S, E>> targets, Exception exception) {
+		this.stage = stage;
+		this.message = message;
+		this.messageHeaders = messageHeaders;
+		this.extendedState = extendedState;
+		this.transition = transition;
+		this.stateMachine = stateMachine;
+		this.source = source;
+		this.target = target;
+		this.sources = sources;
+		this.targets = targets;
 		this.exception = exception;
 	}
 
@@ -120,8 +157,18 @@ public class DefaultStateContext<S, E> implements StateContext<S, E> {
 	}
 
 	@Override
+	public Collection<State<S, E>> getSources() {
+		return sources;
+	}
+
+	@Override
 	public State<S, E> getTarget() {
 		return target != null ? target : (transition != null ? transition.getTarget() : null);
+	}
+
+	@Override
+	public Collection<State<S, E>> getTargets() {
+		return targets;
 	}
 
 	@Override
@@ -133,7 +180,6 @@ public class DefaultStateContext<S, E> implements StateContext<S, E> {
 	public String toString() {
 		return "DefaultStateContext [stage=" + stage + ", message=" + message + ", messageHeaders=" + messageHeaders + ", extendedState="
 				+ extendedState + ", transition=" + transition + ", stateMachine=" + stateMachine + ", source=" + source + ", target="
-				+ target + ", exception=" + exception + "]";
+				+ target + ", sources=" + sources + ", targets=" + targets + ", exception=" + exception + "]";
 	}
-
 }

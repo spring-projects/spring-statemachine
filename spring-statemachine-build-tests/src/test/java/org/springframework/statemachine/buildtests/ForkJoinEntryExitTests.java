@@ -51,6 +51,25 @@ public class ForkJoinEntryExitTests extends AbstractBuildTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
+	public void testForkEntrysViaChoices() throws Exception {
+		context.register(Config2.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.stateMachine(stateMachine)
+					.step().expectState("S1").and()
+					.step()
+						.sendEvent("E1")
+						.expectStateEntered(3)
+						.expectStates("S2", "S210", "S220").and()
+					.build();
+		plan.test();
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
 	public void testJoinExits() throws Exception {
 		context.register(Config1.class);
 		context.refresh();
@@ -86,6 +105,23 @@ public class ForkJoinEntryExitTests extends AbstractBuildTests {
 		@Bean
 		public StateMachineModelFactory<String, String> modelFactory() {
 			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/buildtests/forkjoin-entryexit.uml");
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config2 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/buildtests/forkjoin-entryexit2.uml");
 		}
 	}
 
