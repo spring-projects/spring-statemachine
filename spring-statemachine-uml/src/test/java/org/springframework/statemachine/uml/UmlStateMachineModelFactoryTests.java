@@ -578,6 +578,12 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.refresh();
 	}
 
+	@Test
+	public void testBrokenModelShadowEntries() throws Exception {
+		context.register(Config19.class);
+		context.refresh();
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config2 extends StateMachineConfigurerAdapter<String, String> {
@@ -933,6 +939,23 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		@Bean
 		public StateMachineModelFactory<String, String> modelFactory() {
 			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/uml/simple-flat-multiple-to-end-viachoices.uml");
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config19 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/uml/broken-model-shadowentries.uml");
 		}
 	}
 

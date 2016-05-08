@@ -348,6 +348,10 @@ public class UmlModelParser {
 	}
 
 	private boolean shouldCreateAnonymousTransition(Transition transition) {
+		if (transition.getSource() == null || transition.getTarget() == null) {
+			// nothing to do as would cause NPE later
+			return false;
+		}
 		if (!transition.getTriggers().isEmpty()) {
 			return false;
 		}
