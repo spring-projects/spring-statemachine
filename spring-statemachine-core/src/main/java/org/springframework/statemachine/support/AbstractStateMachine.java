@@ -733,6 +733,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		// need to check for from original state passed in
 		kind = toState.getPseudoState() != null ? toState.getPseudoState().getKind() : null;
 		if (kind == PseudoStateKind.FORK) {
+			exitCurrentState(toState, message, transition, stateMachine);
 			ForkPseudoState<S, E> fps = (ForkPseudoState<S, E>) toState.getPseudoState();
 			for (State<S, E> ss : fps.getForks()) {
 				callPreStateChangeInterceptors(ss, message, transition, stateMachine);
