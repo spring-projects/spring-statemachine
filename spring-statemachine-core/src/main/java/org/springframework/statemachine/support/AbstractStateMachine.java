@@ -45,6 +45,7 @@ import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.AbstractState;
 import org.springframework.statemachine.state.ForkPseudoState;
 import org.springframework.statemachine.state.HistoryPseudoState;
+import org.springframework.statemachine.state.JoinPseudoState;
 import org.springframework.statemachine.state.PseudoState;
 import org.springframework.statemachine.state.PseudoStateContext;
 import org.springframework.statemachine.state.PseudoStateKind;
@@ -773,10 +774,18 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 					@Override
 					public void onContext(PseudoStateContext<S, E> context) {
 						PseudoState<S, E> pseudoState = context.getPseudoState();
+						if (pseudoState.getKind() == PseudoStateKind.JOIN) {
+							List<State<S, E>> joins = ((JoinPseudoState<S, E>)context.getPseudoState()).getJoins();
+							for (State<S, E> join : joins) {
+								exitFromState(join, null, null, getRelayStateMachine());
+							}
+						}
 						State<S, E> toState = findStateWithPseudoState(pseudoState);
 						StateContext<S, E> stateContext = buildStateContext(Stage.STATE_EXIT, null, null, getRelayStateMachine());
 						pseudoState.exit(stateContext);
 						toState = followLinkedPseudoStates(toState, stateContext);
+						// should figure out what transition to use as we pass null for now
+						// which is then expected in exitCurrentState
 						switchToState(toState, null, null, getRelayStateMachine());
 					}
 				});
@@ -953,6 +962,16 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			StateMachine<S, E> submachine = ((AbstractState<S, E>)currentState).getSubmachine();
 			((AbstractStateMachine<S, E>)submachine).exitCurrentState(state, message, transition, stateMachine);
 			exitFromState(currentState, message, transition, stateMachine);
+		} else if (currentState.isOrthogonal()) {
+			Collection<Region<S,E>> regions = ((AbstractState<S, E>)currentState).getRegions();
+			for (Region<S,E> r : regions) {
+				if (r.getStates().contains(state)) {
+					exitFromState(r.getState(), message, transition, stateMachine);
+				}
+			}
+			if (transition == null) {
+				exitFromState(currentState, message, transition, stateMachine);
+			}
 		} else {
 			exitFromState(currentState, message, transition, stateMachine);
 		}
@@ -983,6 +1002,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			} else if (!isSubOfSource && !isSubOfTarget && findDeep == null) {
 			} else if (!isSubOfSource && !isSubOfTarget && (transition.getSource() == currentState && StateMachineUtils.isSubstate(currentState, transition.getTarget()))) {
 			} else if (StateMachineUtils.isNormalPseudoState(transition.getTarget())) {
+			} else if (findDeep != null && findDeep != state && findDeep.getStates().contains(state)) {
 			} else if (!isSubOfSource && !isSubOfTarget) {
 				return;
 			}
