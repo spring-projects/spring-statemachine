@@ -24,9 +24,15 @@
               </specification>
             </ownedRule>
           </transition>
+          <transition xmi:type="uml:Transition" xmi:id="_xdFCEBeKEeapnMylBysFZA" source="_Qa6MBAZPEeayEI1yTJhWhg" target="_u6UxcBeKEeapnMylBysFZA">
+            <trigger xmi:type="uml:Trigger" xmi:id="_zb2b4BeKEeapnMylBysFZA" event="_rp2fMBeKEeapnMylBysFZA"/>
+          </transition>
+          <transition xmi:type="uml:Transition" xmi:id="_5HE5UBeKEeapnMylBysFZA" source="_u6UxcBeKEeapnMylBysFZA" target="_1cuugBeKEeapnMylBysFZA"/>
           <subvertex xmi:type="uml:State" xmi:id="_Qa6MBAZPEeayEI1yTJhWhg" name="START"/>
-          <subvertex xmi:type="uml:Pseudostate" xmi:id="_YddGIAZPEeayEI1yTJhWhg" name="CHOICE" kind="choice"/>
+          <subvertex xmi:type="uml:Pseudostate" xmi:id="_YddGIAZPEeayEI1yTJhWhg" name="CHOICE1" kind="choice"/>
           <subvertex xmi:type="uml:Pseudostate" xmi:id="_l37HMAZPEeayEI1yTJhWhg" name=""/>
+          <subvertex xmi:type="uml:Pseudostate" xmi:id="_u6UxcBeKEeapnMylBysFZA" name="CHOICE2" kind="choice"/>
+          <subvertex xmi:type="uml:State" xmi:id="_1cuugBeKEeapnMylBysFZA" name="S1"/>
         </region>
       </subvertex>
       <subvertex xmi:type="uml:Pseudostate" xmi:id="_houi4AZPEeayEI1yTJhWhg"/>
@@ -36,4 +42,6 @@
   <packagedElement xmi:type="uml:Signal" xmi:id="_6njX8AZPEeayEI1yTJhWhg" name="E2"/>
   <packagedElement xmi:type="uml:SignalEvent" xmi:id="_8Ob2MAZPEeayEI1yTJhWhg" name="SignalEventE1" signal="_5WbHQAZPEeayEI1yTJhWhg"/>
   <packagedElement xmi:type="uml:SignalEvent" xmi:id="_-aPmcAZPEeayEI1yTJhWhg" name="SignalEventE2" signal="_6njX8AZPEeayEI1yTJhWhg"/>
+  <packagedElement xmi:type="uml:Signal" xmi:id="_p7Bl4BeKEeapnMylBysFZA" name="E3"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_rp2fMBeKEeapnMylBysFZA" name="SignalEventE3" signal="_p7Bl4BeKEeapnMylBysFZA"/>
 </uml:Model>

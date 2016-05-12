@@ -65,6 +65,23 @@ public class ChoiceExitTests extends AbstractBuildTests {
 		plan.test();
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testChoiceIntoSubstateDoesntExitParent() throws Exception {
+		context.register(Config1.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.stateMachine(stateMachine)
+					.step().expectState("READY").and()
+					.step().sendEvent("E1").expectStateChanged(2).expectStates("DOSTUFF", "START").and()
+					.step().sendEvent("E3").expectStateChanged(1).expectStateExited(1).expectStates("DOSTUFF", "S1").and()
+					.build();
+		plan.test();
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config1 extends StateMachineConfigurerAdapter<String, String> {

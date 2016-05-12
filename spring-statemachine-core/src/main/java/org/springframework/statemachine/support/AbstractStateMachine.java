@@ -740,7 +740,9 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				setCurrentState(ss, message, transition, false, stateMachine, null, fps.getForks());
 			}
 		} else {
-			setCurrentState(toState, message, transition, true, stateMachine);
+			Collection<State<S, E>> targets = new ArrayList<>();
+			targets.add(toState);
+			setCurrentState(toState, message, transition, true, stateMachine, null, targets);
 		}
 
 		callPostStateChangeInterceptors(state, message, transition, stateMachine);
@@ -856,7 +858,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 		if (states.contains(state)) {
 			if (exit) {
-				exitCurrentState(state, message, transition, stateMachine);
+				exitCurrentState(state, message, transition, stateMachine, sources, targets);
 			}
 			State<S, E> notifyFrom = currentState;
 			currentState = state;
@@ -868,7 +870,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			nonDeepStatePresent = true;
 		} else if (currentState == null && StateMachineUtils.isSubstate(findDeep, state)) {
 			if (exit) {
-				exitCurrentState(findDeep, message, transition, stateMachine);
+				exitCurrentState(findDeep, message, transition, stateMachine, sources, targets);
 			}
 			State<S, E> notifyFrom = currentState;
 			currentState = findDeep;
@@ -882,7 +884,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		if (currentState != null && !nonDeepStatePresent) {
 			if (findDeep != null) {
 				if (exit) {
-					exitCurrentState(state, message, transition, stateMachine);
+					exitCurrentState(state, message, transition, stateMachine, sources, targets);
 				}
 				if (currentState == findDeep) {
 
@@ -956,30 +958,40 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	void exitCurrentState(State<S, E> state, Message<E> message, Transition<S, E> transition, StateMachine<S, E> stateMachine) {
+		exitCurrentState(state, message, transition, stateMachine, null, null);
+	}
+
+	void exitCurrentState(State<S, E> state, Message<E> message, Transition<S, E> transition, StateMachine<S, E> stateMachine,
+			Collection<State<S, E>> sources, Collection<State<S, E>> targets) {
 		if (currentState == null) {
 			return;
 		}
 		if (currentState.isSubmachineState()) {
 			StateMachine<S, E> submachine = ((AbstractState<S, E>)currentState).getSubmachine();
 			((AbstractStateMachine<S, E>)submachine).exitCurrentState(state, message, transition, stateMachine);
-			exitFromState(currentState, message, transition, stateMachine);
+			exitFromState(currentState, message, transition, stateMachine, sources, targets);
 		} else if (currentState.isOrthogonal()) {
 			Collection<Region<S,E>> regions = ((AbstractState<S, E>)currentState).getRegions();
 			for (Region<S,E> r : regions) {
 				if (r.getStates().contains(state)) {
-					exitFromState(r.getState(), message, transition, stateMachine);
+					exitFromState(r.getState(), message, transition, stateMachine, sources, targets);
 				}
 			}
 			if (transition == null) {
-				exitFromState(currentState, message, transition, stateMachine);
+				exitFromState(currentState, message, transition, stateMachine, sources, targets);
 			}
 		} else {
-			exitFromState(currentState, message, transition, stateMachine);
+			exitFromState(currentState, message, transition, stateMachine, sources, targets);
 		}
 	}
 
 	private void exitFromState(State<S, E> state, Message<E> message, Transition<S, E> transition,
 			StateMachine<S, E> stateMachine) {
+		exitFromState(state, message, transition, stateMachine, null, null);
+	}
+
+	private void exitFromState(State<S, E> state, Message<E> message, Transition<S, E> transition,
+			StateMachine<S, E> stateMachine, Collection<State<S, E>> sources, Collection<State<S, E>> targets) {
 		if (state == null) {
 			return;
 		}
@@ -1003,6 +1015,9 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			} else if (!isSubOfSource && !isSubOfTarget && findDeep == null) {
 			} else if (!isSubOfSource && !isSubOfTarget && (transition.getSource() == currentState && StateMachineUtils.isSubstate(currentState, transition.getTarget()))) {
 			} else if (StateMachineUtils.isNormalPseudoState(transition.getTarget())) {
+				if (isPseudoStateSubstate(findDeep, targets)) {
+					return;
+				}
 			} else if (findDeep != null && findDeep != state && findDeep.getStates().contains(state)) {
 			} else if (!isSubOfSource && !isSubOfTarget) {
 				return;
@@ -1014,6 +1029,18 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		state.exit(stateContext);
 
 		notifyStateExited(buildStateContext(Stage.STATE_EXIT, message, null, getRelayStateMachine(), state, null));
+	}
+
+	private boolean isPseudoStateSubstate(State<S, E> left, Collection<State<S, E>> rights) {
+		if (rights == null || left == null) {
+			return false;
+		}
+		for (State<S, E> s : rights) {
+			if (StateMachineUtils.isSubstate(left, s)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void entryToState(State<S, E> state, Message<E> message, Transition<S, E> transition, StateMachine<S, E> stateMachine) {
