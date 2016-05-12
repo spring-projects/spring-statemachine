@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine.config;
 
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
@@ -36,6 +37,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateMachine;
@@ -204,6 +206,27 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		assertThat(executorFromMachine, notNullValue());
 		assertThat(executorFromExecutor, notNullValue());
 		assertThat(executorFromMachine, sameInstance(executorFromExecutor));
+	}
+
+	@Test
+	public void testTaskExecutor3() throws Exception {
+		// override task execution via configurer
+		context.register(Config19.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		assertThat(context.containsBean(StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME), is(true));
+
+		Object stateMachineExecutor = TestUtils.readField("stateMachineExecutor", stateMachine);
+
+		Object executorFromMachine = TestUtils.callMethod("getTaskExecutor", stateMachine);
+		Object executorFromExecutor = TestUtils.callMethod("getTaskExecutor", stateMachineExecutor);
+
+		assertThat(executorFromMachine, notNullValue());
+		assertThat(executorFromExecutor, notNullValue());
+		assertThat(executorFromMachine, sameInstance(executorFromExecutor));
+
+		assertThat(executorFromMachine, instanceOf(ThreadPoolTaskExecutor.class));
 	}
 
 	@Test
@@ -811,6 +834,41 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 					.source("S1")
 					.target("S2")
 					.event("E1");
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config19 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<String, String> config) throws Exception {
+			config
+				.withConfiguration()
+					.taskExecutor(taskExecutor())
+					.autoStartup(true);
+		}
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("S1")
+					.state("S2");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("S1")
+					.target("S2")
+					.event("E1");
+		}
+
+		@Bean(name = "fakeBeanName")
+		public TaskExecutor taskExecutor() {
+			return new ThreadPoolTaskExecutor();
 		}
 	}
 
