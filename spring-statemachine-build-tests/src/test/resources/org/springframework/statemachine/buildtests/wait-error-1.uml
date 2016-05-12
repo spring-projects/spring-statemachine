@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_VCTREBdqEeaCctDHIsPfvQ" name="RootElement">
+  <packagedElement xmi:type="uml:StateMachine" xmi:id="_VCYJkBdqEeaCctDHIsPfvQ" name="StateMachine">
+    <region xmi:type="uml:Region" xmi:id="_VCal0BdqEeaCctDHIsPfvQ" name="Region1">
+      <transition xmi:type="uml:Transition" xmi:id="_mjZ64BdrEeaCctDHIsPfvQ" source="_lPW5EBdrEeaCctDHIsPfvQ" target="_7rztcBdqEeaCctDHIsPfvQ"/>
+      <transition xmi:type="uml:Transition" xmi:id="_9F7FkBdrEeaCctDHIsPfvQ" guard="_VPU7QBd8EeaCctDHIsPfvQ" source="_323mwBdrEeaCctDHIsPfvQ" target="_MEyuEBdrEeaCctDHIsPfvQ">
+        <ownedRule xmi:type="uml:Constraint" xmi:id="_VPU7QBd8EeaCctDHIsPfvQ">
+          <specification xmi:type="uml:OpaqueExpression" xmi:id="_VPU7QRd8EeaCctDHIsPfvQ">
+            <language>bean</language>
+            <body>hasError</body>
+          </specification>
+        </ownedRule>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_95pokBdrEeaCctDHIsPfvQ" source="_MEyuEBdrEeaCctDHIsPfvQ" target="_7rztcBdqEeaCctDHIsPfvQ"/>
+      <transition xmi:type="uml:Transition" xmi:id="_-82yABdrEeaCctDHIsPfvQ" source="_323mwBdrEeaCctDHIsPfvQ" target="_7rztcBdqEeaCctDHIsPfvQ"/>
+      <transition xmi:type="uml:Transition" xmi:id="_h3tV4BdtEeaCctDHIsPfvQ" source="_b6E50BdtEeaCctDHIsPfvQ" target="_323mwBdrEeaCctDHIsPfvQ"/>
+      <transition xmi:type="uml:Transition" xmi:id="_pviNwBdtEeaCctDHIsPfvQ" source="_7rztcBdqEeaCctDHIsPfvQ" target="_-8644BdqEeaCctDHIsPfvQ">
+        <trigger xmi:type="uml:Trigger" xmi:id="_u05qcBeAEeaCctDHIsPfvQ" event="_r3MjMBeAEeaCctDHIsPfvQ"/>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_Wi_1QBgOEeapnMylBysFZA" guard="_a9TdYBgOEeapnMylBysFZA" source="_-8644BdqEeaCctDHIsPfvQ" target="_MEyuEBdrEeaCctDHIsPfvQ">
+        <ownedRule xmi:type="uml:Constraint" xmi:id="_a9TdYBgOEeapnMylBysFZA">
+          <specification xmi:type="uml:OpaqueExpression" xmi:id="_a9TdYRgOEeapnMylBysFZA">
+            <language>bean</language>
+            <body>hasError</body>
+          </specification>
+        </ownedRule>
+      </transition>
+      <subvertex xmi:type="uml:State" xmi:id="_7rztcBdqEeaCctDHIsPfvQ" name="READY"/>
+      <subvertex xmi:type="uml:State" xmi:id="_-8644BdqEeaCctDHIsPfvQ" name="DOSTUFF">
+        <connectionPoint xmi:type="uml:Pseudostate" xmi:id="_b6E50BdtEeaCctDHIsPfvQ" name="EXIT" kind="exitPoint"/>
+        <region xmi:type="uml:Region" xmi:id="_FGthoBdrEeaCctDHIsPfvQ" name="Region1">
+          <transition xmi:type="uml:Transition" xmi:id="_oaO5oBdrEeaCctDHIsPfvQ" source="_nQBJQBdrEeaCctDHIsPfvQ" target="_FGuIsxdrEeaCctDHIsPfvQ"/>
+          <transition xmi:type="uml:Transition" xmi:id="_qvJikBdrEeaCctDHIsPfvQ" source="_FGuIsxdrEeaCctDHIsPfvQ" target="_JyQDsBdrEeaCctDHIsPfvQ"/>
+          <transition xmi:type="uml:Transition" xmi:id="_a2TIoBdtEeaCctDHIsPfvQ" guard="_3m6PcBd8EeaCctDHIsPfvQ" source="_gY_FYBd-EeaCctDHIsPfvQ" target="_NTGe0BdsEeaCctDHIsPfvQ">
+            <ownedRule xmi:type="uml:Constraint" xmi:id="_3m6PcBd8EeaCctDHIsPfvQ">
+              <specification xmi:type="uml:OpaqueExpression" xmi:id="_3m6PcRd8EeaCctDHIsPfvQ">
+                <language>bean</language>
+                <body>hasKey</body>
+              </specification>
+            </ownedRule>
+          </transition>
+          <transition xmi:type="uml:Transition" xmi:id="_gxJWcBdtEeaCctDHIsPfvQ" source="_NTGe0BdsEeaCctDHIsPfvQ" target="_b6E50BdtEeaCctDHIsPfvQ"/>
+          <transition xmi:type="uml:Transition" xmi:id="_mL0msBd-EeaCctDHIsPfvQ" source="_JyQDsBdrEeaCctDHIsPfvQ" target="_gY_FYBd-EeaCctDHIsPfvQ">
+            <trigger xmi:type="uml:Trigger" xmi:id="_WkP4EBeCEeapnMylBysFZA" event="_KCV2sBeCEeapnMylBysFZA"/>
+          </transition>
+          <transition xmi:type="uml:Transition" xmi:id="_t0u40Bd-EeaCctDHIsPfvQ" source="_gY_FYBd-EeaCctDHIsPfvQ" target="_dL4QMBd-EeaCctDHIsPfvQ"/>
+          <transition xmi:type="uml:Transition" xmi:id="_wFrAsBd-EeaCctDHIsPfvQ" source="_dL4QMBd-EeaCctDHIsPfvQ" target="_JyQDsBdrEeaCctDHIsPfvQ"/>
+          <subvertex xmi:type="uml:State" xmi:id="_FGuIsxdrEeaCctDHIsPfvQ" name="STEP1">
+            <entry xmi:type="uml:OpaqueBehavior" xmi:id="_9iwbcBd_EeaCctDHIsPfvQ" name="step1Entry">
+              <language>bean</language>
+              <body>step1Entry</body>
+            </entry>
+          </subvertex>
+          <subvertex xmi:type="uml:State" xmi:id="_JyQDsBdrEeaCctDHIsPfvQ" name="STEP2">
+            <entry xmi:type="uml:OpaqueBehavior" xmi:id="_q0xsYBgOEeapnMylBysFZA" name="step2Entry">
+              <language>bean</language>
+              <body>step2Entry</body>
+            </entry>
+          </subvertex>
+          <subvertex xmi:type="uml:Pseudostate" xmi:id="_nQBJQBdrEeaCctDHIsPfvQ" name=""/>
+          <subvertex xmi:type="uml:State" xmi:id="_NTGe0BdsEeaCctDHIsPfvQ" name="STEP3"/>
+          <subvertex xmi:type="uml:State" xmi:id="_dL4QMBd-EeaCctDHIsPfvQ" name="WAIT">
+            <entry xmi:type="uml:OpaqueBehavior" xmi:id="_CeGJgBd_EeaCctDHIsPfvQ" name="waitSetKey">
+              <language>bean</language>
+              <body>waitSetKey</body>
+            </entry>
+          </subvertex>
+          <subvertex xmi:type="uml:Pseudostate" xmi:id="_gY_FYBd-EeaCctDHIsPfvQ" name="WAIT_CHOICE" kind="choice"/>
+        </region>
+      </subvertex>
+      <subvertex xmi:type="uml:State" xmi:id="_MEyuEBdrEeaCctDHIsPfvQ" name="ERROR"/>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_lPW5EBdrEeaCctDHIsPfvQ" name=""/>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_323mwBdrEeaCctDHIsPfvQ" name="ERROR_CHOICE" kind="choice"/>
+    </region>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Signal" xmi:id="_gSuacBeAEeaCctDHIsPfvQ" name="DO"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_r3MjMBeAEeaCctDHIsPfvQ" name="SignalEventDO" signal="_gSuacBeAEeaCctDHIsPfvQ"/>
+  <packagedElement xmi:type="uml:TimeEvent" xmi:id="_KCV2sBeCEeapnMylBysFZA" name="TimeEvent1" isRelative="true">
+    <when xmi:type="uml:TimeExpression" xmi:id="_NJ3BQBeCEeapnMylBysFZA">
+      <expr xmi:type="uml:LiteralInteger" xmi:id="_NJ3BQReCEeapnMylBysFZA" value="2000"/>
+    </when>
+  </packagedElement>
+</uml:Model>
