@@ -21,7 +21,6 @@ import java.util.List;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateContext.Stage;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
-import org.springframework.statemachine.state.State;
 
 public class StateMachineLogListener extends StateMachineListenerAdapter<String, String> {
 
@@ -36,16 +35,6 @@ public class StateMachineLogListener extends StateMachineListenerAdapter<String,
 	}
 
 	@Override
-	public void stateEntered(State<String, String> state) {
-//		messages.add("Enter " + state.getId());
-	}
-
-	@Override
-	public void stateExited(State<String, String> state) {
-//		messages.add("Exit " + state.getId());
-	}
-
-	@Override
 	public void stateContext(StateContext<String, String> stateContext) {
 		if (stateContext.getStage() == Stage.STATE_ENTRY) {
 			messages.add("Enter " + stateContext.getTarget().getId());
@@ -56,5 +45,4 @@ public class StateMachineLogListener extends StateMachineListenerAdapter<String,
 			messages.add("Exit " + stateContext.getSource().getId());
 		}
 	}
-
 }
