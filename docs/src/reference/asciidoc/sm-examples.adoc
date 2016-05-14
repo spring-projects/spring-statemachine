@@ -34,6 +34,8 @@ normal build cycle. Samples in this chapter are:
 
 <<statemachine-examples-deploy>> Deploy.
 
+<<statemachine-examples-ordershipping>> Order Shipping.
+
 
 [source,text]
 ----
@@ -1373,4 +1375,53 @@ simulate failures by checking existence of particular message headers.
 
 Now you can start to send event to a machine and choose various
 message headers which will drive a different functionality.
+
+[[statemachine-examples-ordershipping]]
+== Order Shipping
+Order Shipping is an example how state machine concepts can be used
+with a process of building a simple order processing system.
+
+Below you can see a statechart driving this order shipping sample.
+
+image::images/sm-ordershipping-1.png[width=1000]
+
+What is happening a above statechart:
+
+* Machine enters `WAIT_NEW_ORDER` default state.
+* Event `PLACE_ORDER` transitions into state `RECEIVE_ORDER` and entry
+  action `entryReceiveOrder` is executed.
+* If order is _OK_ machine goes into two regions one handling order
+  production and one handling user level payment, else machine goes
+  into `CUSTOMER_ERROR` final state.
+* Machine will loop in a lower region to remind user of a payment
+  until `RECEIVE_PAYMENT` is sent successfully to indidate correct
+  payment.
+* Both regions will go into waiting states `WAIT_PRODUCT` and
+  `WAIT_ORDER` to be joined before parent orthogonal state
+  `HANDLE_ORDER` is exited.
+* Finally machine goes via `SHIP_ORDER` into its final state
+  `ORDER_SHIPPED`.
+
+Lets get into actual demo. Run the boot based sample application:
+
+[source,text,subs="attributes"]
+----
+# java -jar spring-statemachine-samples-ordershipping-{revnumber}.jar
+----
+
+In a browser you see something shown above. You can start by choosing
+customer and order and create a machine.
+
+image::images/sm-ordershipping-2.png[width=1000]
+
+Machine for particular order is now created and you can start to play
+with placing an order and sending a payment. Other settings like
+_makeProdPlan_, _produce_ and _payment_ allows you to control how
+machine works.
+
+image::images/sm-ordershipping-3.png[width=1000]
+
+Finally you can see what machine does by refressing a page.
+
+image::images/sm-ordershipping-4.png[width=1000]
 
