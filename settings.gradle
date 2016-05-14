@@ -23,6 +23,7 @@ include 'spring-statemachine-samples:scope'
 include 'spring-statemachine-samples:security'
 include 'spring-statemachine-samples:eventservice'
 include 'spring-statemachine-samples:deploy'
+include 'spring-statemachine-samples:ordershipping'
 
 rootProject.children.find {
 	if (it.name == 'spring-statemachine-recipes') {

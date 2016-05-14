@@ -100,3 +100,12 @@ project('spring-statemachine-samples-deploy') {
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf:$springBootVersion")
 	}
 }
+
+project('spring-statemachine-samples-ordershipping') {
+	description = 'Spring State Machine Order Shipping Sample'
+	dependencies {
+		compile project(":spring-statemachine-uml")
+		compile("org.springframework.boot:spring-boot-starter-thymeleaf:$springBootVersion")
+	}
+}
+

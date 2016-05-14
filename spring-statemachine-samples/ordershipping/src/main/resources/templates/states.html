@@ -1,0 +1,71 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Spring Statemachine Ordershipping Demo</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<form action="#" data-th-action="@{/state}" data-th-object="${model}" method="post">
+		<div>
+			<p th:text="'Choose customer'" />
+		</div>
+		<div>
+			<ul>
+				<li th:each="ty : ${allCustomers}">
+					<input type="radio" name="customer" th:value="${ty}" />
+					<label th:text="${ty}">replaced</label>
+				</li>
+			</ul>
+		</div>
+		<div>
+			<p th:text="'Choose order'" />
+		</div>
+		<div>
+			<ul>
+				<li th:each="ty : ${allOrders}">
+					<input type="radio" name="order" th:value="${ty}" />
+					<label th:text="${ty}">replaced</label>
+				</li>
+			</ul>
+		</div>
+		<button type="submit" name="action" value="order">Create Machine</button>
+		<div>
+			<p th:text="'Choose event'" />
+		</div>
+		<ul>
+			<li th:each="ty : ${allTypes}">
+				<input type="radio" name="event" th:value="${ty}" />
+				<label th:text="${ty}">replaced</label>
+			</li>
+		</ul>
+		<ul>
+			<li th:each="ty : ${allGuides}">
+				<input type="checkbox" name="guide" th:value="${ty}" />
+				<label th:text="${ty}">replaced</label>
+			</li>
+		</ul>
+		<button type="submit" name="action" value="event">Send Event</button>
+	</form>
+	<div>
+		<p th:text="'Machines:'" />
+		<table>
+			<tr>
+				<th>Id</th>
+				<th>States</th>
+			</tr>
+			<tr th:each="machine : ${machines}">
+				<td th:text="${machine.id}"></td>
+				<td th:text="${machine.state.ids}"></td>
+			</tr>
+		</table>
+	</div>
+	<div>
+		<form action="#" data-th-action="@{/state}" method="get">
+			<button type="submit">Refresh</button>
+		</form>
+	</div>
+	<div>
+		<textarea th:text="${messages}" rows="20" cols="100"/>
+	</div>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_-NusgA-nEeaqleSKKcvuHQ" name="RootElement">
+  <packagedElement xmi:type="uml:StateMachine" xmi:id="_-NxIwA-nEeaqleSKKcvuHQ" name="StateMachine">
+    <region xmi:type="uml:Region" xmi:id="_-NxIwQ-nEeaqleSKKcvuHQ" name="Region1">
+      <transition xmi:type="uml:Transition" xmi:id="_tRoQYA-qEeaqleSKKcvuHQ" source="_5VIJYA-oEeaqleSKKcvuHQ" target="_ps1wcA-pEeaqleSKKcvuHQ"/>
+      <transition xmi:type="uml:Transition" xmi:id="_eA4NsA-rEeaqleSKKcvuHQ" source="_XJ_1cA-rEeaqleSKKcvuHQ" target="_2EqBsA-pEeaqleSKKcvuHQ"/>
+      <transition xmi:type="uml:Transition" xmi:id="_eyaYUA-rEeaqleSKKcvuHQ" source="_2EqBsA-pEeaqleSKKcvuHQ" target="_4_Z7kA-pEeaqleSKKcvuHQ"/>
+      <transition xmi:type="uml:Transition" xmi:id="_jlOAAA-rEeaqleSKKcvuHQ" source="_KI1hsA-qEeaqleSKKcvuHQ" target="_hQ0UcA-rEeaqleSKKcvuHQ"/>
+      <transition xmi:type="uml:Transition" xmi:id="_nEYOgA-rEeaqleSKKcvuHQ" source="_hQ0UcA-rEeaqleSKKcvuHQ" target="__ffH8A-qEeaqleSKKcvuHQ"/>
+      <transition xmi:type="uml:Transition" xmi:id="_LPL-YA-tEeaqleSKKcvuHQ" source="_JK0S4A-tEeaqleSKKcvuHQ" target="_IXLBsA-oEeaqleSKKcvuHQ">
+        <trigger xmi:type="uml:Trigger" xmi:id="_avylgA-tEeaqleSKKcvuHQ" event="_VPMDsA-tEeaqleSKKcvuHQ"/>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_MBkdkA-tEeaqleSKKcvuHQ" source="_d0ZGUA-qEeaqleSKKcvuHQ" target="_JK0S4A-tEeaqleSKKcvuHQ"/>
+      <transition xmi:type="uml:Transition" xmi:id="__NECUBBGEeaCFalvUVz_Bw" source="_IXLBsA-oEeaqleSKKcvuHQ" target="_-VBnEBBGEeaCFalvUVz_Bw"/>
+      <transition xmi:type="uml:Transition" xmi:id="__2OUEBBGEeaCFalvUVz_Bw" guard="_NlCA4BBcEeaCFalvUVz_Bw" source="_-VBnEBBGEeaCFalvUVz_Bw" target="_Y9WYIBHJEeaCFalvUVz_Bw">
+        <ownedRule xmi:type="uml:Constraint" xmi:id="_NlCA4BBcEeaCFalvUVz_Bw">
+          <specification xmi:type="uml:OpaqueExpression" xmi:id="_NlCA4RBcEeaCFalvUVz_Bw">
+            <language>bean</language>
+            <body>orderOk</body>
+          </specification>
+        </ownedRule>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_fR32EBBcEeaCFalvUVz_Bw" source="_-VBnEBBGEeaCFalvUVz_Bw" target="_c08goBBcEeaCFalvUVz_Bw"/>
+      <transition xmi:type="uml:Transition" xmi:id="_hIGMABHJEeaCFalvUVz_Bw" source="_Y9WYIBHJEeaCFalvUVz_Bw" target="_QK4OkA-oEeaqleSKKcvuHQ"/>
+      <transition xmi:type="uml:Transition" xmi:id="_h35RQBHJEeaCFalvUVz_Bw" source="_Y9WYIBHJEeaCFalvUVz_Bw" target="_FXZL8A-qEeaqleSKKcvuHQ"/>
+      <subvertex xmi:type="uml:State" xmi:id="_IXLBsA-oEeaqleSKKcvuHQ" name="RECEIVE_ORDER">
+        <entry xmi:type="uml:OpaqueBehavior" xmi:id="_wnWaMBHHEeaCFalvUVz_Bw" name="entryReceiveOrder">
+          <language>bean</language>
+          <body>entryReceiveOrder</body>
+        </entry>
+      </subvertex>
+      <subvertex xmi:type="uml:State" xmi:id="_2EqBsA-pEeaqleSKKcvuHQ" name="SHIP_ORDER"/>
+      <subvertex xmi:type="uml:FinalState" xmi:id="_4_Z7kA-pEeaqleSKKcvuHQ" name="ORDER_SHIPPED"/>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_d0ZGUA-qEeaqleSKKcvuHQ" name=""/>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_XJ_1cA-rEeaqleSKKcvuHQ" name="JOIN" kind="join"/>
+      <subvertex xmi:type="uml:State" xmi:id="_JK0S4A-tEeaqleSKKcvuHQ" name="WAIT_NEW_ORDER"/>
+      <subvertex xmi:type="uml:State" xmi:id="_By3XABAzEeaqleSKKcvuHQ" name="HANDLE_ORDER">
+        <entry xmi:type="uml:OpaqueBehavior" xmi:id="_Iit3oBmeEeapnMylBysFZA" name="entryHandleOrder">
+          <language>bean</language>
+          <body>entryHandleOrder</body>
+        </entry>
+        <region xmi:type="uml:Region" xmi:id="_HZrOghAzEeaqleSKKcvuHQ" name="Region1">
+          <transition xmi:type="uml:Transition" xmi:id="_llJ3cA-rEeaqleSKKcvuHQ" source="_IK84sA-qEeaqleSKKcvuHQ" target="_KI1hsA-qEeaqleSKKcvuHQ">
+            <trigger xmi:type="uml:Trigger" xmi:id="_VTzkUA-1EeaqleSKKcvuHQ" event="_Lkke4A-1EeaqleSKKcvuHQ"/>
+          </transition>
+          <transition xmi:type="uml:Transition" xmi:id="_FHMXUA-rEeaqleSKKcvuHQ" source="_FXZL8A-qEeaqleSKKcvuHQ" target="_IK84sA-qEeaqleSKKcvuHQ"/>
+          <transition xmi:type="uml:Transition" xmi:id="_sL3FsA-rEeaqleSKKcvuHQ" source="_MLmqsA-qEeaqleSKKcvuHQ" target="_IK84sA-qEeaqleSKKcvuHQ"/>
+          <transition xmi:type="uml:Transition" xmi:id="_iJ1SwBA9EeaCFalvUVz_Bw" source="__ffH8A-qEeaqleSKKcvuHQ" target="_FXZL8A-qEeaqleSKKcvuHQ"/>
+          <transition xmi:type="uml:Transition" xmi:id="_-Wan0BA-EeaCFalvUVz_Bw" source="_9hNeIBA-EeaCFalvUVz_Bw" target="_FXZL8A-qEeaqleSKKcvuHQ"/>
+          <transition xmi:type="uml:Transition" xmi:id="_kKz1cBHREeaCFalvUVz_Bw" guard="_9ZUy4BH-EeaCFalvUVz_Bw" source="_hQ0UcA-rEeaqleSKKcvuHQ" target="_0JhKsA-pEeaqleSKKcvuHQ">
+            <ownedRule xmi:type="uml:Constraint" xmi:id="_9ZUy4BH-EeaCFalvUVz_Bw">
+              <specification xmi:type="uml:OpaqueExpression" xmi:id="_9ZVZ8BH-EeaCFalvUVz_Bw">
+                <language>bean</language>
+                <body>paymentOk</body>
+              </specification>
+            </ownedRule>
+          </transition>
+          <transition xmi:type="uml:Transition" xmi:id="_n5sMEBH_EeaCFalvUVz_Bw" source="_0JhKsA-pEeaqleSKKcvuHQ" target="_XJ_1cA-rEeaqleSKKcvuHQ"/>
+          <transition xmi:type="uml:Transition" xmi:id="_k8eFoBICEeaCFalvUVz_Bw" source="_IK84sA-qEeaqleSKKcvuHQ" target="_MLmqsA-qEeaqleSKKcvuHQ">
+            <trigger xmi:type="uml:Trigger" xmi:id="_p3ktsBICEeaCFalvUVz_Bw" event="_gOhv0BICEeaCFalvUVz_Bw"/>
+          </transition>
+          <subvertex xmi:type="uml:State" xmi:id="__ffH8A-qEeaqleSKKcvuHQ" name="NOTIFY_CUSTOMER"/>
+          <subvertex xmi:type="uml:State" xmi:id="_MLmqsA-qEeaqleSKKcvuHQ" name="SEND_REMINDER">
+            <entry xmi:type="uml:OpaqueBehavior" xmi:id="_QJ8AsBKYEeaeH5SlvwGOyg" name="entrySendReminder">
+              <language>bean</language>
+              <body>entrySendReminder</body>
+            </entry>
+          </subvertex>
+          <subvertex xmi:type="uml:State" xmi:id="_0JhKsA-pEeaqleSKKcvuHQ" name="WAIT_ORDER"/>
+          <subvertex xmi:type="uml:State" xmi:id="_KI1hsA-qEeaqleSKKcvuHQ" name="HANDLE_PAYMENT"/>
+          <subvertex xmi:type="uml:State" xmi:id="_FXZL8A-qEeaqleSKKcvuHQ" name="SEND_BILL"/>
+          <subvertex xmi:type="uml:Pseudostate" xmi:id="_hQ0UcA-rEeaqleSKKcvuHQ" name="CHOICE_PAYMENT_OK" kind="choice"/>
+          <subvertex xmi:type="uml:State" xmi:id="_IK84sA-qEeaqleSKKcvuHQ" name="WAIT_PAYMENT"/>
+          <subvertex xmi:type="uml:Pseudostate" xmi:id="_9hNeIBA-EeaCFalvUVz_Bw" name=""/>
+        </region>
+        <region xmi:type="uml:Region" xmi:id="_Id_yQBAzEeaqleSKKcvuHQ" name="Region2">
+          <transition xmi:type="uml:Transition" xmi:id="_U3DicA-rEeaqleSKKcvuHQ" source="_fU5FMA-pEeaqleSKKcvuHQ" target="_yvHCMA-pEeaqleSKKcvuHQ"/>
+          <transition xmi:type="uml:Transition" xmi:id="_pV1JMA-qEeaqleSKKcvuHQ" source="_QK4OkA-oEeaqleSKKcvuHQ" target="_5VIJYA-oEeaqleSKKcvuHQ"/>
+          <transition xmi:type="uml:Transition" xmi:id="_uYqw8A-qEeaqleSKKcvuHQ" source="_ZIiGEA-oEeaqleSKKcvuHQ" target="_ps1wcA-pEeaqleSKKcvuHQ"/>
+          <transition xmi:type="uml:Transition" xmi:id="_rdxGEA-qEeaqleSKKcvuHQ" guard="_9cDXsBUoEeaeH5SlvwGOyg" source="_5VIJYA-oEeaqleSKKcvuHQ" target="_ZIiGEA-oEeaqleSKKcvuHQ">
+            <ownedRule xmi:type="uml:Constraint" xmi:id="_9cDXsBUoEeaeH5SlvwGOyg">
+              <specification xmi:type="uml:OpaqueExpression" xmi:id="_9cDXsRUoEeaeH5SlvwGOyg">
+                <language>bean</language>
+                <body>makeProdPlan</body>
+              </specification>
+            </ownedRule>
+          </transition>
+          <transition xmi:type="uml:Transition" xmi:id="_WdiDsBA9EeaCFalvUVz_Bw" guard="_D0uxABUpEeaeH5SlvwGOyg" source="_ps1wcA-pEeaqleSKKcvuHQ" target="_dSvAMA-pEeaqleSKKcvuHQ">
+            <ownedRule xmi:type="uml:Constraint" xmi:id="_D0uxABUpEeaeH5SlvwGOyg">
+              <specification xmi:type="uml:OpaqueExpression" xmi:id="_D0uxARUpEeaeH5SlvwGOyg">
+                <language>bean</language>
+                <body>produce</body>
+              </specification>
+            </ownedRule>
+          </transition>
+          <transition xmi:type="uml:Transition" xmi:id="_847WIBA-EeaCFalvUVz_Bw" source="_8HaZoBA-EeaCFalvUVz_Bw" target="_QK4OkA-oEeaqleSKKcvuHQ"/>
+          <transition xmi:type="uml:Transition" xmi:id="_JsBfIBH1EeaCFalvUVz_Bw" source="_yvHCMA-pEeaqleSKKcvuHQ" target="_XJ_1cA-rEeaqleSKKcvuHQ"/>
+          <transition xmi:type="uml:Transition" xmi:id="_hSocEBmgEeapnMylBysFZA" source="_dSvAMA-pEeaqleSKKcvuHQ" target="_ulx1UA-pEeaqleSKKcvuHQ"/>
+          <transition xmi:type="uml:Transition" xmi:id="_iXrYkBmgEeapnMylBysFZA" source="_ulx1UA-pEeaqleSKKcvuHQ" target="_fU5FMA-pEeaqleSKKcvuHQ"/>
+          <transition xmi:type="uml:Transition" xmi:id="_jZDWABmgEeapnMylBysFZA" source="_ps1wcA-pEeaqleSKKcvuHQ" target="_ulx1UA-pEeaqleSKKcvuHQ"/>
+          <subvertex xmi:type="uml:Pseudostate" xmi:id="_ulx1UA-pEeaqleSKKcvuHQ" name="JUNCTION_ORDER" kind="junction"/>
+          <subvertex xmi:type="uml:State" xmi:id="_yvHCMA-pEeaqleSKKcvuHQ" name="WAIT_PRODUCT"/>
+          <subvertex xmi:type="uml:State" xmi:id="_dSvAMA-pEeaqleSKKcvuHQ" name="PRODUCE"/>
+          <subvertex xmi:type="uml:State" xmi:id="_fU5FMA-pEeaqleSKKcvuHQ" name="FILL_ORDER"/>
+          <subvertex xmi:type="uml:Pseudostate" xmi:id="_5VIJYA-oEeaqleSKKcvuHQ" name="CHOICE_PRODUCTION" kind="choice"/>
+          <subvertex xmi:type="uml:State" xmi:id="_QK4OkA-oEeaqleSKKcvuHQ" name="CHECK_STOCK"/>
+          <subvertex xmi:type="uml:State" xmi:id="_ZIiGEA-oEeaqleSKKcvuHQ" name="MAKE_PRODUCTION_PLAN"/>
+          <subvertex xmi:type="uml:Pseudostate" xmi:id="_ps1wcA-pEeaqleSKKcvuHQ" name="JUNCTION_STOCK" kind="junction"/>
+          <subvertex xmi:type="uml:Pseudostate" xmi:id="_8HaZoBA-EeaCFalvUVz_Bw" name=""/>
+        </region>
+      </subvertex>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_-VBnEBBGEeaCFalvUVz_Bw" name="CHOICE_HANDLE_ORDER" kind="choice"/>
+      <subvertex xmi:type="uml:FinalState" xmi:id="_c08goBBcEeaCFalvUVz_Bw" name="CUSTOMER_ERROR"/>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_Y9WYIBHJEeaCFalvUVz_Bw" name="FORK" kind="fork"/>
+    </region>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Signal" xmi:id="_RPvLkA-tEeaqleSKKcvuHQ" name="PLACE_ORDER"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_VPMDsA-tEeaqleSKKcvuHQ" name="SignalEventPLACE_ORDER" signal="_RPvLkA-tEeaqleSKKcvuHQ"/>
+  <packagedElement xmi:type="uml:Signal" xmi:id="_IhAnQA-1EeaqleSKKcvuHQ" name="RECEIVE_PAYMENT"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_Lkke4A-1EeaqleSKKcvuHQ" name="SignalEventRECEIVE_PAYMENT" signal="_IhAnQA-1EeaqleSKKcvuHQ"/>
+  <packagedElement xmi:type="uml:TimeEvent" xmi:id="_gOhv0BICEeaCFalvUVz_Bw" name="TimeEventREMINDER" isRelative="true">
+    <when xmi:type="uml:TimeExpression" xmi:id="_jMpt0BICEeaCFalvUVz_Bw">
+      <expr xmi:type="uml:LiteralInteger" xmi:id="_jMpt0RICEeaCFalvUVz_Bw" value="5000"/>
+    </when>
+  </packagedElement>
+</uml:Model>
