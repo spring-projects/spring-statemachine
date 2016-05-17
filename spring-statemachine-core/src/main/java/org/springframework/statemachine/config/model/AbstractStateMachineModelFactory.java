@@ -15,16 +15,15 @@
  */
 package org.springframework.statemachine.config.model;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.context.ResourceLoaderAware;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
+import org.springframework.util.Assert;
 
 /**
  * Base implementation of a {@link StateMachineModelFactory} providing
@@ -43,18 +42,47 @@ import org.springframework.statemachine.guard.Guard;
 public abstract class AbstractStateMachineModelFactory<S, E> implements StateMachineComponentResolver<S, E>, BeanFactoryAware, ResourceLoaderAware {
 
 	private BeanFactory beanFactory;
-	private ResourceLoader resourceLoader;
-	private final Map<String, Action<S, E>> registeredActions = new HashMap<>();
-	private final Map<String, Guard<S, E>> registeredGuards = new HashMap<>();
+	private ResourceLoader resourceLoader = new DefaultResourceLoader();
+	private StateMachineComponentResolver<S, E> stateMachineComponentResolver;
+	private final DefaultStateMachineComponentResolver<S, E> internalResolver = new DefaultStateMachineComponentResolver<S, E>();
+
+	/**
+	 * Instantiates a new abstract state machine model factory.
+	 */
+	public AbstractStateMachineModelFactory() {
+	}
+
+	/**
+	 * Instantiates a new abstract state machine model factory.
+	 *
+	 * @param resourceLoader the resource loader
+	 * @param stateMachineComponentResolver the state machine component resolver
+	 */
+	public AbstractStateMachineModelFactory(ResourceLoader resourceLoader,
+			StateMachineComponentResolver<S, E> stateMachineComponentResolver) {
+		this.resourceLoader = resourceLoader;
+		this.stateMachineComponentResolver = stateMachineComponentResolver;
+	}
 
 	@Override
 	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
 		this.beanFactory = beanFactory;
+		internalResolver.setBeanFactory(beanFactory);
 	}
 
 	@Override
 	public void setResourceLoader(ResourceLoader resourceLoader) {
+		Assert.notNull(resourceLoader, "resourceLoader cannot be null");
 		this.resourceLoader = resourceLoader;
+	}
+
+	/**
+	 * Sets the state machine component resolver.
+	 *
+	 * @param stateMachineComponentResolver the state machine component resolver
+	 */
+	public void setStateMachineComponentResolver(StateMachineComponentResolver<S, E> stateMachineComponentResolver) {
+		this.stateMachineComponentResolver = stateMachineComponentResolver;
 	}
 
 	/**
@@ -64,7 +92,7 @@ public abstract class AbstractStateMachineModelFactory<S, E> implements StateMac
 	 * @param action the action
 	 */
 	public void registerAction(String id, Action<S, E> action) {
-		registeredActions.put(id, action);
+		internalResolver.registerAction(id, action);
 	}
 
 	/**
@@ -74,7 +102,50 @@ public abstract class AbstractStateMachineModelFactory<S, E> implements StateMac
 	 * @param guard the guard
 	 */
 	public void registerGuard(String id, Guard<S, E> guard) {
-		registeredGuards.put(id, guard);
+		internalResolver.registerGuard(id, guard);
+	}
+
+	/**
+	 * Gets the state machine component resolver.
+	 *
+	 * @return the state machine component resolver
+	 */
+	public StateMachineComponentResolver<S, E> getStateMachineComponentResolver() {
+		return stateMachineComponentResolver;
+	}
+
+	/**
+	 * Resolve action.
+	 *
+	 * @param id the id
+	 * @return the action
+	 */
+	public Action<S, E> resolveAction(String id) {
+		Action<S, E> a = internalResolver.resolveAction(id);
+		if (a == null && stateMachineComponentResolver != null) {
+			a = stateMachineComponentResolver.resolveAction(id);
+		}
+		if (a == null) {
+			throw new RuntimeException("Can't resolve action with id " + id + " either from registered actions nor beanfactory");
+		}
+		return a;
+	}
+
+	/**
+	 * Resolve guard.
+	 *
+	 * @param id the id
+	 * @return the guard
+	 */
+	public Guard<S, E> resolveGuard(String id) {
+		Guard<S, E> a = internalResolver.resolveGuard(id);
+		if (a == null && stateMachineComponentResolver != null) {
+			a = stateMachineComponentResolver.resolveGuard(id);
+		}
+		if (a == null) {
+			throw new RuntimeException("Can't resolve guard with id " + id + " either from registered guards nor beanfactory");
+		}
+		return a;
 	}
 
 	/**
@@ -93,43 +164,5 @@ public abstract class AbstractStateMachineModelFactory<S, E> implements StateMac
 	 */
 	protected ResourceLoader getResourceLoader() {
 		return resourceLoader;
-	}
-
-	/**
-	 * Resolve action.
-	 *
-	 * @param id the id
-	 * @return the action
-	 */
-	@SuppressWarnings("unchecked")
-	public Action<S, E> resolveAction(String id) {
-		Action<S, E> a = null;
-		a = registeredActions.get(id);
-		if (a == null && beanFactory != null) {
-			a = beanFactory.getBean(id, Action.class);
-		}
-		if (a == null) {
-			throw new RuntimeException("Can't resolve action with id " + id + " either from registered actions nor beanfactory");
-		}
-		return a;
-	}
-
-	/**
-	 * Resolve guard.
-	 *
-	 * @param id the id
-	 * @return the guard
-	 */
-	@SuppressWarnings("unchecked")
-	public Guard<S, E> resolveGuard(String id) {
-		Guard<S, E> g = null;
-		g = registeredGuards.get(id);
-		if (g == null && beanFactory != null) {
-			g = beanFactory.getBean(id, Guard.class);
-		}
-		if (g == null) {
-			throw new RuntimeException("Can't resolve guard with id " + id + " either from registered guards nor beanfactory");
-		}
-		return g;
 	}
 }

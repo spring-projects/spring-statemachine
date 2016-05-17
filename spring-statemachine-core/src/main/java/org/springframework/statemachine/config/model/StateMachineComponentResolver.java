@@ -19,8 +19,7 @@ import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
 
 /**
- * Strategy interface for registering and resolving state machine
- * components by their id's
+ * Strategy interface for resolving state machine components by their id's.
  *
  * @author Janne Valkealahti
  *
@@ -28,22 +27,6 @@ import org.springframework.statemachine.guard.Guard;
  * @param <E> the type of event
  */
 public interface StateMachineComponentResolver<S, E> {
-
-	/**
-	 * Register {@link Action} into factory with a given id.
-	 *
-	 * @param id the id
-	 * @param action the action
-	 */
-	void registerAction(String id, Action<S, E> action);
-
-	/**
-	 * Register {@link Guard} into factory with a given id.
-	 *
-	 * @param id the id
-	 * @param guard the guard
-	 */
-	void registerGuard(String id, Guard<S, E> guard);
 
 	/**
 	 * Resolve action.

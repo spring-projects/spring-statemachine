@@ -22,17 +22,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.eclipse.uml2.uml.Model;
-import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.statemachine.config.model.AbstractStateMachineModelFactory;
 import org.springframework.statemachine.config.model.ConfigurationData;
 import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineModelFactory;
 import org.springframework.statemachine.uml.support.UmlModelParser;
-import org.springframework.statemachine.uml.support.UmlUtils;
 import org.springframework.statemachine.uml.support.UmlModelParser.DataHolder;
+import org.springframework.statemachine.uml.support.UmlUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.FileCopyUtils;
 
@@ -64,6 +62,7 @@ public class UmlStateMachineModelFactory extends AbstractStateMachineModelFactor
 	 * @param location the resource location
 	 */
 	public UmlStateMachineModelFactory(String location) {
+		Assert.notNull(location, "Location must be set");
 		this.location = location;
 	}
 
@@ -85,11 +84,7 @@ public class UmlStateMachineModelFactory extends AbstractStateMachineModelFactor
 		if (resource != null) {
 			return resource;
 		} else {
-			ResourceLoader loader = getResourceLoader();
-			if (loader == null) {
-				loader = new DefaultResourceLoader();
-			}
-			return loader.getResource(location);
+			return getResourceLoader().getResource(location);
 		}
 	}
 

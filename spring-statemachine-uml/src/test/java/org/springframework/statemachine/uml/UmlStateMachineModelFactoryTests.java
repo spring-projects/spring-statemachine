@@ -39,6 +39,7 @@ import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineModelConfigurer;
+import org.springframework.statemachine.config.model.DefaultStateMachineComponentResolver;
 import org.springframework.statemachine.config.model.StateData;
 import org.springframework.statemachine.config.model.StateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineModelFactory;
@@ -56,12 +57,36 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 	}
 
 	@Test
-	public void testSimpleFlat() {
+	public void testSimpleFlat1() {
 		context.refresh();
 		Resource model1 = new ClassPathResource("org/springframework/statemachine/uml/simple-flat.uml");
 		UmlStateMachineModelFactory builder = new UmlStateMachineModelFactory(model1);
 		builder.registerAction("action1", new LatchAction());
 		builder.setBeanFactory(context);
+		assertThat(model1.exists(), is(true));
+		StateMachineModel<String, String> stateMachineModel = builder.build();
+		assertThat(stateMachineModel, notNullValue());
+		Collection<StateData<String, String>> stateDatas = stateMachineModel.getStatesData().getStateData();
+		assertThat(stateDatas.size(), is(2));
+		for (StateData<String, String> stateData : stateDatas) {
+			if (stateData.getState().equals("S1")) {
+				assertThat(stateData.isInitial(), is(true));
+			} else if (stateData.getState().equals("S2")) {
+				assertThat(stateData.isInitial(), is(false));
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+	}
+
+	@Test
+	public void testSimpleFlat2() {
+		context.refresh();
+		Resource model1 = new ClassPathResource("org/springframework/statemachine/uml/simple-flat.uml");
+		DefaultStateMachineComponentResolver<String, String> resolver = new DefaultStateMachineComponentResolver<>();
+		resolver.registerAction("action1", new LatchAction());
+		UmlStateMachineModelFactory builder = new UmlStateMachineModelFactory(model1);
+		builder.setStateMachineComponentResolver(resolver);
 		assertThat(model1.exists(), is(true));
 		StateMachineModel<String, String> stateMachineModel = builder.build();
 		assertThat(stateMachineModel, notNullValue());
