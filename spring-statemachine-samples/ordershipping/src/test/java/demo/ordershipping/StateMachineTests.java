@@ -40,8 +40,17 @@ public class StateMachineTests {
 	private StateMachine<String, String> stateMachine;
 
 	@Before
-	public void setup() {
+	public void setup() throws Exception {
 		stateMachine = stateMachineFactory.getStateMachine();
+		// plan don't know how to wait if machine is started
+		// automatically so wait here.
+		for (int i = 0; i < 10; i++) {
+			if (stateMachine.getState() != null) {
+				break;
+			} else {
+				Thread.sleep(200);
+			}
+		}
 	}
 
 	@Test
