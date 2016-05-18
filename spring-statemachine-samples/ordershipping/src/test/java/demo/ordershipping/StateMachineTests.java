@@ -67,6 +67,7 @@ public class StateMachineTests {
 					.step()
 						.sendEvent("PLACE_ORDER")
 						.expectStates("CUSTOMER_ERROR")
+						.expectStateChanged(2)
 						.and()
 					.build();
 		plan.test();
@@ -91,6 +92,7 @@ public class StateMachineTests {
 						.sendEvent(MessageBuilder.withPayload("RECEIVE_PAYMENT")
 								.setHeader("payment", "1000").build())
 						.expectStates("ORDER_SHIPPED")
+						.expectStateChanged(4)
 						.and()
 					.build();
 		plan.test();
@@ -114,6 +116,7 @@ public class StateMachineTests {
 					.step()
 						.sendEvent(MessageBuilder.withPayload("RECEIVE_PAYMENT").build())
 						.expectStates("HANDLE_ORDER", "WAIT_PAYMENT", "WAIT_PRODUCT")
+						.expectStateChanged(4)
 						.and()
 					.build();
 		plan.test();
@@ -135,8 +138,7 @@ public class StateMachineTests {
 						.expectStateChanged(8)
 						.and()
 					.step()
-						.expectStateEntered("SEND_REMINDER")
-						.expectStateChanged(1)
+						.expectStateChanged(2)
 						.and()
 					.build();
 		plan.test();
