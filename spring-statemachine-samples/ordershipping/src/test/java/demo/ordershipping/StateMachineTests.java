@@ -77,6 +77,7 @@ public class StateMachineTests {
 						.sendEvent("PLACE_ORDER")
 						.expectStates("CUSTOMER_ERROR")
 						.expectStateChanged(2)
+						.expectStateMachineStopped(1)
 						.and()
 					.build();
 		plan.test();
@@ -102,6 +103,7 @@ public class StateMachineTests {
 								.setHeader("payment", "1000").build())
 						.expectStates("ORDER_SHIPPED")
 						.expectStateChanged(4)
+						.expectStateMachineStopped(3)
 						.and()
 					.build();
 		plan.test();
