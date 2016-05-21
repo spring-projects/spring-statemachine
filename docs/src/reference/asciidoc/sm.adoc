@@ -1893,9 +1893,15 @@ trigger and define `SignalEventE1` for that.
 
 image::images/papyrus-gs-8.png[width=400]
 
-This well give you something like shown below.
+This will give you something like shown below.
 
 image::images/papyrus-gs-9.png[width=400]
+
+[TIP]
+====
+If `SignalEvent` is omitted for a transition it becomes an
+anonymous transition.
+====
 
 [IMPORTANT]
 ====
@@ -1903,6 +1909,27 @@ In rest of a sections we skip most of a screenshots as it's a waste of
 space. Reference to menu items and actions we do with UI can be found
 from _Model Explorer_ or other dialogs given by Papyrus plugin.
 ====
+
+=== Define Timers
+Transition can also happen based on timed events. Spring Statemachine
+support two types of timers, ones which fires continously on a
+background and ones which fires once with a delay when state is
+entered.
+
+Add new `TimeEvent` child to _Model Explorer_, modify _When_ as
+expression defined as _LiteralInteger_. Value of it is then timer as
+milliseconds. _Is Relative_ is left to _false_ making timer to fire
+continously.
+
+image::images/papyrus-gs-10.png[width=400]
+
+To define one timed based event when state is entered it's exactly
+same as above but _Is Relative_ is now defined as _true_.
+
+image::images/papyrus-gs-11.png[width=400]
+
+Then what is left for user is to pick these time events instead of
+signal event for a particular transition.
 
 === Define Actions
 State entry and exit actions can be associated by using a behaviour,
