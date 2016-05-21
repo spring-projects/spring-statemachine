@@ -826,6 +826,15 @@ with a custom event headers. This allows user to add arbitrary extra
 information with an event which is then visible to _StateContext_ when
 for example user is implementing actions.
 
+[NOTE]
+====
+Message headers are generally passed on until machine runs to
+completion for a specific event. For example if an event is causing
+transition into a state `A` which have an anonymous transition into a
+state `B`, original event is available for actions or guards in state
+`B`.
+====
+
 === TimerTrigger
 _TimerTrigger_ is useful when something needs to be triggered
 automatically without any user interaction. `Trigger` is added to a
