@@ -165,7 +165,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	public State<S,E> getState() {
 		// if we're complete assume we're stopped
 		// and state was stashed into lastState
-		if (isComplete()) {
+		if (lastState != null && isComplete()) {
 			return lastState;
 		} else {
 			return currentState;
@@ -388,11 +388,12 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	@Override
 	public boolean isComplete() {
-		if (currentState == null) {
+		State<S, E> s = currentState;
+		if (s == null) {
 			return !isRunning();
 		} else {
-			return currentState != null && currentState.getPseudoState() != null
-					&& currentState.getPseudoState().getKind() == PseudoStateKind.END;
+			return s != null && s.getPseudoState() != null
+					&& s.getPseudoState().getKind() == PseudoStateKind.END;
 		}
 	}
 
