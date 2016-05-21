@@ -111,6 +111,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	private volatile Message<E> forwardedInitialEvent;
 
+	private final Object lock = new Object();
+
 	/**
 	 * Instantiates a new abstract state machine.
 	 *
@@ -165,10 +167,12 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	public State<S,E> getState() {
 		// if we're complete assume we're stopped
 		// and state was stashed into lastState
-		if (lastState != null && isComplete()) {
-			return lastState;
-		} else {
-			return currentState;
+		synchronized (lock) {
+			if (lastState != null && isComplete()) {
+				return lastState;
+			} else {
+				return currentState;
+			}
 		}
 	}
 
@@ -342,13 +346,15 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	@Override
 	protected void doStop() {
-		stateMachineExecutor.stop();
-		notifyStateMachineStopped(buildStateContext(Stage.STATEMACHINE_STOP, null, null, this));
-		// stash current state before we null it so that
-		// we can still return where we 'were' when machine is stopped
-		lastState = currentState;
-		currentState = null;
-		initialEnabled = null;
+		synchronized (lock) {
+			stateMachineExecutor.stop();
+			notifyStateMachineStopped(buildStateContext(Stage.STATEMACHINE_STOP, null, null, this));
+			// stash current state before we null it so that
+			// we can still return where we 'were' when machine is stopped
+			lastState = currentState;
+			currentState = null;
+			initialEnabled = null;
+		}
 	}
 
 	@Override
