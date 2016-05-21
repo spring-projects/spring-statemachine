@@ -1790,6 +1790,20 @@ Behind a scenes a raw uml file would look like.
 include::samples/simple-machine.uml[]
 ----
 
+[TIP]
+====
+When opening existing uml model defined as uml, you'll have three
+files, `.di`, `.notation` and `.uml`. If model was not created in your
+eclipse's session, it doesn't understand how to open an actual state
+chart. This is a known issue in a Papyrus plugin and there is an easy
+workaround. In a Papyrus _Perspective_ you'll see _Model Explorer_ for
+you model, double click _Diagram StateMachine Diagram_ which will
+instruct eclipse to open this specific model in its proper Papyrus
+modeling plugin.
+====
+
+=== Using UmlStateMachineModelFactory
+
 After uml file is in place in your project, it can be imported into
 configuration using `StateMachineModelConfigurer` where
 `StateMachineModelFactory` is associated with a model.
@@ -1802,27 +1816,19 @@ either be given as a Spring `Resource` or a normal location string.
 include::samples/DocsUmlSampleTests1.java[tags=snippetA]
 ----
 
-[IMPORTANT]
-====
 As usually _Spring StateMachine_ is working with _Guards_ and
 _Actions_ which are defined as bean, those need to be hooked into uml
 by its internal modeling structure. In a below sections you will see
 how customized bean references are defined within uml definitions.
 Thought it is also possible to register particular methods manually
 without defining those as beans.
-====
 
-[TIP]
-====
-When opening existing uml model defined as uml, you'll have three
-files, `.di`, `.notation` and `.uml`. If model was not created in your
-eclipse's session, it doesn't understand how to open an actual state
-chart. This is a known issue in a Papyrus plugin and there is an easy
-workaround. In a Papyrus _Perspective_ you'll see _Model Explorer_ for
-you model, double click _Diagram StateMachine Diagram_ which will
-instruct eclipse to open this specific model in its proper Papyrus
-modeling plugin.
-====
+If `UmlStateMachineModelFactory` is created as a bean its
+`ResourceLoader` is wired automatically to find registered actions and
+guards. It's also possible to manually define a
+`StateMachineComponentResolver` which will then be used to find these
+components. Factory also have methods _registerAction_ and
+_registerGuard_ which can be used to register these components.
 
 Uml model is relatively loose what comes for the implementation like
 _Spring StateMachine_ itself. There are choices what implementation
