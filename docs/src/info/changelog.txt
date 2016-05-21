@@ -4,6 +4,24 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 1.1.0.RELEASE (2016-05-23)
+---------------------------------------------
+* Start adding developer doc info into ref docs [#158]
+* Don't publish build-tests [#211]
+* Uml doesn't add Guard to Transition [#212]
+* Support initial action in uml [#213]
+* Support spel in uml model [#215]
+* Complex linked pseudostates cause trouble [#217]
+* UmlModelParser breaks with shadow entries [#218]
+* Update docs for 1.1.0.RELEASE [#219]
+* TimerTrigger with delay fires immediately [#220]
+* Direct region entry doesn't bypass initial state entry [#221]
+* Join state should not be entered [#222]
+* Pseudostates may cause exit from parent [#223]
+* Create order shipping sample [#225]
+* Refactor UmlStateMachineModelFactory [#226]
+* Possible NPE with final state [#227]
+
 Changes in version 1.1.0.RC1 (2016-04-25)
 ----------------------------------------
 * Support junction pseudostate [#42]
