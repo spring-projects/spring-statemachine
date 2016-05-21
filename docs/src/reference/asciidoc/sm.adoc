@@ -34,6 +34,8 @@ that Spring Statemachine provides to any Spring based application.
 
 <<sm-test>> the state machine testing support.
 
+<<sm-papyrus>> the state machine uml modeling support.
+
 [[sm-config]]
 == Statemachine Configuration
 One of the common tasks when using a Statemachine is to design its
