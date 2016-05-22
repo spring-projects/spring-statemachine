@@ -1905,13 +1905,6 @@ If `SignalEvent` is omitted for a transition it becomes an
 anonymous transition.
 ====
 
-[IMPORTANT]
-====
-In rest of a sections we skip most of a screenshots as it's a waste of
-space. Reference to menu items and actions we do with UI can be found
-from _Model Explorer_ or other dialogs given by Papyrus plugin.
-====
-
 === Define Timers
 Transition can also happen based on timed events. Spring Statemachine
 support two types of timers, ones which fires continously on a
@@ -1947,4 +1940,12 @@ than <<sm-papyrus-beanref>>.
 When there is a need to make a bean reference in any uml _effect_,
 _action_ or _guard_, supported method to do that is via
 `FunctionBehavior` or `OpaqueBehavior` where defined language needs to
-be _bean_ and language body having a bean reference id.
+be `bean` and language body having a bean reference id.
+
+[[sm-papyrus-spelref]]
+=== Define SpEL Reference
+When there is a need to use a _SpEL_ instead of a bean reference in
+any uml _effect_, _action_ or _guard_, supported method to do that is via
+`FunctionBehavior` or `OpaqueBehavior` where defined language needs to
+be `spel` and language body having a SpEL expression.
+
