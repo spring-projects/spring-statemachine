@@ -17,6 +17,7 @@ package org.springframework.statemachine.config.model;
 
 import java.util.Collection;
 
+import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.state.PseudoStateKind;
@@ -37,6 +38,9 @@ public class StateData<S, E> {
 	private Object parent;
 	private Object region;
 	private S state;
+	private Collection<StateData<S, E>> submachineStateData;
+	private StateMachine<S, E> submachine;
+	private StateMachineFactory<S, E> submachineFactory;
 	private Collection<E> deferred;
 	private Collection<? extends Action<S, E>> entryActions;
 	private Collection<? extends Action<S, E>> exitActions;
@@ -120,6 +124,69 @@ public class StateData<S, E> {
 	 */
 	public S getState() {
 		return state;
+	}
+
+	/**
+	 * Gets the submachine state data.
+	 *
+	 * @return the submachine state data
+	 */
+	public Collection<StateData<S, E>> getSubmachineStateData() {
+		return submachineStateData;
+	}
+
+	/**
+	 * Sets the submachine state data.
+	 *
+	 * @param submachineStateData the submachine state data
+	 */
+	public void setSubmachineStateData(Collection<StateData<S, E>> submachineStateData) {
+		this.submachineStateData = submachineStateData;
+	}
+
+	/**
+	 * Gets the submachine.
+	 *
+	 * @return the submachine
+	 */
+	public StateMachine<S, E> getSubmachine() {
+		return submachine;
+	}
+
+	/**
+	 * Sets the submachine.
+	 *
+	 * @param submachine the submachine
+	 */
+	public void setSubmachine(StateMachine<S, E> submachine) {
+		this.submachine = submachine;
+	}
+
+	/**
+	 * Gets the submachine factory.
+	 *
+	 * @return the submachine factory
+	 */
+	public StateMachineFactory<S, E> getSubmachineFactory() {
+		return submachineFactory;
+	}
+
+	/**
+	 * Sets the submachine factory.
+	 *
+	 * @param submachineFactory the submachine factory
+	 */
+	public void setSubmachineFactory(StateMachineFactory<S, E> submachineFactory) {
+		this.submachineFactory = submachineFactory;
+	}
+
+	/**
+	 * Sets the submachine factory.
+	 *
+	 * @param submachineFactory the submachine factory
+	 */
+	public void setSubmachine(StateMachineFactory<S, E> submachineFactory) {
+		this.submachineFactory = submachineFactory;
 	}
 
 	/**

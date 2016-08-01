@@ -429,6 +429,14 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 		for (StateData<S, E> stateData : stateDatas) {
 			StateMachine<S, E> stateMachine = machineMap.get(stateData.getState());
+			if (stateMachine == null) {
+				// get a submachine from state data if we didn't have
+				// it already. stays null if we don't have one.
+				stateMachine = stateData.getSubmachine();
+				if (stateMachine == null && stateData.getSubmachineFactory() != null) {
+					stateMachine = stateData.getSubmachineFactory().getStateMachine(machineId);
+				}
+			}
 			state = stateMap.get(stateData.getState());
 			if (state != null) {
 				states.add(state);
@@ -724,23 +732,24 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 	private Iterator<Node<StateData<S, E>>> buildStateDataIterator() {
 		Tree<StateData<S, E>> tree = new Tree<StateData<S, E>>();
-
-		for (StateData<S, E> stateData : stateMachineModel.getStatesData().getStateData()) {
-			Object id = stateData.getState();
-			Object parent = stateData.getParent();
-			tree.add(stateData, id, parent);
-		}
-
-		TreeTraverser<Node<StateData<S, E>>> traverser = new TreeTraverser<Node<StateData<S, E>>>() {
+		treeAdd(tree, stateMachineModel.getStatesData().getStateData());
+		return new TreeTraverser<Node<StateData<S, E>>>() {
 			@Override
 			public Iterable<Node<StateData<S, E>>> children(Node<StateData<S, E>> root) {
 				return root.getChildren();
 			}
-		};
+		}.postOrderTraversal(tree.getRoot()).iterator();
+	}
 
-		Iterable<Node<StateData<S, E>>> postOrderTraversal = traverser.postOrderTraversal(tree.getRoot());
-		Iterator<Node<StateData<S, E>>> iterator = postOrderTraversal.iterator();
-		return iterator;
+	private void treeAdd(Tree<StateData<S, E>> tree, Collection<StateData<S, E>> stateDatas) {
+		// recursive call due to possible submachine data ref
+		if (stateDatas == null) {
+			return;
+		}
+		for (StateData<S, E> stateData : stateDatas) {
+			tree.add(stateData, stateData.getState(), stateData.getParent());
+			treeAdd(tree, stateData.getSubmachineStateData());
+		}
 	}
 
 	protected abstract RegionState<S, E> buildRegionStateInternal(S id, Collection<Region<S, E>> regions, Collection<E> deferred,
