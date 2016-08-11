@@ -34,8 +34,6 @@ import org.springframework.statemachine.support.StateMachineUtils;
  */
 public class RegionState<S, E> extends AbstractState<S, E> {
 
-	private JoinPseudoState<S, E> join;
-
 	/**
 	 * Instantiates a new region state.
 	 *
@@ -129,6 +127,7 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 
 	@Override
 	public void exit(StateContext<S, E> context) {
+		super.exit(context);
 		for (Region<S, E> region : getRegions()) {
 			if (region.getState() != null) {
 				region.getState().exit(context);
@@ -145,9 +144,7 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 
 	@Override
 	public void entry(StateContext<S, E> context) {
-		if (join != null) {
-			join.entry(context);
-		}
+		super.entry(context);
 		Collection<? extends Action<S, E>> actions = getEntryActions();
 		if (actions != null) {
 			for (Action<S, E> action : actions) {
@@ -199,10 +196,6 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 			}
 		}
 		return states;
-	}
-
-	public void setJoin(JoinPseudoState<S, E> join) {
-		this.join = join;
 	}
 
 	@Override

@@ -19,12 +19,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -36,9 +38,11 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.statemachine.StateContext;
+import org.springframework.statemachine.StateContext.Stage;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
-import org.springframework.statemachine.StateContext.Stage;
+import org.springframework.statemachine.state.JoinPseudoState;
+import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.trigger.DefaultTriggerContext;
@@ -172,6 +176,9 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 		interceptors.add(interceptor);
 	}
 
+	private final Set<Transition<S, E>> joinSyncTransitions = new HashSet<>();
+	private final Set<State<S, E>> joinSyncStates = new HashSet<>();
+
 	private boolean handleTriggerTrans(List<Transition<S, E>> trans, Message<E> queuedMessage) {
 		boolean transit = false;
 		for (Transition<S, E> t : trans) {
@@ -188,6 +195,28 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 			}
 			if (!StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
 				continue;
+			}
+
+			// special handling of join
+			if (StateMachineUtils.isPseudoState(t.getTarget(), PseudoStateKind.JOIN)) {
+				if (joinSyncStates.isEmpty()) {
+					List<State<S, E>> joins = ((JoinPseudoState<S, E>)t.getTarget().getPseudoState()).getJoins();
+					joinSyncStates.addAll(joins);
+				}
+				joinSyncTransitions.add(t);
+				boolean removed = joinSyncStates.remove(t.getSource());
+				boolean joincomplete = removed & joinSyncStates.isEmpty();
+				if (joincomplete) {
+					for (Transition<S, E> tt : joinSyncTransitions) {
+						StateContext<S, E> stateContext = buildStateContext(queuedMessage, tt, relayStateMachine);
+						tt.transit(stateContext);
+						stateMachineExecutorTransit.transit(tt, stateContext, queuedMessage);
+					}
+					joinSyncTransitions.clear();
+					break;
+				} else {
+					continue;
+				}
 			}
 
 			StateContext<S, E> stateContext = buildStateContext(queuedMessage, t, relayStateMachine);

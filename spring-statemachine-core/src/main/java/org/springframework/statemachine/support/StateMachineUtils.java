@@ -95,6 +95,14 @@ public abstract class StateMachineUtils {
 		}
 	}
 
+	public static <S, E> boolean isPseudoState(State<S, E> state, PseudoStateKind kind) {
+		if (state != null) {
+			PseudoState<S, E> pseudoState = state.getPseudoState();
+			return pseudoState != null && pseudoState.getKind() == kind;
+		}
+		return false;
+	}
+
 	public static <S> Collection<String> toStringCollection(Collection<S> collection) {
 		Collection<String> c = new ArrayList<String>();
 		for (S item : collection) {

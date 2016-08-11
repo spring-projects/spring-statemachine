@@ -272,7 +272,9 @@ public class TasksHandler {
 					.initial(initial)
 					.state(task, runnableAction(node.getData().runnable, node.getData().id.toString()), null);
 
-			joinStates.add(task);
+			if (node.getChildren().isEmpty()) {
+				joinStates.add(task);
+			}
 
 			stateMachineTransitionConfigurer
 				.withExternal()

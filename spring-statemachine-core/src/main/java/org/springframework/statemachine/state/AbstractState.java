@@ -44,6 +44,7 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	private final Collection<Region<S, E>> regions = new ArrayList<Region<S, E>>();
 	private final StateMachine<S, E> submachine;
 	private List<Trigger<S, E>> triggers = new ArrayList<Trigger<S, E>>();
+	private final CompositeStateListener<S, E> stateListener = new CompositeStateListener<S, E>();
 
 	/**
 	 * Instantiates a new abstract state.
@@ -162,6 +163,7 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 
 	@Override
 	public void exit(StateContext<S, E> context) {
+		stateListener.onExit(context);
 		for (Trigger<S, E> trigger : triggers) {
 			trigger.disarm();
 		}
@@ -169,6 +171,7 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 
 	@Override
 	public void entry(StateContext<S, E> context) {
+		stateListener.onEntry(context);
 		for (Trigger<S, E> trigger : triggers) {
 			trigger.arm();
 		}
@@ -223,6 +226,16 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	@Override
 	public boolean isSubmachineState() {
 		return submachine != null;
+	}
+
+	@Override
+	public void addStateListener(StateListener<S, E> listener) {
+		stateListener.register(listener);
+	}
+
+	@Override
+	public void removeStateListener(StateListener<S, E> listener) {
+		stateListener.unregister(listener);
 	}
 
 	/**

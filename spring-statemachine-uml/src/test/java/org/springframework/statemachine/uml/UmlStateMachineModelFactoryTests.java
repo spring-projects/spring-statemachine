@@ -341,6 +341,39 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
+	public void testMultiJoinForkJoin1() {
+		context.register(Config20.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("SI"));
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S20", "S30"));
+		stateMachine.sendEvent("E2");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21", "S30"));
+		stateMachine.sendEvent("E3");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S4"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testMultiJoinForkJoin2() {
+		context.register(Config20.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		stateMachine.start();
+		stateMachine.getExtendedState().getVariables().put("foo", "bar");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("SI"));
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S20", "S30"));
+		stateMachine.sendEvent("E2");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21", "S30"));
+		stateMachine.sendEvent("E3");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("SF"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
 	public void testSimpleHistoryShallow() {
 		context.register(Config8.class);
 		context.refresh();
@@ -981,6 +1014,24 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		@Bean
 		public StateMachineModelFactory<String, String> modelFactory() {
 			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/uml/broken-model-shadowentries.uml");
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config20 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			Resource model = new ClassPathResource("org/springframework/statemachine/uml/multijoin-forkjoin.uml");
+			return new UmlStateMachineModelFactory(model);
 		}
 	}
 
