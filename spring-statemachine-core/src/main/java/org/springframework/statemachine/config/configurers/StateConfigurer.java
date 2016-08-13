@@ -18,7 +18,9 @@ package org.springframework.statemachine.config.configurers;
 import java.util.Collection;
 import java.util.Set;
 
+import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerBuilder;
 import org.springframework.statemachine.state.State;
@@ -68,6 +70,26 @@ public interface StateConfigurer<S, E> extends
 	 * @return configurer for chaining
 	 */
 	StateConfigurer<S, E> state(S state);
+
+	/**
+	 * Specify a state {@code S} and its relation with a given
+	 * machine as substate machine.
+	 *
+	 * @param state the state
+	 * @param stateMachine the submachine
+	 * @return configurer for chaining
+	 */
+	StateConfigurer<S, E> state(S state, StateMachine<S, E> stateMachine);
+
+	/**
+	 * Specify a state {@code S} and its relation with a given
+	 * machine as substate machine factory.
+	 *
+	 * @param state the state
+	 * @param stateMachineFactory the submachine factory
+	 * @return configurer for chaining
+	 */
+	StateConfigurer<S, E> state(S state, StateMachineFactory<S, E> stateMachineFactory);
 
 	/**
 	 * Specify a state {@code S} with entry and exit {@link Action}s.

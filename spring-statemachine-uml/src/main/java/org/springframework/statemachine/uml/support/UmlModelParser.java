@@ -106,15 +106,24 @@ public class UmlModelParser {
 	 */
 	public DataHolder parseModel() {
 		EList<PackageableElement> packagedElements = model.getPackagedElements();
-		// expect model having exactly one machine
-		StateMachine stateMachine = (StateMachine) EcoreUtil.getObjectByType(packagedElements, UMLPackage.Literals.STATE_MACHINE);
-		if (stateMachine == null) {
-			throw new IllegalArgumentException("Can't find statemachine from model");
+
+		// expect root machine to be a one having no machines in a submachineState field.
+		StateMachine stateMachine = null;
+		Collection<StateMachine> stateMachines = EcoreUtil.getObjectsByType(packagedElements, UMLPackage.Literals.STATE_MACHINE);
+		for (StateMachine machine : stateMachines) {
+			// multiple substates can point to same machine, thus it's a back reference list
+			EList<State> submachineRefs = machine.getSubmachineStates();
+			if (submachineRefs.size() == 0) {
+				stateMachine = machine;
+			}
+			handleStateMachine(machine);
 		}
 
-		for (Region region : stateMachine.getRegions()) {
-			handleRegion(region);
+		// all machines are iterated so we only do sanity check here for a root machine
+		if (stateMachine == null) {
+			throw new IllegalArgumentException("Can't find root statemachine from model");
 		}
+
 		// LinkedList can be passed due to generics, need to copy
 		HashMap<String, List<ChoiceData<String, String>>> choicesCopy = new HashMap<String, List<ChoiceData<String, String>>>();
 		choicesCopy.putAll(choices);
@@ -124,17 +133,31 @@ public class UmlModelParser {
 				new TransitionsData<String, String>(transitionDatas, choicesCopy, junctionsCopy, forks, joins, entrys, exits, historys));
 	}
 
+	private void handleStateMachine(StateMachine stateMachine) {
+		for (Region region : stateMachine.getRegions()) {
+			handleRegion(region);
+		}
+	}
+
 	private void handleRegion(Region region) {
 		// build states
 		for (Vertex vertex : region.getSubvertices()) {
 			// normal states
 			if (vertex instanceof State) {
 				State state = (State)vertex;
+
 				// find parent state if submachine state, root states have null parent
 				String parent = null;
 				String regionId = null;
 				if (state.getContainer().getOwner() instanceof State) {
 					parent = ((State)state.getContainer().getOwner()).getName();
+				}
+				// if parent is unknown, check if it's a ref where parent is then that
+				if (parent == null && region.getOwner() instanceof StateMachine) {
+					EList<State> submachineStates = ((StateMachine)region.getOwner()).getSubmachineStates();
+					if (submachineStates.size() == 1) {
+						parent = submachineStates.get(0).getName();
+					}
 				}
 				if (state.getOwner() instanceof Region) {
 					regionId = ((Region)state.getOwner()).getName();

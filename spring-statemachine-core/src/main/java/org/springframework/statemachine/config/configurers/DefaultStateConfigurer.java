@@ -23,7 +23,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.config.builders.StateMachineStateBuilder;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerAdapter;
@@ -57,6 +59,8 @@ public class DefaultStateConfigurer<S, E>
 	private final Collection<S> joins = new ArrayList<S>();
 	private final Collection<S> exits = new ArrayList<S>();
 	private final Collection<S> entrys = new ArrayList<S>();
+	private final Map<S, StateMachine<S, E>> submachines = new HashMap<>();
+	private final Map<S, StateMachineFactory<S, E>> submachinefactories = new HashMap<>();
 
 	@Override
 	public void configure(StateMachineStateBuilder<S, E> builder) throws Exception {
@@ -93,6 +97,8 @@ public class DefaultStateConfigurer<S, E>
 					s.setPseudoStateKind(PseudoStateKind.HISTORY_DEEP);
 				}
 			}
+			s.setSubmachine(submachines.get(s.getState()));
+			s.setSubmachineFactory(submachinefactories.get(s.getState()));
 		}
 		builder.addStateData(stateDatas);
 	}
@@ -126,6 +132,20 @@ public class DefaultStateConfigurer<S, E>
 	@Override
 	public StateConfigurer<S, E> state(S state) {
 		return state(state, (E[])null);
+	}
+
+	@Override
+	public StateConfigurer<S, E> state(S state, StateMachine<S, E> stateMachine) {
+		state(state);
+		submachines.put(state, stateMachine);
+		return this;
+	}
+
+	@Override
+	public StateConfigurer<S, E> state(S state, StateMachineFactory<S, E> stateMachineFactory) {
+		state(state);
+		submachinefactories.put(state, stateMachineFactory);
+		return this;
 	}
 
 	@Override

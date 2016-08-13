@@ -642,6 +642,22 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.refresh();
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleSubmachineRef() throws Exception {
+		context.register(Config21.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S20"));
+		stateMachine.sendEvent("E2");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21", "S30"));
+		stateMachine.sendEvent("E3");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21", "S31"));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config2 extends StateMachineConfigurerAdapter<String, String> {
@@ -1032,6 +1048,23 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		public StateMachineModelFactory<String, String> modelFactory() {
 			Resource model = new ClassPathResource("org/springframework/statemachine/uml/multijoin-forkjoin.uml");
 			return new UmlStateMachineModelFactory(model);
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config21 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/uml/simple-submachineref.uml");
 		}
 	}
 

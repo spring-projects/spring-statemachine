@@ -16,6 +16,7 @@
 package org.springframework.statemachine.config.model;
 
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
@@ -110,5 +111,49 @@ public class StateMachineModelTests {
 		assertThat(stateMachine.getState().getIds(), contains("S1"));
 		stateMachine.sendEvent("E1");
 		assertThat(stateMachine.getState().getIds(), contains("S2"));
+	}
+
+	@Test
+	public void testSubmachineRefConfig() {
+		// *S1     S2
+		//        /  \
+		//     *S20   S21
+		//           /   \
+		//        *S30   S31
+		ConfigurationData<String, String> configurationData = new ConfigurationData<>();
+
+		Collection<StateData<String, String>> stateData2 = new ArrayList<>();
+		stateData2.add(new StateData<String, String>("S2", null, "S20", true));
+		stateData2.add(new StateData<String, String>("S2", null, "S21", false));
+		stateData2.add(new StateData<String, String>("S21", null, "S30", true));
+		stateData2.add(new StateData<String, String>("S21", null, "S31", false));
+
+		Collection<StateData<String, String>> stateData1 = new ArrayList<>();
+		stateData1.add(new StateData<String, String>("S1", true));
+		StateData<String, String> stateDataS2 = new StateData<String, String>("S2");
+		stateDataS2.setSubmachineStateData(stateData2);
+		stateData1.add(stateDataS2);
+		StatesData<String, String> statesData = new StatesData<>(stateData1);
+
+		Collection<TransitionData<String, String>> transitionData = new ArrayList<>();
+		transitionData.add(new TransitionData<String, String>("S1", "S2", "E1"));
+		transitionData.add(new TransitionData<String, String>("S20", "S21", "E2"));
+		transitionData.add(new TransitionData<String, String>("S30", "S31", "E3"));
+		TransitionsData<String, String> transitionsData = new TransitionsData<>(transitionData);
+
+		StateMachineModel<String, String> stateMachineModel = new DefaultStateMachineModel<>(configurationData, statesData, transitionsData);
+
+		ObjectStateMachineFactory<String, String> factory = new ObjectStateMachineFactory<>(stateMachineModel);
+
+		StateMachine<String,String> stateMachine = factory.getStateMachine();
+		stateMachine.start();
+
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S20"));
+		stateMachine.sendEvent("E2");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21", "S30"));
+		stateMachine.sendEvent("E3");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21", "S31"));
 	}
 }

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_Uc2AwCWmEeaXAJvnS1wEeA" name="RootElement">
+  <packagedElement xmi:type="uml:StateMachine" xmi:id="_UduxkCWmEeaXAJvnS1wEeA" name="StateMachine">
+    <nestedClassifier xmi:type="uml:Signal" xmi:id="_gMGAsCWnEeaXAJvnS1wEeA" name="E1"/>
+    <region xmi:type="uml:Region" xmi:id="_UekfECWmEeaXAJvnS1wEeA" name="Region1">
+      <transition xmi:type="uml:Transition" xmi:id="_PSFhMCWoEeaXAJvnS1wEeA" source="_Ny60gCWoEeaXAJvnS1wEeA" target="_Zf3OsCWmEeaXAJvnS1wEeA"/>
+      <transition xmi:type="uml:Transition" xmi:id="_QZJ28CWoEeaXAJvnS1wEeA" source="_Zf3OsCWmEeaXAJvnS1wEeA" target="_bw8ggCWmEeaXAJvnS1wEeA">
+        <trigger xmi:type="uml:Trigger" xmi:id="_SKi8ECWoEeaXAJvnS1wEeA" event="_iWfbsCWnEeaXAJvnS1wEeA"/>
+      </transition>
+      <subvertex xmi:type="uml:State" xmi:id="_Zf3OsCWmEeaXAJvnS1wEeA" name="S1"/>
+      <subvertex xmi:type="uml:State" xmi:id="_bw8ggCWmEeaXAJvnS1wEeA" name="S2" submachine="_ssBhkCWmEeaXAJvnS1wEeA"/>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_Ny60gCWoEeaXAJvnS1wEeA" name=""/>
+    </region>
+  </packagedElement>
+  <packagedElement xmi:type="uml:StateMachine" xmi:id="_ssBhkCWmEeaXAJvnS1wEeA" name="SubStateMachine" submachineState="_bw8ggCWmEeaXAJvnS1wEeA">
+    <nestedClassifier xmi:type="uml:Signal" xmi:id="_eLeMwCWnEeaXAJvnS1wEeA" name="E2"/>
+    <nestedClassifier xmi:type="uml:Signal" xmi:id="_-KYZYCWnEeaXAJvnS1wEeA" name="E3"/>
+    <region xmi:type="uml:Region" xmi:id="_uOEjICWmEeaXAJvnS1wEeA" name="Region1">
+      <transition xmi:type="uml:Transition" xmi:id="_QMMOcCWnEeaXAJvnS1wEeA" source="_N0RU0CWnEeaXAJvnS1wEeA" target="_AkYMECWnEeaXAJvnS1wEeA"/>
+      <transition xmi:type="uml:Transition" xmi:id="_IuR18CWoEeaXAJvnS1wEeA" source="_AkYMECWnEeaXAJvnS1wEeA" target="_B3idECWnEeaXAJvnS1wEeA">
+        <trigger xmi:type="uml:Trigger" xmi:id="_LaIYMCWoEeaXAJvnS1wEeA" event="_lRzWQCWnEeaXAJvnS1wEeA"/>
+      </transition>
+      <subvertex xmi:type="uml:State" xmi:id="_AkYMECWnEeaXAJvnS1wEeA" name="S20"/>
+      <subvertex xmi:type="uml:State" xmi:id="_B3idECWnEeaXAJvnS1wEeA" name="S21">
+        <region xmi:type="uml:Region" xmi:id="_FTeYcCWnEeaXAJvnS1wEeA" name="Region1">
+          <transition xmi:type="uml:Transition" xmi:id="_Q8seUCWnEeaXAJvnS1wEeA" source="_LaVpACWnEeaXAJvnS1wEeA" target="_FTg0sCWnEeaXAJvnS1wEeA"/>
+          <transition xmi:type="uml:Transition" xmi:id="_pazL8CWnEeaXAJvnS1wEeA" source="_FTg0sCWnEeaXAJvnS1wEeA" target="_IYRmMCWnEeaXAJvnS1wEeA">
+            <trigger xmi:type="uml:Trigger" xmi:id="_D17m8CWoEeaXAJvnS1wEeA" event="__1_moCWnEeaXAJvnS1wEeA"/>
+          </transition>
+          <subvertex xmi:type="uml:State" xmi:id="_FTg0sCWnEeaXAJvnS1wEeA" name="S30"/>
+          <subvertex xmi:type="uml:State" xmi:id="_IYRmMCWnEeaXAJvnS1wEeA" name="S31"/>
+          <subvertex xmi:type="uml:Pseudostate" xmi:id="_LaVpACWnEeaXAJvnS1wEeA" name=""/>
+        </region>
+      </subvertex>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_N0RU0CWnEeaXAJvnS1wEeA" name=""/>
+    </region>
+  </packagedElement>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_iWfbsCWnEeaXAJvnS1wEeA" name="SignalEventE1" signal="_gMGAsCWnEeaXAJvnS1wEeA"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_lRzWQCWnEeaXAJvnS1wEeA" name="SignalEventE2" signal="_eLeMwCWnEeaXAJvnS1wEeA"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="__1_moCWnEeaXAJvnS1wEeA" name="SignalEventE3" signal="_-KYZYCWnEeaXAJvnS1wEeA"/>
+</uml:Model>
