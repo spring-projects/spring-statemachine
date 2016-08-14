@@ -149,9 +149,25 @@ public class DefaultStateConfigurer<S, E>
 	}
 
 	@Override
+	public StateConfigurer<S, E> state(S state, Collection<? extends Action<S, E>> stateActions) {
+		addIncomplete(null, state, null, null, null, stateActions);
+		return this;
+	}
+
+	@Override
+	public StateConfigurer<S, E> state(S state, Action<S, E> stateAction) {
+		Collection<Action<S, E>> stateActions = null;
+		if (stateAction != null) {
+			stateActions = new ArrayList<Action<S, E>>(1);
+			stateActions.add(stateAction);
+		}
+		return state(state, stateActions);
+	}
+
+	@Override
 	public StateConfigurer<S, E> state(S state, Collection<? extends Action<S, E>> entryActions,
 			Collection<? extends Action<S, E>> exitActions) {
-		addIncomplete(null, state, null, entryActions, exitActions);
+		addIncomplete(null, state, null, entryActions, exitActions, null);
 		return this;
 	}
 
@@ -177,7 +193,7 @@ public class DefaultStateConfigurer<S, E>
 		if (deferred != null) {
 			d = Arrays.asList(deferred);
 		}
-		addIncomplete(null, state, d, null, null);
+		addIncomplete(null, state, d, null, null, null);
 		return this;
 	}
 
@@ -240,7 +256,8 @@ public class DefaultStateConfigurer<S, E>
 	}
 
 	private void addIncomplete(Object parent, S state, Collection<E> deferred,
-			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions) {
+			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
+			Collection<? extends Action<S, E>> stateActions) {
 		StateData<S, E> stateData = incomplete.get(state);
 		if (stateData == null) {
 			stateData = new StateData<S, E>(parent, region, state, deferred, entryActions, exitActions);
@@ -260,6 +277,9 @@ public class DefaultStateConfigurer<S, E>
 		}
 		if (stateData.getExitActions() == null) {
 			stateData.setExitActions(exitActions);
+		}
+		if (stateData.getStateActions() == null) {
+			stateData.setStateActions(stateActions);
 		}
 	}
 

@@ -44,6 +44,7 @@ public class StateData<S, E> {
 	private Collection<E> deferred;
 	private Collection<? extends Action<S, E>> entryActions;
 	private Collection<? extends Action<S, E>> exitActions;
+	private Collection<? extends Action<S, E>> stateActions;
 	private boolean initial = false;
 	private Action<S, E> initialAction;
 	private boolean end = false;
@@ -241,6 +242,24 @@ public class StateData<S, E> {
 	 */
 	public void setExitActions(Collection<? extends Action<S, E>> exitActions) {
 		this.exitActions = exitActions;
+	}
+
+	/**
+	 * Gets the state actions.
+	 *
+	 * @return the state actions
+	 */
+	public Collection<? extends Action<S, E>> getStateActions() {
+		return stateActions;
+	}
+
+	/**
+	 * Sets the state actions.
+	 *
+	 * @param stateActions the state actions
+	 */
+	public void setStateActions(Collection<? extends Action<S, E>> stateActions) {
+		this.stateActions = stateActions;
 	}
 
 	/**

@@ -92,6 +92,24 @@ public interface StateConfigurer<S, E> extends
 	StateConfigurer<S, E> state(S state, StateMachineFactory<S, E> stateMachineFactory);
 
 	/**
+	 * Specify a state {@code S} with state {@link Action}s.
+	 *
+	 * @param state the state
+	 * @param stateActions the state actions
+	 * @return configurer for chaining
+	 */
+	StateConfigurer<S, E> state(S state, Collection<? extends Action<S, E>> stateActions);
+
+	/**
+	 * Specify a state {@code S} with state {@link Action}.
+	 *
+	 * @param state the state
+	 * @param stateAction the state action
+	 * @return configurer for chaining
+	 */
+	StateConfigurer<S, E> state(S state, Action<S, E> stateAction);
+
+	/**
 	 * Specify a state {@code S} with entry and exit {@link Action}s.
 	 *
 	 * @param state the state

@@ -17,13 +17,19 @@ package org.springframework.statemachine.state;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ScheduledFuture;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.messaging.Message;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.region.Region;
+import org.springframework.statemachine.support.LifecycleObjectSupport;
 import org.springframework.statemachine.trigger.Trigger;
 
 /**
@@ -34,17 +40,21 @@ import org.springframework.statemachine.trigger.Trigger;
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public abstract class AbstractState<S, E> implements State<S, E> {
+public abstract class AbstractState<S, E> extends LifecycleObjectSupport implements State<S, E> {
+
+	private static final Log log = LogFactory.getLog(AbstractState.class);
 
 	private final S id;
 	private final PseudoState<S, E> pseudoState;
 	private final Collection<E> deferred;
 	private final Collection<? extends Action<S, E>> entryActions;
 	private final Collection<? extends Action<S, E>> exitActions;
+	private final Collection<? extends Action<S, E>> stateActions;
 	private final Collection<Region<S, E>> regions = new ArrayList<Region<S, E>>();
 	private final StateMachine<S, E> submachine;
 	private List<Trigger<S, E>> triggers = new ArrayList<Trigger<S, E>>();
 	private final CompositeStateListener<S, E> stateListener = new CompositeStateListener<S, E>();
+	private final List<ScheduledFuture<?>> cancellableActions = new ArrayList<>();
 
 	/**
 	 * Instantiates a new abstract state.
@@ -134,13 +144,32 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 	 * @param regions the regions
 	 * @param submachine the submachine
 	 */
-	private AbstractState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions,
+	public AbstractState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions,
 			Collection<? extends Action<S, E>> exitActions, PseudoState<S, E> pseudoState, Collection<Region<S, E>> regions,
 			StateMachine<S, E> submachine) {
+		this(id, deferred, entryActions, exitActions, null, pseudoState, regions, submachine);
+	}
+
+	/**
+	 * Instantiates a new abstract state.
+	 *
+	 * @param id the state identifier
+	 * @param deferred the deferred
+	 * @param entryActions the entry actions
+	 * @param exitActions the exit actions
+	 * @param stateActions the state actions
+	 * @param pseudoState the pseudo state
+	 * @param regions the regions
+	 * @param submachine the submachine
+	 */
+	public AbstractState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions,
+			Collection<? extends Action<S, E>> exitActions, Collection<? extends Action<S, E>> stateActions,
+			PseudoState<S, E> pseudoState, Collection<Region<S, E>> regions, StateMachine<S, E> submachine) {
 		this.id = id;
 		this.deferred = deferred;
 		this.entryActions = entryActions;
 		this.exitActions = exitActions;
+		this.stateActions = stateActions;
 		this.pseudoState = pseudoState;
 
 		// use of private ctor should prevent user to
@@ -163,6 +192,7 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 
 	@Override
 	public void exit(StateContext<S, E> context) {
+		cancelStateActions();
 		stateListener.onExit(context);
 		for (Trigger<S, E> trigger : triggers) {
 			trigger.disarm();
@@ -175,6 +205,7 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 		for (Trigger<S, E> trigger : triggers) {
 			trigger.arm();
 		}
+		scheduleStateActions(context);
 	}
 
 	@Override
@@ -256,19 +287,79 @@ public abstract class AbstractState<S, E> implements State<S, E> {
 		return regions;
 	}
 
+	/**
+	 * Sets the triggers.
+	 *
+	 * @param triggers the triggers
+	 */
 	public void setTriggers(List<Trigger<S, E>> triggers) {
 		this.triggers = triggers;
 	}
 
+	/**
+	 * Gets the triggers.
+	 *
+	 * @return the triggers
+	 */
 	public List<Trigger<S, E>> getTriggers() {
 		return triggers;
 	}
 
-	@Override
-	public String toString() {
-		return "AbstractState [id=" + id + ", pseudoState=" + pseudoState + ", deferred=" + deferred
-				+ ", entryActions=" + entryActions + ", exitActions=" + exitActions + ", regions=" + regions
-				+ ", submachine=" + submachine + "]";
+	/**
+	 * Cancel existing state actions and clear list.
+	 */
+	protected void cancelStateActions() {
+		for (ScheduledFuture<?> future : cancellableActions) {
+			future.cancel(true);
+		}
+		cancellableActions.clear();
 	}
 
+	/**
+	 * Schedule state actions and store futures into list to
+	 * be cancelled.
+	 *
+	 * @param context the context
+	 */
+	protected void scheduleStateActions(StateContext<S, E> context) {
+		if (stateActions == null) {
+			return;
+		}
+		for (Action<S, E> action : stateActions) {
+			ScheduledFuture<?> future = scheduleAction(action, context);
+			if (future != null) {
+				cancellableActions.add(future);
+			}
+		}
+	}
+
+	/**
+	 * Schedule action and return future which can be used to cancel it.
+	 *
+	 * @param action the action
+	 * @param context the context
+	 * @return the scheduled future
+	 */
+	protected ScheduledFuture<?> scheduleAction(final Action<S, E> action, final StateContext<S, E> context) {
+		TaskScheduler taskScheduler = getTaskScheduler();
+		if (taskScheduler == null) {
+			log.error("Unable to schedule action as taskSchedule is not set, action=[" + action + "]");
+			return null;
+		}
+		ScheduledFuture<?> future = taskScheduler.schedule(new Runnable() {
+
+			@Override
+			public void run() {
+				action.execute(context);
+			}
+		}, new Date());
+		return future;
+	}
+
+	@Override
+	public String toString() {
+		return "AbstractState [id=" + id + ", pseudoState=" + pseudoState + ", deferred=" + deferred + ", entryActions="
+				+ entryActions + ", exitActions=" + exitActions + ", stateActions=" + stateActions + ", regions="
+				+ regions + ", submachine=" + submachine + "]";
+	}
 }

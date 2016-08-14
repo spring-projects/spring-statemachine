@@ -84,9 +84,23 @@ public class ObjectStateMachineFactory<S, E> extends AbstractStateMachineFactory
 	}
 
 	@Override
-	protected State<S, E> buildStateInternal(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions,
-			Collection<? extends Action<S, E>> exitActions, PseudoState<S, E> pseudoState) {
-		return new ObjectState<S, E>(id, deferred, entryActions, exitActions, pseudoState);
+	protected State<S, E> buildStateInternal(S id, Collection<E> deferred,
+			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
+			Collection<? extends Action<S, E>> stateActions, PseudoState<S, E> pseudoState) {
+		ObjectState<S,E> objectState = new ObjectState<S, E>(id, deferred, entryActions, exitActions, stateActions, pseudoState, null, null);
+		BeanFactory beanFactory = resolveBeanFactory();
+		if (beanFactory != null) {
+			objectState.setBeanFactory(beanFactory);
+		}
+		TaskExecutor taskExecutor = resolveTaskExecutor();
+		if (taskExecutor != null) {
+			objectState.setTaskExecutor(taskExecutor);
+		}
+		TaskScheduler taskScheduler = resolveTaskScheduler();
+		if (taskScheduler != null) {
+			objectState.setTaskScheduler(taskScheduler);
+		}
+		return objectState;
 	}
 
 	@Override

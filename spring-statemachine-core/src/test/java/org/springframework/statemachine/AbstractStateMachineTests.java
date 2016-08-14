@@ -18,6 +18,7 @@ package org.springframework.statemachine;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -165,6 +166,8 @@ public abstract class AbstractStateMachineTests {
 
 		long sleep;
 		long now;
+		public AtomicBoolean interrupted = new AtomicBoolean(false);
+		public CountDownLatch interruptedLatch = new CountDownLatch(1);
 
 		public TestSleepAction(long sleep) {
 			super();
@@ -178,6 +181,9 @@ public abstract class AbstractStateMachineTests {
 				try {
 					Thread.sleep(sleep);
 				} catch (InterruptedException e) {
+					System.out.println("XXXXX " + e);
+					interrupted.set(true);
+					interruptedLatch.countDown();
 				}
 			}
 			super.execute(context);

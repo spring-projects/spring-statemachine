@@ -121,6 +121,24 @@ public class ObjectState<S, E> extends AbstractSimpleState<S, E> {
 		super(id, deferred, entryActions, exitActions, pseudoState, submachine);
 	}
 
+	/**
+	 * Instantiates a new object state.
+	 *
+	 * @param id the id
+	 * @param deferred the deferred
+	 * @param entryActions the entry actions
+	 * @param exitActions the exit actions
+	 * @param stateActions the state actions
+	 * @param pseudoState the pseudo state
+	 * @param regions the regions
+	 * @param submachine the submachine
+	 */
+	public ObjectState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions,
+			Collection<? extends Action<S, E>> exitActions, Collection<? extends Action<S, E>> stateActions,
+			PseudoState<S, E> pseudoState, Collection<Region<S, E>> regions, StateMachine<S, E> submachine) {
+		super(id, deferred, entryActions, exitActions, stateActions, pseudoState, regions, submachine);
+	}
+
 	@Override
 	public void exit(StateContext<S, E> context) {
 		super.exit(context);

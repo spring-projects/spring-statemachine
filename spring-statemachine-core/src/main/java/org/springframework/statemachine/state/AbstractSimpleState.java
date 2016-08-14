@@ -127,6 +127,26 @@ public abstract class AbstractSimpleState<S, E> extends AbstractState<S, E> {
 		this.ids.add(id);
 	}
 
+	/**
+	 * Instantiates a new abstract simple state.
+	 *
+	 * @param id the id
+	 * @param deferred the deferred
+	 * @param entryActions the entry actions
+	 * @param exitActions the exit actions
+	 * @param stateActions the state actions
+	 * @param pseudoState the pseudo state
+	 * @param regions the regions
+	 * @param submachine the submachine
+	 */
+	public AbstractSimpleState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions,
+			Collection<? extends Action<S, E>> exitActions, Collection<? extends Action<S, E>> stateActions,
+			PseudoState<S, E> pseudoState, Collection<Region<S, E>> regions, StateMachine<S, E> submachine) {
+		super(id, deferred, entryActions, exitActions, stateActions, pseudoState, regions, submachine);
+		this.ids = new ArrayList<S>();
+		this.ids.add(id);
+	}
+
 	@Override
 	public Collection<S> getIds() {
 		return Collections.unmodifiableCollection(ids);

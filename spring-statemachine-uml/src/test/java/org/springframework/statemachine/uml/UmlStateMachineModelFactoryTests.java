@@ -658,6 +658,24 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21", "S31"));
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleStateActions() throws Exception {
+		context.register(Config22.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		LatchAction e1Action = context.getBean("e1Action", LatchAction.class);
+		LatchAction e2Action = context.getBean("e2Action", LatchAction.class);
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent("E1");
+		assertThat(e1Action.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
+		stateMachine.sendEvent("E2");
+		assertThat(e2Action.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S3"));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config2 extends StateMachineConfigurerAdapter<String, String> {
@@ -1065,6 +1083,33 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		@Bean
 		public StateMachineModelFactory<String, String> modelFactory() {
 			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/uml/simple-submachineref.uml");
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config22 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/uml/simple-state-actions.uml");
+		}
+
+		@Bean
+		public LatchAction e1Action() {
+			return new LatchAction();
+		}
+
+		@Bean
+		public LatchAction e2Action() {
+			return new LatchAction();
 		}
 	}
 

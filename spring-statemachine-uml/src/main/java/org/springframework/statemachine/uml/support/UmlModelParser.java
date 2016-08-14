@@ -438,6 +438,26 @@ public class UmlModelParser {
 				}
 			}
 		}
+		if (state.getDoActivity() instanceof OpaqueBehavior) {
+			String beanId = UmlUtils.resolveBodyByLanguage(LANGUAGE_BEAN, (OpaqueBehavior)state.getDoActivity());
+			if (StringUtils.hasText(beanId)) {
+				Action<String, String> bean = resolver.resolveAction(beanId);
+				if (bean != null) {
+					ArrayList<Action<String, String>> stateActions = new ArrayList<Action<String, String>>();
+					stateActions.add(bean);
+					stateData.setStateActions(stateActions);
+				}
+			} else {
+				String expression = UmlUtils.resolveBodyByLanguage(LANGUAGE_SPEL, (OpaqueBehavior)state.getDoActivity());
+				if (StringUtils.hasText(expression)) {
+					SpelExpressionParser parser = new SpelExpressionParser(
+							new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
+					ArrayList<Action<String, String>> stateActions = new ArrayList<Action<String, String>>();
+					stateActions.add(new SpelExpressionAction<String, String>(parser.parseExpression(expression)));
+					stateData.setExitActions(stateActions);
+				}
+			}
+		}
 		if (state.getEntry() instanceof Activity) {
 			String beanId = ((Activity)state.getEntry()).getName();
 			Action<String, String> bean = resolver.resolveAction(beanId);
@@ -454,6 +474,15 @@ public class UmlModelParser {
 				ArrayList<Action<String, String>> exits = new ArrayList<Action<String, String>>();
 				exits.add(bean);
 				stateData.setExitActions(exits);
+			}
+		}
+		if (state.getDoActivity() instanceof Activity) {
+			String beanId = ((Activity)state.getDoActivity()).getName();
+			Action<String, String> bean = resolver.resolveAction(beanId);
+			if (bean != null) {
+				ArrayList<Action<String, String>> stateActions = new ArrayList<Action<String, String>>();
+				stateActions.add(bean);
+				stateData.setStateActions(stateActions);
 			}
 		}
 		return stateData;
