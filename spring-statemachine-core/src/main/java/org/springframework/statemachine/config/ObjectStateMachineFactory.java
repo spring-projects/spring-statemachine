@@ -16,6 +16,7 @@
 package org.springframework.statemachine.config;
 
 import java.util.Collection;
+import java.util.UUID;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanNameAware;
@@ -56,12 +57,12 @@ public class ObjectStateMachineFactory<S, E> extends AbstractStateMachineFactory
 
 	@Override
 	protected StateMachine<S, E> buildStateMachineInternal(Collection<State<S, E>> states,
-			Collection<Transition<S, E>> transitions, State<S, E> initialState, Transition<S, E> initialTransition,
-			Message<E> initialEvent, ExtendedState extendedState, PseudoState<S, E> historyState,
-			Boolean contextEventsEnabled, BeanFactory beanFactory, TaskExecutor taskExecutor,
-			TaskScheduler taskScheduler, String beanName, String machineId) {
+														   Collection<Transition<S, E>> transitions, State<S, E> initialState, Transition<S, E> initialTransition,
+														   Message<E> initialEvent, ExtendedState extendedState, PseudoState<S, E> historyState,
+														   Boolean contextEventsEnabled, BeanFactory beanFactory, TaskExecutor taskExecutor,
+														   TaskScheduler taskScheduler, String beanName, String machineId, UUID uuid) {
 		ObjectStateMachine<S, E> machine = new ObjectStateMachine<S, E>(states, transitions, initialState, initialTransition, initialEvent,
-				extendedState);
+				extendedState, uuid);
 		machine.setId(machineId);
 		machine.setHistoryState(historyState);
 		if (contextEventsEnabled != null) {

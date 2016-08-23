@@ -15,14 +15,6 @@
  */
 package org.springframework.statemachine.support;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
@@ -42,14 +34,7 @@ import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.region.Region;
-import org.springframework.statemachine.state.AbstractState;
-import org.springframework.statemachine.state.ForkPseudoState;
-import org.springframework.statemachine.state.HistoryPseudoState;
-import org.springframework.statemachine.state.PseudoState;
-import org.springframework.statemachine.state.PseudoStateContext;
-import org.springframework.statemachine.state.PseudoStateKind;
-import org.springframework.statemachine.state.PseudoStateListener;
-import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.state.*;
 import org.springframework.statemachine.support.StateMachineExecutor.StateMachineExecutorTransit;
 import org.springframework.statemachine.transition.InitialTransition;
 import org.springframework.statemachine.transition.Transition;
@@ -58,6 +43,8 @@ import org.springframework.statemachine.trigger.DefaultTriggerContext;
 import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import java.util.*;
 
 /**
  * Base implementation of a {@link StateMachine} loosely modelled from UML state
@@ -104,7 +91,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	private Boolean initialEnabled = null;
 
-	private UUID uuid = UUID.randomUUID();
+	private final UUID uuid;
 
 	private String id;
 
@@ -134,7 +121,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	 */
 	public AbstractStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
 			State<S, E> initialState, ExtendedState extendedState) {
-		this(states, transitions, initialState, null, null, extendedState);
+		this(states, transitions, initialState, null, null, extendedState, null);
 	}
 
 	/**
@@ -148,8 +135,10 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	 * @param extendedState the extended state of this machine
 	 */
 	public AbstractStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
-			State<S, E> initialState, Transition<S, E> initialTransition, Message<E> initialEvent, ExtendedState extendedState) {
+			State<S, E> initialState, Transition<S, E> initialTransition, Message<E> initialEvent,
+								ExtendedState extendedState, UUID uuid) {
 		super();
+		this.uuid = uuid == null ? UUID.randomUUID() : uuid;
 		this.states = states;
 		this.transitions = transitions;
 		this.initialState = initialState;
