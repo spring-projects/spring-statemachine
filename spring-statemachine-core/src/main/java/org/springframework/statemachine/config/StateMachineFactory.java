@@ -17,6 +17,8 @@ package org.springframework.statemachine.config;
 
 import org.springframework.statemachine.StateMachine;
 
+import java.util.UUID;
+
 /**
  * {@code StateMachineFactory} is a strategy interface building {@link StateMachine}s.
  *
@@ -42,4 +44,13 @@ public interface StateMachineFactory<S, E> {
 	 * @return a new state machine instance.
 	 */
 	StateMachine<S, E> getStateMachine(String machineId);
+
+	/**
+	 * Build a new {@link StateMachine} instance
+	 * with a given machine uuid.
+	 *
+	 * @param uuid to be used internally
+	 * @return a new state machine instance.
+	 */
+	StateMachine<S, E> getStateMachine(UUID uuid);
 }

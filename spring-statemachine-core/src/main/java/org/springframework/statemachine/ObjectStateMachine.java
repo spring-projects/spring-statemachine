@@ -15,12 +15,13 @@
  */
 package org.springframework.statemachine;
 
-import java.util.Collection;
-
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.AbstractStateMachine;
 import org.springframework.statemachine.transition.Transition;
+
+import java.util.Collection;
+import java.util.UUID;
 
 /**
  * Specialisation of a {@link StateMachine} using objects
@@ -54,11 +55,12 @@ public class ObjectStateMachine<S, E> extends AbstractStateMachine<S, E> {
 	 * @param initialTransition the initial transition
 	 * @param initialEvent the initial event
 	 * @param extendedState the extended state
+	 * @param uuid the given uuid.
 	 */
 	public ObjectStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
 			State<S, E> initialState, Transition<S, E> initialTransition,
-			Message<E> initialEvent, ExtendedState extendedState) {
-		super(states, transitions, initialState, initialTransition, initialEvent, extendedState);
+			Message<E> initialEvent, ExtendedState extendedState, UUID uuid) {
+		super(states, transitions, initialState, initialTransition, initialEvent, extendedState, uuid);
 	}
 
 }

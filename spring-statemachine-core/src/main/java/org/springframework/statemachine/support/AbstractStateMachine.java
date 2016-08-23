@@ -15,14 +15,6 @@
  */
 package org.springframework.statemachine.support;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
@@ -58,6 +50,14 @@ import org.springframework.statemachine.trigger.DefaultTriggerContext;
 import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Base implementation of a {@link StateMachine} loosely modelled from UML state
@@ -104,7 +104,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	private Boolean initialEnabled = null;
 
-	private UUID uuid = UUID.randomUUID();
+	private final UUID uuid;
 
 	private String id;
 
@@ -134,7 +134,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	 */
 	public AbstractStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
 			State<S, E> initialState, ExtendedState extendedState) {
-		this(states, transitions, initialState, null, null, extendedState);
+		this(states, transitions, initialState, null, null, extendedState, null);
 	}
 
 	/**
@@ -146,10 +146,13 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	 * @param initialTransition the initial transition
 	 * @param initialEvent the initial event of this machine
 	 * @param extendedState the extended state of this machine
+	 * @param uuid the given uuid for this machine
 	 */
 	public AbstractStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
-			State<S, E> initialState, Transition<S, E> initialTransition, Message<E> initialEvent, ExtendedState extendedState) {
+			State<S, E> initialState, Transition<S, E> initialTransition, Message<E> initialEvent,
+								ExtendedState extendedState, UUID uuid) {
 		super();
+		this.uuid = uuid == null ? UUID.randomUUID() : uuid;
 		this.states = states;
 		this.transitions = transitions;
 		this.initialState = initialState;
@@ -185,10 +188,16 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		return extendedState;
 	}
 
+	/**
+	 * @param history to set internal history state.
+	 */
 	public void setHistoryState(PseudoState<S, E> history) {
 		this.history = history;
 	}
 
+	/**
+	 * @return history state attribute.
+	 */
 	public PseudoState<S, E> getHistoryState() {
 		return history;
 	}

@@ -15,6 +15,16 @@
  */
 package org.springframework.statemachine.config;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+import java.util.UUID;
+import java.util.Map.Entry;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.BeanFactory;
@@ -45,27 +55,27 @@ import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.security.StateMachineSecurityInterceptor;
 import org.springframework.statemachine.state.AbstractState;
 import org.springframework.statemachine.state.ChoicePseudoState;
-import org.springframework.statemachine.state.ChoicePseudoState.ChoiceStateData;
 import org.springframework.statemachine.state.DefaultPseudoState;
 import org.springframework.statemachine.state.EntryPseudoState;
 import org.springframework.statemachine.state.ExitPseudoState;
 import org.springframework.statemachine.state.ForkPseudoState;
 import org.springframework.statemachine.state.HistoryPseudoState;
 import org.springframework.statemachine.state.JoinPseudoState;
-import org.springframework.statemachine.state.JoinPseudoState.JoinStateData;
 import org.springframework.statemachine.state.JunctionPseudoState;
-import org.springframework.statemachine.state.JunctionPseudoState.JunctionStateData;
 import org.springframework.statemachine.state.PseudoState;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.RegionState;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.state.StateHolder;
 import org.springframework.statemachine.state.StateMachineState;
+import org.springframework.statemachine.state.ChoicePseudoState.ChoiceStateData;
+import org.springframework.statemachine.state.JoinPseudoState.JoinStateData;
+import org.springframework.statemachine.state.JunctionPseudoState.JunctionStateData;
 import org.springframework.statemachine.support.DefaultExtendedState;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
 import org.springframework.statemachine.support.tree.Tree;
-import org.springframework.statemachine.support.tree.Tree.Node;
 import org.springframework.statemachine.support.tree.TreeTraverser;
+import org.springframework.statemachine.support.tree.Tree.Node;
 import org.springframework.statemachine.transition.DefaultExternalTransition;
 import org.springframework.statemachine.transition.DefaultInternalTransition;
 import org.springframework.statemachine.transition.InitialTransition;
@@ -76,15 +86,6 @@ import org.springframework.statemachine.trigger.TimerTrigger;
 import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Stack;
 
 /**
  * Base {@link StateMachineFactory} implementation building {@link StateMachine}s.
@@ -124,12 +125,28 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 	@Override
 	public StateMachine<S, E> getStateMachine() {
-		return getStateMachine(null);
+		return getStateMachine(null, null);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public StateMachine<S, E> getStateMachine(String machineId) {
+		return getStateMachine(null, machineId);
+	}
+
+	@Override
+	public StateMachine<S, E> getStateMachine(UUID uuid) {
+		return getStateMachine(uuid, null);
+	}
+
+	/**
+	 * Main constructor that create a {@link StateMachine}.
+	 *
+	 * @param uuid for internal usage. Can be null, in that case a random one will be generated.
+	 * @param machineId represent a user Id, up to you to set what you want.
+	 * @return a {@link StateMachine}
+	 */
+	@SuppressWarnings("unchecked")
+	public StateMachine<S, E> getStateMachine(UUID uuid, String machineId) {
 		if (stateMachineModel.getConfigurationData().isVerifierEnabled()) {
 			StateMachineModelVerifier<S, E> verifier = stateMachineModel.getConfigurationData().getVerifier();
 			if (verifier == null) {
@@ -189,7 +206,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 				for (Collection<StateData<S, E>> regionStateDatas : regionsStateDatas) {
 					machine = buildMachine(machineMap, stateMap, holderMap, regionStateDatas, transitionsData, resolveBeanFactory(),
 							contextEvents, defaultExtendedState, stateMachineModel.getTransitionsData(), resolveTaskExecutor(),
-							resolveTaskScheduler(), machineId);
+							resolveTaskScheduler(), machineId, null);
 					regionStack.push(new MachineStackItem<S, E>(machine));
 				}
 
@@ -211,13 +228,14 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 					StateMachine<S, E> m = buildStateMachineInternal(states, new ArrayList<Transition<S, E>>(), rstate, initialTransition,
 							null, defaultExtendedState, null, contextEvents, resolveBeanFactory(), resolveTaskExecutor(),
 							resolveTaskScheduler(), beanName,
-							machineId != null ? machineId : stateMachineModel.getConfigurationData().getMachineId());
+							machineId != null ? machineId : stateMachineModel.getConfigurationData().getMachineId(),
+							uuid);
 					machine = m;
 				}
 			} else {
 				machine = buildMachine(machineMap, stateMap, holderMap, stateDatas, transitionsData, resolveBeanFactory(), contextEvents,
 						defaultExtendedState, stateMachineModel.getTransitionsData(), resolveTaskExecutor(), resolveTaskScheduler(),
-						machineId);
+						machineId, uuid);
 				if (peek.isInitial() || (!peek.isInitial() && !machineMap.containsKey(peek.getParent()))) {
 					machineMap.put(peek.getParent(), machine);
 				}
@@ -418,7 +436,8 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 	private StateMachine<S, E> buildMachine(Map<Object, StateMachine<S, E>> machineMap, Map<S, State<S, E>> stateMap,
 			Map<S, StateHolder<S, E>> holderMap, Collection<StateData<S, E>> stateDatas, Collection<TransitionData<S, E>> transitionsData,
 			BeanFactory beanFactory, Boolean contextEvents, DefaultExtendedState defaultExtendedState,
-			TransitionsData<S, E> stateMachineTransitions, TaskExecutor taskExecutor, TaskScheduler taskScheduler, String machineId) {
+			TransitionsData<S, E> stateMachineTransitions, TaskExecutor taskExecutor, TaskScheduler taskScheduler, String machineId,
+											UUID uuid) {
 		State<S, E> state = null;
 		State<S, E> initialState = null;
 		PseudoState<S, E> historyState = null;
@@ -725,15 +744,22 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		Transition<S, E> initialTransition = new InitialTransition<S, E>(initialState, initialAction);
 		StateMachine<S, E> machine = buildStateMachineInternal(states, transitions, initialState, initialTransition,
 				null, defaultExtendedState, historyState, contextEvents, beanFactory, taskExecutor, taskScheduler,
-				beanName, machineId != null ? machineId : stateMachineModel.getConfigurationData().getMachineId());
+				beanName, machineId != null ? machineId : stateMachineModel.getConfigurationData().getMachineId(), uuid);
 		return machine;
 	}
 
 	protected abstract StateMachine<S, E> buildStateMachineInternal(Collection<State<S, E>> states,
-			Collection<Transition<S, E>> transitions, State<S, E> initialState, Transition<S, E> initialTransition,
-			Message<E> initialEvent, ExtendedState extendedState, PseudoState<S, E> historyState,
-			Boolean contextEventsEnabled, BeanFactory beanFactory, TaskExecutor taskExecutor,
-			TaskScheduler taskScheduler, String beanName, String machineId);
+																	Collection<Transition<S, E>> transitions,
+																	State<S, E> initialState, Transition<S, E> initialTransition,
+																	Message<E> initialEvent, ExtendedState extendedState,
+																	PseudoState<S, E> historyState,
+																	Boolean contextEventsEnabled,
+																	BeanFactory beanFactory,
+																	TaskExecutor taskExecutor,
+																	TaskScheduler taskScheduler,
+																	String beanName,
+																	String machineId,
+																	UUID uuid);
 
 	protected abstract State<S, E> buildStateInternal(S id, Collection<E> deferred,
 			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
