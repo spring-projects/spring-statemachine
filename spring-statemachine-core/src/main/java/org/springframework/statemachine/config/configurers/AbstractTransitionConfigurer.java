@@ -15,9 +15,6 @@
  */
 package org.springframework.statemachine.config.configurers;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.builders.StateMachineTransitionBuilder;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
@@ -26,6 +23,9 @@ import org.springframework.statemachine.config.model.TransitionsData;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.security.SecurityRule.ComparisonType;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Base class for transition configurers.
@@ -47,6 +47,7 @@ public abstract class AbstractTransitionConfigurer<S, E> extends
 	private final Collection<Action<S, E>> actions = new ArrayList<Action<S, E>>();
 	private Guard<S, E> guard;
 	private SecurityRule securityRule;
+	private Action<S, E> errorAction;
 
 	protected S getSource() {
 		return source;
@@ -114,6 +115,14 @@ public abstract class AbstractTransitionConfigurer<S, E> extends
 
 	protected void setGuard(Guard<S, E> guard) {
 		this.guard = guard;
+	}
+
+	public Action<S, E> getErrorAction() {
+		return errorAction;
+	}
+
+	public void setErrorAction(Action<S, E> errorAction) {
+		this.errorAction = errorAction;
 	}
 
 	protected void setSecurityRule(String attributes, ComparisonType match) {

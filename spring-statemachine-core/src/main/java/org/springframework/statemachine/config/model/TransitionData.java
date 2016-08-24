@@ -15,12 +15,12 @@
  */
 package org.springframework.statemachine.config.model;
 
-import java.util.Collection;
-
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.transition.TransitionKind;
+
+import java.util.Collection;
 
 /**
  * A simple data object keeping transition related configs in a same place.
@@ -39,6 +39,7 @@ public class TransitionData<S, E> {
 	private final Guard<S, E> guard;
 	private final TransitionKind kind;
 	private final SecurityRule securityRule;
+	private final Action<S, E> errorAction;
 
 	/**
 	 * Instantiates a new transition data.
@@ -48,7 +49,7 @@ public class TransitionData<S, E> {
 	 * @param event the event
 	 */
 	public TransitionData(S source, S target, E event) {
-		this(source, target, null, event, null, null, null, null, TransitionKind.EXTERNAL, null);
+		this(source, target, null, event, null, null, null, null, TransitionKind.EXTERNAL, null, null);
 	}
 
 	/**
@@ -63,7 +64,7 @@ public class TransitionData<S, E> {
 	 */
 	public TransitionData(S source, S target, E event, Collection<Action<S, E>> actions,
 			Guard<S, E> guard, TransitionKind kind) {
-		this(source, target, null, event, null, null, actions, guard, kind, null);
+		this(source, target, null, event, null, null, actions, guard, kind, null, null);
 	}
 
 	/**
@@ -79,7 +80,7 @@ public class TransitionData<S, E> {
 	 */
 	public TransitionData(S source, S target, Long period, Integer count, Collection<Action<S, E>> actions,
 			Guard<S, E> guard, TransitionKind kind) {
-		this(source, target, null, null, period, count, actions, guard, kind, null);
+		this(source, target, null, null, period, count, actions, guard, kind, null, null);
 	}
 
 	/**
@@ -97,7 +98,7 @@ public class TransitionData<S, E> {
 	 * @param securityRule the security rule
 	 */
 	public TransitionData(S source, S target, S state, E event, Long period, Integer count, Collection<Action<S, E>> actions,
-			Guard<S, E> guard, TransitionKind kind, SecurityRule securityRule) {
+			Guard<S, E> guard, TransitionKind kind, SecurityRule securityRule, Action<S, E> errorAction) {
 		this.source = source;
 		this.target = target;
 		this.state = state;
@@ -108,6 +109,7 @@ public class TransitionData<S, E> {
 		this.guard = guard;
 		this.kind = kind;
 		this.securityRule = securityRule;
+		this.errorAction = errorAction;
 	}
 
 	/**
@@ -198,5 +200,9 @@ public class TransitionData<S, E> {
 	 */
 	public SecurityRule getSecurityRule() {
 		return securityRule;
+	}
+
+	public Action<S, E> getErrorAction() {
+		return errorAction;
 	}
 }

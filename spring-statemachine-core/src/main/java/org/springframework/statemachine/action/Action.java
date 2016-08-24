@@ -34,5 +34,4 @@ public interface Action<S, E> {
 	 * @param context the state context
 	 */
 	void execute(StateContext<S, E> context);
-
 }

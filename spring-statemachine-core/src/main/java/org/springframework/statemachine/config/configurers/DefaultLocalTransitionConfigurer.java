@@ -38,7 +38,7 @@ public class DefaultLocalTransitionConfigurer<S, E> extends AbstractTransitionCo
 	@Override
 	public void configure(StateMachineTransitionBuilder<S, E> builder) throws Exception {
 		builder.addTransition(getSource(), getTarget(), getState(), getEvent(), getPeriod(), getCount(), getActions(), getGuard(), TransitionKind.LOCAL,
-				getSecurityRule());
+				getSecurityRule(), getErrorAction());
 	}
 
 	@Override
@@ -80,7 +80,13 @@ public class DefaultLocalTransitionConfigurer<S, E> extends AbstractTransitionCo
 
 	@Override
 	public LocalTransitionConfigurer<S, E> action(Action<S, E> action) {
+		return action(action, null);
+	}
+
+	@Override
+	public LocalTransitionConfigurer<S, E> action(Action<S, E> action, Action<S, E> error) {
 		addAction(action);
+		setErrorAction(error);
 		return this;
 	}
 

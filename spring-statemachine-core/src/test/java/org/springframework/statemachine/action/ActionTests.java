@@ -15,10 +15,6 @@
  */
 package org.springframework.statemachine.action;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -34,6 +30,10 @@ import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for state machine actions.
@@ -54,13 +54,18 @@ public class ActionTests extends AbstractStateMachineTests {
 
 		TestCountAction testAction1 = ctx.getBean("testAction1", TestCountAction.class);
 		TestCountAction testAction2 = ctx.getBean("testAction2", TestCountAction.class);
-		TestCountAction testAction3 = ctx.getBean("testAction3", TestCountAction.class);
+        TestCountAction testAction3 = ctx.getBean("testAction3", TestCountAction.class);
+        TestCountAction testAction4 = ctx.getBean("testAction4", TestCountAction.class);
+        TestCountAction testErrorAction = ctx.getBean("testErrorAction", TestCountAction.class);
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E2).build());
-		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E3).build());
+        machine.sendEvent(MessageBuilder.withPayload(TestEvents.E3).build());
+        machine.sendEvent(MessageBuilder.withPayload(TestEvents.E4).build());
 		assertThat(testAction1.count, is(1));
 		assertThat(testAction2.count, is(1));
-		assertThat(testAction3.count, is(1));
+        assertThat(testAction3.count, is(1));
+        assertThat(testAction4.count, is(0));
+        assertThat(testErrorAction.count, is(1));
 		ctx.close();
 	}
 
@@ -95,8 +100,9 @@ public class ActionTests extends AbstractStateMachineTests {
 					.initial(TestStates.S1)
 					.state(TestStates.S1)
 					.state(TestStates.S2)
-					.state(TestStates.S3)
-					.state(TestStates.S4);
+                    .state(TestStates.S3)
+					.state(TestStates.S4)
+					.state(TestStates.S10);
 		}
 
 		@Override
@@ -118,7 +124,13 @@ public class ActionTests extends AbstractStateMachineTests {
 					.source(TestStates.S3)
 					.target(TestStates.S4)
 					.event(TestEvents.E3)
-					.action(testAction3());
+					.action(testAction3())
+                    .and()
+				.withExternal()
+                    .source(TestStates.S4)
+                    .target(TestStates.S10)
+                    .event(TestEvents.E4)
+                    .action(testAction4(), testErrorAction());
 		}
 
 		@Bean
@@ -131,8 +143,23 @@ public class ActionTests extends AbstractStateMachineTests {
 			return new TestCountAction();
 		}
 
-		@Bean
-		public TestCountAction testAction3() {
+        @Bean
+        public TestCountAction testAction3() {
+            return new TestCountAction();
+        }
+
+        @Bean
+        public TestCountAction testAction4() {
+            return new TestCountAction() {
+                @Override
+                public void execute(StateContext<TestStates, TestEvents> context) {
+                    throw new RuntimeException("Fake Error");
+                }
+            };
+        }
+
+        @Bean
+		public TestCountAction testErrorAction() {
 			return new TestCountAction();
 		}
 

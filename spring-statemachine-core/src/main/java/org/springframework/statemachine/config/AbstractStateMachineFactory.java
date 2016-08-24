@@ -15,15 +15,6 @@
  */
 package org.springframework.statemachine.config;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Stack;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.BeanFactory;
@@ -37,54 +28,31 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.action.Action;
-import org.springframework.statemachine.config.model.ChoiceData;
-import org.springframework.statemachine.config.model.EntryData;
-import org.springframework.statemachine.config.model.ExitData;
-import org.springframework.statemachine.config.model.HistoryData;
-import org.springframework.statemachine.config.model.JunctionData;
-import org.springframework.statemachine.config.model.StateData;
-import org.springframework.statemachine.config.model.StateMachineModel;
-import org.springframework.statemachine.config.model.TransitionData;
-import org.springframework.statemachine.config.model.TransitionsData;
+import org.springframework.statemachine.config.model.*;
 import org.springframework.statemachine.config.model.verifier.CompositeStateMachineModelVerifier;
 import org.springframework.statemachine.config.model.verifier.StateMachineModelVerifier;
 import org.springframework.statemachine.ensemble.DistributedStateMachine;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.security.StateMachineSecurityInterceptor;
-import org.springframework.statemachine.state.AbstractState;
-import org.springframework.statemachine.state.ChoicePseudoState;
+import org.springframework.statemachine.state.*;
 import org.springframework.statemachine.state.ChoicePseudoState.ChoiceStateData;
-import org.springframework.statemachine.state.DefaultPseudoState;
-import org.springframework.statemachine.state.EntryPseudoState;
-import org.springframework.statemachine.state.ExitPseudoState;
-import org.springframework.statemachine.state.ForkPseudoState;
-import org.springframework.statemachine.state.HistoryPseudoState;
-import org.springframework.statemachine.state.JoinPseudoState;
 import org.springframework.statemachine.state.JoinPseudoState.JoinStateData;
-import org.springframework.statemachine.state.JunctionPseudoState;
 import org.springframework.statemachine.state.JunctionPseudoState.JunctionStateData;
-import org.springframework.statemachine.state.PseudoState;
-import org.springframework.statemachine.state.PseudoStateKind;
-import org.springframework.statemachine.state.RegionState;
-import org.springframework.statemachine.state.State;
-import org.springframework.statemachine.state.StateHolder;
-import org.springframework.statemachine.state.StateMachineState;
 import org.springframework.statemachine.support.DefaultExtendedState;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
 import org.springframework.statemachine.support.tree.Tree;
 import org.springframework.statemachine.support.tree.Tree.Node;
 import org.springframework.statemachine.support.tree.TreeTraverser;
-import org.springframework.statemachine.transition.DefaultExternalTransition;
-import org.springframework.statemachine.transition.DefaultInternalTransition;
-import org.springframework.statemachine.transition.InitialTransition;
-import org.springframework.statemachine.transition.Transition;
-import org.springframework.statemachine.transition.TransitionKind;
+import org.springframework.statemachine.transition.*;
 import org.springframework.statemachine.trigger.EventTrigger;
 import org.springframework.statemachine.trigger.TimerTrigger;
 import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Base {@link StateMachineFactory} implementation building {@link StateMachine}s.
@@ -694,13 +662,13 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 				}
 				DefaultExternalTransition<S, E> transition = new DefaultExternalTransition<S, E>(stateMap.get(source),
 						stateMap.get(target), transitionData.getActions(), event, transitionData.getGuard(), trigger,
-						transitionData.getSecurityRule());
+						transitionData.getSecurityRule(), transitionData.getErrorAction());
 				transitions.add(transition);
 
 			} else if (transitionData.getKind() == TransitionKind.INTERNAL) {
 				DefaultInternalTransition<S, E> transition = new DefaultInternalTransition<S, E>(stateMap.get(source),
 						transitionData.getActions(), event, transitionData.getGuard(), trigger,
-						transitionData.getSecurityRule());
+						transitionData.getSecurityRule(), transitionData.getErrorAction());
 				transitions.add(transition);
 			}
 		}
@@ -714,7 +682,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 						if (source != null && !source.isOrthogonal()) {
 							State<S, E> target = stateMap.get(entry.getKey());
 							DefaultExternalTransition<S, E> transition = new DefaultExternalTransition<S, E>(
-									source, target, null, null, null, null, null);
+									source, target, null, null, null, null, null, null);
 							transitions.add(transition);
 						}
 					}
