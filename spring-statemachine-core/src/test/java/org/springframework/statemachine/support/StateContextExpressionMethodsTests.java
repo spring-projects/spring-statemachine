@@ -15,15 +15,6 @@
  */
 package org.springframework.statemachine.support;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 import org.junit.Test;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -36,6 +27,7 @@ import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.action.Actions;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.EnumState;
@@ -43,6 +35,11 @@ import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionKind;
 import org.springframework.statemachine.trigger.Trigger;
+
+import java.util.*;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class StateContextExpressionMethodsTests {
 
@@ -133,6 +130,10 @@ public class StateContextExpressionMethodsTests {
 			return null;
 		}
 
+		@Override
+		public Action<SpelStates, SpelEvents> getErrorAction() {
+			return Actions.emptyAction();
+		}
 	}
 
 	private static class MockStatemachine implements StateMachine<SpelStates, SpelEvents> {

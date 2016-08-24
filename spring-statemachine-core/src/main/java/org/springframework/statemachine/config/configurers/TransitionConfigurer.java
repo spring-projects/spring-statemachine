@@ -84,6 +84,15 @@ public interface TransitionConfigurer<T, S, E> extends
 	T action(Action<S, E> action);
 
 	/**
+	 * Specify {@link Action} for this {@link Transition}.
+	 *
+	 * @param action the action
+	 * @param error that will be called if any unexpected exception is thrown by the action.
+	 * @return configurer for chaining
+	 */
+	T action(Action<S, E> action, Action<S, E> error);
+
+	/**
 	 * Specify a {@link Guard} for this {@link Transition}.
 	 *
 	 * @param guard the guard

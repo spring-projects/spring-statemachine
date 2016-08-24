@@ -15,13 +15,13 @@
  */
 package org.springframework.statemachine.transition;
 
-import java.util.Collection;
-
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.trigger.Trigger;
+
+import java.util.Collection;
 
 public class DefaultInternalTransition<S, E> extends AbstractInternalTransition<S, E> {
 
@@ -31,8 +31,8 @@ public class DefaultInternalTransition<S, E> extends AbstractInternalTransition<
 	}
 
 	public DefaultInternalTransition(State<S, E> source, Collection<Action<S, E>> actions, E event, Guard<S, E> guard,
-			Trigger<S, E> trigger, SecurityRule securityRule) {
-		super(source, actions, event, guard, trigger, securityRule);
+			Trigger<S, E> trigger, SecurityRule securityRule, Action<S, E> errorAction) {
+		super(source, actions, event, guard, trigger, securityRule, errorAction);
 	}
 
 }

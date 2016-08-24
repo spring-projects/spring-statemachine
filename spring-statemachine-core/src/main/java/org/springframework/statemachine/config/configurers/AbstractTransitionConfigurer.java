@@ -15,9 +15,6 @@
  */
 package org.springframework.statemachine.config.configurers;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.builders.StateMachineTransitionBuilder;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
@@ -26,6 +23,9 @@ import org.springframework.statemachine.config.model.TransitionsData;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.security.SecurityRule.ComparisonType;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Base class for transition configurers.
@@ -44,9 +44,10 @@ public abstract class AbstractTransitionConfigurer<S, E> extends
 	private E event;
 	private Long period;
 	private Integer count;
-	private final Collection<Action<S, E>> actions = new ArrayList<Action<S, E>>();
+	private final Collection<Action<S, E>> actions = new ArrayList<>();
 	private Guard<S, E> guard;
 	private SecurityRule securityRule;
+	private Action<S, E> errorAction;
 
 	protected S getSource() {
 		return source;
@@ -68,6 +69,10 @@ public abstract class AbstractTransitionConfigurer<S, E> extends
 		return period;
 	}
 
+	/**
+	 *
+	 * @return trigger count
+	 */
 	public Integer getCount() {
 		return count;
 	}
@@ -104,6 +109,10 @@ public abstract class AbstractTransitionConfigurer<S, E> extends
 		this.period = period;
 	}
 
+	/**
+	 *
+	 * @param count to set how many time the trigger will be called.
+	 */
 	public void setCount(Integer count) {
 		this.count = count;
 	}
@@ -114,6 +123,22 @@ public abstract class AbstractTransitionConfigurer<S, E> extends
 
 	protected void setGuard(Guard<S, E> guard) {
 		this.guard = guard;
+	}
+
+	/**
+	 *
+	 * @return the Error {@link Action}
+	 */
+	public Action<S, E> getErrorAction() {
+		return errorAction;
+	}
+
+	/**
+	 *
+	 * @param errorAction the {@link Action} that will be called each time an action is gonna throw an exception.
+	 */
+	public void setErrorAction(Action<S, E> errorAction) {
+		this.errorAction = errorAction;
 	}
 
 	protected void setSecurityRule(String attributes, ComparisonType match) {

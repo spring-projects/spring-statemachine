@@ -31,8 +31,8 @@ public class AbstractInternalTransition<S, E> extends AbstractTransition<S, E> i
 	}
 
 	public AbstractInternalTransition(State<S, E> source, Collection<Action<S, E>> actions, E event, Guard<S, E> guard,
-			Trigger<S, E> trigger, SecurityRule securityRule) {
-		super(source, source, actions, event, TransitionKind.INTERNAL, guard, trigger, securityRule);
+			Trigger<S, E> trigger, SecurityRule securityRule, Action<S, E> errorAction) {
+		super(source, source, actions, event, TransitionKind.INTERNAL, guard, trigger, securityRule, errorAction);
 	}
 
 }

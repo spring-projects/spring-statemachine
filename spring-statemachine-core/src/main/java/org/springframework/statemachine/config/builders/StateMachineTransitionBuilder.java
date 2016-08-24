@@ -15,12 +15,6 @@
  */
 package org.springframework.statemachine.config.builders;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.common.annotation.AbstractConfiguredAnnotationBuilder;
 import org.springframework.statemachine.config.common.annotation.AnnotationBuilder;
@@ -56,6 +50,12 @@ import org.springframework.statemachine.config.model.TransitionsData;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.transition.TransitionKind;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * {@link AnnotationBuilder} for {@link TransitionsData}.
@@ -108,7 +108,7 @@ public class StateMachineTransitionBuilder<S, E>
 
 	@Override
 	protected TransitionsData<S, E> performBuild() throws Exception {
-		return new TransitionsData<S, E>(transitionData, choices, junctions, forks, joins, entryData, exitData, historyData);
+		return new TransitionsData<>(transitionData, choices, junctions, forks, joins, entryData, exitData, historyData);
 	}
 
 	@Override
@@ -174,16 +174,17 @@ public class StateMachineTransitionBuilder<S, E>
 	 * @param guard the guard
 	 * @param kind the kind
 	 * @param securityRule the security rule
+	 * @param errorAction the {@link Action} that will be called each time an action is gonna throw an exception.
 	 */
 	public void addTransition(S source, S target, S state, E event, Long period, Integer count, Collection<Action<S, E>> actions,
-			Guard<S, E> guard, TransitionKind kind, SecurityRule securityRule) {
+			Guard<S, E> guard, TransitionKind kind, SecurityRule securityRule, Action<S, E> errorAction) {
 		// if rule not given, get it from global
 		if (securityRule == null) {
 			@SuppressWarnings("unchecked")
 			ConfigurationData<S, E> config = getSharedObject(ConfigurationData.class);
 			securityRule = config.getTransitionSecurityRule();
 		}
-		transitionData.add(new TransitionData<S, E>(source, target, state, event, period, count, actions, guard, kind, securityRule));
+		transitionData.add(new TransitionData<>(source, target, state, event, period, count, actions, guard, kind, securityRule, errorAction));
 	}
 
 	/**

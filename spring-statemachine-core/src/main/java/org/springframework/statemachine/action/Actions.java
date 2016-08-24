@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.statemachine.action;
 
 import org.springframework.statemachine.StateContext;
 
 /**
- * Generic strategy interface used by a state machine to respond
- * events by executing an {@code Action} with a {@link StateContext}.
- * 
- * @author Janne Valkealahti
- * 
- * @param <S> the type of state
- * @param <E> the type of event
+ * Action Utilities.
  */
-public interface Action<S, E> {
+public final class Actions {
+
+	private Actions() {
+		// This helper class should not be instantiated.
+	}
 
 	/**
-	 * Execute action with a {@link StateContext}.
 	 *
-	 * @param context the state context
+	 * @param <S> represents states Class
+	 * @param <E> represents event Class
+	 * @return an empty (Noop) Action.
 	 */
-	void execute(StateContext<S, E> context);
+	public static <S, E> Action<S, E> emptyAction() {
+		return new Action<S, E>() {
+			@Override
+			public void execute(final StateContext<S, E> context) {
+				// Nothing to do;
+			}
+		};
+	}
 }

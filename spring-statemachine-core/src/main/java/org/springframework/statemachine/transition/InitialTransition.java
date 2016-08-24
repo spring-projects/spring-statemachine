@@ -15,14 +15,12 @@
  */
 package org.springframework.statemachine.transition;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
-import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
-import org.springframework.statemachine.trigger.Trigger;
+
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * {@link Transition} used during a state machine start.
@@ -32,87 +30,39 @@ import org.springframework.statemachine.trigger.Trigger;
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public class InitialTransition<S, E> implements Transition<S, E> {
-
-	private final State<S, E> target;
-
-	private final Collection<Action<S, E>> actions;
+public class InitialTransition<S, E> extends AbstractTransition<S, E>
+		implements Transition<S, E> {
 
 	/**
-	 * Instantiates a new initial transition.
 	 *
-	 * @param target the initial target state
+	 * @param target state.
 	 */
 	public InitialTransition(State<S, E> target) {
-		this.target = target;
-		this.actions = null;
+		this(target, null);
 	}
 
 	/**
-	 * Instantiates a new initial transition.
 	 *
-	 * @param target the initial target state
-	 * @param action the initial action
+	 * @param target state
+	 * @param action to be executed to succeed for this transition
 	 */
 	public InitialTransition(State<S, E> target, Action<S, E> action) {
-		this.target = target;
-		ArrayList<Action<S,E>> list = new ArrayList<Action<S, E>>();
-		if (action != null) {
-			list.add(action);
-		}
-		this.actions = list;
+		this(target, action == null ? Collections.<Action<S,E>>emptyList(): Collections.singleton(action), null);
 	}
 
 	/**
-	 * Instantiates a new initial transition.
 	 *
-	 * @param target the initial target state
-	 * @param actions the initial actions
+	 * @param target state
+	 * @param actions to be executed to succeed for this transition
+	 * @param errorAction to be executed if one of {@link #getActions()} throw an exception.
 	 */
-	public InitialTransition(State<S, E> target, Collection<Action<S, E>> actions) {
-		this.target = target;
-		this.actions = actions;
+	public InitialTransition(State<S, E> target, Collection<Action<S, E>> actions, Action<S, E> errorAction) {
+		super(target, actions, TransitionKind.INITIAL, errorAction);
 	}
 
 	@Override
 	public boolean transit(StateContext<S, E> context) {
-		if (actions != null) {
-			for (Action<S, E> action : actions) {
-				action.execute(context);
-			}
-		}
+		executeAllActions(context);
 		return false;
 	}
-
-	@Override
-	public State<S, E> getSource() {
-		return null;
-	}
-
-	@Override
-	public State<S, E> getTarget() {
-		return target;
-	}
-
-	@Override
-	public Collection<Action<S, E>> getActions() {
-		return actions;
-	}
-
-	@Override
-	public Trigger<S, E> getTrigger() {
-		return null;
-	}
-
-	@Override
-	public TransitionKind getKind() {
-		return TransitionKind.INITIAL;
-	}
-
-	@Override
-	public SecurityRule getSecurityRule() {
-		// initial cannot have security
-		return null;
-	}
-
 }

@@ -15,13 +15,13 @@
  */
 package org.springframework.statemachine.transition;
 
-import java.util.Collection;
-
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.trigger.Trigger;
+
+import java.util.Collection;
 
 /**
  * {@code Transition} is something what a state machine associates with a state
@@ -62,6 +62,14 @@ public interface Transition<S, E> {
 	 * @return the transition actions
 	 */
 	Collection<Action<S, E>> getActions();
+
+	/**
+	 * Get The action that will be execute if one of {@link #getActions()} throw an exception.
+	 * This action may be usefull if you want to notify another sub system from unexpected technical error.
+	 *
+	 * @return the error {@link Action}
+	 */
+	Action<S, E> getErrorAction();
 
 	/**
 	 * Gets the transition trigger.

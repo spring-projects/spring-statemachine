@@ -15,15 +15,6 @@
  */
 package org.springframework.statemachine.config;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Stack;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.BeanFactory;
@@ -85,6 +76,15 @@ import org.springframework.statemachine.trigger.TimerTrigger;
 import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Stack;
 
 /**
  * Base {@link StateMachineFactory} implementation building {@link StateMachine}s.
@@ -694,13 +694,13 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 				}
 				DefaultExternalTransition<S, E> transition = new DefaultExternalTransition<S, E>(stateMap.get(source),
 						stateMap.get(target), transitionData.getActions(), event, transitionData.getGuard(), trigger,
-						transitionData.getSecurityRule());
+						transitionData.getSecurityRule(), transitionData.getErrorAction());
 				transitions.add(transition);
 
 			} else if (transitionData.getKind() == TransitionKind.INTERNAL) {
 				DefaultInternalTransition<S, E> transition = new DefaultInternalTransition<S, E>(stateMap.get(source),
 						transitionData.getActions(), event, transitionData.getGuard(), trigger,
-						transitionData.getSecurityRule());
+						transitionData.getSecurityRule(), transitionData.getErrorAction());
 				transitions.add(transition);
 			}
 		}
@@ -714,7 +714,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 						if (source != null && !source.isOrthogonal()) {
 							State<S, E> target = stateMap.get(entry.getKey());
 							DefaultExternalTransition<S, E> transition = new DefaultExternalTransition<S, E>(
-									source, target, null, null, null, null, null);
+									source, target, null, null, null, null, null, null);
 							transitions.add(transition);
 						}
 					}

@@ -15,16 +15,6 @@
  */
 package org.springframework.statemachine.config.model;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.junit.Test;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.task.SyncTaskExecutor;
@@ -39,6 +29,12 @@ import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.transition.TransitionKind;
+
+import java.util.*;
+
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.Assert.assertThat;
 
 public class StateMachineModelTests {
 
@@ -72,7 +68,7 @@ public class StateMachineModelTests {
 
 
 		Collection<TransitionData<String, String>> transitions = new ArrayList<>();
-		TransitionData<String, String> transitionData1 = new TransitionData<String, String>("S1", "S2", null, "E1", null, null, null, null, TransitionKind.EXTERNAL, null);
+		TransitionData<String, String> transitionData1 = new TransitionData<String, String>("S1", "S2", null, "E1", null, null, null, null, TransitionKind.EXTERNAL, null, null);
 		transitions.add(transitionData1);
 		Map<String, List<ChoiceData<String, String>>> choices = new HashMap<>();
 		Map<String, List<JunctionData<String, String>>> junctions = new HashMap<>();

@@ -15,17 +15,18 @@
  */
 package org.springframework.statemachine.transition;
 
-import java.util.Collection;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.action.Actions;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.util.Assert;
+
+import java.util.Collection;
 
 /**
  * Base implementation of a {@link Transition}.
@@ -38,12 +39,11 @@ import org.springframework.util.Assert;
 public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 
 	private final static Log log = LogFactory.getLog(AbstractTransition.class);
+	protected final State<S, E> target;
+	protected final Collection<Action<S, E>> actions;
+	protected final Action<S, E> errorAction;
 
-	private final State<S,E> source;
-
-	private final State<S,E> target;
-
-	private final Collection<Action<S, E>> actions;
+	private final State<S, E> source;
 
 	private final TransitionKind kind;
 
@@ -53,37 +53,55 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 
 	private final SecurityRule securityRule;
 
-	public AbstractTransition(State<S, E> source, State<S, E> target, Collection<Action<S, E>> actions, E event,
-			TransitionKind kind, Guard<S, E> guard, Trigger<S, E> trigger) {
-		this(source, target, actions, event, kind, guard, trigger, null);
+	public AbstractTransition(State<S, E> source,
+							  State<S, E> target,
+							  Collection<Action<S, E>> actions,
+							  E event,
+							  TransitionKind kind,
+							  Guard<S, E> guard,
+							  Trigger<S, E> trigger) {
+		this(source, target, actions, event, kind, guard, trigger, null, Actions.<S, E>emptyAction());
 	}
 
-	public AbstractTransition(State<S, E> source, State<S, E> target, Collection<Action<S, E>> actions, E event,
-			TransitionKind kind, Guard<S, E> guard, Trigger<S, E> trigger, SecurityRule securityRule) {
+	public AbstractTransition(State<S, E> source,
+							  State<S, E> target,
+							  Collection<Action<S, E>> actions,
+							  E event,
+							  TransitionKind kind,
+							  Guard<S, E> guard,
+							  Trigger<S, E> trigger,
+							  SecurityRule securityRule,
+							  Action<S, E> errorAction) {
 		Assert.notNull(source, "Source must be set");
 		Assert.notNull(kind, "Transition type must be set");
 		this.source = source;
 		this.target = target;
 		this.actions = actions;
-		this.kind = kind;
+		this.errorAction = errorAction == null
+				? Actions.<S, E> emptyAction()
+				: errorAction;		this.kind = kind;
 		this.guard = guard;
 		this.trigger = trigger;
 		this.securityRule = securityRule;
 	}
 
+	protected AbstractTransition(State<S, E> target, Collection<Action<S, E>> actions, TransitionKind kind, Action<S, E> errorAction) {
+		Assert.notNull(kind, "Transition type must be set");
+		this.source = null;
+		this.target = target;
+		this.actions = actions;
+		this.errorAction = errorAction == null
+				? Actions.<S, E> emptyAction()
+				: errorAction;
+		this.kind = kind;
+		this.guard = null;
+		this.trigger = null;
+		this.securityRule = null;
+	}
+
 	@Override
-	public State<S,E> getSource() {
+	public State<S, E> getSource() {
 		return source;
-	}
-
-	@Override
-	public State<S,E> getTarget() {
-		return target;
-	}
-
-	@Override
-	public Collection<Action<S, E>> getActions() {
-		return actions;
 	}
 
 	@Override
@@ -98,16 +116,14 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 				if (!guard.evaluate(context)) {
 					return false;
 				}
-			} catch (Throwable t) {
+			}
+			catch (Throwable t) {
 				log.warn("Deny guard due to throw as GUARD should not error", t);
 				return false;
 			}
 		}
-		if (actions != null) {
-			for (Action<S, E> action : actions) {
-				action.execute(context);
-			}
-		}
+		executeAllActions(context);
+
 		return true;
 	}
 
@@ -121,4 +137,44 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 		return securityRule;
 	}
 
+	/**
+	 *
+	 * @return the target {@link State}
+	 */
+	public State<S, E> getTarget() {
+		return target;
+	}
+
+	/**
+	 *
+	 * @return all {@link Action}
+	 */
+	public Collection<Action<S, E>> getActions() {
+		return actions;
+	}
+
+	/**
+	 *
+	 * @return the {@link Action} called of any error occurred while actions are executed.
+	 */
+	public Action<S, E> getErrorAction() {
+		return errorAction;
+	}
+
+	protected final void executeAllActions(StateContext<S, E> context) {
+		if (actions == null) {
+			return;
+		}
+
+		for (Action<S, E> action : actions) {
+			try {
+				action.execute(context);
+			}
+			catch (Exception exception) {
+				errorAction.execute(context); // notify something wrong is happening in
+												// Actions execution.
+				throw exception;
+			}
+		}
+	}
 }
