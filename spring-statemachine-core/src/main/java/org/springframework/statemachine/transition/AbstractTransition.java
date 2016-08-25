@@ -42,7 +42,7 @@ public abstract class AbstractTransition<S, E> extends AbstractBasicTransition<S
 
 	private final State<S, E> source;
 
-    private final TransitionKind kind;
+	private final TransitionKind kind;
 
 	private final Guard<S, E> guard;
 
@@ -50,7 +50,7 @@ public abstract class AbstractTransition<S, E> extends AbstractBasicTransition<S
 
 	private final SecurityRule securityRule;
 
-    public AbstractTransition(State<S, E> source, State<S, E> target,
+	public AbstractTransition(State<S, E> source, State<S, E> target,
 			Collection<Action<S, E>> actions, E event, TransitionKind kind,
 			Guard<S, E> guard, Trigger<S, E> trigger) {
 		this(source, target, actions, event, kind, guard, trigger, null, Actions.<S, E>emptyAction());
@@ -59,7 +59,7 @@ public abstract class AbstractTransition<S, E> extends AbstractBasicTransition<S
 	public AbstractTransition(State<S, E> source, State<S, E> target,
 			Collection<Action<S, E>> actions, E event, TransitionKind kind,
 			Guard<S, E> guard, Trigger<S, E> trigger, SecurityRule securityRule, Action<S, E> errorAction) {
-	    super(target, actions, errorAction);
+		super(target, actions, errorAction);
 		Assert.notNull(source, "Source must be set");
 		Assert.notNull(kind, "Transition type must be set");
 		this.source = source;
@@ -67,7 +67,7 @@ public abstract class AbstractTransition<S, E> extends AbstractBasicTransition<S
 		this.guard = guard;
 		this.trigger = trigger;
 		this.securityRule = securityRule;
-    }
+	}
 
 	@Override
 	public State<S, E> getSource() {
@@ -79,7 +79,7 @@ public abstract class AbstractTransition<S, E> extends AbstractBasicTransition<S
 		return trigger;
 	}
 
-    @Override
+	@Override
 	public boolean transit(StateContext<S, E> context) {
 		if (guard != null) {
 			try {
@@ -92,12 +92,12 @@ public abstract class AbstractTransition<S, E> extends AbstractBasicTransition<S
 				return false;
 			}
 		}
-        executeAllActions(context);
+		executeAllActions(context);
 
 		return true;
 	}
 
-    @Override
+	@Override
 	public TransitionKind getKind() {
 		return kind;
 	}

@@ -67,7 +67,7 @@ public interface Transition<S, E> {
 	 * Get The action that will be execute if one of {@link #getActions()} throw an exception.
 	 * This action may be usefull if you want to notify another sub system from unexpected technical error.
 	 *
-	 * @return
+	 * @return the error {@link Action}
 	 */
 	Action<S, E> getErrorAction();
 

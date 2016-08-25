@@ -44,7 +44,7 @@ public abstract class AbstractTransitionConfigurer<S, E> extends
 	private E event;
 	private Long period;
 	private Integer count;
-	private final Collection<Action<S, E>> actions = new ArrayList<Action<S, E>>();
+	private final Collection<Action<S, E>> actions = new ArrayList<>();
 	private Guard<S, E> guard;
 	private SecurityRule securityRule;
 	private Action<S, E> errorAction;
@@ -69,6 +69,10 @@ public abstract class AbstractTransitionConfigurer<S, E> extends
 		return period;
 	}
 
+	/**
+	 *
+	 * @return trigger count
+	 */
 	public Integer getCount() {
 		return count;
 	}
@@ -105,6 +109,10 @@ public abstract class AbstractTransitionConfigurer<S, E> extends
 		this.period = period;
 	}
 
+	/**
+	 *
+	 * @param count to set how many time the trigger will be called.
+	 */
 	public void setCount(Integer count) {
 		this.count = count;
 	}
@@ -117,10 +125,18 @@ public abstract class AbstractTransitionConfigurer<S, E> extends
 		this.guard = guard;
 	}
 
+	/**
+	 *
+	 * @return the Error {@link Action}
+	 */
 	public Action<S, E> getErrorAction() {
 		return errorAction;
 	}
 
+	/**
+	 *
+	 * @param errorAction the {@link Action} that will be called each time an action is gonna throw an exception.
+	 */
 	public void setErrorAction(Action<S, E> errorAction) {
 		this.errorAction = errorAction;
 	}

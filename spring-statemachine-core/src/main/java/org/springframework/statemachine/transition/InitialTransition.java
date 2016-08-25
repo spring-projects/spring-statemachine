@@ -15,13 +15,13 @@
  */
 package org.springframework.statemachine.transition;
 
+import java.util.Collection;
+
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.trigger.Trigger;
-
-import java.util.Collection;
 
 /**
  * {@link Transition} used during a state machine start.
@@ -42,14 +42,13 @@ public class InitialTransition<S, E> extends AbstractBasicTransition<S, E>
 		super(target, action);
 	}
 
-	public InitialTransition(State<S, E> target, Collection<Action<S, E>> actions,
-			Action<S, E> errorAction) {
+	public InitialTransition(State<S, E> target, Collection<Action<S, E>> actions, Action<S, E> errorAction) {
 		super(target, actions, errorAction);
 	}
 
 	@Override
 	public boolean transit(StateContext<S, E> context) {
-	    executeAllActions(context);
+		executeAllActions(context);
 		return false;
 	}
 

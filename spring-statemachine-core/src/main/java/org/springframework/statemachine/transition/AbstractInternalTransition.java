@@ -15,13 +15,13 @@
  */
 package org.springframework.statemachine.transition;
 
+import java.util.Collection;
+
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.trigger.Trigger;
-
-import java.util.Collection;
 
 public class AbstractInternalTransition<S, E> extends AbstractTransition<S, E> implements Transition<S, E> {
 

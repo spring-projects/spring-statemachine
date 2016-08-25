@@ -96,6 +96,7 @@ public class TransitionData<S, E> {
 	 * @param guard the guard
 	 * @param kind the kind
 	 * @param securityRule the security rule
+	 * @param errorAction the {@link Action} that will be called each time an action is gonna throw an exception.
 	 */
 	public TransitionData(S source, S target, S state, E event, Long period, Integer count, Collection<Action<S, E>> actions,
 			Guard<S, E> guard, TransitionKind kind, SecurityRule securityRule, Action<S, E> errorAction) {
@@ -202,6 +203,10 @@ public class TransitionData<S, E> {
 		return securityRule;
 	}
 
+	/**
+	 *
+	 * @return the error {@link Action}
+	 */
 	public Action<S, E> getErrorAction() {
 		return errorAction;
 	}

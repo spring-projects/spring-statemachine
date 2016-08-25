@@ -19,13 +19,43 @@ import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.common.annotation.AbstractConfiguredAnnotationBuilder;
 import org.springframework.statemachine.config.common.annotation.AnnotationBuilder;
 import org.springframework.statemachine.config.common.annotation.ObjectPostProcessor;
-import org.springframework.statemachine.config.configurers.*;
-import org.springframework.statemachine.config.model.*;
+import org.springframework.statemachine.config.configurers.ChoiceTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.DefaultChoiceTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.DefaultEntryTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.DefaultExitTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.DefaultExternalTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.DefaultForkTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.DefaultHistoryTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.DefaultInternalTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.DefaultJoinTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.DefaultJunctionTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.DefaultLocalTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.EntryTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.ExitTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.ExternalTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.ForkTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.HistoryTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.InternalTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.JoinTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.JunctionTransitionConfigurer;
+import org.springframework.statemachine.config.configurers.LocalTransitionConfigurer;
+import org.springframework.statemachine.config.model.ChoiceData;
+import org.springframework.statemachine.config.model.ConfigurationData;
+import org.springframework.statemachine.config.model.EntryData;
+import org.springframework.statemachine.config.model.ExitData;
+import org.springframework.statemachine.config.model.HistoryData;
+import org.springframework.statemachine.config.model.JunctionData;
+import org.springframework.statemachine.config.model.TransitionData;
+import org.springframework.statemachine.config.model.TransitionsData;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.transition.TransitionKind;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * {@link AnnotationBuilder} for {@link TransitionsData}.
@@ -78,7 +108,7 @@ public class StateMachineTransitionBuilder<S, E>
 
 	@Override
 	protected TransitionsData<S, E> performBuild() throws Exception {
-		return new TransitionsData<S, E>(transitionData, choices, junctions, forks, joins, entryData, exitData, historyData);
+		return new TransitionsData<>(transitionData, choices, junctions, forks, joins, entryData, exitData, historyData);
 	}
 
 	@Override
@@ -144,6 +174,7 @@ public class StateMachineTransitionBuilder<S, E>
 	 * @param guard the guard
 	 * @param kind the kind
 	 * @param securityRule the security rule
+	 * @param errorAction the {@link Action} that will be called each time an action is gonna throw an exception.
 	 */
 	public void addTransition(S source, S target, S state, E event, Long period, Integer count, Collection<Action<S, E>> actions,
 			Guard<S, E> guard, TransitionKind kind, SecurityRule securityRule, Action<S, E> errorAction) {
@@ -153,7 +184,7 @@ public class StateMachineTransitionBuilder<S, E>
 			ConfigurationData<S, E> config = getSharedObject(ConfigurationData.class);
 			securityRule = config.getTransitionSecurityRule();
 		}
-		transitionData.add(new TransitionData<S, E>(source, target, state, event, period, count, actions, guard, kind, securityRule, errorAction));
+		transitionData.add(new TransitionData<>(source, target, state, event, period, count, actions, guard, kind, securityRule, errorAction));
 	}
 
 	/**
