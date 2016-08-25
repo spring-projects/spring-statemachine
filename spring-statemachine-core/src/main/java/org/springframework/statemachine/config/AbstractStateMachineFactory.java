@@ -130,23 +130,23 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 	@Override
 	public StateMachine<S, E> getStateMachine(String machineId) {
-		return getStateMachine(machineId, null);
+		return getStateMachine(null, machineId);
 	}
 
 	@Override
 	public StateMachine<S, E> getStateMachine(UUID uuid) {
-		return getStateMachine(null, uuid);
+		return getStateMachine(uuid, null);
 	}
 
 	/**
 	 * Main constructor that create a {@link StateMachine}.
 	 *
-	 * @param machineId represent a user Id, up to you to set what you want.
 	 * @param uuid for internal usage. Can be null, in that case a random one will be generated.
+	 * @param machineId represent a user Id, up to you to set what you want.
 	 * @return a {@link StateMachine}
 	 */
 	@SuppressWarnings("unchecked")
-	public StateMachine<S, E> getStateMachine(String machineId, UUID uuid) {
+	public StateMachine<S, E> getStateMachine(UUID uuid, String machineId) {
 		if (stateMachineModel.getConfigurationData().isVerifierEnabled()) {
 			StateMachineModelVerifier<S, E> verifier = stateMachineModel.getConfigurationData().getVerifier();
 			if (verifier == null) {
