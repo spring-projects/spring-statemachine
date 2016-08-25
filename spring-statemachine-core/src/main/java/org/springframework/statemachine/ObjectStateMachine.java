@@ -55,6 +55,7 @@ public class ObjectStateMachine<S, E> extends AbstractStateMachine<S, E> {
 	 * @param initialTransition the initial transition
 	 * @param initialEvent the initial event
 	 * @param extendedState the extended state
+	 * @param uuid the given uuid.
 	 */
 	public ObjectStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
 			State<S, E> initialState, Transition<S, E> initialTransition,

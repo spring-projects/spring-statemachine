@@ -34,7 +34,14 @@ import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.region.Region;
-import org.springframework.statemachine.state.*;
+import org.springframework.statemachine.state.AbstractState;
+import org.springframework.statemachine.state.ForkPseudoState;
+import org.springframework.statemachine.state.HistoryPseudoState;
+import org.springframework.statemachine.state.PseudoState;
+import org.springframework.statemachine.state.PseudoStateContext;
+import org.springframework.statemachine.state.PseudoStateKind;
+import org.springframework.statemachine.state.PseudoStateListener;
+import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.StateMachineExecutor.StateMachineExecutorTransit;
 import org.springframework.statemachine.transition.InitialTransition;
 import org.springframework.statemachine.transition.Transition;
@@ -44,7 +51,13 @@ import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Base implementation of a {@link StateMachine} loosely modelled from UML state
@@ -133,6 +146,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	 * @param initialTransition the initial transition
 	 * @param initialEvent the initial event of this machine
 	 * @param extendedState the extended state of this machine
+	 * @param uuid the given uuid for this machine
 	 */
 	public AbstractStateMachine(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
 			State<S, E> initialState, Transition<S, E> initialTransition, Message<E> initialEvent,
@@ -174,10 +188,16 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		return extendedState;
 	}
 
+	/**
+	 * @param history to set internal history state.
+	 */
 	public void setHistoryState(PseudoState<S, E> history) {
 		this.history = history;
 	}
 
+	/**
+	 * @return history state attribute.
+	 */
 	public PseudoState<S, E> getHistoryState() {
 		return history;
 	}
