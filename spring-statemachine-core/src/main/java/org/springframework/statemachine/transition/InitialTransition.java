@@ -15,13 +15,12 @@
  */
 package org.springframework.statemachine.transition;
 
-import java.util.Collection;
-
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
-import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
-import org.springframework.statemachine.trigger.Trigger;
+
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * {@link Transition} used during a state machine start.
@@ -31,19 +30,34 @@ import org.springframework.statemachine.trigger.Trigger;
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public class InitialTransition<S, E> extends AbstractBasicTransition<S, E>
+public class InitialTransition<S, E> extends AbstractTransition<S, E>
 		implements Transition<S, E> {
 
+	/**
+	 *
+	 * @param target state.
+	 */
 	public InitialTransition(State<S, E> target) {
-		super(target);
+		this(target, null);
 	}
 
+	/**
+	 *
+	 * @param target state
+	 * @param action to be executed to succeed for this transition
+	 */
 	public InitialTransition(State<S, E> target, Action<S, E> action) {
-		super(target, action);
+		this(target, action == null ? Collections.<Action<S,E>>emptyList(): Collections.singleton(action), null);
 	}
 
+	/**
+	 *
+	 * @param target state
+	 * @param actions to be executed to succeed for this transition
+	 * @param errorAction to be executed if one of {@link #getActions()} throw an exception.
+	 */
 	public InitialTransition(State<S, E> target, Collection<Action<S, E>> actions, Action<S, E> errorAction) {
-		super(target, actions, errorAction);
+		super(target, actions, TransitionKind.INITIAL, errorAction);
 	}
 
 	@Override
@@ -51,26 +65,4 @@ public class InitialTransition<S, E> extends AbstractBasicTransition<S, E>
 		executeAllActions(context);
 		return false;
 	}
-
-	@Override
-	public State<S, E> getSource() {
-		return null;
-	}
-
-	@Override
-	public Trigger<S, E> getTrigger() {
-		return null;
-	}
-
-	@Override
-	public TransitionKind getKind() {
-		return TransitionKind.INITIAL;
-	}
-
-	@Override
-	public SecurityRule getSecurityRule() {
-		// initial cannot have security
-		return null;
-	}
-
 }

@@ -36,9 +36,12 @@ import java.util.Collection;
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public abstract class AbstractTransition<S, E> extends AbstractBasicTransition<S, E> implements Transition<S, E> {
+public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 
 	private final static Log log = LogFactory.getLog(AbstractTransition.class);
+	protected final State<S, E> target;
+	protected final Collection<Action<S, E>> actions;
+	protected final Action<S, E> errorAction;
 
 	private final State<S, E> source;
 
@@ -50,23 +53,50 @@ public abstract class AbstractTransition<S, E> extends AbstractBasicTransition<S
 
 	private final SecurityRule securityRule;
 
-	public AbstractTransition(State<S, E> source, State<S, E> target,
-			Collection<Action<S, E>> actions, E event, TransitionKind kind,
-			Guard<S, E> guard, Trigger<S, E> trigger) {
+	public AbstractTransition(State<S, E> source,
+							  State<S, E> target,
+							  Collection<Action<S, E>> actions,
+							  E event,
+							  TransitionKind kind,
+							  Guard<S, E> guard,
+							  Trigger<S, E> trigger) {
 		this(source, target, actions, event, kind, guard, trigger, null, Actions.<S, E>emptyAction());
 	}
 
-	public AbstractTransition(State<S, E> source, State<S, E> target,
-			Collection<Action<S, E>> actions, E event, TransitionKind kind,
-			Guard<S, E> guard, Trigger<S, E> trigger, SecurityRule securityRule, Action<S, E> errorAction) {
-		super(target, actions, errorAction);
+	public AbstractTransition(State<S, E> source,
+							  State<S, E> target,
+							  Collection<Action<S, E>> actions,
+							  E event,
+							  TransitionKind kind,
+							  Guard<S, E> guard,
+							  Trigger<S, E> trigger,
+							  SecurityRule securityRule,
+							  Action<S, E> errorAction) {
 		Assert.notNull(source, "Source must be set");
 		Assert.notNull(kind, "Transition type must be set");
 		this.source = source;
-		this.kind = kind;
+		this.target = target;
+		this.actions = actions;
+		this.errorAction = errorAction == null
+				? Actions.<S, E> emptyAction()
+				: errorAction;		this.kind = kind;
 		this.guard = guard;
 		this.trigger = trigger;
 		this.securityRule = securityRule;
+	}
+
+	protected AbstractTransition(State<S, E> target, Collection<Action<S, E>> actions, TransitionKind kind, Action<S, E> errorAction) {
+		Assert.notNull(kind, "Transition type must be set");
+		this.source = null;
+		this.target = target;
+		this.actions = actions;
+		this.errorAction = errorAction == null
+				? Actions.<S, E> emptyAction()
+				: errorAction;
+		this.kind = kind;
+		this.guard = null;
+		this.trigger = null;
+		this.securityRule = null;
 	}
 
 	@Override
@@ -107,4 +137,44 @@ public abstract class AbstractTransition<S, E> extends AbstractBasicTransition<S
 		return securityRule;
 	}
 
+	/**
+	 *
+	 * @return the target {@link State}
+	 */
+	public State<S, E> getTarget() {
+		return target;
+	}
+
+	/**
+	 *
+	 * @return all {@link Action}
+	 */
+	public Collection<Action<S, E>> getActions() {
+		return actions;
+	}
+
+	/**
+	 *
+	 * @return the {@link Action} called of any error occurred while actions are executed.
+	 */
+	public Action<S, E> getErrorAction() {
+		return errorAction;
+	}
+
+	protected final void executeAllActions(StateContext<S, E> context) {
+		if (actions == null) {
+			return;
+		}
+
+		for (Action<S, E> action : actions) {
+			try {
+				action.execute(context);
+			}
+			catch (Exception exception) {
+				errorAction.execute(context); // notify something wrong is happening in
+												// Actions execution.
+				throw exception;
+			}
+		}
+	}
 }
