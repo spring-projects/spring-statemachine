@@ -867,7 +867,6 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	synchronized void setCurrentState(State<S, E> state, Message<E> message, Transition<S, E> transition, boolean exit,
 			StateMachine<S, E> stateMachine, Collection<State<S, E>> sources, Collection<State<S, E>> targets) {
-
 		State<S, E> findDeep = findDeepParent(state);
 		boolean isTargetSubOf = false;
 		if (transition != null) {
@@ -1026,6 +1025,12 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			boolean isSubOfSource = StateMachineUtils.isSubstate(transition.getSource(), currentState);
 			boolean isSubOfTarget = StateMachineUtils.isSubstate(transition.getTarget(), currentState);
 
+			if (transition.getKind() == TransitionKind.LOCAL && StateMachineUtils.isSubstate(transition.getSource(), transition.getTarget()) && transition.getSource() == currentState) {
+				return;
+			} else if (transition.getKind() == TransitionKind.LOCAL && StateMachineUtils.isSubstate(transition.getTarget(), transition.getSource()) && transition.getTarget() == currentState) {
+				return;
+			}
+
 			// TODO: this and entry below should be done via a separate
 			// voter of some sort which would reveal transition path
 			// we could make a choice on.
@@ -1083,15 +1088,26 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 			boolean isSubOfSource = StateMachineUtils.isSubstate(transition.getSource(), currentState);
 			boolean isSubOfTarget = StateMachineUtils.isSubstate(transition.getTarget(), currentState);
+
+			if (transition.getKind() == TransitionKind.LOCAL && StateMachineUtils.isSubstate(transition.getSource(), transition.getTarget())
+					&& transition.getSource() == currentState) {
+				return;
+			} else if (transition.getKind() == TransitionKind.LOCAL && StateMachineUtils.isSubstate(transition.getTarget(), transition.getSource())
+					&& transition.getTarget() == currentState) {
+				return;
+			}
+
 			if (currentState == transition.getSource() && currentState == transition.getTarget()) {
 			} else if (!isSubOfSource && !isSubOfTarget && currentState == transition.getTarget()) {
 			} else if (isComingFromOtherSubmachine) {
 			} else if (!isSubOfSource && !isSubOfTarget && findDeep2 == null) {
 			} else if (isSubOfSource && !isSubOfTarget && currentState == transition.getTarget()) {
-				if (isDirectSubstate(transition.getSource(), transition.getTarget())) {
+				if (isDirectSubstate(transition.getSource(), transition.getTarget()) && transition.getKind() != TransitionKind.LOCAL
+						&& isInitial(transition.getTarget())) {
 					return;
 				}
-			} else if (!isSubOfSource && !isSubOfTarget && (transition.getSource() == currentState && StateMachineUtils.isSubstate(currentState, transition.getTarget()))) {
+			} else if (!isSubOfSource && !isSubOfTarget
+					&& (transition.getSource() == currentState && StateMachineUtils.isSubstate(currentState, transition.getTarget()))) {
 			} else if (!isSubOfSource && !isSubOfTarget) {
 				return;
 			}
@@ -1100,6 +1116,10 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		notifyStateEntered(buildStateContext(Stage.STATE_ENTRY, message, transition, getRelayStateMachine(), null, state));
 		log.debug("Enter state=[" + state + "]");
 		state.entry(stateContext);
+	}
+
+	private static <S, E> boolean isInitial(State<S, E> state) {
+		return state.getPseudoState() != null && state.getPseudoState().getKind() == PseudoStateKind.INITIAL;
 	}
 
 	private static <S, E> boolean isDirectSubstate(State<S, E> left, State<S, E> right) {

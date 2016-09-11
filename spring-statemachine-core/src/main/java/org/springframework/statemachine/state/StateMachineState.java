@@ -213,6 +213,17 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 							}
 						});
 			}
+			if (immediateDeepParent == null && getSubmachine().getStates().contains(target) && !isInitial(target)
+					&& StateMachineUtils.isSubstate(context.getTransition().getSource(), context.getTransition().getTarget())) {
+				getSubmachine().getStateMachineAccessor().doWithRegion(
+						new StateMachineFunction<StateMachineAccess<S, E>>() {
+
+							@Override
+							public void apply(StateMachineAccess<S, E> function) {
+								function.setInitialEnabled(false);
+							}
+						});
+			}
 		}
 		getSubmachine().start();
 	}

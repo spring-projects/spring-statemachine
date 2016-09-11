@@ -78,6 +78,7 @@ import org.springframework.statemachine.support.tree.TreeTraverser;
 import org.springframework.statemachine.support.tree.Tree.Node;
 import org.springframework.statemachine.transition.DefaultExternalTransition;
 import org.springframework.statemachine.transition.DefaultInternalTransition;
+import org.springframework.statemachine.transition.DefaultLocalTransition;
 import org.springframework.statemachine.transition.InitialTransition;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionKind;
@@ -716,6 +717,15 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 						transitionData.getSecurityRule(), transitionData.getErrorAction());
 				transitions.add(transition);
 
+			} else if (transitionData.getKind() == TransitionKind.LOCAL) {
+				// TODO can we do this?
+				if (stateMap.get(source) == null || stateMap.get(target) == null) {
+					continue;
+				}
+				DefaultLocalTransition<S, E> transition = new DefaultLocalTransition<S, E>(stateMap.get(source),
+						stateMap.get(target), transitionData.getActions(), event, transitionData.getGuard(), trigger,
+						transitionData.getSecurityRule(), transitionData.getErrorAction());
+				transitions.add(transition);
 			} else if (transitionData.getKind() == TransitionKind.INTERNAL) {
 				DefaultInternalTransition<S, E> transition = new DefaultInternalTransition<S, E>(stateMap.get(source),
 						transitionData.getActions(), event, transitionData.getGuard(), trigger,

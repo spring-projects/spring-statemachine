@@ -351,7 +351,7 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 
 		assertThat(entryActionS111.stateContexts.size(), is(2));
 		assertThat(exitActionS111.stateContexts.size(), is(1));
-		assertThat(entryActionS11.stateContexts.size(), is(2));
+		assertThat(entryActionS11.stateContexts.size(), is(1));
 		assertThat(exitActionS11.stateContexts.size(), is(1));
 		assertThat(entryActionS1.stateContexts.size(), is(1));
 		assertThat(exitActionS1.stateContexts.size(), is(0));

@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -45,7 +46,9 @@ import org.springframework.statemachine.config.model.StateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineModelFactory;
 import org.springframework.statemachine.config.model.TransitionData;
 import org.springframework.statemachine.guard.Guard;
+import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.PseudoStateKind;
+import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.TransitionKind;
 import org.springframework.util.ObjectUtils;
 
@@ -676,6 +679,198 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S3"));
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleLocaltransitionExternalSuperDoesEntryExitToSub() {
+		context.register(Config23.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		assertThat(stateMachine, notNullValue());
+		TestListener listener = new TestListener();
+		stateMachine.addStateListener(listener);
+		stateMachine.start();
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
+
+		listener.reset();
+		stateMachine.sendEvent("E20");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
+		assertThat(listener.exited.size(), is(2));
+		assertThat(listener.entered.size(), is(2));
+		assertThat(listener.exited, containsInAnyOrder("S2", "S21"));
+		assertThat(listener.entered, containsInAnyOrder("S2", "S21"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleLocaltransitionLocalSuperDoesNotEntryExitToSub() {
+		context.register(Config23.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		assertThat(stateMachine, notNullValue());
+		TestListener listener = new TestListener();
+		stateMachine.addStateListener(listener);
+		stateMachine.start();
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
+
+		listener.reset();
+		stateMachine.sendEvent("E30");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
+		assertThat(listener.exited.size(), is(1));
+		assertThat(listener.entered.size(), is(1));
+		assertThat(listener.exited, containsInAnyOrder("S21"));
+		assertThat(listener.entered, containsInAnyOrder("S21"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleLocaltransitionExternalToNonInitialSuperDoesEntryExitToSub() {
+		context.register(Config23.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		assertThat(stateMachine, notNullValue());
+		TestListener listener = new TestListener();
+		stateMachine.addStateListener(listener);
+		stateMachine.start();
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
+
+		listener.reset();
+		stateMachine.sendEvent("E21");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
+		assertThat(listener.exited.size(), is(2));
+		assertThat(listener.entered.size(), is(2));
+		assertThat(listener.exited, containsInAnyOrder("S2", "S21"));
+		assertThat(listener.entered, containsInAnyOrder("S2", "S22"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleLocaltransitionLocalToNonInitialSuperDoesNotEntryExitToSub() {
+		context.register(Config23.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		assertThat(stateMachine, notNullValue());
+		TestListener listener = new TestListener();
+		stateMachine.addStateListener(listener);
+		stateMachine.start();
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
+
+		listener.reset();
+		stateMachine.sendEvent("E31");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
+		assertThat(listener.exited.size(), is(1));
+		assertThat(listener.entered.size(), is(1));
+		assertThat(listener.exited, containsInAnyOrder("S21"));
+		assertThat(listener.entered, containsInAnyOrder("S22"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleLocaltransitionExternalSuperDoesEntryExitToParent() {
+		context.register(Config23.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		assertThat(stateMachine, notNullValue());
+		TestListener listener = new TestListener();
+		stateMachine.addStateListener(listener);
+		stateMachine.start();
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
+
+		listener.reset();
+		stateMachine.sendEvent("E22");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
+		assertThat(listener.exited.size(), is(2));
+		assertThat(listener.entered.size(), is(2));
+		assertThat(listener.exited, containsInAnyOrder("S2", "S21"));
+		assertThat(listener.entered, containsInAnyOrder("S2", "S21"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleLocaltransitionLocalSuperDoesNotEntryExitToParent() {
+		context.register(Config23.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		assertThat(stateMachine, notNullValue());
+		TestListener listener = new TestListener();
+		stateMachine.addStateListener(listener);
+		stateMachine.start();
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
+
+		listener.reset();
+		stateMachine.sendEvent("E32");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
+		assertThat(listener.exited.size(), is(1));
+		assertThat(listener.entered.size(), is(1));
+		assertThat(listener.exited, containsInAnyOrder("S21"));
+		assertThat(listener.entered, containsInAnyOrder("S21"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleLocaltransitionExternalToNonInitialSuperDoesEntryExitToParent() {
+		context.register(Config23.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		assertThat(stateMachine, notNullValue());
+		TestListener listener = new TestListener();
+		stateMachine.addStateListener(listener);
+		stateMachine.start();
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
+
+		listener.reset();
+		stateMachine.sendEvent("E21");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
+		assertThat(listener.exited.size(), is(2));
+		assertThat(listener.entered.size(), is(2));
+		assertThat(listener.exited, containsInAnyOrder("S2", "S21"));
+		assertThat(listener.entered, containsInAnyOrder("S2", "S22"));
+
+		listener.reset();
+		stateMachine.sendEvent("E23");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
+		assertThat(listener.exited.size(), is(2));
+		assertThat(listener.entered.size(), is(2));
+		assertThat(listener.exited, containsInAnyOrder("S2", "S22"));
+		assertThat(listener.entered, containsInAnyOrder("S2", "S22"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleLocaltransitionLocalToNonInitialSuperDoesNotEntryExitToParent() {
+		context.register(Config23.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		assertThat(stateMachine, notNullValue());
+		TestListener listener = new TestListener();
+		stateMachine.addStateListener(listener);
+		stateMachine.start();
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
+
+		listener.reset();
+		stateMachine.sendEvent("E31");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
+		assertThat(listener.exited.size(), is(1));
+		assertThat(listener.entered.size(), is(1));
+		assertThat(listener.exited, containsInAnyOrder("S21"));
+		assertThat(listener.entered, containsInAnyOrder("S22"));
+
+		listener.reset();
+		stateMachine.sendEvent("E33");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
+		assertThat(listener.exited.size(), is(1));
+		assertThat(listener.entered.size(), is(1));
+		assertThat(listener.exited, containsInAnyOrder("S22"));
+		assertThat(listener.entered, containsInAnyOrder("S22"));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config2 extends StateMachineConfigurerAdapter<String, String> {
@@ -1113,6 +1308,23 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		}
 	}
 
+	@Configuration
+	@EnableStateMachine
+	public static class Config23 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/uml/simple-localtransition.uml");
+		}
+	}
+
 	public static class LatchAction implements Action<String, String> {
 		CountDownLatch latch = new CountDownLatch(1);
 		@Override
@@ -1161,6 +1373,27 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		@Override
 		public boolean evaluate(StateContext<String, String> context) {
 			return ObjectUtils.nullSafeEquals(match, context.getMessageHeaders().get("junction", String.class));
+		}
+	}
+
+	private static class TestListener extends StateMachineListenerAdapter<String, String> {
+
+		final ArrayList<String> entered = new ArrayList<>();
+		final ArrayList<String> exited = new ArrayList<>();
+
+		@Override
+		public void stateEntered(State<String, String> state) {
+			entered.add(state.getId());
+		}
+
+		@Override
+		public void stateExited(State<String, String> state) {
+			exited.add(state.getId());
+		}
+
+		public void reset() {
+			entered.clear();
+			exited.clear();
 		}
 	}
 }
