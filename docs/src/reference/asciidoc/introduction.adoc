@@ -2,7 +2,7 @@
 = Introduction
 Spring Statemachine(SSM) is a framework for application developers to
 use traditional state machine concepts with Spring applications. SSM
-aims to provide following features:
+aims to provide the following features:
 
 * Easy to use flat one level state machine for simple use cases.
 * Hierarchical state machine structure to ease complex state
@@ -15,46 +15,46 @@ aims to provide following features:
 * Spring IOC integration to associate beans with a state machine.
 
 Before you continue it's worth to go through appendices <<glossary>>
-and <<crashcourse>> to get a generic idea of what state machines are
-mostly because rest of a documentation expects reader to be fairly
-familiar with state machine concepts.
+and <<crashcourse>> to get a generic idea of what state machines are,
+mostly because the rest of the documentation expects the reader to be
+fairly familiar with state machine concepts.
 
 == Background
 State machines are powerful because behaviour is always guaranteed to be
-consistent and relatively easily debugged due to ways how operational
-rules are written in stone when machine is started. Idea is that your
+consistent and relatively easily debugged due to how operational
+rules are written in stone when machine is started. The idea is that your
 application is and may exist in a finite number of states and then something
 happens which takes your application from one state to the next. What
-will drive a state machine are triggers which are either based on
+will drive a state machine are triggers, which are either based on
 events or timers.
 
 It is much easier to design high level logic outside of your
-application and then interact with a state machine with a various
+application and then interact with a state machine in various
 different ways. You can simply interact with a state machine by
-sending event, listening what a state machine does or simply request a
-current state.
+sending events, listening to what a state machine does or simply requesting
+the current state.
 
-Traditionally state machines are added to a existing project when
-developer realizes that code base is starting to look like a plate
-full of spaghetti. Spaghetti code looks like never ending hierarchical
-structure of IFs, ELSEs and BREAK clauses and probably compiler should
-ask developer to go home when things are starting to look too complex.
+Traditionally state machines are added to an existing project when
+developers realize that the code base is starting to look like a plate
+full of spaghetti. Spaghetti code looks like a never ending, hierarchical
+structure of IFs, ELSEs and BREAK clauses and probably compilers should
+ask developers to go home when things are starting to look too complex.
 
 == Usage Scenarios
 
-Project is a good candidate to use state machine if:
+A project is a good candidate to use a state machine if:
 
-* Application or part of its structure can be represented as states.
+* The application or part of its structure can be represented as states.
 * You want to split complex logic into smaller manageable tasks.
-* Application is already suffering concurrency issues with i.e.
+* The application is already suffering concurrency issues with i.e.
   something happening asynchronously.
 
 You are already trying to implement a state machine if:
 
-* Use of boolean flags or enums to model situations.
+* Using boolean flags or enums to model situations.
 * Having variables which only have meaning for some part of your
   application lifecycle.
-* Looping through if/else structure and checking if particular flag or
-  enum is set and then making further exceptions what to do when certain
-  combination of your flags and enums exists or doesn't exist together.
+* Looping through if/else structure and checking if a particular flag or
+  enum is set and then making further exceptions about what to do when certain
+  combinations of your flags and enums exist or don't exist together.
 
