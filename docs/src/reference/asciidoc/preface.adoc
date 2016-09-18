@@ -1,24 +1,24 @@
 [preface]
 == Preface
-Concept of a state machine is most likely older that any of a reader
-of this reference documentation and definitely older than a Java
-language itself. Description of finite automate dates back to 1943
-when gentlemens Warren McCulloch and Walter Pitts wrote a paper about
+The concept of a state machine is most likely older that any reader
+of this reference documentation and definitely older than the Java
+language itself. Description of finite automata dates back to 1943
+when gentlemen Warren McCulloch and Walter Pitts wrote a paper about
 it. Later George H. Mealy presented a state machine concept in 1955
 which is known as a Mealy Machine. A year later in 1956 Edward F.
 Moore presented another paper which is known as a Moore Machine. If
-you're ever read anything about state machines, names Mealy and Moore
+you've ever read anything about state machines, the names Mealy and Moore
 should have popped up at some point.
 
-This reference documentations contains following parts.
+This reference documentation contains the following parts.
 
 <<introduction>> introduction to this reference documentation
 
-<<statemachine>> describes the usage of Spring State Machine(SSM)
+<<statemachine>> describes the usage of Spring Statemachine(SSM)
 
-<<statemachine-examples>> more detailed state machine samples
+<<statemachine-examples>> more detailed state machine examples
 
-<<statemachine-faq>> frequently ask questions
+<<statemachine-faq>> frequently asked questions
 
 <<appendices>> generic info about used material and state machines
 
