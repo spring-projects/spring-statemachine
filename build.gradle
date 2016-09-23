@@ -195,6 +195,14 @@ project('spring-statemachine-redis') {
 	}
 }
 
+project('spring-statemachine-data-common') {
+	dependencies {
+		compile project(":spring-statemachine-core")
+		compile "org.springframework.data:spring-data-commons:$springDataCommonsVersion"
+		optional "org.springframework.security:spring-security-core:$springSecurityVersion"
+	}
+}
+
 project('spring-statemachine-cluster') {
 	description = "Spring State Machine Cluster"
 

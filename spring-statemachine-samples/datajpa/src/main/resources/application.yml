@@ -1,0 +1,6 @@
+logging:
+  level:
+    root: INFO
+security:
+  basic:
+    enabled: false

@@ -24,6 +24,10 @@ include 'spring-statemachine-samples:security'
 include 'spring-statemachine-samples:eventservice'
 include 'spring-statemachine-samples:deploy'
 include 'spring-statemachine-samples:ordershipping'
+include 'spring-statemachine-samples:datajpa'
+
+include 'spring-statemachine-data'
+include 'spring-statemachine-data:jpa'
 
 rootProject.children.find {
 	if (it.name == 'spring-statemachine-recipes') {
@@ -33,6 +37,12 @@ rootProject.children.find {
 		it.name = 'spring-statemachine-samples-common'
 		it.children.each {
 			it.name = 'spring-statemachine-samples-' + it.name
+		}
+	}
+	if (it.name == 'spring-statemachine-data') {
+		it.name = 'spring-statemachine-data-common'
+		it.children.each {
+			it.name = 'spring-statemachine-data-' + it.name
 		}
 	}
 }
