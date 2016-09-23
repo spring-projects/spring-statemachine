@@ -33,8 +33,10 @@ import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
+import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.ObjectStateMachineFactory;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.config.builders.StateMachineModelConfigurer;
 
 public class StateMachineModelFactoryTests extends AbstractStateMachineTests {
@@ -66,6 +68,33 @@ public class StateMachineModelFactoryTests extends AbstractStateMachineTests {
 		assertThat(stateMachine.getState().getIds(), contains("S1"));
 		stateMachine.sendEvent("E1");
 		assertThat(stateMachine.getState().getIds(), contains("S2"));
+	}
+
+	@Test
+	public void testModelRecreates() {
+		context.register(Config3.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
+		StateMachine<String,String> stateMachine = stateMachineFactory.getStateMachine();
+		TestStateMachineModelFactory modelFactory = context.getBean(TestStateMachineModelFactory.class);
+
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), contains("S1"));
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), contains("S2"));
+		stateMachine.stop();
+
+		modelFactory.state1 = "SS1";
+		modelFactory.state2 = "SS2";
+		modelFactory.event1 = "EE1";
+
+		stateMachine = stateMachineFactory.getStateMachine();
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), contains("SS1"));
+		stateMachine.sendEvent("EE1");
+		assertThat(stateMachine.getState().getIds(), contains("SS2"));
+		stateMachine.stop();
 	}
 
 	@Configuration
@@ -106,9 +135,38 @@ public class StateMachineModelFactoryTests extends AbstractStateMachineTests {
 		}
 	}
 
+	@Configuration
+	@EnableStateMachineFactory
+	public static class Config3 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			return new TestStateMachineModelFactory();
+		}
+
+		@Bean
+		public Action<String, String> action1() {
+			return new Action<String, String>() {
+				@Override
+				public void execute(StateContext<String, String> context) {
+				}
+			};
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	private static class TestStateMachineModelFactory implements StateMachineModelFactory<String, String>, BeanFactoryAware {
 		private BeanFactory beanFactory;
+		String state1 = "S1";
+		String state2 = "S2";
+		String event1 = "E1";
 
 		@Override
 		public StateMachineModel<String, String> build() {
@@ -120,12 +178,12 @@ public class StateMachineModelFactoryTests extends AbstractStateMachineTests {
 			ConfigurationData<String, String> configurationData = new ConfigurationData<>();
 
 			Collection<StateData<String, String>> stateData = new ArrayList<>();
-			stateData.add(new StateData<String, String>("S1", true));
-			stateData.add(new StateData<String, String>(null, null, "S2", null, s2Actions, null));
+			stateData.add(new StateData<String, String>(state1, true));
+			stateData.add(new StateData<String, String>(null, null, state2, null, s2Actions, null));
 			StatesData<String, String> statesData = new StatesData<>(stateData);
 
 			Collection<TransitionData<String, String>> transitionData = new ArrayList<>();
-			transitionData.add(new TransitionData<String, String>("S1", "S2", "E1"));
+			transitionData.add(new TransitionData<String, String>(state1, state2, event1));
 			TransitionsData<String, String> transitionsData = new TransitionsData<>(transitionData);
 
 			StateMachineModel<String, String> stateMachineModel = new DefaultStateMachineModel<>(configurationData, statesData, transitionsData);

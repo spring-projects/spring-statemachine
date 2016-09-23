@@ -19,7 +19,6 @@ import org.springframework.statemachine.config.StateMachineConfig;
 import org.springframework.statemachine.config.common.annotation.AbstractConfiguredAnnotationBuilder;
 import org.springframework.statemachine.config.common.annotation.AnnotationBuilder;
 import org.springframework.statemachine.config.model.ConfigurationData;
-import org.springframework.statemachine.config.model.StateMachineModel;
 import org.springframework.statemachine.config.model.StatesData;
 import org.springframework.statemachine.config.model.TransitionsData;
 
@@ -44,25 +43,12 @@ public class StateMachineConfigBuilder<S, E>
 		StateMachineConfigurationBuilder<?, ?> configurationBuilder = getSharedObject(StateMachineConfigurationBuilder.class);
 		StateMachineTransitionBuilder<?, ?> transitionBuilder = getSharedObject(StateMachineTransitionBuilder.class);
 		StateMachineStateBuilder<?, ?> stateBuilder = getSharedObject(StateMachineStateBuilder.class);
-
 		ModelData<S, E> model = (ModelData<S, E>) modelBuilder.build();
 		ConfigurationData<S, E> stateMachineConfigurationConfig = null;
-		TransitionsData<S, E> transitions = null;
-		StatesData<S, E> states = null;
-
-		if (model.getFactory() != null) {
-			StateMachineModel<S,E> stateMachineModel = model.getFactory().build();
-			transitions = stateMachineModel.getTransitionsData();
-			states = stateMachineModel.getStatesData();
-		}
 		stateMachineConfigurationConfig = (ConfigurationData<S, E>) configurationBuilder.build();
-		if (transitions == null) {
-			transitionBuilder.setSharedObject(ConfigurationData.class, stateMachineConfigurationConfig);
-			transitions = (TransitionsData<S, E>) transitionBuilder.build();
-		}
-		if (states == null) {
-			states = (StatesData<S, E>) stateBuilder.build();
-		}
-		return new StateMachineConfig<S, E>(stateMachineConfigurationConfig, transitions, states);
+		transitionBuilder.setSharedObject(ConfigurationData.class, stateMachineConfigurationConfig);
+		TransitionsData<S, E> transitions = (TransitionsData<S, E>) transitionBuilder.build();
+		StatesData<S, E> states = (StatesData<S, E>) stateBuilder.build();
+		return new StateMachineConfig<S, E>(stateMachineConfigurationConfig, transitions, states, model);
 	}
 }

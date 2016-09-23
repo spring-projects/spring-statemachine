@@ -15,8 +15,6 @@
  */
 package org.springframework.statemachine.config.model;
 
-import org.springframework.util.Assert;
-
 /**
  * Default implementation of a {@link StateMachineModel}.
  *
@@ -40,9 +38,6 @@ public class DefaultStateMachineModel<S, E> extends StateMachineModel<S, E> {
 	 */
 	public DefaultStateMachineModel(ConfigurationData<S, E> configurationData, StatesData<S, E> statesData,
 			TransitionsData<S, E> transitionsData) {
-		Assert.notNull(configurationData, "Configuration must be set");
-		Assert.notNull(statesData, "States must be set");
-		Assert.notNull(transitionsData, "Transitions must be set");
 		this.configuration = configurationData;
 		this.states = statesData;
 		this.transitions = transitionsData;

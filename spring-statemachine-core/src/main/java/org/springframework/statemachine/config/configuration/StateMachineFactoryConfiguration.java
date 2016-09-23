@@ -134,8 +134,17 @@ public class StateMachineFactoryConfiguration<S, E> extends
 			StatesData<S, E> stateMachineStates = stateMachineConfig.getStates();
 			ConfigurationData<S, E> stateMachineConfigurationConfig = stateMachineConfig
 					.getStateMachineConfigurationConfig();
-			ObjectStateMachineFactory<S, E> objectStateMachineFactory = new ObjectStateMachineFactory<S, E>(
-					new DefaultStateMachineModel<S, E>(stateMachineConfigurationConfig, stateMachineStates, stateMachineTransitions));
+
+			ObjectStateMachineFactory<S, E> objectStateMachineFactory = null;
+			if (stateMachineConfig.getModel() != null && stateMachineConfig.getModel().getFactory() != null) {
+				objectStateMachineFactory = new ObjectStateMachineFactory<S, E>(
+						new DefaultStateMachineModel<S, E>(stateMachineConfigurationConfig, null, null),
+						stateMachineConfig.getModel().getFactory());
+			} else {
+				objectStateMachineFactory = new ObjectStateMachineFactory<S, E>(new DefaultStateMachineModel<S, E>(
+						stateMachineConfigurationConfig, stateMachineStates, stateMachineTransitions), null);
+			}
+
 			objectStateMachineFactory.setBeanFactory(beanFactory);
 			objectStateMachineFactory.setContextEventsEnabled(contextEvents);
 			// explicitly tell factory to handle auto-start because

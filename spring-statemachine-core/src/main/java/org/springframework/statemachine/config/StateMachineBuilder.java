@@ -126,8 +126,16 @@ public class StateMachineBuilder {
 				TransitionsData<S, E> stateMachineTransitions = stateMachineConfig.getTransitions();
 				StatesData<S, E> stateMachineStates = stateMachineConfig.getStates();
 				ConfigurationData<S, E> stateMachineConfigurationConfig = stateMachineConfig.getStateMachineConfigurationConfig();
-				ObjectStateMachineFactory<S, E> stateMachineFactory = new ObjectStateMachineFactory<S, E>(
-						new DefaultStateMachineModel<S, E>(stateMachineConfigurationConfig, stateMachineStates, stateMachineTransitions));
+
+				ObjectStateMachineFactory<S, E> stateMachineFactory = null;
+				if (stateMachineConfig.getModel() != null && stateMachineConfig.getModel().getFactory() != null) {
+					stateMachineFactory = new ObjectStateMachineFactory<S, E>(
+							new DefaultStateMachineModel<S, E>(stateMachineConfigurationConfig, null, null),
+							stateMachineConfig.getModel().getFactory());
+				} else {
+					stateMachineFactory = new ObjectStateMachineFactory<S, E>(new DefaultStateMachineModel<S, E>(
+							stateMachineConfigurationConfig, stateMachineStates, stateMachineTransitions), null);
+				}
 
 				stateMachineFactory.setHandleAutostartup(stateMachineConfigurationConfig.isAutoStart());
 

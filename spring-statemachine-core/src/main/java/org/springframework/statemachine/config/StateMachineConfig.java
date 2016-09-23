@@ -15,10 +15,19 @@
  */
 package org.springframework.statemachine.config;
 
+import org.springframework.statemachine.config.builders.ModelData;
 import org.springframework.statemachine.config.model.ConfigurationData;
 import org.springframework.statemachine.config.model.StatesData;
 import org.springframework.statemachine.config.model.TransitionsData;
 
+/**
+ * Generic pojo keeping relates configs together.
+ *
+ * @author Janne Valkealahti
+ *
+ * @param <S> the type of state
+ * @param <E> the type of event
+ */
 public class StateMachineConfig<S, E> {
 
 	public final ConfigurationData<S, E> stateMachineConfigurationConfig;
@@ -27,10 +36,34 @@ public class StateMachineConfig<S, E> {
 
 	public final StatesData<S, E> states;
 
-	public StateMachineConfig(ConfigurationData<S, E> stateMachineConfigurationConfig, TransitionsData<S, E> transitions, StatesData<S, E> states) {
+	public final ModelData<S, E> model;
+
+	/**
+	 * Instantiates a new state machine config.
+	 *
+	 * @param stateMachineConfigurationConfig the state machine configuration config
+	 * @param transitions the transitions
+	 * @param states the states
+	 */
+	public StateMachineConfig(ConfigurationData<S, E> stateMachineConfigurationConfig, TransitionsData<S, E> transitions,
+			StatesData<S, E> states) {
+		this(stateMachineConfigurationConfig, transitions, states, null);
+	}
+
+	/**
+	 * Instantiates a new state machine config.
+	 *
+	 * @param stateMachineConfigurationConfig the state machine configuration config
+	 * @param transitions the transitions
+	 * @param states the states
+	 * @param model the model
+	 */
+	public StateMachineConfig(ConfigurationData<S, E> stateMachineConfigurationConfig, TransitionsData<S, E> transitions,
+			StatesData<S, E> states, ModelData<S, E> model) {
 		this.stateMachineConfigurationConfig = stateMachineConfigurationConfig;
 		this.transitions = transitions;
 		this.states = states;
+		this.model = model;
 	}
 
 	public ConfigurationData<S, E> getStateMachineConfigurationConfig() {
@@ -45,4 +78,7 @@ public class StateMachineConfig<S, E> {
 		return states;
 	}
 
+	public ModelData<S, E> getModel() {
+		return model;
+	}
 }

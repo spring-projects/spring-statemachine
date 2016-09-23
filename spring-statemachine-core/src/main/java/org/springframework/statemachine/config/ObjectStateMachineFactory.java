@@ -28,6 +28,7 @@ import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.model.StateMachineModel;
+import org.springframework.statemachine.config.model.StateMachineModelFactory;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.ObjectState;
 import org.springframework.statemachine.state.PseudoState;
@@ -49,18 +50,28 @@ public class ObjectStateMachineFactory<S, E> extends AbstractStateMachineFactory
 	/**
 	 * Instantiates a new object state machine factory.
 	 *
-	 * @param stateMachineModel the state machine model
+	 * @param defaultStateMachineModel the default state machine model
 	 */
-	public ObjectStateMachineFactory(StateMachineModel<S, E> stateMachineModel) {
-		super(stateMachineModel);
+	public ObjectStateMachineFactory(StateMachineModel<S, E> defaultStateMachineModel) {
+		this(defaultStateMachineModel, null);
+	}
+
+	/**
+	 * Instantiates a new object state machine factory.
+	 *
+	 * @param defaultStateMachineModel the default state machine model
+	 * @param stateMachineModelFactory the state machine model factory
+	 */
+	public ObjectStateMachineFactory(StateMachineModel<S, E> defaultStateMachineModel,
+			StateMachineModelFactory<S, E> stateMachineModelFactory) {
+		super(defaultStateMachineModel, stateMachineModelFactory);
 	}
 
 	@Override
-	protected StateMachine<S, E> buildStateMachineInternal(Collection<State<S, E>> states,
-														   Collection<Transition<S, E>> transitions, State<S, E> initialState, Transition<S, E> initialTransition,
-														   Message<E> initialEvent, ExtendedState extendedState, PseudoState<S, E> historyState,
-														   Boolean contextEventsEnabled, BeanFactory beanFactory, TaskExecutor taskExecutor,
-														   TaskScheduler taskScheduler, String beanName, String machineId, UUID uuid) {
+	protected StateMachine<S, E> buildStateMachineInternal(Collection<State<S, E>> states, Collection<Transition<S, E>> transitions,
+			State<S, E> initialState, Transition<S, E> initialTransition, Message<E> initialEvent, ExtendedState extendedState,
+			PseudoState<S, E> historyState, Boolean contextEventsEnabled, BeanFactory beanFactory, TaskExecutor taskExecutor,
+			TaskScheduler taskScheduler, String beanName, String machineId, UUID uuid, StateMachineModel<S, E> stateMachineModel) {
 		ObjectStateMachine<S, E> machine = new ObjectStateMachine<S, E>(states, transitions, initialState, initialTransition, initialEvent,
 				extendedState, uuid);
 		machine.setId(machineId);
@@ -87,17 +98,17 @@ public class ObjectStateMachineFactory<S, E> extends AbstractStateMachineFactory
 	@Override
 	protected State<S, E> buildStateInternal(S id, Collection<E> deferred,
 			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
-			Collection<? extends Action<S, E>> stateActions, PseudoState<S, E> pseudoState) {
+			Collection<? extends Action<S, E>> stateActions, PseudoState<S, E> pseudoState, StateMachineModel<S, E> stateMachineModel) {
 		ObjectState<S,E> objectState = new ObjectState<S, E>(id, deferred, entryActions, exitActions, stateActions, pseudoState, null, null);
-		BeanFactory beanFactory = resolveBeanFactory();
+		BeanFactory beanFactory = resolveBeanFactory(stateMachineModel);
 		if (beanFactory != null) {
 			objectState.setBeanFactory(beanFactory);
 		}
-		TaskExecutor taskExecutor = resolveTaskExecutor();
+		TaskExecutor taskExecutor = resolveTaskExecutor(stateMachineModel);
 		if (taskExecutor != null) {
 			objectState.setTaskExecutor(taskExecutor);
 		}
-		TaskScheduler taskScheduler = resolveTaskScheduler();
+		TaskScheduler taskScheduler = resolveTaskScheduler(stateMachineModel);
 		if (taskScheduler != null) {
 			objectState.setTaskScheduler(taskScheduler);
 		}

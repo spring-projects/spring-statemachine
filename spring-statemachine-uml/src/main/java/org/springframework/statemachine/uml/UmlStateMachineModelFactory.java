@@ -24,7 +24,6 @@ import java.nio.file.Path;
 import org.eclipse.uml2.uml.Model;
 import org.springframework.core.io.Resource;
 import org.springframework.statemachine.config.model.AbstractStateMachineModelFactory;
-import org.springframework.statemachine.config.model.ConfigurationData;
 import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineModelFactory;
@@ -76,8 +75,8 @@ public class UmlStateMachineModelFactory extends AbstractStateMachineModelFactor
 		}
 		UmlModelParser parser = new UmlModelParser(model, this);
 		DataHolder dataHolder = parser.parseModel();
-		ConfigurationData<String, String> configurationData = new ConfigurationData<>();
-		return new DefaultStateMachineModel<String, String>(configurationData, dataHolder.getStatesData(), dataHolder.getTransitionsData());
+		// we don't set configurationData here, so assume null
+		return new DefaultStateMachineModel<String, String>(null, dataHolder.getStatesData(), dataHolder.getTransitionsData());
 	}
 
 	private Resource resolveResource() {
