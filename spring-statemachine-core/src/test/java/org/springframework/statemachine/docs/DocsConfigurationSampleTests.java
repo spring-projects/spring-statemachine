@@ -247,6 +247,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 						.initial(States.S1, action())
 						.state(States.S1, action(), null)
 						.state(States.S2, null, action())
+						.state(States.S2, action())
 						.state(States.S3, action(), action());
 			}
 

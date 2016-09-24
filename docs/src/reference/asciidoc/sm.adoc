@@ -190,6 +190,7 @@ needs more clarification:
 * We defined action for initial state `S1`.
 * We defined entry action for state `S1` and left exit action empty.
 * We defined exit action for state `S2` and left entry action empty.
+* We defined a single state action for state `S2`.
 * We defined entry action as well as exit action for state `S3`.
 * Notice how state `S1` is used twice with `initial()` and `state()`
   functions. This is only needed if you want to define entry or exit
@@ -203,6 +204,19 @@ to be initializing action which is only executed once. Action defined
 with `state()` is then executed if state machine is transitioning back
 and forward between initial and non-inital states.
 ====
+
+==== State Actions
+
+State actions are executed differently compared to entry and exit
+actions simply because execution happens after state has been entered
+and can be cancelled if state exit happens before particular action
+has been completed.
+
+State Actions are executed using a normal Spring `TaskScheduler`
+wrapped within a `Runnable` which may get cancelled via
+`ScheduledFuture`. What this means is that whatever your doing in your
+action, you need to be able to catch `InterruptedException` which is
+raised if task is cancelled.
 
 === Configuring Pseudo States
 
