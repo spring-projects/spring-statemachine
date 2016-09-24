@@ -1949,3 +1949,30 @@ any uml _effect_, _action_ or _guard_, supported method to do that is via
 `FunctionBehavior` or `OpaqueBehavior` where defined language needs to
 be `spel` and language body having a SpEL expression.
 
+[[sm-papyrus-submachineref]]
+=== Using Sub-Machine Reference
+Normally when using sub-states those are simply drawn into a state
+chart itself. Chart itself may become a little complex and big to
+follow so we also support defining sub-state as a statemachine
+reference.
+
+First create a _New Diagram_ and give it a name i.e. _SubStateMachine
+Diagram_.
+
+image::images/papyrus-gs-12.png[width=400]
+
+Give new diagram a design you need.
+
+image::images/papyrus-gs-13.png[width=400]
+
+From state you want to link(in this case state `S2`), click
+`Submachine` field and choose your linked machine, i.e.
+_SubStateMachine_.
+
+image::images/papyrus-gs-14.png[width=400]
+
+Finally you'll see that state `S2` is linked to `SubStateMachine` as a
+sub-state.
+
+image::images/papyrus-gs-15.png[width=400]
+
