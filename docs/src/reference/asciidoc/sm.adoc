@@ -318,7 +318,7 @@ properly. Mark particular state as choice state by using `join()`
 method. This state doesn't need to match either source states or
 target state in a transition configuration.
 
-Select one target state where transition goes when all source states
+Select a target state where transition goes when all source states
 has been joined. If you use state hosting regions as source, end
 states of a regions are used as joins. Otherwise you can pick any
 states from a regions.
@@ -326,6 +326,17 @@ states from a regions.
 [source,java,indent=0]
 ----
 include::samples/DocsConfigurationSampleTests.java[tags=snippetU]
+----
+
+It is also possible to have multiple transitions originating from a
+join state. It this case it is adviced to use guards and define those
+so that only one guard evaluates _TRUE_ at any given time as otherwise
+transition behaviour is not predicted. This is shown above where guard
+simply checks if extended state has variables.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetUUU]
 ----
 
 [[statemachine-config-states-exitentry]]

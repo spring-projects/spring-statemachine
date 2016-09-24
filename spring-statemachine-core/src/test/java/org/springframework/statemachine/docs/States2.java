@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ package org.springframework.statemachine.docs;
 
 //tag::snippetA[]
 public enum States2 {
-    S1,S2,S3,S4,S5,
-    S2I,S21,S22,S2F,
-    S3I,S31,S32,S3F
+	S1,S2,S3,S4,S5,SF,
+	S2I,S21,S22,S2F,
+	S3I,S31,S32,S3F
 }
 //end::snippetA[]
