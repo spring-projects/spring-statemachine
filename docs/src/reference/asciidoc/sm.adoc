@@ -1841,7 +1841,8 @@ If `UmlStateMachineModelFactory` is created as a bean its
 guards. It's also possible to manually define a
 `StateMachineComponentResolver` which will then be used to find these
 components. Factory also have methods _registerAction_ and
-_registerGuard_ which can be used to register these components.
+_registerGuard_ which can be used to register these components. More
+about this in <<sm-papyrus-statemachinecomponentresolver>>.
 
 Uml model is relatively loose what comes for the implementation like
 _Spring StateMachine_ itself. There are choices what implementation
@@ -1849,6 +1850,19 @@ need to take for uml support as it leaves a lot of features and
 functionalities for an implementation to decide. Below sections go
 through how _Spring StateMachine_ will implement uml model based on
 _Eclipse Papyrus plugin_.
+
+[[sm-papyrus-statemachinecomponentresolver]]
+==== StateMachineComponentResolver
+
+Below example shows how `UmlStateMachineModelFactory` is defined with
+a `StateMachineComponentResolver` which registers a simple functions
+`myAction` and `myGuard` respectively. As you notice these components
+are not created as beans.
+
+[source,java,indent=0]
+----
+include::samples/DocsUmlSampleTests1.java[tags=snippetB]
+----
 
 === Creating Model
 Let's start by creating an empty state machine model.
