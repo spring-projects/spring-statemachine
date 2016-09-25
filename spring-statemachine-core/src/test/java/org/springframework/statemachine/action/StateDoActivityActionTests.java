@@ -49,11 +49,11 @@ public class StateDoActivityActionTests extends AbstractStateMachineTests {
 		assertThat(machine, notNullValue());
 		machine.start();
 
-		machine.sendEvent(TestEvents.E1);
 		assertThat(testActionS1.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
+		machine.sendEvent(TestEvents.E1);
 
-		machine.sendEvent(TestEvents.E2);
 		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
+		machine.sendEvent(TestEvents.E2);
 	}
 
 	@Test
@@ -68,10 +68,12 @@ public class StateDoActivityActionTests extends AbstractStateMachineTests {
 		assertThat(machine, notNullValue());
 		machine.start();
 
+		assertThat(testActionS1.onExecuteStartLatch.await(2, TimeUnit.SECONDS), is(true));
 		machine.sendEvent(TestEvents.E1);
 		assertThat(testActionS1.interruptedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testActionS1.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
 
+		assertThat(testActionS2.onExecuteStartLatch.await(2, TimeUnit.SECONDS), is(true));
 		machine.sendEvent(TestEvents.E2);
 		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));

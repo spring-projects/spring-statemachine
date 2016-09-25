@@ -671,11 +671,11 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		LatchAction e2Action = context.getBean("e2Action", LatchAction.class);
 		stateMachine.start();
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent("E1");
 		assertThat(e1Action.latch.await(1, TimeUnit.SECONDS), is(true));
+		stateMachine.sendEvent("E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
-		stateMachine.sendEvent("E2");
 		assertThat(e2Action.latch.await(1, TimeUnit.SECONDS), is(true));
+		stateMachine.sendEvent("E2");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S3"));
 	}
 

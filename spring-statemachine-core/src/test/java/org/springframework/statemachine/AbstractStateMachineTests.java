@@ -166,6 +166,7 @@ public abstract class AbstractStateMachineTests {
 
 		long sleep;
 		long now;
+		public CountDownLatch onExecuteStartLatch = new CountDownLatch(1);
 		public AtomicBoolean interrupted = new AtomicBoolean(false);
 		public CountDownLatch interruptedLatch = new CountDownLatch(1);
 
@@ -176,12 +177,12 @@ public abstract class AbstractStateMachineTests {
 
 		@Override
 		public void execute(StateContext<TestStates, TestEvents> context) {
+			onExecuteStartLatch.countDown();
 			now = System.currentTimeMillis();
 			if (sleep > 0) {
 				try {
 					Thread.sleep(sleep);
 				} catch (InterruptedException e) {
-					System.out.println("XXXXX " + e);
 					interrupted.set(true);
 					interruptedLatch.countDown();
 				}
