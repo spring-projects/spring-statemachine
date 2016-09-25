@@ -36,6 +36,8 @@ that Spring Statemachine provides to any Spring based application.
 
 <<sm-papyrus>> the state machine uml modeling support.
 
+<<sm-repository>> the state machine repository config support.
+
 [[sm-config]]
 == Statemachine Configuration
 One of the common tasks when using a Statemachine is to design its
@@ -2014,4 +2016,58 @@ Finally you'll see that state `S2` is linked to `SubStateMachine` as a
 sub-state.
 
 image::images/papyrus-gs-15.png[width=400]
+
+[[sm-repository]]
+== Repository Config Support
+
+[IMPORTANT]
+====
+Repository abstraction support is still work in progress and scheduled
+to be complete in future milestones.
+====
+
+It is also possible to keep machine configuration in an external
+storage where it will be loaded on demand instead of creating a static
+configuration either using _JavaConfig_ or _UML_ based config. This
+integration works via _Spring Data Repository_ abstraction.
+
+We have created special `StateMachineModelFactory` implementation
+called `RepositoryStateMachineModelFactory` which is able to use base
+repository interfaces `StateRepository` and `TransitionRepository`
+accompanied with base entity interfaces `RepositoryState` and
+`RepositoryTransition` respectively.
+
+Due to way how _Entities_ and _Repositories_ work in a _Spring Data_,
+from a user perspective read access can be fully abstracted as it is
+done in `RepositoryStateMachineModelFactory` as there is no need to
+know what is a real mapped _Entity_ class _Repository_ is working
+with. Writing into a _Repository_ is always dependant of using a real
+_Repository_ specific _Entity_ class. From machine configuration point
+of view we don't need to know these, meaning we don't need to know
+actual implementation whether that is _JPA_, _Mongo_  or anything else
+what _Spring Data_ supports. Using a real _Repository_ related
+_Entity_ class comes into play when you manually try to write new
+states or transitions into a backed repository.
+
+Actual out of a box implementations are documented in below sections.
+
+[[sm-repository-jpa]]
+=== JPA
+Currently one repository implementation exists which uses _JPA_ to
+access configured database.
+
+Actual _Repository_ implementations for a _JPA_ are
+`JpaStateRepository` and `JpaTransitionRepository` which are backed by
+_Entity_ classes `JpaRepositoryState` and `JpaRepositoryTransition`
+respectively.
+
+Generic way to update states and transition manually is shown below.
+
+[source,java,indent=0]
+----
+include::samples/DocsJpaRepositorySampleTests1.java[tags=snippetA]
+----
+
+Complete example can be found from sample
+<<statemachine-examples-datajpa>>.
 

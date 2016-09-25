@@ -34,13 +34,16 @@ import org.springframework.statemachine.data.TransitionRepository;
 @Configuration
 public class StateMachineConfig {
 
+//tag::snippetA[]
 	@Bean
 	public Jackson2RepositoryPopulatorFactoryBean jackson2RepositoryPopulatorFactoryBean() {
 		Jackson2RepositoryPopulatorFactoryBean factoryBean = new Jackson2RepositoryPopulatorFactoryBean();
 		factoryBean.setResources(new Resource[]{new ClassPathResource("data.json")});
 		return factoryBean;
 	}
+//end::snippetA[]
 
+//tag::snippetB[]
 	@Configuration
 	@EnableStateMachineFactory
 	public static class Config extends StateMachineConfigurerAdapter<String, String> {
@@ -63,4 +66,5 @@ public class StateMachineConfig {
 			return new RepositoryStateMachineModelFactory(stateRepository, transitionRepository);
 		}
 	}
+//end::snippetB[]
 }

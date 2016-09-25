@@ -20,6 +20,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+//tag::snippetA[]
 @SpringBootApplication
 @EntityScan(basePackages = {"org.springframework.statemachine.data.jpa"})
 @EnableJpaRepositories(basePackages = {"org.springframework.statemachine.data.jpa"})
@@ -29,3 +30,4 @@ public class Application {
 		SpringApplication.run(Application.class, args);
 	}
 }
+//end::snippetA[]

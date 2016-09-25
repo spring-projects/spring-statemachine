@@ -36,6 +36,8 @@ normal build cycle. Samples in this chapter are:
 
 <<statemachine-examples-ordershipping>> Order Shipping.
 
+<<statemachine-examples-datajpa>> JPA Config.
+
 
 [source,text]
 ----
@@ -1424,4 +1426,70 @@ image::images/sm-ordershipping-3.png[width=1000]
 Finally you can see what machine does by refressing a page.
 
 image::images/sm-ordershipping-4.png[width=1000]
+
+[[statemachine-examples-datajpa]]
+== JPA Config
+JPA Config is an example how state machine concepts can be used
+with a machine configuration kept in a database. This sample is using
+embedded _H2_ database with a _H2 Console_ to ease playing with a
+database.
+
+To enable automatic scan of needed _Entity_ classes and _JPA
+Repositories_, a boot application can be annotated with a custom
+locations as shown below.
+
+[source,java,indent=0]
+----
+include::samples/demo/datajpa/Application.java[tags=snippetA]
+----
+
+What comes for a machine config `RepositoryStateMachineModelFactory`
+can be used as shown below.
+
+[source,java,indent=0]
+----
+include::samples/demo/datajpa/StateMachineConfig.java[tags=snippetB]
+----
+
+Lets get into actual demo. Run the boot based sample application:
+
+[source,text,subs="attributes"]
+----
+# java -jar spring-statemachine-samples-datajpa-{revnumber}.jar
+----
+
+Accessing application via _http://localhost:8080_ brings up a new
+constructed machine with every request and you can choose to send
+events to a machine. Possible events and machine configuration are
+updated from a database with every request.
+
+image::images/sm-datajpa-1.png[width=1000]
+
+To access embedded console use _JDBC URL_ `jdbc:h2:mem:testdb` if it's
+not already set.
+
+image::images/sm-datajpa-2.png[width=1000]
+
+From console you can see how database tables look like and modify
+those as you wish.
+
+image::images/sm-datajpa-3.png[width=1000]
+
+Now that you got this far you probably wondered how those default
+states and transitions got populated into a database. Spring Data
+already have a nice trick to auto populate repositories and we simply
+use this feature via `Jackson2RepositoryPopulatorFactoryBean`.
+
+
+[source,java,indent=0]
+----
+include::samples/demo/datajpa/StateMachineConfig.java[tags=snippetA]
+----
+
+Actual source for populator data is shown below.
+
+[source,json,indent=0]
+----
+include::samples/data.json[]
+----
 

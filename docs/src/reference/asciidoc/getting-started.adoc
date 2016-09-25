@@ -16,7 +16,8 @@ dependencies outside of Spring Framework within its core system.
 Other optional parts like <<sm-distributed>> has dependencies to
 a `Zookeeper`, while <<statemachine-examples>> has dependencies
 to spring-shell and spring-boot which pulls other dependencies
-beyond framework itself.
+beyond framework itself. Also optional security and data access has
+dependencies to _Spring Security_ and _Spring Data Modules_.
 
 == Modules
 The following modules are available for Spring Statemachine.
@@ -37,6 +38,12 @@ framework.
 |spring-statemachine-redis
 |`Redis` related features for state machine.
 
+|spring-statemachine-data-common
+|Common support module for `Spring Data`.
+
+|spring-statemachine-data-jpa
+|Support module for `Spring Data JPA`.
+
 |spring-statemachine-zookeeper
 |`Zookeeper` integration for a distributed state machine.
 
@@ -47,7 +54,7 @@ framework.
 |Support module for Spring Cloud Cluster.
 
 |spring-statemachine-uml
-|Support module for UI uml modeling.
+|Support module for UI uml modeling with Eclipse Papyrus.
 |===
 
 == Using Gradle

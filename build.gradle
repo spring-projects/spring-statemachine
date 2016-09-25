@@ -375,6 +375,7 @@ configure(rootProject) {
 		from 'spring-statemachine-zookeeper/src/test/java/org/springframework/statemachine/zookeeper/docs'
 		from 'spring-statemachine-uml/src/test/java/org/springframework/statemachine/uml/docs'
 		from 'spring-statemachine-uml/src/test/resources/org/springframework/statemachine/uml/docs'
+		from 'spring-statemachine-data/jpa/src/test/java/org/springframework/statemachine/data/jpa/docs'
 		from 'spring-statemachine-samples/src/main/java/'
 		from 'spring-statemachine-samples/washer/src/main/java/'
 		from 'spring-statemachine-samples/tasks/src/main/java/'
@@ -385,8 +386,11 @@ configure(rootProject) {
 		from 'spring-statemachine-samples/zookeeper/src/main/java/'
 		from 'spring-statemachine-samples/security/src/main/java/'
 		from 'spring-statemachine-samples/eventservice/src/main/java/'
+		from 'spring-statemachine-samples/datajpa/src/main/java/'
+		from 'spring-statemachine-samples/datajpa/src/main/resources/'
 		include '**/*.java'
 		include '**/*.uml'
+		include '**/*.json'
 		into 'docs/src/reference/asciidoc/samples'
 	}
 
