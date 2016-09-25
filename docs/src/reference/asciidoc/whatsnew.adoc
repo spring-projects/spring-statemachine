@@ -22,3 +22,13 @@ interoperability with web applications.
 * New samples, <<statemachine-examples-security>>, <<statemachine-examples-eventservice>>.
 * UI modeling support using Eclipse Papyrus, <<sm-papyrus>>.
 
+== In 1.2
+_Spring Statemachine 1.2_ is focusing generic enhacements, better
+_UML_ support and integrations with external config repositories.
+
+* Support for UML submachines <<sm-papyrus-submachineref>>
+* New _Repository_ abstraction keeping machine configuration in an
+  external repository <<sm-repository>>
+* New support for state actions. <<state-actions>>
+* New error action concepts.
+
