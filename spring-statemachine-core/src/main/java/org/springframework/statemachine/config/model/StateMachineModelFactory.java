@@ -31,4 +31,15 @@ public interface StateMachineModelFactory<S, E> {
 	 * @return the state machine model
 	 */
 	StateMachineModel<S, E> build();
+
+	/**
+	 * Builds the state machine model with a given {@code machineId}.
+	 * Implementation is free to choose what to do with a given {@code machineId}
+	 * but usually it might map to a different configurations supported
+	 * by storage or repository in a factory.
+	 *
+	 * @param machineId the machine id
+	 * @return the state machine model
+	 */
+	StateMachineModel<S, E> build(String machineId);
 }

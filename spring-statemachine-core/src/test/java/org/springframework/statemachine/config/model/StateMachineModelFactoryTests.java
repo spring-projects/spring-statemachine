@@ -194,6 +194,11 @@ public class StateMachineModelFactoryTests extends AbstractStateMachineTests {
 		public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
 			this.beanFactory = beanFactory;
 		}
+
+		@Override
+		public StateMachineModel<String, String> build(String machineId) {
+			return build();
+		}
 	}
 
 	@Override

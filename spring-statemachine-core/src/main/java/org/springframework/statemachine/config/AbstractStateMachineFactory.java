@@ -152,7 +152,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 	 */
 	@SuppressWarnings("unchecked")
 	public StateMachine<S, E> getStateMachine(UUID uuid, String machineId) {
-		StateMachineModel<S, E> stateMachineModel = resolveStateMachineModel();
+		StateMachineModel<S, E> stateMachineModel = resolveStateMachineModel(machineId);
 		if (stateMachineModel.getConfigurationData().isVerifierEnabled()) {
 			StateMachineModelVerifier<S, E> verifier = stateMachineModel.getConfigurationData().getVerifier();
 			if (verifier == null) {
@@ -355,11 +355,11 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		}
 	}
 
-	protected StateMachineModel<S, E> resolveStateMachineModel() {
+	protected StateMachineModel<S, E> resolveStateMachineModel(String machineId) {
 		if (stateMachineModelFactory == null) {
 			return defaultStateMachineModel;
 		} else {
-			StateMachineModel<S, E> m = stateMachineModelFactory.build();
+			StateMachineModel<S, E> m = stateMachineModelFactory.build(machineId);
 			if (m.getConfigurationData() == null) {
 				// if model doesn't have explicit configuration data,
 				// get it from default model

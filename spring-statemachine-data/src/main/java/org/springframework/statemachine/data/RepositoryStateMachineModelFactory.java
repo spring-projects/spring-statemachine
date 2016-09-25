@@ -53,16 +53,21 @@ public class RepositoryStateMachineModelFactory implements StateMachineModelFact
 
 	@Override
 	public StateMachineModel<String, String> build() {
+		return build(null);
+	}
+
+	@Override
+	public StateMachineModel<String, String> build(String machineId) {
 		ConfigurationData<String, String> configurationData = new ConfigurationData<>();
 
 		Collection<StateData<String, String>> stateData = new ArrayList<>();
-		for (RepositoryState s : stateRepository.findAll()) {
+		for (RepositoryState s : stateRepository.findByMachineId(machineId)) {
 			stateData.add(new StateData<String, String>(s.getState(), s.isInitial()));
 		}
 		StatesData<String, String> statesData = new StatesData<>(stateData);
 
 		Collection<TransitionData<String, String>> transitionData = new ArrayList<>();
-		for (RepositoryTransition t : transitionRepository.findAll()) {
+		for (RepositoryTransition t : transitionRepository.findByMachineId(machineId)) {
 			transitionData.add(new TransitionData<String, String>(t.getSource(), t.getTarget(), t.getEvent()));
 		}
 		TransitionsData<String, String> transitionsData = new TransitionsData<>(transitionData);

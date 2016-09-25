@@ -23,11 +23,24 @@ package org.springframework.statemachine.data;
  */
 public interface RepositoryState {
 
+	/**
+	 * Gets the machine id.
+	 *
+	 * @return the machine id
+	 */
+	String getMachineId();
+
+	/**
+	 * Gets the state.
+	 *
+	 * @return the state
+	 */
 	String getState();
 
-	void setState(String state);
-
+	/**
+	 * Checks if is initial.
+	 *
+	 * @return true, if is initial
+	 */
 	boolean isInitial();
-
-	void setInitial(boolean initial);
 }

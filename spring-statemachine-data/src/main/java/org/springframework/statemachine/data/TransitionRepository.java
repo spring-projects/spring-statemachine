@@ -15,6 +15,8 @@
  */
 package org.springframework.statemachine.data;
 
+import java.util.List;
+
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.Repository;
@@ -28,4 +30,12 @@ import org.springframework.data.repository.Repository;
  */
 @NoRepositoryBean
 public interface TransitionRepository<T extends RepositoryTransition> extends CrudRepository<T, Long> {
+
+	/**
+	 * Find transitions by machine id.
+	 *
+	 * @param machineId the machine id
+	 * @return the list of transitions
+	 */
+	List<T> findByMachineId(String machineId);
 }

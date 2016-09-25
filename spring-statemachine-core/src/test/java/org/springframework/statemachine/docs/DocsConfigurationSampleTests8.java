@@ -70,6 +70,11 @@ public class DocsConfigurationSampleTests8 {
 					statesData, transitionsData);
 			return stateMachineModel;
 		}
+
+		@Override
+		public StateMachineModel<String, String> build(String machineId) {
+			return build();
+		}
 	}
 // end::snippetB[]
 }

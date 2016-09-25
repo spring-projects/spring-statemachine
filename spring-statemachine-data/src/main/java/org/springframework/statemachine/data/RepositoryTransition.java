@@ -23,15 +23,31 @@ package org.springframework.statemachine.data;
  */
 public interface RepositoryTransition {
 
+	/**
+	 * Gets the machine id.
+	 *
+	 * @return the machine id
+	 */
+	String getMachineId();
+
+	/**
+	 * Gets the source.
+	 *
+	 * @return the source
+	 */
 	String getSource();
 
-	void setSource(String source);
-
+	/**
+	 * Gets the target.
+	 *
+	 * @return the target
+	 */
 	String getTarget();
 
-	void setTarget(String target);
-
+	/**
+	 * Gets the event.
+	 *
+	 * @return the event
+	 */
 	String getEvent();
-
-	void setEvent(String event);
 }

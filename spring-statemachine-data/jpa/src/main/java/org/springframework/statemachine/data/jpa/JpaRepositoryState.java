@@ -35,8 +35,9 @@ public class JpaRepositoryState implements RepositoryState {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 
-	protected String state;
-	protected boolean initial;
+	private String machineId;
+	private String state;
+	private boolean initial;
 
 	/**
 	 * Instantiates a new jpa repository state.
@@ -44,6 +45,11 @@ public class JpaRepositoryState implements RepositoryState {
 	public JpaRepositoryState() {
 	}
 
+	/**
+	 * Instantiates a new jpa repository state.
+	 *
+	 * @param state the state
+	 */
 	public JpaRepositoryState(String state) {
 		this.state = state;
 	}
@@ -55,9 +61,29 @@ public class JpaRepositoryState implements RepositoryState {
 	 * @param initial the initial
 	 */
 	public JpaRepositoryState(String state, boolean initial) {
-		super();
+		this(null, state, initial);
+	}
+
+	/**
+	 * Instantiates a new jpa repository state.
+	 *
+	 * @param machineId the machine id
+	 * @param state the state
+	 * @param initial the initial
+	 */
+	public JpaRepositoryState(String machineId, String state, boolean initial) {
+		this.machineId = machineId;
 		this.state = state;
 		this.initial = initial;
+	}
+
+	@Override
+	public String getMachineId() {
+		return machineId;
+	}
+
+	public void setMachineId(String machineId) {
+		this.machineId = machineId;
 	}
 
 	@Override
@@ -65,7 +91,6 @@ public class JpaRepositoryState implements RepositoryState {
 		return state;
 	}
 
-	@Override
 	public void setState(String state) {
 		this.state = state;
 	}
@@ -75,7 +100,6 @@ public class JpaRepositoryState implements RepositoryState {
 		return initial;
 	}
 
-	@Override
 	public void setInitial(boolean initial) {
 		this.initial = initial;
 	}

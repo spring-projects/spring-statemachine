@@ -35,6 +35,7 @@ public class JpaRepositoryTransition implements RepositoryTransition {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 
+	private String machineId;
 	private String source;
 	private String target;
 	private String event;
@@ -43,6 +44,7 @@ public class JpaRepositoryTransition implements RepositoryTransition {
 	 * Instantiates a new jpa repository transition.
 	 */
 	public JpaRepositoryTransition() {
+		this(null, null, null);
 	}
 
 	/**
@@ -53,9 +55,31 @@ public class JpaRepositoryTransition implements RepositoryTransition {
 	 * @param event the event
 	 */
 	public JpaRepositoryTransition(String source, String target, String event) {
+		this(null, source, target, event);
+	}
+
+	/**
+	 * Instantiates a new jpa repository transition.
+	 *
+	 * @param machineId the machine id
+	 * @param source the source
+	 * @param target the target
+	 * @param event the event
+	 */
+	public JpaRepositoryTransition(String machineId, String source, String target, String event) {
+		this.machineId = machineId;
 		this.source = source;
 		this.target = target;
 		this.event = event;
+	}
+
+	@Override
+	public String getMachineId() {
+		return machineId;
+	}
+
+	public void setMachineId(String machineId) {
+		this.machineId = machineId;
 	}
 
 	@Override
@@ -63,7 +87,6 @@ public class JpaRepositoryTransition implements RepositoryTransition {
 		return source;
 	}
 
-	@Override
 	public void setSource(String source) {
 		this.source = source;
 	}
@@ -73,7 +96,6 @@ public class JpaRepositoryTransition implements RepositoryTransition {
 		return target;
 	}
 
-	@Override
 	public void setTarget(String target) {
 		this.target = target;
 	}
@@ -83,7 +105,6 @@ public class JpaRepositoryTransition implements RepositoryTransition {
 		return event;
 	}
 
-	@Override
 	public void setEvent(String event) {
 		this.event = event;
 	}

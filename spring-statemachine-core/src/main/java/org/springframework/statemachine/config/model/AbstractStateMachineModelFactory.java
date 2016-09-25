@@ -39,7 +39,8 @@ import org.springframework.util.Assert;
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public abstract class AbstractStateMachineModelFactory<S, E> implements StateMachineComponentResolver<S, E>, BeanFactoryAware, ResourceLoaderAware {
+public abstract class AbstractStateMachineModelFactory<S, E>
+		implements StateMachineComponentResolver<S, E>, StateMachineModelFactory<S, E>, BeanFactoryAware, ResourceLoaderAware {
 
 	private BeanFactory beanFactory;
 	private ResourceLoader resourceLoader = new DefaultResourceLoader();
@@ -75,6 +76,14 @@ public abstract class AbstractStateMachineModelFactory<S, E> implements StateMac
 		Assert.notNull(resourceLoader, "resourceLoader cannot be null");
 		this.resourceLoader = resourceLoader;
 	}
+
+	@Override
+	public StateMachineModel<S, E> build(String machineId) {
+		return build();
+	}
+
+	@Override
+	public abstract StateMachineModel<S, E> build();
 
 	/**
 	 * Sets the state machine component resolver.

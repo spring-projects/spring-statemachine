@@ -18,6 +18,8 @@ package org.springframework.statemachine.data.jpa;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.List;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -76,6 +78,42 @@ public class JpaRepositoryTests {
 		assertThat(transition2.getSource(), is("S1"));
 		assertThat(transition2.getTarget(), is("S2"));
 		assertThat(transition2.getEvent(), is("E1"));
+
+		context.close();
+	}
+
+	@Test
+	public void testRepository3() {
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+		context.register(Config.class);
+		context.refresh();
+
+		JpaStateRepository statesRepository = context.getBean(JpaStateRepository.class);
+		JpaRepositoryState state1 = new JpaRepositoryState("machine1", "S1", true);
+		statesRepository.save(state1);
+		JpaRepositoryState state2 = new JpaRepositoryState("machine2", "S2", false);
+		statesRepository.save(state2);
+
+		List<JpaRepositoryState> findByMachineId1 = statesRepository.findByMachineId("machine1");
+		List<JpaRepositoryState> findByMachineId2 = statesRepository.findByMachineId("machine2");
+		assertThat(findByMachineId1.size(), is(1));
+		assertThat(findByMachineId2.size(), is(1));
+		assertThat(findByMachineId1.get(0).getMachineId(), is("machine1"));
+		assertThat(findByMachineId2.get(0).getMachineId(), is("machine2"));
+
+
+		JpaTransitionRepository transitionsRepository = context.getBean(JpaTransitionRepository.class);
+		JpaRepositoryTransition transition1 = new JpaRepositoryTransition("machine1", "S1", "S2", "E1");
+		JpaRepositoryTransition transition2 = new JpaRepositoryTransition("machine2", "S3", "S4", "E2");
+		transitionsRepository.save(transition1);
+		transitionsRepository.save(transition2);
+		List<JpaRepositoryTransition> findByMachineId3 = transitionsRepository.findByMachineId("machine1");
+		List<JpaRepositoryTransition> findByMachineId4 = transitionsRepository.findByMachineId("machine2");
+
+		assertThat(findByMachineId3.size(), is(1));
+		assertThat(findByMachineId4.size(), is(1));
+		assertThat(findByMachineId3.get(0).getMachineId(), is("machine1"));
+		assertThat(findByMachineId4.get(0).getMachineId(), is("machine2"));
 
 		context.close();
 	}
