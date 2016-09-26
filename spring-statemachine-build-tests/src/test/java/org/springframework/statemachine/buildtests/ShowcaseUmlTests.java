@@ -106,8 +106,8 @@ public class ShowcaseUmlTests extends AbstractBuildTests {
 						.expectStates("S0", "S2", "S21", "S211").and()
 					.step()
 						.sendEvent("H")
-						.expectVariable("foo", 0)
-						.expectTransition(0)
+						.expectVariable("foo", 1)
+						.expectTransition(1)
 						.expectStates("S0", "S2", "S21", "S211").and()
 					.step()
 						.sendEvent("K")
@@ -115,9 +115,9 @@ public class ShowcaseUmlTests extends AbstractBuildTests {
 						.expectStates("S0", "S1", "S11").and()
 					.step()
 						.sendEvent("A")
-						.expectStateChanged(0)
-						.expectStateEntered(0)
-						.expectStateExited(0)
+						.expectStateChanged(2)
+						.expectStateEntered(2)
+						.expectStateExited(2)
 						.expectStates("S0", "S1", "S11").and()
 					.build();
 		plan.test();
@@ -286,8 +286,8 @@ public class ShowcaseUmlTests extends AbstractBuildTests {
 						.expectStates("S0", "S2", "S21", "S211").and()
 					.step()
 						.sendEvent("H")
-						.expectVariable("foo", 0)
-						.expectTransition(0)
+						.expectVariable("foo", 1)
+						.expectTransition(1)
 						.expectStates("S0", "S2", "S21", "S211").and()
 					.build();
 		plan.test();
@@ -315,8 +315,8 @@ public class ShowcaseUmlTests extends AbstractBuildTests {
 						.expectStates("S0", "S2", "S21", "S211").and()
 					.step()
 						.sendEvent("H")
-						.expectVariable("foo", 0)
-						.expectTransition(0)
+						.expectVariable("foo", 1)
+						.expectTransition(1)
 						.expectStates("S0", "S2", "S21", "S211").and()
 					.build();
 		plan.test();
