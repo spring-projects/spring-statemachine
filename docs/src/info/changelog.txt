@@ -4,6 +4,24 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 1.2.0.M1 (2016-09-28)
+----------------------------------------
+* Support for UML Sub State Machines enhancement question [#121]
+* Null transition in Interceptor's postStateChange when source is a JOIN state bug [#235]
+* Support multiple transitions from join enhancement [#237]
+* Update docs for 1.2.0.M1 [#238]
+* Support state activity enhancement [#239]
+* Exception thrown in transition are not catch then send back to any listener [#240]
+* Ability to set UUID for StateMachine enhancement [#241]
+* Transitions created with withLocal() do not work [#248]
+* Initial state entry called with direct transition to substate bug [#249]
+* Support storing ssm config in a database enhancement [#250]
+* Transition not accepted due to wrong comparison bug [#253]
+* StateMachineModelFactory used only once bug [#254]
+* Hook StateMachineModelFactory and StateMachineFactory together enhancement [#255]
+* State action execution testing not reliable bug [#257]
+* Transition error action not used per defined action bug [#259]
+
 Changes in version 1.1.0.RELEASE (2016-05-23)
 ---------------------------------------------
 * Start adding developer doc info into ref docs [#158]
