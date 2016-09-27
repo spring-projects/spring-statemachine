@@ -64,14 +64,6 @@ public interface Transition<S, E> {
 	Collection<Action<S, E>> getActions();
 
 	/**
-	 * Get The action that will be execute if one of {@link #getActions()} throw an exception.
-	 * This action may be usefull if you want to notify another sub system from unexpected technical error.
-	 *
-	 * @return the error {@link Action}
-	 */
-	Action<S, E> getErrorAction();
-
-	/**
 	 * Gets the transition trigger.
 	 *
 	 * @return the transition trigger
@@ -91,5 +83,4 @@ public interface Transition<S, E> {
 	 * @return the security rule
 	 */
 	SecurityRule getSecurityRule();
-
 }

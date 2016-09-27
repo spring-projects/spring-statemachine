@@ -16,6 +16,7 @@
 package org.springframework.statemachine.config.configurers;
 
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.action.Actions;
 import org.springframework.statemachine.config.builders.StateMachineTransitionBuilder;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerAdapter;
@@ -47,7 +48,6 @@ public abstract class AbstractTransitionConfigurer<S, E> extends
 	private final Collection<Action<S, E>> actions = new ArrayList<>();
 	private Guard<S, E> guard;
 	private SecurityRule securityRule;
-	private Action<S, E> errorAction;
 
 	protected S getSource() {
 		return source;
@@ -118,27 +118,15 @@ public abstract class AbstractTransitionConfigurer<S, E> extends
 	}
 
 	protected void addAction(Action<S, E> action) {
-		this.actions.add(action);
+		addAction(action, null);
+	}
+
+	protected void addAction(Action<S, E> action, Action<S, E> error) {
+		this.actions.add(error != null ? Actions.errorCallingAction(action, error) : action);
 	}
 
 	protected void setGuard(Guard<S, E> guard) {
 		this.guard = guard;
-	}
-
-	/**
-	 *
-	 * @return the Error {@link Action}
-	 */
-	public Action<S, E> getErrorAction() {
-		return errorAction;
-	}
-
-	/**
-	 *
-	 * @param errorAction the {@link Action} that will be called each time an action is gonna throw an exception.
-	 */
-	public void setErrorAction(Action<S, E> errorAction) {
-		this.errorAction = errorAction;
 	}
 
 	protected void setSecurityRule(String attributes, ComparisonType match) {

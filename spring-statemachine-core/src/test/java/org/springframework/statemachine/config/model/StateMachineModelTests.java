@@ -68,7 +68,7 @@ public class StateMachineModelTests {
 
 
 		Collection<TransitionData<String, String>> transitions = new ArrayList<>();
-		TransitionData<String, String> transitionData1 = new TransitionData<String, String>("S1", "S2", null, "E1", null, null, null, null, TransitionKind.EXTERNAL, null, null);
+		TransitionData<String, String> transitionData1 = new TransitionData<String, String>("S1", "S2", null, "E1", null, null, null, null, TransitionKind.EXTERNAL, null);
 		transitions.add(transitionData1);
 		Map<String, List<ChoiceData<String, String>>> choices = new HashMap<>();
 		Map<String, List<JunctionData<String, String>>> junctions = new HashMap<>();

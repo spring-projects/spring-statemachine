@@ -30,5 +30,5 @@ _UML_ support and integrations with external config repositories.
 * New _Repository_ abstraction keeping machine configuration in an
   external repository <<sm-repository>>
 * New support for state actions. <<state-actions>>
-* New error action concepts.
+* New transition error action concepts.  <<statemachine-config-actions-errorhandling>>
 

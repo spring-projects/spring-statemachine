@@ -25,14 +25,34 @@ import java.util.Collection;
 
 public class AbstractLocalTransition<S, E> extends AbstractTransition<S, E> implements Transition<S, E> {
 
+	/**
+	 * Instantiates a new abstract local transition.
+	 *
+	 * @param source the source
+	 * @param target the target
+	 * @param actions the actions
+	 * @param event the event
+	 * @param guard the guard
+	 * @param trigger the trigger
+	 */
 	public AbstractLocalTransition(State<S, E> source, State<S, E> target, Collection<Action<S, E>> actions, E event,
 			Guard<S, E> guard, Trigger<S, E> trigger) {
 		super(source, target, actions, event, TransitionKind.LOCAL, guard, trigger);
 	}
 
+	/**
+	 * Instantiates a new abstract local transition.
+	 *
+	 * @param source the source
+	 * @param target the target
+	 * @param actions the actions
+	 * @param event the event
+	 * @param guard the guard
+	 * @param trigger the trigger
+	 * @param securityRule the security rule
+	 */
 	public AbstractLocalTransition(State<S, E> source, State<S, E> target, Collection<Action<S, E>> actions, E event,
-			Guard<S, E> guard, Trigger<S, E> trigger, SecurityRule securityRule, Action<S, E> errorAction) {
-		super(source, target, actions, event, TransitionKind.LOCAL, guard, trigger, securityRule, errorAction);
+			Guard<S, E> guard, Trigger<S, E> trigger, SecurityRule securityRule) {
+		super(source, target, actions, event, TransitionKind.LOCAL, guard, trigger, securityRule);
 	}
-
 }

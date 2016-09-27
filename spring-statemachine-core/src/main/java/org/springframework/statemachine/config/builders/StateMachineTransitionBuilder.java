@@ -174,17 +174,16 @@ public class StateMachineTransitionBuilder<S, E>
 	 * @param guard the guard
 	 * @param kind the kind
 	 * @param securityRule the security rule
-	 * @param errorAction the {@link Action} that will be called each time an action is gonna throw an exception.
 	 */
 	public void addTransition(S source, S target, S state, E event, Long period, Integer count, Collection<Action<S, E>> actions,
-			Guard<S, E> guard, TransitionKind kind, SecurityRule securityRule, Action<S, E> errorAction) {
+			Guard<S, E> guard, TransitionKind kind, SecurityRule securityRule) {
 		// if rule not given, get it from global
 		if (securityRule == null) {
 			@SuppressWarnings("unchecked")
 			ConfigurationData<S, E> config = getSharedObject(ConfigurationData.class);
 			securityRule = config.getTransitionSecurityRule();
 		}
-		transitionData.add(new TransitionData<>(source, target, state, event, period, count, actions, guard, kind, securityRule, errorAction));
+		transitionData.add(new TransitionData<>(source, target, state, event, period, count, actions, guard, kind, securityRule));
 	}
 
 	/**

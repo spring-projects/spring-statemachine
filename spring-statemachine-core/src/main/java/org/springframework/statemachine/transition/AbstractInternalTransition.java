@@ -25,14 +25,32 @@ import org.springframework.statemachine.trigger.Trigger;
 
 public class AbstractInternalTransition<S, E> extends AbstractTransition<S, E> implements Transition<S, E> {
 
+	/**
+	 * Instantiates a new abstract internal transition.
+	 *
+	 * @param source the source
+	 * @param actions the actions
+	 * @param event the event
+	 * @param guard the guard
+	 * @param trigger the trigger
+	 */
 	public AbstractInternalTransition(State<S, E> source, Collection<Action<S, E>> actions, E event, Guard<S, E> guard,
 			Trigger<S, E> trigger) {
 		super(source, source, actions, event, TransitionKind.INTERNAL, guard, trigger);
 	}
 
+	/**
+	 * Instantiates a new abstract internal transition.
+	 *
+	 * @param source the source
+	 * @param actions the actions
+	 * @param event the event
+	 * @param guard the guard
+	 * @param trigger the trigger
+	 * @param securityRule the security rule
+	 */
 	public AbstractInternalTransition(State<S, E> source, Collection<Action<S, E>> actions, E event, Guard<S, E> guard,
-			Trigger<S, E> trigger, SecurityRule securityRule, Action<S, E> errorAction) {
-		super(source, source, actions, event, TransitionKind.INTERNAL, guard, trigger, securityRule, errorAction);
+			Trigger<S, E> trigger, SecurityRule securityRule) {
+		super(source, source, actions, event, TransitionKind.INTERNAL, guard, trigger, securityRule);
 	}
-
 }

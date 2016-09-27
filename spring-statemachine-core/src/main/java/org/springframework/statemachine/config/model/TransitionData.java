@@ -39,7 +39,6 @@ public class TransitionData<S, E> {
 	private final Guard<S, E> guard;
 	private final TransitionKind kind;
 	private final SecurityRule securityRule;
-	private final Action<S, E> errorAction;
 
 	/**
 	 * Instantiates a new transition data.
@@ -49,7 +48,7 @@ public class TransitionData<S, E> {
 	 * @param event the event
 	 */
 	public TransitionData(S source, S target, E event) {
-		this(source, target, null, event, null, null, null, null, TransitionKind.EXTERNAL, null, null);
+		this(source, target, null, event, null, null, null, null, TransitionKind.EXTERNAL, null);
 	}
 
 	/**
@@ -64,7 +63,7 @@ public class TransitionData<S, E> {
 	 */
 	public TransitionData(S source, S target, E event, Collection<Action<S, E>> actions,
 			Guard<S, E> guard, TransitionKind kind) {
-		this(source, target, null, event, null, null, actions, guard, kind, null, null);
+		this(source, target, null, event, null, null, actions, guard, kind, null);
 	}
 
 	/**
@@ -80,7 +79,7 @@ public class TransitionData<S, E> {
 	 */
 	public TransitionData(S source, S target, Long period, Integer count, Collection<Action<S, E>> actions,
 			Guard<S, E> guard, TransitionKind kind) {
-		this(source, target, null, null, period, count, actions, guard, kind, null, null);
+		this(source, target, null, null, period, count, actions, guard, kind, null);
 	}
 
 	/**
@@ -96,10 +95,9 @@ public class TransitionData<S, E> {
 	 * @param guard the guard
 	 * @param kind the kind
 	 * @param securityRule the security rule
-	 * @param errorAction the {@link Action} that will be called each time an action is gonna throw an exception.
 	 */
 	public TransitionData(S source, S target, S state, E event, Long period, Integer count, Collection<Action<S, E>> actions,
-			Guard<S, E> guard, TransitionKind kind, SecurityRule securityRule, Action<S, E> errorAction) {
+			Guard<S, E> guard, TransitionKind kind, SecurityRule securityRule) {
 		this.source = source;
 		this.target = target;
 		this.state = state;
@@ -110,7 +108,6 @@ public class TransitionData<S, E> {
 		this.guard = guard;
 		this.kind = kind;
 		this.securityRule = securityRule;
-		this.errorAction = errorAction;
 	}
 
 	/**
@@ -201,13 +198,5 @@ public class TransitionData<S, E> {
 	 */
 	public SecurityRule getSecurityRule() {
 		return securityRule;
-	}
-
-	/**
-	 *
-	 * @return the error {@link Action}
-	 */
-	public Action<S, E> getErrorAction() {
-		return errorAction;
 	}
 }

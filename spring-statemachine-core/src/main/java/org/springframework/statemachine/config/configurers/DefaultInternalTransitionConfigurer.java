@@ -39,7 +39,7 @@ public class DefaultInternalTransitionConfigurer<S, E> extends AbstractTransitio
 	@Override
 	public void configure(StateMachineTransitionBuilder<S, E> builder) throws Exception {
 		builder.addTransition(getSource(), getTarget(), getState(), getEvent(), getPeriod(), getCount(), getActions(), getGuard(), TransitionKind.INTERNAL,
-				getSecurityRule(), getErrorAction());
+				getSecurityRule());
 	}
 
 	@Override
@@ -80,8 +80,7 @@ public class DefaultInternalTransitionConfigurer<S, E> extends AbstractTransitio
 
 	@Override
 	public InternalTransitionConfigurer<S, E> action(Action<S, E> action, Action<S, E> error) {
-		addAction(action);
-		setErrorAction(error);
+		addAction(action, error);
 		return this;
 	}
 

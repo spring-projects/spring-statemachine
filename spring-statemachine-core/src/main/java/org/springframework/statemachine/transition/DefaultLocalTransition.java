@@ -25,14 +25,35 @@ import org.springframework.statemachine.trigger.Trigger;
 
 public class DefaultLocalTransition<S, E> extends AbstractLocalTransition<S, E> {
 
+	/**
+	 * Instantiates a new default local transition.
+	 *
+	 * @param source the source
+	 * @param target the target
+	 * @param actions the actions
+	 * @param event the event
+	 * @param guard the guard
+	 * @param trigger the trigger
+	 */
 	public DefaultLocalTransition(State<S, E> source, State<S, E> target, Collection<Action<S, E>> actions, E event, Guard<S, E> guard,
 			Trigger<S, E> trigger) {
 		super(source, target, actions, event, guard, trigger);
 	}
 
+	/**
+	 * Instantiates a new default local transition.
+	 *
+	 * @param source the source
+	 * @param target the target
+	 * @param actions the actions
+	 * @param event the event
+	 * @param guard the guard
+	 * @param trigger the trigger
+	 * @param securityRule the security rule
+	 */
 	public DefaultLocalTransition(State<S, E> source, State<S, E> target, Collection<Action<S, E>> actions, E event,
-			Guard<S, E> guard, Trigger<S, E> trigger, SecurityRule securityRule, Action<S, E> errorAction) {
-		super(source, target, actions, event, guard, trigger, securityRule, errorAction);
+			Guard<S, E> guard, Trigger<S, E> trigger, SecurityRule securityRule) {
+		super(source, target, actions, event, guard, trigger, securityRule);
 	}
 
 	@Override

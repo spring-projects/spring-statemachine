@@ -160,6 +160,7 @@ expression based guard is a _SpelExpressionGuard_. This was attached to
 transition between states `S2` and `S3`. Both guard in above sample
 always evaluate to true.
 
+[[statemachine-config-actions]]
 === Configuring Actions
 Actions can be defined to be executed with transitions and states
 itself. Action is always executed as a result of a transition which
@@ -219,6 +220,27 @@ wrapped within a `Runnable` which may get cancelled via
 `ScheduledFuture`. What this means is that whatever your doing in your
 action, you need to be able to catch `InterruptedException` which is
 raised if task is cancelled.
+
+[[statemachine-config-actions-errorhandling]]
+==== Transition Action Error Handling
+
+User can always catch exceptions manually but with actions defined for
+transitions it is possible to define error action which is called if
+exception is reased. Exception is then available from a `StateContext`
+passed to that action.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetEC]
+----
+
+Similar logic can be done manually for every action if needed.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetED]
+----
+
 
 === Configuring Pseudo States
 
@@ -1582,6 +1604,12 @@ recognize only `StateMachineEvent` instances.
 ----
 include::samples/DocsConfigurationSampleTests.java[tags=snippet4]
 ----
+
+[TIP]
+====
+Actions defined for transitions also have their own error handling
+logic <<statemachine-config-actions-errorhandling>>.
+====
 
 [[sm-persist]]
 == Persisting State Machine

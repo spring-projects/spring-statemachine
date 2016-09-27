@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,13 @@
 package org.springframework.statemachine.action;
 
 import org.springframework.statemachine.StateContext;
+import org.springframework.statemachine.support.DefaultStateContext;
 
 /**
  * Action Utilities.
+ *
+ * @author Janne Valkealahti
+ *
  */
 public final class Actions {
 
@@ -28,9 +32,10 @@ public final class Actions {
 	}
 
 	/**
+	 * Builds a noop {@link Action}.
 	 *
-	 * @param <S> represents states Class
-	 * @param <E> represents event Class
+	 * @param <S> the type of state
+	 * @param <E> the type of event
 	 * @return an empty (Noop) Action.
 	 */
 	public static <S, E> Action<S, E> emptyAction() {
@@ -38,6 +43,37 @@ public final class Actions {
 			@Override
 			public void execute(final StateContext<S, E> context) {
 				// Nothing to do;
+			}
+		};
+	}
+
+	/**
+	 * Builds a erro calling action {@link Action}.
+	 *
+	 * @param <S> the type of state
+	 * @param <E> the type of event
+	 * @param action the action
+	 * @param errorAction the error action
+	 * @return the error calling action
+	 */
+	public static <S, E> Action<S, E> errorCallingAction(final Action<S, E> action, final Action<S, E> errorAction) {
+		return new Action<S, E>() {
+			@Override
+			public void execute(final StateContext<S, E> context) {
+				try {
+					action.execute(context);
+				}
+				catch (Exception exception) {
+					// notify something wrong is happening in actions execution.
+					try {
+						errorAction.execute(new DefaultStateContext<>(context.getStage(), context.getMessage(), context.getMessageHeaders(),
+								context.getExtendedState(), context.getTransition(), context.getStateMachine(), context.getSource(),
+								context.getTarget(), context.getSources(), context.getTargets(), exception));
+					} catch (Exception e) {
+						// not interested
+					}
+					throw exception;
+				}
 			}
 		};
 	}

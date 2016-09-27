@@ -34,30 +34,32 @@ public class InitialTransition<S, E> extends AbstractTransition<S, E>
 		implements Transition<S, E> {
 
 	/**
+	 * Instantiates a new initial transition.
 	 *
-	 * @param target state.
+	 * @param target the target
 	 */
 	public InitialTransition(State<S, E> target) {
-		this(target, null);
+		super(null, target, null, null, TransitionKind.INITIAL, null, null, null);
 	}
 
 	/**
+	 * Instantiates a new initial transition.
 	 *
-	 * @param target state
-	 * @param action to be executed to succeed for this transition
+	 * @param target the target
+	 * @param action the action
 	 */
 	public InitialTransition(State<S, E> target, Action<S, E> action) {
-		this(target, action == null ? Collections.<Action<S,E>>emptyList(): Collections.singleton(action), null);
+		super(null, target, action != null ? Collections.singleton(action) : null, null, TransitionKind.INITIAL, null, null, null);
 	}
 
 	/**
+	 * Instantiates a new initial transition.
 	 *
-	 * @param target state
-	 * @param actions to be executed to succeed for this transition
-	 * @param errorAction to be executed if one of {@link #getActions()} throw an exception.
+	 * @param target the target
+	 * @param actions the actions
 	 */
-	public InitialTransition(State<S, E> target, Collection<Action<S, E>> actions, Action<S, E> errorAction) {
-		super(target, actions, TransitionKind.INITIAL, errorAction);
+	public InitialTransition(State<S, E> target, Collection<Action<S, E>> actions) {
+		super(null, target, actions, null, TransitionKind.INITIAL, null, null, null);
 	}
 
 	@Override

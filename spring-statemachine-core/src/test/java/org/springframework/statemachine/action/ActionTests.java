@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 package org.springframework.statemachine.action;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -30,10 +36,6 @@ import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for state machine actions.
@@ -54,18 +56,34 @@ public class ActionTests extends AbstractStateMachineTests {
 
 		TestCountAction testAction1 = ctx.getBean("testAction1", TestCountAction.class);
 		TestCountAction testAction2 = ctx.getBean("testAction2", TestCountAction.class);
-        TestCountAction testAction3 = ctx.getBean("testAction3", TestCountAction.class);
-        TestCountAction testAction4 = ctx.getBean("testAction4", TestCountAction.class);
-        TestCountAction testErrorAction = ctx.getBean("testErrorAction", TestCountAction.class);
+		TestCountAction testAction3 = ctx.getBean("testAction3", TestCountAction.class);
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E2).build());
-        machine.sendEvent(MessageBuilder.withPayload(TestEvents.E3).build());
-        machine.sendEvent(MessageBuilder.withPayload(TestEvents.E4).build());
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E3).build());
 		assertThat(testAction1.count, is(1));
 		assertThat(testAction2.count, is(1));
-        assertThat(testAction3.count, is(1));
-        assertThat(testAction4.count, is(0));
-        assertThat(testErrorAction.count, is(1));
+		assertThat(testAction3.count, is(1));
+		ctx.close();
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	@Test
+	public void testTransitionActionErrors() {
+		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config2.class);
+		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		StateMachine<TestStates,TestEvents> machine =
+				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		machine.start();
+
+		TestCountAction testAction1 = ctx.getBean("testAction1", TestCountAction.class);
+		TestCountAction testErrorAction = ctx.getBean("testErrorAction", TestCountAction.class);
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
+		assertThat(testAction1.count, is(1));
+		assertThat(testErrorAction.count, is(1));
+		assertThat(testErrorAction.context, notNullValue());
+		assertThat(testErrorAction.context.getException(), notNullValue());
+		assertThat(testErrorAction.context.getException(), instanceOf(RuntimeException.class));
+		assertThat(testErrorAction.context.getException().getMessage(), is("Fake Error"));
 		ctx.close();
 	}
 
@@ -77,6 +95,7 @@ public class ActionTests extends AbstractStateMachineTests {
 	private static class TestCountAction implements Action<TestStates, TestEvents> {
 
 		int count = 0;
+		StateContext<TestStates, TestEvents> context;
 
 		public TestCountAction() {
 			count = 0;
@@ -84,6 +103,7 @@ public class ActionTests extends AbstractStateMachineTests {
 
 		@Override
 		public void execute(StateContext<TestStates, TestEvents> context) {
+			this.context = context;
 			count++;
 		}
 
@@ -100,9 +120,8 @@ public class ActionTests extends AbstractStateMachineTests {
 					.initial(TestStates.S1)
 					.state(TestStates.S1)
 					.state(TestStates.S2)
-                    .state(TestStates.S3)
-					.state(TestStates.S4)
-					.state(TestStates.S10);
+					.state(TestStates.S3)
+					.state(TestStates.S4);
 		}
 
 		@Override
@@ -124,13 +143,7 @@ public class ActionTests extends AbstractStateMachineTests {
 					.source(TestStates.S3)
 					.target(TestStates.S4)
 					.event(TestEvents.E3)
-					.action(testAction3())
-                    .and()
-				.withExternal()
-                    .source(TestStates.S4)
-                    .target(TestStates.S10)
-                    .event(TestEvents.E4)
-                    .action(testAction4(), testErrorAction());
+					.action(testAction3());
 		}
 
 		@Bean
@@ -143,22 +156,52 @@ public class ActionTests extends AbstractStateMachineTests {
 			return new TestCountAction();
 		}
 
-        @Bean
-        public TestCountAction testAction3() {
-            return new TestCountAction();
-        }
+		@Bean
+		public TestCountAction testAction3() {
+			return new TestCountAction();
+		}
 
-        @Bean
-        public TestCountAction testAction4() {
-            return new TestCountAction() {
-                @Override
-                public void execute(StateContext<TestStates, TestEvents> context) {
-                    throw new RuntimeException("Fake Error");
-                }
-            };
-        }
+		@Bean
+		public TaskExecutor taskExecutor() {
+			return new SyncTaskExecutor();
+		}
+	}
 
-        @Bean
+	@Configuration
+	@EnableStateMachine
+	static class Config2 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S1)
+					.state(TestStates.S2);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.action(testAction1(), testErrorAction());
+		}
+
+		@Bean
+		public TestCountAction testAction1() {
+			return new TestCountAction() {
+				@Override
+				public void execute(StateContext<TestStates, TestEvents> context) {
+					super.execute(context);
+					throw new RuntimeException("Fake Error");
+				}
+			};
+		}
+
+		@Bean
 		public TestCountAction testErrorAction() {
 			return new TestCountAction();
 		}
@@ -169,5 +212,4 @@ public class ActionTests extends AbstractStateMachineTests {
 		}
 
 	}
-
 }

@@ -25,14 +25,32 @@ import java.util.Collection;
 
 public class DefaultInternalTransition<S, E> extends AbstractInternalTransition<S, E> {
 
+	/**
+	 * Instantiates a new default internal transition.
+	 *
+	 * @param source the source
+	 * @param actions the actions
+	 * @param event the event
+	 * @param guard the guard
+	 * @param trigger the trigger
+	 */
 	public DefaultInternalTransition(State<S, E> source, Collection<Action<S, E>> actions, E event, Guard<S, E> guard,
 			Trigger<S, E> trigger) {
 		super(source, actions, event, guard, trigger);
 	}
 
+	/**
+	 * Instantiates a new default internal transition.
+	 *
+	 * @param source the source
+	 * @param actions the actions
+	 * @param event the event
+	 * @param guard the guard
+	 * @param trigger the trigger
+	 * @param securityRule the security rule
+	 */
 	public DefaultInternalTransition(State<S, E> source, Collection<Action<S, E>> actions, E event, Guard<S, E> guard,
-			Trigger<S, E> trigger, SecurityRule securityRule, Action<S, E> errorAction) {
-		super(source, actions, event, guard, trigger, securityRule, errorAction);
+			Trigger<S, E> trigger, SecurityRule securityRule) {
+		super(source, actions, event, guard, trigger, securityRule);
 	}
-
 }
