@@ -4,6 +4,12 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 1.1.1.RELEASE (2016-09-28)
+---------------------------------------------
+* Backport: Transition not accepted due to wrong comparison [#258]
+* Backport: Restoring persisted context incorrectly resets state when inside fork [#260]
+* Backport: Support multiple transitions from join [#261]
+
 Changes in version 1.1.0.RELEASE (2016-05-23)
 ---------------------------------------------
 * Start adding developer doc info into ref docs [#158]
