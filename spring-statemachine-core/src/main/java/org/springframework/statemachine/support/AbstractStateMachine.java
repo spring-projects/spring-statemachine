@@ -45,7 +45,6 @@ import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.AbstractState;
 import org.springframework.statemachine.state.ForkPseudoState;
 import org.springframework.statemachine.state.HistoryPseudoState;
-import org.springframework.statemachine.state.JoinPseudoState;
 import org.springframework.statemachine.state.PseudoState;
 import org.springframework.statemachine.state.PseudoStateContext;
 import org.springframework.statemachine.state.PseudoStateKind;
@@ -286,11 +285,15 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				// TODO: fix above stateContext as it's not used
 				notifyTransitionStart(buildStateContext(Stage.TRANSITION_START, message, t, getRelayStateMachine()));
 				notifyTransition(buildStateContext(Stage.TRANSITION, message, t, getRelayStateMachine()));
-				if (t.getKind() == TransitionKind.INITIAL) {
-					switchToState(t.getTarget(), message, t, getRelayStateMachine());
-					notifyStateMachineStarted(buildStateContext(Stage.STATEMACHINE_START, message, t, getRelayStateMachine()));
-				} else if (t.getKind() != TransitionKind.INTERNAL) {
-					switchToState(t.getTarget(), message, t, getRelayStateMachine());
+				if (t.getTarget().getPseudoState() != null && t.getTarget().getPseudoState().getKind() == PseudoStateKind.JOIN) {
+					exitFromState(t.getSource(), message, t, getRelayStateMachine());
+				} else {
+					if (t.getKind() == TransitionKind.INITIAL) {
+						switchToState(t.getTarget(), message, t, getRelayStateMachine());
+						notifyStateMachineStarted(buildStateContext(Stage.STATEMACHINE_START, message, t, getRelayStateMachine()));
+					} else if (t.getKind() != TransitionKind.INTERNAL) {
+						switchToState(t.getTarget(), message, t, getRelayStateMachine());
+					}
 				}
 				// TODO: looks like events should be called here and anno processing earlier
 				notifyTransitionEnd(buildStateContext(Stage.TRANSITION_END, message, t, getRelayStateMachine()));
@@ -784,23 +787,27 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 					@Override
 					public void onContext(PseudoStateContext<S, E> context) {
 						PseudoState<S, E> pseudoState = context.getPseudoState();
-						if (pseudoState.getKind() == PseudoStateKind.JOIN) {
-							List<State<S, E>> joins = ((JoinPseudoState<S, E>)context.getPseudoState()).getJoins();
-							for (State<S, E> join : joins) {
-								exitFromState(join, null, null, getRelayStateMachine());
-							}
-						}
-						State<S, E> toState = findStateWithPseudoState(pseudoState);
+						State<S, E> toStateOrig = findStateWithPseudoState(pseudoState);
 						StateContext<S, E> stateContext = buildStateContext(Stage.STATE_EXIT, null, null, getRelayStateMachine());
+						State<S, E> toState = followLinkedPseudoStates(toStateOrig, stateContext);
+						// TODO: try to find matching transition based on direct link.
+						// should make this built-in in pseudostates
+						Transition<S, E> transition = findTransition(toStateOrig, toState);
+						switchToState(toState, null, transition, getRelayStateMachine());
 						pseudoState.exit(stateContext);
-						toState = followLinkedPseudoStates(toState, stateContext);
-						// should figure out what transition to use as we pass null for now
-						// which is then expected in exitCurrentState
-						switchToState(toState, null, null, getRelayStateMachine());
 					}
 				});
 			}
 		}
+	}
+
+	private Transition<S, E> findTransition(State<S, E> from, State<S, E> to) {
+		for (Transition<S, E> transition : transitions) {
+			if (transition.getSource() == from && transition.getTarget() == to) {
+				return transition;
+			}
+		}
+		return null;
 	}
 
 	private State<S, E> findStateWithPseudoState(PseudoState<S, E> pseudoState) {
@@ -984,9 +991,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 					exitFromState(r.getState(), message, transition, stateMachine, sources, targets);
 				}
 			}
-			if (transition == null) {
-				exitFromState(currentState, message, transition, stateMachine, sources, targets);
-			}
+			exitFromState(currentState, message, transition, stateMachine, sources, targets);
 		} else {
 			exitFromState(currentState, message, transition, stateMachine, sources, targets);
 		}

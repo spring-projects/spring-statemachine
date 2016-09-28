@@ -136,6 +136,7 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 
 	@Override
 	public void exit(StateContext<S, E> context) {
+		super.exit(context);
 		// don't stop if it looks like we're coming back
 		// stop would cause start with entry which would
 		// enable default transition and state
@@ -156,6 +157,7 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 
 	@Override
 	public void entry(final StateContext<S, E> context) {
+		super.entry(context);
 		Collection<? extends Action<S, E>> actions = getEntryActions();
 		if (actions != null && !isLocal(context)) {
 			for (Action<S, E> action : actions) {

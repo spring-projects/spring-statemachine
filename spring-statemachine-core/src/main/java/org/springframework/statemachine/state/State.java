@@ -147,4 +147,17 @@ public interface State<S, E> {
 	 */
 	boolean isSubmachineState();
 
+	/**
+	 * Adds the state listener.
+	 *
+	 * @param listener the listener
+	 */
+	void addStateListener(StateListener<S, E> listener);
+
+	/**
+	 * Removes the state listener.
+	 *
+	 * @param listener the listener
+	 */
+	void removeStateListener(StateListener<S, E> listener);
 }

@@ -61,6 +61,7 @@ import org.springframework.statemachine.state.ExitPseudoState;
 import org.springframework.statemachine.state.ForkPseudoState;
 import org.springframework.statemachine.state.HistoryPseudoState;
 import org.springframework.statemachine.state.JoinPseudoState;
+import org.springframework.statemachine.state.JoinPseudoState.JoinStateData;
 import org.springframework.statemachine.state.JunctionPseudoState;
 import org.springframework.statemachine.state.JunctionPseudoState.JunctionStateData;
 import org.springframework.statemachine.state.PseudoState;
@@ -631,34 +632,24 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 						joins.add(stateMap.get(fs));
 					}
 				}
-				S ss = null;
+
+				List<JoinStateData<S, E>> joinTargets = new ArrayList<JoinStateData<S, E>>();
 				Collection<TransitionData<S, E>> transitions = stateMachineTransitions.getTransitions();
 				for (TransitionData<S, E> tt : transitions) {
 					if (tt.getSource() == s) {
-						ss = tt.getTarget();
-						break;
+						StateHolder<S, E> holder = new StateHolder<S, E>(stateMap.get(tt.getTarget()));
+						if (holder.getState() == null) {
+							holderMap.put(tt.getTarget(), holder);
+						}
+						joinTargets.add(new JoinStateData<S, E>(holder, tt.getGuard()));
 					}
 				}
-				StateHolder<S, E> holder = new StateHolder<S, E>(stateMap.get(ss));
-				if (holder.getState() == null) {
-					holderMap.put(ss, holder);
-				}
-				JoinPseudoState<S, E> pseudoState = new JoinPseudoState<S, E>(joins, holder);
+				JoinPseudoState<S, E> pseudoState = new JoinPseudoState<S, E>(joins, joinTargets);
+
 				state = buildStateInternal(stateData.getState(), stateData.getDeferred(), stateData.getEntryActions(),
 						stateData.getExitActions(), pseudoState);
 				states.add(state);
 				stateMap.put(stateData.getState(), state);
-
-				// find joins sources and associate
-				for (Entry<S, State<S, E>> e : stateMap.entrySet()) {
-					State<S, E> value = e.getValue();
-					if (value.isOrthogonal()) {
-						Collection<State<S, E>> states2 = value.getStates();
-						if (states2.containsAll(joins)) {
-							((RegionState<S, E>)value).setJoin(pseudoState);
-						}
-					}
-				}
 			}
 		}
 
@@ -703,6 +694,23 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 						transitionData.getActions(), event, transitionData.getGuard(), trigger,
 						transitionData.getSecurityRule());
 				transitions.add(transition);
+			}
+		}
+
+		if (stateMachineTransitions.getJoins() != null) {
+			for (Entry<S, List<S>> entry : stateMachineTransitions.getJoins().entrySet()) {
+				if (stateMap.get(entry.getKey()) != null) {
+					List<S> entryList = entry.getValue();
+					for (S entryState : entryList) {
+						State<S, E> source = stateMap.get(entryState);
+						if (source != null && !source.isOrthogonal()) {
+							State<S, E> target = stateMap.get(entry.getKey());
+							DefaultExternalTransition<S, E> transition = new DefaultExternalTransition<S, E>(
+									source, target, null, null, null, null, null);
+							transitions.add(transition);
+						}
+					}
+				}
 			}
 		}
 
