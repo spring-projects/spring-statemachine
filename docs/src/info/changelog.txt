@@ -13,6 +13,7 @@ Changes in version 1.2.0.M1 (2016-09-28)
 * Support state activity enhancement [#239]
 * Exception thrown in transition are not catch then send back to any listener [#240]
 * Ability to set UUID for StateMachine enhancement [#241]
+* Restoring persisted context incorrectly resets state when inside fork #242
 * Transitions created with withLocal() do not work [#248]
 * Initial state entry called with direct transition to substate bug [#249]
 * Support storing ssm config in a database enhancement [#250]
