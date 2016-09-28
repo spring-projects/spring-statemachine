@@ -337,8 +337,8 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 						Trigger<S, E> tri = e.getKey();
 						E ee = tri.getEvent();
 						Transition<S, E> tra = e.getValue();
-						if (event == ee) {
-							if (tra.getSource().getId() == id && !trans.contains(tra)) {
+						if (event.equals(ee)) {
+							if (tra.getSource().getId().equals(id) && !trans.contains(tra)) {
 								trans.add(tra);
 								continue;
 							}
