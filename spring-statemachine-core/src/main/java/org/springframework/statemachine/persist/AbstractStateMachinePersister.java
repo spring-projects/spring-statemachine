@@ -106,6 +106,7 @@ public abstract class AbstractStateMachinePersister<S, E, T> implements StateMac
 				S s = r.getState().getId();
 				childs.add(new DefaultStateMachineContext<S, E>(s, null, null, null));
 			}
+			id = state.getId();
 		} else {
 			id = state.getId();
 		}
