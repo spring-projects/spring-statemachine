@@ -44,6 +44,7 @@ import org.springframework.statemachine.annotation.OnTransition;
 import org.springframework.statemachine.annotation.OnTransitionEnd;
 import org.springframework.statemachine.annotation.OnTransitionStart;
 import org.springframework.statemachine.annotation.WithStateMachine;
+import org.springframework.statemachine.config.configuration.StateMachineHandlerApplicationListener;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.StateMachineUtils;
 import org.springframework.util.Assert;
@@ -64,6 +65,8 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	private final Log log = LogFactory.getLog(StateMachineHandlerCallHelper.class);
 	private final Map<String, List<CacheEntry>> cache = new HashMap<>();
 	private ListableBeanFactory beanFactory;
+	private StateMachineHandlerApplicationListener stateMachineHandlerApplicationListener;
+	private long last = Long.MIN_VALUE;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -71,6 +74,10 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 		if (!(beanFactory instanceof ListableBeanFactory)) {
 			log.info("Beanfactory is not instance of ListableBeanFactory, was " + beanFactory + " thus Disabling handlers.");
 			return;
+		}
+		if (beanFactory.containsBean(StateMachineHandlerApplicationListener.BEAN_NAME)) {
+			this.stateMachineHandlerApplicationListener = beanFactory.getBean(StateMachineHandlerApplicationListener.BEAN_NAME,
+					StateMachineHandlerApplicationListener.class);
 		}
 		for (StateMachineHandler<? extends Annotation, S, E> handler : beanFactory.getBeansOfType(StateMachineHandler.class).values()) {
 			Annotation annotation = handler.getAnnotation();
@@ -98,7 +105,7 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	public void callOnStateChanged(String stateMachineId, StateContext<S, E> stateContext) {
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnStateChanged.class.getName() + stateMachineId;
-		List<CacheEntry> list = cache.get(cacheKey);
+		List<CacheEntry> list = getCacheEntries(cacheKey);
 		if (list == null) {
 			return;
 		}
@@ -115,7 +122,7 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	public void callOnStateEntry(String stateMachineId, StateContext<S, E> stateContext) {
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnStateEntry.class.getName() + stateMachineId;
-		List<CacheEntry> list = cache.get(cacheKey);
+		List<CacheEntry> list = getCacheEntries(cacheKey);
 		if (list == null) {
 			return;
 		}
@@ -132,7 +139,7 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	public void callOnStateExit(String stateMachineId, StateContext<S, E> stateContext) {
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnStateExit.class.getName() + stateMachineId;
-		List<CacheEntry> list = cache.get(cacheKey);
+		List<CacheEntry> list = getCacheEntries(cacheKey);
 		if (list == null) {
 			return;
 		}
@@ -149,7 +156,7 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	public void callOnEventNotAccepted(String stateMachineId, StateContext<S, E> stateContext) {
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnEventNotAccepted.class.getName() + stateMachineId;
-		List<CacheEntry> list = cache.get(cacheKey);
+		List<CacheEntry> list = getCacheEntries(cacheKey);
 		if (list == null) {
 			return;
 		}
@@ -170,7 +177,7 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	public void callOnTransitionStart(String stateMachineId, StateContext<S, E> stateContext) {
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnTransitionStart.class.getName() + stateMachineId;
-		List<CacheEntry> list = cache.get(cacheKey);
+		List<CacheEntry> list = getCacheEntries(cacheKey);
 		if (list == null) {
 			return;
 		}
@@ -187,7 +194,7 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	public void callOnTransition(String stateMachineId, StateContext<S, E> stateContext) {
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnTransition.class.getName() + stateMachineId;
-		List<CacheEntry> list = cache.get(cacheKey);
+		List<CacheEntry> list = getCacheEntries(cacheKey);
 		if (list == null) {
 			return;
 		}
@@ -204,7 +211,7 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	public void callOnTransitionEnd(String stateMachineId, StateContext<S, E> stateContext) {
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnTransitionEnd.class.getName() + stateMachineId;
-		List<CacheEntry> list = cache.get(cacheKey);
+		List<CacheEntry> list = getCacheEntries(cacheKey);
 		if (list == null) {
 			return;
 		}
@@ -221,7 +228,7 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	public void callOnStateMachineStart(String stateMachineId, StateContext<S, E> stateContext) {
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnStateMachineStart.class.getName() + stateMachineId;
-		List<CacheEntry> list = cache.get(cacheKey);
+		List<CacheEntry> list = getCacheEntries(cacheKey);
 		if (list == null) {
 			return;
 		}
@@ -234,7 +241,7 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	public void callOnStateMachineStop(String stateMachineId, StateContext<S, E> stateContext) {
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnStateMachineStop.class.getName() + stateMachineId;
-		List<CacheEntry> list = cache.get(cacheKey);
+		List<CacheEntry> list = getCacheEntries(cacheKey);
 		if (list == null) {
 			return;
 		}
@@ -247,7 +254,7 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	public void callOnStateMachineError(String stateMachineId, StateContext<S, E> stateContext) {
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnStateMachineError.class.getName() + stateMachineId;
-		List<CacheEntry> list = cache.get(cacheKey);
+		List<CacheEntry> list = getCacheEntries(cacheKey);
 		if (list == null) {
 			return;
 		}
@@ -260,7 +267,7 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	public void callOnExtendedStateChanged(String stateMachineId, Object key, Object value, StateContext<S, E> stateContext) {
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnExtendedStateChanged.class.getName() + stateMachineId;
-		List<CacheEntry> list = cache.get(cacheKey);
+		List<CacheEntry> list = getCacheEntries(cacheKey);
 		if (list == null) {
 			return;
 		}
@@ -270,6 +277,24 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 			}
 		}
 		getStateMachineHandlerResults(handlersList, stateContext);
+	}
+
+	private synchronized List<CacheEntry> getCacheEntries(String cacheKey) {
+		if (stateMachineHandlerApplicationListener != null) {
+			Long l = stateMachineHandlerApplicationListener.getLastRefreshTime();
+			if (l != null && l < System.currentTimeMillis() ) {
+				if (last != l) {
+					cache.clear();
+					try {
+						afterPropertiesSet();
+					} catch (Exception e) {
+						log.error("Unable to update handler cache", e);
+					}
+					last = l;
+				}
+			}
+		}
+		return cache.get(cacheKey);
 	}
 
 	private boolean annotationHandlerVariableMatch(Annotation annotation, Object key) {

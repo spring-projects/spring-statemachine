@@ -38,6 +38,7 @@ import org.springframework.statemachine.annotation.OnTransition;
 import org.springframework.statemachine.annotation.WithStateMachine;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
@@ -175,6 +176,24 @@ public class AnnotatedMethodTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S3));
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testBeansCreatedAfterMachine() throws Exception {
+		// autostart is causing lifecycle before beans from BeanConfig1
+		// are created.
+		context.register(Config7.class, BeanConfig1.class);
+		context.refresh();
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		Bean1 bean1 = context.getBean(Bean1.class);
+		machine.start();
+		// S1 is transitioned during lifecycle start which happens
+		// before all beans are started, so onMethod0Latch is not called
+		assertThat(bean1.onMethod0Latch.await(2, TimeUnit.SECONDS), is(false));
+		machine.sendEvent(TestEvents.E1);
+		assertThat(bean1.onMethod1Latch.await(2, TimeUnit.SECONDS), is(true));
+	}
+	
 	@WithStateMachine
 	static class Bean1 {
 
@@ -584,4 +603,35 @@ public class AnnotatedMethodTests extends AbstractStateMachineTests {
 
 	}
 
+	@Configuration
+	@EnableStateMachine
+	static class Config7 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(
+				StateMachineConfigurationConfigurer<TestStates, TestEvents> config)
+				throws Exception {
+			config
+				.withConfiguration()
+					.autoStartup(true);
+		}
+		
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.states(EnumSet.allOf(TestStates.class));
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1);
+		}
+
+	}
 }

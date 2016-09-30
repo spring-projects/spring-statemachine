@@ -42,4 +42,8 @@ public class StateMachineCommonConfiguration {
 		return new ConcurrentTaskScheduler();
 	}
 
+	@Bean(name = StateMachineHandlerApplicationListener.BEAN_NAME)
+	public StateMachineHandlerApplicationListener stateMachineHandlerApplicationListener() {
+		return new StateMachineHandlerApplicationListener();
+	}
 }
