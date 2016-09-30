@@ -7,7 +7,7 @@ buildscript {
 		classpath("org.springframework.build.gradle:propdeps-plugin:0.0.7")
 		classpath('org.asciidoctor:asciidoctor-gradle-plugin:1.5.2')
 		classpath("io.spring.gradle:docbook-reference-plugin:0.3.1")
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.1.RELEASE")
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.1.RELEASE")
 	}
 }
 
@@ -304,7 +304,11 @@ configure(sampleProjects()) {
 	dependencies {
 		compile project(":spring-statemachine-core")
 		compile "org.springframework:spring-context-support:$springVersion"
+		testCompile("org.mockito:mockito-core:$mockitoVersion") { dep ->
+			exclude group: "org.hamcrest"
+		}
 		testCompile project(":spring-statemachine-test")
+		testCompile "org.springframework.boot:spring-boot-test:$springBootVersion"
 		testCompile "org.springframework:spring-test:$springVersion"
 		testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"
 		testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"

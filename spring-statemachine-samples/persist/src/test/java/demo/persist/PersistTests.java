@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
@@ -41,7 +41,7 @@ import demo.CommonConfiguration;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @DirtiesContext(classMode=ClassMode.AFTER_EACH_TEST_METHOD)
-@SpringApplicationConfiguration(classes = { CommonConfiguration.class, Application.class, StateMachineCommands.class })
+@SpringBootTest(classes = { CommonConfiguration.class, Application.class, StateMachineCommands.class })
 public class PersistTests {
 
 	@Autowired

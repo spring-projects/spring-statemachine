@@ -85,7 +85,7 @@ public class StateMachineConfiguration<S, E> extends
 		AnnotationAttributes scopeAttributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(
 				Scope.class.getName(), false));
 		if (scopeAttributes != null) {
-			String scope = scopeAttributes.getAliasedString("value", Scope.class, enableStateMachineEnclosingClass);
+			String scope = scopeAttributes.getString("value");
 			if (StringUtils.hasText(scope)) {
 				beanDefinitionBuilder.setScope(scope);
 			}

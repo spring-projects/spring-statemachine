@@ -438,7 +438,7 @@ public class StateMachineMethodInvokerHelper<T, S, E> extends AbstractExpression
 					} else if (annotationType.equals(ExtendedStateVariable.class)) {
 						AnnotationAttributes annotationAttributes = AnnotationAttributes
 								.fromMap(AnnotationUtils.getAnnotationAttributes(mappingAnnotation));
-						String key = annotationAttributes.getAliasedString("value", ExtendedStateVariable.class, null);
+						String key = annotationAttributes.getString("value");
 						sb.append("variables.get('" + key + "')");
 					}
 
