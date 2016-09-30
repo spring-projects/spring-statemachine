@@ -116,7 +116,6 @@ project('spring-statemachine-core') {
 		testCompile "org.springframework:spring-web:$springVersion"
 		testCompile "org.springframework:spring-webmvc:$springVersion"
 		testCompile "org.apache.tomcat.embed:tomcat-embed-core:$tomcatEmbedVersion"
-		testCompile "org.apache.tomcat.embed:tomcat-embed-logging-juli:$tomcatEmbedVersion"
 		testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"
 		testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
 		testCompile("org.mockito:mockito-core:$mockitoVersion") { dep ->
