@@ -62,7 +62,7 @@ public class RepositoryStateMachineModelFactory implements StateMachineModelFact
 
 		Collection<StateData<String, String>> stateData = new ArrayList<>();
 		for (RepositoryState s : stateRepository.findByMachineId(machineId)) {
-			stateData.add(new StateData<String, String>(s.getState(), s.isInitial()));
+			stateData.add(new StateData<String, String>(s.getParentState(), null, s.getState(), s.isInitial()));
 		}
 		StatesData<String, String> statesData = new StatesData<>(stateData);
 

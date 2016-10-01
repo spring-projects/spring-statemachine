@@ -13,41 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.data;
+package org.springframework.statemachine.data.jpa;
 
-/**
- * Generic interface representing state entity.
- *
- * @author Janne Valkealahti
- *
- */
-public interface RepositoryState {
+import org.junit.After;
+import org.junit.Before;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-	/**
-	 * Gets the parent state.
-	 *
-	 * @return the parent state
-	 */
-	String getParentState();
+public abstract class AbstractJpaRepositoryTests {
 
-	/**
-	 * Gets the machine id.
-	 *
-	 * @return the machine id
-	 */
-	String getMachineId();
+	protected AnnotationConfigApplicationContext context;
 
-	/**
-	 * Gets the state.
-	 *
-	 * @return the state
-	 */
-	String getState();
+	@Before
+	public void setup() {
+		context = buildContext();
+	}
+
+	@After
+	public void clean() {
+		if (context != null) {
+			context.close();
+		}
+		context = null;
+	}
 
 	/**
-	 * Checks if is initial.
+	 * Builds the context.
 	 *
-	 * @return true, if is initial
+	 * @return the annotation config application context
 	 */
-	boolean isInitial();
+	protected AnnotationConfigApplicationContext buildContext() {
+		return null;
+	}
 }

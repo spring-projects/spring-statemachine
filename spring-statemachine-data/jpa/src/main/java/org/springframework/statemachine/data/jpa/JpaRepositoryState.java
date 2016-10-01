@@ -36,6 +36,7 @@ public class JpaRepositoryState implements RepositoryState {
 	private long id;
 
 	private String machineId;
+	private String parentState;
 	private String state;
 	private boolean initial;
 
@@ -72,7 +73,20 @@ public class JpaRepositoryState implements RepositoryState {
 	 * @param initial the initial
 	 */
 	public JpaRepositoryState(String machineId, String state, boolean initial) {
+		this(machineId, null, state, initial);
+	}
+
+	/**
+	 * Instantiates a new jpa repository state.
+	 *
+	 * @param machineId the machine id
+	 * @param parentState the parent state
+	 * @param state the state
+	 * @param initial the initial
+	 */
+	public JpaRepositoryState(String machineId, String parentState, String state, boolean initial) {
 		this.machineId = machineId;
+		this.parentState = parentState;
 		this.state = state;
 		this.initial = initial;
 	}
@@ -84,6 +98,15 @@ public class JpaRepositoryState implements RepositoryState {
 
 	public void setMachineId(String machineId) {
 		this.machineId = machineId;
+	}
+
+	@Override
+	public String getParentState() {
+		return parentState;
+	}
+
+	public void setParentState(String parentState) {
+		this.parentState = parentState;
 	}
 
 	@Override

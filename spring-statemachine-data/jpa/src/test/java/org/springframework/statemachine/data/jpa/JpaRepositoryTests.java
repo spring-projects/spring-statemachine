@@ -24,17 +24,34 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.data.repository.init.Jackson2RepositoryPopulatorFactoryBean;
+import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.config.EnableStateMachineFactory;
+import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.StateMachineFactory;
+import org.springframework.statemachine.config.builders.StateMachineModelConfigurer;
+import org.springframework.statemachine.config.model.StateMachineModelFactory;
 import org.springframework.statemachine.data.RepositoryState;
-import org.springframework.statemachine.data.StateRepository;
+import org.springframework.statemachine.data.RepositoryStateMachineModelFactory;
 import org.springframework.statemachine.data.RepositoryTransition;
+import org.springframework.statemachine.data.StateRepository;
 import org.springframework.statemachine.data.TransitionRepository;
+import org.springframework.statemachine.test.StateMachineTestPlan;
+import org.springframework.statemachine.test.StateMachineTestPlanBuilder;
 
-public class JpaRepositoryTests {
+public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
+
+	@Override
+	protected AnnotationConfigApplicationContext buildContext() {
+		return new AnnotationConfigApplicationContext();
+	}
 
 	@Test
 	public void testRepository1() {
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 		context.register(Config.class);
 		context.refresh();
 
@@ -57,7 +74,6 @@ public class JpaRepositoryTests {
 
 	@Test
 	public void testRepository2() {
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 		context.register(Config.class);
 		context.refresh();
 
@@ -84,7 +100,6 @@ public class JpaRepositoryTests {
 
 	@Test
 	public void testRepository3() {
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 		context.register(Config.class);
 		context.refresh();
 
@@ -118,12 +133,48 @@ public class JpaRepositoryTests {
 		context.close();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testMachine2() throws Exception {
+		context.register(Config2.class, FactoryConfig.class);
+		context.refresh();
+		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
+		StateMachine<String, String> stateMachine = stateMachineFactory.getStateMachine();
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.stateMachine(stateMachine)
+					.step().expectStates("S1").and()
+					.step().sendEvent("E1").expectStates("S2").and()
+					.step().sendEvent("E2").expectStates("S3").and()
+					.build();
+		plan.test();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testMachine3() throws Exception {
+		context.register(Config3.class, FactoryConfig.class);
+		context.refresh();
+		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
+		StateMachine<String, String> stateMachine = stateMachineFactory.getStateMachine();
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.stateMachine(stateMachine)
+					.step().expectStates("S1").and()
+					.step().sendEvent("E1").expectStates("S2", "S20").and()
+					.step().sendEvent("E2").expectStates("S2", "S21").and()
+					.step().sendEvent("E3").expectStates("S1").and()
+					.step().sendEvent("E4").expectStates("S2", "S21").and()
+					.build();
+		plan.test();
+	}
+
 	@Test
 	public void testAutowire() {
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 		context.register(Config.class, WireConfig.class);
 		context.refresh();
-		context.close();
 	}
 
 	@EnableAutoConfiguration
@@ -149,4 +200,50 @@ public class JpaRepositoryTests {
 		@Autowired
 		StateRepository<? extends RepositoryState> statesRepository4;
 	}
+
+	@EnableAutoConfiguration
+	static class Config2 {
+
+		@Bean
+		public Jackson2RepositoryPopulatorFactoryBean jackson2RepositoryPopulatorFactoryBean() {
+			Jackson2RepositoryPopulatorFactoryBean factoryBean = new Jackson2RepositoryPopulatorFactoryBean();
+			factoryBean.setResources(new Resource[]{new ClassPathResource("data2.json")});
+			return factoryBean;
+		}
+	}
+
+	@EnableAutoConfiguration
+	static class Config3 {
+
+		@Bean
+		public Jackson2RepositoryPopulatorFactoryBean jackson2RepositoryPopulatorFactoryBean() {
+			Jackson2RepositoryPopulatorFactoryBean factoryBean = new Jackson2RepositoryPopulatorFactoryBean();
+			factoryBean.setResources(new Resource[]{new ClassPathResource("data3.json")});
+			return factoryBean;
+		}
+	}
+
+	@Configuration
+	@EnableStateMachineFactory
+	public static class FactoryConfig extends StateMachineConfigurerAdapter<String, String> {
+
+		@Autowired
+		private StateRepository<? extends RepositoryState> stateRepository;
+
+		@Autowired
+		private TransitionRepository<? extends RepositoryTransition> transitionRepository;
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			return new RepositoryStateMachineModelFactory(stateRepository, transitionRepository);
+		}
+	}
+
 }
