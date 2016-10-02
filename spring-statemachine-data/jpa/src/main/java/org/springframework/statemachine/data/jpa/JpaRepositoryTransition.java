@@ -26,6 +26,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
 import org.springframework.statemachine.data.RepositoryTransition;
+import org.springframework.statemachine.transition.TransitionKind;
 
 /**
  * JPA entity for transitions.
@@ -44,9 +45,11 @@ public class JpaRepositoryTransition implements RepositoryTransition {
 	private String source;
 	private String target;
 	private String event;
+	private TransitionKind kind;
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private Set<JpaRepositoryAction> actions;
+
 
 	/**
 	 * Instantiates a new jpa repository transition.
@@ -138,5 +141,14 @@ public class JpaRepositoryTransition implements RepositoryTransition {
 
 	public void setActions(Set<JpaRepositoryAction> actions) {
 		this.actions = actions;
+	}
+
+	@Override
+	public TransitionKind getKind() {
+		return kind;
+	}
+
+	public void setKind(TransitionKind kind) {
+		this.kind = kind;
 	}
 }

@@ -45,6 +45,7 @@ import org.springframework.statemachine.data.StateRepository;
 import org.springframework.statemachine.data.TransitionRepository;
 import org.springframework.statemachine.test.StateMachineTestPlan;
 import org.springframework.statemachine.test.StateMachineTestPlanBuilder;
+import org.springframework.statemachine.transition.TransitionKind;
 
 public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 
@@ -66,11 +67,13 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 
 		JpaTransitionRepository transitionsRepository = context.getBean(JpaTransitionRepository.class);
 		JpaRepositoryTransition transition = new JpaRepositoryTransition("S1", "S2", "E1");
+		transition.setKind(TransitionKind.EXTERNAL);
 		transitionsRepository.save(transition);
 		JpaRepositoryTransition transition2 = transitionsRepository.findAll().iterator().next();
 		assertThat(transition2.getSource(), is("S1"));
 		assertThat(transition2.getTarget(), is("S2"));
 		assertThat(transition2.getEvent(), is("E1"));
+		assertThat(transition2.getKind(), is(TransitionKind.EXTERNAL));
 
 		context.close();
 	}

@@ -160,7 +160,8 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 				}
 			}
 
-			transitionData.add(new TransitionData<>(t.getSource(), t.getTarget(), t.getEvent(), actions, null, TransitionKind.EXTERNAL));
+			TransitionKind kind = t.getKind();
+			transitionData.add(new TransitionData<>(t.getSource(), t.getTarget(), t.getEvent(), actions, null, kind != null ? kind : TransitionKind.EXTERNAL));
 		}
 		TransitionsData<String, String> transitionsData = new TransitionsData<>(transitionData);
 

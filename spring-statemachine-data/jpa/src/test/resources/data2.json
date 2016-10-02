@@ -18,12 +18,20 @@
 		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
 		"source": "S1",
 		"target": "S2",
-		"event": "E1"
+		"event": "E1",
+		"kind": "EXTERNAL"
 	},
 	{
 		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
 		"source": "S2",
 		"target": "S3",
 		"event": "E2"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"source": "S2",
+		"target": "S3",
+		"event": "E3",
+		"kind": "LOCAL"
 	}
 ]

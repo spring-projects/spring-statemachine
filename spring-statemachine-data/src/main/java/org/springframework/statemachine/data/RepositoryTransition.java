@@ -17,6 +17,8 @@ package org.springframework.statemachine.data;
 
 import java.util.Set;
 
+import org.springframework.statemachine.transition.TransitionKind;
+
 /**
  * Generic interface representing transition entity.
  *
@@ -59,4 +61,11 @@ public interface RepositoryTransition {
 	 * @return the actions
 	 */
 	Set<? extends RepositoryAction> getActions();
+
+	/**
+	 * Gets the transition kind.
+	 *
+	 * @return the transition kind
+	 */
+	TransitionKind getKind();
 }
