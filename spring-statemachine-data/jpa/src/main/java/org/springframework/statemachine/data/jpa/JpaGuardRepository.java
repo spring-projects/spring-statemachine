@@ -15,13 +15,13 @@
  */
 package org.springframework.statemachine.data.jpa;
 
-import org.springframework.statemachine.data.ActionRepository;
+import org.springframework.statemachine.data.GuardRepository;
 
 /**
- * A {@link ActionRepository} interface for JPA used for actions.
+ * A {@link GuardRepository} interface for JPA used for guards.
  *
  * @author Janne Valkealahti
  *
  */
-public interface JpaActionRepository extends ActionRepository<JpaRepositoryAction> {
+public interface JpaGuardRepository extends GuardRepository<JpaRepositoryGuard> {
 }

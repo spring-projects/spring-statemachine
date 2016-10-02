@@ -13,15 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.data.jpa;
-
-import org.springframework.statemachine.data.ActionRepository;
+package org.springframework.statemachine.data;
 
 /**
- * A {@link ActionRepository} interface for JPA used for actions.
+ * Generic interface representing guard entity.
  *
  * @author Janne Valkealahti
  *
  */
-public interface JpaActionRepository extends ActionRepository<JpaRepositoryAction> {
+public interface RepositoryGuard {
+
+	/**
+	 * Gets the name.
+	 *
+	 * @return the name
+	 */
+	String getName();
+
+	/**
+	 * Gets the spel.
+	 *
+	 * @return the spel
+	 */
+	String getSpel();
 }

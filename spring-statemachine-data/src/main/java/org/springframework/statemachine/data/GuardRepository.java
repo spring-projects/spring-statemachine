@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.data.jpa;
+package org.springframework.statemachine.data;
 
-import org.springframework.statemachine.data.ActionRepository;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.NoRepositoryBean;
+import org.springframework.data.repository.Repository;
 
 /**
- * A {@link ActionRepository} interface for JPA used for actions.
+ * Generic {@link Repository} interface for guards.
  *
  * @author Janne Valkealahti
  *
+ * @param <T> the guard entity type
  */
-public interface JpaActionRepository extends ActionRepository<JpaRepositoryAction> {
+@NoRepositoryBean
+public interface GuardRepository <T extends RepositoryGuard> extends CrudRepository<T, Long> {
 }

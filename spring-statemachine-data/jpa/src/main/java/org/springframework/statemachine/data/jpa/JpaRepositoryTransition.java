@@ -24,6 +24,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import org.springframework.statemachine.data.RepositoryTransition;
 import org.springframework.statemachine.transition.TransitionKind;
@@ -50,6 +51,8 @@ public class JpaRepositoryTransition implements RepositoryTransition {
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private Set<JpaRepositoryAction> actions;
 
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	private JpaRepositoryGuard guard;
 
 	/**
 	 * Instantiates a new jpa repository transition.
@@ -141,6 +144,15 @@ public class JpaRepositoryTransition implements RepositoryTransition {
 
 	public void setActions(Set<JpaRepositoryAction> actions) {
 		this.actions = actions;
+	}
+
+	@Override
+	public JpaRepositoryGuard getGuard() {
+		return guard;
+	}
+
+	public void setGuard(JpaRepositoryGuard guard) {
+		this.guard = guard;
 	}
 
 	@Override

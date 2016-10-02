@@ -33,6 +33,8 @@ import org.springframework.statemachine.config.model.StateMachineModelFactory;
 import org.springframework.statemachine.config.model.StatesData;
 import org.springframework.statemachine.config.model.TransitionData;
 import org.springframework.statemachine.config.model.TransitionsData;
+import org.springframework.statemachine.guard.Guard;
+import org.springframework.statemachine.guard.SpelExpressionGuard;
 import org.springframework.statemachine.transition.TransitionKind;
 import org.springframework.util.StringUtils;
 
@@ -161,7 +163,20 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 			}
 
 			TransitionKind kind = t.getKind();
-			transitionData.add(new TransitionData<>(t.getSource(), t.getTarget(), t.getEvent(), actions, null, kind != null ? kind : TransitionKind.EXTERNAL));
+
+			Guard<String, String> guard = null;
+			RepositoryGuard repositoryGuard = t.getGuard();
+			if (repositoryGuard != null) {
+				if (StringUtils.hasText(repositoryGuard.getName())) {
+					guard = resolveGuard(repositoryGuard.getName());
+				} else if (StringUtils.hasText(repositoryGuard.getSpel())) {
+					SpelExpressionParser parser = new SpelExpressionParser(
+							new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
+					guard = new SpelExpressionGuard<>(parser.parseExpression(repositoryGuard.getSpel()));
+				}
+			}
+
+			transitionData.add(new TransitionData<>(t.getSource(), t.getTarget(), t.getEvent(), actions, guard, kind != null ? kind : TransitionKind.EXTERNAL));
 		}
 		TransitionsData<String, String> transitionsData = new TransitionsData<>(transitionData);
 

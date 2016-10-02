@@ -15,13 +15,44 @@
  */
 package org.springframework.statemachine.data.jpa;
 
-import org.springframework.statemachine.data.ActionRepository;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+import org.springframework.statemachine.data.RepositoryGuard;
 
 /**
- * A {@link ActionRepository} interface for JPA used for actions.
+ * JPA entity for actions.
  *
  * @author Janne Valkealahti
  *
  */
-public interface JpaActionRepository extends ActionRepository<JpaRepositoryAction> {
+@Entity
+public class JpaRepositoryGuard implements RepositoryGuard {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private long id;
+
+	private String name;
+	private String spel;
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public String getSpel() {
+		return spel;
+	}
+
+	public void setSpel(String spel) {
+		this.spel = spel;
+	}
 }

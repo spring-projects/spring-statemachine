@@ -25,7 +25,11 @@
 		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
 		"source": "S2",
 		"target": "S3",
-		"event": "E2"
+		"event": "E2",
+		"guard": {
+			"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryGuard",
+			"spel": "true"
+		}
 	},
 	{
 		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",

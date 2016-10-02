@@ -63,6 +63,13 @@ public interface RepositoryTransition {
 	Set<? extends RepositoryAction> getActions();
 
 	/**
+	 * Gets the guard.
+	 *
+	 * @return the guard
+	 */
+	RepositoryGuard getGuard();
+
+	/**
 	 * Gets the transition kind.
 	 *
 	 * @return the transition kind
