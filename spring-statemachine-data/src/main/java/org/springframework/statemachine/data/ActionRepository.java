@@ -15,48 +15,17 @@
  */
 package org.springframework.statemachine.data;
 
-import java.util.Set;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.NoRepositoryBean;
+import org.springframework.data.repository.Repository;
 
 /**
- * Generic interface representing transition entity.
+ * Generic {@link Repository} interface for actions.
  *
  * @author Janne Valkealahti
  *
+ * @param <T> the transition entity type
  */
-public interface RepositoryTransition {
-
-	/**
-	 * Gets the machine id.
-	 *
-	 * @return the machine id
-	 */
-	String getMachineId();
-
-	/**
-	 * Gets the source.
-	 *
-	 * @return the source
-	 */
-	String getSource();
-
-	/**
-	 * Gets the target.
-	 *
-	 * @return the target
-	 */
-	String getTarget();
-
-	/**
-	 * Gets the event.
-	 *
-	 * @return the event
-	 */
-	String getEvent();
-
-	/**
-	 * Gets the actions.
-	 *
-	 * @return the actions
-	 */
-	Set<? extends RepositoryAction> getActions();
+@NoRepositoryBean
+public interface ActionRepository <T extends RepositoryAction> extends CrudRepository<T, Long> {
 }

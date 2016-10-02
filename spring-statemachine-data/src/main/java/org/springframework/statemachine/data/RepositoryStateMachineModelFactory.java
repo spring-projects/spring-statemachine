@@ -17,7 +17,14 @@ package org.springframework.statemachine.data;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
+import org.springframework.expression.spel.SpelCompilerMode;
+import org.springframework.expression.spel.SpelParserConfiguration;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.action.SpelExpressionAction;
+import org.springframework.statemachine.config.model.AbstractStateMachineModelFactory;
 import org.springframework.statemachine.config.model.ConfigurationData;
 import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.StateData;
@@ -26,6 +33,8 @@ import org.springframework.statemachine.config.model.StateMachineModelFactory;
 import org.springframework.statemachine.config.model.StatesData;
 import org.springframework.statemachine.config.model.TransitionData;
 import org.springframework.statemachine.config.model.TransitionsData;
+import org.springframework.statemachine.transition.TransitionKind;
+import org.springframework.util.StringUtils;
 
 /**
  * A generic {@link StateMachineModelFactory} which is backed by a Spring Data
@@ -34,7 +43,8 @@ import org.springframework.statemachine.config.model.TransitionsData;
  * @author Janne Valkealahti
  *
  */
-public class RepositoryStateMachineModelFactory implements StateMachineModelFactory<String, String> {
+public class RepositoryStateMachineModelFactory extends AbstractStateMachineModelFactory<String, String>
+		implements StateMachineModelFactory<String, String> {
 
 	private final StateRepository<? extends RepositoryState> stateRepository;
 	private final TransitionRepository<? extends RepositoryTransition> transitionRepository;
@@ -60,15 +70,97 @@ public class RepositoryStateMachineModelFactory implements StateMachineModelFact
 	public StateMachineModel<String, String> build(String machineId) {
 		ConfigurationData<String, String> configurationData = new ConfigurationData<>();
 
-		Collection<StateData<String, String>> stateData = new ArrayList<>();
+		Collection<StateData<String, String>> stateDatas = new ArrayList<>();
 		for (RepositoryState s : stateRepository.findByMachineId(machineId)) {
-			stateData.add(new StateData<String, String>(s.getParentState(), null, s.getState(), s.isInitial()));
+
+			Collection<Action<String, String>> stateActions = new ArrayList<Action<String, String>>();
+			Set<? extends RepositoryAction> repositoryStateActions = s.getStateActions();
+			if (repositoryStateActions != null) {
+				for (RepositoryAction repositoryAction : repositoryStateActions) {
+					Action<String, String> action = null;
+					if (StringUtils.hasText(repositoryAction.getName())) {
+						action = resolveAction(repositoryAction.getName());
+					} else if (StringUtils.hasText(repositoryAction.getSpel())) {
+						SpelExpressionParser parser = new SpelExpressionParser(
+								new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
+
+						action = new SpelExpressionAction<String, String>(parser.parseExpression(repositoryAction.getSpel()));
+					}
+					if (action != null) {
+						stateActions.add(action);
+					}
+				}
+			}
+
+			Collection<Action<String, String>> entryActions = new ArrayList<Action<String, String>>();
+			Set<? extends RepositoryAction> repositoryEntryActions = s.getEntryActions();
+			if (repositoryEntryActions != null) {
+				for (RepositoryAction repositoryAction : repositoryEntryActions) {
+					Action<String, String> action = null;
+					if (StringUtils.hasText(repositoryAction.getName())) {
+						action = resolveAction(repositoryAction.getName());
+					} else if (StringUtils.hasText(repositoryAction.getSpel())) {
+						SpelExpressionParser parser = new SpelExpressionParser(
+								new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
+
+						action = new SpelExpressionAction<String, String>(parser.parseExpression(repositoryAction.getSpel()));
+					}
+					if (action != null) {
+						stateActions.add(action);
+					}
+				}
+			}
+
+			Collection<Action<String, String>> exitActions = new ArrayList<Action<String, String>>();
+			Set<? extends RepositoryAction> repositoryExitActions = s.getExitActions();
+			if (repositoryExitActions != null) {
+				for (RepositoryAction repositoryAction : repositoryExitActions) {
+					Action<String, String> action = null;
+					if (StringUtils.hasText(repositoryAction.getName())) {
+						action = resolveAction(repositoryAction.getName());
+					} else if (StringUtils.hasText(repositoryAction.getSpel())) {
+						SpelExpressionParser parser = new SpelExpressionParser(
+								new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
+
+						action = new SpelExpressionAction<String, String>(parser.parseExpression(repositoryAction.getSpel()));
+					}
+					if (action != null) {
+						stateActions.add(action);
+					}
+				}
+			}
+
+			StateData<String,String> stateData = new StateData<String, String>(s.getParentState(), null, s.getState(), s.isInitial());
+			stateData.setStateActions(stateActions);
+			stateData.setEntryActions(entryActions);
+			stateData.setExitActions(exitActions);
+			stateDatas.add(stateData);
 		}
-		StatesData<String, String> statesData = new StatesData<>(stateData);
+		StatesData<String, String> statesData = new StatesData<>(stateDatas);
 
 		Collection<TransitionData<String, String>> transitionData = new ArrayList<>();
 		for (RepositoryTransition t : transitionRepository.findByMachineId(machineId)) {
-			transitionData.add(new TransitionData<String, String>(t.getSource(), t.getTarget(), t.getEvent()));
+
+			Collection<Action<String, String>> actions = new ArrayList<Action<String, String>>();
+			Set<? extends RepositoryAction> repositoryActions = t.getActions();
+			if (repositoryActions != null) {
+				for (RepositoryAction repositoryAction : repositoryActions) {
+					Action<String, String> action = null;
+					if (StringUtils.hasText(repositoryAction.getName())) {
+						action = resolveAction(repositoryAction.getName());
+					} else if (StringUtils.hasText(repositoryAction.getSpel())) {
+						SpelExpressionParser parser = new SpelExpressionParser(
+								new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
+
+						action = new SpelExpressionAction<String, String>(parser.parseExpression(repositoryAction.getSpel()));
+					}
+					if (action != null) {
+						actions.add(action);
+					}
+				}
+			}
+
+			transitionData.add(new TransitionData<>(t.getSource(), t.getTarget(), t.getEvent(), actions, null, TransitionKind.EXTERNAL));
 		}
 		TransitionsData<String, String> transitionsData = new TransitionsData<>(transitionData);
 

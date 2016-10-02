@@ -15,10 +15,15 @@
  */
 package org.springframework.statemachine.data.jpa;
 
+import java.util.Set;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 import org.springframework.statemachine.data.RepositoryTransition;
 
@@ -39,6 +44,9 @@ public class JpaRepositoryTransition implements RepositoryTransition {
 	private String source;
 	private String target;
 	private String event;
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	private Set<JpaRepositoryAction> actions;
 
 	/**
 	 * Instantiates a new jpa repository transition.
@@ -67,10 +75,24 @@ public class JpaRepositoryTransition implements RepositoryTransition {
 	 * @param event the event
 	 */
 	public JpaRepositoryTransition(String machineId, String source, String target, String event) {
+		this(machineId, source, target, event, null);
+	}
+
+	/**
+	 * Instantiates a new jpa repository transition.
+	 *
+	 * @param machineId the machine id
+	 * @param source the source
+	 * @param target the target
+	 * @param event the event
+	 * @param actions the actions
+	 */
+	public JpaRepositoryTransition(String machineId, String source, String target, String event, Set<JpaRepositoryAction> actions) {
 		this.machineId = machineId;
 		this.source = source;
 		this.target = target;
 		this.event = event;
+		this.actions = actions;
 	}
 
 	@Override
@@ -107,5 +129,14 @@ public class JpaRepositoryTransition implements RepositoryTransition {
 
 	public void setEvent(String event) {
 		this.event = event;
+	}
+
+	@Override
+	public Set<JpaRepositoryAction> getActions() {
+		return actions;
+	}
+
+	public void setActions(Set<JpaRepositoryAction> actions) {
+		this.actions = actions;
 	}
 }

@@ -15,48 +15,25 @@
  */
 package org.springframework.statemachine.data;
 
-import java.util.Set;
-
 /**
- * Generic interface representing transition entity.
+ * Generic interface representing action entity.
  *
  * @author Janne Valkealahti
  *
  */
-public interface RepositoryTransition {
+public interface RepositoryAction {
 
 	/**
-	 * Gets the machine id.
+	 * Gets the name.
 	 *
-	 * @return the machine id
+	 * @return the name
 	 */
-	String getMachineId();
+	String getName();
 
 	/**
-	 * Gets the source.
+	 * Gets the spel.
 	 *
-	 * @return the source
+	 * @return the spel
 	 */
-	String getSource();
-
-	/**
-	 * Gets the target.
-	 *
-	 * @return the target
-	 */
-	String getTarget();
-
-	/**
-	 * Gets the event.
-	 *
-	 * @return the event
-	 */
-	String getEvent();
-
-	/**
-	 * Gets the actions.
-	 *
-	 * @return the actions
-	 */
-	Set<? extends RepositoryAction> getActions();
+	String getSpel();
 }

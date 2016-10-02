@@ -15,6 +15,8 @@
  */
 package org.springframework.statemachine.data;
 
+import java.util.Set;
+
 /**
  * Generic interface representing state entity.
  *
@@ -50,4 +52,25 @@ public interface RepositoryState {
 	 * @return true, if is initial
 	 */
 	boolean isInitial();
+
+	/**
+	 * Gets the state actions.
+	 *
+	 * @return the state actions
+	 */
+	Set<? extends RepositoryAction> getStateActions();
+
+	/**
+	 * Gets the entry actions.
+	 *
+	 * @return the entry actions
+	 */
+	Set<? extends RepositoryAction> getEntryActions();
+
+	/**
+	 * Gets the exit actions.
+	 *
+	 * @return the exit actions
+	 */
+	Set<? extends RepositoryAction> getExitActions();
 }

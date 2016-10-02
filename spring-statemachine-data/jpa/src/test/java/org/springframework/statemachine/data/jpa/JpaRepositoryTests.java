@@ -18,7 +18,10 @@ package org.springframework.statemachine.data.jpa;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,6 +134,53 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 		assertThat(findByMachineId4.get(0).getMachineId(), is("machine2"));
 
 		context.close();
+	}
+
+	@Test
+	public void testRepository4() {
+		context.register(Config.class);
+		context.refresh();
+
+		JpaActionRepository actionsRepository = context.getBean(JpaActionRepository.class);
+		JpaRepositoryAction action1 = new JpaRepositoryAction();
+		action1.setSpel("spel1");
+		action1.setName("action1");
+		actionsRepository.save(action1);
+
+		assertThat(actionsRepository.count(), is(1l));
+		JpaRepositoryAction action11 = actionsRepository.findAll().iterator().next();
+		assertThat(action1.getSpel(), is(action11.getSpel()));
+		assertThat(action1.getName(), is(action11.getName()));
+	}
+
+	@Test
+	public void testRepository5() {
+		context.register(Config.class);
+		context.refresh();
+
+		JpaActionRepository actionsRepository = context.getBean(JpaActionRepository.class);
+
+		JpaTransitionRepository transitionsRepository = context.getBean(JpaTransitionRepository.class);
+		JpaRepositoryTransition transition = new JpaRepositoryTransition("S1", "S2", "E1");
+
+		JpaRepositoryAction action1 = new JpaRepositoryAction();
+		action1.setName("action1");
+
+		Set<JpaRepositoryAction> actions = new HashSet<>(Arrays.asList(action1));
+		transition.setActions(actions);
+
+		transitionsRepository.save(transition);
+		JpaRepositoryTransition transition2 = transitionsRepository.findAll().iterator().next();
+		assertThat(transition2.getSource(), is("S1"));
+		assertThat(transition2.getTarget(), is("S2"));
+		assertThat(transition2.getEvent(), is("E1"));
+
+		assertThat(actionsRepository.count(), is(1l));
+		JpaRepositoryAction action11 = actionsRepository.findAll().iterator().next();
+		assertThat(action1.getName(), is(action11.getName()));
+
+
+		assertThat(transition2.getActions().size(), is(1));
 	}
 
 	@SuppressWarnings("unchecked")

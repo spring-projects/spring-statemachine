@@ -2,17 +2,35 @@
 	{
 		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
 		"initial": true,
-		"state": "S1"
+		"state": "S1",
+		"exitActions": [
+			{
+				"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryAction",
+				"spel": "T(System).out.println('hello exit S1')"
+			}
+		]
 	},
 	{
 		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
 		"initial": false,
-		"state": "S2"
+		"state": "S2",
+		"entryActions": [
+			{
+				"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryAction",
+				"spel": "T(System).out.println('hello entry S2')"
+			}
+		]
 	},
 	{
 		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
 		"initial": false,
-		"state": "S3"
+		"state": "S3",
+		"stateActions": [
+			{
+				"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryAction",
+				"spel": "T(System).out.println('hello state S3')"
+			}
+		]
 	},
 	{
 		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
@@ -24,6 +42,12 @@
 		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
 		"source": "S2",
 		"target": "S3",
-		"event": "E2"
+		"event": "E2",
+		"actions": [
+			{
+				"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryAction",
+				"spel": "T(System).out.println('hello')"
+			}
+		]
 	}
 ]

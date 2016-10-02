@@ -15,10 +15,15 @@
  */
 package org.springframework.statemachine.data.jpa;
 
+import java.util.Set;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 import org.springframework.statemachine.data.RepositoryState;
 
@@ -39,6 +44,15 @@ public class JpaRepositoryState implements RepositoryState {
 	private String parentState;
 	private String state;
 	private boolean initial;
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	private Set<JpaRepositoryAction> stateActions;
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	private Set<JpaRepositoryAction> entryActions;
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	private Set<JpaRepositoryAction> exitActions;
 
 	/**
 	 * Instantiates a new jpa repository state.
@@ -85,10 +99,29 @@ public class JpaRepositoryState implements RepositoryState {
 	 * @param initial the initial
 	 */
 	public JpaRepositoryState(String machineId, String parentState, String state, boolean initial) {
+		this(machineId, parentState, state, initial, null, null, null);
+	}
+
+	/**
+	 * Instantiates a new jpa repository state.
+	 *
+	 * @param machineId the machine id
+	 * @param parentState the parent state
+	 * @param state the state
+	 * @param initial the initial
+	 * @param stateActions the state actions
+	 * @param entryActions the entry actions
+	 * @param exitActions the exit actions
+	 */
+	public JpaRepositoryState(String machineId, String parentState, String state, boolean initial, Set<JpaRepositoryAction> stateActions,
+			Set<JpaRepositoryAction> entryActions, Set<JpaRepositoryAction> exitActions) {
 		this.machineId = machineId;
 		this.parentState = parentState;
 		this.state = state;
 		this.initial = initial;
+		this.stateActions = stateActions;
+		this.entryActions = entryActions;
+		this.exitActions = exitActions;
 	}
 
 	@Override
@@ -125,5 +158,32 @@ public class JpaRepositoryState implements RepositoryState {
 
 	public void setInitial(boolean initial) {
 		this.initial = initial;
+	}
+
+	@Override
+	public Set<JpaRepositoryAction> getStateActions() {
+		return stateActions;
+	}
+
+	public void setStateActions(Set<JpaRepositoryAction> stateActions) {
+		this.stateActions = stateActions;
+	}
+
+	@Override
+	public Set<JpaRepositoryAction> getEntryActions() {
+		return entryActions;
+	}
+
+	public void setEntryActions(Set<JpaRepositoryAction> entryActions) {
+		this.entryActions = entryActions;
+	}
+
+	@Override
+	public Set<JpaRepositoryAction> getExitActions() {
+		return exitActions;
+	}
+
+	public void setExitActions(Set<JpaRepositoryAction> exitActions) {
+		this.exitActions = exitActions;
 	}
 }
