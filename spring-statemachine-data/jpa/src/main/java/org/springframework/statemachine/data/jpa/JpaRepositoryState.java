@@ -48,6 +48,7 @@ public class JpaRepositoryState extends RepositoryState {
 
 	private String machineId;
 	private String state;
+	private String region;
 	private boolean initial;
 	private PseudoStateKind kind;
 
@@ -140,6 +141,15 @@ public class JpaRepositoryState extends RepositoryState {
 
 	public void setMachineId(String machineId) {
 		this.machineId = machineId;
+	}
+
+	@Override
+	public String getRegion() {
+		return region;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
 	}
 
 	@Override

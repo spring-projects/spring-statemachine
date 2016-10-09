@@ -262,6 +262,25 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 		plan.test();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testMachine5() throws Exception {
+		context.register(Config5.class, FactoryConfig.class);
+		context.refresh();
+		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
+		StateMachine<String, String> stateMachine = stateMachineFactory.getStateMachine();
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.stateMachine(stateMachine)
+					.step().expectStates("S10", "S20").and()
+					.step().sendEvent("E1").expectStates("S11", "S21").and()
+					.step().sendEvent("E2").expectStates("S10", "S21").and()
+					.step().sendEvent("E3").expectStates("S10", "S20").and()
+					.build();
+		plan.test();
+	}
+
 	@Test
 	public void testPopulate1() {
 		context.register(Config2.class);
@@ -331,6 +350,17 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 		public StateMachineJackson2RepositoryPopulatorFactoryBean jackson2RepositoryPopulatorFactoryBean() {
 			StateMachineJackson2RepositoryPopulatorFactoryBean factoryBean = new StateMachineJackson2RepositoryPopulatorFactoryBean();
 			factoryBean.setResources(new Resource[]{new ClassPathResource("data4.json")});
+			return factoryBean;
+		}
+	}
+
+	@EnableAutoConfiguration
+	static class Config5 {
+
+		@Bean
+		public StateMachineJackson2RepositoryPopulatorFactoryBean jackson2RepositoryPopulatorFactoryBean() {
+			StateMachineJackson2RepositoryPopulatorFactoryBean factoryBean = new StateMachineJackson2RepositoryPopulatorFactoryBean();
+			factoryBean.setResources(new Resource[]{new ClassPathResource("data5.json")});
 			return factoryBean;
 		}
 	}

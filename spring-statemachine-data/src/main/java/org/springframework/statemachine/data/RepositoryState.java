@@ -49,6 +49,13 @@ public abstract class RepositoryState extends BaseRepositoryEntity {
 	public abstract String getState();
 
 	/**
+	 * Gets the region.
+	 *
+	 * @return the region
+	 */
+	public abstract String getRegion();
+
+	/**
 	 * Checks if is initial.
 	 *
 	 * @return true, if is initial

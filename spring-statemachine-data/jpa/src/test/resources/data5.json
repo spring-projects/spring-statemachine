@@ -1,0 +1,58 @@
+[
+	{
+		"@id": "1",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"region": "r1",
+		"initial": true,
+		"state": "S10"
+	},
+	{
+		"@id": "2",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"region": "r1",
+		"initial": false,
+		"state": "S11"
+	},
+	{
+		"@id": "3",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"region": "r2",
+		"initial": true,
+		"state": "S20"
+	},
+	{
+		"@id": "4",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"region": "r2",
+		"initial": false,
+		"state": "S21"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"source": "1",
+		"target": "2",
+		"event": "E1",
+		"kind": "EXTERNAL"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"source": "3",
+		"target": "4",
+		"event": "E1",
+		"kind": "EXTERNAL"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"source": "2",
+		"target": "1",
+		"event": "E2",
+		"kind": "EXTERNAL"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"source": "4",
+		"target": "3",
+		"event": "E3",
+		"kind": "EXTERNAL"
+	}
+]
