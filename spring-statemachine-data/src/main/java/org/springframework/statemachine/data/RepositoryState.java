@@ -17,6 +17,8 @@ package org.springframework.statemachine.data;
 
 import java.util.Set;
 
+import org.springframework.statemachine.state.PseudoStateKind;
+
 /**
  * Generic base class representing state entity.
  *
@@ -73,4 +75,11 @@ public abstract class RepositoryState extends BaseRepositoryEntity {
 	 * @return the exit actions
 	 */
 	public abstract Set<? extends RepositoryAction> getExitActions();
+
+	/**
+	 * Gets the pseudo state kind.
+	 *
+	 * @return the pseudo state kind
+	 */
+	public abstract PseudoStateKind getKind();
 }

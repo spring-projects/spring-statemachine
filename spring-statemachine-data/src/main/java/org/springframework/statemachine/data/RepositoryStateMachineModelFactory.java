@@ -27,6 +27,7 @@ import org.springframework.statemachine.action.SpelExpressionAction;
 import org.springframework.statemachine.config.model.AbstractStateMachineModelFactory;
 import org.springframework.statemachine.config.model.ConfigurationData;
 import org.springframework.statemachine.config.model.DefaultStateMachineModel;
+import org.springframework.statemachine.config.model.HistoryData;
 import org.springframework.statemachine.config.model.StateData;
 import org.springframework.statemachine.config.model.StateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineModelFactory;
@@ -35,6 +36,7 @@ import org.springframework.statemachine.config.model.TransitionData;
 import org.springframework.statemachine.config.model.TransitionsData;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.guard.SpelExpressionGuard;
+import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.transition.TransitionKind;
 import org.springframework.util.StringUtils;
 
@@ -138,11 +140,14 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 			stateData.setStateActions(stateActions);
 			stateData.setEntryActions(entryActions);
 			stateData.setExitActions(exitActions);
+			if (s.getKind() != null) {
+				stateData.setPseudoStateKind(s.getKind());
+			}
 			stateDatas.add(stateData);
 		}
 		StatesData<String, String> statesData = new StatesData<>(stateDatas);
-
 		Collection<TransitionData<String, String>> transitionData = new ArrayList<>();
+		Collection<HistoryData<String, String>> historys = new ArrayList<HistoryData<String, String>>();
 		for (RepositoryTransition t : transitionRepository.findByMachineId(machineId)) {
 
 			Collection<Action<String, String>> actions = new ArrayList<Action<String, String>>();
@@ -178,8 +183,14 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 				}
 			}
 			transitionData.add(new TransitionData<>(t.getSource().getState(), t.getTarget().getState(), t.getEvent(), actions, guard, kind != null ? kind : TransitionKind.EXTERNAL));
+
+			if (t.getSource().getKind() == PseudoStateKind.HISTORY_SHALLOW) {
+				historys.add(new HistoryData<String, String>(t.getSource().getState(), t.getTarget().getState()));
+			} else if (t.getSource().getKind() == PseudoStateKind.HISTORY_DEEP) {
+				historys.add(new HistoryData<String, String>(t.getSource().getState(), t.getTarget().getState()));
+			}
 		}
-		TransitionsData<String, String> transitionsData = new TransitionsData<>(transitionData);
+		TransitionsData<String, String> transitionsData = new TransitionsData<>(transitionData, null, null, null, null, null, null, historys);
 
 		StateMachineModel<String, String> stateMachineModel = new DefaultStateMachineModel<>(configurationData, statesData, transitionsData);
 		return stateMachineModel;

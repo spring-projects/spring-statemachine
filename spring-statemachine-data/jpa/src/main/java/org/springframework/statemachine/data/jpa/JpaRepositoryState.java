@@ -27,6 +27,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import org.springframework.statemachine.data.RepositoryState;
+import org.springframework.statemachine.state.PseudoStateKind;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -48,6 +49,7 @@ public class JpaRepositoryState extends RepositoryState {
 	private String machineId;
 	private String state;
 	private boolean initial;
+	private PseudoStateKind kind;
 
 	@OneToOne(fetch = FetchType.EAGER)
 	private JpaRepositoryState parentState;
@@ -156,6 +158,15 @@ public class JpaRepositoryState extends RepositoryState {
 
 	public void setState(String state) {
 		this.state = state;
+	}
+
+	@Override
+	public PseudoStateKind getKind() {
+		return kind;
+	}
+
+	public void setKind(PseudoStateKind kind) {
+		this.kind = kind;
 	}
 
 	@Override
