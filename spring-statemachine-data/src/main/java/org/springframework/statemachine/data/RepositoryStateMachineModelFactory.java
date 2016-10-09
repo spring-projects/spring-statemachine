@@ -175,8 +175,7 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 					guard = new SpelExpressionGuard<>(parser.parseExpression(repositoryGuard.getSpel()));
 				}
 			}
-
-			transitionData.add(new TransitionData<>(t.getSource(), t.getTarget(), t.getEvent(), actions, guard, kind != null ? kind : TransitionKind.EXTERNAL));
+			transitionData.add(new TransitionData<>(t.getSource().getState(), t.getTarget().getState(), t.getEvent(), actions, guard, kind != null ? kind : TransitionKind.EXTERNAL));
 		}
 		TransitionsData<String, String> transitionsData = new TransitionsData<>(transitionData);
 

@@ -5,10 +5,11 @@ project('spring-statemachine-data-jpa') {
 	dependencies {
 		compile project(":spring-statemachine-data-common")
 		compile "org.springframework:spring-orm:$springVersion"
-		optional "org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion"
 		testCompile project(":spring-statemachine-test")
+		optional "org.eclipse.persistence:javax.persistence:$eclipsePersistenceVersion"
 		testCompile "org.hsqldb:hsqldb:$hsqlVersion"
 		testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+		testRuntime "org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion"
 		testRuntime "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
 	}
 }

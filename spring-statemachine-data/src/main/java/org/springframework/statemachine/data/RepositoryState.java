@@ -18,59 +18,59 @@ package org.springframework.statemachine.data;
 import java.util.Set;
 
 /**
- * Generic interface representing state entity.
+ * Generic base class representing state entity.
  *
  * @author Janne Valkealahti
  *
  */
-public interface RepositoryState {
+public abstract class RepositoryState extends BaseRepositoryEntity {
 
 	/**
 	 * Gets the parent state.
 	 *
 	 * @return the parent state
 	 */
-	String getParentState();
+	public abstract String getParentState();
 
 	/**
 	 * Gets the machine id.
 	 *
 	 * @return the machine id
 	 */
-	String getMachineId();
+	public abstract String getMachineId();
 
 	/**
 	 * Gets the state.
 	 *
 	 * @return the state
 	 */
-	String getState();
+	public abstract String getState();
 
 	/**
 	 * Checks if is initial.
 	 *
 	 * @return true, if is initial
 	 */
-	boolean isInitial();
+	public abstract boolean isInitial();
 
 	/**
 	 * Gets the state actions.
 	 *
 	 * @return the state actions
 	 */
-	Set<? extends RepositoryAction> getStateActions();
+	public abstract Set<? extends RepositoryAction> getStateActions();
 
 	/**
 	 * Gets the entry actions.
 	 *
 	 * @return the entry actions
 	 */
-	Set<? extends RepositoryAction> getEntryActions();
+	public abstract Set<? extends RepositoryAction> getEntryActions();
 
 	/**
 	 * Gets the exit actions.
 	 *
 	 * @return the exit actions
 	 */
-	Set<? extends RepositoryAction> getExitActions();
+	public abstract Set<? extends RepositoryAction> getExitActions();
 }

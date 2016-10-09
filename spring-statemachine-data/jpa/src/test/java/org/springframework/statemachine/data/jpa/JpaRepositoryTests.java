@@ -31,7 +31,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.data.repository.init.Jackson2RepositoryPopulatorFactoryBean;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
@@ -43,6 +42,7 @@ import org.springframework.statemachine.data.RepositoryStateMachineModelFactory;
 import org.springframework.statemachine.data.RepositoryTransition;
 import org.springframework.statemachine.data.StateRepository;
 import org.springframework.statemachine.data.TransitionRepository;
+import org.springframework.statemachine.data.support.StateMachineJackson2RepositoryPopulatorFactoryBean;
 import org.springframework.statemachine.test.StateMachineTestPlan;
 import org.springframework.statemachine.test.StateMachineTestPlanBuilder;
 import org.springframework.statemachine.transition.TransitionKind;
@@ -60,18 +60,24 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 		context.refresh();
 
 		JpaStateRepository statesRepository = context.getBean(JpaStateRepository.class);
-		JpaRepositoryState state = new JpaRepositoryState("S1");
-		statesRepository.save(state);
-		Iterable<JpaRepositoryState> findAll = statesRepository.findAll();
-		assertThat(findAll.iterator().next().getState(), is("S1"));
+		JpaRepositoryState stateS1 = new JpaRepositoryState("S1");
+		JpaRepositoryState stateS2 = new JpaRepositoryState("S2");
+		assertThat(statesRepository.count(), is(0l));
+
+		statesRepository.save(stateS1);
+		statesRepository.save(stateS2);
+		assertThat(statesRepository.count(), is(2l));
 
 		JpaTransitionRepository transitionsRepository = context.getBean(JpaTransitionRepository.class);
-		JpaRepositoryTransition transition = new JpaRepositoryTransition("S1", "S2", "E1");
+		JpaRepositoryTransition transition = new JpaRepositoryTransition(stateS1, stateS2, "E1");
 		transition.setKind(TransitionKind.EXTERNAL);
 		transitionsRepository.save(transition);
+
+		assertThat(statesRepository.count(), is(2l));
+
 		JpaRepositoryTransition transition2 = transitionsRepository.findAll().iterator().next();
-		assertThat(transition2.getSource(), is("S1"));
-		assertThat(transition2.getTarget(), is("S2"));
+		assertThat(transition2.getSource().getState(), is("S1"));
+		assertThat(transition2.getTarget().getState(), is("S2"));
 		assertThat(transition2.getEvent(), is("E1"));
 		assertThat(transition2.getKind(), is(TransitionKind.EXTERNAL));
 
@@ -85,8 +91,10 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 
 		@SuppressWarnings("unchecked")
 		StateRepository<JpaRepositoryState> statesRepository1 = context.getBean(StateRepository.class);
-		JpaRepositoryState state = new JpaRepositoryState("S1");
-		statesRepository1.save(state);
+		JpaRepositoryState state1 = new JpaRepositoryState("S1");
+		statesRepository1.save(state1);
+		JpaRepositoryState state2 = new JpaRepositoryState("S2");
+		statesRepository1.save(state2);
 		@SuppressWarnings("unchecked")
 		StateRepository<? extends RepositoryState> statesRepository2 = context.getBean(StateRepository.class);
 		Iterable<? extends RepositoryState> findAll = statesRepository2.findAll();
@@ -94,11 +102,11 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 
 		@SuppressWarnings("unchecked")
 		TransitionRepository<RepositoryTransition> transitionsRepository = context.getBean(TransitionRepository.class);
-		RepositoryTransition transition = new JpaRepositoryTransition("S1", "S2", "E1");
+		RepositoryTransition transition = new JpaRepositoryTransition(state1, state2, "E1");
 		transitionsRepository.save(transition);
 		RepositoryTransition transition2 = transitionsRepository.findAll().iterator().next();
-		assertThat(transition2.getSource(), is("S1"));
-		assertThat(transition2.getTarget(), is("S2"));
+		assertThat(transition2.getSource().getState(), is("S1"));
+		assertThat(transition2.getTarget().getState(), is("S2"));
 		assertThat(transition2.getEvent(), is("E1"));
 
 		context.close();
@@ -114,18 +122,22 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 		statesRepository.save(state1);
 		JpaRepositoryState state2 = new JpaRepositoryState("machine2", "S2", false);
 		statesRepository.save(state2);
+		JpaRepositoryState state3 = new JpaRepositoryState("machine1", "S3", true);
+		statesRepository.save(state3);
+		JpaRepositoryState state4 = new JpaRepositoryState("machine2", "S4", false);
+		statesRepository.save(state4);
 
 		List<JpaRepositoryState> findByMachineId1 = statesRepository.findByMachineId("machine1");
 		List<JpaRepositoryState> findByMachineId2 = statesRepository.findByMachineId("machine2");
-		assertThat(findByMachineId1.size(), is(1));
-		assertThat(findByMachineId2.size(), is(1));
+		assertThat(findByMachineId1.size(), is(2));
+		assertThat(findByMachineId2.size(), is(2));
 		assertThat(findByMachineId1.get(0).getMachineId(), is("machine1"));
 		assertThat(findByMachineId2.get(0).getMachineId(), is("machine2"));
 
 
 		JpaTransitionRepository transitionsRepository = context.getBean(JpaTransitionRepository.class);
-		JpaRepositoryTransition transition1 = new JpaRepositoryTransition("machine1", "S1", "S2", "E1");
-		JpaRepositoryTransition transition2 = new JpaRepositoryTransition("machine2", "S3", "S4", "E2");
+		JpaRepositoryTransition transition1 = new JpaRepositoryTransition("machine1", state1, state2, "E1");
+		JpaRepositoryTransition transition2 = new JpaRepositoryTransition("machine2", state3, state4, "E2");
 		transitionsRepository.save(transition1);
 		transitionsRepository.save(transition2);
 		List<JpaRepositoryTransition> findByMachineId3 = transitionsRepository.findByMachineId("machine1");
@@ -161,10 +173,16 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 		context.register(Config.class);
 		context.refresh();
 
+		JpaStateRepository statesRepository = context.getBean(JpaStateRepository.class);
+		JpaRepositoryState stateS1 = new JpaRepositoryState("S1");
+		JpaRepositoryState stateS2 = new JpaRepositoryState("S2");
+		statesRepository.save(stateS1);
+		statesRepository.save(stateS2);
+
 		JpaActionRepository actionsRepository = context.getBean(JpaActionRepository.class);
 
 		JpaTransitionRepository transitionsRepository = context.getBean(JpaTransitionRepository.class);
-		JpaRepositoryTransition transition = new JpaRepositoryTransition("S1", "S2", "E1");
+		JpaRepositoryTransition transition = new JpaRepositoryTransition(stateS1, stateS2, "E1");
 
 		JpaRepositoryAction action1 = new JpaRepositoryAction();
 		action1.setName("action1");
@@ -174,8 +192,8 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 
 		transitionsRepository.save(transition);
 		JpaRepositoryTransition transition2 = transitionsRepository.findAll().iterator().next();
-		assertThat(transition2.getSource(), is("S1"));
-		assertThat(transition2.getTarget(), is("S2"));
+		assertThat(transition2.getSource().getState(), is("S1"));
+		assertThat(transition2.getTarget().getState(), is("S2"));
 		assertThat(transition2.getEvent(), is("E1"));
 
 		assertThat(actionsRepository.count(), is(1l));
@@ -225,6 +243,16 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 	}
 
 	@Test
+	public void testPopulate1() {
+		context.register(Config2.class);
+		context.refresh();
+		JpaStateRepository stateRepository = context.getBean(JpaStateRepository.class);
+		JpaTransitionRepository transitionRepository = context.getBean(JpaTransitionRepository.class);
+		assertThat(stateRepository.count(), is(3l));
+		assertThat(transitionRepository.count(), is(3l));
+	}
+
+	@Test
 	public void testAutowire() {
 		context.register(Config.class, WireConfig.class);
 		context.refresh();
@@ -258,8 +286,8 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 	static class Config2 {
 
 		@Bean
-		public Jackson2RepositoryPopulatorFactoryBean jackson2RepositoryPopulatorFactoryBean() {
-			Jackson2RepositoryPopulatorFactoryBean factoryBean = new Jackson2RepositoryPopulatorFactoryBean();
+		public StateMachineJackson2RepositoryPopulatorFactoryBean jackson2RepositoryPopulatorFactoryBean() {
+			StateMachineJackson2RepositoryPopulatorFactoryBean factoryBean = new StateMachineJackson2RepositoryPopulatorFactoryBean();
 			factoryBean.setResources(new Resource[]{new ClassPathResource("data2.json")});
 			return factoryBean;
 		}
@@ -269,8 +297,8 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 	static class Config3 {
 
 		@Bean
-		public Jackson2RepositoryPopulatorFactoryBean jackson2RepositoryPopulatorFactoryBean() {
-			Jackson2RepositoryPopulatorFactoryBean factoryBean = new Jackson2RepositoryPopulatorFactoryBean();
+		public StateMachineJackson2RepositoryPopulatorFactoryBean jackson2RepositoryPopulatorFactoryBean() {
+			StateMachineJackson2RepositoryPopulatorFactoryBean factoryBean = new StateMachineJackson2RepositoryPopulatorFactoryBean();
 			factoryBean.setResources(new Resource[]{new ClassPathResource("data3.json")});
 			return factoryBean;
 		}

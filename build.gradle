@@ -199,6 +199,8 @@ project('spring-statemachine-data-common') {
 		compile project(":spring-statemachine-core")
 		compile "org.springframework.data:spring-data-commons:$springDataCommonsVersion"
 		optional "org.springframework.security:spring-security-core:$springSecurityVersion"
+		compile "com.fasterxml.jackson.core:jackson-core:$jackson2Version"
+		compile "com.fasterxml.jackson.core:jackson-databind:$jackson2Version"
 	}
 }
 

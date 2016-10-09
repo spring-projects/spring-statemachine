@@ -20,59 +20,59 @@ import java.util.Set;
 import org.springframework.statemachine.transition.TransitionKind;
 
 /**
- * Generic interface representing transition entity.
+ * Generic base class representing transition entity.
  *
  * @author Janne Valkealahti
  *
  */
-public interface RepositoryTransition {
+public abstract class RepositoryTransition extends BaseRepositoryEntity {
 
 	/**
 	 * Gets the machine id.
 	 *
 	 * @return the machine id
 	 */
-	String getMachineId();
+	public abstract String getMachineId();
 
 	/**
 	 * Gets the source.
 	 *
 	 * @return the source
 	 */
-	String getSource();
+	public abstract RepositoryState getSource();
 
 	/**
 	 * Gets the target.
 	 *
 	 * @return the target
 	 */
-	String getTarget();
+	public abstract RepositoryState getTarget();
 
 	/**
 	 * Gets the event.
 	 *
 	 * @return the event
 	 */
-	String getEvent();
+	public abstract String getEvent();
 
 	/**
 	 * Gets the actions.
 	 *
 	 * @return the actions
 	 */
-	Set<? extends RepositoryAction> getActions();
+	public abstract Set<? extends RepositoryAction> getActions();
 
 	/**
 	 * Gets the guard.
 	 *
 	 * @return the guard
 	 */
-	RepositoryGuard getGuard();
+	public abstract RepositoryGuard getGuard();
 
 	/**
 	 * Gets the transition kind.
 	 *
 	 * @return the transition kind
 	 */
-	TransitionKind getKind();
+	public abstract TransitionKind getKind();
 }

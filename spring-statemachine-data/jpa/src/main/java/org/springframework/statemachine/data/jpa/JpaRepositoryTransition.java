@@ -29,6 +29,9 @@ import javax.persistence.OneToOne;
 import org.springframework.statemachine.data.RepositoryTransition;
 import org.springframework.statemachine.transition.TransitionKind;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 /**
  * JPA entity for transitions.
  *
@@ -36,15 +39,21 @@ import org.springframework.statemachine.transition.TransitionKind;
  *
  */
 @Entity
-public class JpaRepositoryTransition implements RepositoryTransition {
+@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class)
+public class JpaRepositoryTransition extends RepositoryTransition {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 
 	private String machineId;
-	private String source;
-	private String target;
+
+	@OneToOne(fetch = FetchType.EAGER)
+	private JpaRepositoryState source;
+
+	@OneToOne(fetch = FetchType.EAGER)
+	private JpaRepositoryState target;
+
 	private String event;
 	private TransitionKind kind;
 
@@ -68,7 +77,7 @@ public class JpaRepositoryTransition implements RepositoryTransition {
 	 * @param target the target
 	 * @param event the event
 	 */
-	public JpaRepositoryTransition(String source, String target, String event) {
+	public JpaRepositoryTransition(JpaRepositoryState source, JpaRepositoryState target, String event) {
 		this(null, source, target, event);
 	}
 
@@ -80,7 +89,7 @@ public class JpaRepositoryTransition implements RepositoryTransition {
 	 * @param target the target
 	 * @param event the event
 	 */
-	public JpaRepositoryTransition(String machineId, String source, String target, String event) {
+	public JpaRepositoryTransition(String machineId, JpaRepositoryState source, JpaRepositoryState target, String event) {
 		this(machineId, source, target, event, null);
 	}
 
@@ -93,7 +102,7 @@ public class JpaRepositoryTransition implements RepositoryTransition {
 	 * @param event the event
 	 * @param actions the actions
 	 */
-	public JpaRepositoryTransition(String machineId, String source, String target, String event, Set<JpaRepositoryAction> actions) {
+	public JpaRepositoryTransition(String machineId, JpaRepositoryState source, JpaRepositoryState target, String event, Set<JpaRepositoryAction> actions) {
 		this.machineId = machineId;
 		this.source = source;
 		this.target = target;
@@ -111,20 +120,20 @@ public class JpaRepositoryTransition implements RepositoryTransition {
 	}
 
 	@Override
-	public String getSource() {
+	public JpaRepositoryState getSource() {
 		return source;
 	}
 
-	public void setSource(String source) {
+	public void setSource(JpaRepositoryState source) {
 		this.source = source;
 	}
 
 	@Override
-	public String getTarget() {
+	public JpaRepositoryState getTarget() {
 		return target;
 	}
 
-	public void setTarget(String target) {
+	public void setTarget(JpaRepositoryState target) {
 		this.target = target;
 	}
 
@@ -162,5 +171,11 @@ public class JpaRepositoryTransition implements RepositoryTransition {
 
 	public void setKind(TransitionKind kind) {
 		this.kind = kind;
+	}
+
+	@Override
+	public String toString() {
+		return "JpaRepositoryTransition [id=" + id + ", machineId=" + machineId + ", source=" + source + ", target=" + target + ", event="
+				+ event + ", kind=" + kind + ", actions=" + actions + ", guard=" + guard + "]";
 	}
 }

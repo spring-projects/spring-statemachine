@@ -27,6 +27,9 @@ import javax.persistence.OneToMany;
 
 import org.springframework.statemachine.data.RepositoryState;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 /**
  * JPA entity for states.
  *
@@ -34,7 +37,8 @@ import org.springframework.statemachine.data.RepositoryState;
  *
  */
 @Entity
-public class JpaRepositoryState implements RepositoryState {
+@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class)
+public class JpaRepositoryState extends RepositoryState {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -185,5 +189,12 @@ public class JpaRepositoryState implements RepositoryState {
 
 	public void setExitActions(Set<JpaRepositoryAction> exitActions) {
 		this.exitActions = exitActions;
+	}
+
+	@Override
+	public String toString() {
+		return "JpaRepositoryState [id=" + id + ", machineId=" + machineId + ", parentState=" + parentState + ", state=" + state
+				+ ", initial=" + initial + ", stateActions=" + stateActions + ", entryActions=" + entryActions + ", exitActions="
+				+ exitActions + "]";
 	}
 }

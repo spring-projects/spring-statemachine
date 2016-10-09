@@ -1,5 +1,6 @@
 [
 	{
+		"@id": "1",
 		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
 		"initial": true,
 		"state": "S1",
@@ -11,6 +12,7 @@
 		]
 	},
 	{
+		"@id": "2",
 		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
 		"initial": false,
 		"state": "S2",
@@ -22,6 +24,7 @@
 		]
 	},
 	{
+		"@id": "3",
 		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
 		"initial": false,
 		"state": "S3",
@@ -34,15 +37,15 @@
 	},
 	{
 		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
-		"source": "S1",
-		"target": "S2",
+		"source": "1",
+		"target": "2",
 		"event": "E1",
 		"kind": "EXTERNAL"
 	},
 	{
 		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
-		"source": "S2",
-		"target": "S3",
+		"source": "2",
+		"target": "3",
 		"event": "E2",
 		"actions": [
 			{
