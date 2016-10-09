@@ -24,6 +24,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import org.springframework.statemachine.data.RepositoryState;
 
@@ -45,9 +46,11 @@ public class JpaRepositoryState extends RepositoryState {
 	private long id;
 
 	private String machineId;
-	private String parentState;
 	private String state;
 	private boolean initial;
+
+	@OneToOne(fetch = FetchType.EAGER)
+	private JpaRepositoryState parentState;
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private Set<JpaRepositoryAction> stateActions;
@@ -102,7 +105,7 @@ public class JpaRepositoryState extends RepositoryState {
 	 * @param state the state
 	 * @param initial the initial
 	 */
-	public JpaRepositoryState(String machineId, String parentState, String state, boolean initial) {
+	public JpaRepositoryState(String machineId, JpaRepositoryState parentState, String state, boolean initial) {
 		this(machineId, parentState, state, initial, null, null, null);
 	}
 
@@ -117,7 +120,7 @@ public class JpaRepositoryState extends RepositoryState {
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 */
-	public JpaRepositoryState(String machineId, String parentState, String state, boolean initial, Set<JpaRepositoryAction> stateActions,
+	public JpaRepositoryState(String machineId, JpaRepositoryState parentState, String state, boolean initial, Set<JpaRepositoryAction> stateActions,
 			Set<JpaRepositoryAction> entryActions, Set<JpaRepositoryAction> exitActions) {
 		this.machineId = machineId;
 		this.parentState = parentState;
@@ -138,11 +141,11 @@ public class JpaRepositoryState extends RepositoryState {
 	}
 
 	@Override
-	public String getParentState() {
+	public JpaRepositoryState getParentState() {
 		return parentState;
 	}
 
-	public void setParentState(String parentState) {
+	public void setParentState(JpaRepositoryState parentState) {
 		this.parentState = parentState;
 	}
 

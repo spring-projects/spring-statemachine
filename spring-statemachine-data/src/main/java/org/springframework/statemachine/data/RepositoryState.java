@@ -30,7 +30,7 @@ public abstract class RepositoryState extends BaseRepositoryEntity {
 	 *
 	 * @return the parent state
 	 */
-	public abstract String getParentState();
+	public abstract RepositoryState getParentState();
 
 	/**
 	 * Gets the machine id.

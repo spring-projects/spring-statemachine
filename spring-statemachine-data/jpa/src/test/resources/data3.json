@@ -15,14 +15,14 @@
 		"@id": "3",
 		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
 		"initial": true,
-		"parentState": "S2",
+		"parentState": "2",
 		"state": "S20"
 	},
 	{
 		"@id": "4",
 		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
 		"initial": false,
-		"parentState": "S2",
+		"parentState": "2",
 		"state": "S21"
 	},
 	{

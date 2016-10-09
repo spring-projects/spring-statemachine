@@ -132,7 +132,9 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 				}
 			}
 
-			StateData<String,String> stateData = new StateData<String, String>(s.getParentState(), null, s.getState(), s.isInitial());
+			RepositoryState parentState = s.getParentState();
+			StateData<String, String> stateData = new StateData<String, String>(parentState != null ? parentState.getState() : null, null,
+					s.getState(), s.isInitial());
 			stateData.setStateActions(stateActions);
 			stateData.setEntryActions(entryActions);
 			stateData.setExitActions(exitActions);
