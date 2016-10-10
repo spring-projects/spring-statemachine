@@ -31,6 +31,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
@@ -43,9 +45,11 @@ import org.springframework.statemachine.data.RepositoryTransition;
 import org.springframework.statemachine.data.StateRepository;
 import org.springframework.statemachine.data.TransitionRepository;
 import org.springframework.statemachine.data.support.StateMachineJackson2RepositoryPopulatorFactoryBean;
+import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.test.StateMachineTestPlan;
 import org.springframework.statemachine.test.StateMachineTestPlanBuilder;
 import org.springframework.statemachine.transition.TransitionKind;
+import org.springframework.util.ObjectUtils;
 
 public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 
@@ -281,6 +285,74 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 		plan.test();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testMachine6First() throws Exception {
+		context.register(Config6.class, FactoryConfig.class);
+		context.refresh();
+		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
+		StateMachine<String, String> stateMachine = stateMachineFactory.getStateMachine();
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.stateMachine(stateMachine)
+					.step().expectStates("SI").and()
+					.step().sendEvent(MessageBuilder.withPayload("E1").setHeader("choice", "s30").build()).expectStates("S30").and()
+					.build();
+		plan.test();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testMachine6Then1() throws Exception {
+		context.register(Config6.class, FactoryConfig.class);
+		context.refresh();
+		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
+		StateMachine<String, String> stateMachine = stateMachineFactory.getStateMachine();
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.stateMachine(stateMachine)
+					.step().expectStates("SI").and()
+					.step().sendEvent(MessageBuilder.withPayload("E1").setHeader("choice", "s31").build()).expectStates("S31").and()
+					.build();
+		plan.test();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testMachine6Then2() throws Exception {
+		context.register(Config6.class, FactoryConfig.class);
+		context.refresh();
+		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
+		StateMachine<String, String> stateMachine = stateMachineFactory.getStateMachine();
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.stateMachine(stateMachine)
+					.step().expectStates("SI").and()
+					.step().sendEvent(MessageBuilder.withPayload("E1").setHeader("choice", "s32").build()).expectStates("S32").and()
+					.build();
+		plan.test();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testMachine6Last() throws Exception {
+		context.register(Config6.class, FactoryConfig.class);
+		context.refresh();
+		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
+		StateMachine<String, String> stateMachine = stateMachineFactory.getStateMachine();
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.stateMachine(stateMachine)
+					.step().expectStates("SI").and()
+					.step().sendEvent(MessageBuilder.withPayload("E1").build()).expectStates("S33").and()
+					.build();
+		plan.test();
+	}
+
 	@Test
 	public void testPopulate1() {
 		context.register(Config2.class);
@@ -365,6 +437,33 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 		}
 	}
 
+	@EnableAutoConfiguration
+	static class Config6 {
+
+		@Bean
+		public StateMachineJackson2RepositoryPopulatorFactoryBean jackson2RepositoryPopulatorFactoryBean() {
+			StateMachineJackson2RepositoryPopulatorFactoryBean factoryBean = new StateMachineJackson2RepositoryPopulatorFactoryBean();
+			factoryBean.setResources(new Resource[]{new ClassPathResource("data6.json")});
+			return factoryBean;
+		}
+
+		@Bean
+		public Guard<String, String> s30Guard() {
+			return new ChoiceGuard("s30");
+		}
+
+		@Bean
+		public Guard<String, String> s31Guard() {
+			return new ChoiceGuard("s31");
+		}
+
+		@Bean
+		public Guard<String, String> s32Guard() {
+			return new ChoiceGuard("s32");
+		}
+
+	}
+
 	@Configuration
 	@EnableStateMachineFactory
 	public static class FactoryConfig extends StateMachineConfigurerAdapter<String, String> {
@@ -385,6 +484,20 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 		@Bean
 		public StateMachineModelFactory<String, String> modelFactory() {
 			return new RepositoryStateMachineModelFactory(stateRepository, transitionRepository);
+		}
+	}
+
+	private static class ChoiceGuard implements Guard<String, String> {
+
+		private final String match;
+
+		public ChoiceGuard(String match) {
+			this.match = match;
+		}
+
+		@Override
+		public boolean evaluate(StateContext<String, String> context) {
+			return ObjectUtils.nullSafeEquals(match, context.getMessageHeaders().get("choice", String.class));
 		}
 	}
 

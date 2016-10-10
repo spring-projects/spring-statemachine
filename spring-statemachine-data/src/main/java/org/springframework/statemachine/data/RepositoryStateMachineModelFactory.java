@@ -17,6 +17,10 @@ package org.springframework.statemachine.data;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.expression.spel.SpelCompilerMode;
@@ -25,6 +29,7 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.action.SpelExpressionAction;
 import org.springframework.statemachine.config.model.AbstractStateMachineModelFactory;
+import org.springframework.statemachine.config.model.ChoiceData;
 import org.springframework.statemachine.config.model.ConfigurationData;
 import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.HistoryData;
@@ -149,6 +154,7 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 		StatesData<String, String> statesData = new StatesData<>(stateDatas);
 		Collection<TransitionData<String, String>> transitionData = new ArrayList<>();
 		Collection<HistoryData<String, String>> historys = new ArrayList<HistoryData<String, String>>();
+		Map<String, LinkedList<ChoiceData<String, String>>> choices = new HashMap<String, LinkedList<ChoiceData<String,String>>>();
 		for (RepositoryTransition t : transitionRepository.findByMachineId(machineId)) {
 
 			Collection<Action<String, String>> actions = new ArrayList<Action<String, String>>();
@@ -172,28 +178,51 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 
 			TransitionKind kind = t.getKind();
 
-			Guard<String, String> guard = null;
-			RepositoryGuard repositoryGuard = t.getGuard();
-			if (repositoryGuard != null) {
-				if (StringUtils.hasText(repositoryGuard.getName())) {
-					guard = resolveGuard(repositoryGuard.getName());
-				} else if (StringUtils.hasText(repositoryGuard.getSpel())) {
-					SpelExpressionParser parser = new SpelExpressionParser(
-							new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
-					guard = new SpelExpressionGuard<>(parser.parseExpression(repositoryGuard.getSpel()));
-				}
-			}
+			Guard<String, String> guard = resolveGuard(t);
 			transitionData.add(new TransitionData<>(t.getSource().getState(), t.getTarget().getState(), t.getEvent(), actions, guard, kind != null ? kind : TransitionKind.EXTERNAL));
 
-			if (t.getSource().getKind() == PseudoStateKind.HISTORY_SHALLOW) {
+			if (t.getSource().getKind() == PseudoStateKind.CHOICE) {
+				LinkedList<ChoiceData<String, String>> list = choices.get(t.getSource().getState());
+				if (list == null) {
+					list = new LinkedList<ChoiceData<String, String>>();
+					choices.put(t.getSource().getState(), list);
+				}
+				guard = resolveGuard(t);
+				// we want null guards to be at the end
+				if (guard == null) {
+					list.addLast(new ChoiceData<String, String>(t.getSource().getState(), t.getTarget().getState(), guard));
+				} else {
+					list.addFirst(new ChoiceData<String, String>(t.getSource().getState(), t.getTarget().getState(), guard));
+				}
+
+			} else if (t.getSource().getKind() == PseudoStateKind.HISTORY_SHALLOW) {
 				historys.add(new HistoryData<String, String>(t.getSource().getState(), t.getTarget().getState()));
 			} else if (t.getSource().getKind() == PseudoStateKind.HISTORY_DEEP) {
 				historys.add(new HistoryData<String, String>(t.getSource().getState(), t.getTarget().getState()));
 			}
 		}
-		TransitionsData<String, String> transitionsData = new TransitionsData<>(transitionData, null, null, null, null, null, null, historys);
+
+		HashMap<String, List<ChoiceData<String, String>>> choicesCopy = new HashMap<String, List<ChoiceData<String, String>>>();
+		choicesCopy.putAll(choices);
+
+		TransitionsData<String, String> transitionsData = new TransitionsData<>(transitionData, choicesCopy, null, null, null, null, null, historys);
 
 		StateMachineModel<String, String> stateMachineModel = new DefaultStateMachineModel<>(configurationData, statesData, transitionsData);
 		return stateMachineModel;
+	}
+
+	private Guard<String, String> resolveGuard(RepositoryTransition t) {
+		Guard<String, String> guard = null;
+		RepositoryGuard repositoryGuard = t.getGuard();
+		if (repositoryGuard != null) {
+			if (StringUtils.hasText(repositoryGuard.getName())) {
+				guard = resolveGuard(repositoryGuard.getName());
+			} else if (StringUtils.hasText(repositoryGuard.getSpel())) {
+				SpelExpressionParser parser = new SpelExpressionParser(
+						new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
+				guard = new SpelExpressionGuard<>(parser.parseExpression(repositoryGuard.getSpel()));
+			}
+		}
+		return guard;
 	}
 }
