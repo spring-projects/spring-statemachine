@@ -16,6 +16,8 @@
 package org.springframework.statemachine.data.jpa;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
@@ -188,8 +190,10 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 		JpaTransitionRepository transitionsRepository = context.getBean(JpaTransitionRepository.class);
 		JpaRepositoryTransition transition = new JpaRepositoryTransition(stateS1, stateS2, "E1");
 
+		JpaActionRepository actionRepository = context.getBean(JpaActionRepository.class);
 		JpaRepositoryAction action1 = new JpaRepositoryAction();
 		action1.setName("action1");
+		actionRepository.save(action1);
 
 		Set<JpaRepositoryAction> actions = new HashSet<>(Arrays.asList(action1));
 		transition.setActions(actions);
@@ -364,6 +368,27 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 	}
 
 	@Test
+	public void testPopulate2() {
+		context.register(Config7.class);
+		context.refresh();
+		JpaStateRepository stateRepository = context.getBean(JpaStateRepository.class);
+		JpaTransitionRepository transitionRepository = context.getBean(JpaTransitionRepository.class);
+		JpaGuardRepository guardRepository = context.getBean(JpaGuardRepository.class);
+		JpaActionRepository actionRepository = context.getBean(JpaActionRepository.class);
+		assertThat(stateRepository.count(), is(2l));
+		assertThat(transitionRepository.count(), is(1l));
+		assertThat(guardRepository.count(), is(1l));
+		assertThat(actionRepository.count(), is(2l));
+
+		JpaRepositoryTransition transition = transitionRepository.findAll().iterator().next();
+		assertThat(transition.getActions().size(), is(2));
+		assertThat(transition.getGuard(), notNullValue());
+		assertThat(transition.getGuard().getSpel(), is("true"));
+		JpaRepositoryAction[] actions = transition.getActions().toArray(new JpaRepositoryAction[0]);
+		assertThat(Arrays.asList(actions[0].getSpel(), actions[1].getSpel()), containsInAnyOrder("true", "false"));
+	}
+
+	@Test
 	public void testAutowire() {
 		context.register(Config.class, WireConfig.class);
 		context.refresh();
@@ -462,6 +487,17 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 			return new ChoiceGuard("s32");
 		}
 
+	}
+
+	@EnableAutoConfiguration
+	static class Config7 {
+
+		@Bean
+		public StateMachineJackson2RepositoryPopulatorFactoryBean jackson2RepositoryPopulatorFactoryBean() {
+			StateMachineJackson2RepositoryPopulatorFactoryBean factoryBean = new StateMachineJackson2RepositoryPopulatorFactoryBean();
+			factoryBean.setResources(new Resource[]{new ClassPathResource("data7.json")});
+			return factoryBean;
+		}
 	}
 
 	@Configuration

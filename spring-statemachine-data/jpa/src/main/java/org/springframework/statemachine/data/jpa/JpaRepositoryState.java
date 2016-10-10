@@ -17,7 +17,6 @@ package org.springframework.statemachine.data.jpa;
 
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -55,13 +54,13 @@ public class JpaRepositoryState extends RepositoryState {
 	@OneToOne(fetch = FetchType.EAGER)
 	private JpaRepositoryState parentState;
 
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@OneToMany(fetch = FetchType.EAGER)
 	private Set<JpaRepositoryAction> stateActions;
 
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@OneToMany(fetch = FetchType.EAGER)
 	private Set<JpaRepositoryAction> entryActions;
 
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@OneToMany(fetch = FetchType.EAGER)
 	private Set<JpaRepositoryAction> exitActions;
 
 	/**

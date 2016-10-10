@@ -22,6 +22,9 @@ import javax.persistence.Id;
 
 import org.springframework.statemachine.data.RepositoryGuard;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 /**
  * JPA entity for actions.
  *
@@ -29,7 +32,8 @@ import org.springframework.statemachine.data.RepositoryGuard;
  *
  */
 @Entity
-public class JpaRepositoryGuard implements RepositoryGuard {
+@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class)
+public class JpaRepositoryGuard extends RepositoryGuard {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

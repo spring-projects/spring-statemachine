@@ -16,24 +16,24 @@
 package org.springframework.statemachine.data;
 
 /**
- * Generic interface representing action entity.
+ * Generic base class representing action entity.
  *
  * @author Janne Valkealahti
  *
  */
-public interface RepositoryAction {
+public abstract class RepositoryAction extends BaseRepositoryEntity {
 
 	/**
 	 * Gets the name.
 	 *
 	 * @return the name
 	 */
-	String getName();
+	public abstract String getName();
 
 	/**
 	 * Gets the spel.
 	 *
 	 * @return the spel
 	 */
-	String getSpel();
+	public abstract String getSpel();
 }

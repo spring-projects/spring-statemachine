@@ -16,24 +16,24 @@
 package org.springframework.statemachine.data;
 
 /**
- * Generic interface representing guard entity.
+ * Generic base class representing guard entity.
  *
  * @author Janne Valkealahti
  *
  */
-public interface RepositoryGuard {
+public abstract class RepositoryGuard extends BaseRepositoryEntity {
 
 	/**
 	 * Gets the name.
 	 *
 	 * @return the name
 	 */
-	String getName();
+	public abstract String getName();
 
 	/**
 	 * Gets the spel.
 	 *
 	 * @return the spel
 	 */
-	String getSpel();
+	public abstract String getSpel();
 }

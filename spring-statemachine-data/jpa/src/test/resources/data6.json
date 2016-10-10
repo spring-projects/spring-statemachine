@@ -37,6 +37,21 @@
 		"state": "S33"
 	},
 	{
+		"@id": "7",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryGuard",
+		"name": "s30Guard"
+	},
+	{
+		"@id": "8",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryGuard",
+		"name": "s31Guard"
+	},
+	{
+		"@id": "9",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryGuard",
+		"name": "s32Guard"
+	},
+	{
 		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
 		"source": "1",
 		"target": "2",
@@ -47,28 +62,19 @@
 		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
 		"source": "2",
 		"target": "3",
-		"guard": {
-			"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryGuard",
-			"name": "s30Guard"
-		}
+		"guard": "7"
 	},
 	{
 		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
 		"source": "2",
 		"target": "4",
-		"guard": {
-			"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryGuard",
-			"name": "s31Guard"
-		}
+		"guard": "8"
 	},
 	{
 		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
 		"source": "2",
 		"target": "5",
-		"guard": {
-			"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryGuard",
-			"name": "s32Guard"
-		}
+		"guard": "9"
 	},
 	{
 		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
