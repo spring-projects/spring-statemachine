@@ -32,6 +32,8 @@ import org.springframework.statemachine.config.model.AbstractStateMachineModelFa
 import org.springframework.statemachine.config.model.ChoiceData;
 import org.springframework.statemachine.config.model.ConfigurationData;
 import org.springframework.statemachine.config.model.DefaultStateMachineModel;
+import org.springframework.statemachine.config.model.EntryData;
+import org.springframework.statemachine.config.model.ExitData;
 import org.springframework.statemachine.config.model.HistoryData;
 import org.springframework.statemachine.config.model.JunctionData;
 import org.springframework.statemachine.config.model.StateData;
@@ -154,6 +156,8 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 		}
 		StatesData<String, String> statesData = new StatesData<>(stateDatas);
 		Collection<TransitionData<String, String>> transitionData = new ArrayList<>();
+		Collection<EntryData<String, String>> entrys = new ArrayList<EntryData<String, String>>();
+		Collection<ExitData<String, String>> exits = new ArrayList<ExitData<String, String>>();
 		Collection<HistoryData<String, String>> historys = new ArrayList<HistoryData<String, String>>();
 		Map<String, LinkedList<ChoiceData<String, String>>> choices = new HashMap<String, LinkedList<ChoiceData<String,String>>>();
 		Map<String, LinkedList<JunctionData<String, String>>> junctions = new HashMap<String, LinkedList<JunctionData<String,String>>>();
@@ -183,7 +187,11 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 			Guard<String, String> guard = resolveGuard(t);
 			transitionData.add(new TransitionData<>(t.getSource().getState(), t.getTarget().getState(), t.getEvent(), actions, guard, kind != null ? kind : TransitionKind.EXTERNAL));
 
-			if (t.getSource().getKind() == PseudoStateKind.CHOICE) {
+			if (t.getSource().getKind() == PseudoStateKind.ENTRY) {
+				entrys.add(new EntryData<String, String>(t.getSource().getState(), t.getTarget().getState()));
+			} else if (t.getSource().getKind() == PseudoStateKind.EXIT) {
+				exits.add(new ExitData<String, String>(t.getSource().getState(), t.getTarget().getState()));
+			} else if (t.getSource().getKind() == PseudoStateKind.CHOICE) {
 				LinkedList<ChoiceData<String, String>> list = choices.get(t.getSource().getState());
 				if (list == null) {
 					list = new LinkedList<ChoiceData<String, String>>();
@@ -221,7 +229,8 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 		HashMap<String, List<JunctionData<String, String>>> junctionsCopy = new HashMap<String, List<JunctionData<String, String>>>();
 		junctionsCopy.putAll(junctions);
 
-		TransitionsData<String, String> transitionsData = new TransitionsData<>(transitionData, choicesCopy, junctionsCopy, null, null, null, null, historys);
+		TransitionsData<String, String> transitionsData = new TransitionsData<>(transitionData, choicesCopy, junctionsCopy, null, null,
+				entrys, exits, historys);
 
 		StateMachineModel<String, String> stateMachineModel = new DefaultStateMachineModel<>(configurationData, statesData, transitionsData);
 		return stateMachineModel;

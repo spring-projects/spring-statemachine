@@ -425,6 +425,24 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 		plan.test();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testMachine9() throws Exception {
+		context.register(Config9.class, FactoryConfig.class);
+		context.refresh();
+		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
+		StateMachine<String, String> stateMachine = stateMachineFactory.getStateMachine();
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.stateMachine(stateMachine)
+					.step().expectStates("S1").and()
+					.step().sendEvent("ENTRY1").expectStates("S2", "S22").and()
+					.step().sendEvent("EXIT1").expectStates("S4").and()
+					.build();
+		plan.test();
+	}
+
 	@Test
 	public void testPopulate1() {
 		context.register(Config2.class);
@@ -593,6 +611,17 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 			return new JunctionGuard("s32");
 		}
 
+	}
+
+	@EnableAutoConfiguration
+	static class Config9 {
+
+		@Bean
+		public StateMachineJackson2RepositoryPopulatorFactoryBean jackson2RepositoryPopulatorFactoryBean() {
+			StateMachineJackson2RepositoryPopulatorFactoryBean factoryBean = new StateMachineJackson2RepositoryPopulatorFactoryBean();
+			factoryBean.setResources(new Resource[]{new ClassPathResource("data9.json")});
+			return factoryBean;
+		}
 	}
 
 	@Configuration

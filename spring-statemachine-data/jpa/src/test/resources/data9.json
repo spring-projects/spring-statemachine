@@ -1,0 +1,131 @@
+[
+	{
+		"@id": "1",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"initial": true,
+		"state": "S1"
+	},
+	{
+		"@id": "2",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"state": "S2"
+	},
+	{
+		"@id": "3",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"state": "S3"
+	},
+	{
+		"@id": "4",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"state": "S4"
+	},
+	{
+		"@id": "5",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"state": "S5"
+	},
+	{
+		"@id": "6",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"initial": true,
+		"state": "S21",
+		"parentState": "2"
+	},
+	{
+		"@id": "7",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"state": "S22",
+		"parentState": "2"
+	},
+	{
+		"@id": "8",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"state": "S23",
+		"parentState": "2"
+	},
+	{
+		"@id": "9",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"state": "S2ENTRY1",
+		"parentState": "2",
+		"kind": "ENTRY"
+	},
+	{
+		"@id": "10",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"state": "S2ENTRY2",
+		"parentState": "2",
+		"kind": "ENTRY"
+	},
+	{
+		"@id": "11",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"state": "S2EXIT1",
+		"parentState": "2",
+		"kind": "EXIT"
+	},
+	{
+		"@id": "12",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"state": "S2EXIT2",
+		"parentState": "2",
+		"kind": "EXIT"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"source": "1",
+		"target": "2",
+		"event": "E1"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"source": "2",
+		"target": "3",
+		"event": "E2"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"source": "1",
+		"target": "9",
+		"event": "ENTRY1"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"source": "1",
+		"target": "10",
+		"event": "ENTRY2"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"source": "7",
+		"target": "11",
+		"event": "EXIT1"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"source": "7",
+		"target": "12",
+		"event": "EXIT2"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"source": "9",
+		"target": "7"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"source": "10",
+		"target": "9"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"source": "11",
+		"target": "4"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"source": "12",
+		"target": "5"
+	}
+]
