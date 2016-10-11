@@ -33,6 +33,7 @@ import org.springframework.statemachine.config.model.ChoiceData;
 import org.springframework.statemachine.config.model.ConfigurationData;
 import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.HistoryData;
+import org.springframework.statemachine.config.model.JunctionData;
 import org.springframework.statemachine.config.model.StateData;
 import org.springframework.statemachine.config.model.StateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineModelFactory;
@@ -155,6 +156,7 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 		Collection<TransitionData<String, String>> transitionData = new ArrayList<>();
 		Collection<HistoryData<String, String>> historys = new ArrayList<HistoryData<String, String>>();
 		Map<String, LinkedList<ChoiceData<String, String>>> choices = new HashMap<String, LinkedList<ChoiceData<String,String>>>();
+		Map<String, LinkedList<JunctionData<String, String>>> junctions = new HashMap<String, LinkedList<JunctionData<String,String>>>();
 		for (RepositoryTransition t : transitionRepository.findByMachineId(machineId)) {
 
 			Collection<Action<String, String>> actions = new ArrayList<Action<String, String>>();
@@ -194,7 +196,19 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 				} else {
 					list.addFirst(new ChoiceData<String, String>(t.getSource().getState(), t.getTarget().getState(), guard));
 				}
-
+			} else if (t.getSource().getKind() == PseudoStateKind.JUNCTION) {
+				LinkedList<JunctionData<String, String>> list = junctions.get(t.getSource().getState());
+				if (list == null) {
+					list = new LinkedList<JunctionData<String, String>>();
+					junctions.put(t.getSource().getState(), list);
+				}
+				guard = resolveGuard(t);
+				// we want null guards to be at the end
+				if (guard == null) {
+					list.addLast(new JunctionData<String, String>(t.getSource().getState(), t.getTarget().getState(), guard));
+				} else {
+					list.addFirst(new JunctionData<String, String>(t.getSource().getState(), t.getTarget().getState(), guard));
+				}
 			} else if (t.getSource().getKind() == PseudoStateKind.HISTORY_SHALLOW) {
 				historys.add(new HistoryData<String, String>(t.getSource().getState(), t.getTarget().getState()));
 			} else if (t.getSource().getKind() == PseudoStateKind.HISTORY_DEEP) {
@@ -204,8 +218,10 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 
 		HashMap<String, List<ChoiceData<String, String>>> choicesCopy = new HashMap<String, List<ChoiceData<String, String>>>();
 		choicesCopy.putAll(choices);
+		HashMap<String, List<JunctionData<String, String>>> junctionsCopy = new HashMap<String, List<JunctionData<String, String>>>();
+		junctionsCopy.putAll(junctions);
 
-		TransitionsData<String, String> transitionsData = new TransitionsData<>(transitionData, choicesCopy, null, null, null, null, null, historys);
+		TransitionsData<String, String> transitionsData = new TransitionsData<>(transitionData, choicesCopy, junctionsCopy, null, null, null, null, historys);
 
 		StateMachineModel<String, String> stateMachineModel = new DefaultStateMachineModel<>(configurationData, statesData, transitionsData);
 		return stateMachineModel;

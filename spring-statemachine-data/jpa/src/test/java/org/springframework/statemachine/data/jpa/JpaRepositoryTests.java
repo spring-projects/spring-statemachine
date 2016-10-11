@@ -357,6 +357,74 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 		plan.test();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testMachine8First() throws Exception {
+		context.register(Config8.class, FactoryConfig.class);
+		context.refresh();
+		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
+		StateMachine<String, String> stateMachine = stateMachineFactory.getStateMachine();
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.stateMachine(stateMachine)
+					.step().expectStates("SI").and()
+					.step().sendEvent(MessageBuilder.withPayload("E1").setHeader("junction", "s30").build()).expectStates("S30").and()
+					.build();
+		plan.test();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testMachine8Then1() throws Exception {
+		context.register(Config8.class, FactoryConfig.class);
+		context.refresh();
+		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
+		StateMachine<String, String> stateMachine = stateMachineFactory.getStateMachine();
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.stateMachine(stateMachine)
+					.step().expectStates("SI").and()
+					.step().sendEvent(MessageBuilder.withPayload("E1").setHeader("junction", "s31").build()).expectStates("S31").and()
+					.build();
+		plan.test();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testMachine8Then2() throws Exception {
+		context.register(Config8.class, FactoryConfig.class);
+		context.refresh();
+		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
+		StateMachine<String, String> stateMachine = stateMachineFactory.getStateMachine();
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.stateMachine(stateMachine)
+					.step().expectStates("SI").and()
+					.step().sendEvent(MessageBuilder.withPayload("E1").setHeader("junction", "s32").build()).expectStates("S32").and()
+					.build();
+		plan.test();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testMachine8Last() throws Exception {
+		context.register(Config8.class, FactoryConfig.class);
+		context.refresh();
+		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
+		StateMachine<String, String> stateMachine = stateMachineFactory.getStateMachine();
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.stateMachine(stateMachine)
+					.step().expectStates("SI").and()
+					.step().sendEvent(MessageBuilder.withPayload("E1").build()).expectStates("S33").and()
+					.build();
+		plan.test();
+	}
+
 	@Test
 	public void testPopulate1() {
 		context.register(Config2.class);
@@ -500,6 +568,33 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 		}
 	}
 
+	@EnableAutoConfiguration
+	static class Config8 {
+
+		@Bean
+		public StateMachineJackson2RepositoryPopulatorFactoryBean jackson2RepositoryPopulatorFactoryBean() {
+			StateMachineJackson2RepositoryPopulatorFactoryBean factoryBean = new StateMachineJackson2RepositoryPopulatorFactoryBean();
+			factoryBean.setResources(new Resource[]{new ClassPathResource("data8.json")});
+			return factoryBean;
+		}
+
+		@Bean
+		public Guard<String, String> s30Guard() {
+			return new JunctionGuard("s30");
+		}
+
+		@Bean
+		public Guard<String, String> s31Guard() {
+			return new JunctionGuard("s31");
+		}
+
+		@Bean
+		public Guard<String, String> s32Guard() {
+			return new JunctionGuard("s32");
+		}
+
+	}
+
 	@Configuration
 	@EnableStateMachineFactory
 	public static class FactoryConfig extends StateMachineConfigurerAdapter<String, String> {
@@ -537,4 +632,17 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 		}
 	}
 
+	private static class JunctionGuard implements Guard<String, String> {
+
+		private final String match;
+
+		public JunctionGuard(String match) {
+			this.match = match;
+		}
+
+		@Override
+		public boolean evaluate(StateContext<String, String> context) {
+			return ObjectUtils.nullSafeEquals(match, context.getMessageHeaders().get("junction", String.class));
+		}
+	}
 }
