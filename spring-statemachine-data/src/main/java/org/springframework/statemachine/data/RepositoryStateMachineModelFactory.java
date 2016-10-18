@@ -151,6 +151,9 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 			stateData.setExitActions(exitActions);
 			if (s.getKind() != null) {
 				stateData.setPseudoStateKind(s.getKind());
+				if (s.getKind() == PseudoStateKind.END) {
+					stateData.setEnd(true);
+				}
 			}
 			stateDatas.add(stateData);
 		}

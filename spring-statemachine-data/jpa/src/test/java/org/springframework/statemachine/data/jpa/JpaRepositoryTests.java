@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -48,6 +49,8 @@ import org.springframework.statemachine.data.StateRepository;
 import org.springframework.statemachine.data.TransitionRepository;
 import org.springframework.statemachine.data.support.StateMachineJackson2RepositoryPopulatorFactoryBean;
 import org.springframework.statemachine.guard.Guard;
+import org.springframework.statemachine.state.PseudoStateKind;
+import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.test.StateMachineTestPlan;
 import org.springframework.statemachine.test.StateMachineTestPlanBuilder;
 import org.springframework.statemachine.transition.TransitionKind;
@@ -458,6 +461,19 @@ public class JpaRepositoryTests extends AbstractJpaRepositoryTests {
 					.step().sendEvent("E1").expectStates("S2", "S21", "S31").and()
 					.build();
 		plan.test();
+
+		State<String, String> endState = null;
+		Iterator<State<String, String>> iterator = stateMachine.getStates().iterator();
+		while (iterator.hasNext()) {
+			State<String, String> next = iterator.next();
+			if (next.getId().equals("SF")) {
+				endState = next;
+				break;
+			}
+		}
+		assertThat(endState, notNullValue());
+		assertThat(endState.getPseudoState(), notNullValue());
+		assertThat(endState.getPseudoState().getKind(), is(PseudoStateKind.END));
 	}
 
 	@SuppressWarnings("unchecked")
