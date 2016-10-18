@@ -33,6 +33,7 @@ import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.listener.StateMachineListener;
+import org.springframework.statemachine.monitor.StateMachineMonitor;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.AbstractState;
 import org.springframework.statemachine.state.ForkPseudoState;
@@ -291,6 +292,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 			@Override
 			public void transit(Transition<S, E> t, StateContext<S, E> ctx, Message<E> message) {
+				long now = System.currentTimeMillis();
 				// TODO: fix above stateContext as it's not used
 				notifyTransitionStart(buildStateContext(Stage.TRANSITION_START, message, t, getRelayStateMachine()));
 				notifyTransition(buildStateContext(Stage.TRANSITION, message, t, getRelayStateMachine()));
@@ -306,6 +308,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				}
 				// TODO: looks like events should be called here and anno processing earlier
 				notifyTransitionEnd(buildStateContext(Stage.TRANSITION_END, message, t, getRelayStateMachine()));
+				notifyTransitionMonitor(getRelayStateMachine(), t, System.currentTimeMillis() - now);
 			}
 		});
 		stateMachineExecutor = executor;
@@ -660,6 +663,11 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	public void addStateMachineInterceptor(StateMachineInterceptor<S, E> interceptor) {
 		getStateMachineInterceptors().add(interceptor);
 		stateMachineExecutor.addStateMachineInterceptor(interceptor);
+	}
+
+	@Override
+	public void addStateMachineMonitor(StateMachineMonitor<S, E> monitor) {
+		getStateMachineMonitor().register(monitor);
 	}
 
 	@Override

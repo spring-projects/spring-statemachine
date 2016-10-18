@@ -120,3 +120,11 @@ project('spring-statemachine-samples-datajpa') {
 	}
 }
 
+project('spring-statemachine-samples-monitoring') {
+	description = 'Spring State Machine Monitoring Sample'
+	dependencies {
+		compile project(":spring-statemachine-boot")
+		compile("org.springframework.boot:spring-boot-starter-thymeleaf:$springBootVersion")
+	}
+}
+

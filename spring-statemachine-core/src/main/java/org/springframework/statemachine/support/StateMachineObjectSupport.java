@@ -28,6 +28,7 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.event.StateMachineEventPublisher;
 import org.springframework.statemachine.listener.CompositeStateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListener;
+import org.springframework.statemachine.monitor.CompositeStateMachineMonitor;
 import org.springframework.statemachine.processor.StateMachineHandlerCallHelper;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
@@ -46,6 +47,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	private static final Log log = LogFactory.getLog(StateMachineObjectSupport.class);
 
 	private final CompositeStateMachineListener<S, E> stateListener = new CompositeStateMachineListener<S, E>();
+	private final CompositeStateMachineMonitor<S, E> stateMachineMonitor = new CompositeStateMachineMonitor<S, E>();
 
 	/** Context application event publisher if exist */
 	private volatile StateMachineEventPublisher stateMachineEventPublisher;
@@ -126,6 +128,10 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 
 	protected CompositeStateMachineListener<S, E> getStateListener() {
 		return stateListener;
+	}
+
+	protected CompositeStateMachineMonitor<S, E> getStateMachineMonitor() {
+		return stateMachineMonitor;
 	}
 
 	protected void notifyStateChanged(StateContext<S, E> stateContext) {
@@ -301,6 +307,14 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 			}
 		} catch (Throwable e) {
 			log.warn("Error during notifyExtendedStateChanged", e);
+		}
+	}
+
+	protected void notifyTransitionMonitor(StateMachine<S, E> stateMachine, Transition<S, E> transition, long duration) {
+		try {
+			stateMachineMonitor.transition(stateMachine, transition, duration);
+		} catch (Exception e) {
+			log.warn("Error during notifyTransitionMonitor", e);
 		}
 	}
 

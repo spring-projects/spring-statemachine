@@ -29,6 +29,7 @@ import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.listener.StateMachineListener;
+import org.springframework.statemachine.monitor.StateMachineMonitor;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.StateMachineInterceptor;
 import org.springframework.statemachine.transition.Transition;
@@ -94,6 +95,10 @@ public class StateMachineAccessTests {
 
 		@Override
 		public void addStateMachineInterceptor(StateMachineInterceptor<String, String> interceptor) {
+		}
+
+		@Override
+		public void addStateMachineMonitor(StateMachineMonitor<String, String> monitor) {
 		}
 
 		@Override

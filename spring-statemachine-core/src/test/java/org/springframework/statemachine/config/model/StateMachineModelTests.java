@@ -56,7 +56,7 @@ public class StateMachineModelTests {
 
 		ConfigurationData<String, String> configurationData = new ConfigurationData<>(beanFactory, taskExecutor, taskScheduler, autoStart,
 				ensemble, listeners, securityEnabled, transitionSecurityAccessDecisionManager, eventSecurityAccessDecisionManager,
-				eventSecurityRule, transitionSecurityRule, verifierEnabled, verifier, null);
+				eventSecurityRule, transitionSecurityRule, verifierEnabled, verifier, null, null);
 
 		Collection<StateData<String, String>> stateData = new ArrayList<>();
 		StateData<String, String> stateData1 = new StateData<String, String>(null, null, "S1", null, null, null);

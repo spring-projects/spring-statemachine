@@ -129,6 +129,21 @@ project('spring-statemachine-core') {
 	}
 }
 
+project('spring-statemachine-boot') {
+	description = "Spring State Machine Boot"
+    
+	dependencies {
+		compile project(":spring-statemachine-core")
+		compile "org.springframework.boot:spring-boot-autoconfigure:$springBootVersion"
+		compile "org.springframework.boot:spring-boot-actuator:$springBootVersion"
+		testCompile "org.springframework.boot:spring-boot-test:$springBootVersion"
+		testCompile "org.springframework:spring-test:$springVersion"
+		testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"
+		testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
+		testCompile "junit:junit:$junitVersion"
+	}
+}
+
 project('spring-statemachine-test') {
 	description = "Spring State Machine Test"
     

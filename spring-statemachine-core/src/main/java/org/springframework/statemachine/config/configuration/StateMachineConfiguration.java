@@ -22,6 +22,7 @@ import java.util.List;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.context.SmartLifecycle;
@@ -42,6 +43,7 @@ import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.ConfigurationData;
 import org.springframework.statemachine.config.model.StatesData;
 import org.springframework.statemachine.config.model.TransitionsData;
+import org.springframework.statemachine.monitor.StateMachineMonitor;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
@@ -114,6 +116,7 @@ public class StateMachineConfiguration<S, E> extends
 		private SmartLifecycle lifecycle;
 		private DisposableBean disposableBean;
 		private String beanName;
+		private StateMachineMonitor<S, E> stateMachineMonitor;
 
 		public StateMachineDelegatingFactoryBean(StateMachineConfigBuilder<S, E> builder, Class<StateMachine<S, E>> clazz,
 				String clazzName, Boolean contextEvents) {
@@ -160,6 +163,9 @@ public class StateMachineConfiguration<S, E> extends
 			stateMachineFactory.setContextEventsEnabled(contextEvents);
 			stateMachineFactory.setBeanName(beanName);
 			stateMachineFactory.setHandleAutostartup(stateMachineConfigurationConfig.isAutoStart());
+			if (stateMachineMonitor != null) {
+				stateMachineFactory.setStateMachineMonitor(stateMachineMonitor);
+			}
 			StateMachine<S, E> stateMachine = stateMachineFactory.getStateMachine();
 			this.lifecycle = (SmartLifecycle) stateMachine;
 			this.disposableBean = (DisposableBean) stateMachine;
@@ -201,6 +207,10 @@ public class StateMachineConfiguration<S, E> extends
 			lifecycle.stop(callback);
 		}
 
+		@Autowired(required = false)
+		public void setStateMachineMonitor(StateMachineMonitor<S, E> stateMachineMonitor) {
+			this.stateMachineMonitor = stateMachineMonitor;
+		}
 	}
 
 }

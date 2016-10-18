@@ -28,9 +28,11 @@ import org.springframework.statemachine.config.common.annotation.ObjectPostProce
 import org.springframework.statemachine.config.configurers.ConfigurationConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultConfigurationConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultDistributedStateMachineConfigurer;
+import org.springframework.statemachine.config.configurers.DefaultMonitoringConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultSecurityConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultVerifierConfigurer;
 import org.springframework.statemachine.config.configurers.DistributedStateMachineConfigurer;
+import org.springframework.statemachine.config.configurers.MonitoringConfigurer;
 import org.springframework.statemachine.config.configurers.SecurityConfigurer;
 import org.springframework.statemachine.config.configurers.VerifierConfigurer;
 import org.springframework.statemachine.config.model.ConfigurationData;
@@ -38,6 +40,7 @@ import org.springframework.statemachine.config.model.StatesData;
 import org.springframework.statemachine.config.model.verifier.StateMachineModelVerifier;
 import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 import org.springframework.statemachine.listener.StateMachineListener;
+import org.springframework.statemachine.monitor.StateMachineMonitor;
 import org.springframework.statemachine.security.SecurityRule;
 
 /**
@@ -66,6 +69,7 @@ public class StateMachineConfigurationBuilder<S, E>
 	private AccessDecisionManager eventSecurityAccessDecisionManager;
 	private SecurityRule eventSecurityRule;
 	private SecurityRule transitionSecurityRule;
+	private StateMachineMonitor<S, E> stateMachineMonitor;
 
 	/**
 	 * Instantiates a new state machine configuration builder.
@@ -115,10 +119,15 @@ public class StateMachineConfigurationBuilder<S, E>
 	}
 
 	@Override
+	public MonitoringConfigurer<S, E> withMonitoring() throws Exception {
+		return apply(new DefaultMonitoringConfigurer<S, E>());
+	}
+
+	@Override
 	protected ConfigurationData<S, E> performBuild() throws Exception {
 		return new ConfigurationData<S, E>(beanFactory, taskExecutor, taskScheculer, autoStart, ensemble, listeners,
 				securityEnabled, transitionSecurityAccessDecisionManager, eventSecurityAccessDecisionManager, eventSecurityRule,
-				transitionSecurityRule, verifierEnabled, verifier, machineId);
+				transitionSecurityRule, verifierEnabled, verifier, machineId, stateMachineMonitor);
 	}
 
 	/**
@@ -201,6 +210,15 @@ public class StateMachineConfigurationBuilder<S, E>
 	 */
 	public void setVerifierEnabled(boolean verifierEnabled) {
 		this.verifierEnabled = verifierEnabled;
+	}
+
+	/**
+	 * Sets the state machine monitor.
+	 *
+	 * @param stateMachineMonitor the state machine monitor
+	 */
+	public void setStateMachineMonitor(StateMachineMonitor<S, E> stateMachineMonitor) {
+		this.stateMachineMonitor = stateMachineMonitor;
 	}
 
 	/**

@@ -17,6 +17,7 @@ package org.springframework.statemachine.config.builders;
 
 import org.springframework.statemachine.config.configurers.ConfigurationConfigurer;
 import org.springframework.statemachine.config.configurers.DistributedStateMachineConfigurer;
+import org.springframework.statemachine.config.configurers.MonitoringConfigurer;
 import org.springframework.statemachine.config.configurers.SecurityConfigurer;
 import org.springframework.statemachine.config.configurers.VerifierConfigurer;
 
@@ -61,4 +62,12 @@ public interface StateMachineConfigurationConfigurer<S, E> {
 	 * @throws Exception if configuration error happens
 	 */
 	VerifierConfigurer<S, E> withVerifier() throws Exception;
+
+	/**
+	 * Gets a configurer for state machine monitoring.
+	 *
+	 * @return {@link MonitoringConfigurer} for chaining
+	 * @throws Exception if configuration error happens
+	 */
+	MonitoringConfigurer<S, E> withMonitoring() throws Exception;
 }

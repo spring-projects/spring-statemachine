@@ -18,6 +18,7 @@ package org.springframework.statemachine.access;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
+import org.springframework.statemachine.monitor.StateMachineMonitor;
 import org.springframework.statemachine.support.StateMachineInterceptor;
 
 /**
@@ -50,6 +51,13 @@ public interface StateMachineAccess<S, E> {
 	 * @param interceptor the interceptor
 	 */
 	void addStateMachineInterceptor(StateMachineInterceptor<S, E> interceptor);
+
+	/**
+	 * Adds the state machine monitor.
+	 *
+	 * @param monitor the monitor
+	 */
+	void addStateMachineMonitor(StateMachineMonitor<S, E> monitor);
 
 	/**
 	 * Sets if initial state is enabled when a state machine is

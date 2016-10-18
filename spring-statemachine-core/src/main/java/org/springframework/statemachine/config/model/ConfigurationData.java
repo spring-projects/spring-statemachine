@@ -29,6 +29,7 @@ import org.springframework.statemachine.config.model.verifier.DefaultStateMachin
 import org.springframework.statemachine.config.model.verifier.StateMachineModelVerifier;
 import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 import org.springframework.statemachine.listener.StateMachineListener;
+import org.springframework.statemachine.monitor.StateMachineMonitor;
 import org.springframework.statemachine.security.SecurityRule;
 
 /**
@@ -55,13 +56,14 @@ public class ConfigurationData<S, E> {
 	private final AccessDecisionManager eventSecurityAccessDecisionManager;
 	private final SecurityRule eventSecurityRule;
 	private final SecurityRule transitionSecurityRule;
+	private final StateMachineMonitor<S, E> stateMachineMonitor;
 
 	/**
 	 * Instantiates a new state machine configuration config data.
 	 */
 	public ConfigurationData() {
 		this(null, new SyncTaskExecutor(), new ConcurrentTaskScheduler(), false, null, new ArrayList<StateMachineListener<S, E>>(), false,
-				null, null, null, null, true, new DefaultStateMachineModelVerifier<S, E>(), null);
+				null, null, null, null, true, new DefaultStateMachineModelVerifier<S, E>(), null, null);
 	}
 
 	/**
@@ -87,7 +89,7 @@ public class ConfigurationData<S, E> {
 			List<StateMachineListener<S, E>> listeners, boolean securityEnabled,
 			AccessDecisionManager transitionSecurityAccessDecisionManager, AccessDecisionManager eventSecurityAccessDecisionManager,
 			SecurityRule eventSecurityRule, SecurityRule transitionSecurityRule, boolean verifierEnabled,
-			StateMachineModelVerifier<S, E> verifier, String machineId) {
+			StateMachineModelVerifier<S, E> verifier, String machineId, StateMachineMonitor<S, E> stateMachineMonitor) {
 		this.beanFactory = beanFactory;
 		this.taskExecutor = taskExecutor;
 		this.taskScheduler = taskScheduler;
@@ -102,6 +104,7 @@ public class ConfigurationData<S, E> {
 		this.verifierEnabled = verifierEnabled;
 		this.verifier = verifier;
 		this.machineId = machineId;
+		this.stateMachineMonitor = stateMachineMonitor;
 	}
 
 	public String getMachineId() {
@@ -187,6 +190,15 @@ public class ConfigurationData<S, E> {
 	 */
 	public StateMachineModelVerifier<S, E> getVerifier() {
 		return verifier;
+	}
+
+	/**
+	 * Gets the state machine monitor.
+	 *
+	 * @return the state machine monitor
+	 */
+	public StateMachineMonitor<S, E> getStateMachineMonitor() {
+		return stateMachineMonitor;
 	}
 
 	/**

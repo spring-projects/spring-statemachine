@@ -53,6 +53,7 @@ import org.springframework.statemachine.config.model.verifier.CompositeStateMach
 import org.springframework.statemachine.config.model.verifier.StateMachineModelVerifier;
 import org.springframework.statemachine.ensemble.DistributedStateMachine;
 import org.springframework.statemachine.listener.StateMachineListener;
+import org.springframework.statemachine.monitor.StateMachineMonitor;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.security.StateMachineSecurityInterceptor;
 import org.springframework.statemachine.state.AbstractState;
@@ -111,6 +112,8 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 	private boolean handleAutostartup = false;
 
 	private String beanName;
+
+	private StateMachineMonitor<S, E> defaultStateMachineMonitor;
 
 	/**
 	 * Instantiates a new abstract state machine factory.
@@ -265,6 +268,23 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			}
 		});
 
+		// add monitoring hooks
+		final StateMachineMonitor<S, E> stateMachineMonitor = stateMachineModel.getConfigurationData().getStateMachineMonitor();
+		if (stateMachineMonitor != null || defaultStateMachineMonitor != null) {
+			fmachine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S ,E>>() {
+
+				@Override
+				public void apply(StateMachineAccess<S, E> function) {
+					if (defaultStateMachineMonitor != null) {
+						function.addStateMachineMonitor(defaultStateMachineMonitor);
+					}
+					if (stateMachineMonitor != null) {
+						function.addStateMachineMonitor(stateMachineMonitor);
+					}
+				}
+			});
+		}
+
 		// TODO: should error out if sec is enabled but spring-security is not in cp
 		if (stateMachineModel.getConfigurationData().isSecurityEnabled()) {
 			final StateMachineSecurityInterceptor<S, E> securityInterceptor = new StateMachineSecurityInterceptor<S, E>(
@@ -322,6 +342,15 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 	 */
 	public void setContextEventsEnabled(Boolean contextEvents) {
 		this.contextEvents = contextEvents;
+	}
+
+	/**
+	 * Sett state machine monitor.
+	 *
+	 * @param stateMachineMonitor the state machine monitor
+	 */
+	public void setStateMachineMonitor(StateMachineMonitor<S, E> stateMachineMonitor) {
+		this.defaultStateMachineMonitor = stateMachineMonitor;
 	}
 
 	private StateMachine<S, E> delegateAutoStartup(StateMachine<S, E> delegate) {
