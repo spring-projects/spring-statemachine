@@ -223,7 +223,7 @@ End State, there is an option to force a transition to a specific substate,
 using the default history mechanism. This is a Transition that originates
 in the history state and terminates on a specific Vertex (the default history
 state) of the Region containing the history state. This Transition is only
-taken if execution leads to the history tate and the state had never been
+taken if execution leads to the history state and the state had never been
 active before. Otherwise, the normal history entry into the Region is executed.
 If no default history transition is defined, then standard default entry of
 the region is performed.
