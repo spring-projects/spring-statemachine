@@ -1,0 +1,71 @@
+[
+	{
+		"@id": "1",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"initial": true,
+		"state": "SI"
+	},
+	{
+		"@id": "2",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"state": "S1",
+		"kind": "FORK"
+	},
+	{
+		"@id": "3",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"state": "S2"
+	},
+	{
+		"@id": "4",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"state": "SF",
+		"kind": "END"
+	},
+	{
+		"@id": "5",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"initial": true,
+		"region": "r2",
+		"parentState": "3",
+		"state": "S20"
+	},
+	{
+		"@id": "6",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"region": "r2",
+		"parentState": "3",
+		"state": "S21"
+	},
+	{
+		"@id": "7",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"initial": true,
+		"region": "r3",
+		"parentState": "3",
+		"state": "S30"
+	},
+	{
+		"@id": "8",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"region": "r3",
+		"parentState": "3",
+		"state": "S31"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"source": "1",
+		"target": "2",
+		"event": "E1"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"source": "2",
+		"target": "6"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"source": "2",
+		"target": "8"
+	}
+]

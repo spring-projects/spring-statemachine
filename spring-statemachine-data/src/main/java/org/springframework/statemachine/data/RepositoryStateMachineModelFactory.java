@@ -161,6 +161,10 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 		Collection<HistoryData<String, String>> historys = new ArrayList<HistoryData<String, String>>();
 		Map<String, LinkedList<ChoiceData<String, String>>> choices = new HashMap<String, LinkedList<ChoiceData<String,String>>>();
 		Map<String, LinkedList<JunctionData<String, String>>> junctions = new HashMap<String, LinkedList<JunctionData<String,String>>>();
+		Map<String, List<String>> forks = new HashMap<String, List<String>>();
+		Map<String, List<String>> joins = new HashMap<String, List<String>>();
+
+
 		for (RepositoryTransition t : transitionRepository.findByMachineId(machineId)) {
 
 			Collection<Action<String, String>> actions = new ArrayList<Action<String, String>>();
@@ -217,6 +221,20 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 				} else {
 					list.addFirst(new JunctionData<String, String>(t.getSource().getState(), t.getTarget().getState(), guard));
 				}
+			} else if (t.getSource().getKind() == PseudoStateKind.FORK) {
+				List<String> list = forks.get(t.getSource().getState());
+				if (list == null) {
+					list = new ArrayList<String>();
+					forks.put(t.getSource().getState(), list);
+				}
+				list.add(t.getTarget().getState());
+			} else if (t.getTarget().getKind() == PseudoStateKind.JOIN) {
+				List<String> list = joins.get(t.getTarget().getState());
+				if (list == null) {
+					list = new ArrayList<String>();
+					joins.put(t.getTarget().getState(), list);
+				}
+				list.add(t.getSource().getState());
 			} else if (t.getSource().getKind() == PseudoStateKind.HISTORY_SHALLOW) {
 				historys.add(new HistoryData<String, String>(t.getSource().getState(), t.getTarget().getState()));
 			} else if (t.getSource().getKind() == PseudoStateKind.HISTORY_DEEP) {
@@ -229,7 +247,7 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 		HashMap<String, List<JunctionData<String, String>>> junctionsCopy = new HashMap<String, List<JunctionData<String, String>>>();
 		junctionsCopy.putAll(junctions);
 
-		TransitionsData<String, String> transitionsData = new TransitionsData<>(transitionData, choicesCopy, junctionsCopy, null, null,
+		TransitionsData<String, String> transitionsData = new TransitionsData<>(transitionData, choicesCopy, junctionsCopy, forks, joins,
 				entrys, exits, historys);
 
 		StateMachineModel<String, String> stateMachineModel = new DefaultStateMachineModel<>(configurationData, statesData, transitionsData);
