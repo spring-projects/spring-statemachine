@@ -89,4 +89,11 @@ public abstract class RepositoryState extends BaseRepositoryEntity {
 	 * @return the pseudo state kind
 	 */
 	public abstract PseudoStateKind getKind();
+
+	/**
+	 * Gets the deferred events.
+	 *
+	 * @return the deferred events
+	 */
+	public abstract Set<String> getDeferredEvents();
 }

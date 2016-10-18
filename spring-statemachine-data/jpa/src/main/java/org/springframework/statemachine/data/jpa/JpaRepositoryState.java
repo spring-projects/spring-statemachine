@@ -17,6 +17,7 @@ package org.springframework.statemachine.data.jpa;
 
 import java.util.Set;
 
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -62,6 +63,9 @@ public class JpaRepositoryState extends RepositoryState {
 
 	@OneToMany(fetch = FetchType.EAGER)
 	private Set<JpaRepositoryAction> exitActions;
+
+	@ElementCollection(fetch = FetchType.EAGER, targetClass = String.class)
+	private Set<String> deferredEvents;
 
 	/**
 	 * Instantiates a new jpa repository state.
@@ -215,9 +219,19 @@ public class JpaRepositoryState extends RepositoryState {
 	}
 
 	@Override
+	public Set<String> getDeferredEvents() {
+		return deferredEvents;
+	}
+
+	public void setDeferredEvents(Set<String> deferredEvents) {
+		this.deferredEvents = deferredEvents;
+	}
+
+	@Override
 	public String toString() {
-		return "JpaRepositoryState [id=" + id + ", machineId=" + machineId + ", parentState=" + parentState + ", state=" + state
-				+ ", initial=" + initial + ", stateActions=" + stateActions + ", entryActions=" + entryActions + ", exitActions="
-				+ exitActions + "]";
+		return "JpaRepositoryState [id=" + id + ", machineId=" + machineId + ", state=" + state + ", region=" + region
+				+ ", initial=" + initial + ", kind=" + kind + ", parentState=" + parentState + ", stateActions="
+				+ stateActions + ", entryActions=" + entryActions + ", exitActions=" + exitActions + ", deferredEvents="
+				+ deferredEvents + "]";
 	}
 }

@@ -155,6 +155,7 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 					stateData.setEnd(true);
 				}
 			}
+			stateData.setDeferred(s.getDeferredEvents());
 			stateDatas.add(stateData);
 		}
 		StatesData<String, String> statesData = new StatesData<>(stateDatas);
