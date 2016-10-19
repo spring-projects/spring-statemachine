@@ -125,6 +125,9 @@ project('spring-statemachine-samples-monitoring') {
 	dependencies {
 		compile project(":spring-statemachine-boot")
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf:$springBootVersion")
+		compile("org.springframework.boot:spring-boot-starter-security:$springBootVersion")
+		testCompile("com.jayway.jsonpath:json-path:$jsonpathVersion")
+		testCompile("com.jayway.jsonpath:json-path-assert:$jsonpathVersion")
 	}
 }
 
