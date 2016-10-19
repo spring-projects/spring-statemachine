@@ -83,6 +83,7 @@ public class ConfigurationData<S, E> {
 	 * @param verifierEnabled the verifier enabled flag
 	 * @param verifier the state machine model verifier
 	 * @param machineId the machine id
+	 * @param stateMachineMonitor the state machine monitor
 	 */
 	public ConfigurationData(BeanFactory beanFactory, TaskExecutor taskExecutor,
 			TaskScheduler taskScheduler, boolean autoStart, StateMachineEnsemble<S, E> ensemble,
