@@ -96,4 +96,12 @@ public abstract class RepositoryState extends BaseRepositoryEntity {
 	 * @return the deferred events
 	 */
 	public abstract Set<String> getDeferredEvents();
+
+	/**
+	 * Gets the submachine id indicating that this is a submachine state
+	 * and its structure is available from particular machine itself.
+	 *
+	 * @return the submachine id
+	 */
+	public abstract String getSubmachineId();
 }

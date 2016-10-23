@@ -85,6 +85,13 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 		Collection<StateData<String, String>> stateDatas = new ArrayList<>();
 		for (RepositoryState s : stateRepository.findByMachineId(machineId)) {
 
+			// do recursive build to get states for a submachine
+			StateMachineModel<String, String> subStateMachineModel = null;
+			String submachineId = s.getSubmachineId();
+			if (submachineId != null) {
+				subStateMachineModel = build(submachineId);
+			}
+
 			Collection<Action<String, String>> stateActions = new ArrayList<Action<String, String>>();
 			Set<? extends RepositoryAction> repositoryStateActions = s.getStateActions();
 			if (repositoryStateActions != null) {
@@ -156,6 +163,18 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 				}
 			}
 			stateData.setDeferred(s.getDeferredEvents());
+
+			if (subStateMachineModel != null) {
+				// copy are set parent as state we're currently on
+				Collection<StateData<String, String>> submachineStateData = new ArrayList<>();
+				Collection<StateData<String, String>> submachineStateDataOrig = subStateMachineModel.getStatesData().getStateData();
+				for (StateData<String, String> sd : submachineStateDataOrig) {
+					submachineStateData.add(new StateData<String, String>(s.getState(), sd.getRegion(), sd.getState(),
+							sd.getDeferred(), sd.getEntryActions(), sd.getExitActions(), sd.isInitial()));
+				}
+				stateData.setSubmachineStateData(submachineStateData);
+			}
+
 			stateDatas.add(stateData);
 		}
 		StatesData<String, String> statesData = new StatesData<>(stateDatas);

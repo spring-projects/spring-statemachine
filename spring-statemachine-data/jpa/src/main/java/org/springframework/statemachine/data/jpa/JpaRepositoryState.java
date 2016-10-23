@@ -51,6 +51,7 @@ public class JpaRepositoryState extends RepositoryState {
 	private String region;
 	private boolean initial;
 	private PseudoStateKind kind;
+	private String submachineId;
 
 	@OneToOne(fetch = FetchType.EAGER)
 	private JpaRepositoryState parentState;
@@ -228,10 +229,19 @@ public class JpaRepositoryState extends RepositoryState {
 	}
 
 	@Override
+	public String getSubmachineId() {
+		return submachineId;
+	}
+
+	public void setSubmachineId(String submachineId) {
+		this.submachineId = submachineId;
+	}
+
+	@Override
 	public String toString() {
 		return "JpaRepositoryState [id=" + id + ", machineId=" + machineId + ", state=" + state + ", region=" + region
-				+ ", initial=" + initial + ", kind=" + kind + ", parentState=" + parentState + ", stateActions="
-				+ stateActions + ", entryActions=" + entryActions + ", exitActions=" + exitActions + ", deferredEvents="
-				+ deferredEvents + "]";
+				+ ", initial=" + initial + ", kind=" + kind + ", submachineId=" + submachineId + ", parentState="
+				+ parentState + ", stateActions=" + stateActions + ", entryActions=" + entryActions + ", exitActions="
+				+ exitActions + ", deferredEvents=" + deferredEvents + "]";
 	}
 }
