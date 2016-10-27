@@ -146,7 +146,7 @@ public class ObjectState<S, E> extends AbstractSimpleState<S, E> {
 		if (actions != null) {
 			for (Action<S, E> action : actions) {
 				try {
-					action.execute(context);
+					executeAction(action, context);
 				} catch (Exception e) {
 					log.error("Action execution resulted error", e);
 				}
@@ -161,7 +161,7 @@ public class ObjectState<S, E> extends AbstractSimpleState<S, E> {
 		if (actions != null) {
 			for (Action<S, E> action : actions) {
 				try {
-					action.execute(context);
+					executeAction(action, context);
 				} catch (Exception e) {
 					log.error("Action execution resulted error", e);
 				}

@@ -21,6 +21,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.action.ActionListener;
+import org.springframework.statemachine.action.CompositeActionListener;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
@@ -45,6 +47,7 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 	private final Guard<S, E> guard;
 	private final Trigger<S, E> trigger;
 	private final SecurityRule securityRule;
+	private CompositeActionListener<S, E> actionListener;
 
 	/**
 	 * Instantiates a new abstract transition.
@@ -133,13 +136,36 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 		return actions;
 	}
 
+	@Override
+	public void addActionListener(ActionListener<S, E> listener) {
+		synchronized (this) {
+			if (this.actionListener == null) {
+				this.actionListener = new CompositeActionListener<>();
+			}
+			this.actionListener.register(listener);
+		}
+	}
+
+	@Override
+	public void removeActionListener(ActionListener<S, E> listener) {
+		synchronized (this) {
+			if (this.actionListener != null) {
+				this.actionListener.unregister(listener);
+			}
+		}
+	}
+
 	protected final void executeAllActions(StateContext<S, E> context) {
 		if (actions == null) {
 			return;
 		}
 
 		for (Action<S, E> action : actions) {
+			long now = System.currentTimeMillis();
 			action.execute(context);
+			if (this.actionListener != null) {
+				this.actionListener.onExecute(context.getStateMachine(), action, System.currentTimeMillis() - now);
+			}
 		}
 	}
 }

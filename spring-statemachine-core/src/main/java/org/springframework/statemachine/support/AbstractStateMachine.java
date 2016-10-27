@@ -32,6 +32,8 @@ import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.access.StateMachineFunction;
+import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.action.ActionListener;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.monitor.StateMachineMonitor;
 import org.springframework.statemachine.region.Region;
@@ -312,6 +314,24 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			}
 		});
 		stateMachineExecutor = executor;
+
+		for (Transition<S, E> t : getTransitions()) {
+			t.addActionListener(new ActionListener<S, E>() {
+
+				@Override
+				public void onExecute(StateMachine<S, E> stateMachine, Action<S, E> action, long duration) {
+					notifyActionMonitor(stateMachine, action, duration);
+				}
+			});
+		}
+		for (State<S, E> s : getStates()) {
+			s.addActionListener(new ActionListener<S, E>() {
+				@Override
+				public void onExecute(StateMachine<S, E> stateMachine, Action<S, E> action, long duration) {
+					notifyActionMonitor(stateMachine, action, duration);
+				}
+			});
+		}
 	}
 
 	@Override

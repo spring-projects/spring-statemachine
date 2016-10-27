@@ -18,6 +18,7 @@ package org.springframework.statemachine.monitor;
 import java.util.Iterator;
 
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.support.AbstractCompositeItems;
 import org.springframework.statemachine.transition.Transition;
 
@@ -37,6 +38,14 @@ public class CompositeStateMachineMonitor<S, E> extends AbstractCompositeItems<S
 		for (Iterator<StateMachineMonitor<S, E>> iterator = getItems().reverse(); iterator.hasNext();) {
 			StateMachineMonitor<S, E> monitor = iterator.next();
 			monitor.transition(stateMachine, transition, duration);
+		}
+	}
+
+	@Override
+	public void action(StateMachine<S, E> stateMachine, Action<S, E> transition, long duration) {
+		for (Iterator<StateMachineMonitor<S, E>> iterator = getItems().reverse(); iterator.hasNext();) {
+			StateMachineMonitor<S, E> monitor = iterator.next();
+			monitor.action(stateMachine, transition, duration);
 		}
 	}
 }

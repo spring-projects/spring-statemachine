@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.springframework.statemachine.transition;
 
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.action.ActionListener;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.trigger.Trigger;
@@ -83,4 +84,18 @@ public interface Transition<S, E> {
 	 * @return the security rule
 	 */
 	SecurityRule getSecurityRule();
+
+	/**
+	 * Adds the action listener.
+	 *
+	 * @param listener the listener
+	 */
+	void addActionListener(ActionListener<S, E> listener);
+
+	/**
+	 * Removes the action listener.
+	 *
+	 * @param listener the listener
+	 */
+	void removeActionListener(ActionListener<S, E> listener);
 }

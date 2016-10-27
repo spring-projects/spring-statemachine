@@ -25,6 +25,7 @@ import org.springframework.core.OrderComparator;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.event.StateMachineEventPublisher;
 import org.springframework.statemachine.listener.CompositeStateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListener;
@@ -313,6 +314,14 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyTransitionMonitor(StateMachine<S, E> stateMachine, Transition<S, E> transition, long duration) {
 		try {
 			stateMachineMonitor.transition(stateMachine, transition, duration);
+		} catch (Exception e) {
+			log.warn("Error during notifyTransitionMonitor", e);
+		}
+	}
+
+	protected void notifyActionMonitor(StateMachine<S, E> stateMachine, Action<S, E> action, long duration) {
+		try {
+			stateMachineMonitor.action(stateMachine, action, duration);
 		} catch (Exception e) {
 			log.warn("Error during notifyTransitionMonitor", e);
 		}

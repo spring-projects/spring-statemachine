@@ -36,6 +36,7 @@ import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.action.ActionListener;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.EnumState;
@@ -131,6 +132,14 @@ public class StateContextExpressionMethodsTests {
 		@Override
 		public SecurityRule getSecurityRule() {
 			return null;
+		}
+
+		@Override
+		public void addActionListener(ActionListener<SpelStates, SpelEvents> listener) {
+		}
+
+		@Override
+		public void removeActionListener(ActionListener<SpelStates, SpelEvents> listener) {
 		}
 	}
 

@@ -28,6 +28,8 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.action.ActionListener;
+import org.springframework.statemachine.action.CompositeActionListener;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
 import org.springframework.statemachine.trigger.Trigger;
@@ -55,6 +57,7 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 	private List<Trigger<S, E>> triggers = new ArrayList<Trigger<S, E>>();
 	private final CompositeStateListener<S, E> stateListener = new CompositeStateListener<S, E>();
 	private final List<ScheduledFuture<?>> cancellableActions = new ArrayList<>();
+	private CompositeActionListener<S, E> actionListener;
 
 	/**
 	 * Instantiates a new abstract state.
@@ -269,6 +272,25 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 		stateListener.unregister(listener);
 	}
 
+	@Override
+	public void addActionListener(ActionListener<S, E> listener) {
+		synchronized (this) {
+			if (this.actionListener == null) {
+				this.actionListener = new CompositeActionListener<>();
+			}
+			this.actionListener.register(listener);
+		}
+	}
+
+	@Override
+	public void removeActionListener(ActionListener<S, E> listener) {
+		synchronized (this) {
+			if (this.actionListener != null) {
+				this.actionListener.unregister(listener);
+			}
+		}
+	}
+
 	/**
 	 * Gets the submachine.
 	 *
@@ -334,6 +356,24 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 	}
 
 	/**
+	 * Execute action and notify action listener if set.
+	 *
+	 * @param action the action
+	 * @param context the context
+	 */
+	protected void executeAction(Action<S, E> action, StateContext<S, E> context) {
+		long now = System.currentTimeMillis();
+		action.execute(context);
+		if (this.actionListener != null) {
+			try {
+				this.actionListener.onExecute(context.getStateMachine(), action, System.currentTimeMillis() - now);
+			} catch (Exception e) {
+				log.warn("Error with actionListener", e);
+			}
+		}
+	}
+
+	/**
 	 * Schedule action and return future which can be used to cancel it.
 	 *
 	 * @param action the action
@@ -350,7 +390,7 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 
 			@Override
 			public void run() {
-				action.execute(context);
+				executeAction(action, context);
 			}
 		}, new Date());
 		return future;

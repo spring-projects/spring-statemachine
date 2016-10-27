@@ -13,30 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.monitor;
+package org.springframework.statemachine.action;
 
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.action.Action;
-import org.springframework.statemachine.transition.Transition;
 
 /**
- * {@code StateMachineMonitor} for various state machine monitoring events.
+ * {@code ActionListener} for various action events.
  *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public interface StateMachineMonitor<S, E> {
-
-	/**
-	 * Notified duration of a particular transition.
-	 *
-	 * @param stateMachine the state machine
-	 * @param transition the transition
-	 * @param duration the transition duration
-	 */
-	void transition(StateMachine<S, E> stateMachine, Transition<S, E> transition, long duration);
+public interface ActionListener<S, E> {
 
 	/**
 	 * Notified duration of a particular action.
@@ -45,5 +34,5 @@ public interface StateMachineMonitor<S, E> {
 	 * @param action the action
 	 * @param duration the transition duration
 	 */
-	void action(StateMachine<S, E> stateMachine, Action<S, E> action, long duration);
+	void onExecute(StateMachine<S, E> stateMachine, Action<S, E> action, long duration);
 }

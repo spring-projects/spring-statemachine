@@ -150,7 +150,7 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 		Collection<? extends Action<S, E>> actions = getExitActions();
 		if (actions != null && !isLocal(context)) {
 			for (Action<S, E> action : actions) {
-				action.execute(context);
+				executeAction(action, context);
 			}
 		}
 	}
@@ -161,7 +161,7 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 		Collection<? extends Action<S, E>> actions = getEntryActions();
 		if (actions != null && !isLocal(context)) {
 			for (Action<S, E> action : actions) {
-				action.execute(context);
+				executeAction(action, context);
 			}
 		}
 

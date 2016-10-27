@@ -16,16 +16,22 @@
 package org.springframework.statemachine.monitor;
 
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.AbstractStateMachineTests;
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
+import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
@@ -44,18 +50,22 @@ public class StateMachineMonitorTests extends AbstractStateMachineTests {
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
 
 		TestStateMachineMonitor monitor = context.getBean(TestStateMachineMonitor.class);
+		Action<String, String> taction = context.getBean("taction", Action.class);
+		Action<String, String> enaction = context.getBean("enaction", Action.class);
+		Action<String, String> exaction = context.getBean("exaction", Action.class);
+		Action<String, String> saction = context.getBean("saction", Action.class);
 
 		machine.start();
 		assertThat(machine.getState().getIds(), contains("S1"));
 		machine.sendEvent("E1");
 		assertThat(machine.getState().getIds(), contains("S2"));
-		assertThat(monitor.transition, notNullValue());
-		assertThat(monitor.duration, notNullValue());
+		// there's also initial transition, thus 2 instead 1
+		assertThat(monitor.transitions.size(), is(2));
+		assertThat(monitor.actions.size(), is(4));
+		assertThat(monitor.actions.keySet(), containsInAnyOrder(taction, enaction, exaction, saction));
 		monitor.reset();
 		machine.sendEvent("E2");
 		assertThat(machine.getState().getIds(), contains("S1"));
-		assertThat(monitor.transition, notNullValue());
-		assertThat(monitor.duration, notNullValue());
 	}
 
 	@Configuration
@@ -75,7 +85,9 @@ public class StateMachineMonitorTests extends AbstractStateMachineTests {
 			states
 				.withStates()
 					.initial("S1")
-					.state("S2");
+					.state("S1", null, exaction())
+					.state("S2", saction())
+					.state("S2", enaction(), null);
 		}
 
 		@Override
@@ -84,12 +96,65 @@ public class StateMachineMonitorTests extends AbstractStateMachineTests {
 				.withExternal()
 					.source("S1")
 					.target("S2")
+					.action(taction())
 					.event("E1")
 					.and()
 				.withExternal()
 					.source("S2")
 					.target("S1")
 					.event("E2");
+		}
+
+		@Bean
+		public Action<String, String> taction() {
+			return new Action<String, String>() {
+				@Override
+				public void execute(StateContext<String, String> context) {
+					try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {
+					}
+				}
+			};
+		}
+
+		@Bean
+		public Action<String, String> enaction() {
+			return new Action<String, String>() {
+				@Override
+				public void execute(StateContext<String, String> context) {
+					try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {
+					}
+				}
+			};
+		}
+
+		@Bean
+		public Action<String, String> exaction() {
+			return new Action<String, String>() {
+				@Override
+				public void execute(StateContext<String, String> context) {
+					try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {
+					}
+				}
+			};
+		}
+
+		@Bean
+		public Action<String, String> saction() {
+			return new Action<String, String>() {
+				@Override
+				public void execute(StateContext<String, String> context) {
+					try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {
+					}
+				}
+			};
 		}
 
 		@Bean
@@ -106,18 +171,43 @@ public class StateMachineMonitorTests extends AbstractStateMachineTests {
 
 	private static class TestStateMachineMonitor extends AbstractStateMachineMonitor<String, String> {
 
-		Transition<String, String> transition;
-		Long duration;
+		Map<Transition<String, String>, Transitions> transitions = new HashMap<>();
+		Map<Action<String, String>, Actions> actions = new HashMap<>();
 
 		@Override
 		public void transition(StateMachine<String, String> stateMachine, Transition<String, String> transition, long duration) {
-			this.transition = transition;
-			this.duration = duration;
+			transitions.put(transition, new Transitions(transition, duration));
+		}
+
+		@Override
+		public void action(StateMachine<String, String> stateMachine, Action<String, String> action,
+				long duration) {
+			actions.put(action, new Actions(action, duration));
 		}
 
 		void reset() {
-			transition = null;
-			duration = null;
+			transitions.clear();
+			actions.clear();
+		}
+
+		@SuppressWarnings("unused")
+		static class Transitions {
+			Transition<String, String> transition;
+			Long duration;
+			public Transitions(Transition<String, String> transition, Long duration) {
+				super();
+				this.transition = transition;
+				this.duration = duration;
+			}
+		}
+		@SuppressWarnings("unused")
+		static class Actions {
+			Action<String, String> action;
+			Long duration;
+			public Actions(Action<String, String> action, Long duration) {
+				this.action = action;
+				this.duration = duration;
+			}
 		}
 	}
 }

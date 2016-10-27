@@ -22,10 +22,12 @@ import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.monitor.AbstractStateMachineMonitor;
 import org.springframework.statemachine.monitor.StateMachineMonitor;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
+import org.springframework.util.ObjectUtils;
 
 /**
  * Implementation of a {@link StateMachineMonitor} which converts monitoring
@@ -39,7 +41,8 @@ import org.springframework.statemachine.transition.Transition;
  */
 public class BootStateMachineMonitor<S, E> extends AbstractStateMachineMonitor<S, E> {
 
-	private final String METRIC_BASE = "ssm.transition";
+	private final String METRIC_TRANSITION_BASE = "ssm.transition";
+	private final String METRIC_ACTION_BASE = "ssm.action";
 	private final CounterService counterService;
 	private final GaugeService gaugeService;
 	private final TraceRepository traceRepository;
@@ -61,10 +64,22 @@ public class BootStateMachineMonitor<S, E> extends AbstractStateMachineMonitor<S
 	@Override
 	public void transition(StateMachine<S, E> stateMachine, Transition<S, E> transition, long duration) {
 		String transitionName = transitionToName(transition);
-		this.counterService.increment(METRIC_BASE + "." + transitionName + ".transit");
-		this.gaugeService.submit(METRIC_BASE + "." + transitionName + ".duration", duration);
+		this.counterService.increment(METRIC_TRANSITION_BASE + "." + transitionName + ".transit");
+		this.gaugeService.submit(METRIC_TRANSITION_BASE + "." + transitionName + ".duration", duration);
 		Map<String, Object> traceInfo = new HashMap<>();
 		traceInfo.put("transition", transitionToName(transition));
+		traceInfo.put("duration", duration);
+		traceInfo.put("machine", stateMachine.getId());
+		traceRepository.add(traceInfo);
+	}
+
+	@Override
+	public void action(StateMachine<S, E> stateMachine, Action<S, E> action, long duration) {
+		String actionName = actionToName(action);
+		this.counterService.increment(METRIC_ACTION_BASE + "." + actionName + ".execute");
+		this.gaugeService.submit(METRIC_ACTION_BASE + "." + actionName + ".duration", duration);
+		Map<String, Object> traceInfo = new HashMap<>();
+		traceInfo.put("action", actionName);
 		traceInfo.put("duration", duration);
 		traceInfo.put("machine", stateMachine.getId());
 		traceRepository.add(traceInfo);
@@ -84,6 +99,10 @@ public class BootStateMachineMonitor<S, E> extends AbstractStateMachineMonitor<S
 			buf.append(targetId);
 		}
 		return buf.toString();
+	}
+
+	private static <S, E> String actionToName(Action<S, E> action) {
+		return ObjectUtils.getDisplayString(action);
 	}
 
 	private static <S, E> String nullStateId(State<S, E> state) {
