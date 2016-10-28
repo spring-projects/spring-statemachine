@@ -22,6 +22,8 @@ import static org.junit.Assert.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -53,7 +55,7 @@ public class StateMachineMonitorTests extends AbstractStateMachineTests {
 		Action<String, String> taction = context.getBean("taction", Action.class);
 		Action<String, String> enaction = context.getBean("enaction", Action.class);
 		Action<String, String> exaction = context.getBean("exaction", Action.class);
-		Action<String, String> saction = context.getBean("saction", Action.class);
+		LatchAction saction = context.getBean("saction", LatchAction.class);
 
 		machine.start();
 		assertThat(machine.getState().getIds(), contains("S1"));
@@ -61,6 +63,7 @@ public class StateMachineMonitorTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), contains("S2"));
 		// there's also initial transition, thus 2 instead 1
 		assertThat(monitor.transitions.size(), is(2));
+		assertThat(saction.latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(monitor.actions.size(), is(4));
 		assertThat(monitor.actions.keySet(), containsInAnyOrder(taction, enaction, exaction, saction));
 		monitor.reset();
@@ -145,16 +148,8 @@ public class StateMachineMonitorTests extends AbstractStateMachineTests {
 		}
 
 		@Bean
-		public Action<String, String> saction() {
-			return new Action<String, String>() {
-				@Override
-				public void execute(StateContext<String, String> context) {
-					try {
-						Thread.sleep(10);
-					} catch (InterruptedException e) {
-					}
-				}
-			};
+		public LatchAction saction() {
+			return new LatchAction();
 		}
 
 		@Bean
@@ -162,6 +157,19 @@ public class StateMachineMonitorTests extends AbstractStateMachineTests {
 			return new TestStateMachineMonitor();
 		}
 
+	}
+
+	private static class LatchAction implements Action<String, String> {
+		final CountDownLatch latch = new CountDownLatch(1);
+		@Override
+		public void execute(StateContext<String, String> context) {
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+			} finally {
+				latch.countDown();
+			}
+		}
 	}
 
 	@Override
