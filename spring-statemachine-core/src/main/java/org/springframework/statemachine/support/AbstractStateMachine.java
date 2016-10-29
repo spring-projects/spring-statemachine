@@ -766,7 +766,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	private void switchToState(State<S,E> state, Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
-		if (!isInitialTransition(transition) && !callPreStateChangeInterceptors(state, message, transition, stateMachine)) {
+		if (!isInitialTransition(transition) && !StateMachineUtils.isTransientPseudoState(state)
+				&& !callPreStateChangeInterceptors(state, message, transition, stateMachine)) {
 			return;
 		}
 

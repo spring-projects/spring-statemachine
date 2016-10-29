@@ -19,6 +19,8 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -71,13 +73,36 @@ public class PersistStateMachineHandlerTests {
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
 	}
 
+	@Test
+	public void testChoice() throws Exception {
+		StateMachine<String,String> stateMachine = buildTestStateMachine2();
+
+		PersistStateMachineHandler handler = new PersistStateMachineHandler(stateMachine);
+		handler.afterPropertiesSet();
+		handler.start();
+
+		TestPersistStateChangeListener listener = new TestPersistStateChangeListener();
+		handler.addPersistStateChangeListener(listener);
+
+		Message<String> event = MessageBuilder.withPayload("E1").build();
+
+		boolean accepted = handler.handleEventWithState(event, "SI");
+		assertThat(accepted, is(true));
+		assertThat(listener.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(listener.states.size(), is(1));
+		assertThat(listener.states.get(0).getId(), is("S2"));
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
+	}
+
 	private static class TestPersistStateChangeListener implements PersistStateChangeListener {
 
 		CountDownLatch latch = new CountDownLatch(1);
+		List<State<String, String>> states = new ArrayList<>();
 
 		@Override
 		public void onPersist(State<String, String> state, Message<String> message,
 				Transition<String, String> transition, StateMachine<String, String> stateMachine) {
+			states.add(state);
 			latch.countDown();
 		}
 
@@ -108,4 +133,30 @@ public class PersistStateMachineHandlerTests {
 		return builder.build();
 	}
 
+	private static StateMachine<String, String> buildTestStateMachine2()
+			throws Exception {
+		StateMachineBuilder.Builder<String, String> builder = StateMachineBuilder.builder();
+
+		builder.configureConfiguration()
+			.withConfiguration()
+				.taskExecutor(new SyncTaskExecutor())
+				.autoStartup(true);
+
+		builder.configureStates()
+				.withStates()
+					.initial("SI")
+					.choice("S1")
+					.state("S2")
+					.state("S3");
+
+		builder.configureTransitions()
+				.withExternal()
+					.source("SI").target("S1").event("E1")
+					.and()
+				.withChoice()
+					.source("S1")
+					.last("S2");
+
+		return builder.build();
+	}
 }

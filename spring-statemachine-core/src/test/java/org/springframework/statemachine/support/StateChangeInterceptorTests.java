@@ -89,6 +89,81 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		assertThat((Integer)machine.getExtendedState().getVariables().get("foo"), is(1));
 	}
 
+	@Test
+	public void testIntercept2() throws InterruptedException {
+		context.register(Config2.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachine<States, Events> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		TestListener listener = new TestListener();
+		machine.addStateListener(listener);
+		TestStateChangeInterceptor interceptor = new TestStateChangeInterceptor();
+
+		machine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<States, Events>>() {
+
+			@Override
+			public void apply(StateMachineAccess<States, Events> function) {
+				function.addStateMachineInterceptor(interceptor);
+			}
+		});
+
+		machine.start();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
+
+		interceptor.reset(1);
+		listener.reset(1);
+		machine.sendEvent(Events.A);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S1));
+		assertThat(interceptor.preStateChangeLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount, is(1));
+
+		interceptor.reset(1);
+		listener.reset(1);
+		machine.sendEvent(Events.B);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S2));
+		assertThat(interceptor.preStateChangeLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount, is(1));
+	}
+
+	@Test
+	public void testIntercept3() throws InterruptedException {
+		context.register(Config3.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachine<States, Events> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		TestListener listener = new TestListener();
+		machine.addStateListener(listener);
+		TestStateChangeInterceptor interceptor = new TestStateChangeInterceptor();
+
+		machine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<States, Events>>() {
+
+			@Override
+			public void apply(StateMachineAccess<States, Events> function) {
+				function.addStateMachineInterceptor(interceptor);
+			}
+		});
+
+		machine.start();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
+
+		interceptor.reset(1);
+		listener.reset(1);
+		machine.sendEvent(Events.A);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S2));
+		assertThat(interceptor.preStateChangeLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount, is(1));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	static class Config1 extends EnumStateMachineConfigurerAdapter<States, Events> {
@@ -208,6 +283,62 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 			return new FooAction();
 		}
 
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config2 extends EnumStateMachineConfigurerAdapter<States, Events> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<States, Events> states)
+				throws Exception {
+			states
+				.withStates()
+					.initial(States.S0)
+					.state(States.S1)
+					.state(States.S2);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<States, Events> transitions)
+				throws Exception {
+			transitions
+				.withExternal()
+					.source(States.S0).target(States.S1)
+					.event(Events.A)
+					.and()
+				.withExternal()
+					.source(States.S1).target(States.S2)
+					.event(Events.B);
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config3 extends EnumStateMachineConfigurerAdapter<States, Events> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<States, Events> states)
+				throws Exception {
+			states
+				.withStates()
+					.initial(States.S0)
+					.choice(States.S1)
+					.state(States.S2);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<States, Events> transitions)
+				throws Exception {
+			transitions
+				.withExternal()
+					.source(States.S0).target(States.S1)
+					.event(Events.A)
+					.and()
+				.withChoice()
+					.source(States.S1)
+					.last(States.S2);
+		}
 	}
 
 	public static enum States {

@@ -95,6 +95,35 @@ public abstract class StateMachineUtils {
 		}
 	}
 
+	/**
+	 * Checks if state is a transient pseudo state, meaning it is a pseudostate
+	 * and its kind indicates that machine will never stay on this state after
+	 * run to completion has finished.
+	 *
+	 * @param <S> the type of state
+	 * @param <E> the type of event
+	 * @param state the state
+	 * @return true, if is normal pseudo state
+	 */
+	public static <S, E> boolean isTransientPseudoState(State<S, E> state) {
+		if (state == null) {
+			return false;
+		}
+		PseudoState<S, E> pseudoState = state.getPseudoState();
+		if (pseudoState == null) {
+			return false;
+		}
+		PseudoStateKind kind = pseudoState.getKind();
+		if (kind == PseudoStateKind.CHOICE || kind == PseudoStateKind.JUNCTION || kind == PseudoStateKind.ENTRY
+				|| kind == PseudoStateKind.EXIT || kind == PseudoStateKind.HISTORY_DEEP
+				|| kind == PseudoStateKind.HISTORY_SHALLOW || kind == PseudoStateKind.FORK
+				|| kind == PseudoStateKind.JOIN) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	public static <S, E> boolean isPseudoState(State<S, E> state, PseudoStateKind kind) {
 		if (state != null) {
 			PseudoState<S, E> pseudoState = state.getPseudoState();
