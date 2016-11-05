@@ -44,6 +44,9 @@ framework.
 |spring-statemachine-data-jpa
 |Support module for `Spring Data JPA`.
 
+|spring-statemachine-data-redis
+|Support module for `Spring Data Redis`.
+
 |spring-statemachine-zookeeper
 |`Zookeeper` integration for a distributed state machine.
 
