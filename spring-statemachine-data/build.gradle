@@ -6,6 +6,7 @@ project('spring-statemachine-data-jpa') {
 		compile project(":spring-statemachine-data-common")
 		compile "org.springframework:spring-orm:$springVersion"
 		testCompile project(":spring-statemachine-test")
+		testCompile project(path:":spring-statemachine-data-common", configuration:"testArtifacts")
 		optional "org.eclipse.persistence:javax.persistence:$eclipsePersistenceVersion"
 		testCompile "org.hsqldb:hsqldb:$hsqlVersion"
 		testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
