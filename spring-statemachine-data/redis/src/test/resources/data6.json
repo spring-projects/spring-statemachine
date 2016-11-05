@@ -1,0 +1,84 @@
+[
+	{
+		"@id": "1",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"initial": true,
+		"state": "SI"
+	},
+	{
+		"@id": "2",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"initial": false,
+		"state": "S3",
+		"kind": "CHOICE"
+	},
+	{
+		"@id": "3",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"initial": false,
+		"state": "S30"
+	},
+	{
+		"@id": "4",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"initial": false,
+		"state": "S31"
+	},
+	{
+		"@id": "5",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"initial": false,
+		"state": "S32"
+	},
+	{
+		"@id": "6",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"initial": false,
+		"state": "S33"
+	},
+	{
+		"@id": "7",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryGuard",
+		"name": "s30Guard"
+	},
+	{
+		"@id": "8",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryGuard",
+		"name": "s31Guard"
+	},
+	{
+		"@id": "9",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryGuard",
+		"name": "s32Guard"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "1",
+		"target": "2",
+		"event": "E1",
+		"kind": "EXTERNAL"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "2",
+		"target": "3",
+		"guard": "7"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "2",
+		"target": "4",
+		"guard": "8"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "2",
+		"target": "5",
+		"guard": "9"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "2",
+		"target": "6"
+	}
+]

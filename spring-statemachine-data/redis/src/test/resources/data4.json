@@ -1,0 +1,64 @@
+[
+	{
+		"@id": "1",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"initial": true,
+		"state": "S1"
+	},
+	{
+		"@id": "2",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"initial": false,
+		"state": "S2"
+	},
+	{
+		"@id": "3",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"initial": true,
+		"parentState": "2",
+		"state": "S20"
+	},
+	{
+		"@id": "4",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"initial": false,
+		"parentState": "2",
+		"state": "S21"
+	},
+	{
+		"@id": "5",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"initial": false,
+		"parentState": "2",
+		"state": "SH",
+		"kind": "HISTORY_SHALLOW"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "1",
+		"target": "2",
+		"event": "E1",
+		"kind": "EXTERNAL"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "3",
+		"target": "4",
+		"event": "E2",
+		"kind": "EXTERNAL"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "2",
+		"target": "1",
+		"event": "E3",
+		"kind": "EXTERNAL"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "1",
+		"target": "5",
+		"event": "E4",
+		"kind": "EXTERNAL"
+	}
+]

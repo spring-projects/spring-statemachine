@@ -210,12 +210,25 @@ project('spring-statemachine-redis') {
 }
 
 project('spring-statemachine-data-common') {
+	configurations {
+		testArtifacts.extendsFrom testRuntime
+	}
 	dependencies {
 		compile project(":spring-statemachine-core")
 		compile "org.springframework.data:spring-data-commons:$springDataCommonsVersion"
 		optional "org.springframework.security:spring-security-core:$springSecurityVersion"
 		compile "com.fasterxml.jackson.core:jackson-core:$jackson2Version"
 		compile "com.fasterxml.jackson.core:jackson-databind:$jackson2Version"
+		testCompile project(":spring-statemachine-test")
+		testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+		testRuntime "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+	}
+	task testJar(type: Jar) {
+		classifier = 'tests'
+		from sourceSets.test.output
+	}
+	artifacts {
+		testArtifacts testJar
 	}
 }
 

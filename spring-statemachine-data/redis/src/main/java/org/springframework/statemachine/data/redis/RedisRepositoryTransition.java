@@ -13,18 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.data.jpa;
+package org.springframework.statemachine.data.redis;
 
 import java.util.Set;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Reference;
 
+//import javax.persistence.FetchType;
+//import javax.persistence.GeneratedValue;
+//import javax.persistence.GenerationType;
+//import javax.persistence.Id;
+//import javax.persistence.OneToMany;
+//import javax.persistence.OneToOne;
+
+import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.index.Indexed;
 import org.springframework.statemachine.data.RepositoryTransition;
 import org.springframework.statemachine.transition.TransitionKind;
 
@@ -32,68 +36,68 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 /**
- * JPA entity for transitions.
+ * Redis entity for transitions.
  *
  * @author Janne Valkealahti
  *
  */
-@Entity
+@RedisHash("RedisRepositoryTransition")
 @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class)
-public class JpaRepositoryTransition extends RepositoryTransition {
+public class RedisRepositoryTransition extends RepositoryTransition {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
+	private String id;
 
-	private String machineId;
+	@Indexed
+	private String machineId = "";
 
-	@OneToOne(fetch = FetchType.EAGER)
-	private JpaRepositoryState source;
+	@Reference
+	private RedisRepositoryState source;
 
-	@OneToOne(fetch = FetchType.EAGER)
-	private JpaRepositoryState target;
+	@Reference
+	private RedisRepositoryState target;
 
 	private String event;
 	private TransitionKind kind;
 
-	@OneToMany(fetch = FetchType.EAGER)
-	private Set<JpaRepositoryAction> actions;
+	@Reference
+	private Set<RedisRepositoryAction> actions;
 
-	@OneToOne(fetch = FetchType.EAGER)
-	private JpaRepositoryGuard guard;
+	@Reference
+	private RedisRepositoryGuard guard;
 
 	/**
-	 * Instantiates a new jpa repository transition.
+	 * Instantiates a new redis repository transition.
 	 */
-	public JpaRepositoryTransition() {
+	public RedisRepositoryTransition() {
 		this(null, null, null);
 	}
 
 	/**
-	 * Instantiates a new jpa repository transition.
+	 * Instantiates a new redis repository transition.
 	 *
 	 * @param source the source
 	 * @param target the target
 	 * @param event the event
 	 */
-	public JpaRepositoryTransition(JpaRepositoryState source, JpaRepositoryState target, String event) {
+	public RedisRepositoryTransition(RedisRepositoryState source, RedisRepositoryState target, String event) {
 		this(null, source, target, event);
 	}
 
 	/**
-	 * Instantiates a new jpa repository transition.
+	 * Instantiates a new redis repository transition.
 	 *
 	 * @param machineId the machine id
 	 * @param source the source
 	 * @param target the target
 	 * @param event the event
 	 */
-	public JpaRepositoryTransition(String machineId, JpaRepositoryState source, JpaRepositoryState target, String event) {
+	public RedisRepositoryTransition(String machineId, RedisRepositoryState source, RedisRepositoryState target, String event) {
 		this(machineId, source, target, event, null);
 	}
 
 	/**
-	 * Instantiates a new jpa repository transition.
+	 * Instantiates a new redis repository transition.
 	 *
 	 * @param machineId the machine id
 	 * @param source the source
@@ -101,7 +105,7 @@ public class JpaRepositoryTransition extends RepositoryTransition {
 	 * @param event the event
 	 * @param actions the actions
 	 */
-	public JpaRepositoryTransition(String machineId, JpaRepositoryState source, JpaRepositoryState target, String event, Set<JpaRepositoryAction> actions) {
+	public RedisRepositoryTransition(String machineId, RedisRepositoryState source, RedisRepositoryState target, String event, Set<RedisRepositoryAction> actions) {
 		this.machineId = machineId == null ? "" : machineId;
 		this.source = source;
 		this.target = target;
@@ -119,20 +123,20 @@ public class JpaRepositoryTransition extends RepositoryTransition {
 	}
 
 	@Override
-	public JpaRepositoryState getSource() {
+	public RedisRepositoryState getSource() {
 		return source;
 	}
 
-	public void setSource(JpaRepositoryState source) {
+	public void setSource(RedisRepositoryState source) {
 		this.source = source;
 	}
 
 	@Override
-	public JpaRepositoryState getTarget() {
+	public RedisRepositoryState getTarget() {
 		return target;
 	}
 
-	public void setTarget(JpaRepositoryState target) {
+	public void setTarget(RedisRepositoryState target) {
 		this.target = target;
 	}
 
@@ -146,20 +150,20 @@ public class JpaRepositoryTransition extends RepositoryTransition {
 	}
 
 	@Override
-	public Set<JpaRepositoryAction> getActions() {
+	public Set<RedisRepositoryAction> getActions() {
 		return actions;
 	}
 
-	public void setActions(Set<JpaRepositoryAction> actions) {
+	public void setActions(Set<RedisRepositoryAction> actions) {
 		this.actions = actions;
 	}
 
 	@Override
-	public JpaRepositoryGuard getGuard() {
+	public RedisRepositoryGuard getGuard() {
 		return guard;
 	}
 
-	public void setGuard(JpaRepositoryGuard guard) {
+	public void setGuard(RedisRepositoryGuard guard) {
 		this.guard = guard;
 	}
 
@@ -174,7 +178,7 @@ public class JpaRepositoryTransition extends RepositoryTransition {
 
 	@Override
 	public String toString() {
-		return "JpaRepositoryTransition [id=" + id + ", machineId=" + machineId + ", source=" + source + ", target=" + target + ", event="
+		return "RedisRepositoryTransition [id=" + id + ", machineId=" + machineId + ", source=" + source + ", target=" + target + ", event="
 				+ event + ", kind=" + kind + ", actions=" + actions + ", guard=" + guard + "]";
 	}
 }

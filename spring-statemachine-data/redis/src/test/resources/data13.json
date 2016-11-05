@@ -1,0 +1,50 @@
+[
+	{
+		"@id": "1",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"initial": true,
+		"state": "S1"
+	},
+	{
+		"@id": "2",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"submachineId": "machineS2",
+		"state": "S2"
+	},
+	{
+		"@id": "3",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"state": "S3"
+	},
+	{
+		"@id": "4",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"machineId": "machineS2",
+		"initial": true,
+		"state": "S21"
+	},
+	{
+		"@id": "5",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"machineId": "machineS2",
+		"state": "S22"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "1",
+		"target": "2",
+		"event": "E1"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "2",
+		"target": "3",
+		"event": "E2"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "4",
+		"target": "5",
+		"event": "E3"
+	}
+]

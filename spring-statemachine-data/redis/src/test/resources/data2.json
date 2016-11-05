@@ -1,0 +1,46 @@
+[
+	{
+		"@id": "1",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"initial": true,
+		"state": "S1"
+	},
+	{
+		"@id": "2",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"initial": false,
+		"state": "S2"
+	},
+	{
+		"@id": "3",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"initial": false,
+		"state": "S3"
+	},
+	{
+		"@id": "4",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryGuard",
+		"spel": "true"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "1",
+		"target": "2",
+		"event": "E1",
+		"kind": "EXTERNAL"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "2",
+		"target": "3",
+		"event": "E2",
+		"guard": "4"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "2",
+		"target": "3",
+		"event": "E3",
+		"kind": "LOCAL"
+	}
+]

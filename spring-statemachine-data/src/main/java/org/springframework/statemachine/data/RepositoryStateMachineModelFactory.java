@@ -83,7 +83,7 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 		ConfigurationData<String, String> configurationData = new ConfigurationData<>();
 
 		Collection<StateData<String, String>> stateDatas = new ArrayList<>();
-		for (RepositoryState s : stateRepository.findByMachineId(machineId)) {
+		for (RepositoryState s : stateRepository.findByMachineId(machineId == null ? "" : machineId)) {
 
 			// do recursive build to get states for a submachine
 			StateMachineModel<String, String> subStateMachineModel = null;
@@ -187,8 +187,7 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 		Map<String, List<String>> forks = new HashMap<String, List<String>>();
 		Map<String, List<String>> joins = new HashMap<String, List<String>>();
 
-
-		for (RepositoryTransition t : transitionRepository.findByMachineId(machineId)) {
+		for (RepositoryTransition t : transitionRepository.findByMachineId(machineId == null ? "" : machineId)) {
 
 			Collection<Action<String, String>> actions = new ArrayList<Action<String, String>>();
 			Set<? extends RepositoryAction> repositoryActions = t.getActions();

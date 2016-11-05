@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.data.jpa;
+package org.springframework.statemachine.data.redis;
 
 import java.util.Set;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+//import javax.persistence.ElementCollection;
+//import javax.persistence.FetchType;
+//import javax.persistence.GeneratedValue;
+//import javax.persistence.GenerationType;
+//import javax.persistence.Id;
+//import javax.persistence.OneToMany;
+//import javax.persistence.OneToOne;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Reference;
+import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.index.Indexed;
 import org.springframework.statemachine.data.RepositoryState;
 import org.springframework.statemachine.state.PseudoStateKind;
 
@@ -33,92 +36,90 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 /**
- * JPA entity for states.
+ * Redis entity for states.
  *
  * @author Janne Valkealahti
  *
  */
-@Entity
+@RedisHash("RedisRepositoryState")
 @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class)
-public class JpaRepositoryState extends RepositoryState {
+public class RedisRepositoryState extends RepositoryState {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
+	private String id;
 
-	private String machineId;
+	@Indexed
+	private String machineId = "";
 	private String state;
 	private String region;
 	private boolean initial;
 	private PseudoStateKind kind;
 	private String submachineId;
 
-	@OneToOne(fetch = FetchType.EAGER)
-	private JpaRepositoryState parentState;
+	@Reference
+	private RedisRepositoryState parentState;
 
-	@OneToMany(fetch = FetchType.EAGER)
-	private Set<JpaRepositoryAction> stateActions;
+	@Reference
+	private Set<RedisRepositoryAction> stateActions;
 
-	@OneToMany(fetch = FetchType.EAGER)
-	private Set<JpaRepositoryAction> entryActions;
+	@Reference
+	private Set<RedisRepositoryAction> entryActions;
 
-	@OneToMany(fetch = FetchType.EAGER)
-	private Set<JpaRepositoryAction> exitActions;
+	@Reference
+	private Set<RedisRepositoryAction> exitActions;
 
-	@ElementCollection(fetch = FetchType.EAGER, targetClass = String.class)
 	private Set<String> deferredEvents;
 
 	/**
-	 * Instantiates a new jpa repository state.
+	 * Instantiates a new redis repository state.
 	 */
-	public JpaRepositoryState() {
-		this(null);
+	public RedisRepositoryState() {
 	}
 
 	/**
-	 * Instantiates a new jpa repository state.
+	 * Instantiates a new redis repository state.
 	 *
 	 * @param state the state
 	 */
-	public JpaRepositoryState(String state) {
-		this(state, false);
+	public RedisRepositoryState(String state) {
+		this.state = state;
 	}
 
 	/**
-	 * Instantiates a new jpa repository state.
+	 * Instantiates a new redis repository state.
 	 *
 	 * @param state the state
 	 * @param initial the initial
 	 */
-	public JpaRepositoryState(String state, boolean initial) {
+	public RedisRepositoryState(String state, boolean initial) {
 		this(null, state, initial);
 	}
 
 	/**
-	 * Instantiates a new jpa repository state.
+	 * Instantiates a new redis repository state.
 	 *
 	 * @param machineId the machine id
 	 * @param state the state
 	 * @param initial the initial
 	 */
-	public JpaRepositoryState(String machineId, String state, boolean initial) {
+	public RedisRepositoryState(String machineId, String state, boolean initial) {
 		this(machineId, null, state, initial);
 	}
 
 	/**
-	 * Instantiates a new jpa repository state.
+	 * Instantiates a new redis repository state.
 	 *
 	 * @param machineId the machine id
 	 * @param parentState the parent state
 	 * @param state the state
 	 * @param initial the initial
 	 */
-	public JpaRepositoryState(String machineId, JpaRepositoryState parentState, String state, boolean initial) {
+	public RedisRepositoryState(String machineId, RedisRepositoryState parentState, String state, boolean initial) {
 		this(machineId, parentState, state, initial, null, null, null);
 	}
 
 	/**
-	 * Instantiates a new jpa repository state.
+	 * Instantiates a new redis repository state.
 	 *
 	 * @param machineId the machine id
 	 * @param parentState the parent state
@@ -128,9 +129,9 @@ public class JpaRepositoryState extends RepositoryState {
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 */
-	public JpaRepositoryState(String machineId, JpaRepositoryState parentState, String state, boolean initial, Set<JpaRepositoryAction> stateActions,
-			Set<JpaRepositoryAction> entryActions, Set<JpaRepositoryAction> exitActions) {
-		this.machineId = machineId == null ? "" : machineId;
+	public RedisRepositoryState(String machineId, RedisRepositoryState parentState, String state, boolean initial, Set<RedisRepositoryAction> stateActions,
+			Set<RedisRepositoryAction> entryActions, Set<RedisRepositoryAction> exitActions) {
+		this.machineId = machineId;
 		this.parentState = parentState;
 		this.state = state;
 		this.initial = initial;
@@ -158,11 +159,11 @@ public class JpaRepositoryState extends RepositoryState {
 	}
 
 	@Override
-	public JpaRepositoryState getParentState() {
+	public RedisRepositoryState getParentState() {
 		return parentState;
 	}
 
-	public void setParentState(JpaRepositoryState parentState) {
+	public void setParentState(RedisRepositoryState parentState) {
 		this.parentState = parentState;
 	}
 
@@ -194,29 +195,29 @@ public class JpaRepositoryState extends RepositoryState {
 	}
 
 	@Override
-	public Set<JpaRepositoryAction> getStateActions() {
+	public Set<RedisRepositoryAction> getStateActions() {
 		return stateActions;
 	}
 
-	public void setStateActions(Set<JpaRepositoryAction> stateActions) {
+	public void setStateActions(Set<RedisRepositoryAction> stateActions) {
 		this.stateActions = stateActions;
 	}
 
 	@Override
-	public Set<JpaRepositoryAction> getEntryActions() {
+	public Set<RedisRepositoryAction> getEntryActions() {
 		return entryActions;
 	}
 
-	public void setEntryActions(Set<JpaRepositoryAction> entryActions) {
+	public void setEntryActions(Set<RedisRepositoryAction> entryActions) {
 		this.entryActions = entryActions;
 	}
 
 	@Override
-	public Set<JpaRepositoryAction> getExitActions() {
+	public Set<RedisRepositoryAction> getExitActions() {
 		return exitActions;
 	}
 
-	public void setExitActions(Set<JpaRepositoryAction> exitActions) {
+	public void setExitActions(Set<RedisRepositoryAction> exitActions) {
 		this.exitActions = exitActions;
 	}
 
@@ -240,7 +241,7 @@ public class JpaRepositoryState extends RepositoryState {
 
 	@Override
 	public String toString() {
-		return "JpaRepositoryState [id=" + id + ", machineId=" + machineId + ", state=" + state + ", region=" + region
+		return "RedisRepositoryState [id=" + id + ", machineId=" + machineId + ", state=" + state + ", region=" + region
 				+ ", initial=" + initial + ", kind=" + kind + ", submachineId=" + submachineId + ", parentState="
 				+ parentState + ", stateActions=" + stateActions + ", entryActions=" + entryActions + ", exitActions="
 				+ exitActions + ", deferredEvents=" + deferredEvents + "]";
