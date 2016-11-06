@@ -1142,7 +1142,11 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			}
 		}
 
-		notifyStateEntered(buildStateContext(Stage.STATE_ENTRY, message, transition, getRelayStateMachine(), null, state));
+		// with linked joins, we need to enter state but should not notify.
+		// state entries are needed to track join logic.
+		if (!StateMachineUtils.isPseudoState(state, PseudoStateKind.JOIN)) {
+			notifyStateEntered(buildStateContext(Stage.STATE_ENTRY, message, transition, getRelayStateMachine(), null, state));
+		}
 		log.debug("Enter state=[" + state + "]");
 		state.entry(stateContext);
 	}

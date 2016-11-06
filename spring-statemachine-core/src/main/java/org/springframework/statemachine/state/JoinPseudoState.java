@@ -105,7 +105,8 @@ public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 
 					@Override
 					public void onEntry(StateContext<S, E> context) {
-						if (StateMachineUtils.isPseudoState(context.getTransition().getTarget(), PseudoStateKind.END)) {
+						if (context.getTransition() != null && StateMachineUtils
+								.isPseudoState(context.getTransition().getTarget(), PseudoStateKind.END)) {
 							if (!notified && track.size() > 0) {
 								track.remove(t);
 								if (track.size() == 0) {
