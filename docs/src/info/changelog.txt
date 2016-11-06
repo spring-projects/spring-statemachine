@@ -4,6 +4,17 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 1.2.0.M2 (2016-11-07)
+----------------------------------------
+* Support tracing and monitoring [#149]
+* Linked joins cause join entry [#229]
+* @WithStateMachine not working when created after the state machine [#232]
+* Upgrade to Boot 1.4.1 and aligned deps [#256]
+* Implement full repository config support [#262]
+* Update docs for 1.2.0.M2 [#263]
+* StateMachineInterceptor preStateChange interceptors get called twice [#266]
+* Add redis repository config support [#267]
+
 Changes in version 1.2.0.M1 (2016-09-28)
 ----------------------------------------
 * Support for UML Sub State Machines enhancement question [#121]
