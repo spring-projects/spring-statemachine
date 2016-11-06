@@ -38,6 +38,8 @@ normal build cycle. Samples in this chapter are:
 
 <<statemachine-examples-datajpa>> JPA Config.
 
+<<statemachine-examples-monitoring>> Monitoring.
+
 
 [source,text]
 ----
@@ -1493,3 +1495,98 @@ Actual source for populator data is shown below.
 include::samples/data.json[]
 ----
 
+[[statemachine-examples-monitoring]]
+== Monitoring
+Monitoring is an example how state machine concepts can be used to
+monitor machine transitions and actions.
+
+[source,java,indent=0]
+----
+include::samples/demo/monitoring/StateMachineConfig.java[tags=snippetA]
+----
+
+Lets get into actual demo. Run the boot based sample application:
+
+[source,text,subs="attributes"]
+----
+# java -jar spring-statemachine-samples-monitoring-{revnumber}.jar
+----
+
+image::images/sm-monitoring-1.png[width=1000]
+
+Execute some transitions.
+
+image::images/sm-monitoring-2.png[width=1000]
+
+Metrics can be viewed from Boot.
+
+[source,json]
+----
+# curl http://localhost:8080/metrics
+
+{
+"gauge.ssm.transition.INITIAL_S1.duration":0.0,
+"gauge.ssm.transition.EXTERNAL_S2_S3.duration":0.0,
+"gauge.ssm.action.demo.monitoring.StateMachineConfig$Config$$Lambda$8/12546741@a522d0.duration":0.0,
+"gauge.ssm.transition.EXTERNAL_S1_S2.duration":1.0,
+"gauge.ssm.action.demo.monitoring.StateMachineConfig$Config$$Lambda$7/25284245@1c21333.duration":0.0,
+"gauge.ssm.action.demo.monitoring.StateMachineConfig$Config$$Lambda$9/28306193@10069f9.duration":0.0,
+"counter.ssm.action.demo.monitoring.StateMachineConfig$Config$$Lambda$8/12546741@a522d0.execute":1,
+"counter.ssm.action.demo.monitoring.StateMachineConfig$Config$$Lambda$9/28306193@10069f9.execute":1,
+"counter.ssm.transition.EXTERNAL_S2_S3.transit":1,
+"counter.ssm.action.demo.monitoring.StateMachineConfig$Config$$Lambda$7/25284245@1c21333.execute":1,
+"counter.ssm.transition.EXTERNAL_S1_S2.transit":1,
+"counter.ssm.transition.INITIAL_S1.transit":2,
+}
+----
+
+Tracing can be viewed from Boot.
+
+[source,json]
+----
+# curl http://localhost:8080/trace
+
+[{
+  "timestamp":1478419121956,
+  "info":{
+    "duration":0,
+    "machine":null,
+    "transition":
+    "EXTERNAL_S2_S3"
+  }
+ },
+ {
+  "timestamp":1478419121956,
+  "info":{
+    "duration":0,
+    "machine":null,
+    "action":"demo.monitoring.StateMachineConfig$Config$$Lambda$9/28306193@10069f9"
+  }
+ },
+ {
+  "timestamp":1478419121956,
+  "info":{
+    "duration":0,
+    "machine":null,
+    "action":"demo.monitoring.StateMachineConfig$Config$$Lambda$8/12546741@a522d0"
+  }
+ },
+ {
+  "timestamp":1478419121956,
+  "info":{
+    "duration":1,
+    "machine":null,
+    "transition":"EXTERNAL_S1_S2"
+  }
+ },
+ {
+  "timestamp":1478419121955,
+  "info":{
+    "duration":0,
+    "machine":null,
+    "action":"demo.monitoring.StateMachineConfig$Config$$Lambda$7/25284245@1c21333"
+  }
+ }
+]
+
+----

@@ -421,6 +421,7 @@ configure(rootProject) {
 		from 'spring-statemachine-samples/eventservice/src/main/java/'
 		from 'spring-statemachine-samples/datajpa/src/main/java/'
 		from 'spring-statemachine-samples/datajpa/src/main/resources/'
+		from 'spring-statemachine-samples/monitoring/src/main/java/'
 		include '**/*.java'
 		include '**/*.uml'
 		include '**/*.json'

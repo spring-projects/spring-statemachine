@@ -58,6 +58,9 @@ framework.
 
 |spring-statemachine-uml
 |Support module for UI uml modeling with Eclipse Papyrus.
+
+|spring-statemachine-boot
+|Support module for `Spring Boot`.
 |===
 
 == Using Gradle

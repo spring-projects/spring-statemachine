@@ -1722,6 +1722,41 @@ Check sample <<statemachine-examples-eventservice>> for detailed usage.
 `RedisConnectionFactory` for it to work and we recommend a
 `JedisConnectionFactory` for it as seeing from above example.
 
+[[sm-boot]]
+== Spring Boot Support
+Currently support for Boot auto-configuration exists only for monitoring
+and tracing. If _spring-statemachine-boot_ is in a classpath,
+`BootStateMachineMonitor` is created automatically and associated with
+a state machine. This `BootStateMachineMonitor` will hook into Boot's
+`CounterService`, `GaugeService` and `TraceRepository` if available.
+Optionally this auto-configuration can be disabled by setting key
+`spring.statemachine.monitor.enabled` to `false`. Use of this
+auto-config is shown in sample <<statemachine-examples-monitoring>>.
+
+[[sm-monitoring]]
+== Monitoring State Machine
+`StateMachineMonitor` can be used to get more information about
+durations of how long transitions and actions takes to execute. Below
+you can see how this interface is implemented.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests9.java[tags=snippetB]
+----
+
+Once you have `StateMachineMonitor` implementation it can be added to
+a state machine via configuration as shown below.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests9.java[tags=snippetA]
+----
+
+[TIP]
+====
+Check sample <<statemachine-examples-monitoring>> for detailed usage.
+====
+
 [[sm-distributed]]
 == Using Distributed States
 Distributed state is probably one of a most compicated concepts of a

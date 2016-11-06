@@ -16,6 +16,7 @@
 package org.springframework.statemachine.monitor;
 
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.transition.Transition;
 
 /**
@@ -30,5 +31,9 @@ public abstract class AbstractStateMachineMonitor<S, E> implements StateMachineM
 
 	@Override
 	public void transition(StateMachine<S, E> stateMachine, Transition<S, E> transition, long duration) {
+	}
+
+	@Override
+	public void action(StateMachine<S, E> stateMachine, Action<S, E> action, long duration) {
 	}
 }
