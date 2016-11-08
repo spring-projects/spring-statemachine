@@ -1387,7 +1387,7 @@ with a process of building a simple order processing system.
 
 Below you can see a statechart driving this order shipping sample.
 
-image::images/sm-ordershipping-1.png[width=1000]
+image::images/sm-ordershipping-1.png[scaledwidth="100%"]
 
 What is happening a above statechart:
 
@@ -1416,18 +1416,18 @@ Lets get into actual demo. Run the boot based sample application:
 In a browser you see something shown above. You can start by choosing
 customer and order and create a machine.
 
-image::images/sm-ordershipping-2.png[width=1000]
+image::images/sm-ordershipping-2.png[scaledwidth="100%"]
 
 Machine for particular order is now created and you can start to play
 with placing an order and sending a payment. Other settings like
 _makeProdPlan_, _produce_ and _payment_ allows you to control how
 machine works.
 
-image::images/sm-ordershipping-3.png[width=1000]
+image::images/sm-ordershipping-3.png[scaledwidth="100%"]
 
 Finally you can see what machine does by refressing a page.
 
-image::images/sm-ordershipping-4.png[width=1000]
+image::images/sm-ordershipping-4.png[scaledwidth="100%"]
 
 [[statemachine-examples-datajpa]]
 == JPA Config
@@ -1465,17 +1465,17 @@ constructed machine with every request and you can choose to send
 events to a machine. Possible events and machine configuration are
 updated from a database with every request.
 
-image::images/sm-datajpa-1.png[width=1000]
+image::images/sm-datajpa-1.png[scaledwidth="100%"]
 
 To access embedded console use _JDBC URL_ `jdbc:h2:mem:testdb` if it's
 not already set.
 
-image::images/sm-datajpa-2.png[width=1000]
+image::images/sm-datajpa-2.png[scaledwidth="100%"]
 
 From console you can see how database tables look like and modify
 those as you wish.
 
-image::images/sm-datajpa-3.png[width=1000]
+image::images/sm-datajpa-3.png[scaledwidth="100%"]
 
 Now that you got this far you probably wondered how those default
 states and transitions got populated into a database. Spring Data
@@ -1512,11 +1512,11 @@ Lets get into actual demo. Run the boot based sample application:
 # java -jar spring-statemachine-samples-monitoring-{revnumber}.jar
 ----
 
-image::images/sm-monitoring-1.png[width=1000]
+image::images/sm-monitoring-1.png[scaledwidth="100%"]
 
 Execute some transitions.
 
-image::images/sm-monitoring-2.png[width=1000]
+image::images/sm-monitoring-2.png[scaledwidth="100%"]
 
 Metrics can be viewed from Boot.
 

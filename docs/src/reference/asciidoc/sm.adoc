@@ -1954,7 +1954,7 @@ image::images/papyrus-gs-2.png[width=300]
 
 Then you need to choose a _StateMachine Diagram_.
 
-image::images/papyrus-gs-3.png[width=400]
+image::images/papyrus-gs-3.png[scaledwidth="100%"]
 
 You end up having an empty state machine.
 
@@ -1968,12 +1968,12 @@ State identifier is simply coming from a component name in a diagram.
 You must have initial state in your machine which is done by adding
 _Initial_ and then drawing a transition to your own initial state.
 
-image::images/papyrus-gs-4.png[width=400]
+image::images/papyrus-gs-4.png[scaledwidth="100%"]
 
 In above we added one state `S1`, initial state, and draw a transition
 between those two to indicate that `S1` is an initial state.
 
-image::images/papyrus-gs-5.png[width=400]
+image::images/papyrus-gs-5.png[scaledwidth="100%"]
 
 In above we added a second state `S2` and added a transition between
 those two.
@@ -1982,12 +1982,12 @@ those two.
 To associate an event for a transition you need to create a `Signal`
 `E1`. Done from _RootElement->New Child->Signal_.
 
-image::images/papyrus-gs-6.png[width=400]
+image::images/papyrus-gs-6.png[scaledwidth="100%"]
 
 And then `SignalEvent` with defined signal `E1`. Done from
 _RootElement->New Child->SignalEvent_.
 
-image::images/papyrus-gs-7.png[width=400]
+image::images/papyrus-gs-7.png[scaledwidth="100%"]
 
 
 === Define Transitions
@@ -1997,11 +1997,11 @@ anonymous trasition between those two. We want to associate event
 `E1` with that transition. We choose a transition, create a new
 trigger and define `SignalEventE1` for that.
 
-image::images/papyrus-gs-8.png[width=400]
+image::images/papyrus-gs-8.png[scaledwidth="100%"]
 
 This will give you something like shown below.
 
-image::images/papyrus-gs-9.png[width=400]
+image::images/papyrus-gs-9.png[scaledwidth="100%"]
 
 [TIP]
 ====
@@ -2020,12 +2020,12 @@ expression defined as _LiteralInteger_. Value of it is then timer as
 milliseconds. _Is Relative_ is left to _false_ making timer to fire
 continously.
 
-image::images/papyrus-gs-10.png[width=400]
+image::images/papyrus-gs-10.png[scaledwidth="100%"]
 
 To define one timed based event when state is entered it's exactly
 same as above but _Is Relative_ is now defined as _true_.
 
-image::images/papyrus-gs-11.png[width=400]
+image::images/papyrus-gs-11.png[scaledwidth="100%"]
 
 Then what is left for user is to pick these time events instead of
 signal event for a particular transition.
@@ -2063,22 +2063,22 @@ reference.
 First create a _New Diagram_ and give it a name i.e. _SubStateMachine
 Diagram_.
 
-image::images/papyrus-gs-12.png[width=400]
+image::images/papyrus-gs-12.png[scaledwidth="100%"]
 
 Give new diagram a design you need.
 
-image::images/papyrus-gs-13.png[width=400]
+image::images/papyrus-gs-13.png[scaledwidth="100%"]
 
 From state you want to link(in this case state `S2`), click
 `Submachine` field and choose your linked machine, i.e.
 _SubStateMachine_.
 
-image::images/papyrus-gs-14.png[width=400]
+image::images/papyrus-gs-14.png[scaledwidth="100%"]
 
 Finally you'll see that state `S2` is linked to `SubStateMachine` as a
 sub-state.
 
-image::images/papyrus-gs-15.png[width=400]
+image::images/papyrus-gs-15.png[scaledwidth="100%"]
 
 [[sm-repository]]
 == Repository Config Support
