@@ -253,7 +253,7 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 		stateMachineExecutorTransit.transit(tran, stateContext, queuedMessage);
 	}
 
-	private void scheduleEventQueueProcessing() {
+	private synchronized void scheduleEventQueueProcessing() {
 		TaskExecutor executor = getTaskExecutor();
 		if (executor == null) {
 			return;
