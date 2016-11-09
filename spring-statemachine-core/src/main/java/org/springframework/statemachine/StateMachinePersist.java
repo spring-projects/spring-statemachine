@@ -33,19 +33,19 @@ public interface StateMachinePersist<S, E, T> {
 	 * with a context object {@code T}.
 	 *
 	 * @param context the context
-	 * @param contextOjb the context ojb
+	 * @param contextObj the context ojb
 	 * @throws Exception the exception
 	 */
-	void write(StateMachineContext<S, E> context, T contextOjb) throws Exception;
+	void write(StateMachineContext<S, E> context, T contextObj) throws Exception;
 
 	/**
 	 * Read a {@link StateMachineContext} from a persistent store
 	 * with a context object {@code T}.
 	 *
-	 * @param contextOjb the context ojb
+	 * @param contextObj the context ojb
 	 * @return the state machine context
 	 * @throws Exception the exception
 	 */
-	StateMachineContext<S, E> read(T contextOjb) throws Exception;
+	StateMachineContext<S, E> read(T contextObj) throws Exception;
 
 }

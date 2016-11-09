@@ -42,13 +42,13 @@ public class RepositoryStateMachinePersist<S, E> implements StateMachinePersist<
 	}
 
 	@Override
-	public void write(StateMachineContext<S, E> context, String contextOjb) throws Exception {
-		repository.save(context, contextOjb);
+	public void write(StateMachineContext<S, E> context, String contextObj) throws Exception {
+		repository.save(context, contextObj);
 	}
 
 	@Override
-	public StateMachineContext<S, E> read(String contextOjb) throws Exception {
-		return repository.getContext(contextOjb);
+	public StateMachineContext<S, E> read(String contextObj) throws Exception {
+		return repository.getContext(contextObj);
 	}
 
 }

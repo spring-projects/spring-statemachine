@@ -61,13 +61,13 @@ public abstract class AbstractStateMachinePersister<S, E, T> implements StateMac
 	}
 
 	@Override
-	public final void persist(StateMachine<S, E> stateMachine, T contextOjb) throws Exception {
-		stateMachinePersist.write(buildStateMachineContext(stateMachine), contextOjb);
+	public final void persist(StateMachine<S, E> stateMachine, T contextObj) throws Exception {
+		stateMachinePersist.write(buildStateMachineContext(stateMachine), contextObj);
 	}
 
 	@Override
-	public final StateMachine<S, E> restore(StateMachine<S, E> stateMachine, T contextOjb) throws Exception {
-		final StateMachineContext<S, E> context = stateMachinePersist.read(contextOjb);
+	public final StateMachine<S, E> restore(StateMachine<S, E> stateMachine, T contextObj) throws Exception {
+		final StateMachineContext<S, E> context = stateMachinePersist.read(contextObj);
 		stateMachine.stop();
 		stateMachine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<S, E>>() {
 

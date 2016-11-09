@@ -119,13 +119,13 @@ public class EventServiceTests {
 		private final HashMap<String, StateMachineContext<States, Events>> contexts = new HashMap<>();
 
 		@Override
-		public void write(StateMachineContext<States, Events> context, String contextOjb) throws Exception {
-			contexts.put(contextOjb, context);
+		public void write(StateMachineContext<States, Events> context, String contextObj) throws Exception {
+			contexts.put(contextObj, context);
 		}
 
 		@Override
-		public StateMachineContext<States, Events> read(String contextOjb) throws Exception {
-			return contexts.get(contextOjb);
+		public StateMachineContext<States, Events> read(String contextObj) throws Exception {
+			return contexts.get(contextObj);
 		}
 	}
 }

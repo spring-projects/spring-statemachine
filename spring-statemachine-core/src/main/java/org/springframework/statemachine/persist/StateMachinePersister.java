@@ -33,19 +33,19 @@ public interface StateMachinePersister<S, E, T> {
 	 * Persist a state machine with a given context object.
 	 *
 	 * @param stateMachine the state machine
-	 * @param contextOjb the context ojb
+	 * @param contextObj the context ojb
 	 * @throws Exception the exception in case or any persist error
 	 */
-	void persist(StateMachine<S, E> stateMachine, T contextOjb) throws Exception;
+	void persist(StateMachine<S, E> stateMachine, T contextObj) throws Exception;
 
 	/**
 	 * Reset a state machine with a given context object.
 	 * Returned machine has been reseted and is ready to be used.
 	 *
 	 * @param stateMachine the state machine
-	 * @param contextOjb the context ojb
+	 * @param contextObj the context ojb
 	 * @return the state machine
 	 * @throws Exception the exception in case or any persist error
 	 */
-	StateMachine<S, E> restore(StateMachine<S, E> stateMachine, T contextOjb) throws Exception;
+	StateMachine<S, E> restore(StateMachine<S, E> stateMachine, T contextObj) throws Exception;
 }

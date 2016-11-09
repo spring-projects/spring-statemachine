@@ -35,7 +35,7 @@ public class TestStateMachinePersist implements StateMachinePersist<String, Stri
 	}
 
 	@Override
-	public void write(StateMachineContext<String, String> context, Void contextOjb) throws Exception {
+	public void write(StateMachineContext<String, String> context, Void contextObj) throws Exception {
 		synchronized (this) {
 			contexts.add(context);
 		}
@@ -44,7 +44,7 @@ public class TestStateMachinePersist implements StateMachinePersist<String, Stri
 	}
 
 	@Override
-	public StateMachineContext<String, String> read(Void contextOjb) throws Exception {
+	public StateMachineContext<String, String> read(Void contextObj) throws Exception {
 		return context;
 	}
 

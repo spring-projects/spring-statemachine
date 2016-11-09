@@ -661,13 +661,13 @@ public class StateMachinePersistTests extends AbstractStateMachineTests {
 		private final HashMap<String, StateMachineContext<String, String>> contexts = new HashMap<>();
 
 		@Override
-		public void write(StateMachineContext<String, String> context, String contextOjb) throws Exception {
-			contexts.put(contextOjb, context);
+		public void write(StateMachineContext<String, String> context, String contextObj) throws Exception {
+			contexts.put(contextObj, context);
 		}
 
 		@Override
-		public StateMachineContext<String, String> read(String contextOjb) throws Exception {
-			return contexts.get(contextOjb);
+		public StateMachineContext<String, String> read(String contextObj) throws Exception {
+			return contexts.get(contextObj);
 		}
 	}
 
@@ -676,13 +676,13 @@ public class StateMachinePersistTests extends AbstractStateMachineTests {
 		private final HashMap<String, StateMachineContext<TestStates, TestEvents>> contexts = new HashMap<>();
 
 		@Override
-		public void write(StateMachineContext<TestStates, TestEvents> context, String contextOjb) throws Exception {
-			contexts.put(contextOjb, context);
+		public void write(StateMachineContext<TestStates, TestEvents> context, String contextObj) throws Exception {
+			contexts.put(contextObj, context);
 		}
 
 		@Override
-		public StateMachineContext<TestStates, TestEvents> read(String contextOjb) throws Exception {
-			return contexts.get(contextOjb);
+		public StateMachineContext<TestStates, TestEvents> read(String contextObj) throws Exception {
+			return contexts.get(contextObj);
 		}
 	}
 
