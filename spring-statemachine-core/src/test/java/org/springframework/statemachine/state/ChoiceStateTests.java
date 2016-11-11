@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,12 @@ package org.springframework.statemachine.state;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -35,6 +38,7 @@ import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.guard.Guard;
+import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.util.ObjectUtils;
 
 public class ChoiceStateTests extends AbstractStateMachineTests {
@@ -126,6 +130,30 @@ public class ChoiceStateTests extends AbstractStateMachineTests {
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("choice", "s2").build());
 
 		assertThat(machine.getState().getIds(), contains(TestStates.S21));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testBackToItself() {
+		context.register(BaseConfig.class, Config4.class);
+		context.refresh();
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		assertThat(machine, notNullValue());
+		TestStateEntryExitListener listener = new TestStateEntryExitListener();
+		machine.addStateListener(listener);
+		machine.start();
+		assertThat(machine.getState().getIds(), contains(TestStates.SI));
+		listener.reset();
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
+		assertThat(machine.getState().getIds(), contains(TestStates.SI));
+		assertThat(listener.exited.size(), is(1));
+		assertThat(listener.entered.size(), is(1));
+		listener.reset();
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E2).build());
+		assertThat(machine.getState().getIds(), contains(TestStates.S4));
+		assertThat(listener.exited.size(), is(1));
+		assertThat(listener.entered.size(), is(1));
 	}
 
 	@Configuration
@@ -261,6 +289,59 @@ public class ChoiceStateTests extends AbstractStateMachineTests {
 		@Bean
 		public Guard<TestStates, TestEvents> s20Guard() {
 			return new ChoiceGuard("s20");
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config4 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.SI)
+					.states(EnumSet.allOf(TestStates.class))
+					.choice(TestStates.S2);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.SI)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.SI)
+					.target(TestStates.S4)
+					.event(TestEvents.E2)
+					.and()
+				.withChoice()
+					.source(TestStates.S2)
+					.last(TestStates.SI);
+		}
+	}
+
+	private static class TestStateEntryExitListener extends StateMachineListenerAdapter<TestStates, TestEvents> {
+
+		List<State<TestStates, TestEvents>> entered = new ArrayList<>();
+		List<State<TestStates, TestEvents>> exited = new ArrayList<>();
+
+		@Override
+		public void stateEntered(State<TestStates, TestEvents> state) {
+			entered.add(state);
+		}
+
+		@Override
+		public void stateExited(State<TestStates, TestEvents> state) {
+			exited.add(state);
+		}
+
+		public void reset() {
+			entered.clear();
+			exited.clear();
 		}
 	}
 

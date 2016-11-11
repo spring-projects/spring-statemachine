@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,9 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -173,6 +176,25 @@ public class StateMachineTests extends AbstractStateMachineTests {
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder("S1"));
+	}
+
+	@Test
+	public void testBackToItself() {
+		context.register(BaseConfig.class, Config5.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		assertThat(machine, notNullValue());
+		TestStateEntryExitListener listener = new TestStateEntryExitListener();
+		machine.addStateListener(listener);
+		machine.start();
+		assertThat(machine.getState().getIds(), contains(TestStates.SI));
+		listener.reset();
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
+		assertThat(machine.getState().getIds(), contains(TestStates.SI));
+		assertThat(listener.exited.size(), is(1));
+		assertThat(listener.entered.size(), is(1));
 	}
 
 	private static class LoggingAction implements Action<TestStates, TestEvents> {
@@ -400,6 +422,28 @@ public class StateMachineTests extends AbstractStateMachineTests {
 
 	}
 
+	@Configuration
+	@EnableStateMachine
+	static class Config5 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.SI)
+					.states(EnumSet.allOf(TestStates.class));
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.SI)
+					.target(TestStates.SI)
+					.event(TestEvents.E1);
+		}
+	}
+
 	private static class TestListener extends StateMachineListenerAdapter<TestStates, TestEvents> {
 
 		volatile CountDownLatch stateChangedLatch = new CountDownLatch(1);
@@ -458,4 +502,24 @@ public class StateMachineTests extends AbstractStateMachineTests {
 
 	}
 
+	private static class TestStateEntryExitListener extends StateMachineListenerAdapter<TestStates, TestEvents> {
+
+		List<State<TestStates, TestEvents>> entered = new ArrayList<>();
+		List<State<TestStates, TestEvents>> exited = new ArrayList<>();
+
+		@Override
+		public void stateEntered(State<TestStates, TestEvents> state) {
+			entered.add(state);
+		}
+
+		@Override
+		public void stateExited(State<TestStates, TestEvents> state) {
+			exited.add(state);
+		}
+
+		public void reset() {
+			entered.clear();
+			exited.clear();
+		}
+	}
 }

@@ -1138,7 +1138,9 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			} else if (!isSubOfSource && !isSubOfTarget
 					&& (transition.getSource() == currentState && StateMachineUtils.isSubstate(currentState, transition.getTarget()))) {
 			} else if (!isSubOfSource && !isSubOfTarget) {
-				return;
+				if (!StateMachineUtils.isTransientPseudoState(transition.getTarget())) {
+					return;
+				}
 			}
 		}
 
