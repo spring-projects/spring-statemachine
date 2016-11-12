@@ -17,6 +17,7 @@ package org.springframework.statemachine.state;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
@@ -169,10 +170,10 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 			Collection<? extends Action<S, E>> exitActions, Collection<? extends Action<S, E>> stateActions,
 			PseudoState<S, E> pseudoState, Collection<Region<S, E>> regions, StateMachine<S, E> submachine) {
 		this.id = id;
-		this.deferred = deferred;
-		this.entryActions = entryActions;
-		this.exitActions = exitActions;
-		this.stateActions = stateActions;
+		this.deferred = deferred != null ? deferred : Collections.<E>emptySet();
+		this.entryActions = entryActions != null ? entryActions : Collections.<Action<S, E>>emptySet();
+		this.exitActions = exitActions != null ? exitActions : Collections.<Action<S, E>>emptySet();
+		this.stateActions = stateActions != null ? stateActions : Collections.<Action<S, E>>emptySet();
 		this.pseudoState = pseudoState;
 
 		// use of private ctor should prevent user to
@@ -190,7 +191,7 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 
 	@Override
 	public boolean shouldDefer(Message<E> event) {
-		return deferred != null && deferred.contains(event.getPayload());
+		return deferred.contains(event.getPayload());
 	}
 
 	@Override
@@ -315,7 +316,11 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 	 * @param triggers the triggers
 	 */
 	public void setTriggers(List<Trigger<S, E>> triggers) {
-		this.triggers = triggers;
+		if (triggers != null) {
+			this.triggers = triggers;
+		} else {
+			this.triggers.clear();
+		}
 	}
 
 	/**
@@ -344,9 +349,6 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 	 * @param context the context
 	 */
 	protected void scheduleStateActions(StateContext<S, E> context) {
-		if (stateActions == null) {
-			return;
-		}
 		for (Action<S, E> action : stateActions) {
 			ScheduledFuture<?> future = scheduleAction(action, context);
 			if (future != null) {

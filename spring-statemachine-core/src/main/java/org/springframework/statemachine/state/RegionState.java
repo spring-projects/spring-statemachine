@@ -113,8 +113,7 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 			for (Region<S, E> r : getRegions()) {
 				State<S, E> state = r.getState();
 				if (state != null) {
-					Collection<E> deferredEvents = state.getDeferredEvents();
-					if (deferredEvents != null && deferredEvents.contains(event.getPayload())) {
+					if (state.getDeferredEvents().contains(event.getPayload())) {
 						defer = defer & true;
 					} else {
 						defer = false;
@@ -134,22 +133,16 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 			}
 			region.stop();
 		}
-		Collection<? extends Action<S, E>> actions = getExitActions();
-		if (actions != null) {
-			for (Action<S, E> action : actions) {
-				executeAction(action, context);
-			}
+		for (Action<S, E> action : getExitActions()) {
+			executeAction(action, context);
 		}
 	}
 
 	@Override
 	public void entry(StateContext<S, E> context) {
 		super.entry(context);
-		Collection<? extends Action<S, E>> actions = getEntryActions();
-		if (actions != null) {
-			for (Action<S, E> action : actions) {
-				executeAction(action, context);
-			}
+		for (Action<S, E> action : getEntryActions()) {
+			executeAction(action, context);
 		}
 
 		if (getPseudoState() != null && getPseudoState().getKind() == PseudoStateKind.INITIAL) {
