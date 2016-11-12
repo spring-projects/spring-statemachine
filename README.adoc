@@ -1,5 +1,8 @@
 = Spring Statemachine
 
+image:https://build.spring.io/plugins/servlet/buildStatusImage/SDG-MAS[Bamboo Build Status, link=https://build.spring.io/browse/SDG-MAS]
+image:https://api.travis-ci.org/spring-projects/spring-statemachine.svg?branch=master[Travis CI Build Status, link=https://travis-ci.org/spring-projects/spring-statemachine]
+
 The Spring Statemachine project aims to provide a common infrastructure 
 to work with state machine concepts in Spring applications.
 
