@@ -29,6 +29,16 @@ configure(allprojects) {
 	apply plugin: 'idea'
 	apply plugin: 'propdeps'
 
+	if (System.env.TRAVIS == 'true') {
+		tasks.withType(GroovyCompile) {
+			groovyOptions.fork = false
+		}
+		tasks.withType(Test) {
+			maxParallelForks = 1
+			minHeapSize = '256m'
+		}
+	}
+
 	compileJava {
 		sourceCompatibility = 1.7
 		targetCompatibility = 1.7

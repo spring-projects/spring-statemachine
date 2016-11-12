@@ -17,3 +17,7 @@ cache:
     - $HOME/.gradle/wrapper/
 
 script: ./gradlew clean build
+
+env:
+  global:
+    - GRADLE_OPTS="-Xms256m"
