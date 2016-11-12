@@ -20,4 +20,4 @@ script: ./gradlew clean build
 
 env:
   global:
-    - GRADLE_OPTS="-Xms256m"
+    - GRADLE_OPTS="-Xms256m -Xmx384m"

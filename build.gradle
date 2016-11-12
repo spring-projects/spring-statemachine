@@ -36,6 +36,7 @@ configure(allprojects) {
 		tasks.withType(Test) {
 			maxParallelForks = 1
 			minHeapSize = '256m'
+			maxHeapSize = '384m'
 		}
 	}
 
