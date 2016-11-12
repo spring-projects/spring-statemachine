@@ -142,14 +142,11 @@ public class ObjectState<S, E> extends AbstractSimpleState<S, E> {
 	@Override
 	public void exit(StateContext<S, E> context) {
 		super.exit(context);
-		Collection<? extends Action<S, E>> actions = getExitActions();
-		if (actions != null) {
-			for (Action<S, E> action : actions) {
-				try {
-					executeAction(action, context);
-				} catch (Exception e) {
-					log.error("Action execution resulted error", e);
-				}
+		for (Action<S, E> action : getExitActions()) {
+			try {
+				executeAction(action, context);
+			} catch (Exception e) {
+				log.error("Action execution resulted error", e);
 			}
 		}
 	}
@@ -157,14 +154,11 @@ public class ObjectState<S, E> extends AbstractSimpleState<S, E> {
 	@Override
 	public void entry(StateContext<S, E> context) {
 		super.entry(context);
-		Collection<? extends Action<S, E>> actions = getEntryActions();
-		if (actions != null) {
-			for (Action<S, E> action : actions) {
-				try {
-					executeAction(action, context);
-				} catch (Exception e) {
-					log.error("Action execution resulted error", e);
-				}
+		for (Action<S, E> action : getEntryActions()) {
+			try {
+				executeAction(action, context);
+			} catch (Exception e) {
+				log.error("Action execution resulted error", e);
 			}
 		}
 	}

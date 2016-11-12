@@ -147,9 +147,8 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 				.getSource())) {
 			getSubmachine().stop();
 		}
-		Collection<? extends Action<S, E>> actions = getExitActions();
-		if (actions != null && !isLocal(context)) {
-			for (Action<S, E> action : actions) {
+		if (!isLocal(context)) {
+			for (Action<S, E> action : getExitActions()) {
 				executeAction(action, context);
 			}
 		}
@@ -158,9 +157,8 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 	@Override
 	public void entry(final StateContext<S, E> context) {
 		super.entry(context);
-		Collection<? extends Action<S, E>> actions = getEntryActions();
-		if (actions != null && !isLocal(context)) {
-			for (Action<S, E> action : actions) {
+		if (!isLocal(context)) {
+			for (Action<S, E> action : getEntryActions()) {
 				executeAction(action, context);
 			}
 		}
@@ -258,8 +256,7 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 		if (machine != null) {
 			State<S, E> state = machine.getState();
 			if (state != null) {
-				Collection<E> deferredEvents = state.getDeferredEvents();
-				if (deferredEvents != null && deferredEvents.contains(event.getPayload())) {
+				if (state.getDeferredEvents().contains(event.getPayload())) {
 					return true;
 				}
 			}
