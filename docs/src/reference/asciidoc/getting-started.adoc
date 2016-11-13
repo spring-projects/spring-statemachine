@@ -47,6 +47,9 @@ framework.
 |spring-statemachine-data-redis
 |Support module for `Spring Data Redis`.
 
+|spring-statemachine-data-mongodb
+|Support module for `Spring Data MongoDB`.
+
 |spring-statemachine-zookeeper
 |`Zookeeper` integration for a distributed state machine.
 

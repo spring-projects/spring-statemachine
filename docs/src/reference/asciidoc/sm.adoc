@@ -2136,3 +2136,11 @@ and `RedisGuardRepository` which are backed by
 _Entity_ classes `RedisRepositoryState`, `RedisRepositoryTransition`,
 `RedisRepositoryAction` and `RedisRepositoryGuard` respectively.
 
+[[sm-repository-mongodb]]
+=== MongoDB
+Actual _Repository_ implementations for a _MongoDB_ are
+`MongoDbStateRepository`, `MongoDbTransitionRepository`, `MongoDbActionRepository`
+and `MongoDbGuardRepository` which are backed by
+_Entity_ classes `MongoDbRepositoryState`, `MongoDbRepositoryTransition`,
+`MongoDbRepositoryAction` and `MongoDbRepositoryGuard` respectively.
+
