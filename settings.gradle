@@ -31,6 +31,7 @@ include 'spring-statemachine-samples:monitoring'
 include 'spring-statemachine-data'
 include 'spring-statemachine-data:jpa'
 include 'spring-statemachine-data:redis'
+include 'spring-statemachine-data:mongodb'
 
 rootProject.children.find {
 	if (it.name == 'spring-statemachine-recipes') {

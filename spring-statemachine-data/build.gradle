@@ -28,3 +28,18 @@ project('spring-statemachine-data-redis') {
 		testRuntime "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
 	}
 }
+
+project('spring-statemachine-data-mongodb') {
+	description = "Spring State Machine Data MongoDB"
+	dependencies {
+		compile project(":spring-statemachine-data-common")
+		compile "org.springframework.data:spring-data-mongodb:$springDataMongoDbVersion"
+		testCompile project(":spring-statemachine-test")
+		optional "org.eclipse.persistence:javax.persistence:$eclipsePersistenceVersion"
+		testCompile project(path:":spring-statemachine-data-common", configuration:"testArtifacts")
+		testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+		testRuntime "org.springframework.boot:spring-boot-starter-data-mongodb:$springBootVersion"
+		testRuntime "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+	}
+}
+

@@ -1,0 +1,50 @@
+[
+	{
+		"@id": "1",
+		"_class": "org.springframework.statemachine.data.mongodb.MongoDbRepositoryState",
+		"initial": true,
+		"state": "S1"
+	},
+	{
+		"@id": "2",
+		"_class": "org.springframework.statemachine.data.mongodb.MongoDbRepositoryState",
+		"submachineId": "machineS2",
+		"state": "S2"
+	},
+	{
+		"@id": "3",
+		"_class": "org.springframework.statemachine.data.mongodb.MongoDbRepositoryState",
+		"state": "S3"
+	},
+	{
+		"@id": "4",
+		"_class": "org.springframework.statemachine.data.mongodb.MongoDbRepositoryState",
+		"machineId": "machineS2",
+		"initial": true,
+		"state": "S21"
+	},
+	{
+		"@id": "5",
+		"_class": "org.springframework.statemachine.data.mongodb.MongoDbRepositoryState",
+		"machineId": "machineS2",
+		"state": "S22"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.mongodb.MongoDbRepositoryTransition",
+		"source": "1",
+		"target": "2",
+		"event": "E1"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.mongodb.MongoDbRepositoryTransition",
+		"source": "2",
+		"target": "3",
+		"event": "E2"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.mongodb.MongoDbRepositoryTransition",
+		"source": "4",
+		"target": "5",
+		"event": "E3"
+	}
+]

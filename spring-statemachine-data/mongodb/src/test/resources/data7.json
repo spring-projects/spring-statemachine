@@ -1,0 +1,38 @@
+[
+	{
+		"@id": "3",
+		"_class": "org.springframework.statemachine.data.mongodb.MongoDbRepositoryGuard",
+		"spel": "true"
+	},
+	{
+		"@id": "4",
+		"_class": "org.springframework.statemachine.data.mongodb.MongoDbRepositoryAction",
+		"spel": "true"
+	},
+	{
+		"@id": "5",
+		"_class": "org.springframework.statemachine.data.mongodb.MongoDbRepositoryAction",
+		"spel": "false"
+	},
+	{
+		"@id": "1",
+		"_class": "org.springframework.statemachine.data.mongodb.MongoDbRepositoryState",
+		"initial": true,
+		"state": "S1"
+	},
+	{
+		"@id": "2",
+		"_class": "org.springframework.statemachine.data.mongodb.MongoDbRepositoryState",
+		"initial": false,
+		"state": "S2"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.mongodb.MongoDbRepositoryTransition",
+		"source": "1",
+		"target": "2",
+		"event": "E1",
+		"kind": "EXTERNAL",
+		"guard": "3",
+		"actions": ["4", "5"]
+	}
+]
