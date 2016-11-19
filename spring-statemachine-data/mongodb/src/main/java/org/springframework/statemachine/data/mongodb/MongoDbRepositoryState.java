@@ -121,7 +121,7 @@ public class MongoDbRepositoryState extends RepositoryState {
 	 */
 	public MongoDbRepositoryState(String machineId, MongoDbRepositoryState parentState, String state, boolean initial, Set<MongoDbRepositoryAction> stateActions,
 			Set<MongoDbRepositoryAction> entryActions, Set<MongoDbRepositoryAction> exitActions) {
-		this.machineId = machineId;
+		this.machineId = machineId == null ? "" : machineId;
 		this.parentState = parentState;
 		this.state = state;
 		this.initial = initial;

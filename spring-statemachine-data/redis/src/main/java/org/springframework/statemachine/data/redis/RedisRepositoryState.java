@@ -131,7 +131,7 @@ public class RedisRepositoryState extends RepositoryState {
 	 */
 	public RedisRepositoryState(String machineId, RedisRepositoryState parentState, String state, boolean initial, Set<RedisRepositoryAction> stateActions,
 			Set<RedisRepositoryAction> entryActions, Set<RedisRepositoryAction> exitActions) {
-		this.machineId = machineId;
+		this.machineId = machineId == null ? "" : machineId;
 		this.parentState = parentState;
 		this.state = state;
 		this.initial = initial;

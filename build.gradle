@@ -305,6 +305,13 @@ project('spring-statemachine-build-tests') {
 	dependencies {
 		testCompile project(":spring-statemachine-uml")
 		testCompile project(":spring-statemachine-test")
+		testCompile project(":spring-statemachine-data-common:spring-statemachine-data-jpa")
+		testCompile project(":spring-statemachine-data-common:spring-statemachine-data-redis")
+		testCompile project(":spring-statemachine-data-common:spring-statemachine-data-mongodb")
+		testRuntime "org.springframework.boot:spring-boot-starter-data-redis:$springBootVersion"
+		testCompile "org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion"
+		testCompile "com.h2database:h2:$h2Version"
+		testCompile "org.springframework.boot:spring-boot-starter:$springBootVersion"
 		testCompile "org.springframework:spring-test:$springVersion"
 		testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"
 		testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
