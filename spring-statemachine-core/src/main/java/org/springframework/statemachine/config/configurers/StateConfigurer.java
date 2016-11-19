@@ -126,6 +126,7 @@ public interface StateConfigurer<S, E> extends
 	 *
 	 * @param state the state
 	 * @param action the state action
+	 * @param error action that will be called if any unexpected exception is thrown by the action.
 	 * @return configurer for chaining
 	 */
 	StateConfigurer<S, E> stateDo(S state, Action<S, E> action, Action<S, E> error);
@@ -171,6 +172,7 @@ public interface StateConfigurer<S, E> extends
 	 *
 	 * @param state the state
 	 * @param action the state entry action
+	 * @param error action that will be called if any unexpected exception is thrown by the action.
 	 * @return configurer for chaining
 	 * @see #state(Object, Action, Action)
 	 */
@@ -196,6 +198,7 @@ public interface StateConfigurer<S, E> extends
 	 *
 	 * @param state the state
 	 * @param action the state entry action
+	 * @param error action that will be called if any unexpected exception is thrown by the action.
 	 * @return configurer for chaining
 	 * @see #state(Object, Action, Action)
 	 */
