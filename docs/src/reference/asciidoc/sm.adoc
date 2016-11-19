@@ -2056,6 +2056,23 @@ academic. Actual logic to select outgoing transition is exactly same.
 === Define Junction
 See <<sm-papyrus-choice>>.
 
+=== Define Entry/Exit
+_EntryPoint_ and _ExitPoint_ are used to do controlled entry and exit
+with state having sub-states. In a below statechart events `E1` and
+`E2` will do a normal state behaviour by entering and exiting state
+`S2` where normal state behaviour happens by entering initial state
+`S21`.
+
+Using event `S3` takes machine into _EntryPoint_ `ENTRY` which then
+leads into `S22` without activating initial state `S21` at any time.
+Similarly _ExitPoint_ `EXIT` with event `S4` controls specific exit
+into state `S4` while normal exit behaviour from `S2` would take
+machine into state `S3`. While being on a state `S22` you can choose
+events `E4` or `E2` to take machine into states `S3` or `S4`
+respectively.
+
+image::images/papyrus-gs-17.png[scaledwidth="100%"]
+
 === Define Actions
 State entry and exit actions can be associated by using a behaviour,
 more about this in <<sm-papyrus-beanref>>.
