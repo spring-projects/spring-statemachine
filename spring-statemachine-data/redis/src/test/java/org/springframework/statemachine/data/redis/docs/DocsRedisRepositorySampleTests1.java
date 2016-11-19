@@ -13,35 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.data.jpa.docs;
+package org.springframework.statemachine.data.redis.docs;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.statemachine.data.StateRepository;
 import org.springframework.statemachine.data.TransitionRepository;
-import org.springframework.statemachine.data.jpa.JpaRepositoryState;
-import org.springframework.statemachine.data.jpa.JpaRepositoryTransition;
+import org.springframework.statemachine.data.redis.RedisRepositoryState;
+import org.springframework.statemachine.data.redis.RedisRepositoryTransition;
 
-public class DocsJpaRepositorySampleTests1 {
+public class DocsRedisRepositorySampleTests1 {
 
 	public static class Config1 {
 // tag::snippetA[]
 		@Autowired
-		StateRepository<JpaRepositoryState> stateRepository;
+		StateRepository<RedisRepositoryState> stateRepository;
 
 		@Autowired
-		TransitionRepository<JpaRepositoryTransition> transitionRepository;
+		TransitionRepository<RedisRepositoryTransition> transitionRepository;
 
 		void addConfig() {
-			JpaRepositoryState stateS1 = new JpaRepositoryState("S1", true);
-			JpaRepositoryState stateS2 = new JpaRepositoryState("S2");
-			JpaRepositoryState stateS3 = new JpaRepositoryState("S3");
+			RedisRepositoryState stateS1 = new RedisRepositoryState("S1", true);
+			RedisRepositoryState stateS2 = new RedisRepositoryState("S2");
+			RedisRepositoryState stateS3 = new RedisRepositoryState("S3");
 
 			stateRepository.save(stateS1);
 			stateRepository.save(stateS2);
 			stateRepository.save(stateS3);
 
-			JpaRepositoryTransition transitionS1ToS2 = new JpaRepositoryTransition(stateS1, stateS2, "E1");
-			JpaRepositoryTransition transitionS2ToS3 = new JpaRepositoryTransition(stateS2, stateS3, "E2");
+
+			RedisRepositoryTransition transitionS1ToS2 = new RedisRepositoryTransition(stateS1, stateS2, "E1");
+			RedisRepositoryTransition transitionS2ToS3 = new RedisRepositoryTransition(stateS2, stateS3, "E2");
 
 			transitionRepository.save(transitionS1ToS2);
 			transitionRepository.save(transitionS2ToS3);

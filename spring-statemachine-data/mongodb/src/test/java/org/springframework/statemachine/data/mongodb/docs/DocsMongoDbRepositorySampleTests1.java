@@ -13,35 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.data.jpa.docs;
+package org.springframework.statemachine.data.mongodb.docs;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.statemachine.data.StateRepository;
 import org.springframework.statemachine.data.TransitionRepository;
-import org.springframework.statemachine.data.jpa.JpaRepositoryState;
-import org.springframework.statemachine.data.jpa.JpaRepositoryTransition;
+import org.springframework.statemachine.data.mongodb.MongoDbRepositoryState;
+import org.springframework.statemachine.data.mongodb.MongoDbRepositoryTransition;
 
-public class DocsJpaRepositorySampleTests1 {
+public class DocsMongoDbRepositorySampleTests1 {
 
 	public static class Config1 {
 // tag::snippetA[]
 		@Autowired
-		StateRepository<JpaRepositoryState> stateRepository;
+		StateRepository<MongoDbRepositoryState> stateRepository;
 
 		@Autowired
-		TransitionRepository<JpaRepositoryTransition> transitionRepository;
+		TransitionRepository<MongoDbRepositoryTransition> transitionRepository;
 
 		void addConfig() {
-			JpaRepositoryState stateS1 = new JpaRepositoryState("S1", true);
-			JpaRepositoryState stateS2 = new JpaRepositoryState("S2");
-			JpaRepositoryState stateS3 = new JpaRepositoryState("S3");
+			MongoDbRepositoryState stateS1 = new MongoDbRepositoryState("S1", true);
+			MongoDbRepositoryState stateS2 = new MongoDbRepositoryState("S2");
+			MongoDbRepositoryState stateS3 = new MongoDbRepositoryState("S3");
 
 			stateRepository.save(stateS1);
 			stateRepository.save(stateS2);
 			stateRepository.save(stateS3);
 
-			JpaRepositoryTransition transitionS1ToS2 = new JpaRepositoryTransition(stateS1, stateS2, "E1");
-			JpaRepositoryTransition transitionS2ToS3 = new JpaRepositoryTransition(stateS2, stateS3, "E2");
+			MongoDbRepositoryTransition transitionS1ToS2 = new MongoDbRepositoryTransition(stateS1, stateS2, "E1");
+			MongoDbRepositoryTransition transitionS2ToS3 = new MongoDbRepositoryTransition(stateS2, stateS3, "E2");
 
 			transitionRepository.save(transitionS1ToS2);
 			transitionRepository.save(transitionS2ToS3);

@@ -427,6 +427,8 @@ configure(rootProject) {
 		from 'spring-statemachine-uml/src/test/java/org/springframework/statemachine/uml/docs'
 		from 'spring-statemachine-uml/src/test/resources/org/springframework/statemachine/uml/docs'
 		from 'spring-statemachine-data/jpa/src/test/java/org/springframework/statemachine/data/jpa/docs'
+		from 'spring-statemachine-data/redis/src/test/java/org/springframework/statemachine/data/redis/docs'
+		from 'spring-statemachine-data/mongodb/src/test/java/org/springframework/statemachine/data/mongodb/docs'
 		from 'spring-statemachine-samples/src/main/java/'
 		from 'spring-statemachine-samples/washer/src/main/java/'
 		from 'spring-statemachine-samples/tasks/src/main/java/'

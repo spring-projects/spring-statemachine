@@ -2149,7 +2149,12 @@ what _Spring Data_ supports. Using a real _Repository_ related
 _Entity_ class comes into play when you manually try to write new
 states or transitions into a backed repository.
 
-Actual out of a box implementations are documented in below sections.
+Actual out of a box implementations are documented in below sections
+where images below are uml equivalent statecharts of a repository
+configs.
+
+[[image-sm-repository-simplemachine]]
+image::images/sm-repository-simplemachine.png[scaledwidth="100%", title="SimpleMachine"]
 
 [[sm-repository-jpa]]
 === JPA
@@ -2159,7 +2164,9 @@ and `JpaGuardRepository` which are backed by
 _Entity_ classes `JpaRepositoryState`, `JpaRepositoryTransition`,
 `JpaRepositoryAction` and `JpaRepositoryGuard` respectively.
 
-Generic way to update states and transition manually is shown below.
+Generic way to update states and transition manually for jpa is shown
+below. This is equivalent to machine shown in
+<<image-sm-repository-simplemachine>>.
 
 [source,java,indent=0]
 ----
@@ -2179,6 +2186,15 @@ and `RedisGuardRepository` which are backed by
 _Entity_ classes `RedisRepositoryState`, `RedisRepositoryTransition`,
 `RedisRepositoryAction` and `RedisRepositoryGuard` respectively.
 
+Generic way to update states and transition manually for redis is shown
+below. This is equivalent to machine shown in
+<<image-sm-repository-simplemachine>>.
+
+[source,java,indent=0]
+----
+include::samples/DocsRedisRepositorySampleTests1.java[tags=snippetA]
+----
+
 [[sm-repository-mongodb]]
 === MongoDB
 Actual _Repository_ implementations for a _MongoDB_ are
@@ -2186,4 +2202,13 @@ Actual _Repository_ implementations for a _MongoDB_ are
 and `MongoDbGuardRepository` which are backed by
 _Entity_ classes `MongoDbRepositoryState`, `MongoDbRepositoryTransition`,
 `MongoDbRepositoryAction` and `MongoDbRepositoryGuard` respectively.
+
+Generic way to update states and transition manually for redis is shown
+below. This is equivalent to machine shown in
+<<image-sm-repository-simplemachine>>.
+
+[source,java,indent=0]
+----
+include::samples/DocsMongoDbRepositorySampleTests1.java[tags=snippetA]
+----
 
