@@ -2030,6 +2030,32 @@ image::images/papyrus-gs-11.png[scaledwidth="100%"]
 Then what is left for user is to pick these time events instead of
 signal event for a particular transition.
 
+[[sm-papyrus-choice]]
+=== Define Choice
+Choice is simply defined by drawing one incoming transition into a
+`CHOICE` states and multiple outgoing transition from it into target
+states. Configuration model in our `StateConfigurer` allows to define
+_if/elseif/else_ structure but with uml we simply need to work with
+individual _Guards_ for outgoing transitions.
+
+Make sure that guards defined for transitions do not overlap so that
+whatever happens, only one guard would evaluate to _TRUE_ at any given
+time. This gives precise and predictable resulst for choice branch
+evaluation. Also it is advised to leave one transition without a guard
+so that at least one trasition path is guaranteed.
+
+image::images/papyrus-gs-16.png[scaledwidth="100%"]
+
+[NOTE]
+====
+Junction is very much same except it allows multiple incoming
+transtitions. Thus its behaviour compared to choice is purely
+academic. Actual logic to select outgoing transition is exactly same.
+====
+
+=== Define Junction
+See <<sm-papyrus-choice>>.
+
 === Define Actions
 State entry and exit actions can be associated by using a behaviour,
 more about this in <<sm-papyrus-beanref>>.
