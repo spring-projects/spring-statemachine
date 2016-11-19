@@ -25,6 +25,7 @@ import java.util.UUID;
 
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.action.Actions;
 import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.config.builders.StateMachineStateBuilder;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
@@ -165,6 +166,21 @@ public class DefaultStateConfigurer<S, E>
 	}
 
 	@Override
+	public StateConfigurer<S, E> stateDo(S state, Action<S, E> action) {
+		return stateDo(state, action, null);
+	}
+
+	@Override
+	public StateConfigurer<S, E> stateDo(S state, Action<S, E> action, Action<S, E> error) {
+		Collection<Action<S, E>> stateActions = null;
+		if (action != null) {
+			stateActions = new ArrayList<Action<S, E>>(1);
+			stateActions.add(error != null ? Actions.errorCallingAction(action, error) : action);
+		}
+		return state(state, stateActions);
+	}
+
+	@Override
 	public StateConfigurer<S, E> state(S state, Collection<? extends Action<S, E>> entryActions,
 			Collection<? extends Action<S, E>> exitActions) {
 		addIncomplete(null, state, null, entryActions, exitActions, null);
@@ -184,6 +200,36 @@ public class DefaultStateConfigurer<S, E>
 			exitActions.add(exitAction);
 		}
 		return state(state, entryActions, exitActions);
+	}
+
+	@Override
+	public StateConfigurer<S, E> stateEntry(S state, Action<S, E> action) {
+		return state(state, action, null);
+	}
+
+	@Override
+	public StateConfigurer<S, E> stateEntry(S state, Action<S, E> action, Action<S, E> error) {
+		Collection<Action<S, E>> entryActions = null;
+		if (action != null) {
+			entryActions = new ArrayList<Action<S, E>>(1);
+			entryActions.add(error != null ? Actions.errorCallingAction(action, error) : action);
+		}
+		return state(state, entryActions, null);
+	}
+
+	@Override
+	public StateConfigurer<S, E> stateExit(S state, Action<S, E> action) {
+		return state(state, null, action);
+	}
+
+	@Override
+	public StateConfigurer<S, E> stateExit(S state, Action<S, E> action, Action<S, E> error) {
+		Collection<Action<S, E>> exitActions = null;
+		if (action != null) {
+			exitActions = new ArrayList<Action<S, E>>(1);
+			exitActions.add(error != null ? Actions.errorCallingAction(action, error) : action);
+		}
+		return state(state, null, exitActions);
 	}
 
 	@SuppressWarnings("unchecked")

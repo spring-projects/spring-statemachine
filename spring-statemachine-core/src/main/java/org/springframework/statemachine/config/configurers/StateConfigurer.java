@@ -110,6 +110,27 @@ public interface StateConfigurer<S, E> extends
 	StateConfigurer<S, E> state(S state, Action<S, E> stateAction);
 
 	/**
+	 * Specify a state {@code S} with state behaviour {@link Action}.
+	 * Currently synonym for {@link #state(Object, Action)}.
+	 *
+	 * @param state the state
+	 * @param action the state action
+	 * @return configurer for chaining
+	 * @see #state(Object, Action)
+	 */
+	StateConfigurer<S, E> stateDo(S state, Action<S, E> action);
+
+	/**
+	 * Specify a state {@code S} with state behaviour {@link Action} and
+	 * error {@link Action} callback.
+	 *
+	 * @param state the state
+	 * @param action the state action
+	 * @return configurer for chaining
+	 */
+	StateConfigurer<S, E> stateDo(S state, Action<S, E> action, Action<S, E> error);
+
+	/**
 	 * Specify a state {@code S} with entry and exit {@link Action}s.
 	 *
 	 * @param state the state
@@ -129,6 +150,56 @@ public interface StateConfigurer<S, E> extends
 	 * @return configurer for chaining
 	 */
 	StateConfigurer<S, E> state(S state, Action<S, E> entryAction, Action<S, E> exitAction);
+
+	/**
+	 * Specify a state {@code S} with state entry {@link Action}.
+	 * Currently synonym for {@link #state(Object, Action, Action)}
+	 * with no exit action.
+	 *
+	 * @param state the state
+	 * @param action the state entry action
+	 * @return configurer for chaining
+	 * @see #state(Object, Action, Action)
+	 */
+	StateConfigurer<S, E> stateEntry(S state, Action<S, E> action);
+
+	/**
+	 * Specify a state {@code S} with state entry {@link Action} and
+	 * error {@link Action} callback.
+	 * Currently synonym for {@link #state(Object, Action, Action)}
+	 * with no exit action.
+	 *
+	 * @param state the state
+	 * @param action the state entry action
+	 * @return configurer for chaining
+	 * @see #state(Object, Action, Action)
+	 */
+	StateConfigurer<S, E> stateEntry(S state, Action<S, E> action, Action<S, E> error);
+
+	/**
+	 * Specify a state {@code S} with state exit {@link Action}.
+	 * Currently synonym for {@link #state(Object, Action, Action)}
+	 * with no entry action.
+	 *
+	 * @param state the state
+	 * @param action the state exit action
+	 * @return configurer for chaining
+	 * @see #state(Object, Action, Action)
+	 */
+	StateConfigurer<S, E> stateExit(S state, Action<S, E> action);
+
+	/**
+	 * Specify a state {@code S} with state exit {@link Action} and
+	 * error {@link Action} callback.
+	 * Currently synonym for {@link #state(Object, Action, Action)}
+	 * with no entry action.
+	 *
+	 * @param state the state
+	 * @param action the state entry action
+	 * @return configurer for chaining
+	 * @see #state(Object, Action, Action)
+	 */
+	StateConfigurer<S, E> stateExit(S state, Action<S, E> action, Action<S, E> error);
 
 	/**
 	 * Specify a state {@code S} with a deferred events {@code E}.
