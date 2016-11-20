@@ -1989,7 +1989,18 @@ _RootElement->New Child->SignalEvent_.
 
 image::images/papyrus-gs-7.png[scaledwidth="100%"]
 
+Now that you have a `SignalEvent` defined it can be used to associate
+a trigger with a transition. More about that in
+<<sm-papyrus-transitions>>.
 
+==== Defer Event
+
+Events can be deferred to get processed in a more appropriate time. In
+UML this is done from a state itself. Choose any state and create a
+new trigger under _Deferrable trigger_ and choose `SignalEvent` which
+matches `Signal` you want to defer.
+
+[[sm-papyrus-transitions]]
 === Define Transitions
 Transition is simply created by drawing _transition_ line between
 source and target states. In above we have states `S1` and `S2` and
