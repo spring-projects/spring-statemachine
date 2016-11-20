@@ -2084,6 +2084,38 @@ respectively.
 
 image::images/papyrus-gs-17.png[scaledwidth="100%"]
 
+=== Define History
+When working with history states three different concepts are in play.
+UML defines a _Deep History_ and a _Shallow History_. _Default History
+State_ comes into play when history state is not yet known. These are
+represented in following sections.
+
+==== Shallow
+_Shallow History_ is simply selected and a transition defined into it.
+
+image::images/papyrus-gs-18.png[scaledwidth="100%"]
+
+==== Deep
+_Deep History_ is used for state which has other deep nested states,
+thus giving a chance to save whole nested state structure.
+
+image::images/papyrus-gs-19.png[scaledwidth="100%"]
+
+==== Default
+In cases where a Transition terminates on a history when
+the state has not been entered fefore or it had reached its
+final state, there is an option to force
+a transition to a specific substate, using the default
+history mechanism. For this to happen you simply define transition
+into this default state. This is would be a transition from `SH` to
+`S22`.
+
+In a below example state `S22` would be entered if state `S2` has
+never been active as its history has never been recorded. If state
+`S2` has been active then either `S20` or `S21` would get chosen.
+
+image::images/papyrus-gs-20.png[scaledwidth="100%"]
+
 === Define Actions
 State entry and exit actions can be associated by using a behaviour,
 more about this in <<sm-papyrus-beanref>>.
