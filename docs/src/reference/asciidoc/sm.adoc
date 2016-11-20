@@ -2167,6 +2167,9 @@ configs.
 [[image-sm-repository-simplemachine]]
 image::images/sm-repository-simplemachine.png[scaledwidth="100%", title="SimpleMachine"]
 
+[[image-sm-repository-simplesubmachine]]
+image::images/sm-repository-simplesubmachine.png[scaledwidth="100%", title="SimpleSubMachine"]
+
 [[sm-repository-jpa]]
 === JPA
 Actual _Repository_ implementations for a _JPA_ are
@@ -2182,6 +2185,14 @@ below. This is equivalent to machine shown in
 [source,java,indent=0]
 ----
 include::samples/DocsJpaRepositorySampleTests1.java[tags=snippetA]
+----
+
+This is equivalent to machine shown in
+<<image-sm-repository-simplesubmachine>>.
+
+[source,java,indent=0]
+----
+include::samples/DocsJpaRepositorySampleTests1.java[tags=snippetB]
 ----
 
 Complete example can be found from sample
@@ -2206,6 +2217,14 @@ below. This is equivalent to machine shown in
 include::samples/DocsRedisRepositorySampleTests1.java[tags=snippetA]
 ----
 
+This is equivalent to machine shown in
+<<image-sm-repository-simplesubmachine>>.
+
+[source,java,indent=0]
+----
+include::samples/DocsRedisRepositorySampleTests1.java[tags=snippetB]
+----
+
 [[sm-repository-mongodb]]
 === MongoDB
 Actual _Repository_ implementations for a _MongoDB_ are
@@ -2221,5 +2240,13 @@ below. This is equivalent to machine shown in
 [source,java,indent=0]
 ----
 include::samples/DocsMongoDbRepositorySampleTests1.java[tags=snippetA]
+----
+
+This is equivalent to machine shown in
+<<image-sm-repository-simplesubmachine>>.
+
+[source,java,indent=0]
+----
+include::samples/DocsMongoDbRepositorySampleTests1.java[tags=snippetB]
 ----
 
