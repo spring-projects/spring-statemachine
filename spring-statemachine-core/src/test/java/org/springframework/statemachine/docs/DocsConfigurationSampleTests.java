@@ -353,6 +353,49 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 			}
 		}
 
+// tag::snippetEE[]
+		@Configuration
+		@EnableStateMachine
+		public class Config55
+				extends EnumStateMachineConfigurerAdapter<States, Events> {
+
+			@Override
+			public void configure(StateMachineStateConfigurer<States, Events> states)
+					throws Exception {
+				states
+					.withStates()
+						.initial(States.S1)
+						.stateEntry(States.S2, action(), errorAction())
+						.stateDo(States.S2, action(), errorAction())
+						.stateExit(States.S2, action(), errorAction())
+						.state(States.S3);
+			}
+
+			@Bean
+			public Action<States, Events> action() {
+				return new Action<States, Events>() {
+
+					@Override
+					public void execute(StateContext<States, Events> context) {
+						throw new RuntimeException("MyError");
+					}
+				};
+			}
+
+			@Bean
+			public Action<States, Events> errorAction() {
+				return new Action<States, Events>() {
+
+					@Override
+					public void execute(StateContext<States, Events> context) {
+						// RuntimeException("MyError") added to context
+						Exception exception = context.getException();
+						exception.getMessage();
+					}
+				};
+			}
+		}
+// end::snippetEE[]
 
 // tag::snippetFA[]
 	@Configuration

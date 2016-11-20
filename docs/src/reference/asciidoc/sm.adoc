@@ -221,9 +221,8 @@ wrapped within a `Runnable` which may get cancelled via
 action, you need to be able to catch `InterruptedException` which is
 raised if task is cancelled.
 
-[[statemachine-config-actions-errorhandling]]
+[[statemachine-config-transition-actions-errorhandling]]
 ==== Transition Action Error Handling
-
 User can always catch exceptions manually but with actions defined for
 transitions it is possible to define error action which is called if
 exception is reased. Exception is then available from a `StateContext`
@@ -241,6 +240,19 @@ Similar logic can be done manually for every action if needed.
 include::samples/DocsConfigurationSampleTests.java[tags=snippetED]
 ----
 
+[[statemachine-config-state-actions-errorhandling]]
+==== State Action Error Handling
+Similar logic for error handling what is available for transition
+actions is also available for actions defined for state behaviour and
+its entry and exit.
+
+For these `StateConfigurer` has methods `stateEntry`, `stateDo` and
+`stateExit` to define `error` action together with an actual `action`.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetEE]
+----
 
 === Configuring Pseudo States
 
@@ -1608,7 +1620,7 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippet4]
 [TIP]
 ====
 Actions defined for transitions also have their own error handling
-logic <<statemachine-config-actions-errorhandling>>.
+logic <<statemachine-config-transition-actions-errorhandling>>.
 ====
 
 [[sm-persist]]
