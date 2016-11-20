@@ -85,5 +85,5 @@ public abstract class AbstractTckTests {
 	 *
 	 * @return StateMachine for SimpleMachine
 	 */
-	protected abstract StateMachine<String, String> getSimpleMachine();
+	protected abstract StateMachine<String, String> getSimpleMachine() throws Exception;
 }
