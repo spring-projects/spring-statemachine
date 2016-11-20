@@ -46,6 +46,13 @@ public class UmlTckTests extends AbstractTckTests {
 		return getStateMachineFromContext();
 	}
 
+	@Override
+	protected StateMachine<String, String> getSimpleSubMachine() throws Exception {
+		context.register(SimpleSubMachineConfig.class);
+		context.refresh();
+		return getStateMachineFromContext();
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class SimpleMachineConfig extends StateMachineConfigurerAdapter<String, String> {
@@ -60,6 +67,23 @@ public class UmlTckTests extends AbstractTckTests {
 		@Bean
 		public StateMachineModelFactory<String, String> modelFactory() {
 			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/buildtests/tck/uml/SimpleMachine.uml");
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class SimpleSubMachineConfig extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/buildtests/tck/uml/SimpleSubMachine.uml");
 		}
 	}
 }

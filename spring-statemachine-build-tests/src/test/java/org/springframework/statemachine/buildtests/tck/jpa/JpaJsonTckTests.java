@@ -57,6 +57,13 @@ public class JpaJsonTckTests extends AbstractTckTests {
 		return getStateMachineFactoryFromContext().getStateMachine();
 	}
 
+	@Override
+	protected StateMachine<String, String> getSimpleSubMachine() throws Exception {
+		context.register(TestConfig.class, SimpleSubMachineConfig.class, StateMachineFactoryConfig.class);
+		context.refresh();
+		return getStateMachineFactoryFromContext().getStateMachine();
+	}
+
 	@Configuration
 	public static class SimpleMachineConfig {
 
@@ -64,6 +71,17 @@ public class JpaJsonTckTests extends AbstractTckTests {
 		public StateMachineJackson2RepositoryPopulatorFactoryBean jackson2RepositoryPopulatorFactoryBean() {
 			StateMachineJackson2RepositoryPopulatorFactoryBean factoryBean = new StateMachineJackson2RepositoryPopulatorFactoryBean();
 			factoryBean.setResources(new Resource[]{new ClassPathResource("org/springframework/statemachine/buildtests/tck/jpa/SimpleMachine.json")});
+			return factoryBean;
+		}
+	}
+
+	@Configuration
+	public static class SimpleSubMachineConfig {
+
+		@Bean
+		public StateMachineJackson2RepositoryPopulatorFactoryBean jackson2RepositoryPopulatorFactoryBean() {
+			StateMachineJackson2RepositoryPopulatorFactoryBean factoryBean = new StateMachineJackson2RepositoryPopulatorFactoryBean();
+			factoryBean.setResources(new Resource[]{new ClassPathResource("org/springframework/statemachine/buildtests/tck/jpa/SimpleSubMachine.json")});
 			return factoryBean;
 		}
 	}

@@ -44,6 +44,13 @@ public class AnnotationTckTests extends AbstractTckTests {
 		return getStateMachineFromContext();
 	}
 
+	@Override
+	protected StateMachine<String, String> getSimpleSubMachine() throws Exception {
+		context.register(SimpleSubMachineConfig.class);
+		context.refresh();
+		return getStateMachineFromContext();
+	}
+
 	@Configuration
 	@EnableStateMachine
 	static class SimpleMachineConfig extends StateMachineConfigurerAdapter<String, String> {
@@ -67,6 +74,41 @@ public class AnnotationTckTests extends AbstractTckTests {
 				.withExternal()
 					.source("S2").target("S3")
 					.event("E2");
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class SimpleSubMachineConfig extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("S1")
+					.state("S2")
+					.state("S3")
+					.and()
+					.withStates()
+						.parent("S2")
+						.initial("S21")
+						.state("S22");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("S1").target("S2")
+					.event("E1")
+					.and()
+				.withExternal()
+					.source("S21").target("S22")
+					.event("E2")
+					.and()
+				.withExternal()
+					.source("S2").target("S3")
+					.event("E3");
 		}
 	}
 }

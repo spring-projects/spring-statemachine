@@ -46,4 +46,32 @@ public class BuilderTckTests extends AbstractTckTests {
 				.event("E2");
 		return builder.build();
 	}
+
+	@Override
+	protected StateMachine<String, String> getSimpleSubMachine() throws Exception {
+		Builder<String, String> builder = StateMachineBuilder.builder();
+		builder.configureStates()
+			.withStates()
+				.initial("S1")
+				.state("S2")
+				.state("S3")
+				.and()
+				.withStates()
+					.parent("S2")
+					.initial("S21")
+					.state("S22");
+		builder.configureTransitions()
+			.withExternal()
+				.source("S1").target("S2")
+				.event("E1")
+				.and()
+			.withExternal()
+				.source("S21").target("S22")
+				.event("E2")
+				.and()
+			.withExternal()
+				.source("S2").target("S3")
+				.event("E3");
+		return builder.build();
+	}
 }

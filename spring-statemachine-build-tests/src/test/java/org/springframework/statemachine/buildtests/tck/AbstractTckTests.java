@@ -86,4 +86,25 @@ public abstract class AbstractTckTests {
 	 * @return StateMachine for SimpleMachine
 	 */
 	protected abstract StateMachine<String, String> getSimpleMachine() throws Exception;
+
+	@Test
+	public void testSimpleSubMachine() throws Exception {
+		StateMachine<String,String> stateMachine = getSimpleSubMachine();
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.stateMachine(stateMachine)
+					.step().expectStates("S1").and()
+					.step().sendEvent("E1").expectStates("S2", "S21").and()
+					.step().sendEvent("E2").expectStates("S2", "S22").and()
+					.step().sendEvent("E3").expectStates("S3").and()
+					.build();
+		plan.test();
+	}
+
+	/**
+	 * Return state machine for {@link #testSimpleSubMachine()}.
+	 *
+	 * @return StateMachine for SimpleSubMachine
+	 */
+	protected abstract StateMachine<String, String> getSimpleSubMachine() throws Exception;
 }

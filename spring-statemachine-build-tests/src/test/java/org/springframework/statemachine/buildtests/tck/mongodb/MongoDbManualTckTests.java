@@ -96,6 +96,40 @@ public class MongoDbManualTckTests extends AbstractTckTests {
 		return getStateMachineFactoryFromContext().getStateMachine();
 	}
 
+	@Override
+	protected StateMachine<String, String> getSimpleSubMachine() throws Exception {
+		context.register(TestConfig.class, StateMachineFactoryConfig.class);
+		context.refresh();
+
+		MongoDbStateRepository stateRepository = context.getBean(MongoDbStateRepository.class);
+		MongoDbTransitionRepository transitionRepository = context.getBean(MongoDbTransitionRepository.class);
+
+		MongoDbRepositoryState stateS1 = new MongoDbRepositoryState("S1", true);
+		MongoDbRepositoryState stateS2 = new MongoDbRepositoryState("S2");
+		MongoDbRepositoryState stateS3 = new MongoDbRepositoryState("S3");
+
+		MongoDbRepositoryState stateS21 = new MongoDbRepositoryState("S21", true);
+		stateS21.setParentState(stateS2);
+		MongoDbRepositoryState stateS22 = new MongoDbRepositoryState("S22");
+		stateS22.setParentState(stateS2);
+
+		stateRepository.save(stateS1);
+		stateRepository.save(stateS2);
+		stateRepository.save(stateS3);
+		stateRepository.save(stateS21);
+		stateRepository.save(stateS22);
+
+		MongoDbRepositoryTransition transitionS1ToS2 = new MongoDbRepositoryTransition(stateS1, stateS2, "E1");
+		MongoDbRepositoryTransition transitionS2ToS3 = new MongoDbRepositoryTransition(stateS21, stateS22, "E2");
+		MongoDbRepositoryTransition transitionS21ToS22 = new MongoDbRepositoryTransition(stateS2, stateS3, "E3");
+
+		transitionRepository.save(transitionS1ToS2);
+		transitionRepository.save(transitionS2ToS3);
+		transitionRepository.save(transitionS21ToS22);
+
+		return getStateMachineFactoryFromContext().getStateMachine();
+	}
+
 	@Configuration
 	@EnableStateMachineFactory
 	public static class StateMachineFactoryConfig extends StateMachineConfigurerAdapter<String, String> {

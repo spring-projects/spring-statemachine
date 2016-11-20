@@ -97,6 +97,40 @@ public class RedisManualTckTests extends AbstractTckTests {
 		return getStateMachineFactoryFromContext().getStateMachine();
 	}
 
+	@Override
+	protected StateMachine<String, String> getSimpleSubMachine() throws Exception {
+		context.register(TestConfig.class, StateMachineFactoryConfig.class);
+		context.refresh();
+
+		RedisStateRepository stateRepository = context.getBean(RedisStateRepository.class);
+		RedisTransitionRepository transitionRepository = context.getBean(RedisTransitionRepository.class);
+
+		RedisRepositoryState stateS1 = new RedisRepositoryState("S1", true);
+		RedisRepositoryState stateS2 = new RedisRepositoryState("S2");
+		RedisRepositoryState stateS3 = new RedisRepositoryState("S3");
+
+		RedisRepositoryState stateS21 = new RedisRepositoryState("S21", true);
+		stateS21.setParentState(stateS2);
+		RedisRepositoryState stateS22 = new RedisRepositoryState("S22");
+		stateS22.setParentState(stateS2);
+
+		stateRepository.save(stateS1);
+		stateRepository.save(stateS2);
+		stateRepository.save(stateS3);
+		stateRepository.save(stateS21);
+		stateRepository.save(stateS22);
+
+		RedisRepositoryTransition transitionS1ToS2 = new RedisRepositoryTransition(stateS1, stateS2, "E1");
+		RedisRepositoryTransition transitionS2ToS3 = new RedisRepositoryTransition(stateS21, stateS22, "E2");
+		RedisRepositoryTransition transitionS21ToS22 = new RedisRepositoryTransition(stateS2, stateS3, "E3");
+
+		transitionRepository.save(transitionS1ToS2);
+		transitionRepository.save(transitionS2ToS3);
+		transitionRepository.save(transitionS21ToS22);
+
+		return getStateMachineFactoryFromContext().getStateMachine();
+	}
+
 	@Configuration
 	@EnableStateMachineFactory
 	public static class StateMachineFactoryConfig extends StateMachineConfigurerAdapter<String, String> {

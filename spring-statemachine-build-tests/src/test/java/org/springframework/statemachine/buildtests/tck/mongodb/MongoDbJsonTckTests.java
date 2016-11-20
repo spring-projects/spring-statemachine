@@ -79,6 +79,13 @@ public class MongoDbJsonTckTests extends AbstractTckTests {
 		return getStateMachineFactoryFromContext().getStateMachine();
 	}
 
+	@Override
+	protected StateMachine<String, String> getSimpleSubMachine() throws Exception {
+		context.register(TestConfig.class, SimpleSubMachineConfig.class, StateMachineFactoryConfig.class);
+		context.refresh();
+		return getStateMachineFactoryFromContext().getStateMachine();
+	}
+
 	@Configuration
 	public static class SimpleMachineConfig {
 
@@ -86,6 +93,17 @@ public class MongoDbJsonTckTests extends AbstractTckTests {
 		public StateMachineJackson2RepositoryPopulatorFactoryBean jackson2RepositoryPopulatorFactoryBean() {
 			StateMachineJackson2RepositoryPopulatorFactoryBean factoryBean = new StateMachineJackson2RepositoryPopulatorFactoryBean();
 			factoryBean.setResources(new Resource[]{new ClassPathResource("org/springframework/statemachine/buildtests/tck/mongodb/SimpleMachine.json")});
+			return factoryBean;
+		}
+	}
+
+	@Configuration
+	public static class SimpleSubMachineConfig {
+
+		@Bean
+		public StateMachineJackson2RepositoryPopulatorFactoryBean jackson2RepositoryPopulatorFactoryBean() {
+			StateMachineJackson2RepositoryPopulatorFactoryBean factoryBean = new StateMachineJackson2RepositoryPopulatorFactoryBean();
+			factoryBean.setResources(new Resource[]{new ClassPathResource("org/springframework/statemachine/buildtests/tck/mongodb/SimpleSubMachine.json")});
 			return factoryBean;
 		}
 	}
