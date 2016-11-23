@@ -16,6 +16,7 @@
 package org.springframework.statemachine.buildtests.tck.javaconfig;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.buildtests.tck.AbstractTckTests;
@@ -47,6 +48,13 @@ public class AnnotationTckTests extends AbstractTckTests {
 	@Override
 	protected StateMachine<String, String> getSimpleSubMachine() throws Exception {
 		context.register(SimpleSubMachineConfig.class);
+		context.refresh();
+		return getStateMachineFromContext();
+	}
+
+	@Override
+	protected StateMachine<String, String> getShowcaseMachine() throws Exception {
+		context.register(ShowcaseMachineConfig.class);
 		context.refresh();
 		return getStateMachineFromContext();
 	}
@@ -109,6 +117,127 @@ public class AnnotationTckTests extends AbstractTckTests {
 				.withExternal()
 					.source("S2").target("S3")
 					.event("E3");
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class ShowcaseMachineConfig extends StateMachineConfigurerAdapter<String, String> {
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states)
+				throws Exception {
+			states
+				.withStates()
+					.initial("S0", fooAction())
+					.state("S0")
+					.and()
+					.withStates()
+						.parent("S0")
+						.initial("S1")
+						.state("S1")
+						.and()
+						.withStates()
+							.parent("S1")
+							.initial("S11")
+							.state("S11")
+							.state("S12")
+							.and()
+					.withStates()
+						.parent("S0")
+						.state("S2")
+						.and()
+						.withStates()
+							.parent("S2")
+							.initial("S21")
+							.state("S21")
+							.and()
+							.withStates()
+								.parent("S21")
+								.initial("S211")
+								.state("S211")
+								.state("S212");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions)
+				throws Exception {
+			transitions
+				.withExternal()
+					.source("S1").target("S1").event("A")
+					.guard(foo1Guard())
+					.and()
+				.withExternal()
+					.source("S1").target("S11").event("B")
+					.and()
+				.withExternal()
+					.source("S21").target("S211").event("B")
+					.and()
+				.withExternal()
+					.source("S1").target("S2").event("C")
+					.and()
+				.withExternal()
+					.source("S2").target("S1").event("K")
+					.and()
+				.withExternal()
+					.source("S1").target("S0").event("D")
+					.and()
+				.withExternal()
+					.source("S211").target("S21").event("D")
+					.and()
+				.withExternal()
+					.source("S0").target("S211").event("E")
+					.and()
+				.withExternal()
+					.source("S1").target("S211").event("F")
+					.and()
+				.withExternal()
+					.source("S2").target("S11").event("F")
+					.and()
+				.withExternal()
+					.source("S11").target("S211").event("G")
+					.and()
+				.withExternal()
+					.source("S211").target("S0").event("G")
+					.and()
+				.withInternal()
+					.source("S0").event("H")
+					.guard(foo0Guard())
+					.action(fooAction())
+					.and()
+				.withInternal()
+					.source("S2").event("H")
+					.guard(foo1Guard())
+					.action(fooAction())
+					.and()
+				.withInternal()
+					.source("S1").event("H")
+					.and()
+				.withExternal()
+					.source("S11").target("S12").event("I")
+					.and()
+				.withExternal()
+					.source("S211").target("S212").event("I")
+					.and()
+				.withExternal()
+					.source("S12").target("S212").event("I")
+					.and()
+				.withInternal()
+					.source("S11").event("J");
+		}
+
+		@Bean
+		public FooGuard foo0Guard() {
+			return new FooGuard(0);
+		}
+
+		@Bean
+		public FooGuard foo1Guard() {
+			return new FooGuard(1);
+		}
+
+		@Bean
+		public FooAction fooAction() {
+			return new FooAction();
 		}
 	}
 }

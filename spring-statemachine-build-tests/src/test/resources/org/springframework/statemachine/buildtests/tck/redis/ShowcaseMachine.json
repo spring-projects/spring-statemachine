@@ -1,0 +1,186 @@
+[
+	{
+		"@id": "1",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryAction",
+		"name": "fooAction"
+	},
+	{
+		"@id": "2",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryGuard",
+		"name": "foo0Guard"
+	},
+	{
+		"@id": "3",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryGuard",
+		"name": "foo1Guard"
+	},
+	{
+		"@id": "4",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"initial": true,
+		"initialAction": "1",
+		"state": "S0"
+	},
+	{
+		"@id": "5",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"parentState": "4",
+		"initial": true,
+		"state": "S1"
+	},
+	{
+		"@id": "6",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"parentState": "5",
+		"initial": true,
+		"state": "S11"
+	},
+	{
+		"@id": "7",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"parentState": "5",
+		"state": "S12"
+	},
+	{
+		"@id": "8",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"parentState": "4",
+		"state": "S2"
+	},
+	{
+		"@id": "9",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"parentState": "8",
+		"initial": true,
+		"state": "S21"
+	},
+	{
+		"@id": "10",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"parentState": "9",
+		"initial": true,
+		"state": "S211"
+	},
+	{
+		"@id": "11",
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryState",
+		"parentState": "9",
+		"state": "S212"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "5",
+		"target": "5",
+		"event": "A",
+		"guard": "3"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "5",
+		"target": "6",
+		"event": "B"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "9",
+		"target": "10",
+		"event": "B"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "5",
+		"target": "8",
+		"event": "C"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "5",
+		"target": "4",
+		"event": "D"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "10",
+		"target": "9",
+		"event": "D"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "4",
+		"target": "10",
+		"event": "E"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "5",
+		"target": "10",
+		"event": "F"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "8",
+		"target": "9",
+		"event": "F"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "6",
+		"target": "10",
+		"event": "G"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "4",
+		"target": "4",
+		"kind": "INTERNAL",
+		"guard": "2",
+		"actions": ["1"],
+		"event": "H"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "5",
+		"target": "5",
+		"kind": "INTERNAL",
+		"event": "H"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "8",
+		"target": "8",
+		"kind": "INTERNAL",
+		"guard": "3",
+		"actions": ["1"],
+		"event": "H"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "6",
+		"target": "7",
+		"event": "I"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "7",
+		"target": "11",
+		"event": "I"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "10",
+		"target": "7",
+		"event": "I"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "6",
+		"target": "6",
+		"event": "J"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.redis.RedisRepositoryTransition",
+		"source": "8",
+		"target": "5",
+		"event": "K"
+	}
+]
