@@ -153,6 +153,18 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 			Object region = s.getRegion();
 			StateData<String, String> stateData = new StateData<String, String>(parentState != null ? parentState.getState() : null, region,
 					s.getState(), s.isInitial());
+			Action<String, String> initialAction = null;
+			if (s.getInitialAction() != null) {
+				if (StringUtils.hasText(s.getInitialAction().getName())) {
+					initialAction = resolveAction(s.getInitialAction().getName());
+				} else if (StringUtils.hasText(s.getInitialAction().getSpel())) {
+					SpelExpressionParser parser = new SpelExpressionParser(
+							new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
+
+					initialAction = new SpelExpressionAction<String, String>(parser.parseExpression(s.getInitialAction().getSpel()));
+				}
+			}
+			stateData.setInitialAction(initialAction);
 			stateData.setStateActions(stateActions);
 			stateData.setEntryActions(entryActions);
 			stateData.setExitActions(exitActions);
@@ -170,7 +182,7 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 				Collection<StateData<String, String>> submachineStateDataOrig = subStateMachineModel.getStatesData().getStateData();
 				for (StateData<String, String> sd : submachineStateDataOrig) {
 					submachineStateData.add(new StateData<String, String>(s.getState(), sd.getRegion(), sd.getState(),
-							sd.getDeferred(), sd.getEntryActions(), sd.getExitActions(), sd.isInitial()));
+							sd.getDeferred(), sd.getEntryActions(), sd.getExitActions(), sd.isInitial(), sd.getInitialAction()));
 				}
 				stateData.setSubmachineStateData(submachineStateData);
 			}

@@ -20,6 +20,7 @@ import java.util.Set;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Reference;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.statemachine.data.RepositoryAction;
 import org.springframework.statemachine.data.RepositoryState;
 import org.springframework.statemachine.state.PseudoStateKind;
 
@@ -48,6 +49,9 @@ public class MongoDbRepositoryState extends RepositoryState {
 
 	@Reference
 	private MongoDbRepositoryState parentState;
+
+	@Reference
+	private MongoDbRepositoryAction initialAction;
 
 	@Reference
 	private Set<MongoDbRepositoryAction> stateActions;
@@ -182,6 +186,15 @@ public class MongoDbRepositoryState extends RepositoryState {
 
 	public void setInitial(boolean initial) {
 		this.initial = initial;
+	}
+
+	@Override
+	public RepositoryAction getInitialAction() {
+		return initialAction;
+	}
+
+	public void setInitialAction(MongoDbRepositoryAction initialAction) {
+		this.initialAction = initialAction;
 	}
 
 	@Override

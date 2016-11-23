@@ -412,6 +412,24 @@ public abstract class AbstractRepositoryTests {
 		plan.test();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testMachine14() throws Exception {
+		context.register(getRegisteredClasses());
+		context.register(Config14.class, FactoryConfig.class);
+		context.refresh();
+		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
+		StateMachine<String, String> stateMachine = stateMachineFactory.getStateMachine();
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.stateMachine(stateMachine)
+					.step().expectStates("S1").expectVariable("foo", 0).and()
+					.step().sendEvent("E1").expectStates("S2").and()
+					.build();
+		plan.test();
+	}
+
 	@Configuration
 	public static class Config2 {
 
@@ -572,6 +590,17 @@ public abstract class AbstractRepositoryTests {
 		public StateMachineJackson2RepositoryPopulatorFactoryBean jackson2RepositoryPopulatorFactoryBean() {
 			StateMachineJackson2RepositoryPopulatorFactoryBean factoryBean = new StateMachineJackson2RepositoryPopulatorFactoryBean();
 			factoryBean.setResources(new Resource[]{new ClassPathResource("data13.json")});
+			return factoryBean;
+		}
+	}
+
+	@Configuration
+	public static class Config14 {
+
+		@Bean
+		public StateMachineJackson2RepositoryPopulatorFactoryBean jackson2RepositoryPopulatorFactoryBean() {
+			StateMachineJackson2RepositoryPopulatorFactoryBean factoryBean = new StateMachineJackson2RepositoryPopulatorFactoryBean();
+			factoryBean.setResources(new Resource[]{new ClassPathResource("data14.json")});
 			return factoryBean;
 		}
 	}

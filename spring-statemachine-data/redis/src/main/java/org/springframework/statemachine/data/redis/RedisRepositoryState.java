@@ -29,6 +29,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Reference;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
+import org.springframework.statemachine.data.RepositoryAction;
 import org.springframework.statemachine.data.RepositoryState;
 import org.springframework.statemachine.state.PseudoStateKind;
 
@@ -58,6 +59,9 @@ public class RedisRepositoryState extends RepositoryState {
 
 	@Reference
 	private RedisRepositoryState parentState;
+
+	@Reference
+	private RedisRepositoryAction initialAction;
 
 	@Reference
 	private Set<RedisRepositoryAction> stateActions;
@@ -192,6 +196,15 @@ public class RedisRepositoryState extends RepositoryState {
 
 	public void setInitial(boolean initial) {
 		this.initial = initial;
+	}
+
+	@Override
+	public RepositoryAction getInitialAction() {
+		return initialAction;
+	}
+
+	public void setInitialAction(RedisRepositoryAction initialAction) {
+		this.initialAction = initialAction;
 	}
 
 	@Override

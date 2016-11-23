@@ -109,6 +109,23 @@ public class StateData<S, E> {
 	 */
 	public StateData(Object parent, Object region, S state, Collection<E> deferred,
 			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions, boolean initial) {
+		this(parent, region, state, deferred, entryActions, exitActions, initial, null);
+	}
+
+	/**
+	 * Instantiates a new state data.
+	 *
+	 * @param parent the parent
+	 * @param region the region
+	 * @param state the state
+	 * @param deferred the deferred
+	 * @param entryActions the entry actions
+	 * @param exitActions the exit actions
+	 * @param initial the initial
+	 * @param initialAction the initial action
+	 */
+	public StateData(Object parent, Object region, S state, Collection<E> deferred,
+			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions, boolean initial, Action<S, E> initialAction) {
 		this.state = state;
 		this.deferred = deferred;
 		this.entryActions = entryActions;
@@ -116,6 +133,7 @@ public class StateData<S, E> {
 		this.parent = parent;
 		this.region = region;
 		this.initial = initial;
+		this.initialAction = initialAction;
 	}
 
 	/**

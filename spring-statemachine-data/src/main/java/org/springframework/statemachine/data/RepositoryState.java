@@ -63,6 +63,14 @@ public abstract class RepositoryState extends BaseRepositoryEntity {
 	public abstract boolean isInitial();
 
 	/**
+	 * Gets the initial action. This is any meaningful if
+	 * state is initial state.
+	 *
+	 * @return the initial action
+	 */
+	public abstract RepositoryAction getInitialAction();
+
+	/**
 	 * Gets the state actions.
 	 *
 	 * @return the state actions

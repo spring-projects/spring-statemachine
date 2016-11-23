@@ -26,6 +26,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 
+import org.springframework.statemachine.data.RepositoryAction;
 import org.springframework.statemachine.data.RepositoryState;
 import org.springframework.statemachine.state.PseudoStateKind;
 
@@ -52,6 +53,9 @@ public class JpaRepositoryState extends RepositoryState {
 	private boolean initial;
 	private PseudoStateKind kind;
 	private String submachineId;
+
+	@OneToOne(fetch = FetchType.EAGER)
+	private JpaRepositoryAction initialAction;
 
 	@OneToOne(fetch = FetchType.EAGER)
 	private JpaRepositoryState parentState;
@@ -191,6 +195,15 @@ public class JpaRepositoryState extends RepositoryState {
 
 	public void setInitial(boolean initial) {
 		this.initial = initial;
+	}
+
+	@Override
+	public RepositoryAction getInitialAction() {
+		return initialAction;
+	}
+
+	public void setInitialAction(JpaRepositoryAction initialAction) {
+		this.initialAction = initialAction;
 	}
 
 	@Override
