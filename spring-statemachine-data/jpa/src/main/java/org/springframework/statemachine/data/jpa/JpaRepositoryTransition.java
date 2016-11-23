@@ -22,7 +22,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 
 import org.springframework.statemachine.data.RepositoryTransition;
@@ -56,7 +56,7 @@ public class JpaRepositoryTransition extends RepositoryTransition {
 	private String event;
 	private TransitionKind kind;
 
-	@OneToMany(fetch = FetchType.EAGER)
+	@ManyToMany(fetch = FetchType.EAGER)
 	private Set<JpaRepositoryAction> actions;
 
 	@OneToOne(fetch = FetchType.EAGER)

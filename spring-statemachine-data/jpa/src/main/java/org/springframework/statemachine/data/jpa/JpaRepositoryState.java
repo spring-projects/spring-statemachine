@@ -23,7 +23,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 
 import org.springframework.statemachine.data.RepositoryState;
@@ -56,13 +56,13 @@ public class JpaRepositoryState extends RepositoryState {
 	@OneToOne(fetch = FetchType.EAGER)
 	private JpaRepositoryState parentState;
 
-	@OneToMany(fetch = FetchType.EAGER)
+	@ManyToMany(fetch = FetchType.EAGER)
 	private Set<JpaRepositoryAction> stateActions;
 
-	@OneToMany(fetch = FetchType.EAGER)
+	@ManyToMany(fetch = FetchType.EAGER)
 	private Set<JpaRepositoryAction> entryActions;
 
-	@OneToMany(fetch = FetchType.EAGER)
+	@ManyToMany(fetch = FetchType.EAGER)
 	private Set<JpaRepositoryAction> exitActions;
 
 	@ElementCollection(fetch = FetchType.EAGER, targetClass = String.class)

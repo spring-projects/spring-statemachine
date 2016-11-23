@@ -194,6 +194,49 @@ public class JpaRepositoryTests extends AbstractRepositoryTests {
 		assertThat(transition2.getActions().size(), is(1));
 	}
 
+	@Test
+	public void testRepository6() {
+		context.register(TestConfig.class);
+		context.refresh();
+
+		JpaActionRepository actionsRepository = context.getBean(JpaActionRepository.class);
+		JpaStateRepository statesRepository = context.getBean(JpaStateRepository.class);
+		JpaTransitionRepository transitionsRepository = context.getBean(JpaTransitionRepository.class);
+
+		JpaRepositoryAction action1 = new JpaRepositoryAction();
+		action1.setName("action1");
+		actionsRepository.save(action1);
+		assertThat(actionsRepository.count(), is(1l));
+
+		JpaRepositoryAction action2 = new JpaRepositoryAction();
+		action2.setName("action2");
+		actionsRepository.save(action2);
+		assertThat(actionsRepository.count(), is(2l));
+
+		JpaRepositoryState stateS1 = new JpaRepositoryState("S1");
+		stateS1.setEntryActions(new HashSet<>(Arrays.asList(action1, action2)));
+		stateS1.setExitActions(new HashSet<>(Arrays.asList(action1, action2)));
+		JpaRepositoryState stateS2 = new JpaRepositoryState("S2");
+		stateS2.setParentState(stateS1);
+		stateS2.setStateActions(new HashSet<>(Arrays.asList(action1, action2)));
+		JpaRepositoryState stateS3 = new JpaRepositoryState("S3");
+		stateS3.setParentState(stateS1);
+		stateS3.setExitActions(new HashSet<>(Arrays.asList(action1, action2)));
+		statesRepository.save(stateS1);
+		statesRepository.save(stateS2);
+		statesRepository.save(stateS3);
+
+		JpaRepositoryTransition transition1 = new JpaRepositoryTransition(stateS1, stateS2, "E1");
+		transition1.setActions(new HashSet<>(Arrays.asList(action1, action2)));
+		transitionsRepository.save(transition1);
+		assertThat(transitionsRepository.count(), is(1l));
+
+		JpaRepositoryTransition transition2 = new JpaRepositoryTransition(stateS2, stateS3, "E2");
+		transition2.setActions(new HashSet<>(Arrays.asList(action1, action2)));
+		transitionsRepository.save(transition2);
+		assertThat(transitionsRepository.count(), is(2l));
+	}
+
 	@Override
 	protected AnnotationConfigApplicationContext buildContext() {
 		return new AnnotationConfigApplicationContext();
