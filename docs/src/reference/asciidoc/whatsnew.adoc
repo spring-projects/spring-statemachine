@@ -30,5 +30,8 @@ _UML_ support and integrations with external config repositories.
 * New _Repository_ abstraction keeping machine configuration in an
   external repository <<sm-repository>>
 * New support for state actions. <<state-actions>>
-* New transition error action concepts.  <<statemachine-config-actions-errorhandling>>
+* New transition error action concepts. <<statemachine-config-transition-actions-errorhandling>>
+* New action error action concepts. <<statemachine-config-state-actions-errorhandling>>
+* Initial work for _Spring Boot_ support. <<sm-boot>>
+* Support for trancing and monitoring. <<sm-monitoring>>
 
