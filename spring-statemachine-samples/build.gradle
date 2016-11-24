@@ -112,6 +112,7 @@ project('spring-statemachine-samples-ordershipping') {
 project('spring-statemachine-samples-datajpa') {
 	description = 'Spring State Machine Data Jpa Sample'
 	dependencies {
+		compile project(":spring-statemachine-boot")
 		compile project(":spring-statemachine-data-common:spring-statemachine-data-jpa")
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf:$springBootVersion")
 		compile("org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion")

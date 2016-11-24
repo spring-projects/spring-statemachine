@@ -147,6 +147,14 @@ project('spring-statemachine-boot') {
 		compile project(":spring-statemachine-core")
 		compile "org.springframework.boot:spring-boot-autoconfigure:$springBootVersion"
 		compile "org.springframework.boot:spring-boot-actuator:$springBootVersion"
+		optional project(":spring-statemachine-data-common:spring-statemachine-data-jpa")
+		optional project(":spring-statemachine-data-common:spring-statemachine-data-redis")
+		optional project(":spring-statemachine-data-common:spring-statemachine-data-mongodb")
+		optional "org.eclipse.persistence:javax.persistence:$eclipsePersistenceVersion"
+		optional "org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion"
+		optional "org.springframework.boot:spring-boot-starter-data-redis:$springBootVersion"
+		optional "org.springframework.boot:spring-boot-starter-data-mongodb:$springBootVersion"
+		testRuntime "com.h2database:h2:$h2Version"
 		testCompile "org.springframework.boot:spring-boot-test:$springBootVersion"
 		testCompile "org.springframework:spring-test:$springVersion"
 		testCompile "org.hamcrest:hamcrest-core:$hamcrestVersion"
