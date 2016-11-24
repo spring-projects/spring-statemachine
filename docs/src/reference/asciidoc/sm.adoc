@@ -2228,6 +2228,9 @@ image::images/sm-repository-simplemachine.png[scaledwidth="100%", title="SimpleM
 [[image-sm-repository-simplesubmachine]]
 image::images/sm-repository-simplesubmachine.png[scaledwidth="100%", title="SimpleSubMachine"]
 
+[[image-sm-repository-showcasemachine]]
+image::images/sm-repository-showcasemachine.png[scaledwidth="100%", title="ShowcaseMachine"]
+
 [[sm-repository-jpa]]
 === JPA
 Actual _Repository_ implementations for a _JPA_ are
@@ -2251,6 +2254,37 @@ This is equivalent to machine shown in
 [source,java,indent=0]
 ----
 include::samples/DocsJpaRepositorySampleTests1.java[tags=snippetB]
+----
+
+This is equivalent to machine shown in
+<<image-sm-repository-showcasemachine>>.
+
+First you access all repositories.
+
+[source,java,indent=0]
+----
+include::samples/DocsJpaRepositorySampleTests1.java[tags=snippetC1]
+----
+
+Create actions and guards.
+
+[source,java,indent=0]
+----
+include::samples/DocsJpaRepositorySampleTests1.java[tags=snippetC2]
+----
+
+Create states.
+
+[source,java,indent=0]
+----
+include::samples/DocsJpaRepositorySampleTests1.java[tags=snippetC3]
+----
+
+Finally create transitions.
+
+[source,java,indent=0]
+----
+include::samples/DocsJpaRepositorySampleTests1.java[tags=snippetC4]
 ----
 
 Complete example can be found from sample
