@@ -2128,9 +2128,23 @@ never been active as its history has never been recorded. If state
 
 image::images/papyrus-gs-20.png[scaledwidth="100%"]
 
+=== Define Fork/Join
+Both _Fork_ and _Join_ are represented as bars in _Papyrus_. As shown
+below you need to draw one outgoing transition from `FORK` into state
+`S2` which have orthogonal regions. `JOIN` is then reverse where
+joined states are collected together via incoming transitions.
+
+image::images/papyrus-gs-21.png[scaledwidth="100%"]
+
 === Define Actions
 State entry and exit actions can be associated by using a behaviour,
 more about this in <<sm-papyrus-beanref>>.
+
+==== Initial Action
+Initial action as shown in <<statemachine-config-actions>> is defined
+in uml by adding action in transition leading from _Initial State_
+marker into actual state. This _Action_ is then executed when state
+machine is started.
 
 === Define Guards
 Guard can be defined by first adding _Constraint_ and then defining
