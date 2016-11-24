@@ -1736,14 +1736,29 @@ Check sample <<statemachine-examples-eventservice>> for detailed usage.
 
 [[sm-boot]]
 == Spring Boot Support
-Currently support for Boot auto-configuration exists only for monitoring
-and tracing. If _spring-statemachine-boot_ is in a classpath,
+Auto-configuration module `spring-statemachine-boot` contains all
+integration logic with _Spring Boot_ providing functionality i.e. for
+auto-config and actuators. All what is needed is to have _State
+Machine_ as part of a boot application together with this library.
+
+=== Monitoring and Tracing
 `BootStateMachineMonitor` is created automatically and associated with
 a state machine. This `BootStateMachineMonitor` will hook into Boot's
 `CounterService`, `GaugeService` and `TraceRepository` if available.
 Optionally this auto-configuration can be disabled by setting key
 `spring.statemachine.monitor.enabled` to `false`. Use of this
 auto-config is shown in sample <<statemachine-examples-monitoring>>.
+
+=== Repository Config
+Spring Data Repositories and Entity class scanning is auto-configured
+automatically for <<sm-repository>> if needed classes are found from a
+classpath.
+
+Currently supported configs are configured for `JPA`, `Redis` and
+`MongoDB`. Repository auto-configuration can be disabled using a
+properties `spring.statemachine.data.jpa.repositories.enabled`,
+`spring.statemachine.data.redis.repositories.enabled` and
+`spring.statemachine.data.mongo.repositories.enabled` respectively.
 
 [[sm-monitoring]]
 == Monitoring State Machine

@@ -1436,9 +1436,9 @@ with a machine configuration kept in a database. This sample is using
 embedded _H2_ database with a _H2 Console_ to ease playing with a
 database.
 
-To enable automatic scan of needed _Entity_ classes and _JPA
-Repositories_, a boot application can be annotated with a custom
-locations as shown below.
+This sample uses `spring-statemachine-boot` which on default
+auto-configures repositories and entity classes needed for JPA.
+Thus only `@SpringBootApplication` is needed.
 
 [source,java,indent=0]
 ----
