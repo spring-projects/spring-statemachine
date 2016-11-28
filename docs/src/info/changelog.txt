@@ -4,6 +4,23 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 1.2.0.RC1 (2016-11-30)
+-----------------------------------------
+* Choice/Junction back to source doesn't work [#228]
+* Exit action may get interrupted [#233]
+* Polish pdf image sizes [#268]
+* Common typo "contextOjb" vs. "contextObj"? [#269]
+* Update docs for 1.2.0.RC1 [#270]
+* Avoid returning null for collections in AbstractState [#271]
+* Add travis ci [#272]
+* Add mongo repository config support [#275]
+* Error actions for entry/exit/do [#277]
+* Initial TCK for machine configurations [#278]
+* Redis/Mongo entity states may set machineid null [#279]
+* JPA actions association [#280]
+* Can't set initial action in a repository config [#281]
+* Autoconfigure repositories and entities [#282]
+
 Changes in version 1.2.0.M2 (2016-11-07)
 ----------------------------------------
 * Support tracing and monitoring [#149]
