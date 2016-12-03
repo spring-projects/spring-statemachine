@@ -70,6 +70,10 @@ public class JunctionPseudoState<S, E> implements PseudoState<S, E> {
 	public void addPseudoStateListener(PseudoStateListener<S, E> listener) {
 	}
 
+	@Override
+	public void setPseudoStateListeners(List<PseudoStateListener<S, E>> listeners) {
+	}
+
 	private boolean evaluateInternal(Guard<S, E> guard, StateContext<S, E> context) {
 		try {
 			return guard.evaluate(context);

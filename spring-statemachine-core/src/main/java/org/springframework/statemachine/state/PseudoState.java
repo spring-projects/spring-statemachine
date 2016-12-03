@@ -15,6 +15,8 @@
  */
 package org.springframework.statemachine.state;
 
+import java.util.List;
+
 import org.springframework.statemachine.StateContext;
 
 /**
@@ -57,7 +59,7 @@ public interface PseudoState<S, E> {
 	 * @param context the context
 	 */
 	void exit(StateContext<S, E> context);
-	
+
 	/**
 	 * Registers a new {@link PseudoStateListener}.
 	 *
@@ -65,4 +67,11 @@ public interface PseudoState<S, E> {
 	 */
 	void addPseudoStateListener(PseudoStateListener<S, E> listener);
 
+	/**
+	 * Registers a new {@link PseudoStateListener}s. Clears all
+	 * existing listeners.
+	 *
+	 * @param listeners the listeners
+	 */
+	void setPseudoStateListeners(List<PseudoStateListener<S, E>> listeners);
 }

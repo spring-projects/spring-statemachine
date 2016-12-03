@@ -15,6 +15,8 @@
  */
 package org.springframework.statemachine.state;
 
+import java.util.List;
+
 import org.springframework.statemachine.StateContext;
 import org.springframework.util.Assert;
 
@@ -56,6 +58,10 @@ public class ExitPseudoState<S, E> implements PseudoState<S, E> {
 
 	@Override
 	public void addPseudoStateListener(PseudoStateListener<S, E> listener) {
+	}
+
+	@Override
+	public void setPseudoStateListeners(List<PseudoStateListener<S, E>> listeners) {
 	}
 
 	/**

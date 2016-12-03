@@ -15,6 +15,8 @@
  */
 package org.springframework.statemachine.state;
 
+import java.util.List;
+
 import org.springframework.statemachine.StateContext;
 
 /**
@@ -56,4 +58,7 @@ public class EntryPseudoState<S, E> implements PseudoState<S, E> {
 	public void addPseudoStateListener(PseudoStateListener<S, E> listener) {
 	}
 
+	@Override
+	public void setPseudoStateListeners(List<PseudoStateListener<S, E>> listeners) {
+	}
 }

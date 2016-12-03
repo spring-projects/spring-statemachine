@@ -16,6 +16,7 @@
 package org.springframework.statemachine.state;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -83,6 +84,16 @@ public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 		return joins;
 	}
 
+	/**
+	 * Resets join state according to given state ids
+	 * so that we can continue with correct tracking.
+	 *
+	 * @param ids the state id's
+	 */
+	public void reset(Collection<S> ids) {
+		tracker.reset(ids);
+	}
+
 	private boolean evaluateInternal(Guard<S, E> guard, StateContext<S, E> context) {
 		try {
 			return guard.evaluate(context);
@@ -134,6 +145,16 @@ public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 		void reset() {
 			track.clear();
 			track.addAll(joins);
+			notified = false;
+		}
+
+		void reset(Collection<S> ids) {
+			track.clear();
+			for (State<S, E> j : joins) {
+				if (!ids.contains(j.getId())) {
+					track.add(j);
+				}
+			}
 			notified = false;
 		}
 

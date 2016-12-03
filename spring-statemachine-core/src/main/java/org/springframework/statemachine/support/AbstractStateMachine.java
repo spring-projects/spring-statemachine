@@ -40,6 +40,7 @@ import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.AbstractState;
 import org.springframework.statemachine.state.ForkPseudoState;
 import org.springframework.statemachine.state.HistoryPseudoState;
+import org.springframework.statemachine.state.JoinPseudoState;
 import org.springframework.statemachine.state.PseudoState;
 import org.springframework.statemachine.state.PseudoStateContext;
 import org.springframework.statemachine.state.PseudoStateKind;
@@ -355,6 +356,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			if (log.isDebugEnabled()) {
 				log.debug("State already set, disabling initial");
 			}
+			registerPseudoStateListener();
 			stateMachineExecutor.setInitialEnabled(false);
 			stateMachineExecutor.start();
 			// assume that state was set/reseted so we need to
@@ -655,6 +657,12 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			}
 		}
 		for (State<S, E> s : getStates()) {
+			if (StateMachineUtils.isPseudoState(s, PseudoStateKind.JOIN)) {
+				JoinPseudoState<S, E> jps = (JoinPseudoState<S, E>) s.getPseudoState();
+				Collection<S> ids = currentState.getIds();
+				jps.reset(ids);
+			}
+
 			// setting history for 'submachines'
 			if (s.isSubmachineState()) {
 				StateMachine<S, E> submachine = ((AbstractState<S, E>) s).getSubmachine();
@@ -821,7 +829,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		for (State<S, E> state : states) {
 			PseudoState<S, E> p = state.getPseudoState();
 			if (p != null) {
-				p.addPseudoStateListener(new PseudoStateListener<S, E>() {
+				List<PseudoStateListener<S, E>> listeners = new ArrayList<PseudoStateListener<S, E>>();
+				listeners.add(new PseudoStateListener<S, E>() {
 					@Override
 					public void onContext(PseudoStateContext<S, E> context) {
 						PseudoState<S, E> pseudoState = context.getPseudoState();
@@ -835,6 +844,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 						pseudoState.exit(stateContext);
 					}
 				});
+				// setting instead adding makes sure existing listeners are removed
+				p.setPseudoStateListeners(listeners);
 			}
 		}
 	}

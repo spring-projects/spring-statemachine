@@ -54,8 +54,10 @@ public class OrderedComposite<S> {
 	public void setItems(List<? extends S> items) {
 		unordered.clear();
 		ordered.clear();
-		for (S s : items) {
-			add(s);
+		if (items != null) {
+			for (S s : items) {
+				add(s);
+			}
 		}
 	}
 

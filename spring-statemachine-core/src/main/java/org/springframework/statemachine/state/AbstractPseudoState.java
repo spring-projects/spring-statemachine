@@ -15,6 +15,8 @@
  */
 package org.springframework.statemachine.state;
 
+import java.util.List;
+
 import org.springframework.statemachine.StateContext;
 
 /**
@@ -49,7 +51,7 @@ public abstract class AbstractPseudoState<S, E> implements PseudoState<S, E> {
 	public State<S, E> entry(StateContext<S, E> context) {
 		return null;
 	}
-	
+
 	@Override
 	public void exit(StateContext<S, E> context) {
 	}
@@ -58,7 +60,12 @@ public abstract class AbstractPseudoState<S, E> implements PseudoState<S, E> {
 	public void addPseudoStateListener(PseudoStateListener<S, E> listener) {
 		pseudoStateListener.register(listener);
 	}
-	
+
+	@Override
+	public void setPseudoStateListeners(List<PseudoStateListener<S, E>> listeners) {
+		pseudoStateListener.setListeners(listeners);
+	}
+
 	/**
 	 * Notify all {@link PseudoStateListener}s of a new context.
 	 *
