@@ -659,6 +659,8 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21", "S30"));
 		stateMachine.sendEvent("E3");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21", "S31"));
+		stateMachine.sendEvent("E4");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S3"));
 	}
 
 	@Test
