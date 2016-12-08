@@ -76,4 +76,10 @@ public interface StateMachineAccess<S, E> {
 	 */
 	void setForwardedInitialEvent(Message<E> message);
 
+	/**
+	 * Sets the parent machine.
+	 *
+	 * @param stateMachine the state machine
+	 */
+	void setParentMachine(StateMachine<S, E> stateMachine);
 }

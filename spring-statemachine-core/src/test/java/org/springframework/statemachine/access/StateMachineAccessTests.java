@@ -107,6 +107,10 @@ public class StateMachineAccessTests {
 		}
 
 		@Override
+		public void setParentMachine(StateMachine<String, String> stateMachine) {
+		}
+
+		@Override
 		public void resetStateMachine(StateMachineContext<String, String> stateMachineContext) {
 		}
 

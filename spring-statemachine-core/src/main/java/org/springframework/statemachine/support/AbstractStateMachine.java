@@ -116,6 +116,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	private final Object lock = new Object();
 
+	private StateMachine<S, E> parentMachine;
+
 	/**
 	 * Instantiates a new abstract state machine.
 	 *
@@ -232,6 +234,13 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			notifyEventNotAccepted(buildStateContext(Stage.EVENT_NOT_ACCEPTED, event, null, getRelayStateMachine(), getState(), null));
 		}
 		return accepted;
+	}
+
+	@Override
+	protected void notifyEventNotAccepted(StateContext<S, E> stateContext) {
+		if (parentMachine == null) {
+			super.notifyEventNotAccepted(stateContext);
+		}
 	}
 
 	@Override
@@ -519,6 +528,11 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	@Override
 	public void setRelay(StateMachine<S, E> stateMachine) {
 		this.relay = stateMachine;
+	}
+
+	@Override
+	public void setParentMachine(StateMachine<S, E> parentMachine) {
+		this.parentMachine = parentMachine;
 	}
 
 	@Override

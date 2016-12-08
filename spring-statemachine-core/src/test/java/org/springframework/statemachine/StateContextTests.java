@@ -23,7 +23,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.sameInstance;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -168,36 +167,15 @@ public class StateContextTests extends AbstractStateMachineTests {
 
 		// all nested machines sends these
 		assertThat(listener.contexts, contains(
-				hasStage(Stage.EVENT_NOT_ACCEPTED),
-				hasStage(Stage.EVENT_NOT_ACCEPTED),
 				hasStage(Stage.EVENT_NOT_ACCEPTED)
 		));
-
 
 		assertThat(listener.contexts.get(0).getStage(), is(Stage.EVENT_NOT_ACCEPTED));
 		assertThat(listener.contexts.get(0).getTransition(), nullValue());
 		assertThat(listener.contexts.get(0).getEvent(), is(Events.J));
 		assertThat(listener.contexts.get(0).getSource(), notNullValue());
-		assertThat(listener.contexts.get(0).getSource().getId(), is(States.S11));
+		assertThat(listener.contexts.get(0).getSource().getId(), is(States.S0));
 		assertThat(listener.contexts.get(0).getTarget(), nullValue());
-
-		assertThat(listener.contexts.get(1).getStage(), is(Stage.EVENT_NOT_ACCEPTED));
-		assertThat(listener.contexts.get(1).getTransition(), nullValue());
-		assertThat(listener.contexts.get(1).getEvent(), is(Events.J));
-		assertThat(listener.contexts.get(1).getSource(), notNullValue());
-		assertThat(listener.contexts.get(1).getSource().getId(), is(States.S1));
-		assertThat(listener.contexts.get(1).getTarget(), nullValue());
-
-		assertThat(listener.contexts.get(2).getStage(), is(Stage.EVENT_NOT_ACCEPTED));
-		assertThat(listener.contexts.get(2).getTransition(), nullValue());
-		assertThat(listener.contexts.get(2).getEvent(), is(Events.J));
-		assertThat(listener.contexts.get(2).getSource(), notNullValue());
-		assertThat(listener.contexts.get(2).getSource().getId(), is(States.S0));
-		assertThat(listener.contexts.get(2).getTarget(), nullValue());
-
-		// TODO: I wonder if these should be different machines
-		assertThat(listener.contexts.get(0).getStateMachine(), sameInstance(listener.contexts.get(1).getStateMachine()));
-		assertThat(listener.contexts.get(0).getStateMachine(), sameInstance(listener.contexts.get(2).getStateMachine()));
 	}
 
 	static class TestStateMachineListener extends StateMachineListenerAdapter<States, Events> {

@@ -322,6 +322,28 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			holder.getValue().setState(stateMap.get(holder.getKey()));
 		}
 
+		// set parent machines for each built machine
+		for (Entry<Object, StateMachine<S, E>> mme : machineMap.entrySet()) {
+			StateMachine<S, E> m = null;
+			if (mme.getKey() != null) {
+				Object sParent = null;
+				for (StateData<S, E> sd : stateMachineModel.getStatesData().getStateData()) {
+					if (ObjectUtils.nullSafeEquals(sd.getState(), mme.getKey())) {
+						sParent = sd.getParent();
+						break;
+					}
+				}
+				m = machineMap.get(sParent);
+			}
+			final StateMachine<S, E> mm = m;
+			mme.getValue().getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S ,E>>(){
+
+				@Override
+				public void apply(StateMachineAccess<S, E> function) {
+					function.setParentMachine(mm);
+				}
+			});
+		}
 		return delegateAutoStartup(machine);
 	}
 
