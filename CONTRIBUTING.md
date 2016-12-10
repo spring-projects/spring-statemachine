@@ -17,12 +17,15 @@ The following provides information on setting up a development environment that 
 * IDE Setup
   * Install Spring Tool Suite 3.6.0+
   * You will need the following plugins installed (can be found on the Extensions Page)
-   	* Gradle Eclipse
-   	* Groovy Eclipse
+    * Gradle Eclipse
+    * Groovy Eclipse
 * Importing the project into Spring Tool Suite
   * File->Import...->Gradle Project
+* Importing as Generic project
+  * Create STS/Eclipse projects `./gradlew eclipse`
+  * Import all sub-projects into STS/Eclipse
 
-# Understand the basics 
+# Understand the basics
 Not sure what a pull request is, or how to submit one? Take a look at GitHub's excellent [help documentation first](https://help.github.com/articles/using-pull-requests).
 
 # Search JIRA first; create an issue if necessary
@@ -32,17 +35,10 @@ Is there already an issue that addresses your concern? Do a bit of searching in 
 If you are considering anything more than correcting a typo or fixing a minor bug , please discuss it on the GitHub issues. We are happy to provide guidance but please spend an hour or two researching the subject on your own including searching the forums for prior discussions.
 
 # Sign the Contributor License Agreement
-If you have not previously done so, please fill out and submit the [SpringSource CLA form](https://support.springsource.com/spring_committer_signup). You'll receive a token when this process is complete. Keep track of this, you may be asked for it later!
+If you have not previously done so, please fill out and submit the [Pivotal CLA form](https://cla.pivotal.io).
+When you've completed the web form, that's it and your ready for pull request.
 
-* For **Project** select _Spring Statemachine_
-* For **Project Lead** enter _Janne Valkealahti_
-* Note that emailing/postal mailing a signed copy is not necessary. Submission of the web form is all that is required.
-
-When you've completed the web form, simply add the following in a comment on your pull request:
-
-> I have signed and agree to the terms of the SpringSource Individual Contributor License Agreement.
-
-You do not need to include your token/id. Please add the statement above to all future pull requests as well, simply so the Spring Statemachine team knows immediately that this process is complete.
+When issuing a new pull reques, our bot also verifies that you have signed a CLA. Bot will ask you to sign it if it doesn't exist.
 
 # Create your branch from master
 Create your topic branch to be submitted as a pull request from master. The Spring team will consider your pull request for backporting on a case-by-case basis; you don't need to worry about submitting anything for backporting.
@@ -50,14 +46,14 @@ Create your topic branch to be submitted as a pull request from master. The Spri
 # Use short branch names
 Branches used when submitting pull requests should preferably be named according to JIRA issues, e.g. 'SEC-1234'. Otherwise, use succinct, lower-case, dash (-) delimited names, such as 'fix-warnings', 'fix-typo', etc. This is important, because branch names show up in the merge commits that result from accepting pull requests, and should be as expressive and concise as possible.
 
-#Keep commits focused
+# Keep commits focused
 
 Remember each JIRA should be focused on a single item of interest since the JIRA tickets are used to produce the changelog. Since each commit should be tied to a JIRA, ensure that your commits are focused. For example, do not include an update to a transitive library in your commit unless the JIRA is to update the library. Reviewing your commits is essential before sending a pull request.
 
 # Mind the whitespace
 Please carefully follow the whitespace and formatting conventions already present in the framework. 
 
-1. Spaces, not tabs
+1. Tabs, not spaces
 1. Unix (LF), not dos (CRLF) line endings
 1. Eliminate all trailing whitespace
 1. Aim to wrap code at 120 characters, but favor readability over wrapping
@@ -67,7 +63,7 @@ Please carefully follow the whitespace and formatting conventions already presen
 
 Whitespace management tips
 
-1. You can use the [AnyEdit Eclipse plugin](http://marketplace.eclipse.org/content/anyedit-tools) to ensure spaces are used and to clean up trailing whitespaces.
+1. You can use the [AnyEdit Eclipse plugin](http://marketplace.eclipse.org/content/anyedit-tools) to ensure tabs are used and to clean up trailing whitespaces.
 
 # Add Apache license header to all new classes
 
@@ -98,17 +94,6 @@ Always check the date range in the license header. For example, if you've modifi
 then be sure to update it to 2012 appropriately
 <pre>
  * Copyright 2002-2012 the original author or authors.
-</pre>
-# Use @since tags for newly-added public API types and methods
-e.g.
-<pre>
-/**
- * ...
- *
- * @author First Last
- * @since 3.2
- * @see ...
- */
 </pre>
 
 #Submit JUnit test cases for all behavior changes
