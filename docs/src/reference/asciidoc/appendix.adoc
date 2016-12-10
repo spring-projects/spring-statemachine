@@ -250,6 +250,21 @@ join states will be a terminate states of a participating regions.
 It's also possible to define source states to be any state in a
 regions which allows controlled exit from a regions.
 
+===== Entry Point
+An _Entry Point_ pseudostate represents an entry point for a state
+machine or a composite state that provides encapsulation of the insides
+of the state or state machine. In each region of the state machine or
+composite state owning the _Entry Point_ , there is at most a single
+transition from the entry point to a Vertex within that Region.
+
+===== Exit Point
+An _Exit Point_ pseudostate is an exit point of a state machine or
+composite state that provides encapsulation of the insides of the state
+or state machine. Transitions terminating on an _Exit Point_ within any
+region of the composite state or a state machine referenced by a
+submachine state implies exiting of this composite state or submachine
+state (with execution of its associated exit behavior).
+
 ==== Guard Conditions
 Guard conditions are expressions which evaluates either to *TRUE* or
 *FALSE* based on extended state variables and event parameters. Guards
