@@ -25,6 +25,7 @@ import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoCo
 import org.springframework.boot.test.util.EnvironmentTestUtils;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.statemachine.boot.autoconfigure.StateMachineRedisRepositoriesAutoConfiguration;
 import org.springframework.statemachine.data.redis.RedisRepositoryState;
 
 public class StateMachineRedisRepositoriesAutoConfigurationTests {

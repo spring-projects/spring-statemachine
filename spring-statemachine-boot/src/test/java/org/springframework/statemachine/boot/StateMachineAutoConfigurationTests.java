@@ -28,6 +28,8 @@ import org.springframework.boot.test.util.EnvironmentTestUtils;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.boot.autoconfigure.StateMachineAutoConfiguration;
+import org.springframework.statemachine.boot.support.BootStateMachineMonitor;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;

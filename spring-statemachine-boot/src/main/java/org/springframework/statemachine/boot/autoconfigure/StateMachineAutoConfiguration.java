@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.boot;
+package org.springframework.statemachine.boot.autoconfigure;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.actuate.metrics.CounterService;
@@ -25,6 +25,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.statemachine.boot.StateMachineProperties;
+import org.springframework.statemachine.boot.support.BootStateMachineMonitor;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for Spring Statemachine.

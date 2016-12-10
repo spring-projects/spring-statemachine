@@ -36,6 +36,9 @@ public class StateMachineProperties {
 		this.monitor = monitor;
 	}
 
+	/**
+	 * Config props for "spring.statemachine.monitor".
+	 */
 	public static class StateMachineMonitoringProperties {
 		private boolean enabled = false;
 
