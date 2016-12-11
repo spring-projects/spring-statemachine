@@ -15,6 +15,9 @@
  */
 package org.springframework.statemachine.docs;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.Assert.assertThat;
+
 import java.util.EnumSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +27,8 @@ import org.springframework.statemachine.annotation.OnTransition;
 import org.springframework.statemachine.annotation.WithStateMachine;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.StateMachineBuilder;
+import org.springframework.statemachine.config.StateMachineBuilder.Builder;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
@@ -95,4 +100,30 @@ public class IntroSample {
 	}
 // end::snippetD[]
 
+	public void testManual() throws Exception {
+		StateMachine<States, Events> stateMachine = buildMachine();
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(States.STATE1));
+		stateMachine.sendEvent(Events.EVENT1);
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(States.STATE2));
+		stateMachine.sendEvent(Events.EVENT2);
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(States.STATE1));
+	}
+
+	public StateMachine<States, Events> buildMachine() throws Exception {
+		Builder<States, Events> builder = StateMachineBuilder.builder();
+		builder.configureStates()
+			.withStates()
+				.initial(States.STATE1)
+				.states(EnumSet.allOf(States.class));
+		builder.configureTransitions()
+			.withExternal()
+				.source(States.STATE1).target(States.STATE2)
+				.event(Events.EVENT1)
+				.and()
+			.withExternal()
+				.source(States.STATE2).target(States.STATE1)
+				.event(Events.EVENT2);
+		return builder.build();
+	}
 }
