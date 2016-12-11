@@ -68,7 +68,7 @@ Do you want to ask a question? Go to [StackOverflow](http://stackoverflow.com) a
 
 {% include download_widget.md %}
 
-Following sample should give an idea how statemachine is configured and used. Assuming we have states **STATE1**, **STATE2** and events **EVENT1**, **EVENT2**.
+Following samples should give an idea how statemachine is configured and used. Assuming we have states **STATE1**, **STATE2** and events **EVENT1**, **EVENT2**.
 
 <img class="styled-image" src="img/statechart0.png" alt="Statechart" title="Statechart"/>
 
@@ -81,6 +81,39 @@ static enum Events {
     EVENT1, EVENT2
 }
 ```
+
+### Builder
+
+```java
+public StateMachine<States, Events> buildMachine() throws Exception {
+    Builder<States, Events> builder = StateMachineBuilder.builder();
+
+    builder.configureStates()
+        .withStates()
+            .initial(States.STATE1)
+            .states(EnumSet.allOf(States.class));
+
+    builder.configureTransitions()
+        .withExternal()
+            .source(States.STATE1).target(States.STATE2)
+            .event(Events.EVENT1)
+            .and()
+        .withExternal()
+            .source(States.STATE2).target(States.STATE1)
+            .event(Events.EVENT2);
+
+    return builder.build();
+}
+```
+
+```java
+StateMachine<States, Events> stateMachine = buildMachine();
+stateMachine.start();
+stateMachine.sendEvent(Events.EVENT1);
+stateMachine.sendEvent(Events.EVENT2);
+```
+
+### JavaConfig
 
 ```java
 @Configuration
