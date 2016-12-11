@@ -26,7 +26,7 @@ Persist recipe is a simple utility which allows to use a single state
 machine instance to persist and update a state of an arbitrary item in
 a repository.
 
-Recipe's main class is `PersistStateMachineHandler` which assumes user
+Recipes main class is `PersistStateMachineHandler` which assumes user
 to do three different things:
 
 - An instance of a `StateMachine<String, String>` needs to be used
@@ -48,9 +48,9 @@ in sample <<statemachine-examples-tasks>>.
 Generic concept of a state machine is shown below. In this state chart
 everything under `TASKS` just shows a generic concept of how a single
 task is executed. Because this recipe allows to register deep
-hierarcical DAG of tasks, meaning a real state chart would be deep
+hierarchical DAG of tasks, meaning a real state chart would be deep
 nested collection of sub-states and regions, there's no need to be
-more presise.
+more precise.
 
 For example if you have only two registered tasks, below state chart
 would be correct with `TASK_id` replaced with `TASK_1` and `TASK_2` if
@@ -68,11 +68,11 @@ automatically, state machine is put into a state where user can handle
 errors manually.
 
 `TasksHandler` contains a builder method to configure handler instance
-and follows a simple builder patter. This builder can be used to
+and follows a simple builder pattern. This builder can be used to
 register `Runnable` tasks, `TasksListener` instances, define
 `StateMachinePersist` hook, and setup custom `TaskExecutor` instance.
 
-Now lets take a simple `Runnable` just doing a simple sleep as shown
+Now let's take a simple `Runnable` just doing a simple sleep as shown
 below. This is a base of all examples in this chapter.
 
 [source,java,indent=0]

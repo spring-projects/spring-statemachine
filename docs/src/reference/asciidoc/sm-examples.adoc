@@ -1085,7 +1085,7 @@ image::images/sm-scope-1.png[width=500]
 
 [[statemachine-examples-security]]
 == Security
-Security is a state machine example using most of a compinations of
+Security is a state machine example using most of a combinations of
 securing a state machine. It is securing sending events, transitions
 and actions.
 
@@ -1164,7 +1164,7 @@ We assume few things like there is a shopping application which is
 sending different types of `PageView` events into a separate
 microservice which is then tracking user behaviour using a state
 machine. State model is shown below which simply have few states
-representing user navigating on product items list, add and remote
+representing user navigating on product items list, add and remove 
 items from a cart and going to a payment page and initiating a pay
 operation. Actual shopping application would send these events into
 this service for example using a simple rest calls. More about this
@@ -1181,7 +1181,7 @@ image::images/statechart14.png[width=500]
 
 In below state machine configuration we simply model what we have in a
 state chart. Various actions are updating state machine `Extended
-State` to track number of entry's into various states and also how
+State` to track number of entries into various states and also how
 many times internal transition for `ADD` and `DEL` are called and if
 `PAY` has been executed. Don't focus on `stateMachineTarget` or
 `@Scope` for now, as we'll explain those in a bit.
@@ -1191,7 +1191,7 @@ many times internal transition for `ADD` and `DEL` are called and if
 include::samples/demo/eventservice/StateMachineConfig.java[tags=snippetC]
 ----
 
-In below config we setup a `RedisConnectionFactory` which defaults to
+In below config we set up a `RedisConnectionFactory` which defaults to
 localhost and default port. We use `StateMachinePersist` with a
 `RepositoryStateMachinePersist` implementation. Finally we create a
 `RedisStateMachinePersister` which underneath uses a previously
@@ -1224,7 +1224,7 @@ include::samples/demo/eventservice/StateMachineConfig.java[tags=snippetA]
 include::samples/demo/eventservice/StateMachineConfig.java[tags=snippetB]
 ----
 
-Lets get into actual demo. You need to have a redis running on a
+Let's get into actual demo. You need to have a redis running on a
 localhost with a default settings. Then run the boot based sample
 application:
 
@@ -1304,7 +1304,7 @@ $ ./redis-cli
 Below is a three images when state for `joe` has been changed from
 `HOME` to `ITEMS` and when `ADD` action has been executed.
 
-Send evend `ADD`:
+Send event `ADD`:
 
 image::images/sm-eventservice-2.png[width=500]
 
@@ -1340,7 +1340,7 @@ model file. _Actions_ and _Guards_ defined in a model are resolved
 from a _Spring Application Context_.
 ====
 
-In this state machice scenario we have two different behaviors,
+In this state machine scenario we have two different behaviors,
 `DEPLOY` and `UNDEPLOY` what user tries to execute.
 
 What is happening a above statechart:
@@ -1356,11 +1356,11 @@ What is happening a above statechart:
 * We used _Exit Point_ pseudostates to have more controlled exit from
   `DEPLOY` and `UNDEPLOY` states.
 * After exit from `DEPLOY` and `UNDEPLOY` we go through a _Junction_
-  pseudostate to make a choice if we want to go though `ERROR` state
+  pseudostate to make a choice if we want to go through `ERROR` state
   in case error was added into an _Extended State_.
 * Finally we go back to `READY` state to process new requests.
 
-Lets get into actual demo. Run the boot based sample application:
+Let's get into actual demo. Run the boot based sample application:
 
 [source,text,subs="attributes"]
 ----
@@ -1398,7 +1398,7 @@ What is happening a above statechart:
   production and one handling user level payment, else machine goes
   into `CUSTOMER_ERROR` final state.
 * Machine will loop in a lower region to remind user of a payment
-  until `RECEIVE_PAYMENT` is sent successfully to indidate correct
+  until `RECEIVE_PAYMENT` is sent successfully to indicate correct
   payment.
 * Both regions will go into waiting states `WAIT_PRODUCT` and
   `WAIT_ORDER` to be joined before parent orthogonal state
@@ -1406,7 +1406,7 @@ What is happening a above statechart:
 * Finally machine goes via `SHIP_ORDER` into its final state
   `ORDER_SHIPPED`.
 
-Lets get into actual demo. Run the boot based sample application:
+Let's get into actual demo. Run the boot based sample application:
 
 [source,text,subs="attributes"]
 ----
@@ -1425,7 +1425,7 @@ machine works.
 
 image::images/sm-ordershipping-3.png[scaledwidth="100%"]
 
-Finally you can see what machine does by refressing a page.
+Finally you can see what machine does by refreshing a page.
 
 image::images/sm-ordershipping-4.png[scaledwidth="100%"]
 
@@ -1453,7 +1453,7 @@ can be used as shown below.
 include::samples/demo/datajpa/StateMachineConfig.java[tags=snippetB]
 ----
 
-Lets get into actual demo. Run the boot based sample application:
+Let's get into actual demo. Run the boot based sample application:
 
 [source,text,subs="attributes"]
 ----
@@ -1505,7 +1505,7 @@ monitor machine transitions and actions.
 include::samples/demo/monitoring/StateMachineConfig.java[tags=snippetA]
 ----
 
-Lets get into actual demo. Run the boot based sample application:
+Let's get into actual demo. Run the boot based sample application:
 
 [source,text,subs="attributes"]
 ----

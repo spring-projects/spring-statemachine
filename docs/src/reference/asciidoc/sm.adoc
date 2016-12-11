@@ -59,7 +59,7 @@ away.
 === Using _enable_ annotations
 We use familiar spring _enabler_ annotations to ease configuration. Two
 annotations exists, _@EnableStateMachine_ and _@EnableStateMachineFactory_.
-These annontations if placed in a _@Configuration_ class will enable
+These annotations if placed in a _@Configuration_ class will enable
 some basic functionality needed by a state machines.
 
 _@EnableStateMachine_ is used when a configuration wants to create an
@@ -205,7 +205,7 @@ Defining action with `initial()` function only executes particular
 action when state machine or sub state is started. Think this action
 to be initializing action which is only executed once. Action defined
 with `state()` is then executed if state machine is transitioning back
-and forward between initial and non-inital states.
+and forward between initial and non-initial states.
 ====
 
 ==== State Actions
@@ -217,7 +217,7 @@ has been completed.
 
 State Actions are executed using a normal Spring `TaskScheduler`
 wrapped within a `Runnable` which may get cancelled via
-`ScheduledFuture`. What this means is that whatever your doing in your
+`ScheduledFuture`. What this means is that whatever you're doing in your
 action, you need to be able to catch `InterruptedException` which is
 raised if task is cancelled.
 
@@ -225,7 +225,7 @@ raised if task is cancelled.
 ==== Transition Action Error Handling
 User can always catch exceptions manually but with actions defined for
 transitions it is possible to define error action which is called if
-exception is reased. Exception is then available from a `StateContext`
+exception is raised. Exception is then available from a `StateContext`
 passed to that action.
 
 [source,java,indent=0]
@@ -379,7 +379,7 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippetU]
 ----
 
 It is also possible to have multiple transitions originating from a
-join state. It this case it is adviced to use guards and define those
+join state. It this case it is advised to use guards and define those
 so that only one guard evaluates _TRUE_ at any given time as otherwise
 transition behaviour is not predicted. This is shown above where guard
 simply checks if extended state has variables.
@@ -424,7 +424,7 @@ automatically or not. This flag will only control an autostart of a
 top-level state machine.
 
 Setting a `BeanFactory`, `TaskExecutor` or `TaskScheduler` exist for
-conveniance for a user and are also use within a framework itself.
+convenience for a user and are also use within a framework itself.
 
 Registering `StateMachineListener` instances is also partly for
 convenience but is required if user wants to catch callback during a
@@ -463,7 +463,7 @@ More about config model, refer to section <<devdocs-configmodel>>.
 
 === Configuring Model
 `StateMachineModelFactory` is a hook to configure statemachine model
-without using a manual configuration. Essentially it is a thirt party
+without using a manual configuration. Essentially it is a third party
 integration to integrate into a configuration model.
 `StateMachineModelFactory` can be hooked into a configuration model by
 using a `StateMachineModelConfigurer` as shown above.
@@ -682,7 +682,7 @@ these methods must be used to setup needed facilities.
 
 [[sm-deferevents]]
 == Using Deferred Events
-When en event is sent it may fire an `EventTrigger` which then may cause
+When an event is sent it may fire an `EventTrigger` which then may cause
 a transition to happen if a state machine is in a state where trigger is
 evaluated successfully. Normally this may lead to a situation where
 an event is not accepted and is dropped. However it may be desirable to
@@ -706,8 +706,8 @@ accept takes precedence and the event is consumed and not deferred.
 
 The most obvious use case for event deferring is when an event is causing
 a transition into a particular state and state machine is then returned back
-to its original state where second event should cause a same transition. Lets
-take this with a simple example.
+to its original state where second event should cause a same
+transition. Let's take this with a simple example.
 
 [source,java,indent=0]
 ----
@@ -743,7 +743,7 @@ be handled in a super state.
 Support for scopes in a state machine is very limited but it is possible
 to enable use of _session_ scope using a normal spring `@Scope` annotation.
 Firstly if state machine is build manually via a builder and returned into
-context as `@Bean`, and secondly via an contifuration adapter. Both of
+context as `@Bean`, and secondly via a configuration adapter. Both of
 these simply needs an a `@Scope` to be present where _scopeName_ is set to
 _session_ and _proxyMode_ to `ScopedProxyMode.TARGET_CLASS`. Examples for
 both use cases are shown below.
@@ -978,7 +978,7 @@ automatically without any user interaction. `Trigger` is added to a
 transition by associating a timer with it during a configuration.
 
 Currently there are two types of timers supported, one which fires
-continously and one which fires once a source state is entered.
+continuously and one which fires once a source state is entered.
 
 [source,java,indent=0]
 ----
@@ -1009,7 +1009,7 @@ after state is entered after a delay defined in a timer.
 Behind a scenes timers are a simple triggers which may cause an
 transition to happen. Defining a transition with a `timer()` will keep
 firing triggers and only causes transition if source state is active.
-Transtition with `timerOnce()` is a little different as it will only
+Transition with `timerOnce()` is a little different as it will only
 trigger after a delay when source state is actually entered.
 ====
 
@@ -1185,7 +1185,7 @@ include::samples/DocsConfigurationSampleTests4.java[tags=snippetBB]
 Annotations for transitions are `OnTransition`, `OnTransitionStart`
 and `OnTransitionEnd`.
 
-These annotations behave exactly same and lets
+These annotations behave exactly same and let's
 see how `OnTransition` is used. Within this annotation a property's
 _source_ and _target_ can be used to qualify a transition. If
 _source_ and _target_ is left empty then any transition is matched.
@@ -1238,7 +1238,7 @@ Annotations for states are `OnStateChanged`, `OnStateEntry` and
 include::samples/DocsConfigurationSampleTests4.java[tags=snippetG]
 ----
 
-In a same way that in transition anotations it's possible to define
+In a same way that in transition annotations it's possible to define
 target and source states.
 
 [source,java,indent=0]
@@ -1385,7 +1385,7 @@ More about error handling shown in above example, see section
 
 [[sm-security]]
 == State Machine Security
-Security features are build atop of functionality from a
+Security features are built atop of functionality from a
 {spring-security-site}[_Spring Security_]. Security features are
 handy when it is required to protect part of a state machine
 execution and interaction with it.
@@ -1576,7 +1576,7 @@ given permission. For example, `hasPermission(1,
 
 ==== Event Attributes
 Event id can be matched by using prefix `EVENT_`. For example matching
-event `A` would match with attribte `EVENT_A`.
+event `A` would match with attribute `EVENT_A`.
 
 ==== Event Expressions
 The base class for expression root object for event is
@@ -1619,11 +1619,11 @@ object which is passed around for transition changes.
 This section provides more detailed info how security works within a
 state machine. Not really something you'd need to know but it is
 always better to be transparent instead of hiding all the magic what
-happens behind a scenes.
+happens behind the scenes.
 
 [NOTE]
 ====
-Security only makes sense if _State Machine_ is executed in a wallet
+Security only makes sense if _State Machine_ is executed in a walled
 garden where user don't have direct access to the application thus
 could modify Spring Security's `SecurityContext` hold in a thread
 local. If user controls the jvm, then effectively there is no security
@@ -1757,7 +1757,7 @@ Usage of a `StateMachinePersister` is easy to demonstrate by following
 a snippets from tests. We start by creating to two similar configs for
 a state machine `machine1` and `machine2`. We could build different
 machines for this demonstration using various other ways but this
-servers a purpose for this case.
+serves a purpose for this case.
 
 [source,java,indent=0]
 ----
@@ -1769,7 +1769,7 @@ implementation.
 
 [NOTE]
 ====
-In-memory sample is just for demostration purposes, use a real
+In-memory sample is just for demonstration purposes, use a real
 persistent storage implementations.
 ====
 
@@ -1792,7 +1792,7 @@ include::samples/DocsConfigurationSampleTests5.java[tags=snippetC]
 Support for persisting State Machine into Redis is done via
 `RepositoryStateMachinePersist` which implements
 `StateMachinePersist`. Specific implementation is a
-`RedisStateMachineContextRepository` whic uses `kryo` serialization to
+`RedisStateMachineContextRepository` which uses `kryo` serialization to
 persist a `StateMachineContext` into `Redis`.
 
 For `StateMachinePersister` we have a redis related
@@ -1860,7 +1860,7 @@ Check sample <<statemachine-examples-monitoring>> for detailed usage.
 
 [[sm-distributed]]
 == Using Distributed States
-Distributed state is probably one of a most compicated concepts of a
+Distributed state is probably one of a most complicated concepts of a
 Spring State Machine. What exactly is a distributed state? A state
 within a single state machine is naturally really simple to understand
 but when there is a need to introduce a shared distributed state
@@ -2105,7 +2105,7 @@ matches `Signal` you want to defer.
 === Define Transitions
 Transition is simply created by drawing _transition_ line between
 source and target states. In above we have states `S1` and `S2` and
-anonymous trasition between those two. We want to associate event
+anonymous transition between those two. We want to associate event
 `E1` with that transition. We choose a transition, create a new
 trigger and define `SignalEventE1` for that.
 
@@ -2123,14 +2123,14 @@ anonymous transition.
 
 === Define Timers
 Transition can also happen based on timed events. Spring Statemachine
-support two types of timers, ones which fires continously on a
+support two types of timers, ones which fires continuously on a
 background and ones which fires once with a delay when state is
 entered.
 
 Add new `TimeEvent` child to _Model Explorer_, modify _When_ as
 expression defined as _LiteralInteger_. Value of it is then timer as
 milliseconds. _Is Relative_ is left to _false_ making timer to fire
-continously.
+continuously.
 
 image::images/papyrus-gs-10.png[scaledwidth="100%"]
 
@@ -2152,16 +2152,16 @@ individual _Guards_ for outgoing transitions.
 
 Make sure that guards defined for transitions do not overlap so that
 whatever happens, only one guard would evaluate to _TRUE_ at any given
-time. This gives precise and predictable resulst for choice branch
+time. This gives precise and predictable results for choice branch
 evaluation. Also it is advised to leave one transition without a guard
-so that at least one trasition path is guaranteed.
+so that at least one transition path is guaranteed.
 
 image::images/papyrus-gs-16.png[scaledwidth="100%"]
 
 [NOTE]
 ====
 Junction is very much same except it allows multiple incoming
-transtitions. Thus its behaviour compared to choice is purely
+transitions. Thus its behaviour compared to choice is purely
 academic. Actual logic to select outgoing transition is exactly same.
 ====
 
@@ -2204,7 +2204,7 @@ image::images/papyrus-gs-19.png[scaledwidth="100%"]
 
 ==== Default
 In cases where a Transition terminates on a history when
-the state has not been entered fefore or it had reached its
+the state has not been entered before or it had reached its
 final state, there is an option to force
 a transition to a specific substate, using the default
 history mechanism. For this to happen you simply define transition

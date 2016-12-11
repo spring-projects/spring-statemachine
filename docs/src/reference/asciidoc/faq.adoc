@@ -21,7 +21,7 @@ There are few choices a state machine developer can choose.
   state transition into a next state when state has entry and its
   actions has been completed.
 
-== Extented State
+== Extended State
 
 .How I can initialise variables on state machine start
 

@@ -449,7 +449,7 @@ persisting it is possible to create a distributed state machine.
 Currently only backing repository of a `Distributed State Machine` is
 implemented using a `Zookeeper`.
 
-As mentioned in <<sm-distributed>> distibuted states are enabled by
+As mentioned in <<sm-distributed>> distributed states are enabled by
 wrapping an instance of a `StateMachine` within a
 `DistributedStateMachine`. Specific `StateMachineEnsemble`
 implementation is `ZookeeperStateMachineEnsemble` providing
@@ -480,13 +480,13 @@ which `znode` is a current active one. This allows us to replay missed
 events. We don't want to create more and more znodes and then later
 delete old ones, instead we're using a simple concept of a circular
 set of znodes. This allows to use predefined set of znodes where
-a current can be determided with a simple integer counter. We already have
+a current can be determined with a simple integer counter. We already have
 this counter by tracking main `znode` data version which in
 `Zookeeper` is
 an integer.
 
 Size of a circular buffer is mandated to be a power of two not to get
-trouble when interger is going to overflow thus we don't need to
+trouble when integer is going to overflow thus we don't need to
 handle any specific cases.
 
 === Distributed Tolerance
@@ -568,7 +568,7 @@ image::images/sm-tech-isolated-events-with-variable.png[width=500]
 What's happening in above chart:
 
 * Event `J` is send to node `n5` with event variable `testVariable`
-  having value `v1`. All nodes are then reporting having varible
+  having value `v1`. All nodes are then reporting having variable
   `testVariable` as value `v1`.
 * Event `J` is repeated from variable `v2` to `v8` doing same checks.
 
@@ -682,7 +682,7 @@ machine works or what are its internal concepts.
 === StateMachine Config Model
 `StateMachineModel` and other related SPI classes are an abstraction
 between various configuration and factory classes. This also allows
-easier integation for others to build state machines.
+easier integration for others to build state machines.
 
 As shown above a state machine can be instantiated by building a model
 using configuration data classes and then asking a factory to build a

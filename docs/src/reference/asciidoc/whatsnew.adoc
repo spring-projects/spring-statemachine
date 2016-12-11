@@ -23,7 +23,7 @@ interoperability with web applications.
 * UI modeling support using Eclipse Papyrus, <<sm-papyrus>>.
 
 == In 1.2
-_Spring Statemachine 1.2_ is focusing generic enhacements, better
+_Spring Statemachine 1.2_ is focusing generic enhancements, better
 _UML_ support and integrations with external config repositories.
 
 * Support for UML submachines <<sm-papyrus-submachineref>>
@@ -33,5 +33,5 @@ _UML_ support and integrations with external config repositories.
 * New transition error action concepts. <<statemachine-config-transition-actions-errorhandling>>
 * New action error action concepts. <<statemachine-config-state-actions-errorhandling>>
 * Initial work for _Spring Boot_ support. <<sm-boot>>
-* Support for trancing and monitoring. <<sm-monitoring>>
+* Support for tracing and monitoring. <<sm-monitoring>>
 
