@@ -4,6 +4,12 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 1.0.3 (2016-12-11)
+-------------------------------------
+Backport: Exception in action in transition may cause machine to malfunction #148 [#155]
+Backport: Distributed machine with zk may miss events #152 [#157]
+Backport: Add default taskExecutor/taskScheduler for machine via builder #161 [#163]
+
 Changes in version 1.0.2 (2015-12-30)
 -------------------------------------
 * Backport: DefaultStateMachineExecutor using wrong extended state #146 backport [#147]
