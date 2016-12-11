@@ -4,6 +4,13 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 1.2.0.RC2 (2016-12-11)
+-----------------------------------------
+* Update docs for 1.2.0.RC2 [#284]
+* Fork / Join restore issue with composite states [#286]
+* Incorrect "EventNotAccepted" call when using sub-machine [#287]
+* Refactor package locations for boot [#293]
+
 Changes in version 1.2.0.RC1 (2016-11-30)
 -----------------------------------------
 * Choice/Junction back to source doesn't work [#228]
