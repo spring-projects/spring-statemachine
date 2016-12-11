@@ -6,7 +6,13 @@ that Spring Statemachine provides to any Spring based application.
 
 <<sm-config>> the generic configuration support.
 
+<<sm-machineid>> the use of machine id.
+
 <<sm-factories>> the generic state machine factory support.
+
+<<sm-deferevents>> the deferred event support.
+
+<<sm-scopes>> the scope support.
 
 <<sm-actions>> the actions support.
 
@@ -26,9 +32,15 @@ that Spring Statemachine provides to any Spring based application.
 
 <<sm-interceptor>> the state machine error handling support.
 
+<<sm-security>> the state machine security support.
+
 <<sm-error-handling>> the state machine interceptor support.
 
 <<sm-persist>> the state machine persisting support.
+
+<<sm-boot>> the Spring Boot support.
+
+<<sm-monitoring>> the monitoring and trancing support.
 
 <<sm-distributed>> the distributed state machine support.
 
