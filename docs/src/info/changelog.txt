@@ -4,6 +4,10 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 1.2.0.RELEASE (2016-12-14)
+---------------------------------------------
+(No changes)
+
 Changes in version 1.2.0.RC2 (2016-12-11)
 -----------------------------------------
 * Update docs for 1.2.0.RC2 [#284]
