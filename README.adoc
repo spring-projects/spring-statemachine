@@ -5,6 +5,13 @@ image:https://badges.gitter.im/spring-projects/spring-statemachine.svg[link="htt
 image:https://build.spring.io/plugins/servlet/buildStatusImage/SDG-MAS[Bamboo Build Status, link=https://build.spring.io/browse/SDG-MAS]
 image:https://api.travis-ci.org/spring-projects/spring-statemachine.svg?branch=master[Travis CI Build Status, link=https://travis-ci.org/spring-projects/spring-statemachine]
 
+[NOTE]
+====
+Master branch is now on development of `2.x` meaning it may be
+extrimely unstable. For interest of studying or planning for
+contributions of stable version, please checkout and use branch `1.2.x`.
+====
+
 The Spring Statemachine project aims to provide a common infrastructure 
 to work with state machine concepts in Spring applications.
 
