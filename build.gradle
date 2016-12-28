@@ -2,12 +2,13 @@ buildscript {
 	repositories {
 		maven { url 'http://repo.springsource.org/libs-release'}
 		maven { url 'http://repo.springsource.org/plugins-release' }
+		maven { url 'http://repo.springsource.org/plugins-snapshot' }
 	}
 	dependencies {
 		classpath("org.springframework.build.gradle:propdeps-plugin:0.0.7")
 		classpath('org.asciidoctor:asciidoctor-gradle-plugin:1.5.2')
 		classpath("io.spring.gradle:docbook-reference-plugin:0.3.1")
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.1.RELEASE")
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
 	}
 }
 
@@ -56,6 +57,7 @@ configure(allprojects) {
 
 	repositories {
 		mavenCentral()
+		maven { url "http://repo.springsource.org/libs-snapshot" }
 		maven { url "http://repo.springsource.org/libs-release" }
 		maven { url "http://repo.springsource.org/libs-milestone" }
 	}
@@ -199,6 +201,8 @@ project('spring-statemachine-zookeeper') {
 		compile project(":spring-statemachine-core")
 		compile project(":spring-statemachine-kryo")
 		compile "org.apache.curator:curator-recipes:$curatorVersion"
+		// github.com/spring-gradle-plugins/dependency-management-plugin/issues/136
+		runtime "log4j:log4j:$log4jVersion"
 
 		testCompile project(":spring-statemachine-test")
 		testCompile "org.apache.curator:curator-test:$curatorVersion"
@@ -348,7 +352,7 @@ project('spring-statemachine-recipes-common') {
 }
 
 configure(sampleProjects()) {
-	apply plugin: 'spring-boot'
+	apply plugin: 'org.springframework.boot'
 	configurations.archives.artifacts.removeAll { it.archiveTask.is jar }
 	tasks.findByPath("artifactoryPublish")?.enabled = false
 	// as samples are not published, we can use jdk8
