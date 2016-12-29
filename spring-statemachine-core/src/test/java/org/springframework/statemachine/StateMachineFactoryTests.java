@@ -20,12 +20,15 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.EnumSet;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.support.MessageBuilder;
@@ -36,6 +39,8 @@ import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.listener.StateMachineListenerAdapter;
+import org.springframework.statemachine.state.State;
 
 public class StateMachineFactoryTests extends AbstractStateMachineTests {
 
@@ -116,6 +121,29 @@ public class StateMachineFactoryTests extends AbstractStateMachineTests {
 
 		assertThat(machine1.getState().getIds(), contains(TestStates.S1));
 		assertThat(machine2.getState().getIds(), contains(TestStates.S1));
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	@Test
+	public void testMachineFromFactoryWithAsyncExecutorAutoStart() throws Exception {
+		context.register(Config6.class);
+		context.refresh();
+
+		ObjectStateMachineFactory<TestStates, TestEvents> stateMachineFactory =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINEFACTORY, ObjectStateMachineFactory.class);
+		StateMachine<TestStates,TestEvents> machine = stateMachineFactory.getStateMachine();
+
+		// factory waits machine to get started so we
+		// should have state immediately
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+
+		// still need to listen state chance manually before
+		// checking state as execution happens in a thread
+		TestStateMachineListener listener = new TestStateMachineListener();
+		machine.addStateListener(listener);
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
+		assertThat(listener.latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), contains(TestStates.S2));
 	}
 
 	@Configuration
@@ -253,6 +281,47 @@ public class StateMachineFactoryTests extends AbstractStateMachineTests {
 					.event(TestEvents.E1);
 		}
 
+	}
+
+	@Configuration
+	@EnableStateMachineFactory
+	static class Config6 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
+			config
+				.withConfiguration()
+					.autoStartup(true)
+					.taskExecutor(new SimpleAsyncTaskExecutor());
+		}
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S1)
+					.state(TestStates.S2);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1);
+		}
+	}
+
+	static class TestStateMachineListener extends StateMachineListenerAdapter<TestStates, TestEvents> {
+
+		CountDownLatch latch = new CountDownLatch(1);
+
+		@Override
+		public void stateChanged(State<TestStates, TestEvents> from, State<TestStates, TestEvents> to) {
+			latch.countDown();
+		}
 	}
 
 }

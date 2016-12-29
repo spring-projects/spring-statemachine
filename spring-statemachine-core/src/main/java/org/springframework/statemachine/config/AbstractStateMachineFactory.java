@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,6 +55,7 @@ import org.springframework.statemachine.config.model.verifier.CompositeStateMach
 import org.springframework.statemachine.config.model.verifier.StateMachineModelVerifier;
 import org.springframework.statemachine.ensemble.DistributedStateMachine;
 import org.springframework.statemachine.listener.StateMachineListener;
+import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.monitor.StateMachineMonitor;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.security.StateMachineSecurityInterceptor;
@@ -367,7 +370,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 	}
 
 	/**
-	 * Sett state machine monitor.
+	 * Set state machine monitor.
 	 *
 	 * @param stateMachineMonitor the state machine monitor
 	 */
@@ -377,7 +380,16 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 	private StateMachine<S, E> delegateAutoStartup(StateMachine<S, E> delegate) {
 		if (handleAutostartup && delegate instanceof SmartLifecycle && ((SmartLifecycle) delegate).isAutoStartup()) {
+			AutostartListener<S, E> autostartListener = new AutostartListener<>();
+			delegate.addStateListener(autostartListener);
 			((SmartLifecycle)delegate).start();
+			try {
+				autostartListener.latch.await(30, TimeUnit.SECONDS);
+			} catch (Exception e) {
+				log.warn("Waited 30 seconds for machine to start as autostart was requested, machine may not be ready");
+			} finally {
+				delegate.removeStateListener(autostartListener);
+			}
 		}
 		return delegate;
 	}
@@ -866,4 +878,17 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
 			PseudoState<S, E> pseudoState);
 
+	/**
+	 * Simple utility listener waiting machine to get started if
+	 * autostart was requestes. Needed for machine to be ready
+	 * if async executor is used.
+	 */
+	private static class AutostartListener<S, E> extends StateMachineListenerAdapter<S, E> {
+		final CountDownLatch latch = new CountDownLatch(1);
+
+		@Override
+		public void stateMachineStarted(StateMachine<S, E> stateMachine) {
+			latch.countDown();
+		}
+	}
 }
