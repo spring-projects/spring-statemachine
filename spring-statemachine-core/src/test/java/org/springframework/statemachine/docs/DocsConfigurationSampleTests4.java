@@ -21,6 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Map;
 
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.ExtendedState;
@@ -37,6 +38,8 @@ import org.springframework.statemachine.annotation.OnStateMachineStart;
 import org.springframework.statemachine.annotation.OnStateMachineStop;
 import org.springframework.statemachine.annotation.OnTransition;
 import org.springframework.statemachine.annotation.WithStateMachine;
+import org.springframework.statemachine.config.StateMachineBuilder;
+import org.springframework.statemachine.config.StateMachineBuilder.Builder;
 
 public class DocsConfigurationSampleTests4 extends AbstractStateMachineTests {
 
@@ -60,6 +63,16 @@ public class DocsConfigurationSampleTests4 extends AbstractStateMachineTests {
 	}
 // end::snippetAA[]
 
+// tag::snippetAAAA[]
+	@WithStateMachine(id = "myMachineId")
+	public class Bean16 {
+
+		@OnTransition
+		public void anyTransition() {
+		}
+	}
+// end::snippetAAAA[]
+
 // tag::snippetAAA[]
 	@Target(ElementType.TYPE)
 	@Retention(RetentionPolicy.RUNTIME)
@@ -67,6 +80,39 @@ public class DocsConfigurationSampleTests4 extends AbstractStateMachineTests {
 	public @interface WithMyBean {
 	}
 // end::snippetAAA[]
+
+
+// tag::snippetAAAAA[]
+	public static StateMachine<String, String> buildMachine(BeanFactory beanFactory) throws Exception {
+		Builder<String, String> builder = StateMachineBuilder.builder();
+
+		builder.configureConfiguration()
+			.withConfiguration()
+				.machineId("myMachineId")
+				.beanFactory(beanFactory);
+
+		builder.configureStates()
+			.withStates()
+				.initial("S1")
+				.state("S2");
+
+		builder.configureTransitions()
+			.withExternal()
+				.source("S1")
+				.target("S2")
+				.event("E1");
+
+		return builder.build();
+	}
+
+	@WithStateMachine(id = "myMachineId")
+	static class Bean17 {
+
+		@OnStateChanged
+		public void onStateChanged() {
+		}
+	}
+// end::snippetAAAAA[]
 
 // tag::snippetB[]
 	@WithStateMachine

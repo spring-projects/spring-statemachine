@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ import org.springframework.statemachine.config.configuration.StateMachineHandler
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.StateMachineUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Helper class which is used from a StateMachineObjectSupport to ease handling
@@ -84,14 +85,15 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 			Annotation metaAnnotation = handler.getMetaAnnotation();
 			WithStateMachine withStateMachine = AnnotationUtils.findAnnotation(handler.getBeanClass(),
 					WithStateMachine.class);
-			String statemachineBeanName = withStateMachine.name();
-			String key = metaAnnotation.annotationType().getName() + statemachineBeanName;
-			List<CacheEntry> list = cache.get(key);
-			if (list == null) {
-				list = new ArrayList<>();
-				cache.put(key, list);
+
+			if (StringUtils.hasText(withStateMachine.name())) {
+				updateCache(metaAnnotation.annotationType().getName() + withStateMachine.name(),
+						new CacheEntry(handler, annotation, metaAnnotation));
 			}
-			list.add(new CacheEntry(handler, annotation, metaAnnotation));
+			if (StringUtils.hasText(withStateMachine.id())) {
+				updateCache(metaAnnotation.annotationType().getName() + withStateMachine.id(),
+						new CacheEntry(handler, annotation, metaAnnotation));
+			}
 		}
 	}
 
@@ -103,6 +105,9 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	}
 
 	public void callOnStateChanged(String stateMachineId, StateContext<S, E> stateContext) {
+		if (!StringUtils.hasText(stateMachineId)) {
+			return;
+		}
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnStateChanged.class.getName() + stateMachineId;
 		List<CacheEntry> list = getCacheEntries(cacheKey);
@@ -120,6 +125,9 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	}
 
 	public void callOnStateEntry(String stateMachineId, StateContext<S, E> stateContext) {
+		if (!StringUtils.hasText(stateMachineId)) {
+			return;
+		}
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnStateEntry.class.getName() + stateMachineId;
 		List<CacheEntry> list = getCacheEntries(cacheKey);
@@ -137,6 +145,9 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	}
 
 	public void callOnStateExit(String stateMachineId, StateContext<S, E> stateContext) {
+		if (!StringUtils.hasText(stateMachineId)) {
+			return;
+		}
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnStateExit.class.getName() + stateMachineId;
 		List<CacheEntry> list = getCacheEntries(cacheKey);
@@ -154,6 +165,9 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	}
 
 	public void callOnEventNotAccepted(String stateMachineId, StateContext<S, E> stateContext) {
+		if (!StringUtils.hasText(stateMachineId)) {
+			return;
+		}
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnEventNotAccepted.class.getName() + stateMachineId;
 		List<CacheEntry> list = getCacheEntries(cacheKey);
@@ -175,6 +189,9 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 
 
 	public void callOnTransitionStart(String stateMachineId, StateContext<S, E> stateContext) {
+		if (!StringUtils.hasText(stateMachineId)) {
+			return;
+		}
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnTransitionStart.class.getName() + stateMachineId;
 		List<CacheEntry> list = getCacheEntries(cacheKey);
@@ -192,6 +209,9 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	}
 
 	public void callOnTransition(String stateMachineId, StateContext<S, E> stateContext) {
+		if (!StringUtils.hasText(stateMachineId)) {
+			return;
+		}
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnTransition.class.getName() + stateMachineId;
 		List<CacheEntry> list = getCacheEntries(cacheKey);
@@ -209,6 +229,9 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	}
 
 	public void callOnTransitionEnd(String stateMachineId, StateContext<S, E> stateContext) {
+		if (!StringUtils.hasText(stateMachineId)) {
+			return;
+		}
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnTransitionEnd.class.getName() + stateMachineId;
 		List<CacheEntry> list = getCacheEntries(cacheKey);
@@ -226,6 +249,9 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	}
 
 	public void callOnStateMachineStart(String stateMachineId, StateContext<S, E> stateContext) {
+		if (!StringUtils.hasText(stateMachineId)) {
+			return;
+		}
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnStateMachineStart.class.getName() + stateMachineId;
 		List<CacheEntry> list = getCacheEntries(cacheKey);
@@ -239,6 +265,9 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	}
 
 	public void callOnStateMachineStop(String stateMachineId, StateContext<S, E> stateContext) {
+		if (!StringUtils.hasText(stateMachineId)) {
+			return;
+		}
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnStateMachineStop.class.getName() + stateMachineId;
 		List<CacheEntry> list = getCacheEntries(cacheKey);
@@ -252,6 +281,9 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	}
 
 	public void callOnStateMachineError(String stateMachineId, StateContext<S, E> stateContext) {
+		if (!StringUtils.hasText(stateMachineId)) {
+			return;
+		}
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnStateMachineError.class.getName() + stateMachineId;
 		List<CacheEntry> list = getCacheEntries(cacheKey);
@@ -265,6 +297,9 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	}
 
 	public void callOnExtendedStateChanged(String stateMachineId, Object key, Object value, StateContext<S, E> stateContext) {
+		if (!StringUtils.hasText(stateMachineId)) {
+			return;
+		}
 		List<StateMachineHandler<? extends Annotation, S, E>> handlersList = new ArrayList<StateMachineHandler<? extends Annotation, S, E>>();
 		String cacheKey = OnExtendedStateChanged.class.getName() + stateMachineId;
 		List<CacheEntry> list = getCacheEntries(cacheKey);
@@ -277,6 +312,15 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 			}
 		}
 		getStateMachineHandlerResults(handlersList, stateContext);
+	}
+
+	private void updateCache(String key, CacheEntry cacheEntry) {
+		List<CacheEntry> list = cache.get(key);
+		if (list == null) {
+			list = new ArrayList<>();
+			cache.put(key, list);
+		}
+		list.add(cacheEntry);
 	}
 
 	private synchronized List<CacheEntry> getCacheEntries(String cacheKey) {
