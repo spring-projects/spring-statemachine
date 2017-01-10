@@ -57,9 +57,9 @@ Spring Statemachine aims to provide following features:
 * Store machine config in a persistent storage.
 * Spring IOC integration to associate beans with a state machine.
 
-State machines are powerful because behaviour is always guaranteed to be consistent and relatively easily debugged due to ways how operational rules are written in stone when machine is started. Idea is that your application is and may exist in a finite number of states and then something happens which takes your application from one state to the next. What will drive a state machine are triggers which are either based on an events or timers.
+State machines are powerful because behaviour is always guaranteed to be consistent, making it relatively easy to debug. This is because operational rules are written in stone when the machine is started. The idea is that your application may exist in a finite number of states and certain predefined triggers can take your application from one state to the next. Such triggers can be based on either events or timers.
 
-It is much easier to design high level logic outside of your application and then interact with a state machine with a various different ways. You will simply interact with a state machine by sending an event, listening what a state machine does or simply request a current state.
+It is much easier to define high level logic outside of your application and then rely on the state machine to manage state. You can interact with the state machine by sending an event, listening for changes or simply request a current state.
 
 Do you want to ask a question? Go to [StackOverflow](http://stackoverflow.com) and use a tag [spring-statemachine](http://stackoverflow.com/questions/tagged/spring-statemachine) or [Gitter](https://gitter.im/spring-projects/spring-statemachine).
 
