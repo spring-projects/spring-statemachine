@@ -4,6 +4,12 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 1.2.1.RELEASE (2017-01-17)
+---------------------------------------------
+* Support @WithStateMachine with builders [#224]
+* @WithStateMachine not working when creating StateMachine with Factory [#292]
+* Timing issue when using a Factory with async taskexecutor [#298]
+
 Changes in version 1.2.0.RELEASE (2016-12-14)
 ---------------------------------------------
 (No changes)
