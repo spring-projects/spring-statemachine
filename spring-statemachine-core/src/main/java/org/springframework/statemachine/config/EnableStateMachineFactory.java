@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.common.annotation.EnableAnnotationConfiguration;
 import org.springframework.statemachine.config.common.annotation.configuration.ObjectPostProcessorConfiguration;
-import org.springframework.statemachine.config.configuration.StateMachineAnnotationPostProcessorConfiguration;
 import org.springframework.statemachine.config.configuration.StateMachineCommonConfiguration;
 import org.springframework.statemachine.config.configuration.StateMachineConfigurationImportSelector;
 import org.springframework.statemachine.config.configuration.StateMachineFactoryConfiguration;
@@ -43,9 +42,9 @@ import org.springframework.statemachine.config.configuration.StateMachineFactory
 @Target(ElementType.TYPE)
 @Documented
 @EnableAnnotationConfiguration
-@Import({ StateMachineConfigurationImportSelector.class, StateMachineCommonConfiguration.class,
-		StateMachineFactoryConfiguration.class, ObjectPostProcessorConfiguration.class,
-		StateMachineAnnotationPostProcessorConfiguration.class })
+@Import({ StateMachineConfigurationImportSelector.class, StateMachineCommonConfiguration.class, StateMachineFactoryConfiguration.class,
+		ObjectPostProcessorConfiguration.class })
+@EnableWithStateMachine
 public @interface EnableStateMachineFactory {
 
 	/**

@@ -1144,6 +1144,15 @@ application context by using annotation `name` field.
 include::samples/DocsConfigurationSampleTests4.java[tags=snippetAA]
 ----
 
+Sometimes it is more convenient to use _machine id_ which is something
+user can set to better identify multiple instances. This id maps to
+_getId()_ method in a _StateMachine_ interface.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetAAAA]
+----
+
 _@WithStateMachine_ can also be used as a meta-annotation as shown
 above. In this case you could annotate your bean with _WithMyBean_.
 
@@ -1156,6 +1165,29 @@ include::samples/DocsConfigurationSampleTests4.java[tags=snippetAAA]
 ====
 Return type of these methods doesn't matter and is effectively
 discard.
+====
+
+=== Enabling Integration
+All features for _@WithStateMachine_ can be enabled by using
+annotation _@EnableWithStateMachine_ which simply imports needed
+configuration into Spring Application Context. Both
+_@EnableStateMachine_ and _@EnableStateMachineFactory_ are already
+annotated with this so there is no need for user to add it again.
+However if machine is build and configured without a use of
+configuration adapters, _@EnableWithStateMachine_ must be used order
+to use features with _@WithStateMachine_. Idea for this is shown
+below.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetAAAAA]
+----
+
+[IMPORTANT]
+====
+If machine is not created as a _Bean_ then it is mandatory to set
+_BeanFactory_ for a machine as shown above. Otherwise machine will be
+unaware of handlers calling your _@WithStateMachine_ methods.
 ====
 
 === Method Parameters

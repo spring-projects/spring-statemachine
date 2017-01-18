@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -138,6 +138,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyStateChanged(StateContext<S, E> stateContext) {
 		try {
 			stateMachineHandlerCallHelper.callOnStateChanged(getBeanName(), stateContext);
+			stateMachineHandlerCallHelper.callOnStateChanged(stateContext.getStateMachine().getId(), stateContext);
 			stateListener.stateChanged(stateContext.getSource(), stateContext.getTarget());
 			stateListener.stateContext(stateContext);
 			if (contextEventsEnabled) {
@@ -154,6 +155,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyStateEntered(StateContext<S, E> stateContext) {
 		try {
 			stateMachineHandlerCallHelper.callOnStateEntry(getBeanName(), stateContext);
+			stateMachineHandlerCallHelper.callOnStateEntry(stateContext.getStateMachine().getId(), stateContext);
 			stateListener.stateEntered(stateContext.getTarget());
 			stateListener.stateContext(stateContext);
 			if (contextEventsEnabled) {
@@ -170,6 +172,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyStateExited(StateContext<S, E> stateContext) {
 		try {
 			stateMachineHandlerCallHelper.callOnStateExit(getBeanName(), stateContext);
+			stateMachineHandlerCallHelper.callOnStateExit(stateContext.getStateMachine().getId(), stateContext);
 			stateListener.stateExited(stateContext.getSource());
 			stateListener.stateContext(stateContext);
 			if (contextEventsEnabled) {
@@ -186,6 +189,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyEventNotAccepted(StateContext<S, E> stateContext) {
 		try {
 			stateMachineHandlerCallHelper.callOnEventNotAccepted(getBeanName(), stateContext);
+			stateMachineHandlerCallHelper.callOnEventNotAccepted(stateContext.getStateMachine().getId(), stateContext);
 			stateListener.eventNotAccepted(stateContext.getMessage());
 			stateListener.stateContext(stateContext);
 			if (contextEventsEnabled) {
@@ -202,6 +206,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyTransitionStart(StateContext<S, E> stateContext) {
 		try {
 			stateMachineHandlerCallHelper.callOnTransitionStart(getBeanName(), stateContext);
+			stateMachineHandlerCallHelper.callOnTransitionStart(stateContext.getStateMachine().getId(), stateContext);
 			stateListener.transitionStarted(stateContext.getTransition());
 			stateListener.stateContext(stateContext);
 			if (contextEventsEnabled) {
@@ -218,6 +223,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyTransition(StateContext<S, E> stateContext) {
 		try {
 			stateMachineHandlerCallHelper.callOnTransition(getBeanName(), stateContext);
+			stateMachineHandlerCallHelper.callOnTransition(stateContext.getStateMachine().getId(), stateContext);
 			stateListener.transition(stateContext.getTransition());
 			stateListener.stateContext(stateContext);
 			if (contextEventsEnabled) {
@@ -234,6 +240,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyTransitionEnd(StateContext<S, E> stateContext) {
 		try {
 			stateMachineHandlerCallHelper.callOnTransitionEnd(getBeanName(), stateContext);
+			stateMachineHandlerCallHelper.callOnTransitionEnd(stateContext.getStateMachine().getId(), stateContext);
 			stateListener.transitionEnded(stateContext.getTransition());
 			stateListener.stateContext(stateContext);
 			if (contextEventsEnabled) {
@@ -250,6 +257,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyStateMachineStarted(StateContext<S, E> stateContext) {
 		try {
 			stateMachineHandlerCallHelper.callOnStateMachineStart(getBeanName(), stateContext);
+			stateMachineHandlerCallHelper.callOnStateMachineStart(stateContext.getStateMachine().getId(), stateContext);
 			stateListener.stateMachineStarted(stateContext.getStateMachine());
 			stateListener.stateContext(stateContext);
 			if (contextEventsEnabled) {
@@ -266,6 +274,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyStateMachineStopped(StateContext<S, E> stateContext) {
 		try {
 			stateMachineHandlerCallHelper.callOnStateMachineStop(getBeanName(), stateContext);
+			stateMachineHandlerCallHelper.callOnStateMachineStop(stateContext.getStateMachine().getId(), stateContext);
 			stateListener.stateMachineStopped(stateContext.getStateMachine());
 			stateListener.stateContext(stateContext);
 			if (contextEventsEnabled) {
@@ -282,6 +291,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyStateMachineError(StateContext<S, E> stateContext) {
 		try {
 			stateMachineHandlerCallHelper.callOnStateMachineError(getBeanName(), stateContext);
+			stateMachineHandlerCallHelper.callOnStateMachineError(stateContext.getStateMachine().getId(), stateContext);
 			stateListener.stateMachineError(stateContext.getStateMachine(), stateContext.getException());
 			stateListener.stateContext(stateContext);
 			if (contextEventsEnabled) {
@@ -298,6 +308,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	protected void notifyExtendedStateChanged(Object key, Object value, StateContext<S, E> stateContext) {
 		try {
 			stateMachineHandlerCallHelper.callOnExtendedStateChanged(getBeanName(), key, value, stateContext);
+			stateMachineHandlerCallHelper.callOnExtendedStateChanged(stateContext.getStateMachine().getId(), key, value, stateContext);
 			stateListener.extendedStateChanged(key, value);
 			stateListener.stateContext(stateContext);
 			if (contextEventsEnabled) {
