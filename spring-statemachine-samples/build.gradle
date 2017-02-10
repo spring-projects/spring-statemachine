@@ -48,8 +48,8 @@ project('spring-statemachine-samples-persist') {
 	dependencies {
 		compile project(":spring-statemachine-samples-common")
 		compile project(":spring-statemachine-recipes-common")
-		compile ("org.hsqldb:hsqldb:$hsqlVersion")
-		compile ("org.springframework:spring-jdbc:$springVersion")
+		compile ("org.hsqldb:hsqldb")
+		compile ("org.springframework:spring-jdbc")
 	}
 }
 
@@ -57,30 +57,30 @@ project('spring-statemachine-samples-web') {
 	description = 'Spring State Machine Web Sample'
 	dependencies {
 		compile project(":spring-statemachine-cluster")
-		compile("org.springframework.boot:spring-boot-starter-security:$springBootVersion")
-		compile("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
-		compile("org.springframework.boot:spring-boot-starter-websocket:$springBootVersion")
-		compile("org.springframework:spring-webmvc:$springVersion")
-		compile("org.springframework:spring-websocket:$springVersion")
-		compile("org.springframework.security:spring-security-messaging:$springSecurityVersion")
-		compile("org.springframework.session:spring-session:$springSessionVersion")
+		compile("org.springframework.boot:spring-boot-starter-security")
+		compile("org.springframework.boot:spring-boot-starter-web")
+		compile("org.springframework.boot:spring-boot-starter-websocket")
+		compile("org.springframework:spring-webmvc")
+		compile("org.springframework:spring-websocket")
+		compile("org.springframework.security:spring-security-messaging")
+		compile("org.springframework.session:spring-session")
 	}
 }
 
 project('spring-statemachine-samples-scope') {
 	description = 'Spring State Machine Web Scope Sample'
 	dependencies {
-		compile("org.springframework.boot:spring-boot-starter-thymeleaf:$springBootVersion")
+		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
 	}
 }
 
 project('spring-statemachine-samples-security') {
 	description = 'Spring State Machine Web Security Sample'
 	dependencies {
-		compile("org.springframework.boot:spring-boot-starter-thymeleaf:$springBootVersion")
-		compile("org.springframework.boot:spring-boot-starter-security:$springBootVersion")
-		compile("org.springframework.security:spring-security-config:$springSecurityVersion")
-		compile("org.springframework.security:spring-security-web:$springSecurityVersion")
+		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+		compile("org.springframework.boot:spring-boot-starter-security")
+		compile("org.springframework.security:spring-security-config")
+		compile("org.springframework.security:spring-security-web")
 	}
 }
 
@@ -88,8 +88,8 @@ project('spring-statemachine-samples-eventservice') {
 	description = 'Spring State Machine Event Service Sample'
 	dependencies {
 		compile project(":spring-statemachine-redis")
-		compile("org.springframework.boot:spring-boot-starter-thymeleaf:$springBootVersion")
-		compile("org.apache.commons:commons-pool2:$commonsPool2Version")
+		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+		compile("org.apache.commons:commons-pool2")
 	}
 }
 
@@ -97,7 +97,7 @@ project('spring-statemachine-samples-deploy') {
 	description = 'Spring State Machine Deploy Sample'
 	dependencies {
 		compile project(":spring-statemachine-uml")
-		compile("org.springframework.boot:spring-boot-starter-thymeleaf:$springBootVersion")
+		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
 	}
 }
 
@@ -105,7 +105,7 @@ project('spring-statemachine-samples-ordershipping') {
 	description = 'Spring State Machine Order Shipping Sample'
 	dependencies {
 		compile project(":spring-statemachine-uml")
-		compile("org.springframework.boot:spring-boot-starter-thymeleaf:$springBootVersion")
+		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
 	}
 }
 
@@ -114,10 +114,10 @@ project('spring-statemachine-samples-datajpa') {
 	dependencies {
 		compile project(":spring-statemachine-boot")
 		compile project(":spring-statemachine-data-common:spring-statemachine-data-jpa")
-		compile("org.springframework.boot:spring-boot-starter-thymeleaf:$springBootVersion")
-		compile("org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion")
-		compile("org.springframework.boot:spring-boot-devtools:$springBootVersion")
-		compile("com.h2database:h2:$h2Version")
+		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+		compile("org.springframework.boot:spring-boot-starter-data-jpa")
+		compile("org.springframework.boot:spring-boot-devtools")
+		compile("com.h2database:h2")
 	}
 }
 
@@ -125,10 +125,10 @@ project('spring-statemachine-samples-monitoring') {
 	description = 'Spring State Machine Monitoring Sample'
 	dependencies {
 		compile project(":spring-statemachine-boot")
-		compile("org.springframework.boot:spring-boot-starter-thymeleaf:$springBootVersion")
-		compile("org.springframework.boot:spring-boot-starter-security:$springBootVersion")
-		testCompile("com.jayway.jsonpath:json-path:$jsonpathVersion")
-		testCompile("com.jayway.jsonpath:json-path-assert:$jsonpathVersion")
+		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+		compile("org.springframework.boot:spring-boot-starter-security")
+		testCompile("com.jayway.jsonpath:json-path")
+		testCompile("com.jayway.jsonpath:json-path-assert")
 	}
 }
 

@@ -4,14 +4,14 @@ project('spring-statemachine-data-jpa') {
 	description = "Spring State Machine Data Jpa"
 	dependencies {
 		compile project(":spring-statemachine-data-common")
-		compile "org.springframework:spring-orm:$springVersion"
+		compile "org.springframework:spring-orm"
 		testCompile project(":spring-statemachine-test")
 		testCompile project(path:":spring-statemachine-data-common", configuration:"testArtifacts")
-		optional "org.eclipse.persistence:javax.persistence:$eclipsePersistenceVersion"
-		testCompile "org.hsqldb:hsqldb:$hsqlVersion"
-		testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
-		testRuntime "org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion"
-		testRuntime "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+		optional "org.eclipse.persistence:javax.persistence"
+		testCompile "org.hsqldb:hsqldb"
+		testCompile "org.springframework.boot:spring-boot-starter-test"
+		testRuntime "org.springframework.boot:spring-boot-starter-data-jpa"
+		testRuntime "org.springframework.boot:spring-boot-starter-web"
 	}
 }
 
@@ -19,13 +19,13 @@ project('spring-statemachine-data-redis') {
 	description = "Spring State Machine Data Redis"
 	dependencies {
 		compile project(":spring-statemachine-data-common")
-		compile "org.springframework.data:spring-data-redis:$springDataRedisVersion"
+		compile "org.springframework.data:spring-data-redis"
 		testCompile project(":spring-statemachine-test")
-		optional "org.eclipse.persistence:javax.persistence:$eclipsePersistenceVersion"
+		optional "org.eclipse.persistence:javax.persistence"
 		testCompile project(path:":spring-statemachine-data-common", configuration:"testArtifacts")
-		testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
-		testRuntime "org.springframework.boot:spring-boot-starter-data-redis:$springBootVersion"
-		testRuntime "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+		testCompile "org.springframework.boot:spring-boot-starter-test"
+		testRuntime "org.springframework.boot:spring-boot-starter-data-redis"
+		testRuntime "org.springframework.boot:spring-boot-starter-web"
 	}
 }
 
@@ -33,13 +33,13 @@ project('spring-statemachine-data-mongodb') {
 	description = "Spring State Machine Data MongoDB"
 	dependencies {
 		compile project(":spring-statemachine-data-common")
-		compile "org.springframework.data:spring-data-mongodb:$springDataMongoDbVersion"
+		compile "org.springframework.data:spring-data-mongodb"
 		testCompile project(":spring-statemachine-test")
-		optional "org.eclipse.persistence:javax.persistence:$eclipsePersistenceVersion"
+		optional "org.eclipse.persistence:javax.persistence"
 		testCompile project(path:":spring-statemachine-data-common", configuration:"testArtifacts")
-		testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
-		testRuntime "org.springframework.boot:spring-boot-starter-data-mongodb:$springBootVersion"
-		testRuntime "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+		testCompile "org.springframework.boot:spring-boot-starter-test"
+		testRuntime "org.springframework.boot:spring-boot-starter-data-mongodb"
+		testRuntime "org.springframework.boot:spring-boot-starter-web"
 	}
 }
 
