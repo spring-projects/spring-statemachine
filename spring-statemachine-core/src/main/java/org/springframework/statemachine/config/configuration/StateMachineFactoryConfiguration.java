@@ -27,8 +27,11 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
@@ -39,8 +42,8 @@ import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.config.builders.StateMachineConfigBuilder;
 import org.springframework.statemachine.config.common.annotation.AbstractImportingAnnotationConfiguration;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurer;
-import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.ConfigurationData;
+import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.StatesData;
 import org.springframework.statemachine.config.model.TransitionsData;
 import org.springframework.util.ClassUtils;
@@ -64,6 +67,12 @@ public class StateMachineFactoryConfiguration<S, E> extends
 	@Override
 	protected BeanDefinition buildBeanDefinition(AnnotationMetadata importingClassMetadata,
 			Class<? extends Annotation> namedAnnotation) throws Exception {
+
+		String enableStateMachineEnclosingClassName = importingClassMetadata.getClassName();
+		// for below classloader, see gh122
+		Class<?> enableStateMachineEnclosingClass = ClassUtils.forName(enableStateMachineEnclosingClassName,
+				ClassUtils.getDefaultClassLoader());
+
 		BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(StateMachineFactoryDelegatingFactoryBean.class);
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(
@@ -72,9 +81,29 @@ public class StateMachineFactoryConfiguration<S, E> extends
 		beanDefinitionBuilder.addConstructorArgValue(builder);
 		beanDefinitionBuilder.addConstructorArgValue(importingClassMetadata.getClassName());
 		beanDefinitionBuilder.addConstructorArgValue(contextEvents);
-		return beanDefinitionBuilder.getBeanDefinition();
+
+		AbstractBeanDefinition beanDefinition = beanDefinitionBuilder.getBeanDefinition();
+
+		// try to add more info about generics
+		ResolvableType type = resolveFactoryObjectType(enableStateMachineEnclosingClass);
+		if (type != null && beanDefinition instanceof RootBeanDefinition) {
+			((RootBeanDefinition)beanDefinition).setTargetType(type);
+		}
+
+		return beanDefinition;
 	}
 
+	private ResolvableType resolveFactoryObjectType(Class<?> enableStateMachineEnclosingClass) {
+		ResolvableType type = null;
+		try {
+			Class<?>[] generics = ResolvableType.forClass(enableStateMachineEnclosingClass).getSuperType().resolveGenerics();
+			if (generics != null && generics.length == 2) {
+				type = ResolvableType.forClassWithGenerics(StateMachineFactory.class, generics);
+			}
+		} catch (Exception e) {
+		}
+		return type;
+	}
 
 	@Override
 	protected List<Class<? extends Annotation>> getAnnotations() {
