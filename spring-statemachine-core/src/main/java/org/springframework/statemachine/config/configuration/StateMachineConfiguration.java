@@ -24,10 +24,13 @@ import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.statemachine.StateMachine;
@@ -39,8 +42,8 @@ import org.springframework.statemachine.config.builders.StateMachineConfigBuilde
 import org.springframework.statemachine.config.builders.StateMachineConfigurer;
 import org.springframework.statemachine.config.common.annotation.AbstractImportingAnnotationConfiguration;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurer;
-import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.ConfigurationData;
+import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.StatesData;
 import org.springframework.statemachine.config.model.TransitionsData;
 import org.springframework.statemachine.monitor.StateMachineMonitor;
@@ -97,7 +100,15 @@ public class StateMachineConfiguration<S, E> extends
 		beanDefinitionBuilder.addConstructorArgValue(StateMachine.class);
 		beanDefinitionBuilder.addConstructorArgValue(importingClassMetadata.getClassName());
 		beanDefinitionBuilder.addConstructorArgValue(contextEvents);
-		return beanDefinitionBuilder.getBeanDefinition();
+
+		AbstractBeanDefinition beanDefinition = beanDefinitionBuilder.getBeanDefinition();
+
+		// try to add more info about generics
+		ResolvableType type = resolveFactoryObjectType(enableStateMachineEnclosingClass);
+		if (type != null && beanDefinition instanceof RootBeanDefinition) {
+			((RootBeanDefinition)beanDefinition).setTargetType(type);
+		}
+		return beanDefinition;
 	}
 
 	@Override
@@ -105,6 +116,18 @@ public class StateMachineConfiguration<S, E> extends
 		List<Class<? extends Annotation>> types = new ArrayList<Class<? extends Annotation>>();
 		types.add(EnableStateMachine.class);
 		return types;
+	}
+
+	private ResolvableType resolveFactoryObjectType(Class<?> enableStateMachineEnclosingClass) {
+		ResolvableType type = null;
+		try {
+			Class<?>[] generics = ResolvableType.forClass(enableStateMachineEnclosingClass).getSuperType().resolveGenerics();
+			if (generics != null && generics.length == 2) {
+				type = ResolvableType.forClassWithGenerics(StateMachine.class, generics);
+			}
+		} catch (Exception e) {
+		}
+		return type;
 	}
 
 	private static class StateMachineDelegatingFactoryBean<S, E>
