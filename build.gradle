@@ -387,6 +387,50 @@ project('spring-statemachine-recipes-common') {
 	}
 }
 
+project('spring-statemachine-bom') {
+	description = "Spring Statemachine (Bill of Materials)"
+
+	dependencyManagement {
+		generatedPomCustomization {
+			enabled = false
+		}
+	}
+
+	configurations.archives.artifacts.clear()
+	artifacts {
+		// work around GRADLE-2406 by attaching text artifact
+		archives(file("spring-statemachine-bom.txt"))
+	}
+
+	install {
+		repositories.mavenInstaller {
+			pom.whenConfigured {
+				packaging = "pom"
+				withXml {
+					asNode().children().last() + {
+						delegate.dependencyManagement {
+							delegate.dependencies {
+								parent.subprojects.sort { "$it.name" }.each { p ->
+									if (!p.name.contains('spring-statemachine-samples') &&
+											!p.name.contains('spring-statemachine-build-tests') &&
+											p != project) {
+										delegate.dependency {
+											delegate.groupId(p.group)
+											delegate.artifactId(p.name)
+											delegate.version(p.version)
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+}
+
 configure(sampleProjects()) {
 	apply plugin: 'org.springframework.boot'
 	configurations.archives.artifacts.removeAll { it.archiveTask.is jar }

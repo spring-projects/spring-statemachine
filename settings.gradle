@@ -10,6 +10,7 @@ include 'spring-statemachine-uml'
 include 'spring-statemachine-build-tests'
 include 'spring-statemachine-recipes'
 include 'spring-statemachine-boot'
+include 'spring-statemachine-bom'
 
 include 'spring-statemachine-samples'
 include 'spring-statemachine-samples:turnstile'
