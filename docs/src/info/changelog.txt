@@ -4,6 +4,11 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 1.2.2.RELEASE (2017-02-14)
+---------------------------------------------
+* Allow to use generic qualifiers for statemachine factory [#306]
+* Timer trigger deadlock in DefaultStateMachineExecutor [#315]
+
 Changes in version 1.2.1.RELEASE (2017-01-17)
 ---------------------------------------------
 * Support @WithStateMachine with builders [#224]
