@@ -45,9 +45,9 @@ public class StateMachineInterceptorList<S, E> {
 	 *         call
 	 */
 	public boolean set(List<StateMachineInterceptor<S, E>> interceptors) {
-		synchronized (interceptors) {
-			interceptors.clear();
-			return interceptors.addAll(interceptors);
+		synchronized (this.interceptors) {
+			this.interceptors.clear();
+			return this.interceptors.addAll(interceptors);
 		}
 	}
 
