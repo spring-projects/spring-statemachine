@@ -40,14 +40,14 @@ public class StateMachineInterceptorList<S, E> {
 	/**
 	 * Sets the interceptors, clears any existing interceptors.
 	 *
-	 * @param interceptors the list of interceptors
+	 * @param newInterceptors the list of interceptors
 	 * @return <tt>true</tt> if interceptor list changed as a result of the
 	 *         call
 	 */
-	public boolean set(List<StateMachineInterceptor<S, E>> interceptors) {
+	public boolean set(List<StateMachineInterceptor<S, E>> newInterceptors) {
 		synchronized (interceptors) {
 			interceptors.clear();
-			return interceptors.addAll(interceptors);
+			return interceptors.addAll(newInterceptors);
 		}
 	}
 
