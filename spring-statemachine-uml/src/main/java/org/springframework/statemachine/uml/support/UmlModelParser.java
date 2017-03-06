@@ -25,6 +25,7 @@ import java.util.Map;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.uml2.uml.Activity;
+import org.eclipse.uml2.uml.ConnectionPointReference;
 import org.eclipse.uml2.uml.Constraint;
 import org.eclipse.uml2.uml.Event;
 import org.eclipse.uml2.uml.Model;
@@ -175,6 +176,24 @@ public class UmlModelParser {
 				}
 				stateDatas.add(stateData);
 
+				// add states via entry/exit reference points
+				for (ConnectionPointReference cpr : state.getConnections()) {
+					if (cpr.getEntries() != null) {
+						for (Pseudostate cp : cpr.getEntries()) {
+							StateData<String, String> cpStateData = new StateData<>(parent, regionId, cp.getName(), false);
+							cpStateData.setPseudoStateKind(PseudoStateKind.ENTRY);
+							stateDatas.add(cpStateData);
+						}
+					}
+					if (cpr.getExits() != null) {
+						for (Pseudostate cp : cpr.getExits()) {
+							StateData<String, String> cpStateData = new StateData<>(parent, regionId, cp.getName(), false);
+							cpStateData.setPseudoStateKind(PseudoStateKind.EXIT);
+							stateDatas.add(cpStateData);
+						}
+					}
+				}
+
 				// add states via entry/exit points
 				for (Pseudostate cp : state.getConnectionPoints()) {
 					PseudoStateKind kind = null;
@@ -242,6 +261,21 @@ public class UmlModelParser {
 			// little unclear for now if link from points to a state should
 			// have trigger?
 			// anyway, we need to add entrys and exits to a model
+
+			if (transition.getSource() instanceof ConnectionPointReference) {
+				// support ref points if only one is defined as for some
+				// reason uml can define multiple ones which is not
+				// realistic with state machines
+				EList<Pseudostate> cprentries = ((ConnectionPointReference)transition.getSource()).getEntries();
+				if (cprentries != null && cprentries.size() == 1 && cprentries.get(0).getKind() == PseudostateKind.ENTRY_POINT_LITERAL) {
+					entrys.add(new EntryData<String, String>(cprentries.get(0).getName(), transition.getTarget().getName()));
+				}
+				EList<Pseudostate> cprexits = ((ConnectionPointReference)transition.getSource()).getExits();
+				if (cprexits != null && cprexits.size() == 1 && cprexits.get(0).getKind() == PseudostateKind.EXIT_POINT_LITERAL) {
+					exits.add(new ExitData<String, String>(cprexits.get(0).getName(), transition.getTarget().getName()));
+				}
+			}
+
 			if (transition.getSource() instanceof Pseudostate) {
 				if (((Pseudostate)transition.getSource()).getKind() == PseudostateKind.ENTRY_POINT_LITERAL) {
 					entrys.add(new EntryData<String, String>(transition.getSource().getName(), transition.getTarget().getName()));
@@ -305,9 +339,19 @@ public class UmlModelParser {
 				if (event instanceof SignalEvent) {
 					Signal signal = ((SignalEvent)event).getSignal();
 					if (signal != null) {
-						transitionDatas.add(new TransitionData<String, String>(transition.getSource().getName(),
-								transition.getTarget().getName(), signal.getName(), UmlUtils.resolveTransitionActions(transition, resolver),
-								guard, UmlUtils.mapUmlTransitionType(transition)));
+						// special case for ref point
+						if (transition.getTarget() instanceof ConnectionPointReference) {
+							EList<Pseudostate> cprentries = ((ConnectionPointReference)transition.getTarget()).getEntries();
+							if (cprentries != null && cprentries.size() == 1) {
+								transitionDatas.add(new TransitionData<String, String>(transition.getSource().getName(),
+										cprentries.get(0).getName(), signal.getName(), UmlUtils.resolveTransitionActions(transition, resolver),
+										guard, UmlUtils.mapUmlTransitionType(transition)));
+							}
+						} else {
+							transitionDatas.add(new TransitionData<String, String>(transition.getSource().getName(),
+									transition.getTarget().getName(), signal.getName(), UmlUtils.resolveTransitionActions(transition, resolver),
+									guard, UmlUtils.mapUmlTransitionType(transition)));
+						}
 					}
 				} else if (event instanceof TimeEvent) {
 					TimeEvent timeEvent = (TimeEvent)event;

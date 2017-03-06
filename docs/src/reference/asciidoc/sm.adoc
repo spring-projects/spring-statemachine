@@ -2229,6 +2229,19 @@ respectively.
 
 image::images/papyrus-gs-17.png[scaledwidth="100%"]
 
+[NOTE]
+====
+If state is defined as submachine reference and entry/exit points need
+to be used, a _ConnectionPointReference_ has to be defined externally
+, its entry/exit reference set to point to a correct entry/exit point
+within a submachine reference. Only after that it is possible to
+target a transition which correctly links from outside into inside of
+a submachine reference. With _ConnectionPointReference_ you may need
+to find these settings from _Properties_ -> _Advanced_ -> _UML_ ->
+_Entry/Exit_. UML Spec allows to define multiple entries and exits but
+with a state machine only one is allowed.
+====
+
 === Define History
 When working with history states three different concepts are in play.
 UML defines a _Deep History_ and a _Shallow History_. _Default History
