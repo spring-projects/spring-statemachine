@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_-kEeIAJFEeeSXoonWLHRUg" name="RootElement">
+  <packagedElement xmi:type="uml:StateMachine" xmi:id="_-k0sEAJFEeeSXoonWLHRUg" name="StateMachine">
+    <region xmi:type="uml:Region" xmi:id="_-lCugAJFEeeSXoonWLHRUg" name="Region1">
+      <transition xmi:type="uml:Transition" xmi:id="_gXksgAJUEeerC-Kv7JK8lg" source="_fHK0kAJUEeerC-Kv7JK8lg" target="_UqcXAAJUEeerC-Kv7JK8lg"/>
+      <transition xmi:type="uml:Transition" xmi:id="_tgDlsAJUEeerC-Kv7JK8lg" source="_UqcXAAJUEeerC-Kv7JK8lg" target="_X2BxIAJzEeeGOuVciIkm9A">
+        <trigger xmi:type="uml:Trigger" xmi:id="_cl1DwAJVEeerC-Kv7JK8lg" event="_TqHF8AJVEeerC-Kv7JK8lg"/>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_u8l1IAJUEeerC-Kv7JK8lg" source="_X2BxIAJzEeeGOuVciIkm9A" target="_WNTQ4AJUEeerC-Kv7JK8lg">
+        <trigger xmi:type="uml:Trigger" xmi:id="_gYWTIAJVEeerC-Kv7JK8lg" event="_WGPKIAJVEeerC-Kv7JK8lg"/>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_BiMGMAJ0EeeGOuVciIkm9A" source="_UqcXAAJUEeerC-Kv7JK8lg" target="_3wQ5IAJzEeeGOuVciIkm9A">
+        <trigger xmi:type="uml:Trigger" xmi:id="_Dz64QAJ0EeeGOuVciIkm9A" event="_YRI7cAJVEeerC-Kv7JK8lg"/>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_GCnkcAJ0EeeGOuVciIkm9A" source="_9e4o0AJzEeeGOuVciIkm9A" target="_W6CbEAJUEeerC-Kv7JK8lg"/>
+      <subvertex xmi:type="uml:State" xmi:id="_UqcXAAJUEeerC-Kv7JK8lg" name="S1"/>
+      <subvertex xmi:type="uml:State" xmi:id="_WNTQ4AJUEeerC-Kv7JK8lg" name="S3"/>
+      <subvertex xmi:type="uml:State" xmi:id="_W6CbEAJUEeerC-Kv7JK8lg" name="S4"/>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_fHK0kAJUEeerC-Kv7JK8lg" name=""/>
+      <subvertex xmi:type="uml:State" xmi:id="_X2BxIAJzEeeGOuVciIkm9A" name="S2" submachine="_kcQC4AJUEeerC-Kv7JK8lg">
+        <connection xmi:type="uml:ConnectionPointReference" xmi:id="_3wQ5IAJzEeeGOuVciIkm9A" name="ConnectionPointReference1" entry="_oXYw0AJWEeerC-Kv7JK8lg"/>
+        <connection xmi:type="uml:ConnectionPointReference" xmi:id="_9e4o0AJzEeeGOuVciIkm9A" name="ConnectionPointReference2" exit="_luRO8AJVEeerC-Kv7JK8lg"/>
+      </subvertex>
+    </region>
+  </packagedElement>
+  <packagedElement xmi:type="uml:StateMachine" xmi:id="_kcQC4AJUEeerC-Kv7JK8lg" name="SubStateMachine" submachineState="_X2BxIAJzEeeGOuVciIkm9A">
+    <connectionPoint xmi:type="uml:Pseudostate" xmi:id="_luRO8AJVEeerC-Kv7JK8lg" name="EXIT" kind="exitPoint"/>
+    <connectionPoint xmi:type="uml:Pseudostate" xmi:id="_oXYw0AJWEeerC-Kv7JK8lg" name="ENTRY" kind="entryPoint"/>
+    <region xmi:type="uml:Region" xmi:id="_l12TEAJUEeerC-Kv7JK8lg" name="Region1">
+      <transition xmi:type="uml:Transition" xmi:id="_2b9wwAJUEeerC-Kv7JK8lg" source="_1fh9sAJUEeerC-Kv7JK8lg" target="_0ZFTAAJUEeerC-Kv7JK8lg"/>
+      <transition xmi:type="uml:Transition" xmi:id="_t1d_kAJVEeerC-Kv7JK8lg" source="_3KaLIAJUEeerC-Kv7JK8lg" target="_luRO8AJVEeerC-Kv7JK8lg">
+        <trigger xmi:type="uml:Trigger" xmi:id="_yS21QAJzEeeGOuVciIkm9A" event="_t1w-4AJzEeeGOuVciIkm9A"/>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_4EROgAJYEeeGOuVciIkm9A" source="_oXYw0AJWEeerC-Kv7JK8lg" target="_3KaLIAJUEeerC-Kv7JK8lg"/>
+      <subvertex xmi:type="uml:State" xmi:id="_0ZFTAAJUEeerC-Kv7JK8lg" name="S21"/>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_1fh9sAJUEeerC-Kv7JK8lg" name=""/>
+      <subvertex xmi:type="uml:State" xmi:id="_3KaLIAJUEeerC-Kv7JK8lg" name="S22"/>
+    </region>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Signal" xmi:id="_NQ9LgAJVEeerC-Kv7JK8lg" name="E1"/>
+  <packagedElement xmi:type="uml:Signal" xmi:id="_PqbkUAJVEeerC-Kv7JK8lg" name="E2"/>
+  <packagedElement xmi:type="uml:Signal" xmi:id="_RIzm0AJVEeerC-Kv7JK8lg" name="E3"/>
+  <packagedElement xmi:type="uml:Signal" xmi:id="_qTz7EAJzEeeGOuVciIkm9A" name="E4"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_TqHF8AJVEeerC-Kv7JK8lg" name="SignalEventE1" signal="_NQ9LgAJVEeerC-Kv7JK8lg"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_WGPKIAJVEeerC-Kv7JK8lg" name="SignalEventE2" signal="_PqbkUAJVEeerC-Kv7JK8lg"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_YRI7cAJVEeerC-Kv7JK8lg" name="SignalEventE3" signal="_RIzm0AJVEeerC-Kv7JK8lg"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_t1w-4AJzEeeGOuVciIkm9A" name="SignalEventE4" signal="_qTz7EAJzEeeGOuVciIkm9A"/>
+</uml:Model>

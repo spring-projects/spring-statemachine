@@ -873,6 +873,59 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(listener.entered, containsInAnyOrder("S22"));
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSimpleConnectionPointRefMachine() throws Exception {
+		context.register(Config24.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent("E3");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
+		stateMachine.sendEvent("E4");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S4"));
+	}
+
+	@Test
+	public void testConnectionPointRef() {
+		context.refresh();
+		Resource model1 = new ClassPathResource("org/springframework/statemachine/uml/simple-connectionpointref.uml");
+		UmlStateMachineModelFactory builder = new UmlStateMachineModelFactory(model1);
+		builder.setBeanFactory(context);
+		assertThat(model1.exists(), is(true));
+		StateMachineModel<String, String> stateMachineModel = builder.build();
+		assertThat(stateMachineModel, notNullValue());
+		Collection<StateData<String, String>> stateDatas = stateMachineModel.getStatesData().getStateData();
+		assertThat(stateDatas.size(), is(8));
+		for (StateData<String, String> stateData : stateDatas) {
+			if (stateData.getState().equals("S1")) {
+				assertThat(stateData.isInitial(), is(true));
+			} else if (stateData.getState().equals("S2")) {
+				assertThat(stateData.isInitial(), is(false));
+			} else if (stateData.getState().equals("S21")) {
+				assertThat(stateData.isInitial(), is(true));
+			} else if (stateData.getState().equals("S22")) {
+				assertThat(stateData.isInitial(), is(false));
+			} else if (stateData.getState().equals("S3")) {
+				assertThat(stateData.isInitial(), is(false));
+			} else if (stateData.getState().equals("S4")) {
+				assertThat(stateData.isInitial(), is(false));
+			} else if (stateData.getState().equals("ENTRY")) {
+				assertThat(stateData.isInitial(), is(false));
+				assertThat(stateData.getPseudoStateKind(), is(PseudoStateKind.ENTRY));
+			} else if (stateData.getState().equals("EXIT")) {
+				assertThat(stateData.getPseudoStateKind(), is(PseudoStateKind.EXIT));
+				assertThat(stateData.isInitial(), is(false));
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+		assertThat(stateMachineModel.getTransitionsData().getEntrys().size(), is(1));
+		assertThat(stateMachineModel.getTransitionsData().getExits().size(), is(1));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config2 extends StateMachineConfigurerAdapter<String, String> {
@@ -1324,6 +1377,24 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		@Bean
 		public StateMachineModelFactory<String, String> modelFactory() {
 			return new UmlStateMachineModelFactory("classpath:org/springframework/statemachine/uml/simple-localtransition.uml");
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config24 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			Resource model = new ClassPathResource("org/springframework/statemachine/uml/simple-connectionpointref.uml");
+			return new UmlStateMachineModelFactory(model);
 		}
 	}
 
