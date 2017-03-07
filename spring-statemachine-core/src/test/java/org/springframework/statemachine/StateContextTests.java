@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,8 +64,8 @@ public class StateContextTests extends AbstractStateMachineTests {
 		assertThat(listener.contexts, hasSize(19));
 
 		assertThat(listener.contexts, contains(
-				hasStage(Stage.EXTENDED_STATE_CHANGED),
 				hasStage(Stage.TRANSITION_START),
+				hasStage(Stage.EXTENDED_STATE_CHANGED),
 				hasStage(Stage.TRANSITION),
 				hasStage(Stage.STATE_ENTRY),
 				hasStage(Stage.TRANSITION_START),
@@ -85,15 +85,15 @@ public class StateContextTests extends AbstractStateMachineTests {
 				hasStage(Stage.TRANSITION_END)
 		));
 
-		assertThat(listener.contexts.get(0).getStage(), is(Stage.EXTENDED_STATE_CHANGED));
+		assertThat(listener.contexts.get(0).getStage(), is(Stage.TRANSITION_START));
+		assertThat(listener.contexts.get(0).getTransition(), notNullValue());
+		assertThat(listener.contexts.get(0).getTransition().getSource(), nullValue());
+		assertThat(listener.contexts.get(0).getTransition().getTarget(), notNullValue());
+		assertThat(listener.contexts.get(0).getTransition().getTarget().getId(), is(States.S0));
+		assertThat(listener.contexts.get(0).getSource(), nullValue());
+		assertThat(listener.contexts.get(0).getTarget(), notNullValue());
 
-		assertThat(listener.contexts.get(1).getStage(), is(Stage.TRANSITION_START));
-		assertThat(listener.contexts.get(1).getTransition(), notNullValue());
-		assertThat(listener.contexts.get(1).getTransition().getSource(), nullValue());
-		assertThat(listener.contexts.get(1).getTransition().getTarget(), notNullValue());
-		assertThat(listener.contexts.get(1).getTransition().getTarget().getId(), is(States.S0));
-		assertThat(listener.contexts.get(1).getSource(), nullValue());
-		assertThat(listener.contexts.get(1).getTarget(), notNullValue());
+		assertThat(listener.contexts.get(1).getStage(), is(Stage.EXTENDED_STATE_CHANGED));
 
 		assertThat(listener.contexts.get(2).getStage(), is(Stage.TRANSITION));
 		assertThat(listener.contexts.get(2).getTransition(), notNullValue());
