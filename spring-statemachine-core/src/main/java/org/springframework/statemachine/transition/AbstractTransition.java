@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,7 +112,6 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 				return false;
 			}
 		}
-		executeAllActions(context);
 		return true;
 	}
 
@@ -155,7 +154,8 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 		}
 	}
 
-	protected final void executeAllActions(StateContext<S, E> context) {
+	@Override
+	public final void executeTransitionActions(StateContext<S, E> context) {
 		if (actions == null) {
 			return;
 		}

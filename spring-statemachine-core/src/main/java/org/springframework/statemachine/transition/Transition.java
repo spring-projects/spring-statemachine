@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,13 @@ public interface Transition<S, E> {
 	 * @return true, if transition happened, false otherwise
 	 */
 	boolean transit(StateContext<S, E> context);
+
+	/**
+	 * Execute transition actions.
+	 *
+	 * @param context the state context
+	 */
+	void executeTransitionActions(StateContext<S, E> context);
 
 	/**
 	 * Gets the source state of this transition.

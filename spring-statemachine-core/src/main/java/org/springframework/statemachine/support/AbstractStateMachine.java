@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -307,6 +307,12 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				long now = System.currentTimeMillis();
 				// TODO: fix above stateContext as it's not used
 				notifyTransitionStart(buildStateContext(Stage.TRANSITION_START, message, t, getRelayStateMachine()));
+				try {
+					t.executeTransitionActions(ctx);
+				} catch (Exception e) {
+					log.warn("Aborting as transition " + t + " caused error " + e);
+					return;
+				}
 				notifyTransition(buildStateContext(Stage.TRANSITION, message, t, getRelayStateMachine()));
 				if (t.getTarget().getPseudoState() != null && t.getTarget().getPseudoState().getKind() == PseudoStateKind.JOIN) {
 					exitFromState(t.getSource(), message, t, getRelayStateMachine());

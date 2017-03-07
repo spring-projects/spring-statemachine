@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -236,7 +236,7 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 			try {
 				transit = t.transit(stateContext);
 			} catch (Exception e) {
-				log.warn("Transition " + t + " caused error " + e);
+				log.warn("Aborting as transition " + t + " caused error " + e);
 			}
 			if (transit) {
 				stateMachineExecutorTransit.transit(t, stateContext, queuedMessage);
