@@ -150,11 +150,13 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 	@Override
 	protected void doStart() {
 		super.doStart();
+		startTriggers();
 		execute();
 	}
 
 	@Override
 	protected void doStop() {
+		stopTriggers();
 		super.doStop();
 		initialHandled.set(false);
 	}
@@ -461,8 +463,21 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 					}
 				});
 			}
+		}
+	}
+
+	private void startTriggers() {
+		for (final Trigger<S, E> trigger : triggerToTransitionMap.keySet()) {
 			if (trigger instanceof Lifecycle) {
 				((Lifecycle) trigger).start();
+			}
+		}
+	}
+
+	private void stopTriggers() {
+		for (final Trigger<S, E> trigger : triggerToTransitionMap.keySet()) {
+			if (trigger instanceof Lifecycle) {
+				((Lifecycle) trigger).stop();
 			}
 		}
 	}
