@@ -1,5 +1,6 @@
 buildscript {
 	ext {
+		log4jVersion = '1.2.17'
 		springVersion = '5.0.0.BUILD-SNAPSHOT'
 		springBootVersion = '2.0.0.BUILD-SNAPSHOT'
 		eclipsePersistenceVersion = '2.1.1'
@@ -85,6 +86,7 @@ configure(allprojects) {
 			mavenBom "org.springframework.cloud:spring-cloud-cluster-dependencies:$springCloudClusterVersion"
 		}
 		dependencies {
+			dependency "log4j:log4j:$log4jVersion"
 			dependency "org.eclipse.persistence:javax.persistence:$eclipsePersistenceVersion"
 			dependency "com.esotericsoftware:kryo-shaded:$kryoVersion"
 			dependency "org.springframework.shell:spring-shell:$springShellVersion"
