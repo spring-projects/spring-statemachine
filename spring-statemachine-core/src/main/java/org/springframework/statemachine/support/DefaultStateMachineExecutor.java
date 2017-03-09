@@ -449,7 +449,15 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 							log.debug("TimedTrigger triggered " + trigger);
 						}
 						triggerQueue.add(new TriggerQueueItem(trigger, null));
-						scheduleEventQueueProcessing();
+						// isRunning() is also called in scheduleEventQueueProcessing()
+						// but we may get into lifecycle deadlock if we schedule here
+						// from a different thread. may happen if timer fires immediately
+						// and we're not exactly gone through start sequence.
+						// however this trigger is most likely getting processed as
+						// it was added to trigger queue.
+						if (isRunning()) {
+							scheduleEventQueueProcessing();
+						}
 					}
 				});
 			}
