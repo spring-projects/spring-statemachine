@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +42,10 @@ public class StateMachineContextSerializer<S, E> extends Serializer<StateMachine
 		kryo.writeClassAndObject(output, context.getEvent());
 		kryo.writeClassAndObject(output, context.getState());
 		kryo.writeClassAndObject(output, context.getEventHeaders());
-		kryo.writeClassAndObject(output, context.getExtendedState().getVariables());
+		kryo.writeClassAndObject(output, context.getExtendedState() != null ? context.getExtendedState().getVariables() : null);
 		kryo.writeClassAndObject(output, context.getChilds());
+		kryo.writeClassAndObject(output, context.getHistoryStates());
+		kryo.writeClassAndObject(output, context.getId());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -54,7 +56,9 @@ public class StateMachineContextSerializer<S, E> extends Serializer<StateMachine
 		Map<String, Object> eventHeaders = (Map<String, Object>) kryo.readClassAndObject(input);
 		Map<Object, Object> variables = (Map<Object, Object>) kryo.readClassAndObject(input);
 		List<StateMachineContext<S, E>> childs = (List<StateMachineContext<S, E>>) kryo.readClassAndObject(input);
-		return new DefaultStateMachineContext<S, E>(childs, state, event, eventHeaders, new DefaultExtendedState(variables));
+		Map<S, S> historyStates = (Map<S, S>) kryo.readClassAndObject(input);
+		String id = (String) kryo.readClassAndObject(input);
+		return new DefaultStateMachineContext<S, E>(childs, state, event, eventHeaders, new DefaultExtendedState(variables), historyStates, id);
 	}
 
 }

@@ -313,6 +313,7 @@ project('spring-statemachine-build-tests') {
 	dependencies {
 		testCompile project(":spring-statemachine-uml")
 		testCompile project(":spring-statemachine-test")
+		testCompile project(":spring-statemachine-redis")
 		testCompile project(":spring-statemachine-data-common:spring-statemachine-data-jpa")
 		testCompile project(":spring-statemachine-data-common:spring-statemachine-data-redis")
 		testCompile project(":spring-statemachine-data-common:spring-statemachine-data-mongodb")
