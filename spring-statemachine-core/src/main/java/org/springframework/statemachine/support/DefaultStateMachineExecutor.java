@@ -128,7 +128,9 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 
 	@Override
 	public void queueTrigger(Trigger<S, E> trigger, Message<E> message) {
-		log.debug("Queue trigger " + trigger);
+		if (log.isDebugEnabled()) {
+			log.debug("Queue trigger " + trigger);
+		}
 		triggerQueue.add(new TriggerQueueItem(trigger, message));
 	}
 
