@@ -94,7 +94,7 @@ public class CdPlayerTests {
 
 	@Test
 	public void testPlayWithCdLoadedDeckOpen() throws Exception {
-		listener.reset(3, 0, 0);
+		listener.reset(4, 0, 0);
 		player.eject();
 		player.load(library.getCollection().get(0));
 		player.play();
