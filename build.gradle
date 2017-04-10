@@ -455,6 +455,7 @@ configure(sampleProjects()) {
 		testCompile "org.hamcrest:hamcrest-library"
 		testCompile "junit:junit"
 	}
+	build.dependsOn bootJar
 }
 
 project('spring-statemachine-samples-common') {
