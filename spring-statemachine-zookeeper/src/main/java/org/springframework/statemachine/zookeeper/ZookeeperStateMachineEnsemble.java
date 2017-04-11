@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,10 +32,10 @@ import org.apache.curator.framework.api.transaction.CuratorTransaction;
 import org.apache.curator.framework.api.transaction.CuratorTransactionFinal;
 import org.apache.curator.framework.imps.CuratorFrameworkState;
 import org.apache.curator.framework.recipes.locks.InterProcessSemaphoreMutex;
-import org.apache.curator.framework.recipes.nodes.PersistentEphemeralNode;
-import org.apache.curator.framework.recipes.nodes.PersistentEphemeralNode.Mode;
+import org.apache.curator.framework.recipes.nodes.PersistentNode;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
+import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.data.Stat;
 import org.springframework.statemachine.StateMachine;
@@ -75,7 +75,7 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	private final AtomicReference<StateWrapper> stateRef = new AtomicReference<StateWrapper>();
 	private final AtomicReference<StateWrapper> notifyRef = new AtomicReference<StateWrapper>();
 	private final CuratorWatcher watcher = new StateWatcher();
-	private PersistentEphemeralNode node;
+	private PersistentNode node;
 	private final Queue<StateMachine<S, E>> joinQueue = new ConcurrentLinkedQueue<StateMachine<S, E>>();
 	private final List<StateMachine<S, E>> joined = new ArrayList<StateMachine<S,E>>();
 	private final Object joinLock = new Object();
@@ -297,7 +297,7 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 				}
 			}
 
-			node = new PersistentEphemeralNode(curatorClient, Mode.EPHEMERAL, memberPath + "/" + uuid, new byte[0]);
+			node = new PersistentNode(curatorClient, CreateMode.EPHEMERAL, true, memberPath + "/" + uuid, new byte[0]);
 			node.start();
 			node.waitForInitialCreate(60, TimeUnit.SECONDS);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.curator.framework.CuratorFramework;
-import org.springframework.cloud.cluster.leader.Context;
-import org.springframework.cloud.cluster.leader.DefaultCandidate;
-import org.springframework.cloud.cluster.zk.leader.LeaderInitiator;
+import org.springframework.integration.leader.Context;
+import org.springframework.integration.leader.DefaultCandidate;
+import org.springframework.integration.zookeeper.leader.LeaderInitiator;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 import org.springframework.statemachine.zookeeper.ZookeeperStateMachineEnsemble;

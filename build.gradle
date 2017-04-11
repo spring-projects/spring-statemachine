@@ -83,7 +83,6 @@ configure(allprojects) {
 		imports {
 			mavenBom "org.springframework.cloud:spring-cloud-dependencies:Dalston.BUILD-SNAPSHOT"
 			mavenBom "org.springframework.boot:spring-boot-dependencies:$springBootVersion"
-			mavenBom "org.springframework.cloud:spring-cloud-cluster-dependencies:$springCloudClusterVersion"
 		}
 		dependencies {
 			dependency "log4j:log4j:$log4jVersion"
@@ -303,7 +302,7 @@ project('spring-statemachine-cluster') {
 
 	dependencies {
 		compile project(":spring-statemachine-zookeeper")
-		compile "org.springframework.cloud:spring-cloud-cluster-zookeeper"
+		compile "org.springframework.integration:spring-integration-zookeeper"
 
 		testCompile project(":spring-statemachine-test")
 		testCompile "org.apache.curator:curator-test"
