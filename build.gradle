@@ -152,6 +152,12 @@ configure(subprojects) { subproject ->
 		archives sourcesJar
 		archives javadocJar
 	}
+
+	eclipse {
+		classpath {
+			plusConfigurations += [ configurations.optional ]
+		}
+	}
 }
 
 project('spring-statemachine-core') {
