@@ -24,14 +24,14 @@ public abstract class TreeTraverser<T> {
 
 	/**
 	 * Returns the children of the specified node. Must not contain null.
-	 * 
+	 *
 	 * @param root the node
 	 * @return child iterables
 	 */
 	public abstract Iterable<T> children(T root);
 
 	public final Iterable<T> postOrderTraversal(final T root) {
-		Assert.notNull(root);
+		Assert.notNull(root, "root should not be null");
 		return new Iterable<T>() {
 			@Override
 			public Iterator<T> iterator() {
@@ -49,8 +49,8 @@ public abstract class TreeTraverser<T> {
 		final Iterator<T> childIterator;
 
 		PostOrderNode(T root, Iterator<T> childIterator) {
-			Assert.notNull(root);
-			Assert.notNull(childIterator);
+			Assert.notNull(root, "root should not be null");
+			Assert.notNull(childIterator, "childIterator should not be null");
 			this.root = root;
 			this.childIterator = childIterator;
 		}
