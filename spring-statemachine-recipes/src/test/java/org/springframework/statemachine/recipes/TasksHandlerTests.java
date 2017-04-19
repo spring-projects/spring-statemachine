@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
@@ -37,6 +39,8 @@ import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.statemachine.transition.Transition;
 
 public class TasksHandlerTests {
+
+	private final static Log log = LogFactory.getLog(TasksHandlerTests.class);
 
 	@Test
 	public void testRunOnceSimpleNoFailures() throws InterruptedException {
@@ -434,6 +438,7 @@ public class TasksHandlerTests {
 
 	@Test
 	public void testReset3() throws InterruptedException {
+		log.info("testReset3 start");
 		List<StateMachineContext<String, String>> childs = new ArrayList<StateMachineContext<String, String>>();
 		DefaultStateMachineContext<String, String> context = new DefaultStateMachineContext<String, String>(childs, "ERROR", null, null, null);
 		TestStateMachinePersist persist = new TestStateMachinePersist(context);
@@ -451,8 +456,10 @@ public class TasksHandlerTests {
 
 		handler.resetFromPersistStore();
 
+		log.info("testReset3 wait stateMachineStartedLatch");
 		assertThat(listener.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
 
+		log.info("testReset3 wait stateChangedLatch");
 		assertThat(listener.stateChangedLatch.await(4, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(2));
 		assertThat(machine.getState().getIds(), contains(TasksHandler.STATE_READY));
@@ -536,6 +543,7 @@ public class TasksHandlerTests {
 		@Override
 		public void stateChanged(State<String, String> from, State<String, String> to) {
 			synchronized (lock) {
+				TasksHandlerTests.log.info("stateChanged "  + from + "::" + to);
 				stateChangedCount++;
 				stateChangedLatch.countDown();
 			}
