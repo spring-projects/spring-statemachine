@@ -1,0 +1,13 @@
+<Configuration>
+		<Appenders>
+				<Console name="STDOUT" target="SYSTEM_OUT">
+						<PatternLayout pattern="%d{ABSOLUTE} %5p %t %c{2} [%t] - %m%n"/>
+				</Console>
+		</Appenders>
+		<Loggers>
+				<Logger name="org.springframework.statemachine" level="debug"/>
+				<Root level="info">
+						<AppenderRef ref="STDOUT"/>
+				</Root>
+		</Loggers>
+</Configuration>

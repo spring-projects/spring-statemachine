@@ -180,7 +180,7 @@ project('spring-statemachine-core') {
 		testCompile "org.springframework.security:spring-security-config"
 		testCompile "org.springframework.security:spring-security-test"
 		testCompile "javax.servlet:javax.servlet-api"
-		testRuntime "log4j:log4j"
+		testRuntime "org.apache.logging.log4j:log4j-core"
 	}
 }
 
@@ -232,7 +232,7 @@ project('spring-statemachine-kryo') {
 		testCompile "org.hamcrest:hamcrest-core"
 		testCompile "org.hamcrest:hamcrest-library"
 		testCompile "junit:junit"
-		testRuntime "log4j:log4j"
+		testRuntime "org.apache.logging.log4j:log4j-core"
 	}
 }
 
@@ -252,7 +252,7 @@ project('spring-statemachine-zookeeper') {
 		testCompile "org.hamcrest:hamcrest-core"
 		testCompile "org.hamcrest:hamcrest-library"
 		testCompile "junit:junit"
-		testRuntime "log4j:log4j"
+		testRuntime "org.apache.logging.log4j:log4j-core"
 	}
 }
 
@@ -270,7 +270,7 @@ project('spring-statemachine-redis') {
 		testCompile "org.hamcrest:hamcrest-core"
 		testCompile "org.hamcrest:hamcrest-library"
 		testCompile "junit:junit"
-		testRuntime "log4j:log4j"
+		testRuntime "org.apache.logging.log4j:log4j-core"
 	}
 }
 
@@ -310,7 +310,7 @@ project('spring-statemachine-cluster') {
 		testCompile "org.hamcrest:hamcrest-core"
 		testCompile "org.hamcrest:hamcrest-library"
 		testCompile "junit:junit"
-		testRuntime "log4j:log4j"
+		testRuntime "org.apache.logging.log4j:log4j-core"
 	}
 }
 
@@ -347,7 +347,7 @@ project('spring-statemachine-uml') {
 		testCompile "org.hamcrest:hamcrest-core"
 		testCompile "org.hamcrest:hamcrest-library"
 		testCompile "junit:junit"
-		testRuntime "log4j:log4j"
+		testRuntime "org.apache.logging.log4j:log4j-core"
 	}
 }
 
