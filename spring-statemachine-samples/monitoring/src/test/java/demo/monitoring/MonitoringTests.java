@@ -79,7 +79,7 @@ public class MonitoringTests {
 			perform(get("/state").param("events", "E1")).
 			andExpect(status().isOk());
 		mvc.
-			perform(get("/metrics")).
+			perform(get("/application/metrics")).
 			andExpect(jsonPath("$.['counter.ssm.transition.INITIAL_S1.transit']", is(1)));
 	}
 
@@ -89,7 +89,7 @@ public class MonitoringTests {
 			perform(get("/state")).
 			andExpect(status().isOk());
 		mvc.
-			perform(get("/trace")).
+			perform(get("/application/trace")).
 			andExpect(jsonPath("$.*.info.transition", containsInAnyOrder("INITIAL_S1")));
 	}
 

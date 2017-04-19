@@ -1522,7 +1522,7 @@ Metrics can be viewed from Boot.
 
 [source,json]
 ----
-# curl http://localhost:8080/metrics
+# curl http://localhost:8080/application/metrics
 
 {
 "gauge.ssm.transition.INITIAL_S1.duration":0.0,
@@ -1544,7 +1544,7 @@ Tracing can be viewed from Boot.
 
 [source,json]
 ----
-# curl http://localhost:8080/trace
+# curl http://localhost:8080/application/trace
 
 [{
   "timestamp":1478419121956,
