@@ -4,6 +4,14 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 1.2.4.RELEASE (2017-05-03)
+---------------------------------------------
+* Prevent debug calls in AbstractStateMachine if not enabled [#329]
+* StateMachineContextSerializer may throw NPE [#331]
+* StateMachineContextSerializer doesn't serialise history or id [#333]
+* An exception in Action causes infinite transition [#344]
+* PostStateChange interceptors are not given the correct state [#353]
+
 Changes in version 1.2.3.RELEASE (2017-03-13)
 ---------------------------------------------
 * Backport master changes [#320]
