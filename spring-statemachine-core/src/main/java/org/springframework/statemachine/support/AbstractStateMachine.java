@@ -824,7 +824,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			setCurrentState(toState, message, transition, true, stateMachine, null, targets);
 		}
 
-		callPostStateChangeInterceptors(state, message, transition, stateMachine);
+		callPostStateChangeInterceptors(toState, message, transition, stateMachine);
 
 		stateMachineExecutor.execute();
 		if (isComplete()) {
