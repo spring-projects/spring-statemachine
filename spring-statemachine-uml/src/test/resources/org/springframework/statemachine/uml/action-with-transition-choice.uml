@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_OqqwgAOpEeaiNLSABY7wHw" name="RootElement">
+  <packagedElement xmi:type="uml:StateMachine" xmi:id="_OrcMkAOpEeaiNLSABY7wHw" name="StateMachine">
+    <region xmi:type="uml:Region" xmi:id="_OrpA4AOpEeaiNLSABY7wHw" name="Region1">
+      <transition xmi:type="uml:Transition" xmi:id="_7V6s4AOpEeaiNLSABY7wHw" source="_fyGykAOpEeaiNLSABY7wHw" target="_e6aVkAOpEeaiNLSABY7wHw"/>
+      <transition xmi:type="uml:Transition" xmi:id="_X0EvkAOqEeaiNLSABY7wHw" source="_e6aVkAOpEeaiNLSABY7wHw" target="_in3ewAOpEeaiNLSABY7wHw">
+        <effect xmi:type="uml:FunctionBehavior" xmi:id="_AKBlwDCdEeeP8_MeAypGlA" name="s1ToChoice">
+          <language>bean</language>
+          <body>s1ToChoice</body>
+        </effect>
+        <trigger xmi:type="uml:Trigger" xmi:id="_CVbtoAOzEeaiNLSABY7wHw" event="_9sMRoAOyEeaiNLSABY7wHw"/>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_arx8gAOqEeaiNLSABY7wHw" guard="_yT_ckAOtEeaiNLSABY7wHw" source="_in3ewAOpEeaiNLSABY7wHw" target="_hTUGoAOpEeaiNLSABY7wHw">
+        <ownedRule xmi:type="uml:Constraint" xmi:id="_yT_ckAOtEeaiNLSABY7wHw">
+          <specification xmi:type="uml:OpaqueExpression" xmi:id="_yT_ckQOtEeaiNLSABY7wHw">
+            <language>bean</language>
+            <body>s2Guard</body>
+          </specification>
+        </ownedRule>
+        <effect xmi:type="uml:FunctionBehavior" xmi:id="_IDAUMDCdEeeP8_MeAypGlA" name="choiceToS2">
+          <language>bean</language>
+          <body>choiceToS2</body>
+        </effect>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_bfbnAAOqEeaiNLSABY7wHw" guard="_9yVIIAOtEeaiNLSABY7wHw" source="_in3ewAOpEeaiNLSABY7wHw" target="_hwr_IAOpEeaiNLSABY7wHw">
+        <ownedRule xmi:type="uml:Constraint" xmi:id="_9yVIIAOtEeaiNLSABY7wHw">
+          <specification xmi:type="uml:OpaqueExpression" xmi:id="_9yVIIQOtEeaiNLSABY7wHw">
+            <language>bean</language>
+            <body>s3Guard</body>
+          </specification>
+        </ownedRule>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_cIytEAOqEeaiNLSABY7wHw" source="_in3ewAOpEeaiNLSABY7wHw" target="_1f3fgAOpEeaiNLSABY7wHw">
+        <effect xmi:type="uml:FunctionBehavior" xmi:id="_LR1AoDCdEeeP8_MeAypGlA" name="choiceToS4">
+          <language>bean</language>
+          <body>choiceToS4</body>
+        </effect>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_Jv-vIDFoEeeP8_MeAypGlA" guard="_UnE0gDFoEeeP8_MeAypGlA" source="_in3ewAOpEeaiNLSABY7wHw" target="_B9rQcDFoEeeP8_MeAypGlA">
+        <ownedRule xmi:type="uml:Constraint" xmi:id="_UnE0gDFoEeeP8_MeAypGlA">
+          <specification xmi:type="uml:OpaqueExpression" xmi:id="_UnE0gTFoEeeP8_MeAypGlA" name="choice2Guard">
+            <language>bean</language>
+            <body>choice2Guard</body>
+          </specification>
+        </ownedRule>
+        <effect xmi:type="uml:FunctionBehavior" xmi:id="_q79L0DFoEeeP8_MeAypGlA" name="choice1ToChoice2">
+          <language>bean</language>
+          <body>choice1ToChoice2</body>
+        </effect>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_K2u70DFoEeeP8_MeAypGlA" guard="_aQIHsDFoEeeP8_MeAypGlA" source="_B9rQcDFoEeeP8_MeAypGlA" target="__wwF4DFnEeeP8_MeAypGlA">
+        <ownedRule xmi:type="uml:Constraint" xmi:id="_aQIHsDFoEeeP8_MeAypGlA">
+          <specification xmi:type="uml:OpaqueExpression" xmi:id="_aQIHsTFoEeeP8_MeAypGlA" name="s5Guard">
+            <language>bean</language>
+            <body>s5Guard</body>
+          </specification>
+        </ownedRule>
+        <effect xmi:type="uml:FunctionBehavior" xmi:id="_POtMMDFpEeeP8_MeAypGlA" name="choiceToS5">
+          <language>bean</language>
+          <body>choiceToS5</body>
+        </effect>
+      </transition>
+      <transition xmi:type="uml:Transition" xmi:id="_LqOOQDFoEeeP8_MeAypGlA" source="_B9rQcDFoEeeP8_MeAypGlA" target="_FQg6MDFoEeeP8_MeAypGlA">
+        <effect xmi:type="uml:FunctionBehavior" xmi:id="_whKEUDFpEeeP8_MeAypGlA" name="choiceToS6">
+          <language>bean</language>
+          <body>choiceToS6</body>
+        </effect>
+      </transition>
+      <subvertex xmi:type="uml:State" xmi:id="_e6aVkAOpEeaiNLSABY7wHw" name="S1"/>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_fyGykAOpEeaiNLSABY7wHw"/>
+      <subvertex xmi:type="uml:State" xmi:id="_hTUGoAOpEeaiNLSABY7wHw" name="S2"/>
+      <subvertex xmi:type="uml:State" xmi:id="_hwr_IAOpEeaiNLSABY7wHw" name="S3"/>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_in3ewAOpEeaiNLSABY7wHw" name="CHOICE1" kind="choice"/>
+      <subvertex xmi:type="uml:State" xmi:id="_1f3fgAOpEeaiNLSABY7wHw" name="S4"/>
+      <subvertex xmi:type="uml:State" xmi:id="__wwF4DFnEeeP8_MeAypGlA" name="S5"/>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_B9rQcDFoEeeP8_MeAypGlA" name="CHOICE2" kind="choice"/>
+      <subvertex xmi:type="uml:State" xmi:id="_FQg6MDFoEeeP8_MeAypGlA" name="S6"/>
+    </region>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Signal" xmi:id="_61ApIAOyEeaiNLSABY7wHw" name="E1"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_9sMRoAOyEeaiNLSABY7wHw" name="SignalEventE1" signal="_61ApIAOyEeaiNLSABY7wHw"/>
+</uml:Model>

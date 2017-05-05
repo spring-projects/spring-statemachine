@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package org.springframework.statemachine.config.model;
 
+import java.util.Collection;
+
+import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
 
 /**
@@ -27,6 +30,7 @@ public class ChoiceData<S, E> {
 	private final S source;
 	private final S target;
 	private final Guard<S, E> guard;
+	private final Collection<Action<S, E>> actions;
 
 	/**
 	 * Instantiates a new choice data.
@@ -36,9 +40,22 @@ public class ChoiceData<S, E> {
 	 * @param guard the guard
 	 */
 	public ChoiceData(S source, S target, Guard<S, E> guard) {
+		this(source, target, guard, null);
+	}
+
+	/**
+	 * Instantiates a new choice data.
+	 *
+	 * @param source the source
+	 * @param target the target
+	 * @param guard the guard
+	 * @param actions the actions
+	 */
+	public ChoiceData(S source, S target, Guard<S, E> guard, Collection<Action<S, E>> actions) {
 		this.source = source;
 		this.target = target;
 		this.guard = guard;
+		this.actions = actions;
 	}
 
 	/**
@@ -66,5 +83,14 @@ public class ChoiceData<S, E> {
 	 */
 	public Guard<S, E> getGuard() {
 		return guard;
+	}
+
+	/**
+	 * Gets the actions.
+	 *
+	 * @return the actions
+	 */
+	public Collection<Action<S, E>> getActions() {
+		return actions;
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -33,6 +35,7 @@ import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachineSystemConstants;
+import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
@@ -154,6 +157,44 @@ public class ChoiceStateTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), contains(TestStates.S4));
 		assertThat(listener.exited.size(), is(1));
 		assertThat(listener.entered.size(), is(1));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testTransitionToChoiceActionCalled1() throws InterruptedException {
+		context.register(Config5.class);
+		context.refresh();
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		LatchAction sIToChoice = context.getBean("sIToChoice", LatchAction.class);
+		LatchAction choiceToS30 = context.getBean("choiceToS30", LatchAction.class);
+		LatchAction choiceToS33 = context.getBean("choiceToS33", LatchAction.class);
+		assertThat(machine, notNullValue());
+		machine.start();
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("choice", "s30").build());
+		assertThat(sIToChoice.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(choiceToS30.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(choiceToS33.latch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(machine.getState().getIds(), contains(TestStates.S30));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testTransitionToChoiceActionCalled2() throws InterruptedException {
+		context.register(Config5.class);
+		context.refresh();
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		LatchAction sIToChoice = context.getBean("sIToChoice", LatchAction.class);
+		LatchAction choiceToS30 = context.getBean("choiceToS30", LatchAction.class);
+		LatchAction choiceToS33 = context.getBean("choiceToS33", LatchAction.class);
+		assertThat(machine, notNullValue());
+		machine.start();
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
+		assertThat(sIToChoice.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(choiceToS30.latch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(choiceToS33.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), contains(TestStates.S33));
 	}
 
 	@Configuration
@@ -324,6 +365,73 @@ public class ChoiceStateTests extends AbstractStateMachineTests {
 		}
 	}
 
+	@Configuration
+	@EnableStateMachine
+	static class Config5 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.SI)
+					.states(EnumSet.allOf(TestStates.class))
+					.choice(TestStates.S3)
+					.end(TestStates.SF);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.SI)
+					.target(TestStates.S3)
+					.action(sIToChoice())
+					.event(TestEvents.E1)
+					.and()
+				.withChoice()
+					.source(TestStates.S3)
+					.first(TestStates.S30, s30Guard(), choiceToS30())
+					.then(TestStates.S31, s31Guard())
+					.then(TestStates.S32, s32Guard())
+					.last(TestStates.S33, choiceToS33(), choiceToS33Error());
+		}
+
+		@Bean
+		public Guard<TestStates, TestEvents> s30Guard() {
+			return new ChoiceGuard("s30");
+		}
+
+		@Bean
+		public Guard<TestStates, TestEvents> s31Guard() {
+			return new ChoiceGuard("s31");
+		}
+
+		@Bean
+		public Guard<TestStates, TestEvents> s32Guard() {
+			return new ChoiceGuard("s32");
+		}
+
+		@Bean
+		public Action<TestStates, TestEvents> sIToChoice() {
+			return new LatchAction();
+		}
+
+		@Bean
+		public Action<TestStates, TestEvents> choiceToS30() {
+			return new LatchAction();
+		}
+
+		@Bean
+		public Action<TestStates, TestEvents> choiceToS33() {
+			return new LatchAction();
+		}
+
+		@Bean
+		public Action<TestStates, TestEvents> choiceToS33Error() {
+			return new LatchAction();
+		}
+	}
+
 	private static class TestStateEntryExitListener extends StateMachineListenerAdapter<TestStates, TestEvents> {
 
 		List<State<TestStates, TestEvents>> entered = new ArrayList<>();
@@ -359,4 +467,12 @@ public class ChoiceStateTests extends AbstractStateMachineTests {
 		}
 	}
 
+	private static class LatchAction implements Action<TestStates, TestEvents> {
+		CountDownLatch latch = new CountDownLatch(1);
+
+		@Override
+		public void execute(StateContext<TestStates, TestEvents> context) {
+			latch.countDown();
+		}
+	}
 }

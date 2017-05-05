@@ -329,6 +329,23 @@ Otherwise configuration is ill-formed.
 include::samples/DocsConfigurationSampleTests.java[tags=snippetS]
 ----
 
+Actions can be executed with both incoming and outgoing transitions of
+a choice pseudostate. As seeing from below example, one dummy lambda
+action is defined leading into a choice state and one similar dummy
+lambda action defined for one outgoing transition where it also
+define an error action.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetSSS]
+----
+
+[NOTE]
+====
+Junction have same api format meaning actions can be defined
+similarly.
+====
+
 [[statemachine-config-states-junction]]
 ==== Junction State
 Junction needs to be defined in both states and transitions to work

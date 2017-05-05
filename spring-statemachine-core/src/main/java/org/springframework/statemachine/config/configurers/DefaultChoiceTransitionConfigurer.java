@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,11 @@
 package org.springframework.statemachine.config.configurers;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.action.Actions;
 import org.springframework.statemachine.config.builders.StateMachineTransitionBuilder;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerAdapter;
@@ -63,20 +66,61 @@ public class DefaultChoiceTransitionConfigurer<S, E>
 
 	@Override
 	public ChoiceTransitionConfigurer<S, E> first(S target, Guard<S, E> guard) {
-		this.first = new ChoiceData<S, E>(source, target, guard);
+		return first(target, guard, null);
+	}
+
+	@Override
+	public ChoiceTransitionConfigurer<S, E> first(S target, Guard<S, E> guard, Action<S, E> action) {
+		return first(target, guard, action, null);
+	}
+
+	@Override
+	public ChoiceTransitionConfigurer<S, E> first(S target, Guard<S, E> guard, Action<S, E> action, Action<S, E> error) {
+		Collection<Action<S, E>> actions = new ArrayList<>();
+		if (action != null) {
+			actions.add(error != null ? Actions.errorCallingAction(action, error) : action);
+		}
+		this.first = new ChoiceData<S, E>(source, target, guard, actions);
 		return this;
 	}
 
 	@Override
 	public ChoiceTransitionConfigurer<S, E> then(S target, Guard<S, E> guard) {
-		thens.add(new ChoiceData<S, E>(source, target, guard));
+		return then(target, guard, null);
+	}
+
+	@Override
+	public ChoiceTransitionConfigurer<S, E> then(S target, Guard<S, E> guard, Action<S, E> action) {
+		return then(target, guard, action, null);
+	}
+
+	@Override
+	public ChoiceTransitionConfigurer<S, E> then(S target, Guard<S, E> guard, Action<S, E> action, Action<S, E> error) {
+		Collection<Action<S, E>> actions = new ArrayList<>();
+		if (action != null) {
+			actions.add(error != null ? Actions.errorCallingAction(action, error) : action);
+		}
+		thens.add(new ChoiceData<S, E>(source, target, guard, actions));
 		return this;
 	}
 
 	@Override
 	public ChoiceTransitionConfigurer<S, E> last(S target) {
-		this.last = new ChoiceData<S, E>(source, target, null);
-		return this;
+		return last(target, null);
 	}
 
+	@Override
+	public ChoiceTransitionConfigurer<S, E> last(S target, Action<S, E> action) {
+		return last(target, action, null);
+	}
+
+	@Override
+	public ChoiceTransitionConfigurer<S, E> last(S target, Action<S, E> action, Action<S, E> error) {
+		Collection<Action<S, E>> actions = new ArrayList<>();
+		if (action != null) {
+			actions.add(error != null ? Actions.errorCallingAction(action, error) : action);
+		}
+		this.last = new ChoiceData<S, E>(source, target, null, actions);
+		return this;
+	}
 }
