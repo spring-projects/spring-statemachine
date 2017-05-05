@@ -1075,7 +1075,9 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		if (state == null) {
 			return;
 		}
-		log.trace("Trying Exit state=[" + state + "]");
+		if (log.isTraceEnabled()) {
+			log.trace("Trying Exit state=[" + state + "]");
+		}
 		StateContext<S, E> stateContext = buildStateContext(Stage.STATE_EXIT, message, transition, stateMachine);
 
 		if (transition != null) {
@@ -1111,7 +1113,9 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 		}
 
-		log.debug("Exit state=[" + state + "]");
+		if (log.isDebugEnabled()) {
+			log.debug("Exit state=[" + state + "]");
+		}
 		state.exit(stateContext);
 
 		notifyStateExited(buildStateContext(Stage.STATE_EXIT, message, null, getRelayStateMachine(), state, null));
@@ -1138,7 +1142,9 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		if (state == null) {
 			return;
 		}
-		log.trace("Trying Enter state=[" + state + "]");
+		if (log.isTraceEnabled()) {
+			log.trace("Trying Enter state=[" + state + "]");
+		}
 		StateContext<S, E> stateContext = buildStateContext(Stage.STATE_ENTRY, message, transition, stateMachine, sources, targets);
 
 		if (transition != null) {
@@ -1180,7 +1186,9 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		if (!StateMachineUtils.isPseudoState(state, PseudoStateKind.JOIN)) {
 			notifyStateEntered(buildStateContext(Stage.STATE_ENTRY, message, transition, getRelayStateMachine(), null, state));
 		}
-		log.debug("Enter state=[" + state + "]");
+		if (log.isDebugEnabled()) {
+			log.debug("Enter state=[" + state + "]");
+		}
 		state.entry(stateContext);
 	}
 
