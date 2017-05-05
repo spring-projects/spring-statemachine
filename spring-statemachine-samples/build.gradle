@@ -70,6 +70,7 @@ project('spring-statemachine-samples-web') {
 project('spring-statemachine-samples-scope') {
 	description = 'Spring State Machine Web Scope Sample'
 	dependencies {
+		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
 	}
 }
@@ -77,6 +78,7 @@ project('spring-statemachine-samples-scope') {
 project('spring-statemachine-samples-security') {
 	description = 'Spring State Machine Web Security Sample'
 	dependencies {
+		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
 		compile("org.springframework.boot:spring-boot-starter-security")
 		compile("org.springframework.security:spring-security-config")
@@ -88,6 +90,7 @@ project('spring-statemachine-samples-eventservice') {
 	description = 'Spring State Machine Event Service Sample'
 	dependencies {
 		compile project(":spring-statemachine-redis")
+		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
 		compile("org.apache.commons:commons-pool2")
 	}
@@ -97,6 +100,7 @@ project('spring-statemachine-samples-deploy') {
 	description = 'Spring State Machine Deploy Sample'
 	dependencies {
 		compile project(":spring-statemachine-uml")
+		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
 	}
 }
@@ -105,6 +109,7 @@ project('spring-statemachine-samples-ordershipping') {
 	description = 'Spring State Machine Order Shipping Sample'
 	dependencies {
 		compile project(":spring-statemachine-uml")
+		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
 	}
 }
@@ -114,6 +119,7 @@ project('spring-statemachine-samples-datajpa') {
 	dependencies {
 		compile project(":spring-statemachine-boot")
 		compile project(":spring-statemachine-data-common:spring-statemachine-data-jpa")
+		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
 		compile("org.springframework.boot:spring-boot-starter-data-jpa")
 		compile("org.springframework.boot:spring-boot-devtools")
@@ -125,6 +131,7 @@ project('spring-statemachine-samples-monitoring') {
 	description = 'Spring State Machine Monitoring Sample'
 	dependencies {
 		compile project(":spring-statemachine-boot")
+		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
 		compile("org.springframework.boot:spring-boot-starter-security")
 		testCompile("com.jayway.jsonpath:json-path")
