@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine.config.configurers;
 
+import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerBuilder;
 import org.springframework.statemachine.guard.Guard;
@@ -52,6 +53,35 @@ public interface JunctionTransitionConfigurer<S, E>
 	JunctionTransitionConfigurer<S, E> first(S target, Guard<S, E> guard);
 
 	/**
+	 * Specify a target state {@code S} as a first choice associating an
+	 * {@link Action} to outgoing vertex. This must be set.
+	 * <p>
+	 * In normal if/else if/else this would represent if.
+	 * </p>
+	 *
+	 * @param target the target state
+	 * @param guard the guard for this choice
+	 * @param action the action
+	 * @return configurer for chaining
+	 */
+	JunctionTransitionConfigurer<S, E> first(S target, Guard<S, E> guard, Action<S, E> action);
+
+	/**
+	 * Specify a target state {@code S} as a first choice associating an
+	 * {@link Action} to outgoing vertex. This must be set.
+	 * <p>
+	 * In normal if/else if/else this would represent if.
+	 * </p>
+	 *
+	 * @param target the target state
+	 * @param guard the guard for this choice
+	 * @param action the action
+	 * @param error action that will be called if any unexpected exception is thrown by the action.
+	 * @return configurer for chaining
+	 */
+	JunctionTransitionConfigurer<S, E> first(S target, Guard<S, E> guard, Action<S, E> action, Action<S, E> error);
+
+	/**
 	 * Specify a target state {@code S} as a then choice.
 	 * This is optional. Multiple thens will preserve order.
 	 * <p>In normal if/else if/else this would represent else if.</p>
@@ -63,6 +93,33 @@ public interface JunctionTransitionConfigurer<S, E>
 	JunctionTransitionConfigurer<S, E> then(S target, Guard<S, E> guard);
 
 	/**
+	 * Specify a target state {@code S} as a then choice associating an
+	 * {@link Action} to outgoing vertex. This is optional. Multiple thens
+	 * will preserve order.
+	 * <p>In normal if/else if/else this would represent else if.</p>
+	 *
+	 * @param target the target state
+	 * @param guard the guard for this choice
+	 * @param action the action
+	 * @return configurer for chaining
+	 */
+	JunctionTransitionConfigurer<S, E> then(S target, Guard<S, E> guard, Action<S, E> action);
+
+	/**
+	 * Specify a target state {@code S} as a then choice associating an
+	 * {@link Action} to outgoing vertex. This is optional. Multiple thens
+	 * will preserve order.
+	 * <p>In normal if/else if/else this would represent else if.</p>
+	 *
+	 * @param target the target state
+	 * @param guard the guard for this choice
+	 * @param action the action
+	 * @param error action that will be called if any unexpected exception is thrown by the action.
+	 * @return configurer for chaining
+	 */
+	JunctionTransitionConfigurer<S, E> then(S target, Guard<S, E> guard, Action<S, E> action, Action<S, E> error);
+
+	/**
 	 * Specify a target state {@code S} as a last choice.
 	 * This must be set.
 	 * <p>In normal if/else if/else this would represent else.</p>
@@ -71,5 +128,28 @@ public interface JunctionTransitionConfigurer<S, E>
 	 * @return configurer for chaining
 	 */
 	JunctionTransitionConfigurer<S, E> last(S target);
+
+	/**
+	 * Specify a target state {@code S} as a last choice associating an
+	 * {@link Action} to outgoing vertex. This must be set.
+	 * <p>In normal if/else if/else this would represent else.</p>
+	 *
+	 * @param target the target state
+	 * @param action the action
+	 * @return configurer for chaining
+	 */
+	JunctionTransitionConfigurer<S, E> last(S target, Action<S, E> action);
+
+	/**
+	 * Specify a target state {@code S} as a last choice associating an
+	 * {@link Action} to outgoing vertex. This must be set.
+	 * <p>In normal if/else if/else this would represent else.</p>
+	 *
+	 * @param target the target state
+	 * @param action the action
+	 * @param error action that will be called if any unexpected exception is thrown by the action.
+	 * @return configurer for chaining
+	 */
+	JunctionTransitionConfigurer<S, E> last(S target, Action<S, E> action, Action<S, E> error);
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -653,7 +653,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 					if (holder.getState() == null) {
 						holderMap.put(c.getTarget(), holder);
 					}
-					choices.add(new ChoiceStateData<S, E>(holder, c.getGuard()));
+					choices.add(new ChoiceStateData<S, E>(holder, c.getGuard(), c.getActions()));
 				}
 				PseudoState<S, E> pseudoState = new ChoicePseudoState<S, E>(choices);
 				state = buildStateInternal(stateData.getState(), stateData.getDeferred(), stateData.getEntryActions(),
@@ -669,7 +669,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 					if (holder.getState() == null) {
 						holderMap.put(c.getTarget(), holder);
 					}
-					junctions.add(new JunctionStateData<S, E>(holder, c.getGuard()));
+					junctions.add(new JunctionStateData<S, E>(holder, c.getGuard(), c.getActions()));
 				}
 				PseudoState<S, E> pseudoState = new JunctionPseudoState<S, E>(junctions);
 				state = buildStateInternal(stateData.getState(), stateData.getDeferred(), stateData.getEntryActions(),

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -288,11 +288,12 @@ public class UmlModelParser {
 						choices.put(transition.getSource().getName(), list);
 					}
 					Guard<String, String> guard = resolveGuard(transition);
+					Collection<Action<String,String>> actions = UmlUtils.resolveTransitionActions(transition, resolver);
 					// we want null guards to be at the end
 					if (guard == null) {
-						list.addLast(new ChoiceData<String, String>(transition.getSource().getName(), transition.getTarget().getName(), guard));
+						list.addLast(new ChoiceData<String, String>(transition.getSource().getName(), transition.getTarget().getName(), guard, actions));
 					} else {
-						list.addFirst(new ChoiceData<String, String>(transition.getSource().getName(), transition.getTarget().getName(), guard));
+						list.addFirst(new ChoiceData<String, String>(transition.getSource().getName(), transition.getTarget().getName(), guard, actions));
 					}
 				} else if (((Pseudostate)transition.getSource()).getKind() == PseudostateKind.JUNCTION_LITERAL) {
 					LinkedList<JunctionData<String, String>> list = junctions.get(transition.getSource().getName());
@@ -301,11 +302,12 @@ public class UmlModelParser {
 						junctions.put(transition.getSource().getName(), list);
 					}
 					Guard<String, String> guard = resolveGuard(transition);
+					Collection<Action<String,String>> actions = UmlUtils.resolveTransitionActions(transition, resolver);
 					// we want null guards to be at the end
 					if (guard == null) {
-						list.addLast(new JunctionData<String, String>(transition.getSource().getName(), transition.getTarget().getName(), guard));
+						list.addLast(new JunctionData<String, String>(transition.getSource().getName(), transition.getTarget().getName(), guard, actions));
 					} else {
-						list.addFirst(new JunctionData<String, String>(transition.getSource().getName(), transition.getTarget().getName(), guard));
+						list.addFirst(new JunctionData<String, String>(transition.getSource().getName(), transition.getTarget().getName(), guard, actions));
 					}
 				} else if (((Pseudostate)transition.getSource()).getKind() == PseudostateKind.FORK_LITERAL) {
 					List<String> list = forks.get(transition.getSource().getName());

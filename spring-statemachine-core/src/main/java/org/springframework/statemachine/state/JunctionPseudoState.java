@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,13 @@
  */
 package org.springframework.statemachine.state;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.statemachine.StateContext;
+import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.util.Assert;
 
@@ -53,11 +55,16 @@ public class JunctionPseudoState<S, E> implements PseudoState<S, E> {
 	@Override
 	public State<S, E> entry(StateContext<S, E> context) {
 		State<S, E> s = null;
+		JunctionStateData<S, E> jsd = null;
 		for (JunctionStateData<S, E> j : junctions) {
-			s = j.getState();
+			jsd = j;
 			if (j.guard != null && evaluateInternal(j.guard, context)) {
 				break;
 			}
+		}
+		if (jsd != null) {
+			s = jsd.getState();
+			executeActions(jsd.getActions(), context);
 		}
 		return s;
 	}
@@ -83,6 +90,19 @@ public class JunctionPseudoState<S, E> implements PseudoState<S, E> {
 		}
 	}
 
+	private void executeActions(Collection<Action<S, E>> actions, StateContext<S, E> context) {
+		if (actions == null) {
+			return;
+		}
+		for (Action<S, E> action : actions) {
+			try {
+				action.execute(context);
+			} catch (Throwable t) {
+				log.warn("Action execution resulted error", t);
+			}
+		}
+	}
+
 	/**
 	 * Data class wrapping choice {@link State} and {@link Guard}
 	 * together.
@@ -93,17 +113,20 @@ public class JunctionPseudoState<S, E> implements PseudoState<S, E> {
 	public static class JunctionStateData<S, E> {
 		private final StateHolder<S, E> state;
 		private final Guard<S, E> guard;
+		private final Collection<Action<S, E>> actions;
 
 		/**
 		 * Instantiates a new junction state data.
 		 *
 		 * @param state the state holder
 		 * @param guard the guard
+		 * @param actions the actions
 		 */
-		public JunctionStateData(StateHolder<S, E> state, Guard<S, E> guard) {
+		public JunctionStateData(StateHolder<S, E> state, Guard<S, E> guard, Collection<Action<S, E>> actions) {
 			Assert.notNull(state, "Holder must be set");
 			this.state = state;
 			this.guard = guard;
+			this.actions = actions;
 		}
 
 		/**
@@ -131,6 +154,15 @@ public class JunctionPseudoState<S, E> implements PseudoState<S, E> {
 		 */
 		public Guard<S, E> getGuard() {
 			return guard;
+		}
+
+		/**
+		 * Gets the actions.
+		 *
+		 * @return the actions
+		 */
+		public Collection<Action<S, E>> getActions() {
+			return actions;
 		}
 	}
 }

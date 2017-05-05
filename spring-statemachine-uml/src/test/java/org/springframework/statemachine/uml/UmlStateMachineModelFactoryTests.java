@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -926,6 +926,144 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(stateMachineModel.getTransitionsData().getExits().size(), is(1));
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testActionWithTransitionChoice1() throws InterruptedException {
+		context.register(Config25.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+
+		LatchAction s1ToChoice = context.getBean("s1ToChoice", LatchAction.class);
+		LatchAction choiceToS2 = context.getBean("choiceToS2", LatchAction.class);
+		LatchAction choiceToS4 = context.getBean("choiceToS4", LatchAction.class);
+
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent(MessageBuilder.withPayload("E1").setHeader("choice", "s2").build());
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
+
+		assertThat(s1ToChoice.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(choiceToS2.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(choiceToS4.latch.await(1, TimeUnit.SECONDS), is(false));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testActionWithTransitionChoice2() throws InterruptedException {
+		context.register(Config25.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+
+		LatchAction s1ToChoice = context.getBean("s1ToChoice", LatchAction.class);
+		LatchAction choiceToS2 = context.getBean("choiceToS2", LatchAction.class);
+		LatchAction choiceToS4 = context.getBean("choiceToS4", LatchAction.class);
+
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent(MessageBuilder.withPayload("E1").build());
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S4"));
+
+		assertThat(s1ToChoice.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(choiceToS2.latch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(choiceToS4.latch.await(1, TimeUnit.SECONDS), is(true));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testActionWithTransitionChoice3() throws InterruptedException {
+		context.register(Config25.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+
+		LatchAction s1ToChoice = context.getBean("s1ToChoice", LatchAction.class);
+		LatchAction choiceToS2 = context.getBean("choiceToS2", LatchAction.class);
+		LatchAction choiceToS4 = context.getBean("choiceToS4", LatchAction.class);
+		LatchAction choice1ToChoice2 = context.getBean("choice1ToChoice2", LatchAction.class);
+		LatchAction choiceToS5 = context.getBean("choiceToS5", LatchAction.class);
+		LatchAction choiceToS6 = context.getBean("choiceToS6", LatchAction.class);
+
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent(MessageBuilder.withPayload("E1").setHeader("choice", "choice2").build());
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S6"));
+
+		assertThat(s1ToChoice.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(choiceToS2.latch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(choiceToS4.latch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(choice1ToChoice2.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(choiceToS5.latch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(choiceToS6.latch.await(1, TimeUnit.SECONDS), is(true));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testActionWithTransitionJunction1() throws InterruptedException {
+		context.register(Config26.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+
+		LatchAction s1ToChoice = context.getBean("s1ToChoice", LatchAction.class);
+		LatchAction choiceToS2 = context.getBean("choiceToS2", LatchAction.class);
+		LatchAction choiceToS4 = context.getBean("choiceToS4", LatchAction.class);
+
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent(MessageBuilder.withPayload("E1").setHeader("choice", "s2").build());
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
+
+		assertThat(s1ToChoice.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(choiceToS2.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(choiceToS4.latch.await(1, TimeUnit.SECONDS), is(false));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testActionWithTransitionJunction2() throws InterruptedException {
+		context.register(Config26.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+
+		LatchAction s1ToChoice = context.getBean("s1ToChoice", LatchAction.class);
+		LatchAction choiceToS2 = context.getBean("choiceToS2", LatchAction.class);
+		LatchAction choiceToS4 = context.getBean("choiceToS4", LatchAction.class);
+
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent(MessageBuilder.withPayload("E1").build());
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S4"));
+
+		assertThat(s1ToChoice.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(choiceToS2.latch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(choiceToS4.latch.await(1, TimeUnit.SECONDS), is(true));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testActionWithTransitionJunction3() throws InterruptedException {
+		context.register(Config26.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+
+		LatchAction s1ToChoice = context.getBean("s1ToChoice", LatchAction.class);
+		LatchAction choiceToS2 = context.getBean("choiceToS2", LatchAction.class);
+		LatchAction choiceToS4 = context.getBean("choiceToS4", LatchAction.class);
+		LatchAction choice1ToChoice2 = context.getBean("choice1ToChoice2", LatchAction.class);
+		LatchAction choiceToS5 = context.getBean("choiceToS5", LatchAction.class);
+		LatchAction choiceToS6 = context.getBean("choiceToS6", LatchAction.class);
+
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent(MessageBuilder.withPayload("E1").setHeader("choice", "choice2").build());
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S6"));
+
+		assertThat(s1ToChoice.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(choiceToS2.latch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(choiceToS4.latch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(choice1ToChoice2.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(choiceToS5.latch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(choiceToS6.latch.await(1, TimeUnit.SECONDS), is(true));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config2 extends StateMachineConfigurerAdapter<String, String> {
@@ -1396,6 +1534,143 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 			Resource model = new ClassPathResource("org/springframework/statemachine/uml/simple-connectionpointref.uml");
 			return new UmlStateMachineModelFactory(model);
 		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config25 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			Resource model = new ClassPathResource("org/springframework/statemachine/uml/action-with-transition-choice.uml");
+			return new UmlStateMachineModelFactory(model);
+		}
+
+		@Bean
+		public ChoiceGuard s2Guard() {
+			return new ChoiceGuard("s2");
+		}
+
+		@Bean
+		public ChoiceGuard s3Guard() {
+			return new ChoiceGuard("s3");
+		}
+
+		@Bean
+		public ChoiceGuard s5Guard() {
+			return new ChoiceGuard("s5");
+		}
+
+		@Bean
+		public ChoiceGuard choice2Guard() {
+			return new ChoiceGuard("choice2");
+		}
+
+		@Bean
+		public LatchAction s1ToChoice() {
+			return new LatchAction();
+		}
+
+		@Bean
+		public LatchAction choiceToS2() {
+			return new LatchAction();
+		}
+
+		@Bean
+		public LatchAction choiceToS4() {
+			return new LatchAction();
+		}
+
+		@Bean
+		public LatchAction choice1ToChoice2() {
+			return new LatchAction();
+		}
+
+		@Bean
+		public LatchAction choiceToS5() {
+			return new LatchAction();
+		}
+
+		@Bean
+		public LatchAction choiceToS6() {
+			return new LatchAction();
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config26 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			Resource model = new ClassPathResource("org/springframework/statemachine/uml/action-with-transition-junction.uml");
+			return new UmlStateMachineModelFactory(model);
+		}
+
+		@Bean
+		public ChoiceGuard s2Guard() {
+			return new ChoiceGuard("s2");
+		}
+
+		@Bean
+		public ChoiceGuard s3Guard() {
+			return new ChoiceGuard("s3");
+		}
+
+		@Bean
+		public ChoiceGuard s5Guard() {
+			return new ChoiceGuard("s5");
+		}
+
+		@Bean
+		public ChoiceGuard choice2Guard() {
+			return new ChoiceGuard("choice2");
+		}
+
+		@Bean
+		public LatchAction s1ToChoice() {
+			return new LatchAction();
+		}
+
+		@Bean
+		public LatchAction choiceToS2() {
+			return new LatchAction();
+		}
+
+		@Bean
+		public LatchAction choiceToS4() {
+			return new LatchAction();
+		}
+
+		@Bean
+		public LatchAction choice1ToChoice2() {
+			return new LatchAction();
+		}
+
+		@Bean
+		public LatchAction choiceToS5() {
+			return new LatchAction();
+		}
+
+		@Bean
+		public LatchAction choiceToS6() {
+			return new LatchAction();
+		}
+
 	}
 
 	public static class LatchAction implements Action<String, String> {
