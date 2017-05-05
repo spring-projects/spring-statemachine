@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +29,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
@@ -162,6 +164,82 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S2));
 		assertThat(interceptor.preStateChangeLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(interceptor.preStateChangeCount, is(1));
+	}
+
+	@Test
+	public void testIntercept4() throws InterruptedException {
+		context.register(Config4.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachine<States, Events> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		TestListener listener = new TestListener();
+		machine.addStateListener(listener);
+		TestStateChangeInterceptor interceptor = new TestStateChangeInterceptor();
+
+		machine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<States, Events>>() {
+
+			@Override
+			public void apply(StateMachineAccess<States, Events> function) {
+				function.addStateMachineInterceptor(interceptor);
+			}
+		});
+
+		machine.start();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
+
+		interceptor.reset(1);
+		listener.reset(1);
+		machine.sendEvent(Events.A);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S2));
+		assertThat(interceptor.preStateChangeLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount, is(1));
+		assertThat(interceptor.postStateChangeLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.postStateChangeCount, is(1));
+		assertThat(interceptor.preStateChangeStates.size(), is(1));
+		assertThat(interceptor.postStateChangeStates.size(), is(1));
+		assertThat(interceptor.preStateChangeStates.get(0).getId(), is(interceptor.postStateChangeStates.get(0).getId()));
+	}
+
+	@Test
+	public void testIntercept5() throws InterruptedException {
+		context.register(Config4.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachine<States, Events> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		TestListener listener = new TestListener();
+		machine.addStateListener(listener);
+		TestStateChangeInterceptor interceptor = new TestStateChangeInterceptor();
+
+		machine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<States, Events>>() {
+
+			@Override
+			public void apply(StateMachineAccess<States, Events> function) {
+				function.addStateMachineInterceptor(interceptor);
+			}
+		});
+
+		machine.start();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
+
+		interceptor.reset(1);
+		listener.reset(1);
+		machine.sendEvent(MessageBuilder.withPayload(Events.A).setHeader("test", "exists").build());
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S3));
+		assertThat(interceptor.preStateChangeLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount, is(1));
+		assertThat(interceptor.postStateChangeLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.postStateChangeCount, is(1));
+		assertThat(interceptor.preStateChangeStates.size(), is(1));
+		assertThat(interceptor.postStateChangeStates.size(), is(1));
+		assertThat(interceptor.preStateChangeStates.get(0).getId(), is(interceptor.postStateChangeStates.get(0).getId()));
 	}
 
 	@Configuration
@@ -341,8 +419,43 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		}
 	}
 
+	@Configuration
+	@EnableStateMachine
+	static class Config4 extends EnumStateMachineConfigurerAdapter<States, Events> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<States, Events> states)
+				throws Exception {
+			states
+				.withStates()
+					.initial(States.S0)
+					.choice(States.S1)
+					.state(States.S2)
+					.state(States.S3);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<States, Events> transitions)
+				throws Exception {
+			transitions
+				.withExternal()
+					.source(States.S0).target(States.S1)
+					.event(Events.A)
+					.and()
+				.withChoice()
+					.source(States.S1)
+					.first(States.S3, guard())
+					.last(States.S2);
+		}
+
+		@Bean
+		public EventHeaderGuard guard() {
+			return new EventHeaderGuard("test");
+		}
+	}
+
 	public static enum States {
-		S0, S1, S11, S12, S2, S21, S211, S212
+		S0, S1, S11, S12, S2, S21, S211, S212, S3;
 	}
 
 	public static enum Events {
@@ -380,6 +493,20 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		}
 	}
 
+	private static class EventHeaderGuard implements Guard<States, Events> {
+
+		private final String header;
+
+		public EventHeaderGuard(String header) {
+			this.header = header;
+		}
+
+		@Override
+		public boolean evaluate(StateContext<States, Events> context) {
+			return context.getMessageHeader(header) != null;
+		}
+	}
+
 	private static class TestListener extends StateMachineListenerAdapter<States, Events> {
 
 		volatile CountDownLatch stateChangedLatch = new CountDownLatch(1);
@@ -401,7 +528,11 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 	private static class TestStateChangeInterceptor implements StateMachineInterceptor<States, Events> {
 
 		volatile CountDownLatch preStateChangeLatch = new CountDownLatch(1);
+		volatile CountDownLatch postStateChangeLatch = new CountDownLatch(1);
 		volatile int preStateChangeCount = 0;
+		volatile int postStateChangeCount = 0;
+		ArrayList<State<States, Events>> preStateChangeStates = new ArrayList<>();
+		ArrayList<State<States, Events>> postStateChangeStates = new ArrayList<>();
 
 		@Override
 		public Message<Events> preEvent(Message<Events> message, StateMachine<States, Events> stateMachine) {
@@ -411,6 +542,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		@Override
 		public void preStateChange(State<States, Events> state, Message<Events> message,
 				Transition<States, Events> transition, StateMachine<States, Events> stateMachine) {
+			preStateChangeStates.add(state);
 			preStateChangeCount++;
 			preStateChangeLatch.countDown();
 
@@ -419,6 +551,9 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		@Override
 		public void postStateChange(State<States, Events> state, Message<Events> message,
 				Transition<States, Events> transition, StateMachine<States, Events> stateMachine) {
+			postStateChangeStates.add(state);
+			postStateChangeCount++;
+			postStateChangeLatch.countDown();
 		}
 
 		@Override
@@ -435,6 +570,10 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		public void reset(int c1) {
 			preStateChangeLatch = new CountDownLatch(c1);
 			preStateChangeCount = 0;
+			postStateChangeLatch = new CountDownLatch(c1);
+			postStateChangeCount = 0;
+			preStateChangeStates.clear();
+			postStateChangeStates.clear();
 		}
 
 		@Override
