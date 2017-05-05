@@ -243,7 +243,13 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 				log.warn("Aborting as transition " + t + " caused error " + e);
 			}
 			if (transit) {
-				stateMachineExecutorTransit.transit(t, stateContext, queuedMessage);
+				// if executor transit is raising exception, stop here
+				try {
+					stateMachineExecutorTransit.transit(t, stateContext, queuedMessage);
+				} catch (Exception e) {
+					interceptors.postTransition(stateContext);
+					return false;
+				}
 				interceptors.postTransition(stateContext);
 				break;
 			}

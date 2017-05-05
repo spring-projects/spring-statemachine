@@ -29,6 +29,7 @@ import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateContext.Stage;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
+import org.springframework.statemachine.StateMachineException;
 import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.access.StateMachineFunction;
@@ -310,8 +311,10 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				try {
 					t.executeTransitionActions(ctx);
 				} catch (Exception e) {
+					// aborting, executor should stop possible loop checking possible transitions
+					// causing infinite execution
 					log.warn("Aborting as transition " + t + " caused error " + e);
-					return;
+					throw new StateMachineException("Aborting as transition " + t + " caused error ", e);
 				}
 				notifyTransition(buildStateContext(Stage.TRANSITION, message, t, getRelayStateMachine()));
 				if (t.getTarget().getPseudoState() != null && t.getTarget().getPseudoState().getKind() == PseudoStateKind.JOIN) {

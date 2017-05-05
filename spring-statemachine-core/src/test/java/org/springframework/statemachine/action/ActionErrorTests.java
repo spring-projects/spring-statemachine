@@ -54,6 +54,21 @@ public class ActionErrorTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), contains(TestStates.S1));
 	}
 
+	@Test
+	public void testActionExceptionInAnonymousTransition() {
+		context.register(Config2.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		@SuppressWarnings("unchecked")
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		machine.start();
+		// error in transition should not cause transition and should
+		// not propagate error into a caller.
+		machine.sendEvent(TestEvents.E1);
+		assertThat(machine.getState().getIds(), contains(TestStates.S2));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
@@ -75,6 +90,42 @@ public class ActionErrorTests extends AbstractStateMachineTests {
 					.target(TestStates.S2)
 					.event(TestEvents.E1)
 					.action(testAction1());
+		}
+
+		@Bean
+		public TestCountAction testAction1() {
+			return new TestCountAction();
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config2 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S2)
+					.end(TestStates.SF);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S2)
+					.target(TestStates.SF)
+					.action(context -> {
+						throw new NullPointerException("Something was wrong");
+					});
 		}
 
 		@Bean
