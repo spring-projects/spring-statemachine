@@ -121,7 +121,7 @@ public class EventDeferTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testDeferWithSubsThreadExecutor() throws Exception {
-		context.register(Config1.class, ExecutorConfig.class);
+		context.register(Config1.class, ExecutorConfig2.class);
 		context.refresh();
 		@SuppressWarnings("unchecked")
 		StateMachine<String, String> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
@@ -550,6 +550,19 @@ public class EventDeferTests extends AbstractStateMachineTests {
 			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
 			taskExecutor.setCorePoolSize(1);
 			taskExecutor.setMaxPoolSize(1);
+			return taskExecutor;
+		}
+
+	}
+
+	@Configuration
+	static class ExecutorConfig2 {
+
+		@Bean(name=StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME)
+		public TaskExecutor taskExecutor() {
+			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+			taskExecutor.setCorePoolSize(1);
+			taskExecutor.setMaxPoolSize(4);
 			return taskExecutor;
 		}
 
