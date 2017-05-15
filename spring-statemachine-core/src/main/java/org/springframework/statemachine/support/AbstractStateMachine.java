@@ -758,7 +758,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			State<S,E> source = transition.getSource();
 			Trigger<S, E> trigger = transition.getTrigger();
 
-			if (StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
+			if (currentState != null && StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
 				if (trigger != null && trigger.evaluate(new DefaultTriggerContext<S, E>(message.getPayload()))) {
 					stateMachineExecutor.queueEvent(message);
 					return true;
