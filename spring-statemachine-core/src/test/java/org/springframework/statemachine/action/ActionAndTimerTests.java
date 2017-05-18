@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,6 +59,11 @@ public class ActionAndTimerTests extends AbstractStateMachineTests {
 		assertThat(testTimerAction.latch.await(4, TimeUnit.SECONDS), is(true));
 		assertThat(testTimerAction.e, nullValue());
 
+		// need to sleep for TimerTrigger not causing
+		// next event to get handled with threads, thus
+		// causing interrupt
+		Thread.sleep(1000);
+
 		machine.sendEvent(TestEvents.E2);
 		assertThat(testListener.s3EnteredLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S3));
@@ -83,6 +88,11 @@ public class ActionAndTimerTests extends AbstractStateMachineTests {
 
 		assertThat(testTimerAction.latch.await(4, TimeUnit.SECONDS), is(true));
 		assertThat(testTimerAction.e, nullValue());
+
+		// need to sleep for TimerTrigger not causing
+		// next event to get handled with threads, thus
+		// causing interrupt
+		Thread.sleep(1000);
 
 		machine.sendEvent(TestEvents.E2);
 		assertThat(testListener.s3EnteredLatch.await(2, TimeUnit.SECONDS), is(true));

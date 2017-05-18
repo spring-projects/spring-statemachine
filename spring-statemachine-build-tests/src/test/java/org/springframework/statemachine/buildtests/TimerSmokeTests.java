@@ -55,6 +55,37 @@ public class TimerSmokeTests {
 		return builder.build();
 	}
 
+	private StateMachine<String, String> buildMachine2() throws Exception {
+
+		StateMachineBuilder.Builder<String, String> builder = StateMachineBuilder.builder();
+
+		builder.configureConfiguration()
+			.withConfiguration()
+				.taskExecutor(taskExecutor);
+
+		builder.configureStates()
+			.withStates()
+				.initial("initial").end("end").and()
+				.withStates().parent("initial").initial("inner");
+
+		builder.configureTransitions()
+			.withExternal()
+				.source("initial")
+				.target("end")
+				.timerOnce(30)
+				.and()
+			.withExternal()
+				.source("inner")
+				.target("end")
+				.timerOnce(15)
+				.and()
+			.withLocal()
+				.source("inner")
+				.event("repeate");
+
+		return builder.build();
+	}
+
 	@Test
 	public void testNPE() throws Exception {
 		StateMachine<String, String> stateMachine;
@@ -64,6 +95,21 @@ public class TimerSmokeTests {
 			while (!stateMachine.isComplete()) {
 				stateMachine.sendEvent("repeate");
 			}
+		}
+	}
+
+	@Test
+	public void testNPE2() throws Exception {
+
+		StateMachine<String, String> stateMachine;
+
+		for (int i = 0; i < 20; i++) {
+			stateMachine = buildMachine2();
+			stateMachine.start();
+			while(!stateMachine.isComplete()) {
+				stateMachine.sendEvent("repeate");
+			}
+			stateMachine.stop();
 		}
 	}
 
