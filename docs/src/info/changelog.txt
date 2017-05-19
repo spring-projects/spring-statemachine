@@ -4,6 +4,12 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 1.2.5.RELEASE (2017-05-19)
+---------------------------------------------
+* Support actions with transition via choice/junction pseudostate [#108]
+* NPE on sendEvent [#359]
+* Deadlock in executor [#360]
+
 Changes in version 1.2.4.RELEASE (2017-05-03)
 ---------------------------------------------
 * Prevent debug calls in AbstractStateMachine if not enabled [#329]
