@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
@@ -53,15 +55,48 @@ public class ActionAndTimerTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S1));
 		machine.sendEvent(TestEvents.E1);
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2));
-		// sleep so that action with timerOnce(1000) is fired before event is send
-		// event sending is happening on a main thread, but actions are executed on a same
-		// pool than the DefaultStateMachineExecutor is using. existing action execution is interrupted.
-		Thread.sleep(2000);
+
+		assertThat(testTimerAction.latch.await(4, TimeUnit.SECONDS), is(true));
+		assertThat(testTimerAction.e, nullValue());
+
+		// need to sleep for TimerTrigger not causing
+		// next event to get handled with threads, thus
+		// causing interrupt
+		Thread.sleep(1000);
+
 		machine.sendEvent(TestEvents.E2);
 		assertThat(testListener.s3EnteredLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S3));
-		assertThat(testTimerAction.latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(testExitAction.latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(testExitAction.e, nullValue());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testExitActionWithTimerOnceThreadPoolTaskScheduler() throws Exception {
+		context.register(Config2.class);
+		context.refresh();
+		StateMachine<TestStates, TestEvents> machine = context.getBean(StateMachine.class);
+		TestTimerAction testTimerAction = context.getBean(TestTimerAction.class);
+		TestExitAction testExitAction = context.getBean(TestExitAction.class);
+		TestListener testListener = new TestListener();
+		machine.addStateListener(testListener);
+		machine.start();
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S1));
+		machine.sendEvent(TestEvents.E1);
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2));
+
+		assertThat(testTimerAction.latch.await(4, TimeUnit.SECONDS), is(true));
 		assertThat(testTimerAction.e, nullValue());
+
+		// need to sleep for TimerTrigger not causing
+		// next event to get handled with threads, thus
+		// causing interrupt
+		Thread.sleep(1000);
+
+		machine.sendEvent(TestEvents.E2);
+		assertThat(testListener.s3EnteredLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S3));
 		assertThat(testExitAction.latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testExitAction.e, nullValue());
 	}
@@ -96,6 +131,55 @@ public class ActionAndTimerTests extends AbstractStateMachineTests {
 					.source(TestStates.S2)
 					.action(testTimerAction())
 					.timerOnce(1000);
+		}
+
+		@Bean
+		public TestExitAction testExitAction() {
+			return new TestExitAction();
+		}
+
+		@Bean
+		public TestTimerAction testTimerAction() {
+			return new TestTimerAction();
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config2 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S2, null, testExitAction())
+					.state(TestStates.S3);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S2)
+					.target(TestStates.S3)
+					.event(TestEvents.E2)
+					.and()
+				.withInternal()
+					.source(TestStates.S2)
+					.action(testTimerAction())
+					.timerOnce(1000);
+		}
+
+		@Bean
+		public TaskScheduler taskScheduler() {
+			ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
+			return taskScheduler;
 		}
 
 		@Bean

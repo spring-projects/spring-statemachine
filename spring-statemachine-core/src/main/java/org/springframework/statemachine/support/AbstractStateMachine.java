@@ -116,6 +116,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	private volatile Message<E> forwardedInitialEvent;
 
 	private final Object lock = new Object();
+	private final Object lock2 = new Object();
 
 	private StateMachine<S, E> parentMachine;
 
@@ -211,30 +212,9 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	@Override
 	public boolean sendEvent(Message<E> event) {
-		if (hasStateMachineError()) {
-			// TODO: should we throw exception?
-			notifyEventNotAccepted(buildStateContext(Stage.EVENT_NOT_ACCEPTED, event, null, getRelayStateMachine(), getState(), null));
-			return false;
+		synchronized (lock2) {
+			return sendEventInternal(event);
 		}
-
-		try {
-			event = getStateMachineInterceptors().preEvent(event, this);
-		} catch (Exception e) {
-			log.info("Event " + event + " threw exception in interceptors, not accepting event");
-			notifyEventNotAccepted(buildStateContext(Stage.EVENT_NOT_ACCEPTED, event, null, getRelayStateMachine(), getState(), null));
-			return false;
-		}
-
-		if (isComplete() || !isRunning()) {
-			notifyEventNotAccepted(buildStateContext(Stage.EVENT_NOT_ACCEPTED, event, null, getRelayStateMachine(), getState(), null));
-			return false;
-		}
-		boolean accepted = acceptEvent(event);
-		stateMachineExecutor.execute();
-		if (!accepted) {
-			notifyEventNotAccepted(buildStateContext(Stage.EVENT_NOT_ACCEPTED, event, null, getRelayStateMachine(), getState(), null));
-		}
-		return accepted;
 	}
 
 	@Override
@@ -555,6 +535,33 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		forwardedInitialEvent = message;
 	}
 
+	private boolean sendEventInternal(Message<E> event) {
+		if (hasStateMachineError()) {
+			// TODO: should we throw exception?
+			notifyEventNotAccepted(buildStateContext(Stage.EVENT_NOT_ACCEPTED, event, null, getRelayStateMachine(), getState(), null));
+			return false;
+		}
+
+		try {
+			event = getStateMachineInterceptors().preEvent(event, this);
+		} catch (Exception e) {
+			log.info("Event " + event + " threw exception in interceptors, not accepting event");
+			notifyEventNotAccepted(buildStateContext(Stage.EVENT_NOT_ACCEPTED, event, null, getRelayStateMachine(), getState(), null));
+			return false;
+		}
+
+		if (isComplete() || !isRunning()) {
+			notifyEventNotAccepted(buildStateContext(Stage.EVENT_NOT_ACCEPTED, event, null, getRelayStateMachine(), getState(), null));
+			return false;
+		}
+		boolean accepted = acceptEvent(event);
+		stateMachineExecutor.execute();
+		if (!accepted) {
+			notifyEventNotAccepted(buildStateContext(Stage.EVENT_NOT_ACCEPTED, event, null, getRelayStateMachine(), getState(), null));
+		}
+		return accepted;
+	}
+
 	private StateMachine<S, E> getRelayStateMachine() {
 		return relay != null ? relay : this;
 	}
@@ -758,7 +765,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			State<S,E> source = transition.getSource();
 			Trigger<S, E> trigger = transition.getTrigger();
 
-			if (StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
+			if (currentState != null && StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
 				if (trigger != null && trigger.evaluate(new DefaultTriggerContext<S, E>(message.getPayload()))) {
 					stateMachineExecutor.queueEvent(message);
 					return true;
@@ -924,11 +931,18 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		return null;
 	}
 
-	synchronized void setCurrentState(State<S, E> state, Message<E> message, Transition<S, E> transition, boolean exit, StateMachine<S, E> stateMachine) {
+	void setCurrentState(State<S, E> state, Message<E> message, Transition<S, E> transition, boolean exit, StateMachine<S, E> stateMachine) {
 		setCurrentState(state, message, transition, exit, stateMachine, null, null);
 	}
 
-	synchronized void setCurrentState(State<S, E> state, Message<E> message, Transition<S, E> transition, boolean exit,
+	void setCurrentState(State<S, E> state, Message<E> message, Transition<S, E> transition, boolean exit,
+			StateMachine<S, E> stateMachine, Collection<State<S, E>> sources, Collection<State<S, E>> targets) {
+		synchronized (lock2) {
+			setCurrentStateInternal(state, message, transition, exit, stateMachine, sources, targets);
+		}
+	}
+
+	private void setCurrentStateInternal(State<S, E> state, Message<E> message, Transition<S, E> transition, boolean exit,
 			StateMachine<S, E> stateMachine, Collection<State<S, E>> sources, Collection<State<S, E>> targets) {
 		State<S, E> findDeep = findDeepParent(state);
 		boolean isTargetSubOf = false;
