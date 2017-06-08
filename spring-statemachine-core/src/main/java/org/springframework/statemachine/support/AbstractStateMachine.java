@@ -812,7 +812,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		StateContext<S, E> stateContext = buildStateContext(Stage.STATE_CHANGED, message, transition, stateMachine);
 		State<S,E> toState = followLinkedPseudoStates(state, stateContext);
 		PseudoStateKind kind = state.getPseudoState() != null ? state.getPseudoState().getKind() : null;
-		if (kind != null && (kind != PseudoStateKind.INITIAL && kind != PseudoStateKind.JOIN && kind != PseudoStateKind.FORK)) {
+		if (kind != null && (kind != PseudoStateKind.INITIAL && kind != PseudoStateKind.JOIN
+				&& kind != PseudoStateKind.FORK && kind != PseudoStateKind.END)) {
 			callPreStateChangeInterceptors(toState, message, transition, stateMachine);
 		}
 
