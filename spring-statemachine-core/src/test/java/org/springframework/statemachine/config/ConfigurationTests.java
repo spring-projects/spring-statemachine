@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,8 @@ import org.springframework.statemachine.config.builders.StateMachineConfiguratio
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
+import org.springframework.statemachine.state.PseudoStateKind;
+import org.springframework.statemachine.state.State;
 
 /**
  * Tests for state machine configuration.
@@ -288,6 +290,28 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		stateMachine = stateMachineFactory.getStateMachine("testid2");
 		assertThat(stateMachine, notNullValue());
 		assertThat(stateMachine.getId(), is("testid2"));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testMultipleEndStates() {
+		context.register(Config20.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		ObjectStateMachine<String, String> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+
+		Collection<State<String, String>> states = machine.getStates();
+		for (State<String, String> s : states) {
+			if (s.getId().equals("S3")) {
+				assertThat(s.getPseudoState(), notNullValue());
+				assertThat(s.getPseudoState().getKind(), is(PseudoStateKind.END));
+			}
+			if (s.getId().equals("S2")) {
+				assertThat(s.getPseudoState(), notNullValue());
+				assertThat(s.getPseudoState().getKind(), is(PseudoStateKind.END));
+			}
+		}
 	}
 
 	@Configuration
@@ -872,4 +896,26 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		}
 	}
 
+	@Configuration
+	@EnableStateMachine
+	public static class Config20 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("S1")
+					.end("S2")
+					.end("S3");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("S1")
+					.target("S2")
+					.event("E1");
+		}
+	}
 }
