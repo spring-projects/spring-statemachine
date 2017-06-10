@@ -64,6 +64,7 @@ public class StateMachineMonitorTests extends AbstractStateMachineTests {
 		// there's also initial transition, thus 2 instead 1
 		assertThat(monitor.transitions.size(), is(2));
 		assertThat(saction.latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(monitor.latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(monitor.actions.size(), is(4));
 		assertThat(monitor.actions.keySet(), containsInAnyOrder(taction, enaction, exaction, saction));
 		monitor.reset();
@@ -181,6 +182,7 @@ public class StateMachineMonitorTests extends AbstractStateMachineTests {
 
 		Map<Transition<String, String>, Transitions> transitions = new HashMap<>();
 		Map<Action<String, String>, Actions> actions = new HashMap<>();
+		CountDownLatch latch = new CountDownLatch(4);
 
 		@Override
 		public void transition(StateMachine<String, String> stateMachine, Transition<String, String> transition, long duration) {
@@ -191,11 +193,13 @@ public class StateMachineMonitorTests extends AbstractStateMachineTests {
 		public void action(StateMachine<String, String> stateMachine, Action<String, String> action,
 				long duration) {
 			actions.put(action, new Actions(action, duration));
+			latch.countDown();
 		}
 
 		void reset() {
 			transitions.clear();
 			actions.clear();
+			latch = new CountDownLatch(4);
 		}
 
 		@SuppressWarnings("unused")
