@@ -115,9 +115,6 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	private volatile Message<E> forwardedInitialEvent;
 
-	private final Object lock = new Object();
-	private final Object lock2 = new Object();
-
 	private StateMachine<S, E> parentMachine;
 
 	/**
@@ -177,12 +174,10 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	public State<S,E> getState() {
 		// if we're complete assume we're stopped
 		// and state was stashed into lastState
-		synchronized (lock) {
-			if (lastState != null && isComplete()) {
-				return lastState;
-			} else {
-				return currentState;
-			}
+		if (lastState != null && isComplete()) {
+			return lastState;
+		} else {
+			return currentState;
 		}
 	}
 
@@ -212,9 +207,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	@Override
 	public boolean sendEvent(Message<E> event) {
-		synchronized (lock2) {
-			return sendEventInternal(event);
-		}
+		return sendEventInternal(event);
 	}
 
 	@Override
@@ -381,15 +374,13 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	@Override
 	protected void doStop() {
-		synchronized (lock) {
-			stateMachineExecutor.stop();
-			notifyStateMachineStopped(buildStateContext(Stage.STATEMACHINE_STOP, null, null, this));
-			// stash current state before we null it so that
-			// we can still return where we 'were' when machine is stopped
-			lastState = currentState;
-			currentState = null;
-			initialEnabled = null;
-		}
+		stateMachineExecutor.stop();
+		notifyStateMachineStopped(buildStateContext(Stage.STATEMACHINE_STOP, null, null, this));
+		// stash current state before we null it so that
+		// we can still return where we 'were' when machine is stopped
+		lastState = currentState;
+		currentState = null;
+		initialEnabled = null;
 	}
 
 	@Override
@@ -938,9 +929,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	void setCurrentState(State<S, E> state, Message<E> message, Transition<S, E> transition, boolean exit,
 			StateMachine<S, E> stateMachine, Collection<State<S, E>> sources, Collection<State<S, E>> targets) {
-		synchronized (lock2) {
-			setCurrentStateInternal(state, message, transition, exit, stateMachine, sources, targets);
-		}
+		setCurrentStateInternal(state, message, transition, exit, stateMachine, sources, targets);
 	}
 
 	private void setCurrentStateInternal(State<S, E> state, Message<E> message, Transition<S, E> transition, boolean exit,

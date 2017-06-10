@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,6 +87,25 @@ public class PersistTests {
 	public void testUpdate2() {
 		persist.change(2, "SEND");
 		assertThat(persist.listDbEntries(), containsString("id=2, state=SENT"));
+	}
+
+	@Test
+	public void testThreadingSmoke() throws Exception {
+		int cnt = 10;
+		Thread[] threads = new Thread[cnt];
+		for (int i = 0; i < cnt; i++) {
+			threads[i] = new Thread(() -> {
+				for (int j = 0; j < 1000; j++) {
+					persist.change(3, "SEND");
+				}
+			});
+		}
+		for (Thread t : threads) {
+			t.start();
+		}
+		for (Thread t : threads) {
+			t.join();
+		}
 	}
 
 	private static class TestListener extends StateMachineListenerAdapter<String, String> {
