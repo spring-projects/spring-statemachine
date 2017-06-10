@@ -739,12 +739,13 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	protected synchronized boolean acceptEvent(Message<E> message) {
-		if ((currentState != null && currentState.shouldDefer(message))) {
-			log.info("Current state " + currentState + " deferred event " + message);
+		State<S, E> cs = currentState;
+		if ((cs != null && cs.shouldDefer(message))) {
+			log.info("Current state " + cs + " deferred event " + message);
 			stateMachineExecutor.queueDeferredEvent(message);
 			return true;
 		}
-		if ((currentState != null && currentState.sendEvent(message))) {
+		if ((cs != null && cs.sendEvent(message))) {
 			return true;
 		}
 
@@ -756,7 +757,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			State<S,E> source = transition.getSource();
 			Trigger<S, E> trigger = transition.getTrigger();
 
-			if (currentState != null && StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
+			if (cs != null && StateMachineUtils.containsAtleastOne(source.getIds(), cs.getIds())) {
 				if (trigger != null && trigger.evaluate(new DefaultTriggerContext<S, E>(message.getPayload()))) {
 					stateMachineExecutor.queueEvent(message);
 					return true;
@@ -765,8 +766,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		}
 		// if we're about to not accept event, check defer again in case
 		// state was changed between original check and now
-		if ((currentState != null && currentState.shouldDefer(message))) {
-			log.info("Current state " + currentState + " deferred event " + message);
+		if ((cs != null && cs.shouldDefer(message))) {
+			log.info("Current state " + cs + " deferred event " + message);
 			stateMachineExecutor.queueDeferredEvent(message);
 			return true;
 		}
