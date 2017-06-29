@@ -3,6 +3,7 @@ buildscript {
 		log4jVersion = '1.2.17'
 		springVersion = '5.0.0.BUILD-SNAPSHOT'
 		springBootVersion = '2.0.0.BUILD-SNAPSHOT'
+		springCloudVersion = 'Dalston.BUILD-SNAPSHOT'
 		eclipsePersistenceVersion = '2.1.1'
 		kryoVersion = '3.0.3'
 		springCloudClusterVersion = '1.0.2.RELEASE'
@@ -81,7 +82,7 @@ configure(allprojects) {
 
 	dependencyManagement {
 		imports {
-			mavenBom "org.springframework.cloud:spring-cloud-dependencies:Dalston.BUILD-SNAPSHOT"
+			mavenBom "org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion"
 			mavenBom "org.springframework.boot:spring-boot-dependencies:$springBootVersion"
 		}
 		dependencies {

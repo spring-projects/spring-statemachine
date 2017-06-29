@@ -63,7 +63,7 @@ project('spring-statemachine-samples-web') {
 		compile("org.springframework:spring-webmvc")
 		compile("org.springframework:spring-websocket")
 		compile("org.springframework.security:spring-security-messaging")
-		compile("org.springframework.session:spring-session")
+		compile("org.springframework.session:spring-session-core")
 	}
 }
 
