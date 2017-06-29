@@ -824,12 +824,11 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			setCurrentState(toState, message, transition, true, stateMachine, null, targets);
 		}
 
-		callPostStateChangeInterceptors(toState, message, transition, stateMachine);
-
 		stateMachineExecutor.execute();
 		if (isComplete()) {
 			stop();
 		}
+		callPostStateChangeInterceptors(toState, message, transition, stateMachine);
 	}
 
 	private State<S,E> followLinkedPseudoStates(State<S,E> state, StateContext<S, E> stateContext) {

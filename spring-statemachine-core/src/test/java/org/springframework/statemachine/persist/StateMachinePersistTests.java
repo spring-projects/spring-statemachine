@@ -20,12 +20,14 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import java.util.HashMap;
 
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.Message;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
@@ -41,6 +43,9 @@ import org.springframework.statemachine.config.builders.StateMachineStateConfigu
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.StateConfigurer.History;
 import org.springframework.statemachine.state.HistoryPseudoState;
+import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.support.StateMachineInterceptorAdapter;
+import org.springframework.statemachine.transition.Transition;
 
 public class StateMachinePersistTests extends AbstractStateMachineTests {
 
@@ -273,7 +278,7 @@ public class StateMachinePersistTests extends AbstractStateMachineTests {
 	}
 
 	@Test
-	public void testPersistWithEnd() throws Exception {
+	public void testPersistWithEnd1() throws Exception {
 		context.register(Config8.class);
 		context.refresh();
 		InMemoryStateMachinePersist1 stateMachinePersist = new InMemoryStateMachinePersist1();
@@ -291,6 +296,49 @@ public class StateMachinePersistTests extends AbstractStateMachineTests {
 
 		persister.persist(stateMachine, "xxx");
 
+		stateMachine = stateMachineFactory.getStateMachine();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+
+		stateMachine = persister.restore(stateMachine, "xxx");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
+		assertThat(stateMachine.isComplete(), is(true));
+	}
+
+	@Test
+	public void testPersistWithEnd2() throws Exception {
+		context.register(Config8.class);
+		context.refresh();
+		InMemoryStateMachinePersist1 stateMachinePersist = new InMemoryStateMachinePersist1();
+		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(stateMachinePersist);
+		@SuppressWarnings("unchecked")
+		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
+
+		StateMachine<String, String> stateMachine = stateMachineFactory.getStateMachine();
+
+		// noinspection unchecked
+		stateMachine.getStateMachineAccessor().withRegion().addStateMachineInterceptor(new StateMachineInterceptorAdapter<String, String>() {
+
+			@Override
+					public void postStateChange(State<String, String> state, Message<String> message, Transition<String, String> transition,
+							StateMachine<String, String> stateMachine) {
+						try {
+					// noinspection unchecked
+					persister.persist(stateMachine, "xxx");
+				} catch (Exception e) {
+					fail("Exception persisting state machine: " + e);
+				}
+			}
+		});
+		assertThat(stateMachine, notNullValue());
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		persister.persist(stateMachine, "xxx");
+		stateMachine = persister.restore(stateMachine, "xxx");
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
+		assertThat(stateMachine.isComplete(), is(true));
+
+		// rather than manually calling the persister, this test now uses the
+		// interceptor
 		stateMachine = stateMachineFactory.getStateMachine();
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
 
