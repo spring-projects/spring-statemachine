@@ -2,9 +2,9 @@
 
 image:https://badges.gitter.im/spring-projects/spring-statemachine.svg[link="https://gitter.im/spring-projects/spring-statemachine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
 
-image:https://build.spring.io/plugins/servlet/buildStatusImage/SDG-MAS[Bamboo Build Status, link=https://build.spring.io/browse/SDG-MAS]
-image:https://build.spring.io/plugins/servlet/buildStatusImage/SDG-B12X[Bamboo Build Status, link=https://build.spring.io/browse/SDG-B12X]
-image:https://build.spring.io/plugins/servlet/buildStatusImage/SDG-B11X[Bamboo Build Status, link=https://build.spring.io/browse/SDG-B11X]
+image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-MAS[Bamboo Build Status, link=https://build.spring.io/browse/SDG-MAS]
+image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B12X[Bamboo Build Status, link=https://build.spring.io/browse/SDG-B12X]
+image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B11X[Bamboo Build Status, link=https://build.spring.io/browse/SDG-B11X]
 image:https://api.travis-ci.org/spring-projects/spring-statemachine.svg?branch=master[Travis CI Build Status, link=https://travis-ci.org/spring-projects/spring-statemachine]
 
 [NOTE]
