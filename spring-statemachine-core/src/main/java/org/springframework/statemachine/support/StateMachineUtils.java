@@ -146,6 +146,8 @@ public abstract class StateMachineUtils {
 			for (Object o : ObjectUtils.toObjectArray(object)) {
 				c.add(o.toString());
 			}
+		} else if (object != null) {
+			c.add(object.toString());
 		}
 		return c;
 	}
