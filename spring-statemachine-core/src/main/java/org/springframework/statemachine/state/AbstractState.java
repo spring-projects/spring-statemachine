@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -198,17 +198,13 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 	public void exit(StateContext<S, E> context) {
 		cancelStateActions();
 		stateListener.onExit(context);
-		for (Trigger<S, E> trigger : triggers) {
-			trigger.disarm();
-		}
+		disarmTriggers();
 	}
 
 	@Override
 	public void entry(StateContext<S, E> context) {
 		stateListener.onEntry(context);
-		for (Trigger<S, E> trigger : triggers) {
-			trigger.arm();
-		}
+		armTriggers();
 		scheduleStateActions(context);
 	}
 
@@ -292,6 +288,16 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 		}
 	}
 
+	@Override
+	protected void doStart() {
+		armTriggers();
+	}
+
+	@Override
+	protected void doStop() {
+		disarmTriggers();
+	}
+
 	/**
 	 * Gets the submachine.
 	 *
@@ -330,6 +336,24 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 	 */
 	public List<Trigger<S, E>> getTriggers() {
 		return triggers;
+	}
+
+	/**
+	 * Arm triggers.
+	 */
+	protected void armTriggers() {
+		for (Trigger<S, E> trigger : triggers) {
+			trigger.arm();
+		}
+	}
+
+	/**
+	 * Disarm triggers.
+	 */
+	protected void disarmTriggers() {
+		for (Trigger<S, E> trigger : triggers) {
+			trigger.disarm();
+		}
 	}
 
 	/**
