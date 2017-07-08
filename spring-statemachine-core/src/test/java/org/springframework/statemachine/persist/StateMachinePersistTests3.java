@@ -113,6 +113,25 @@ public class StateMachinePersistTests3 extends AbstractStateMachineTests {
 		assertThat(stateMachine.getId(), is("newid"));
 	}
 
+	@Test
+	public void testRestoreClearWithNullContext() throws Exception {
+		context.register(Config1.class);
+		context.refresh();
+		InMemoryStateMachinePersist1 stateMachinePersist = new InMemoryStateMachinePersist1();
+		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(stateMachinePersist);
+		@SuppressWarnings("unchecked")
+		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
+
+		StateMachine<String,String> stateMachine = stateMachineFactory.getStateMachine("testid2");
+		assertThat(stateMachine, notNullValue());
+		assertThat(stateMachine.getId(), is("testid2"));
+
+		persister.persist(stateMachine, "xxx");
+
+		stateMachine = persister.restore(stateMachine, "notfound");
+		assertThat(stateMachine.getId(), nullValue());
+	}
+
 	@Configuration
 	@EnableStateMachineFactory
 	public static class Config1 extends StateMachineConfigurerAdapter<String, String> {

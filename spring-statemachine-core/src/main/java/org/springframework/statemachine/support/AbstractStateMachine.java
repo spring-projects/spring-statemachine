@@ -591,9 +591,10 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	public void resetStateMachine(StateMachineContext<S, E> stateMachineContext) {
 		// TODO: this function needs a serious rewrite
 		if (stateMachineContext == null) {
-			log.info("Got null context, resetting to initial state and clearing extended state");
+			log.info("Got null context, resetting to initial state, clearing extended state and machine id");
 			currentState = initialState;
 			extendedState.getVariables().clear();
+			setId(null);
 			return;
 		}
 		if (log.isDebugEnabled()) {
