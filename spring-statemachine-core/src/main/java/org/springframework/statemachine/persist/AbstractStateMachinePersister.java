@@ -80,14 +80,7 @@ public abstract class AbstractStateMachinePersister<S, E, T> implements StateMac
 		return stateMachine;
 	}
 
-	/**
-	 * Builds the state machine context which is used for persist operation.
-	 *
-	 * @param stateMachine the state machine
-	 * @return the state machine context
-	 */
 	protected StateMachineContext<S, E> buildStateMachineContext(StateMachine<S, E> stateMachine) {
-		// TODO: need to make this fully recursive
 		ExtendedState extendedState = new DefaultExtendedState();
 		extendedState.getVariables().putAll(stateMachine.getExtendedState().getVariables());
 
@@ -95,16 +88,12 @@ public abstract class AbstractStateMachinePersister<S, E, T> implements StateMac
 		S id = null;
 		State<S, E> state = stateMachine.getState();
 		if (state.isSubmachineState()) {
-			Collection<S> ids1 = state.getIds();
-			@SuppressWarnings("unchecked")
-			S[] ids2 = (S[]) ids1.toArray();
-			// TODO: can this be empty as then we'd get error?
-			id = ids2[ids2.length-1];
+			id = getDeepState(state);
 		} else if (state.isOrthogonal()) {
 			Collection<Region<S, E>> regions = ((AbstractState<S, E>)state).getRegions();
 			for (Region<S, E> r : regions) {
-				S s = r.getState().getId();
-				childs.add(new DefaultStateMachineContext<S, E>(s, null, null, null));
+				StateMachine<S, E> rsm = (StateMachine<S, E>) r;
+				childs.add(buildStateMachineContext(rsm));
 			}
 			id = state.getId();
 		} else {
@@ -131,5 +120,13 @@ public abstract class AbstractStateMachinePersister<S, E, T> implements StateMac
 			}
 		}
 		return new DefaultStateMachineContext<S, E>(childs, id, null, null, extendedState, historyStates, stateMachine.getId());
+	}
+
+	private S getDeepState(State<S, E> state) {
+		Collection<S> ids1 = state.getIds();
+		@SuppressWarnings("unchecked")
+		S[] ids2 = (S[]) ids1.toArray();
+		// TODO: can this be empty as then we'd get error?
+		return ids2[ids2.length-1];
 	}
 }
