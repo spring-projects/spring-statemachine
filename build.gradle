@@ -212,6 +212,7 @@ project('spring-statemachine-test') {
 	description = "Spring State Machine Test"
     
 	dependencies {
+		compile "org.springframework:spring-context"
 		compile project(":spring-statemachine-core")
 
 		compile "org.springframework:spring-test"
@@ -241,6 +242,7 @@ project('spring-statemachine-zookeeper') {
 	description = "Spring State Machine Zookeeper"
 
 	dependencies {
+		compile "org.springframework:spring-context"
 		compile project(":spring-statemachine-core")
 		compile project(":spring-statemachine-kryo")
 		compile "org.apache.curator:curator-recipes"
@@ -388,6 +390,7 @@ configure(recipeProjects()) {
 
 project('spring-statemachine-recipes-common') {
 	dependencies {
+		compile "org.springframework:spring-context"
 		compile project(":spring-statemachine-core")
 		testCompile "org.springframework:spring-test"
 		testCompile "org.hamcrest:hamcrest-core"
