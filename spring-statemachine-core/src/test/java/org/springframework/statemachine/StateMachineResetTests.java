@@ -33,7 +33,9 @@ import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
+import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
@@ -251,6 +253,31 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 		assertThat(machine.getExtendedState().getVariables().size(), is(0));
 	}
 
+	@Test
+	public void testRestoreWithTimer() throws Exception {
+		context.register(Config4.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachineFactory<States, Events> factory = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINEFACTORY,
+				StateMachineFactory.class);
+		StateMachine<States, Events> machine = factory.getStateMachine();
+
+		DefaultStateMachineContext<States, Events> stateMachineContext = new DefaultStateMachineContext<States, Events>(States.S1, null,
+				null, null);
+		machine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<States,Events>>() {
+
+			@Override
+			public void apply(StateMachineAccess<States, Events> function) {
+				function.resetStateMachine(stateMachineContext);
+			}
+		});
+
+		machine.start();
+		Thread.sleep(1100);
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S2));
+
+	}
+
 	@Configuration
 	@EnableStateMachine
 	static class Config1 extends EnumStateMachineConfigurerAdapter<States, Events> {
@@ -418,6 +445,36 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 			};
 		}
 
+	}
+
+	@Configuration
+	@EnableStateMachineFactory
+	static class Config4 extends EnumStateMachineConfigurerAdapter<States, Events> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<States, Events> states)
+				throws Exception {
+			states
+				.withStates()
+					.initial(States.S0)
+					.state(States.S1)
+					.state(States.S2);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<States, Events> transitions)
+				throws Exception {
+			transitions
+				.withExternal()
+					.source(States.S0)
+					.target(States.S1)
+					.event(Events.A)
+					.and()
+				.withExternal()
+					.source(States.S1)
+					.target(States.S2)
+					.timerOnce(1000);
+		}
 	}
 
 	public static enum States {
