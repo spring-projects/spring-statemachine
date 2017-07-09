@@ -86,12 +86,13 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 			WithStateMachine withStateMachine = AnnotationUtils.findAnnotation(handler.getBeanClass(),
 					WithStateMachine.class);
 
-			if (StringUtils.hasText(withStateMachine.name())) {
-				updateCache(metaAnnotation.annotationType().getName() + withStateMachine.name(),
-						new CacheEntry(handler, annotation, metaAnnotation));
-			}
+			// don't check name if id is set as name defaults to
+			// 'stateMachine' and would cause additional cache entry
 			if (StringUtils.hasText(withStateMachine.id())) {
 				updateCache(metaAnnotation.annotationType().getName() + withStateMachine.id(),
+						new CacheEntry(handler, annotation, metaAnnotation));
+			} else if (StringUtils.hasText(withStateMachine.name())) {
+				updateCache(metaAnnotation.annotationType().getName() + withStateMachine.name(),
 						new CacheEntry(handler, annotation, metaAnnotation));
 			}
 		}

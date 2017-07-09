@@ -40,6 +40,7 @@ import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.config.configurers.StateConfigurer.History;
@@ -330,6 +331,26 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), contains(TestStates.S2, TestStates.S21));
 		assertThat(bean10.OnStateEntry1Latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(bean10.OnTransition1Latch.await(2, TimeUnit.SECONDS), is(true));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testMethodAnnotations10() throws Exception {
+		context.register(BeanConfig11.class, Config4.class);
+		context.refresh();
+
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		Bean11 bean11 = context.getBean(Bean11.class);
+		machine.start();
+
+		machine.sendEvent(TestEvents.E1);
+
+		assertThat(machine.getState().getIds(), contains(TestStates.S2));
+		assertThat(bean11.OnTransition1Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean11.OnTransition2Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean11.count1, is(1));
+		assertThat(bean11.count2, is(1));
 	}
 
 	@WithStateMachine
@@ -647,6 +668,26 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		}
 	}
 
+	@WithStateMachine(id="myMachine")
+	static class Bean11 {
+		CountDownLatch OnTransition1Latch = new CountDownLatch(1);
+		CountDownLatch OnTransition2Latch = new CountDownLatch(1);
+		volatile int count1 = 0;
+		volatile int count2 = 0;
+
+		@OnTransition(target = "S1")
+		public void OnTransition1() {
+			count1++;
+			OnTransition1Latch.countDown();
+		}
+
+		@OnStateEntry(target = "S2")
+		public void OnTransition2() {
+			count2++;
+			OnTransition2Latch.countDown();
+		}
+	}
+
 	@Configuration
 	static class BeanConfig1 {
 
@@ -743,6 +784,16 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		@Bean
 		public Bean10 bean10() {
 			return new Bean10();
+		}
+
+	}
+
+	@Configuration
+	static class BeanConfig11 {
+
+		@Bean
+		public Bean11 bean11() {
+			return new Bean11();
 		}
 
 	}
@@ -906,4 +957,35 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		}
 
 	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config4 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
+			config.withConfiguration()
+				.machineId("myMachine");
+		}
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states.withStates()
+				.initial(TestStates.S1)
+				.states(EnumSet.allOf(TestStates.class));
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1).target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S2).target(TestStates.S1)
+					.event(TestEvents.E2);
+		}
+	}
+
 }
