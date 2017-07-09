@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,6 +131,38 @@ public class EndStateTests extends AbstractStateMachineTests {
 	public void testMultipleTransitionsToSameEndStateFromChoices() {
 		context.register(Config6.class);
 		context.refresh();
+	}
+
+	@Test
+	public void testEndStateCompletesMultipleEndStates1() {
+		context.register(Config7.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		@SuppressWarnings("unchecked")
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		machine.start();
+		assertThat(machine, notNullValue());
+		assertThat(machine.isComplete(), is(false));
+		machine.sendEvent(TestEvents.E1);
+		assertThat(machine.isComplete(), is(true));
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+	}
+
+	@Test
+	public void testEndStateCompletesMultipleEndStates2() {
+		context.register(Config7.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		@SuppressWarnings("unchecked")
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		machine.start();
+		assertThat(machine, notNullValue());
+		assertThat(machine.isComplete(), is(false));
+		machine.sendEvent(TestEvents.E2);
+		assertThat(machine.isComplete(), is(true));
+		assertThat(machine.getState().getIds(), contains(TestStates.S2));
 	}
 
 	@Configuration
@@ -434,6 +466,34 @@ public class EndStateTests extends AbstractStateMachineTests {
 				.withChoice()
 					.source("JOIN2")
 					.last("SF");
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config7 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.SI)
+					.end(TestStates.S1)
+					.end(TestStates.S2);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.SI)
+					.target(TestStates.S1)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.SI)
+					.target(TestStates.S2)
+					.event(TestEvents.E2);
 		}
 	}
 }

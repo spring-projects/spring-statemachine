@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -223,7 +223,8 @@ public interface StateConfigurer<S, E> extends
 	StateConfigurer<S, E> states(Set<S> states);
 
 	/**
-	 * Specify a state {@code S} to be end state.
+	 * Specify a state {@code S} to be end state. This method
+	 * can be called for each state to be marked as end state.
 	 *
 	 * @param end the end state
 	 * @return configurer for chaining
