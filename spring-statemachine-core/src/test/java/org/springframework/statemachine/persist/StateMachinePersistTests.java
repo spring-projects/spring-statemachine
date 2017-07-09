@@ -172,7 +172,7 @@ public class StateMachinePersistTests extends AbstractStateMachineTests {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testSubsInRegions() throws Exception {
+	public void testSubsInRegions1() throws Exception {
 		context.register(Config51.class, Config52.class);
 		context.refresh();
 
@@ -201,6 +201,30 @@ public class StateMachinePersistTests extends AbstractStateMachineTests {
 		assertThat(stateMachine2.getState().getIds(), containsInAnyOrder("S12", "S21"));
 		stateMachine2 = persister.restore(stateMachine2, "xxx");
 		assertThat(stateMachine2.getState().getIds(), containsInAnyOrder("S12", "S22", "S221"));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testSubsInRegions2() throws Exception {
+			context.register(Config51.class, Config52.class);
+			context.refresh();
+
+			InMemoryStateMachinePersist1 stateMachinePersist = new InMemoryStateMachinePersist1();
+			StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(stateMachinePersist);
+
+			StateMachine<String, String> stateMachine1 = context.getBean("machine1", StateMachine.class);
+			StateMachine<String, String> stateMachine2 = context.getBean("machine2", StateMachine.class);
+			stateMachine1.start();
+
+			stateMachine1.sendEvent("E1");
+			assertThat(stateMachine1.getState().getIds(), containsInAnyOrder("S12", "S21"));
+			stateMachine1.sendEvent("E2");
+			assertThat(stateMachine1.getState().getIds(), containsInAnyOrder("S12", "S22", "S221"));
+			stateMachine1.sendEvent("E3");
+			assertThat(stateMachine1.getState().getIds(), containsInAnyOrder("S12", "S22", "S222"));
+			persister.persist(stateMachine1, "xxx");
+			stateMachine2 = persister.restore(stateMachine2, "xxx");
+			assertThat(stateMachine2.getState().getIds(), containsInAnyOrder("S12", "S22", "S222"));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -505,7 +529,12 @@ public class StateMachinePersistTests extends AbstractStateMachineTests {
 				.withExternal()
 					.source("S21")
 					.target("S22")
-					.event("E2");
+					.event("E2")
+					.and()
+				.withExternal()
+					.source("S221")
+					.target("S222")
+					.event("E3");
 		}
 
 	}
