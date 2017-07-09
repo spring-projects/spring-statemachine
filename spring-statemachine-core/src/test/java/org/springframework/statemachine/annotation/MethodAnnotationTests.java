@@ -156,6 +156,9 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		assertThat(bean5.onExtendedStateChanged2Count, is(1));
 		assertThat(bean5.onExtendedStateChanged2Value, is("V1val"));
 
+		assertThat(bean5.onExtendedStateChangedKeyV1Latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(bean5.onExtendedStateChangedKeyV1Count, is(1));
+
 		assertThat(bean5.onExtendedStateChangedKeyV2Latch.await(1, TimeUnit.SECONDS), is(false));
 		assertThat(bean5.onExtendedStateChangedKeyV2Count, is(0));
 	}
@@ -520,10 +523,12 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 
 		CountDownLatch onExtendedStateChanged1Latch = new CountDownLatch(1);
 		CountDownLatch onExtendedStateChanged2Latch = new CountDownLatch(1);
+		CountDownLatch onExtendedStateChangedKeyV1Latch = new CountDownLatch(1);
 		CountDownLatch onExtendedStateChangedKeyV2Latch = new CountDownLatch(1);
 		int onExtendedStateChanged1Count = 0;
 		int onExtendedStateChanged2Count = 0;
 		Object onExtendedStateChanged2Value = null;
+		int onExtendedStateChangedKeyV1Count = 0;
 		int onExtendedStateChangedKeyV2Count = 0;
 
 		@OnExtendedStateChanged
@@ -537,6 +542,12 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 			onExtendedStateChanged2Value = value;
 			onExtendedStateChanged2Count++;
 			onExtendedStateChanged2Latch.countDown();
+		}
+
+		@OnExtendedStateChanged(key = "V1")
+		public void onExtendedStateChangedKeyV1() {
+			onExtendedStateChangedKeyV1Count++;
+			onExtendedStateChangedKeyV1Latch.countDown();
 		}
 
 		@OnExtendedStateChanged(key = "V2")
