@@ -38,7 +38,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { Application.class })
+@SpringBootTest(classes = { Application.class }, properties = { "endpoints.default.web.enabled=true" })
 @WebAppConfiguration
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class MonitoringTests {
@@ -90,7 +90,7 @@ public class MonitoringTests {
 			andExpect(status().isOk());
 		mvc.
 			perform(get("/application/trace")).
-			andExpect(jsonPath("$.*.info.transition", containsInAnyOrder("INITIAL_S1")));
+			andExpect(jsonPath("$.traces.*.info.transition", containsInAnyOrder("INITIAL_S1")));
 	}
 
 	@Before

@@ -7,3 +7,7 @@ management:
 security:
   basic:
     enabled: false
+endpoints:
+  default:
+    web:
+      enabled: true
