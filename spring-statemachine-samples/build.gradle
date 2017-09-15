@@ -131,9 +131,9 @@ project('spring-statemachine-samples-monitoring') {
 	description = 'Spring State Machine Monitoring Sample'
 	dependencies {
 		compile project(":spring-statemachine-boot")
+		compile("org.springframework.boot:spring-boot-starter-actuator")
 		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
-		compile("org.springframework.boot:spring-boot-starter-security")
 		testCompile("com.jayway.jsonpath:json-path")
 		testCompile("com.jayway.jsonpath:json-path-assert")
 	}

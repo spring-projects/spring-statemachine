@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,13 @@
  */
 package demo.monitoring;
 
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -80,7 +82,11 @@ public class MonitoringTests {
 			andExpect(status().isOk());
 		mvc.
 			perform(get("/application/metrics")).
-			andExpect(jsonPath("$.['counter.ssm.transition.INITIAL_S1.transit']", is(1)));
+			andExpect(jsonPath("$.names", hasItems("ssm.transition.duration", "ssm.transition.transit")));
+		mvc.
+			perform(get("/application/metrics/ssm.transition.duration")).
+			andDo(print()).
+			andExpect(jsonPath("$['ssmTransitionDuration.transitionname.INITIAL_S1']", notNullValue()));
 	}
 
 	@Test

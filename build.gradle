@@ -60,8 +60,8 @@ configure(allprojects) {
 	}
 
 	compileJava {
-		sourceCompatibility = 1.7
-		targetCompatibility = 1.7
+		sourceCompatibility = 1.8
+		targetCompatibility = 1.8
 	}
 
 	compileTestJava {
@@ -195,6 +195,7 @@ project('spring-statemachine-boot') {
 		optional project(":spring-statemachine-data-common:spring-statemachine-data-jpa")
 		optional project(":spring-statemachine-data-common:spring-statemachine-data-redis")
 		optional project(":spring-statemachine-data-common:spring-statemachine-data-mongodb")
+		optional "io.micrometer:micrometer-core"
 		optional "org.eclipse.persistence:javax.persistence"
 		optional "org.springframework.boot:spring-boot-starter-data-jpa"
 		optional "org.springframework.boot:spring-boot-starter-data-redis"
