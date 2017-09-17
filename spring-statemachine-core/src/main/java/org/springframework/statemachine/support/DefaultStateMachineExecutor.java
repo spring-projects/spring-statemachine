@@ -240,7 +240,7 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 			try {
 				transit = t.transit(stateContext);
 			} catch (Exception e) {
-				log.warn("Aborting as transition " + t + " caused error " + e);
+				log.warn("Aborting as transition " + t, e);
 			}
 			if (transit) {
 				// if executor transit is raising exception, stop here
