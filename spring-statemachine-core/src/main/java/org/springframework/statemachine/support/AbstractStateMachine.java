@@ -294,7 +294,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				} catch (Exception e) {
 					// aborting, executor should stop possible loop checking possible transitions
 					// causing infinite execution
-					log.warn("Aborting as transition " + t + " caused error " + e);
+					log.warn("Aborting as transition " + t, e);
 					throw new StateMachineException("Aborting as transition " + t + " caused error ", e);
 				}
 				notifyTransition(buildStateContext(Stage.TRANSITION, message, t, getRelayStateMachine()));
