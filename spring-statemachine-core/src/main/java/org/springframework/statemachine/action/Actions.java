@@ -48,7 +48,7 @@ public final class Actions {
 	}
 
 	/**
-	 * Builds a erro calling action {@link Action}.
+	 * Builds an error calling action {@link Action}.
 	 *
 	 * @param <S> the type of state
 	 * @param <E> the type of event
