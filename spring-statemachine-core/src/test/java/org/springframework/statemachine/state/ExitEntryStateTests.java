@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,29 @@ public class ExitEntryStateTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), contains("S2", "S22"));
 		machine.sendEvent("EXIT1");
 		assertThat(machine.getState().getIds(), contains("S4"));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testMultipleExitsToSameState() {
+		context.register(Config2.class);
+		context.refresh();
+		StateMachine<String, String> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		assertThat(machine, notNullValue());
+		machine.start();
+
+		assertThat(machine.getState().getIds(), contains("S1"));
+		machine.sendEvent("E1");
+		assertThat(machine.getState().getIds(), contains("S2", "S22"));
+		machine.sendEvent("EXIT2");
+		assertThat(machine.getState().getIds(), contains("S1"));
+
+		machine.sendEvent("E2");
+		assertThat(machine.getState().getIds(), contains("S3", "S32"));
+		machine.sendEvent("EXIT3");
+		assertThat(machine.getState().getIds(), contains("S1"));
+
 	}
 
 	@Configuration
@@ -113,6 +136,64 @@ public class ExitEntryStateTests extends AbstractStateMachineTests {
 					.and()
 				.withExit()
 					.source("S2EXIT2").target("S5");
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config2 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("S1")
+					.state("S2")
+					.state("S3")
+					.and()
+					.withStates()
+						.parent("S2")
+						.initial("S21")
+						.exit("S2EXIT")
+						.state("S22")
+						.and()
+					.withStates()
+						.parent("S3")
+						.initial("S31")
+						.exit("S3EXIT")
+						.state("S32");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("S1").target("S2")
+					.event("E1")
+					.and()
+				.withExternal()
+					.source("S1").target("S3")
+					.event("E2")
+					.and()
+				.withExternal()
+					.source("S21").target("S22")
+					.and()
+				.withExternal()
+					.source("S31").target("S32")
+					.and()
+				.withExternal()
+					.source("S22").target("S2EXIT")
+					.event("EXIT2")
+					.and()
+				.withExternal()
+					.source("S32").target("S3EXIT")
+					.event("EXIT3")
+					.and()
+				.withExit()
+					.source("S2EXIT").target("S1")
+					.and()
+				.withExit()
+					.source("S3EXIT").target("S1");
 		}
 	}
 
