@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
-import org.springframework.boot.test.util.EnvironmentTestUtils;
+import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.boot.autoconfigure.StateMachineMongoDbRepositoriesAutoConfiguration;
@@ -59,7 +59,7 @@ public class StateMachineMongoDbRepositoriesAutoConfigurationTests {
 	@Test
 	public void testMongoDisabled() throws Exception {
 		context = new AnnotationConfigApplicationContext();
-		EnvironmentTestUtils.addEnvironment(context, "spring.statemachine.data.redis.repositories.enabled:false");
+		TestPropertyValues.of("spring.statemachine.data.redis.repositories.enabled=false").applyTo(context);
 		context.register(StateMachineRedisRepositoriesAutoConfiguration.class);
 		context.refresh();
 		assertThat(context.containsBean("mongoDbStateRepository"), is(false));
