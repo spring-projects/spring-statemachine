@@ -16,6 +16,7 @@
 package demo.monitoring;
 
 import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -84,9 +85,12 @@ public class MonitoringTests {
 			perform(get("/application/metrics")).
 			andExpect(jsonPath("$.names", hasItems("ssm.transition.duration", "ssm.transition.transit")));
 		mvc.
-			perform(get("/application/metrics/ssm.transition.duration")).
-			andDo(print()).
-			andExpect(jsonPath("$['ssmTransitionDuration.transitionname.INITIAL_S1']", notNullValue()));
+		perform(get("/application/metrics/ssm.transition.transit")).
+		andDo(print()).
+		andExpect(jsonPath("$.name", is("ssm.transition.transit"))).
+		andExpect(jsonPath("$.measurements[0].value", is(2.0))).
+		andExpect(jsonPath("$.availableTags[0].tag", is("transitionName"))).
+		andExpect(jsonPath("$.availableTags[0].values", hasItems("EXTERNAL_S1_S2","INITIAL_S1")));
 	}
 
 	@Test
