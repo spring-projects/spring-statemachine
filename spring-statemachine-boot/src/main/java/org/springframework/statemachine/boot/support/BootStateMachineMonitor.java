@@ -31,7 +31,6 @@ import org.springframework.util.ObjectUtils;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
-import io.micrometer.core.instrument.stats.hist.Histogram;
 
 /**
  * Implementation of a {@link StateMachineMonitor} which converts monitoring
@@ -95,7 +94,7 @@ public class BootStateMachineMonitor<S, E> extends AbstractStateMachineMonitor<S
 		Timer.Builder builder = Timer.builder("ssm.transition.duration")
 				.tags("transitionName", transitionName)
 				.description("Timer of Transition");
-		builder.histogram(Histogram.percentilesTime());
+		builder.publishPercentileHistogram();
 		return builder;
 	}
 
@@ -112,7 +111,7 @@ public class BootStateMachineMonitor<S, E> extends AbstractStateMachineMonitor<S
 		Timer.Builder builder = Timer.builder("ssm.action.duration")
 				.tags("actionName", actionName)
 				.description("Timer of Action");
-		builder.histogram(Histogram.percentilesTime());
+		builder.publishPercentileHistogram();
 		return builder;
 	}
 
