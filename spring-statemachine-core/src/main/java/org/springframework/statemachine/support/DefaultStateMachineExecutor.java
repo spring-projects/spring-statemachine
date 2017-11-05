@@ -136,6 +136,9 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 
 	@Override
 	public void queueDeferredEvent(Message<E> message) {
+		if (log.isDebugEnabled()) {
+			log.debug("Deferring message " + message);
+		}
 		deferList.addLast(message);
 	}
 
@@ -289,7 +292,13 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 						processTriggerQueue();
 					}
 				}
+
+				if (requestTask.getAndSet(false)) {
+					scheduleEventQueueProcessing();
+				}
 				taskRef.set(null);
+				// do second attempt which should reduse risk
+				// of threading causing failed run to completion
 				if (requestTask.getAndSet(false)) {
 					scheduleEventQueueProcessing();
 				}
