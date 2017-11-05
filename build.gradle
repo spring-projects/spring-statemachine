@@ -1,9 +1,7 @@
 buildscript {
 	ext {
 		log4jVersion = '1.2.17'
-		springVersion = '5.0.0.BUILD-SNAPSHOT'
 		springBootVersion = '2.0.0.BUILD-SNAPSHOT'
-		springCloudVersion = 'Dalston.BUILD-SNAPSHOT'
 		eclipsePersistenceVersion = '2.1.1'
 		kryoVersion = '3.0.3'
 		springCloudClusterVersion = '1.0.2.RELEASE'
@@ -14,7 +12,7 @@ buildscript {
 		eclipseUml2TypesVersion = '2.0.0-v20140602-0749'
 		eclipseEmfEcoreVersion = '2.11.1-v20150805-0538'
 		eclipseUml2UmlVersion = '5.0.0-v20140602-0749'
-
+		curatorVersion = '2.11.1'
 	}
 	repositories {
 		maven { url 'http://repo.springsource.org/libs-release'}
@@ -39,6 +37,11 @@ def sampleProjects() {
 	subprojects.findAll { project ->
 		project.name.contains('spring-statemachine-samples') && project.name != 'spring-statemachine-samples-common'
 	}
+}
+
+def getResolvedVersionOf(dependency) {
+	// used for resolving version to docs
+	return configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.findAll { it.moduleName == dependency }[0].moduleVersion
 }
 
 configure(allprojects) {
@@ -82,7 +85,6 @@ configure(allprojects) {
 
 	dependencyManagement {
 		imports {
-			mavenBom "org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion"
 			mavenBom "org.springframework.boot:spring-boot-dependencies:$springBootVersion"
 		}
 		dependencies {
@@ -96,6 +98,8 @@ configure(allprojects) {
 			dependency "org.eclipse.emf:org.eclipse.emf.ecore.xmi:$eclipseEmfXmiVersion"
 			dependency "org.eclipse.emf:org.eclipse.emf.ecore:$eclipseEmfEcoreVersion"
 			dependency "org.eclipse.emf:org.eclipse.emf.common:$eclipseEmfCommonVersion"
+			dependency "org.apache.curator:curator-recipes:$curatorVersion"
+			dependency "org.apache.curator:curator-test:$curatorVersion"
 		}
 	}
 
@@ -485,6 +489,11 @@ configure(rootProject) {
 	apply plugin: 'org.asciidoctor.gradle.asciidoctor'
 	apply plugin: "docbook-reference"
 
+	dependencies {
+		// just used to get version into docs
+		compile "org.springframework:spring-core"
+	}
+
 	// don't publish the default jar for the root project
 	configurations.archives.artifacts.clear()
 
@@ -518,7 +527,7 @@ configure(rootProject) {
 			doctype: 'book',
 			numbered: '',
 			'spring-statemachine-version' : project.version,
-			'spring-version' : springVersion,
+			'spring-version' : getResolvedVersionOf("spring-core"),
 			revnumber : project.version
 	}
 
