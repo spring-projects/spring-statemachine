@@ -72,6 +72,9 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 	@SuppressWarnings("unchecked")
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		if (beanFactory == null) {
+			return;
+		}
 		if (!(beanFactory instanceof ListableBeanFactory)) {
 			log.info("Beanfactory is not instance of ListableBeanFactory, was " + beanFactory + " thus Disabling handlers.");
 			return;
@@ -100,6 +103,12 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 
 	@Override
 	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		if (beanFactory == null) {
+			// just skip if beanFactory is null as outside of spring
+			// app context, we usually don't have any factory features.
+			// in a same way further things will be skipped in afterPropertiesSet()
+			return;
+		}
 		Assert.state(beanFactory instanceof ListableBeanFactory,
 				"Bean factory must be instance of ListableBeanFactory, was " + beanFactory);
 		this.beanFactory = (ListableBeanFactory)beanFactory;
