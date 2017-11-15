@@ -4,6 +4,13 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 1.2.7.RELEASE (2017-11-15)
+---------------------------------------------
+* Handle null BeanFactory in StateMachineHandlerCallHelper [#412]
+* Fix logging message when transition action throws exception [#413]
+* Multiple exit points to same state fails [#416]
+* Backport master changes  [#420]
+
 Changes in version 1.2.6.RELEASE (2017-07-09)
 ---------------------------------------------
 * Deadlock in lifecycle [#364]
