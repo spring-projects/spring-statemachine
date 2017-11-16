@@ -4,6 +4,30 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 2.0.0.M1 (2017-11-16)
+----------------------------------------
+* Upgrade to spring framework 5 [#296]
+* Backport 1.2.x changes for 2.0.0.M1 [#307]
+* Typo in StateMachineEvent [#310]
+* Revamp dependencies [#313]
+* Fix slow mongo tests [#314]
+* Create bom for statemachine deps [#317]
+* StateMachineInterceptorList set() method does nothing [#318]
+* Gradle build fails [#342]
+* Move away from spring-cloud-cluster [#345]
+* Fix org.springframework.util.Assert deprecations [#346]
+* Failing tests in monitoring sample [#350]
+* Adapt to thymeleaf starter changes [#356]
+* PreStateChangeInterceptors are called twice for the END pseudo state [#367]
+* Fix spring-session usage [#385]
+* Fix build for spring-context [#396]
+* Upgrade master build to gradle 4.x [#407]
+* Fix boot 2.x actuator usage [#408]
+* Fix changes in boot 2.x metric system [#410]
+* Fix changes in boot 2.x transitive deps for spring-data-redis [#418]
+* Threading may not process all events. [#419]
+* Prepare gradle build for 2.0.0.M1 [#421]
+
 Changes in version 1.2.0.RELEASE (2016-12-14)
 ---------------------------------------------
 (No changes)
