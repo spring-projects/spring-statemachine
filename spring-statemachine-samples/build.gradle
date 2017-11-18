@@ -121,6 +121,18 @@ project('spring-statemachine-samples-datajpa') {
 	}
 }
 
+project('spring-statemachine-samples-datajpapersist') {
+	description = 'Spring State Machine Data Jpa Persist Sample'
+	dependencies {
+		compile project(":spring-statemachine-boot")
+		compile project(":spring-statemachine-data-common:spring-statemachine-data-jpa")
+		compile("org.springframework.boot:spring-boot-starter-thymeleaf:$springBootVersion")
+		compile("org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion")
+		compile("org.springframework.boot:spring-boot-devtools:$springBootVersion")
+		compile("com.h2database:h2:$h2Version")
+	}
+}
+
 project('spring-statemachine-samples-monitoring') {
 	description = 'Spring State Machine Monitoring Sample'
 	dependencies {

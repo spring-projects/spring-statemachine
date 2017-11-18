@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.action.SpelExpressionAction;
 import org.springframework.statemachine.config.model.AbstractStateMachineModelFactory;
 import org.springframework.statemachine.config.model.ChoiceData;
-import org.springframework.statemachine.config.model.ConfigurationData;
 import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.EntryData;
 import org.springframework.statemachine.config.model.ExitData;
@@ -80,8 +79,6 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 
 	@Override
 	public StateMachineModel<String, String> build(String machineId) {
-		ConfigurationData<String, String> configurationData = new ConfigurationData<>();
-
 		Collection<StateData<String, String>> stateDatas = new ArrayList<>();
 		for (RepositoryState s : stateRepository.findByMachineId(machineId == null ? "" : machineId)) {
 
@@ -284,8 +281,7 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 		TransitionsData<String, String> transitionsData = new TransitionsData<>(transitionData, choicesCopy, junctionsCopy, forks, joins,
 				entrys, exits, historys);
 
-		StateMachineModel<String, String> stateMachineModel = new DefaultStateMachineModel<>(configurationData, statesData, transitionsData);
-		return stateMachineModel;
+		return new DefaultStateMachineModel<>(null, statesData, transitionsData);
 	}
 
 	private Guard<String, String> resolveGuard(RepositoryTransition t) {

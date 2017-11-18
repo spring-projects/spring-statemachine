@@ -234,6 +234,7 @@ project('spring-statemachine-data-common') {
 	}
 	dependencies {
 		compile project(":spring-statemachine-core")
+		compile project(":spring-statemachine-kryo")
 		compile "org.springframework.data:spring-data-commons:$springDataCommonsVersion"
 		optional "org.springframework.security:spring-security-core:$springSecurityVersion"
 		compile "com.fasterxml.jackson.core:jackson-core:$jackson2Version"

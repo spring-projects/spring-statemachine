@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,10 +29,12 @@ import org.springframework.statemachine.config.configurers.ConfigurationConfigur
 import org.springframework.statemachine.config.configurers.DefaultConfigurationConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultDistributedStateMachineConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultMonitoringConfigurer;
+import org.springframework.statemachine.config.configurers.DefaultPersistenceConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultSecurityConfigurer;
 import org.springframework.statemachine.config.configurers.DefaultVerifierConfigurer;
 import org.springframework.statemachine.config.configurers.DistributedStateMachineConfigurer;
 import org.springframework.statemachine.config.configurers.MonitoringConfigurer;
+import org.springframework.statemachine.config.configurers.PersistenceConfigurer;
 import org.springframework.statemachine.config.configurers.SecurityConfigurer;
 import org.springframework.statemachine.config.configurers.VerifierConfigurer;
 import org.springframework.statemachine.config.model.ConfigurationData;
@@ -41,7 +43,9 @@ import org.springframework.statemachine.config.model.verifier.StateMachineModelV
 import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.monitor.StateMachineMonitor;
+import org.springframework.statemachine.persist.StateMachineRuntimePersister;
 import org.springframework.statemachine.security.SecurityRule;
+import org.springframework.statemachine.support.StateMachineInterceptor;
 
 /**
  * {@link AnnotationBuilder} for {@link StatesData}.
@@ -70,6 +74,8 @@ public class StateMachineConfigurationBuilder<S, E>
 	private SecurityRule eventSecurityRule;
 	private SecurityRule transitionSecurityRule;
 	private StateMachineMonitor<S, E> stateMachineMonitor;
+	private final List<StateMachineInterceptor<S, E>> interceptors = new ArrayList<StateMachineInterceptor<S, E>>();
+	private StateMachineRuntimePersister<S, E> persister;
 
 	/**
 	 * Instantiates a new state machine configuration builder.
@@ -124,10 +130,22 @@ public class StateMachineConfigurationBuilder<S, E>
 	}
 
 	@Override
+	public PersistenceConfigurer<S, E> withPersistence() throws Exception {
+		return apply(new DefaultPersistenceConfigurer<S, E>());
+	}
+
+	@Override
 	protected ConfigurationData<S, E> performBuild() throws Exception {
+		ArrayList<StateMachineInterceptor<S, E>> interceptorsCopy = new ArrayList<StateMachineInterceptor<S, E>>(interceptors);
+		if (persister != null) {
+			StateMachineInterceptor<S, E> interceptor = persister.getInterceptor();
+			if (interceptor != null) {
+				interceptorsCopy.add((StateMachineInterceptor<S, E>) interceptor);
+			}
+		}
 		return new ConfigurationData<S, E>(beanFactory, taskExecutor, taskScheculer, autoStart, ensemble, listeners,
 				securityEnabled, transitionSecurityAccessDecisionManager, eventSecurityAccessDecisionManager, eventSecurityRule,
-				transitionSecurityRule, verifierEnabled, verifier, machineId, stateMachineMonitor);
+				transitionSecurityRule, verifierEnabled, verifier, machineId, stateMachineMonitor, interceptorsCopy);
 	}
 
 	/**
@@ -264,5 +282,14 @@ public class StateMachineConfigurationBuilder<S, E>
 	 */
 	public void setVerifier(StateMachineModelVerifier<S, E> verifier) {
 		this.verifier = verifier;
+	}
+
+	/**
+	 * Sets the state machine runtime persister.
+	 *
+	 * @param persister the state machine runtime persister
+	 */
+	public void setStateMachineRuntimePersister(StateMachineRuntimePersister<S, E> persister) {
+		this.persister = persister;
 	}
 }
