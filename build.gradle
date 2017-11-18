@@ -288,6 +288,7 @@ project('spring-statemachine-data-common') {
 	}
 	dependencies {
 		compile project(":spring-statemachine-core")
+		compile project(":spring-statemachine-kryo")
 		compile "org.springframework.data:spring-data-commons"
 		optional "org.springframework.security:spring-security-core"
 		compile "com.fasterxml.jackson.core:jackson-core"

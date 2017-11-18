@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.monitor.StateMachineMonitor;
 import org.springframework.statemachine.security.SecurityRule;
+import org.springframework.statemachine.support.StateMachineInterceptor;
 
 /**
  * Configuration object used to keep things together in {@link StateMachineConfigurationBuilder}.
@@ -57,13 +58,14 @@ public class ConfigurationData<S, E> {
 	private final SecurityRule eventSecurityRule;
 	private final SecurityRule transitionSecurityRule;
 	private final StateMachineMonitor<S, E> stateMachineMonitor;
+	private final List<StateMachineInterceptor<S, E>> interceptors;
 
 	/**
 	 * Instantiates a new state machine configuration config data.
 	 */
 	public ConfigurationData() {
 		this(null, new SyncTaskExecutor(), new ConcurrentTaskScheduler(), false, null, new ArrayList<StateMachineListener<S, E>>(), false,
-				null, null, null, null, true, new DefaultStateMachineModelVerifier<S, E>(), null, null);
+				null, null, null, null, true, new DefaultStateMachineModelVerifier<S, E>(), null, null, null);
 	}
 
 	/**
@@ -84,13 +86,15 @@ public class ConfigurationData<S, E> {
 	 * @param verifier the state machine model verifier
 	 * @param machineId the machine id
 	 * @param stateMachineMonitor the state machine monitor
+	 * @param interceptors the state machine interceptors.
 	 */
 	public ConfigurationData(BeanFactory beanFactory, TaskExecutor taskExecutor,
 			TaskScheduler taskScheduler, boolean autoStart, StateMachineEnsemble<S, E> ensemble,
 			List<StateMachineListener<S, E>> listeners, boolean securityEnabled,
 			AccessDecisionManager transitionSecurityAccessDecisionManager, AccessDecisionManager eventSecurityAccessDecisionManager,
 			SecurityRule eventSecurityRule, SecurityRule transitionSecurityRule, boolean verifierEnabled,
-			StateMachineModelVerifier<S, E> verifier, String machineId, StateMachineMonitor<S, E> stateMachineMonitor) {
+			StateMachineModelVerifier<S, E> verifier, String machineId, StateMachineMonitor<S, E> stateMachineMonitor,
+			List<StateMachineInterceptor<S, E>> interceptors) {
 		this.beanFactory = beanFactory;
 		this.taskExecutor = taskExecutor;
 		this.taskScheduler = taskScheduler;
@@ -106,6 +110,7 @@ public class ConfigurationData<S, E> {
 		this.verifier = verifier;
 		this.machineId = machineId;
 		this.stateMachineMonitor = stateMachineMonitor;
+		this.interceptors = interceptors;
 	}
 
 	public String getMachineId() {
@@ -236,5 +241,14 @@ public class ConfigurationData<S, E> {
 	 */
 	public SecurityRule getTransitionSecurityRule() {
 		return transitionSecurityRule;
+	}
+
+	/**
+	 * Gets the state machine interceptors.
+	 *
+	 * @return the state machine interceptors
+	 */
+	public List<StateMachineInterceptor<S, E>> getStateMachineInterceptors() {
+		return interceptors;
 	}
 }

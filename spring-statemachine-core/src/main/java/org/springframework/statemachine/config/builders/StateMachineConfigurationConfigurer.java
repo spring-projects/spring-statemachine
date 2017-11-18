@@ -18,6 +18,7 @@ package org.springframework.statemachine.config.builders;
 import org.springframework.statemachine.config.configurers.ConfigurationConfigurer;
 import org.springframework.statemachine.config.configurers.DistributedStateMachineConfigurer;
 import org.springframework.statemachine.config.configurers.MonitoringConfigurer;
+import org.springframework.statemachine.config.configurers.PersistenceConfigurer;
 import org.springframework.statemachine.config.configurers.SecurityConfigurer;
 import org.springframework.statemachine.config.configurers.VerifierConfigurer;
 
@@ -70,4 +71,12 @@ public interface StateMachineConfigurationConfigurer<S, E> {
 	 * @throws Exception if configuration error happens
 	 */
 	MonitoringConfigurer<S, E> withMonitoring() throws Exception;
+
+	/**
+	 * Gets a configurer for state machine persistence.
+	 *
+	 * @return {@link PersistenceConfigurer} for chaining
+	 * @throws Exception if configuration error happens
+	 */
+	PersistenceConfigurer<S, E> withPersistence() throws Exception;
 }

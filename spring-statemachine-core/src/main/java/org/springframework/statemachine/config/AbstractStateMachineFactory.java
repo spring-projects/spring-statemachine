@@ -79,6 +79,7 @@ import org.springframework.statemachine.state.StateHolder;
 import org.springframework.statemachine.state.StateMachineState;
 import org.springframework.statemachine.support.DefaultExtendedState;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
+import org.springframework.statemachine.support.StateMachineInterceptor;
 import org.springframework.statemachine.support.tree.Tree;
 import org.springframework.statemachine.support.tree.Tree.Node;
 import org.springframework.statemachine.support.tree.TreeTraverser;
@@ -317,6 +318,18 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 		for (StateMachineListener<S, E> listener : stateMachineModel.getConfigurationData().getStateMachineListeners()) {
 			machine.addStateListener(listener);
+		}
+
+		List<StateMachineInterceptor<S,E>> interceptors = stateMachineModel.getConfigurationData().getStateMachineInterceptors();
+		if (interceptors != null) {
+			for (final StateMachineInterceptor<S, E> interceptor : interceptors) {
+				machine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S,E>>() {
+					@Override
+					public void apply(StateMachineAccess<S, E> function) {
+						function.addStateMachineInterceptor(interceptor);
+					}
+				});
+			}
 		}
 
 		// go through holders and fix state references which

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +27,21 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.config.EnableStateMachine;
+import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
+import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
+import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.data.AbstractRepositoryTests;
 import org.springframework.statemachine.data.RepositoryState;
 import org.springframework.statemachine.data.RepositoryTransition;
+import org.springframework.statemachine.data.StateMachineRepository;
 import org.springframework.statemachine.data.StateRepository;
 import org.springframework.statemachine.data.TransitionRepository;
+import org.springframework.statemachine.persist.StateMachineRuntimePersister;
 import org.springframework.statemachine.transition.TransitionKind;
 
 /**
@@ -253,6 +262,36 @@ public class JpaRepositoryTests extends AbstractRepositoryTests {
 		context.refresh();
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testStateMachinePersistWithStrings() {
+		context.register(TestConfig.class, ConfigWithStrings.class);
+		context.refresh();
+
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		stateMachine.start();
+		assertThat(stateMachine.getState().getId(), is("S1"));
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getId(), is("S2"));
+		stateMachine.sendEvent("E2");
+		assertThat(stateMachine.getState().getId(), is("S1"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testStateMachinePersistWithEnums() {
+		context.register(TestConfig.class, ConfigWithEnums.class);
+		context.refresh();
+
+		StateMachine<PersistTestStates, PersistTestEvents> stateMachine = context.getBean(StateMachine.class);
+		stateMachine.start();
+		assertThat(stateMachine.getState().getId(), is(PersistTestStates.S1));
+		stateMachine.sendEvent(PersistTestEvents.E1);
+		assertThat(stateMachine.getState().getId(), is(PersistTestStates.S2));
+		stateMachine.sendEvent(PersistTestEvents.E2);
+		assertThat(stateMachine.getState().getId(), is(PersistTestStates.S1));
+	}
+
 	@EnableAutoConfiguration
 	static class TestConfig {
 	}
@@ -275,6 +314,110 @@ public class JpaRepositoryTests extends AbstractRepositoryTests {
 
 		@Autowired
 		StateRepository<? extends RepositoryState> statesRepository4;
+
+		@Autowired
+		JpaStateMachineRepository jpaStateMachineRepository1;
+
+		@Autowired
+		StateMachineRepository<JpaRepositoryStateMachine> jpaStateMachineRepository2;
+
 	}
 
+	@Configuration
+	@EnableStateMachine
+	public static class ConfigWithStrings extends StateMachineConfigurerAdapter<String, String> {
+
+		@Autowired
+		private JpaStateMachineRepository jpaStateMachineRepository;
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<String, String> config) throws Exception {
+			config
+				.withConfiguration()
+					.machineId("xxx1")
+				.and()
+				.withPersistence()
+					.runtimePersister(stateMachineRuntimePersister());
+		}
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("S1")
+					.state("S2");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("S1")
+					.target("S2")
+					.event("E1")
+					.and()
+				.withExternal()
+					.source("S2")
+					.target("S1")
+					.event("E2");
+		}
+
+		@Bean
+		public StateMachineRuntimePersister<String, String> stateMachineRuntimePersister() {
+			return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository);
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class ConfigWithEnums extends StateMachineConfigurerAdapter<PersistTestStates, PersistTestEvents> {
+
+		@Autowired
+		private JpaStateMachineRepository jpaStateMachineRepository;
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<PersistTestStates, PersistTestEvents> config) throws Exception {
+			config
+				.withConfiguration()
+					.machineId("xxx2")
+				.and()
+				.withPersistence()
+					.runtimePersister(stateMachineRuntimePersister());
+		}
+
+		@Override
+		public void configure(StateMachineStateConfigurer<PersistTestStates, PersistTestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(PersistTestStates.S1)
+					.state(PersistTestStates.S2);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<PersistTestStates, PersistTestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(PersistTestStates.S1)
+					.target(PersistTestStates.S2)
+					.event(PersistTestEvents.E1)
+					.and()
+				.withExternal()
+					.source(PersistTestStates.S2)
+					.target(PersistTestStates.S1)
+					.event(PersistTestEvents.E2);
+		}
+
+		@Bean
+		public StateMachineRuntimePersister<PersistTestStates, PersistTestEvents> stateMachineRuntimePersister() {
+			return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository);
+		}
+	}
+
+	public enum PersistTestStates {
+		S1, S2;
+	}
+
+	public enum PersistTestEvents {
+		E1, E2;
+	}
 }
