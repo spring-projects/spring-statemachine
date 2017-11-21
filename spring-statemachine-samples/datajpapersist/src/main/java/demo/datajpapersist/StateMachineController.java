@@ -22,9 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.StateMachinePersist;
-import org.springframework.statemachine.access.StateMachineAccess;
-import org.springframework.statemachine.access.StateMachineFunction;
-import org.springframework.statemachine.config.StateMachineFactory;
+import org.springframework.statemachine.service.StateMachineService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
@@ -41,14 +39,14 @@ public class StateMachineController {
 	public final static String MACHINE_ID_2 = "datajpapersist2";
 	private final static String[] MACHINES = new String[] { MACHINE_ID_1, MACHINE_ID_2 };
 
+	private final StateMachineLogListener listener = new StateMachineLogListener();
+	private StateMachine<States, Events> currentStateMachine;
+
 	@Autowired
-	private StateMachineFactory<States, Events> stateMachineFactory;
+	private StateMachineService<States, Events> stateMachineService;
 
 	@Autowired
 	private StateMachinePersist<States, Events, String> stateMachinePersist;
-
-	private StateMachine<States, Events> cachedStateMachine;
-	private final StateMachineLogListener listener = new StateMachineLogListener();
 
 	@RequestMapping("/")
 	public String home() {
@@ -60,7 +58,6 @@ public class StateMachineController {
 			@RequestParam(value = "events", required = false) List<Events> events,
 			@RequestParam(value = "machine", required = false, defaultValue = MACHINE_ID_1) String machine,
 			Model model) throws Exception {
-
 		StateMachine<States, Events> stateMachine = getStateMachine(machine);
 		if (events != null) {
 			for (Events event : events) {
@@ -77,40 +74,18 @@ public class StateMachineController {
 	}
 
 	private synchronized StateMachine<States, Events> getStateMachine(String machineId) throws Exception {
-		if (cachedStateMachine == null) {
-			cachedStateMachine = buildStateMachine(machineId);
-			cachedStateMachine.start();
-		} else {
-			if (!ObjectUtils.nullSafeEquals(cachedStateMachine.getId(), machineId)) {
-				cachedStateMachine.stop();
-				cachedStateMachine = buildStateMachine(machineId);
-				cachedStateMachine.start();
-			}
-		}
-		return cachedStateMachine;
-	}
-
-	private StateMachine<States, Events> buildStateMachine(String machineId) throws Exception {
-		StateMachine<States, Events> stateMachine = stateMachineFactory.getStateMachine(machineId);
-		stateMachine.addStateListener(listener);
 		listener.resetMessages();
-		return restoreStateMachine(stateMachine, stateMachinePersist.read(machineId));
-	}
-
-	private StateMachine<States, Events> restoreStateMachine(StateMachine<States, Events> stateMachine,
-			StateMachineContext<States, Events> stateMachineContext) {
-		if (stateMachineContext == null) {
-			return stateMachine;
+		if (currentStateMachine == null) {
+			currentStateMachine = stateMachineService.acquireStateMachine(machineId);
+			currentStateMachine.addStateListener(listener);
+			currentStateMachine.start();
+		} else if (!ObjectUtils.nullSafeEquals(currentStateMachine.getId(), machineId)) {
+			currentStateMachine.stop();
+			currentStateMachine = stateMachineService.acquireStateMachine(machineId);
+			currentStateMachine.addStateListener(listener);
+			currentStateMachine.start();
 		}
-		stateMachine.stop();
-		stateMachine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<States, Events>>() {
-
-			@Override
-			public void apply(StateMachineAccess<States, Events> function) {
-				function.resetStateMachine(stateMachineContext);
-			}
-		});
-		return stateMachine;
+		return currentStateMachine;
 	}
 
 	private Events[] getEvents() {
