@@ -16,6 +16,7 @@
 package org.springframework.statemachine.persist;
 
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.StateMachinePersist;
 import org.springframework.statemachine.support.StateMachineInterceptor;
 
 /**
@@ -25,8 +26,9 @@ import org.springframework.statemachine.support.StateMachineInterceptor;
  *
  * @param <S> the type of state
  * @param <E> the type of event
+ * @param <T> the type of persister context object
  */
-public interface StateMachineRuntimePersister<S, E> {
+public interface StateMachineRuntimePersister<S, E, T> extends StateMachinePersist<S, E, T> {
 
 	/**
 	 * Gets a {@link StateMachineInterceptor} handling machine persistence.

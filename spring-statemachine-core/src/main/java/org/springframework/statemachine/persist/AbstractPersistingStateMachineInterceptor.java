@@ -49,9 +49,10 @@ import org.springframework.statemachine.transition.TransitionKind;
  *
  * @param <S> the type of state
  * @param <E> the type of event
+ * @param <T> the type of persister context object
  */
-public abstract class AbstractPersistingStateMachineInterceptor<S, E> extends StateMachineInterceptorAdapter<S, E>
-		implements StateMachinePersist<S, E, Object> {
+public abstract class AbstractPersistingStateMachineInterceptor<S, E, T> extends StateMachineInterceptorAdapter<S, E>
+		implements StateMachinePersist<S, E, T> {
 
 	@Override
 	public void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition, StateMachine<S, E> stateMachine) {
@@ -85,7 +86,7 @@ public abstract class AbstractPersistingStateMachineInterceptor<S, E> extends St
 	 * @param context the state machine context
 	 * @param contextObj the context object
 	 */
-	public abstract void write(StateMachineContext<S, E> context, Object contextObj) throws Exception;
+	public abstract void write(StateMachineContext<S, E> context, T contextObj) throws Exception;
 
 	/**
 	 * Read {@link StateMachineContext} from persistent store.
@@ -93,7 +94,7 @@ public abstract class AbstractPersistingStateMachineInterceptor<S, E> extends St
 	 * @param contextObj the context object
 	 * @return the state machine context
 	 */
-	public abstract StateMachineContext<S, E> read(Object contextObj) throws Exception;
+	public abstract StateMachineContext<S, E> read(T contextObj) throws Exception;
 
 	/**
 	 * Builds the state machine context.

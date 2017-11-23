@@ -33,7 +33,7 @@ public class DefaultPersistenceConfigurer<S, E> extends
 		AnnotationConfigurerAdapter<ConfigurationData<S, E>, StateMachineConfigurationConfigurer<S, E>, StateMachineConfigurationBuilder<S, E>>
 		implements PersistenceConfigurer<S, E> {
 
-	private StateMachineRuntimePersister<S, E> persister;
+	private StateMachineRuntimePersister<S, E, ?> persister;
 
 	@Override
 	public void configure(StateMachineConfigurationBuilder<S, E> builder) throws Exception {
@@ -41,7 +41,7 @@ public class DefaultPersistenceConfigurer<S, E> extends
 	}
 
 	@Override
-	public PersistenceConfigurer<S, E> runtimePersister(StateMachineRuntimePersister<S, E> persister) {
+	public PersistenceConfigurer<S, E> runtimePersister(StateMachineRuntimePersister<S, E, ?> persister) {
 		this.persister = persister;
 		return this;
 	}

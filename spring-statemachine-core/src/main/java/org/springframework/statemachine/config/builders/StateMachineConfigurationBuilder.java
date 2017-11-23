@@ -75,7 +75,7 @@ public class StateMachineConfigurationBuilder<S, E>
 	private SecurityRule transitionSecurityRule;
 	private StateMachineMonitor<S, E> stateMachineMonitor;
 	private final List<StateMachineInterceptor<S, E>> interceptors = new ArrayList<StateMachineInterceptor<S, E>>();
-	private StateMachineRuntimePersister<S, E> persister;
+	private StateMachineRuntimePersister<S, E, ?> persister;
 
 	/**
 	 * Instantiates a new state machine configuration builder.
@@ -289,7 +289,7 @@ public class StateMachineConfigurationBuilder<S, E>
 	 *
 	 * @param persister the state machine runtime persister
 	 */
-	public void setStateMachineRuntimePersister(StateMachineRuntimePersister<S, E> persister) {
+	public void setStateMachineRuntimePersister(StateMachineRuntimePersister<S, E, ?> persister) {
 		this.persister = persister;
 	}
 }

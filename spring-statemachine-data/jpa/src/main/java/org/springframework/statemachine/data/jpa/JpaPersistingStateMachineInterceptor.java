@@ -16,7 +16,6 @@
 package org.springframework.statemachine.data.jpa;
 
 import org.springframework.statemachine.StateMachineContext;
-import org.springframework.statemachine.StateMachinePersist;
 import org.springframework.statemachine.persist.AbstractPersistingStateMachineInterceptor;
 import org.springframework.statemachine.persist.StateMachineRuntimePersister;
 import org.springframework.statemachine.support.StateMachineInterceptor;
@@ -29,9 +28,10 @@ import org.springframework.util.Assert;
  *
  * @param <S> the type of state
  * @param <E> the type of event
+ * @param <T> the type of persister context object
  */
-public class JpaPersistingStateMachineInterceptor<S, E> extends AbstractPersistingStateMachineInterceptor<S, E>
-		implements StateMachinePersist<S, E, Object>, StateMachineRuntimePersister<S, E> {
+public class JpaPersistingStateMachineInterceptor<S, E, T> extends AbstractPersistingStateMachineInterceptor<S, E, T>
+		implements StateMachineRuntimePersister<S, E, T> {
 
 	private final JpaRepositoryStateMachinePersist<S, E> persist;
 
@@ -61,7 +61,7 @@ public class JpaPersistingStateMachineInterceptor<S, E> extends AbstractPersisti
 	}
 
 	@Override
-	public void write(StateMachineContext<S, E> context, Object contextObj) throws Exception {
+	public void write(StateMachineContext<S, E> context, T contextObj) throws Exception {
 		persist.write(context, contextObj);
 	}
 
