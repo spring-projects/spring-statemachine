@@ -80,6 +80,7 @@ public class StateMachineController {
 			currentStateMachine.addStateListener(listener);
 			currentStateMachine.start();
 		} else if (!ObjectUtils.nullSafeEquals(currentStateMachine.getId(), machineId)) {
+			stateMachineService.releaseStateMachine(currentStateMachine.getId());
 			currentStateMachine.stop();
 			currentStateMachine = stateMachineService.acquireStateMachine(machineId);
 			currentStateMachine.addStateListener(listener);
