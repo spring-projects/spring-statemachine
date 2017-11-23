@@ -19,7 +19,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.StateMachinePersist;
-import org.springframework.statemachine.kryo.KryoSerialisationService;
+import org.springframework.statemachine.kryo.KryoStateMachineSerialisationService;
+import org.springframework.statemachine.service.StateMachineSerialisationService;
+import org.springframework.util.Assert;
 
 /**
  * Base implementation of a {@link StateMachinePersist} using Spring Data Repositories.
@@ -33,14 +35,31 @@ import org.springframework.statemachine.kryo.KryoSerialisationService;
 public abstract class RepositoryStateMachinePersist<M extends RepositoryStateMachine, S, E> implements StateMachinePersist<S, E, Object> {
 
 	private final Log log = LogFactory.getLog(RepositoryStateMachinePersist.class);
-	private final KryoSerialisationService serialisationService = new KryoSerialisationService();
+	private final StateMachineSerialisationService<S, E> serialisationService;
+
+	/**
+	 * Instantiates a new repository state machine persist.
+	 */
+	protected RepositoryStateMachinePersist() {
+		this.serialisationService = new KryoStateMachineSerialisationService<S, E>();
+	}
+
+	/**
+	 * Instantiates a new repository state machine persist.
+	 *
+	 * @param serialisationService the serialisation service
+	 */
+	protected RepositoryStateMachinePersist(StateMachineSerialisationService<S, E> serialisationService) {
+		Assert.notNull(serialisationService, "'serialisationService' must be set");
+		this.serialisationService = serialisationService;
+	}
 
 	@Override
 	public void write(StateMachineContext<S, E> context, Object contextObj) throws Exception {
 		if (log.isDebugEnabled()) {
 			log.debug("Persisting context " + context + " using contextObj " + contextObj);
 		}
-		M build = build(context, serialisationService.serializeStateMachineContext(context));
+		M build = build(context, serialisationService.serialiseStateMachineContext(context));
 		getRepository().save(build);
 	}
 
@@ -48,7 +67,7 @@ public abstract class RepositoryStateMachinePersist<M extends RepositoryStateMac
 	public StateMachineContext<S, E> read(Object contextObj) throws Exception {
 		M repositoryStateMachine = getRepository().findOne(contextObj.toString());
 		if (repositoryStateMachine != null) {
-			return serialisationService.deserializeStateMachineContext(repositoryStateMachine.getStateMachineContext());
+			return serialisationService.deserialiseStateMachineContext(repositoryStateMachine.getStateMachineContext());
 		}
 		return null;
 	}

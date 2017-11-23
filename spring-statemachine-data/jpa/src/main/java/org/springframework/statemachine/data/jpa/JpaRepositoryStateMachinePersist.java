@@ -18,6 +18,7 @@ package org.springframework.statemachine.data.jpa;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.data.RepositoryStateMachinePersist;
 import org.springframework.statemachine.data.StateMachineRepository;
+import org.springframework.statemachine.service.StateMachineSerialisationService;
 
 /**
  * {@code JPA} based implementation of a {@link RepositoryStateMachinePersist}.
@@ -38,6 +39,18 @@ public class JpaRepositoryStateMachinePersist<S, E> extends RepositoryStateMachi
 	 */
 	public JpaRepositoryStateMachinePersist(JpaStateMachineRepository jpaStateMachineRepository) {
 		super();
+		this.jpaStateMachineRepository = jpaStateMachineRepository;
+	}
+
+	/**
+	 * Instantiates a new jpa repository state machine persist.
+	 *
+	 * @param jpaStateMachineRepository the jpa state machine repository
+	 * @param serialisationService the serialisation service
+	 */
+	public JpaRepositoryStateMachinePersist(JpaStateMachineRepository jpaStateMachineRepository,
+			StateMachineSerialisationService<S, E> serialisationService) {
+		super(serialisationService);
 		this.jpaStateMachineRepository = jpaStateMachineRepository;
 	}
 
