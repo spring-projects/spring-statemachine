@@ -18,6 +18,8 @@ package org.springframework.statemachine.service;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.StateMachineException;
@@ -37,6 +39,7 @@ import org.springframework.util.Assert;
  */
 public class DefaultStateMachineService<S, E> implements StateMachineService<S, E> {
 
+	private final static Log log = LogFactory.getLog(DefaultStateMachineService.class);
 	private final StateMachineFactory<S, E> stateMachineFactory;
 	private final Map<String, StateMachine<S, E>> machines = new HashMap<String, StateMachine<S, E>>();
 	private StateMachinePersist<S, E, String> stateMachinePersist;
@@ -65,30 +68,34 @@ public class DefaultStateMachineService<S, E> implements StateMachineService<S, 
 
 	@Override
 	public StateMachine<S, E> acquireStateMachine(String machineId) {
+		log.info("Acquiring machine with id " + machineId);
 		synchronized (machines) {
 			StateMachine<S,E> stateMachine = machines.get(machineId);
 			if (stateMachine == null) {
+				log.info("Getting new machine from factory with id " + machineId);
 				stateMachine = stateMachineFactory.getStateMachine(machineId);
+				if (stateMachinePersist != null) {
+					try {
+						StateMachineContext<S, E> stateMachineContext = stateMachinePersist.read(machineId);
+						stateMachine = restoreStateMachine(stateMachine, stateMachineContext);
+					} catch (Exception e) {
+						log.error("Error handling context", e);
+						throw new StateMachineException("Unable to read context from store", e);
+					}
+				}
 				machines.put(machineId, stateMachine);
 			}
-			if (stateMachinePersist != null) {
-				try {
-					StateMachineContext<S, E> stateMachineContext = stateMachinePersist.read(machineId);
-					return restoreStateMachine(stateMachine, stateMachineContext);
-				} catch (Exception e) {
-					throw new StateMachineException("Unable to read context from store", e);
-				}
-			} else {
-				return stateMachine;
-			}
+			return stateMachine;
 		}
 	}
 
 	@Override
 	public void releaseStateMachine(String machineId) {
+		log.info("Releasing machine with id " + machineId);
 		synchronized (machines) {
 			StateMachine<S, E> stateMachine = machines.remove(machineId);
 			if (stateMachine != null) {
+				log.info("Found machine with id " + machineId);
 				stateMachine.stop();
 			}
 		}

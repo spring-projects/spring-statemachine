@@ -36,5 +36,5 @@ public interface PersistenceConfigurer<S, E> extends
 	 * @param persister the state machine runtime persister
 	 * @return configurer for chaining
 	 */
-	PersistenceConfigurer<S, E> runtimePersister(StateMachineRuntimePersister<S, E> persister);
+	PersistenceConfigurer<S, E> runtimePersister(StateMachineRuntimePersister<S, E, ?> persister);
 }

@@ -20,7 +20,6 @@ import java.util.EnumSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.statemachine.StateMachinePersist;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.StateMachineFactory;
@@ -49,7 +48,7 @@ public class StateMachineConfig {
 				throws Exception {
 			config
 				.withPersistence()
-					.runtimePersister(stateMachineruntimePersister());
+					.runtimePersister(stateMachineRuntimePersister());
 		}
 
 		@Override
@@ -91,7 +90,7 @@ public class StateMachineConfig {
 		}
 
 		@Bean
-		public StateMachineRuntimePersister<States, Events> stateMachineruntimePersister() {
+		public StateMachineRuntimePersister<States, Events, String> stateMachineRuntimePersister() {
 			return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository);
 		}
 	}
@@ -102,8 +101,8 @@ public class StateMachineConfig {
 
 		@Bean
 		public StateMachineService<States, Events> stateMachineService(StateMachineFactory<States, Events> stateMachineFactory,
-				StateMachinePersist<States, Events, String> stateMachinePersist) {
-			return new DefaultStateMachineService<>(stateMachineFactory, stateMachinePersist);
+				StateMachineRuntimePersister<States, Events, String> stateMachineRuntimePersister) {
+			return new DefaultStateMachineService<States, Events>(stateMachineFactory, stateMachineRuntimePersister);
 		}
 	}
 

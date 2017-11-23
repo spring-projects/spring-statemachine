@@ -363,7 +363,7 @@ public class JpaRepositoryTests extends AbstractRepositoryTests {
 		}
 
 		@Bean
-		public StateMachineRuntimePersister<String, String> stateMachineRuntimePersister() {
+		public StateMachineRuntimePersister<String, String, String> stateMachineRuntimePersister() {
 			return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository);
 		}
 	}
@@ -408,7 +408,7 @@ public class JpaRepositoryTests extends AbstractRepositoryTests {
 		}
 
 		@Bean
-		public StateMachineRuntimePersister<PersistTestStates, PersistTestEvents> stateMachineRuntimePersister() {
+		public StateMachineRuntimePersister<PersistTestStates, PersistTestEvents, String> stateMachineRuntimePersister() {
 			return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository);
 		}
 	}
