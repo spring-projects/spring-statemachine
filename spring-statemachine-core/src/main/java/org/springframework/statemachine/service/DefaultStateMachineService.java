@@ -17,9 +17,11 @@ package org.springframework.statemachine.service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.context.Lifecycle;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.StateMachineException;
@@ -27,6 +29,7 @@ import org.springframework.statemachine.StateMachinePersist;
 import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.config.StateMachineFactory;
+import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.util.Assert;
 
 /**
@@ -68,6 +71,11 @@ public class DefaultStateMachineService<S, E> implements StateMachineService<S, 
 
 	@Override
 	public StateMachine<S, E> acquireStateMachine(String machineId) {
+		return acquireStateMachine(machineId, true);
+	}
+
+	@Override
+	public StateMachine<S, E> acquireStateMachine(String machineId, boolean start) {
 		log.info("Acquiring machine with id " + machineId);
 		synchronized (machines) {
 			StateMachine<S,E> stateMachine = machines.get(machineId);
@@ -85,7 +93,7 @@ public class DefaultStateMachineService<S, E> implements StateMachineService<S, 
 				}
 				machines.put(machineId, stateMachine);
 			}
-			return stateMachine;
+			return handleStart(stateMachine, start);
 		}
 	}
 
@@ -97,6 +105,18 @@ public class DefaultStateMachineService<S, E> implements StateMachineService<S, 
 			if (stateMachine != null) {
 				log.info("Found machine with id " + machineId);
 				stateMachine.stop();
+			}
+		}
+	}
+
+	@Override
+	public void releaseStateMachine(String machineId, boolean stop) {
+		log.info("Releasing machine with id " + machineId);
+		synchronized (machines) {
+			StateMachine<S, E> stateMachine = machines.remove(machineId);
+			if (stateMachine != null) {
+				log.info("Found machine with id " + machineId);
+				handleStop(stateMachine, stop);
 			}
 		}
 	}
@@ -123,5 +143,67 @@ public class DefaultStateMachineService<S, E> implements StateMachineService<S, 
 			}
 		});
 		return stateMachine;
+	}
+
+	protected StateMachine<S, E> handleStart(StateMachine<S, E> stateMachine, boolean start) {
+		if (start) {
+			if (!((Lifecycle) stateMachine).isRunning()) {
+				StartListener<S, E> listener = new StartListener<>(stateMachine);
+				stateMachine.addStateListener(listener);
+				stateMachine.start();
+				try {
+					listener.latch.await();
+				} catch (InterruptedException e) {
+				}
+			}
+		}
+		return stateMachine;
+	}
+
+	protected StateMachine<S, E> handleStop(StateMachine<S, E> stateMachine, boolean stop) {
+		if (stop) {
+			if (((Lifecycle) stateMachine).isRunning()) {
+				StopListener<S, E> listener = new StopListener<>(stateMachine);
+				stateMachine.addStateListener(listener);
+				stateMachine.stop();
+				try {
+					listener.latch.await();
+				} catch (InterruptedException e) {
+				}
+			}
+		}
+		return stateMachine;
+	}
+
+	private static class StartListener<S, E> extends StateMachineListenerAdapter<S, E> {
+
+		final CountDownLatch latch = new CountDownLatch(1);
+		final StateMachine<S, E> stateMachine;
+
+		public StartListener(StateMachine<S, E> stateMachine) {
+			this.stateMachine = stateMachine;
+		}
+
+		@Override
+		public void stateMachineStarted(StateMachine<S, E> stateMachine) {
+			this.stateMachine.removeStateListener(this);
+			latch.countDown();
+		}
+	}
+
+	private static class StopListener<S, E> extends StateMachineListenerAdapter<S, E> {
+
+		final CountDownLatch latch = new CountDownLatch(1);
+		final StateMachine<S, E> stateMachine;
+
+		public StopListener(StateMachine<S, E> stateMachine) {
+			this.stateMachine = stateMachine;
+		}
+
+		@Override
+		public void stateMachineStopped(StateMachine<S, E> stateMachine) {
+			this.stateMachine.removeStateListener(this);
+			latch.countDown();
+		}
 	}
 }

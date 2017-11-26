@@ -29,17 +29,38 @@ import org.springframework.statemachine.StateMachine;
 public interface StateMachineService<S, E> {
 
 	/**
-	 * Acquires the state machine.
+	 * Acquires the state machine. Machine from this method
+	 * is returned started.
 	 *
 	 * @param machineId the machine id
 	 * @return the state machine
+	 * @see #acquireStateMachine(String, boolean)
 	 */
 	StateMachine<S, E> acquireStateMachine(String machineId);
 
 	/**
-	 * Release the state machine.
+	 * Acquires the state machine.
 	 *
 	 * @param machineId the machine id
+	 * @param start indicating if machine should be returned started
+	 * @return the state machine
+	 */
+	StateMachine<S, E> acquireStateMachine(String machineId, boolean start);
+
+	/**
+	 * Release the state machine. Machine with this method
+	 * is stopped.
+	 *
+	 * @param machineId the machine id
+	 * @see #releaseStateMachine(String, boolean)
 	 */
 	void releaseStateMachine(String machineId);
+
+	/**
+	 * Release state machine.
+	 *
+	 * @param machineId the machine id
+	 * @param stop indicating if machine should be stopped
+	 */
+	void releaseStateMachine(String machineId, boolean stop);
 }
