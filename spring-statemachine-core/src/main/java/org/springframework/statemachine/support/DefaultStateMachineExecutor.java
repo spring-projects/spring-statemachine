@@ -30,6 +30,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -96,6 +98,8 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 	private volatile Message<E> forwardedInitialEvent;
 
 	private volatile Message<E> queuedMessage = null;
+
+	private final ReentrantLock lock = new ReentrantLock();
 
 	/**
 	 * Instantiates a new default state machine executor.
@@ -181,6 +185,11 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 	@Override
 	public void addStateMachineInterceptor(StateMachineInterceptor<S, E> interceptor) {
 		interceptors.add(interceptor);
+	}
+
+	@Override
+	public Lock getLock() {
+		return lock;
 	}
 
 	private final Set<Transition<S, E>> joinSyncTransitions = new HashSet<>();
@@ -274,29 +283,37 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 
 		// TODO: it'd be nice not to create runnable if
 		//       current ref is null, we use atomic reference
-		//       to play safe with concurrency
+		//       to play safe with concurrency.
 		Runnable task = new Runnable() {
 			@Override
 			public void run() {
-				boolean eventProcessed = false;
-				while (processEventQueue()) {
-					eventProcessed = true;
-					processTriggerQueue();
-					while (processDeferList()) {
+				// lock operation, see AbstractStateMachine
+				// how this is used.
+				lock.lock();
+				try {
+					boolean eventProcessed = false;
+					while (processEventQueue()) {
+						eventProcessed = true;
 						processTriggerQueue();
+						while (processDeferList()) {
+							processTriggerQueue();
+						}
 					}
-				}
-				if (!eventProcessed) {
-					processTriggerQueue();
-					while (processDeferList()) {
+					if (!eventProcessed) {
 						processTriggerQueue();
+						while (processDeferList()) {
+							processTriggerQueue();
+						}
 					}
+
+					if (requestTask.getAndSet(false)) {
+						scheduleEventQueueProcessing();
+					}
+					taskRef.set(null);
+				} finally {
+					lock.unlock();
 				}
 
-				if (requestTask.getAndSet(false)) {
-					scheduleEventQueueProcessing();
-				}
-				taskRef.set(null);
 				// do second attempt which should reduse risk
 				// of threading causing failed run to completion
 				if (requestTask.getAndSet(false)) {

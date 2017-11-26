@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package org.springframework.statemachine.support;
+
+import java.util.concurrent.locks.Lock;
 
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
@@ -101,6 +103,13 @@ public interface StateMachineExecutor<S, E> {
 	 * @param interceptor the interceptor
 	 */
 	void addStateMachineInterceptor(StateMachineInterceptor<S, E> interceptor);
+
+	/**
+	 * Gets the execution lock.
+	 *
+	 * @return the execution lock
+	 */
+	Lock getLock();
 
 	/**
 	 * Callback interface when executor wants to handle transit.
