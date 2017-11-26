@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,13 +28,19 @@ import java.util.EnumSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.ObjectStateMachine;
+import org.springframework.statemachine.StateContext;
+import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -51,6 +57,8 @@ import org.springframework.statemachine.state.State;
  *
  */
 public class TransitionTests extends AbstractStateMachineTests {
+
+	private final static Log log = LogFactory.getLog(TransitionTests.class);
 
 	@Override
 	protected AnnotationConfigApplicationContext buildContext() {
@@ -227,6 +235,126 @@ public class TransitionTests extends AbstractStateMachineTests {
 		assertThat(listener.stateEnteredLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateEnteredCount, is(3));
 		assertThat(machine.getState().getIds(), contains(TestStates2.BUSY, TestStates2.PAUSED, TestStates2.PAUSED2));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testAnonymousTransitionInSubmachine() throws InterruptedException {
+		context.register(BaseConfig.class, Config9.class);
+		context.refresh();
+
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		HeaderTestAction testAction1 = context.getBean("testAction1", HeaderTestAction.class);
+		HeaderTestAction testAction2 = context.getBean("testAction2", HeaderTestAction.class);
+
+
+		TestListener listener = new TestListener();
+		machine.addStateListener(listener);
+
+		machine.start();
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+
+		listener.reset(4);
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("testHeader", "testValue").build());
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(4));
+		assertThat(machine.getState().getIds(), contains(TestStates.S2, TestStates.S212));
+
+		assertThat(testAction1.testHeader, is("testValue"));
+		assertThat(testAction2.testHeader, is("testValue"));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testAnonymousTransitionInSubmachineWithThreading() throws InterruptedException {
+		context.register(Config9.class, ExecutorConfig.class);
+		context.refresh();
+
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		HeaderTestAction testAction1 = context.getBean("testAction1", HeaderTestAction.class);
+		HeaderTestAction testAction2 = context.getBean("testAction2", HeaderTestAction.class);
+
+
+		TestListener listener = new TestListener();
+		machine.addStateListener(listener);
+
+		machine.start();
+		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+
+		listener.reset(4);
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("testHeader", "testValue").build());
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(4));
+		assertThat(machine.getState().getIds(), contains(TestStates.S2, TestStates.S212));
+
+		assertThat(testAction1.testHeader, is("testValue"));
+		assertThat(testAction2.testHeader, is("testValue"));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testAnonymousTransitionInSubmachineWithExitWithThreading1() throws InterruptedException {
+		context.register(Config10.class, ExecutorConfig.class);
+		context.refresh();
+
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		HeaderTestAction testAction1 = context.getBean("testAction1", HeaderTestAction.class);
+		HeaderTestAction testAction2 = context.getBean("testAction2", HeaderTestAction.class);
+
+
+		TestListener listener = new TestListener();
+		machine.addStateListener(listener);
+
+		machine.start();
+		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+
+		listener.reset(5);
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("testHeader", "testValue").build());
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(5));
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+
+		assertThat(testAction1.testHeader, is("testValue"));
+		assertThat(testAction2.testHeader, is("testValue"));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testAnonymousTransitionInSubmachineWithExitWithThreading2() throws InterruptedException {
+		context.register(Config11.class, ExecutorConfig.class);
+		context.refresh();
+
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		HeaderTestAction testAction1 = context.getBean("testAction1", HeaderTestAction.class);
+
+
+		TestListener listener = new TestListener();
+		machine.addStateListener(listener);
+
+		machine.start();
+		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+
+		listener.reset(3);
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("testHeader", "testValue").build());
+		assertThat(testAction1.latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.s20Latch.getCount(), is(1L));
+
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(3));
+		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+
+		assertThat(testAction1.testHeader, is("testValue"));
 	}
 
 	@Configuration
@@ -555,10 +683,179 @@ public class TransitionTests extends AbstractStateMachineTests {
 
 	}
 
+	@Configuration
+	@EnableStateMachine
+	public static class Config9 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S2)
+					.and()
+					.withStates()
+						.parent(TestStates.S2)
+						.initial(TestStates.S20)
+						.stateEntry(TestStates.S211, testAction1())
+						.stateEntry(TestStates.S212, testAction2());
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S20)
+					.target(TestStates.S211)
+					.and()
+				.withExternal()
+					.source(TestStates.S211)
+					.target(TestStates.S212);
+		}
+
+		@Bean
+		public HeaderTestAction testAction1() {
+			return new HeaderTestAction();
+		}
+
+		@Bean
+		public HeaderTestAction testAction2() {
+			return new HeaderTestAction();
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config10 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S2)
+					.and()
+					.withStates()
+						.parent(TestStates.S2)
+						.initial(TestStates.S20)
+						.stateEntry(TestStates.S211, testAction1())
+						.stateEntry(TestStates.S212, testAction2())
+						.exit(TestStates.SF);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S20)
+					.target(TestStates.S211)
+					.and()
+				.withExternal()
+					.source(TestStates.S211)
+					.target(TestStates.S212)
+					.and()
+				.withExternal()
+					.source(TestStates.S212)
+					.target(TestStates.SF)
+					.and()
+				.withExit()
+					.source(TestStates.SF)
+					.target(TestStates.S1);
+		}
+
+		@Bean
+		public HeaderTestAction testAction1() {
+			return new HeaderTestAction();
+		}
+
+		@Bean
+		public HeaderTestAction testAction2() {
+			return new HeaderTestAction();
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config11 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S2)
+					.and()
+					.withStates()
+						.parent(TestStates.S2)
+						.initial(TestStates.S20)
+						.stateEntry(TestStates.S20, testAction1())
+						.exit(TestStates.SF);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S20)
+					.target(TestStates.SF)
+					.and()
+				.withExit()
+					.source(TestStates.SF)
+					.target(TestStates.S1);
+		}
+
+		@Bean
+		public HeaderTestAction testAction1() {
+			return new HeaderTestAction();
+		}
+	}
+
+	private static class HeaderTestAction implements Action<TestStates, TestEvents> {
+
+		volatile CountDownLatch latch = new CountDownLatch(1);
+		String testHeader = null;
+
+		@Override
+		public void execute(StateContext<TestStates, TestEvents> context) {
+			log.info("XXX11");
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+			}
+			testHeader = context.getMessageHeaders().get("testHeader", String.class);
+			log.info("XXX12");
+			latch.countDown();
+		}
+
+
+	}
+
 	static class TestListener extends StateMachineListenerAdapter<TestStates, TestEvents> {
 
+		volatile CountDownLatch stateMachineStartedLatch = new CountDownLatch(1);
 		volatile CountDownLatch stateChangedLatch = new CountDownLatch(1);
+		volatile CountDownLatch s20Latch = new CountDownLatch(1);
 		volatile int stateChangedCount = 0;
+
+		@Override
+		public void stateMachineStarted(StateMachine<TestStates, TestEvents> stateMachine) {
+			stateMachineStartedLatch.countDown();
+		}
 
 		@Override
 		public void stateChanged(State<TestStates, TestEvents> from, State<TestStates, TestEvents> to) {
@@ -569,6 +866,14 @@ public class TransitionTests extends AbstractStateMachineTests {
 		public void reset(int c1) {
 			stateChangedLatch = new CountDownLatch(c1);
 			stateChangedCount = 0;
+		}
+
+		@Override
+		public void stateExited(State<TestStates, TestEvents> state) {
+			if (state.getId() == TestStates.S20) {
+				log.info("XXX22");
+				s20Latch.countDown();
+			}
 		}
 
 	}
@@ -605,4 +910,15 @@ public class TransitionTests extends AbstractStateMachineTests {
 
 	}
 
+	@Configuration
+	static class ExecutorConfig {
+
+		@Bean(name=StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME)
+		public TaskExecutor taskExecutor() {
+			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+			taskExecutor.setCorePoolSize(3);
+			taskExecutor.setMaxPoolSize(3);
+			return taskExecutor;
+		}
+	}
 }

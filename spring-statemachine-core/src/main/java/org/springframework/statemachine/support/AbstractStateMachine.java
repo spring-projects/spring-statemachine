@@ -64,6 +64,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.locks.Lock;
 
 /**
  * Base implementation of a {@link StateMachine} loosely modelled from UML state
@@ -178,12 +179,11 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	public State<S,E> getState() {
 		// if we're complete assume we're stopped
 		// and state was stashed into lastState
-		synchronized (lock) {
-			if (lastState != null && isComplete()) {
-				return lastState;
-			} else {
-				return currentState;
-			}
+		State<S, E> s = lastState;
+		if (s != null && isComplete()) {
+			return s;
+		} else {
+			return currentState;
 		}
 	}
 
@@ -286,6 +286,19 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 			@Override
 			public void transit(Transition<S, E> t, StateContext<S, E> ctx, Message<E> message) {
+				if (currentState != null && currentState.isSubmachineState()) {
+					// this is a naive attempt to check from submachine's executor if it is
+					// currently executing. allows submachine to complete its execution logic
+					// before we, in parent go forward. as executor locks, we simple try to lock it
+					// and release it immediately.
+					StateMachine<S, E> submachine = ((AbstractState<S, E>)currentState).getSubmachine();
+					Lock lock = ((AbstractStateMachine<S, E>)submachine).getStateMachineExecutor().getLock();
+					try {
+						lock.lock();
+					} finally {
+						lock.unlock();
+					}
+				}
 				long now = System.currentTimeMillis();
 				// TODO: fix above stateContext as it's not used
 				notifyTransitionStart(buildStateContext(Stage.TRANSITION_START, message, t, getRelayStateMachine()));
@@ -332,6 +345,10 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				}
 			});
 		}
+	}
+
+	protected StateMachineExecutor<S, E> getStateMachineExecutor() {
+		return stateMachineExecutor;
 	}
 
 	@Override
