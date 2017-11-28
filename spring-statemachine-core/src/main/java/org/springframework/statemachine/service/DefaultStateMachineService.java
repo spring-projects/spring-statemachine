@@ -15,12 +15,14 @@
  */
 package org.springframework.statemachine.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.Lifecycle;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
@@ -40,7 +42,7 @@ import org.springframework.util.Assert;
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public class DefaultStateMachineService<S, E> implements StateMachineService<S, E> {
+public class DefaultStateMachineService<S, E> implements StateMachineService<S, E>, DisposableBean {
 
 	private final static Log log = LogFactory.getLog(DefaultStateMachineService.class);
 	private final StateMachineFactory<S, E> stateMachineFactory;
@@ -67,6 +69,11 @@ public class DefaultStateMachineService<S, E> implements StateMachineService<S, 
 		Assert.notNull(stateMachineFactory, "'stateMachineFactory' must be set");
 		this.stateMachineFactory = stateMachineFactory;
 		this.stateMachinePersist = stateMachinePersist;
+	}
+
+	@Override
+	public final void destroy() throws Exception {
+		doStop();
 	}
 
 	@Override
@@ -128,6 +135,16 @@ public class DefaultStateMachineService<S, E> implements StateMachineService<S, 
 	 */
 	public void setStateMachinePersist(StateMachinePersist<S, E, String> stateMachinePersist) {
 		this.stateMachinePersist = stateMachinePersist;
+	}
+
+	protected void doStop() {
+		log.info("Entering stop sequence, stopping all managed machines");
+		synchronized (machines) {
+			ArrayList<String> machineIds = new ArrayList<>(machines.keySet());
+			for (String machineId : machineIds) {
+				releaseStateMachine(machineId, true);
+			}
+		}
 	}
 
 	protected StateMachine<S, E> restoreStateMachine(StateMachine<S, E> stateMachine, final StateMachineContext<S, E> stateMachineContext) {
