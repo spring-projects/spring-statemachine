@@ -743,7 +743,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			}
 		}
 		if (stateSet && stateMachineContext.getExtendedState() != null) {
-			this.extendedState = stateMachineContext.getExtendedState();
+			this.extendedState.getVariables().clear();
+			this.extendedState.getVariables().putAll(stateMachineContext.getExtendedState().getVariables());
 		}
 		if (currentState instanceof Lifecycle) {
 			((Lifecycle)currentState).start();
