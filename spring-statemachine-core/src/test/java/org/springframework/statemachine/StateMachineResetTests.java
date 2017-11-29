@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.statemachine.StateContext.Stage;
 import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.action.Action;
@@ -40,6 +41,7 @@ import org.springframework.statemachine.config.builders.StateMachineConfiguratio
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.guard.Guard;
+import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.support.DefaultExtendedState;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 
@@ -278,6 +280,70 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 
 	}
 
+	@Test
+	public void testResetKeepsExtendedStateIntactInSubmachine() {
+		context.register(Config5.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachine<States, Events> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		CountListener listener = new CountListener();
+		machine.addStateListener(listener);
+
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count1"), nullValue());
+		assertThat(listener.count1, nullValue());
+		assertThat(listener.count2, nullValue());
+		machine.sendEvent(Events.A);
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S1, States.S11));
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count1"), is(1));
+		assertThat(listener.count1, is(1));
+		// listener is called before action is executed
+		assertThat(listener.count2, nullValue());
+
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count2"), nullValue());
+		machine.sendEvent(Events.B);
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S1, States.S12));
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count2"), is(1));
+		assertThat(listener.count1, is(1));
+		assertThat(listener.count2, nullValue());
+
+		machine.sendEvent(Events.C);
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
+		assertThat(listener.count1, is(1));
+		assertThat(listener.count2, is(1));
+
+		machine.stop();
+		Map<Object, Object> variables = new HashMap<Object, Object>();
+		variables.putAll(machine.getExtendedState().getVariables());
+		ExtendedState extendedState = new DefaultExtendedState(variables);
+		DefaultStateMachineContext<States,Events> stateMachineContext = new DefaultStateMachineContext<States, Events>(States.S0, null, null, extendedState);
+
+		machine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<States,Events>>() {
+
+			@Override
+			public void apply(StateMachineAccess<States, Events> function) {
+				function.resetStateMachine(stateMachineContext);
+			}
+		});
+		machine.start();
+
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count1"), is(1));
+		assertThat(listener.count1, is(1));
+		assertThat(listener.count2, is(1));
+		machine.sendEvent(Events.A);
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S1, States.S11));
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count1"), is(2));
+		assertThat(listener.count1, is(2));
+		// listener is called before action is executed
+		assertThat(listener.count2, is(1));
+
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count2"), is(1));
+		machine.sendEvent(Events.B);
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S1, States.S12));
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count2"), is(2));
+		assertThat(listener.count1, is(2));
+		assertThat(listener.count2, is(1));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	static class Config1 extends EnumStateMachineConfigurerAdapter<States, Events> {
@@ -474,6 +540,100 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 					.source(States.S1)
 					.target(States.S2)
 					.timerOnce(1000);
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config5 extends EnumStateMachineConfigurerAdapter<States, Events> {
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<States, Events> config)
+				throws Exception {
+			config
+				.withConfiguration()
+					.autoStartup(true);
+		}
+
+		@Override
+		public void configure(StateMachineStateConfigurer<States, Events> states)
+				throws Exception {
+			states
+				.withStates()
+					.initial(States.S0)
+					.stateEntry(States.S1, updateAction1())
+					.and()
+					.withStates()
+						.parent(States.S1)
+						.initial(States.S11)
+						.stateEntry(States.S12, updateAction2());
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<States, Events> transitions)
+				throws Exception {
+			transitions
+				.withExternal()
+					.source(States.S0)
+					.target(States.S1)
+					.event(Events.A)
+					.and()
+				.withExternal()
+					.source(States.S11)
+					.target(States.S12)
+					.event(Events.B)
+					.and()
+				.withExternal()
+					.source(States.S1)
+					.target(States.S0)
+					.event(Events.C);
+		}
+
+		@Bean
+		public Action<States, Events> updateAction1() {
+			return new Action<States, Events>() {
+
+				@Override
+				public void execute(StateContext<States, Events> context) {
+					Integer count = context.getExtendedState().get("count1", Integer.class);
+					if (count == null) {
+						context.getExtendedState().getVariables().put("count1", 1);
+					} else {
+						context.getExtendedState().getVariables().put("count1", (count + 1));
+					}
+				}
+			};
+		}
+
+		@Bean
+		public Action<States, Events> updateAction2() {
+			return new Action<States, Events>() {
+
+				@Override
+				public void execute(StateContext<States, Events> context) {
+					Integer count = context.getExtendedState().get("count2", Integer.class);
+					if (count == null) {
+						context.getExtendedState().getVariables().put("count2", 1);
+					} else {
+						context.getExtendedState().getVariables().put("count2", (count + 1));
+					}
+				}
+			};
+		}
+	}
+
+	private static class CountListener extends StateMachineListenerAdapter<States, Events> {
+
+		Integer count1;
+		Integer count2;
+
+		@Override
+		public void stateContext(StateContext<States, Events> stateContext) {
+			if (stateContext.getStage() == Stage.STATE_ENTRY) {
+				ExtendedState extendedState = stateContext.getExtendedState();
+				count1 = extendedState.get("count1", Integer.class);
+				count2 = extendedState.get("count2", Integer.class);
+			}
 		}
 	}
 
