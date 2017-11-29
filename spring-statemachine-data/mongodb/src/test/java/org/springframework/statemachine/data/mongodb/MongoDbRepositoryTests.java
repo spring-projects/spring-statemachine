@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,22 @@ import java.util.List;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
-//import org.springframework.data.keyvalue.core.KeyValueTemplate;
+import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.config.EnableStateMachine;
+import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
+import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
+import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.data.AbstractRepositoryTests;
+import org.springframework.statemachine.data.mongodb.MongoDbPersistingStateMachineInterceptor;
+import org.springframework.statemachine.data.mongodb.MongoDbStateMachineRepository;
+import org.springframework.statemachine.persist.StateMachineRuntimePersister;
 import org.springframework.statemachine.transition.TransitionKind;
 
 /**
@@ -109,6 +120,36 @@ public class MongoDbRepositoryTests extends AbstractRepositoryTests {
 		context.close();
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testStateMachinePersistWithStrings() {
+		context.register(TestConfig.class, ConfigWithStrings.class);
+		context.refresh();
+
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		stateMachine.start();
+		assertThat(stateMachine.getState().getId(), is("S1"));
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getId(), is("S2"));
+		stateMachine.sendEvent("E2");
+		assertThat(stateMachine.getState().getId(), is("S1"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testStateMachinePersistWithEnums() {
+		context.register(TestConfig.class, ConfigWithEnums.class);
+		context.refresh();
+
+		StateMachine<PersistTestStates, PersistTestEvents> stateMachine = context.getBean(StateMachine.class);
+		stateMachine.start();
+		assertThat(stateMachine.getState().getId(), is(PersistTestStates.S1));
+		stateMachine.sendEvent(PersistTestEvents.E1);
+		assertThat(stateMachine.getState().getId(), is(PersistTestStates.S2));
+		stateMachine.sendEvent(PersistTestEvents.E2);
+		assertThat(stateMachine.getState().getId(), is(PersistTestStates.S1));
+	}
+
 	@Override
 	protected Class<?>[] getRegisteredClasses() {
 		return new Class<?>[] { TestConfig.class };
@@ -121,5 +162,103 @@ public class MongoDbRepositoryTests extends AbstractRepositoryTests {
 
 	@EnableAutoConfiguration
 	static class TestConfig {
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class ConfigWithStrings extends StateMachineConfigurerAdapter<String, String> {
+
+		@Autowired
+		private MongoDbStateMachineRepository mongodbStateMachineRepository;
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<String, String> config) throws Exception {
+			config
+				.withConfiguration()
+					.machineId("xxx1")
+				.and()
+				.withPersistence()
+					.runtimePersister(stateMachineRuntimePersister());
+		}
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("S1")
+					.state("S2");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("S1")
+					.target("S2")
+					.event("E1")
+					.and()
+				.withExternal()
+					.source("S2")
+					.target("S1")
+					.event("E2");
+		}
+
+		@Bean
+		public StateMachineRuntimePersister<String, String, String> stateMachineRuntimePersister() {
+			return new MongoDbPersistingStateMachineInterceptor<>(mongodbStateMachineRepository);
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class ConfigWithEnums extends StateMachineConfigurerAdapter<PersistTestStates, PersistTestEvents> {
+
+		@Autowired
+		private MongoDbStateMachineRepository mongodbStateMachineRepository;
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<PersistTestStates, PersistTestEvents> config) throws Exception {
+			config
+				.withConfiguration()
+					.machineId("xxx2")
+				.and()
+				.withPersistence()
+					.runtimePersister(stateMachineRuntimePersister());
+		}
+
+		@Override
+		public void configure(StateMachineStateConfigurer<PersistTestStates, PersistTestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(PersistTestStates.S1)
+					.state(PersistTestStates.S2);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<PersistTestStates, PersistTestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(PersistTestStates.S1)
+					.target(PersistTestStates.S2)
+					.event(PersistTestEvents.E1)
+					.and()
+				.withExternal()
+					.source(PersistTestStates.S2)
+					.target(PersistTestStates.S1)
+					.event(PersistTestEvents.E2);
+		}
+
+		@Bean
+		public StateMachineRuntimePersister<PersistTestStates, PersistTestEvents, String> stateMachineRuntimePersister() {
+			return new MongoDbPersistingStateMachineInterceptor<>(mongodbStateMachineRepository);
+		}
+	}
+
+	public enum PersistTestStates {
+		S1, S2;
+	}
+
+	public enum PersistTestEvents {
+		E1, E2;
 	}
 }
