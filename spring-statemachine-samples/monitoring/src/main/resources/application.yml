@@ -9,3 +9,7 @@ endpoints:
   default:
     web:
       enabled: true
+management:
+  endpoints:
+    web:
+      expose: metrics,trace

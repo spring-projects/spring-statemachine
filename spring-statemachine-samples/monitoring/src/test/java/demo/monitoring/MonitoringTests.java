@@ -82,10 +82,10 @@ public class MonitoringTests {
 			perform(get("/state").param("events", "E1")).
 			andExpect(status().isOk());
 		mvc.
-			perform(get("/application/metrics")).
+			perform(get("/actuator/metrics")).
 			andExpect(jsonPath("$.names", hasItems("ssm.transition.duration", "ssm.transition.transit")));
 		mvc.
-		perform(get("/application/metrics/ssm.transition.transit")).
+		perform(get("/actuator/metrics/ssm.transition.transit")).
 		andDo(print()).
 		andExpect(jsonPath("$.name", is("ssm.transition.transit"))).
 		andExpect(jsonPath("$.measurements[0].value", notNullValue())).
@@ -99,7 +99,7 @@ public class MonitoringTests {
 			perform(get("/state")).
 			andExpect(status().isOk());
 		mvc.
-			perform(get("/application/trace")).
+			perform(get("/actuator/trace")).
 			andExpect(jsonPath("$.traces.*.info.transition", containsInAnyOrder("INITIAL_S1")));
 	}
 
