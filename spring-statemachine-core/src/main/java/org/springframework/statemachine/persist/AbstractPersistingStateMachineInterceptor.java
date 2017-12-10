@@ -34,10 +34,12 @@ import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.AbstractStateMachine;
 import org.springframework.statemachine.support.DefaultExtendedState;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
+import org.springframework.statemachine.support.Function;
 import org.springframework.statemachine.support.StateMachineInterceptor;
 import org.springframework.statemachine.support.StateMachineInterceptorAdapter;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionKind;
+import org.springframework.util.Assert;
 
 /**
  * Base class for {@link StateMachineInterceptor} persisting {@link StateMachineContext}s.
@@ -53,6 +55,8 @@ import org.springframework.statemachine.transition.TransitionKind;
  */
 public abstract class AbstractPersistingStateMachineInterceptor<S, E, T> extends StateMachineInterceptorAdapter<S, E>
 		implements StateMachinePersist<S, E, T> {
+
+	private Function<StateMachine<S, E>, Map<Object, Object>> extendedStateVariablesFunction = new AllVariablesFunction<>();
 
 	@Override
 	public void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition, StateMachine<S, E> stateMachine) {
@@ -97,6 +101,17 @@ public abstract class AbstractPersistingStateMachineInterceptor<S, E, T> extends
 	public abstract StateMachineContext<S, E> read(T contextObj) throws Exception;
 
 	/**
+	 * Sets the function creating extended state variables.
+	 *
+	 * @param extendedStateVariablesFunction the extended state variables function
+	 */
+	public void setExtendedStateVariablesFunction(
+			Function<StateMachine<S, E>, Map<Object, Object>> extendedStateVariablesFunction) {
+		Assert.notNull(extendedStateVariablesFunction, "'extendedStateVariablesFunction' cannot be null");
+		this.extendedStateVariablesFunction = extendedStateVariablesFunction;
+	}
+
+	/**
 	 * Builds the state machine context.
 	 *
 	 * @param stateMachine the state machine
@@ -105,7 +120,7 @@ public abstract class AbstractPersistingStateMachineInterceptor<S, E, T> extends
 	 */
 	protected StateMachineContext<S, E> buildStateMachineContext(StateMachine<S, E> stateMachine, State<S, E> state) {
 		ExtendedState extendedState = new DefaultExtendedState();
-		extendedState.getVariables().putAll(stateMachine.getExtendedState().getVariables());
+		extendedState.getVariables().putAll(extendedStateVariablesFunction.apply(stateMachine));
 
 		ArrayList<StateMachineContext<S, E>> childs = new ArrayList<StateMachineContext<S, E>>();
 		S id = null;
@@ -150,5 +165,13 @@ public abstract class AbstractPersistingStateMachineInterceptor<S, E, T> extends
 		S[] ids2 = (S[]) ids1.toArray();
 		// TODO: can this be empty as then we'd get error?
 		return ids2[ids2.length-1];
+	}
+
+	private static class AllVariablesFunction<S, E> implements Function<StateMachine<S, E>, Map<Object, Object>> {
+
+		@Override
+		public Map<Object, Object> apply(StateMachine<S, E> stateMachine) {
+			return stateMachine.getExtendedState().getVariables();
+		}
 	}
 }
