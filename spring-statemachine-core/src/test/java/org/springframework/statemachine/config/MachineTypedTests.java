@@ -81,6 +81,28 @@ public class MachineTypedTests extends AbstractStateMachineTests {
 		assertThat(myBean4.someMachineFactory1, not(sameInstance(myBean4.someMachineFactory2)));
 	}
 
+	@Test
+	public void testAutowireMachineFactoryByNewBaseTypeNameNotMatches() {
+		context.register(Config5.class, Config6.class, MyBean5Config.class);
+		context.refresh();
+
+		MyBean5 myBean5 = context.getBean(MyBean5.class);
+		assertThat(myBean5.someMachineFactory3, notNullValue());
+		assertThat(myBean5.someMachineFactory4, notNullValue());
+		assertThat(myBean5.someMachineFactory3, not(sameInstance(myBean5.someMachineFactory4)));
+	}
+
+	@Test
+	public void testAutowireMachineByNewBaseTypeNameNotMatches() {
+		context.register(Config7.class, Config8.class, MyBean6Config.class);
+		context.refresh();
+
+		MyBean6 myBean6 = context.getBean(MyBean6.class);
+		assertThat(myBean6.someMachine3, notNullValue());
+		assertThat(myBean6.someMachine4, notNullValue());
+		assertThat(myBean6.someMachine3, not(sameInstance(myBean6.someMachine4)));
+	}
+
 	@Configuration
 	public static class MyBean1Config {
 
@@ -114,6 +136,24 @@ public class MachineTypedTests extends AbstractStateMachineTests {
 		@Bean
 		public MyBean4 myBean4() {
 			return new MyBean4();
+		}
+	}
+
+	@Configuration
+	public static class MyBean5Config {
+
+		@Bean
+		public MyBean5 myBean5() {
+			return new MyBean5();
+		}
+	}
+
+	@Configuration
+	public static class MyBean6Config {
+
+		@Bean
+		public MyBean6 myBean6() {
+			return new MyBean6();
 		}
 	}
 
@@ -151,6 +191,24 @@ public class MachineTypedTests extends AbstractStateMachineTests {
 
 		@Autowired
 		StateMachineFactory<MyTestStates2, MyTestEvents2> someMachineFactory2;
+	}
+
+	public static class MyBean5 {
+
+		@Autowired
+		StateMachineFactory<MyTestStates1, MyTestEvents1> someMachineFactory3;
+
+		@Autowired
+		StateMachineFactory<MyTestStates2, MyTestEvents2> someMachineFactory4;
+	}
+
+	public static class MyBean6 {
+
+		@Autowired
+		StateMachine<MyTestStates1, MyTestEvents1> someMachine3;
+
+		@Autowired
+		StateMachine<MyTestStates2, MyTestEvents2> someMachine4;
 	}
 
 	@Configuration
@@ -235,6 +293,96 @@ public class MachineTypedTests extends AbstractStateMachineTests {
 					.source(MyTestStates2.S1).target(MyTestStates2.S2)
 					.event(MyTestEvents2.E1);
 		}
+	}
+
+	@Configuration
+	@EnableStateMachineFactory(name = "machinefactory3")
+	public static class Config5 extends MyNewBaseAdapter1 {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<MyTestStates1, MyTestEvents1> states) throws Exception {
+			states
+				.withStates()
+					.initial(MyTestStates1.S1)
+					.state(MyTestStates1.S2);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<MyTestStates1, MyTestEvents1> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(MyTestStates1.S1).target(MyTestStates1.S2)
+					.event(MyTestEvents1.E1);
+		}
+	}
+
+	@Configuration
+	@EnableStateMachineFactory(name = "machinefactory4")
+	public static class Config6 extends MyNewBaseAdapter2 {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<MyTestStates2, MyTestEvents2> states) throws Exception {
+			states
+				.withStates()
+					.initial(MyTestStates2.S1)
+					.state(MyTestStates2.S2);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<MyTestStates2, MyTestEvents2> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(MyTestStates2.S1).target(MyTestStates2.S2)
+					.event(MyTestEvents2.E1);
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine(name = "machine3")
+	public static class Config7 extends MyNewBaseAdapter1 {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<MyTestStates1, MyTestEvents1> states) throws Exception {
+			states
+				.withStates()
+					.initial(MyTestStates1.S1)
+					.state(MyTestStates1.S2);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<MyTestStates1, MyTestEvents1> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(MyTestStates1.S1).target(MyTestStates1.S2)
+					.event(MyTestEvents1.E1);
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine(name = "machine4")
+	public static class Config8 extends MyNewBaseAdapter2 {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<MyTestStates2, MyTestEvents2> states) throws Exception {
+			states
+				.withStates()
+					.initial(MyTestStates2.S1)
+					.state(MyTestStates2.S2);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<MyTestStates2, MyTestEvents2> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(MyTestStates2.S1).target(MyTestStates2.S2)
+					.event(MyTestEvents2.E1);
+		}
+	}
+
+	public static class MyNewBaseAdapter1 extends EnumStateMachineConfigurerAdapter<MyTestStates1, MyTestEvents1> {
+	}
+
+	public static class MyNewBaseAdapter2 extends EnumStateMachineConfigurerAdapter<MyTestStates2, MyTestEvents2> {
 	}
 
 	public enum MyTestStates1 {
