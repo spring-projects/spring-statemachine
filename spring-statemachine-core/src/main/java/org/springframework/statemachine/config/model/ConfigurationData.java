@@ -32,6 +32,7 @@ import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.monitor.StateMachineMonitor;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.support.StateMachineInterceptor;
+import org.springframework.statemachine.transition.TransitionConflightPolicy;
 
 /**
  * Configuration object used to keep things together in {@link StateMachineConfigurationBuilder}.
@@ -48,6 +49,7 @@ public class ConfigurationData<S, E> {
 	private final TaskExecutor taskExecutor;
 	private final TaskScheduler taskScheduler;
 	private final boolean autoStart;
+	private final TransitionConflightPolicy transitionConflightPolicy;
 	private final StateMachineEnsemble<S, E> ensemble;
 	private final List<StateMachineListener<S, E>> listeners;
 	private final boolean securityEnabled;
@@ -95,6 +97,39 @@ public class ConfigurationData<S, E> {
 			SecurityRule eventSecurityRule, SecurityRule transitionSecurityRule, boolean verifierEnabled,
 			StateMachineModelVerifier<S, E> verifier, String machineId, StateMachineMonitor<S, E> stateMachineMonitor,
 			List<StateMachineInterceptor<S, E>> interceptors) {
+		this(beanFactory, taskExecutor, taskScheduler, autoStart, ensemble, listeners, securityEnabled,
+				transitionSecurityAccessDecisionManager, eventSecurityAccessDecisionManager, eventSecurityRule, transitionSecurityRule,
+				verifierEnabled, verifier, machineId, stateMachineMonitor, interceptors, null);
+	}
+
+	/**
+	 * Instantiates a new state machine configuration config data.
+	 *
+	 * @param beanFactory the bean factory
+	 * @param taskExecutor the task executor
+	 * @param taskScheduler the task scheduler
+	 * @param autoStart the autostart flag
+	 * @param ensemble the state machine ensemble
+	 * @param listeners the state machine listeners
+	 * @param securityEnabled the security enabled flag
+	 * @param transitionSecurityAccessDecisionManager the transition security access decision manager
+	 * @param eventSecurityAccessDecisionManager the event security access decision manager
+	 * @param eventSecurityRule the event security rule
+	 * @param transitionSecurityRule the transition security rule
+	 * @param verifierEnabled the verifier enabled flag
+	 * @param verifier the state machine model verifier
+	 * @param machineId the machine id
+	 * @param stateMachineMonitor the state machine monitor
+	 * @param interceptors the state machine interceptors.
+	 * @param transitionConflightPolicy the transition conflight policy
+	 */
+	public ConfigurationData(BeanFactory beanFactory, TaskExecutor taskExecutor,
+			TaskScheduler taskScheduler, boolean autoStart, StateMachineEnsemble<S, E> ensemble,
+			List<StateMachineListener<S, E>> listeners, boolean securityEnabled,
+			AccessDecisionManager transitionSecurityAccessDecisionManager, AccessDecisionManager eventSecurityAccessDecisionManager,
+			SecurityRule eventSecurityRule, SecurityRule transitionSecurityRule, boolean verifierEnabled,
+			StateMachineModelVerifier<S, E> verifier, String machineId, StateMachineMonitor<S, E> stateMachineMonitor,
+			List<StateMachineInterceptor<S, E>> interceptors, TransitionConflightPolicy transitionConflightPolicy) {
 		this.beanFactory = beanFactory;
 		this.taskExecutor = taskExecutor;
 		this.taskScheduler = taskScheduler;
@@ -111,6 +146,7 @@ public class ConfigurationData<S, E> {
 		this.machineId = machineId;
 		this.stateMachineMonitor = stateMachineMonitor;
 		this.interceptors = interceptors;
+		this.transitionConflightPolicy = transitionConflightPolicy;
 	}
 
 	public String getMachineId() {
@@ -250,5 +286,14 @@ public class ConfigurationData<S, E> {
 	 */
 	public List<StateMachineInterceptor<S, E>> getStateMachineInterceptors() {
 		return interceptors;
+	}
+
+	/**
+	 * Gets the transition conflight policy.
+	 *
+	 * @return the transition conflight policy
+	 */
+	public TransitionConflightPolicy getTransitionConflightPolicy() {
+		return transitionConflightPolicy;
 	}
 }

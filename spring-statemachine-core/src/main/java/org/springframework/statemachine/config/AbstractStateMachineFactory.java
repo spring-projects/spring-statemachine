@@ -159,6 +159,8 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 	 */
 	@SuppressWarnings("unchecked")
 	public StateMachine<S, E> getStateMachine(UUID uuid, String machineId) {
+		ArrayList<StateMachine<S, E>> machines = new ArrayList<>();
+
 		StateMachineModel<S, E> stateMachineModel = resolveStateMachineModel(machineId);
 		if (stateMachineModel.getConfigurationData().isVerifierEnabled()) {
 			StateMachineModelVerifier<S, E> verifier = stateMachineModel.getConfigurationData().getVerifier();
@@ -221,6 +223,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 							contextEvents, defaultExtendedState, stateMachineModel.getTransitionsData(), resolveTaskExecutor(stateMachineModel),
 							resolveTaskScheduler(stateMachineModel), machineId, null, stateMachineModel);
 					regionStack.push(new MachineStackItem<S, E>(machine));
+					machines.add(machine);
 				}
 
 				Collection<Region<S, E>> regions = new ArrayList<Region<S, E>>();
@@ -244,11 +247,13 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 							machineId != null ? machineId : stateMachineModel.getConfigurationData().getMachineId(),
 							uuid, stateMachineModel);
 					machine = m;
+					machines.add(m);
 				}
 			} else {
 				machine = buildMachine(machineMap, stateMap, holderList, stateDatas, transitionsData, resolveBeanFactory(stateMachineModel), contextEvents,
 						defaultExtendedState, stateMachineModel.getTransitionsData(), resolveTaskExecutor(stateMachineModel), resolveTaskScheduler(stateMachineModel),
 						machineId, uuid, stateMachineModel);
+				machines.add(machine);
 				if (peek.isInitial() || (!peek.isInitial() && !machineMap.containsKey(peek.getParent()))) {
 					machineMap.put(peek.getParent(), machine);
 				}
@@ -288,6 +293,35 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 				}
 			});
 		}
+
+		// set parent machines for each built machine
+		for (Entry<Object, StateMachine<S, E>> mme : machineMap.entrySet()) {
+			StateMachine<S, E> m = null;
+			if (mme.getKey() != null) {
+				Object sParent = null;
+				for (StateData<S, E> sd : stateMachineModel.getStatesData().getStateData()) {
+					if (ObjectUtils.nullSafeEquals(sd.getState(), mme.getKey())) {
+						sParent = sd.getParent();
+						break;
+					}
+				}
+				m = machineMap.get(sParent);
+			}
+			final StateMachine<S, E> mm = m;
+			mme.getValue().getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S ,E>>(){
+
+				@Override
+				public void apply(StateMachineAccess<S, E> function) {
+					function.setParentMachine(mm);
+				}
+			});
+		}
+
+		// init built machines
+		for (StateMachine<S, E> m : machines) {
+			((LifecycleObjectSupport)m).afterPropertiesSet();
+		}
+
 
 		// TODO: should error out if sec is enabled but spring-security is not in cp
 		if (stateMachineModel.getConfigurationData().isSecurityEnabled()) {
@@ -338,28 +372,6 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			holderItem.value.setState(stateMap.get(holderItem.key));
 		}
 
-		// set parent machines for each built machine
-		for (Entry<Object, StateMachine<S, E>> mme : machineMap.entrySet()) {
-			StateMachine<S, E> m = null;
-			if (mme.getKey() != null) {
-				Object sParent = null;
-				for (StateData<S, E> sd : stateMachineModel.getStatesData().getStateData()) {
-					if (ObjectUtils.nullSafeEquals(sd.getState(), mme.getKey())) {
-						sParent = sd.getParent();
-						break;
-					}
-				}
-				m = machineMap.get(sParent);
-			}
-			final StateMachine<S, E> mm = m;
-			mme.getValue().getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S ,E>>(){
-
-				@Override
-				public void apply(StateMachineAccess<S, E> function) {
-					function.setParentMachine(mm);
-				}
-			});
-		}
 		return delegateAutoStartup(machine);
 	}
 

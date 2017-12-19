@@ -47,6 +47,7 @@ import org.springframework.statemachine.state.JoinPseudoState;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
+import org.springframework.statemachine.transition.TransitionConflightPolicy;
 import org.springframework.statemachine.trigger.DefaultTriggerContext;
 import org.springframework.statemachine.trigger.TimerTrigger;
 import org.springframework.statemachine.trigger.Trigger;
@@ -101,6 +102,8 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 
 	private final ReentrantLock lock = new ReentrantLock();
 
+	private final TransitionComparator<S, E> transitionComparator;;
+
 	/**
 	 * Instantiates a new default state machine executor.
 	 *
@@ -111,10 +114,12 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 	 * @param triggerlessTransitions the triggerless transitions
 	 * @param initialTransition the initial transition
 	 * @param initialEvent the initial event
+	 * @param transitionConflightPolicy the transition conflight policy
 	 */
 	public DefaultStateMachineExecutor(StateMachine<S, E> stateMachine, StateMachine<S, E> relayStateMachine,
 			Collection<Transition<S, E>> transitions, Map<Trigger<S, E>, Transition<S, E>> triggerToTransitionMap,
-			List<Transition<S, E>> triggerlessTransitions, Transition<S, E> initialTransition, Message<E> initialEvent) {
+			List<Transition<S, E>> triggerlessTransitions, Transition<S, E> initialTransition, Message<E> initialEvent,
+			TransitionConflightPolicy transitionConflightPolicy) {
 		this.stateMachine = stateMachine;
 		this.relayStateMachine = relayStateMachine;
 		this.triggerToTransitionMap = triggerToTransitionMap;
@@ -122,6 +127,9 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 		this.transitions = transitions;
 		this.initialTransition = initialTransition;
 		this.initialEvent = initialEvent;
+		this.transitionComparator = new TransitionComparator<S, E>(transitionConflightPolicy);
+		// anonymous transitions are fixed, sort those now
+		this.triggerlessTransitions.sort(transitionComparator);
 		registerTriggerListener();
 	}
 
@@ -417,7 +425,8 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 				trans.add(triggerToTransitionMap.get(queueItem.trigger));
 			}
 
-			// go through candidates and transit max one
+			// go through candidates and transit max one, sort before handling
+			trans.sort(transitionComparator);
 			handleTriggerTrans(trans, queuedMessage);
 		}
 		if (stateMachine.getState() != null) {
