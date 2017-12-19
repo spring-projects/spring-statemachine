@@ -89,7 +89,8 @@ public class DefaultStateMachineExecutorTests {
 				triggerToTransitionMap,
 				triggerlessTransitions,
 				initialTransition,
-				initialEvent);
+				initialEvent,
+				null);
 
 		executor.setTaskExecutor(taskExecutor);
 
@@ -162,7 +163,8 @@ public class DefaultStateMachineExecutorTests {
 				triggerToTransitionMap,
 				triggerlessTransitions,
 				initialTransition,
-				initialEvent);
+				initialEvent,
+				null);
 
 		executor.setTaskExecutor(taskExecutor);
 
@@ -237,7 +239,8 @@ public class DefaultStateMachineExecutorTests {
 				triggerToTransitionMap,
 				triggerlessTransitions,
 				initialTransition,
-				initialEvent);
+				initialEvent,
+				null);
 
 		executor.setTaskExecutor(taskExecutor);
 

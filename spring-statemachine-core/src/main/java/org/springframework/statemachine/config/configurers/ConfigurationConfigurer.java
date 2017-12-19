@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerBuilder;
 import org.springframework.statemachine.listener.StateMachineListener;
+import org.springframework.statemachine.transition.TransitionConflightPolicy;
 
 /**
  * Base {@code ConfigConfigurer} interface for configuring generic config.
@@ -86,4 +87,11 @@ public interface ConfigurationConfigurer<S, E> extends
 	 */
 	ConfigurationConfigurer<S, E> listener(StateMachineListener<S, E> listener);
 
+	/**
+	 * Speficy a {@link TransitionConflightPolicy}.
+	 *
+	 * @param transitionConflightPolicy the transition conflight policy
+	 * @return the configuration configurer
+	 */
+	ConfigurationConfigurer<S, E> transitionConflightPolicy(TransitionConflightPolicy transitionConflightPolicy);
 }

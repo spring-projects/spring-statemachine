@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,6 +76,7 @@ public class ObjectStateMachineFactory<S, E> extends AbstractStateMachineFactory
 				extendedState, uuid);
 		machine.setId(machineId);
 		machine.setHistoryState(historyState);
+		machine.setTransitionConflightPolicy(stateMachineModel.getConfigurationData().getTransitionConflightPolicy());
 		if (contextEventsEnabled != null) {
 			machine.setContextEventsEnabled(contextEventsEnabled);
 		}
@@ -91,7 +92,6 @@ public class ObjectStateMachineFactory<S, E> extends AbstractStateMachineFactory
 		if (machine instanceof BeanNameAware) {
 			((BeanNameAware)machine).setBeanName(beanName);
 		}
-		machine.afterPropertiesSet();
 		return machine;
 	}
 

@@ -168,4 +168,9 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 			}
 		}
 	}
+
+	@Override
+	public String toString() {
+		return "AbstractTransition [source=" + source + ", target=" + target + ", kind=" + kind + ", guard=" + guard + "]";
+	}
 }
