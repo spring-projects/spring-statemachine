@@ -18,6 +18,7 @@ package org.springframework.statemachine.data.jpa;
 import java.util.Set;
 
 import javax.persistence.CollectionTable;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -56,6 +57,8 @@ public class JpaRepositoryState extends RepositoryState {
 	private String machineId;
 	private String state;
 	private String region;
+
+	@Column(name = "initialState")
 	private boolean initial;
 	private PseudoStateKind kind;
 	private String submachineId;
