@@ -81,8 +81,7 @@ public class JpaRepositoryState extends RepositoryState {
 	private Set<JpaRepositoryAction> exitActions;
 
 	@ElementCollection(fetch = FetchType.EAGER, targetClass = String.class)
-	@CollectionTable(name="DeferredEvents")
-	@JoinColumn(foreignKey = @ForeignKey(name = "fk_state_deferred_events"))
+	@CollectionTable(name="DeferredEvents", foreignKey = @ForeignKey(name = "fk_state_deferred_events"))
 	private Set<String> deferredEvents;
 
 	/**
