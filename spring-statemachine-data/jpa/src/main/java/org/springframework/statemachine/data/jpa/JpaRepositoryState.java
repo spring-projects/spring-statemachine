@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,19 @@ package org.springframework.statemachine.data.jpa;
 
 import java.util.Set;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 import org.springframework.statemachine.data.RepositoryAction;
 import org.springframework.statemachine.data.RepositoryState;
@@ -40,6 +45,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  *
  */
 @Entity
+@Table(name = "State")
 @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class)
 public class JpaRepositoryState extends RepositoryState {
 
@@ -55,21 +61,28 @@ public class JpaRepositoryState extends RepositoryState {
 	private String submachineId;
 
 	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(foreignKey = @ForeignKey(name = "fk_state_initial_action"))
 	private JpaRepositoryAction initialAction;
 
 	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(foreignKey = @ForeignKey(name = "fk_state_parent_state"))
 	private JpaRepositoryState parentState;
 
 	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(foreignKey = @ForeignKey(name = "fk_state_state_actions_s"), inverseForeignKey = @ForeignKey(name = "fk_state_state_actions_a"))
 	private Set<JpaRepositoryAction> stateActions;
 
 	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(foreignKey = @ForeignKey(name = "fk_state_entry_actions_s"), inverseForeignKey = @ForeignKey(name = "fk_state_entry_actions_a"))
 	private Set<JpaRepositoryAction> entryActions;
 
 	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(foreignKey = @ForeignKey(name = "fk_state_exit_actions_s"), inverseForeignKey = @ForeignKey(name = "fk_state_exit_actions_a"))
 	private Set<JpaRepositoryAction> exitActions;
 
 	@ElementCollection(fetch = FetchType.EAGER, targetClass = String.class)
+	@CollectionTable(name="DeferredEvents")
+	@JoinColumn(foreignKey = @ForeignKey(name = "fk_state_deferred_events"))
 	private Set<String> deferredEvents;
 
 	/**
