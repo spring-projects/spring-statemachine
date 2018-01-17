@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,15 @@ import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 import org.springframework.statemachine.data.RepositoryTransition;
 import org.springframework.statemachine.transition.TransitionKind;
@@ -38,6 +42,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  *
  */
 @Entity
+@Table(name = "Transition")
 @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class)
 public class JpaRepositoryTransition extends RepositoryTransition {
 
@@ -48,18 +53,22 @@ public class JpaRepositoryTransition extends RepositoryTransition {
 	private String machineId;
 
 	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(foreignKey = @ForeignKey(name = "fk_transition_source"))
 	private JpaRepositoryState source;
 
 	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(foreignKey = @ForeignKey(name = "fk_transition_target"))
 	private JpaRepositoryState target;
 
 	private String event;
 	private TransitionKind kind;
 
 	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(foreignKey = @ForeignKey(name = "fk_transition_actions_t"), inverseForeignKey = @ForeignKey(name = "fk_transition_actions_a"))
 	private Set<JpaRepositoryAction> actions;
 
 	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(foreignKey = @ForeignKey(name = "fk_transition_guard"))
 	private JpaRepositoryGuard guard;
 
 	/**
