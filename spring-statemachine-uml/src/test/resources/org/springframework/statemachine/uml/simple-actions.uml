@@ -17,6 +17,10 @@
         </exit>
       </subvertex>
       <subvertex xmi:type="uml:State" xmi:id="_s9CwsASXEeaXyaQL1WyV3A" name="S2">
+        <doActivity xmi:type="uml:FunctionBehavior" xmi:id="_tSJ3APzjEeeuv4NiH5yIZg">
+          <language>spel</language>
+          <body>extendedState.variables.put('hellos2do','hellos2dovalue')</body>
+        </doActivity>
         <entry xmi:type="uml:FunctionBehavior" xmi:id="_Pk2SMASYEeaXyaQL1WyV3A" name="s2Entry">
           <language>bean</language>
           <body>s2Entry</body>

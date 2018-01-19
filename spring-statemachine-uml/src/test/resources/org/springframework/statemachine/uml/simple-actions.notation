@@ -49,6 +49,10 @@
               <element xmi:type="uml:FunctionBehavior" href="simple-actions.uml#_Pk2SMASYEeaXyaQL1WyV3A"/>
               <layoutConstraint xmi:type="notation:Location" xmi:id="_Pk_cIQSYEeaXyaQL1WyV3A"/>
             </children>
+            <children xmi:type="notation:Shape" xmi:id="_tUbu8PzjEeeuv4NiH5yIZg" type="691">
+              <element xmi:type="uml:FunctionBehavior" href="simple-actions.uml#_tSJ3APzjEeeuv4NiH5yIZg"/>
+              <layoutConstraint xmi:type="notation:Location" xmi:id="_tUbu8fzjEeeuv4NiH5yIZg"/>
+            </children>
             <element xmi:type="uml:State" href="simple-actions.uml#_s9CwsASXEeaXyaQL1WyV3A"/>
             <layoutConstraint xmi:type="notation:Bounds" xmi:id="_s9FM8QSXEeaXyaQL1WyV3A" x="230" y="207" width="261" height="61"/>
           </children>

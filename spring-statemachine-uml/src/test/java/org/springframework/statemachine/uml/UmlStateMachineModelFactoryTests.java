@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -459,6 +459,8 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.register(Config11.class);
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		TestExtendedStateListener listener = new TestExtendedStateListener();
+		stateMachine.addStateListener(listener);
 		LatchAction e1Action = context.getBean("e1Action", LatchAction.class);
 		LatchAction s1Exit = context.getBean("s1Exit", LatchAction.class);
 		LatchAction s2Entry = context.getBean("s2Entry", LatchAction.class);
@@ -469,6 +471,8 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(e1Action.latch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(s1Exit.latch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(s2Entry.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(listener.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(stateMachine.getExtendedState().getVariables().get("hellos2do"), is("hellos2dovalue"));
 	}
 
 	@Test
@@ -1742,6 +1746,18 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		public void reset() {
 			entered.clear();
 			exited.clear();
+		}
+	}
+
+	private static class TestExtendedStateListener extends StateMachineListenerAdapter<String, String> {
+
+		CountDownLatch latch = new CountDownLatch(1);
+
+		@Override
+		public void extendedStateChanged(Object key, Object value) {
+			if (ObjectUtils.nullSafeEquals(key, "hellos2do")) {
+				latch.countDown();
+			}
 		}
 	}
 }
