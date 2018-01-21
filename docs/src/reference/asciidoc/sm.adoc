@@ -36,6 +36,8 @@ that Spring Statemachine provides to any Spring based application.
 
 <<sm-error-handling>> the state machine interceptor support.
 
+<<sm-service>> the state machine service support.
+
 <<sm-persist>> the state machine persisting support.
 
 <<sm-boot>> the Spring Boot support.
@@ -489,6 +491,13 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippetYC]
 ----
 
 More about config model, refer to section <<devdocs-configmodel>>.
+
+[NOTE]
+====
+Config methods `withSecurity`, `withMonitoring` and `withPersistence`
+are documented in sections <<sm-security>>, <<sm-monitoring>> and
+<<sm-persist-statemachineruntimepersister>> respectively.
+====
 
 === Configuring Model
 `StateMachineModelFactory` is a hook to configure statemachine model
@@ -1758,6 +1767,19 @@ Actions defined for transitions also have their own error handling
 logic <<statemachine-config-transition-actions-errorhandling>>.
 ====
 
+[[sm-service]]
+== State Machine Services
+StateMachine services are higher level implementations meant to
+provide more user level functionalities to ease normal runtime
+operations. Currently only one service interface
+<<sm-service-statemachineservice>> exists.
+
+[[sm-service-statemachineservice]]
+=== Using StateMachineService
+`StateMachineService` is an interface meant to handle running machines
+and have a simple methods to 'acquire' and 'release' machines. It has
+one default implementation named `DefaultStateMachineService`.
+
 [[sm-persist]]
 == Persisting State Machine
 Traditionally an instance of a state machine is used as is within a
@@ -1868,6 +1890,24 @@ Check sample <<statemachine-examples-eventservice>> for detailed usage.
 `RedisStateMachineContextRepository` will need a
 `RedisConnectionFactory` for it to work and we recommend a
 `JedisConnectionFactory` for it as seeing from above example.
+
+[[sm-persist-statemachineruntimepersister]]
+=== Using StateMachineRuntimePersister
+`StateMachineRuntimePersister` is a simple extension to
+`StateMachinePersist` adding interface level method to get
+`StateMachineInterceptor` associated with it. This interceptor is then
+required to persist machine during state changes without needing to
+stop and start a machine.
+
+Currently there are implementations for this interface for out-of-the-box
+supported _Spring Data Repositories_. These are
+`JpaStateMachineRuntimePersister`, `RedisStateMachineRuntimePersister`
+and `MongoDbStateMachineRuntimePersister`.
+
+[TIP]
+====
+Check sample <<statemachine-examples-datajpapersist>> for detailed usage.
+====
 
 [[sm-boot]]
 == Spring Boot Support
@@ -2356,7 +2396,12 @@ sub-state.
 image::images/papyrus-gs-15.png[scaledwidth="100%"]
 
 [[sm-repository]]
-== Repository Config Support
+== Repository Support
+This section contains documentation related to using 'Spring Data
+Repositories' used in State Machine.
+
+[[sm-repository-config]]
+=== Repository Config
 It is also possible to keep machine configuration in an external
 storage where it will be loaded on demand instead of creating a static
 configuration either using _JavaConfig_ or _UML_ based config. This
@@ -2402,13 +2447,25 @@ image::images/sm-repository-simplesubmachine.png[scaledwidth="100%", title="Simp
 [[image-sm-repository-showcasemachine]]
 image::images/sm-repository-showcasemachine.png[scaledwidth="100%", title="ShowcaseMachine"]
 
-[[sm-repository-jpa]]
-=== JPA
+[[sm-repository-config-jpa]]
+==== JPA
 Actual _Repository_ implementations for a _JPA_ are
 `JpaStateRepository`, `JpaTransitionRepository`, `JpaActionRepository`
 and `JpaGuardRepository` which are backed by
 _Entity_ classes `JpaRepositoryState`, `JpaRepositoryTransition`,
 `JpaRepositoryAction` and `JpaRepositoryGuard` respectively.
+
+[IMPORTANT]
+====
+Version '1.2.8' unfortunately had to made a change into JPA's _Entity_
+model regarding used table names. Previously generated table names
+always had a prefix 'JPA_REPOSITORY_' derived from _Entity_ class
+names. As this caused breaking issues with databases imposing
+restrictions on database object lengths, all _Entity_ classes have
+spesific definitions to force table names. For example
+'JPA_REPOSITORY_STATE' is now simple 'STATE' and so on with other
+_Entity_ classes.
+====
 
 Generic way to update states and transition manually for jpa is shown
 below. This is equivalent to machine shown in
@@ -2463,8 +2520,8 @@ Complete example can be found from sample
 repository can be pre-populated from existing _json_ file having a
 definitions for entity classes.
 
-[[sm-repository-redis]]
-=== Redis
+[[sm-repository-config-redis]]
+==== Redis
 Actual _Repository_ implementations for a _Redis_ are
 `RedisStateRepository`, `RedisTransitionRepository`, `RedisActionRepository`
 and `RedisGuardRepository` which are backed by
@@ -2488,8 +2545,8 @@ This is equivalent to machine shown in
 include::samples/DocsRedisRepositorySampleTests1.java[tags=snippetB]
 ----
 
-[[sm-repository-mongodb]]
-=== MongoDB
+[[sm-repository-config-mongodb]]
+==== MongoDB
 Actual _Repository_ implementations for a _MongoDB_ are
 `MongoDbStateRepository`, `MongoDbTransitionRepository`, `MongoDbActionRepository`
 and `MongoDbGuardRepository` which are backed by
@@ -2511,5 +2568,57 @@ This is equivalent to machine shown in
 [source,java,indent=0]
 ----
 include::samples/DocsMongoDbRepositorySampleTests1.java[tags=snippetB]
+----
+
+[[sm-repository-persistence]]
+=== Repository Persistence
+Apart from storing machine configuration, shown in
+<<sm-repository-config>>, in an external repository it is also
+possible to persist machine into repositories.
+
+Interface `StateMachineRepository` is a central access point
+interacting with machine persistence and is backed by _Entity_ class
+`RepositoryStateMachine`.
+
+[[sm-repository-persistence-jpa]]
+==== JPA
+Actual _Repository_ implementation for a _JPA_ is
+`JpaStateMachineRepository` which is backed by _Entity_ class
+`JpaRepositoryStateMachine`.
+
+Generic way to persist machine for jpa is shown below. This is
+equivalent to machine shown in <<image-sm-repository-simplemachine>>.
+
+[source,java,indent=0]
+----
+include::samples/DocsJpaRepositorySampleTests1.java[tags=snippetD]
+----
+
+[[sm-repository-persistence-redis]]
+==== Redis
+Actual _Repository_ implementation for a _Redis_ is
+`RedisStateMachineRepository` which is backed by _Entity_ class
+`RedisRepositoryStateMachine`.
+
+Generic way to persist machine for jpa is shown below. This is
+equivalent to machine shown in <<image-sm-repository-simplemachine>>.
+
+[source,java,indent=0]
+----
+include::samples/DocsRedisRepositorySampleTests1.java[tags=snippetC]
+----
+
+[[sm-repository-persistence-mongodb]]
+==== MongoDB
+Actual _Repository_ implementation for a _MongoDB_ is
+`MongoDbStateMachineRepository` which is backed by _Entity_ class
+`MongoDbRepositoryStateMachine`.
+
+Generic way to persist machine for jpa is shown below. This is
+equivalent to machine shown in <<image-sm-repository-simplemachine>>.
+
+[source,java,indent=0]
+----
+include::samples/DocsMongoDbRepositorySampleTests1.java[tags=snippetC]
 ----
 

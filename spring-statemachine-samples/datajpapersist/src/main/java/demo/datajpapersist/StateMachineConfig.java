@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,11 +35,11 @@ import org.springframework.statemachine.service.StateMachineService;
 @Configuration
 public class StateMachineConfig {
 
-//tag::snippetA[]
 	@Configuration
 	@EnableStateMachineFactory
 	public static class MachineConfig extends StateMachineConfigurerAdapter<States, Events> {
 
+//tag::snippetB[]
 		@Autowired
 		private JpaStateMachineRepository jpaStateMachineRepository;
 
@@ -50,6 +50,7 @@ public class StateMachineConfig {
 				.withPersistence()
 					.runtimePersister(stateMachineRuntimePersister());
 		}
+//end::snippetB[]
 
 		@Override
 		public void configure(StateMachineStateConfigurer<States, Events> states)
@@ -89,24 +90,26 @@ public class StateMachineConfig {
 					.event(Events.E6);
 		}
 
+//tag::snippetA[]
 		@Bean
 		public StateMachineRuntimePersister<States, Events, String> stateMachineRuntimePersister() {
 			return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository);
 		}
-	}
 //end::snippetA[]
+	}
 
 	@Configuration
 	public static class ServiceConfig {
 
+//tag::snippetC[]
 		@Bean
 		public StateMachineService<States, Events> stateMachineService(StateMachineFactory<States, Events> stateMachineFactory,
 				StateMachineRuntimePersister<States, Events, String> stateMachineRuntimePersister) {
 			return new DefaultStateMachineService<States, Events>(stateMachineFactory, stateMachineRuntimePersister);
 		}
+//end::snippetC[]
 	}
 
-//tag::snippetB[]
 	public enum States {
 		S1, S2, S3, S4, S5, S6;
 	}
@@ -114,5 +117,4 @@ public class StateMachineConfig {
 	public enum Events {
 		E1, E2, E3, E4, E5, E6;
 	}
-//end::snippetB[]
 }

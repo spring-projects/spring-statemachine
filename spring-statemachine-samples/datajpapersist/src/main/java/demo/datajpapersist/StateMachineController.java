@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,6 +73,7 @@ public class StateMachineController {
 		return "states";
 	}
 
+//tag::snippetA[]
 	private synchronized StateMachine<States, Events> getStateMachine(String machineId) throws Exception {
 		listener.resetMessages();
 		if (currentStateMachine == null) {
@@ -88,6 +89,7 @@ public class StateMachineController {
 		}
 		return currentStateMachine;
 	}
+//end::snippetA[]
 
 	private Events[] getEvents() {
 		return EnumSet.allOf(Events.class).toArray(new Events[0]);
