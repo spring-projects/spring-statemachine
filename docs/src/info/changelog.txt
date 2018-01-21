@@ -4,6 +4,27 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 1.2.8.RELEASE (2018-01-22)
+---------------------------------------------
+* StateMachine restore via Spring Data [#423]
+* Spring Data repository model for machine persistence [#426]
+* Configuration facilities for machine persistence [#427]
+* Implement redis/mongo for machine persistence [#428]
+* Document Spring Data machine persistence [#429]
+* Service helping with machine persistance [#432]
+* Support Spring Data repositories with enums [#433]
+* Support kryo customisation [#437]
+* Threading regression with substates [#442]
+* Machine reset breaks extended state [#447]
+* StateMachineConfigurerAdapter doesn't find correct generics [#454]
+* Conflicting transitions cause undefined order behaviour [#456]
+* Configuration ignored with RepositoryStateMachineModelFactory [#459]
+* Name JPA constraints [#468]
+* Shorten JPA table names [#469]
+* Change JPA initial state field [#472]
+* UmlModelParser wrongly sets state action with spel [#474]
+* Update docs for 1.2.8.RELEASE [#476]
+
 Changes in version 2.0.0.M1 (2017-11-16)
 ----------------------------------------
 * Upgrade to spring framework 5 [#296]
@@ -27,6 +48,58 @@ Changes in version 2.0.0.M1 (2017-11-16)
 * Fix changes in boot 2.x transitive deps for spring-data-redis [#418]
 * Threading may not process all events. [#419]
 * Prepare gradle build for 2.0.0.M1 [#421]
+
+Changes in version 1.2.7.RELEASE (2017-11-15)
+---------------------------------------------
+* Handle null BeanFactory in StateMachineHandlerCallHelper [#412]
+* Fix logging message when transition action throws exception [#413]
+* Multiple exit points to same state fails [#416]
+* Backport master changes  [#420]
+
+Changes in version 1.2.6.RELEASE (2017-07-09)
+---------------------------------------------
+* Deadlock in lifecycle [#364]
+* Unable to define multiple END states via JavaConfig [#368]
+* @WithStateMachine may register too many processors [#370]
+* Backport master changes [#372]
+* AbstractStateMachine.getState() returns unexpected value for terminal states [#379]
+* Timer not trigger when resetStateMachine [#381]
+* Reset may start submachine too early [#386]
+* @OnExtendedStateChanged doesn't work with a key [#387]
+* resetStateMachine does not clear machine id relating to prior state context [#390]
+* Make AbstractStateMachinePersister fully recursive [#391]
+
+Changes in version 1.2.5.RELEASE (2017-05-19)
+---------------------------------------------
+* Support actions with transition via choice/junction pseudostate [#108]
+* NPE on sendEvent [#359]
+* Deadlock in executor [#360]
+
+Changes in version 1.2.4.RELEASE (2017-05-03)
+---------------------------------------------
+* Prevent debug calls in AbstractStateMachine if not enabled [#329]
+* StateMachineContextSerializer may throw NPE [#331]
+* StateMachineContextSerializer doesn't serialise history or id [#333]
+* An exception in Action causes infinite transition [#344]
+* PostStateChange interceptors are not given the correct state [#353]
+
+Changes in version 1.2.3.RELEASE (2017-03-13)
+---------------------------------------------
+* Backport master changes [#320]
+* TimerTrigger not disarmed [#321]
+* Notify transition before calling its actions [#322]
+* Support connection point references [#323]
+
+Changes in version 1.2.2.RELEASE (2017-02-14)
+---------------------------------------------
+* Allow to use generic qualifiers for statemachine factory [#306]
+* Timer trigger deadlock in DefaultStateMachineExecutor [#315]
+
+Changes in version 1.2.1.RELEASE (2017-01-17)
+---------------------------------------------
+* Support @WithStateMachine with builders [#224]
+* @WithStateMachine not working when creating StateMachine with Factory [#292]
+* Timing issue when using a Factory with async taskexecutor [#298]
 
 Changes in version 1.2.0.RELEASE (2016-12-14)
 ---------------------------------------------
