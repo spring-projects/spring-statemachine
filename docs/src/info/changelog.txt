@@ -4,6 +4,27 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 1.2.8.RELEASE (2018-01-22)
+---------------------------------------------
+* StateMachine restore via Spring Data [#423]
+* Spring Data repository model for machine persistence [#426]
+* Configuration facilities for machine persistence [#427]
+* Implement redis/mongo for machine persistence [#428]
+* Document Spring Data machine persistence [#429]
+* Service helping with machine persistance [#432]
+* Support Spring Data repositories with enums [#433]
+* Support kryo customisation [#437]
+* Threading regression with substates [#442]
+* Machine reset breaks extended state [#447]
+* StateMachineConfigurerAdapter doesn't find correct generics [#454]
+* Conflicting transitions cause undefined order behaviour [#456]
+* Configuration ignored with RepositoryStateMachineModelFactory [#459]
+* Name JPA constraints [#468]
+* Shorten JPA table names [#469]
+* Change JPA initial state field [#472]
+* UmlModelParser wrongly sets state action with spel [#474]
+* Update docs for 1.2.8.RELEASE [#476]
+
 Changes in version 1.2.7.RELEASE (2017-11-15)
 ---------------------------------------------
 * Handle null BeanFactory in StateMachineHandlerCallHelper [#412]
