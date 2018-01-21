@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,11 @@
 package org.springframework.statemachine.data.mongodb.docs;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.statemachine.data.StateMachineRepository;
 import org.springframework.statemachine.data.StateRepository;
 import org.springframework.statemachine.data.TransitionRepository;
 import org.springframework.statemachine.data.mongodb.MongoDbRepositoryState;
+import org.springframework.statemachine.data.mongodb.MongoDbRepositoryStateMachine;
 import org.springframework.statemachine.data.mongodb.MongoDbRepositoryTransition;
 
 public class DocsMongoDbRepositorySampleTests1 {
@@ -83,4 +85,24 @@ public class DocsMongoDbRepositorySampleTests1 {
 		}
 // end::snippetB[]
 	}
+
+	public static class Config3 {
+
+// tag::snippetC[]
+		@Autowired
+		StateMachineRepository<MongoDbRepositoryStateMachine> stateMachineRepository;
+
+		void persist() {
+
+			MongoDbRepositoryStateMachine machine = new MongoDbRepositoryStateMachine();
+			machine.setMachineId("machine");
+			machine.setState("S1");
+			// raw byte[] representation of a context
+			machine.setStateMachineContext(new byte[] { 0 });
+
+			stateMachineRepository.save(machine);
+		}
+// end::snippetC[]
+	}
+
 }

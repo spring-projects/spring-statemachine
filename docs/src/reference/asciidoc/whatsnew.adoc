@@ -35,3 +35,10 @@ _UML_ support and integrations with external config repositories.
 * Initial work for _Spring Boot_ support. <<sm-boot>>
 * Support for tracing and monitoring. <<sm-monitoring>>
 
+=== In 1.2.8
+_Spring Statemachine 1.2.8_ contains a bit more functionality normally
+not seen in a point release but these changes didn't merit a fork of
+_Spring Statemachine 1.3_.
+
+* JPA entity classes have changed table names <<sm-repository-config-jpa>>
+

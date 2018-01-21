@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,13 @@ import java.util.HashSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.statemachine.data.ActionRepository;
 import org.springframework.statemachine.data.GuardRepository;
+import org.springframework.statemachine.data.StateMachineRepository;
 import org.springframework.statemachine.data.StateRepository;
 import org.springframework.statemachine.data.TransitionRepository;
 import org.springframework.statemachine.data.jpa.JpaRepositoryAction;
 import org.springframework.statemachine.data.jpa.JpaRepositoryGuard;
 import org.springframework.statemachine.data.jpa.JpaRepositoryState;
+import org.springframework.statemachine.data.jpa.JpaRepositoryStateMachine;
 import org.springframework.statemachine.data.jpa.JpaRepositoryTransition;
 import org.springframework.statemachine.transition.TransitionKind;
 
@@ -205,5 +207,24 @@ public class DocsJpaRepositorySampleTests1 {
 			transitionRepository.save(transitionS2ToS1);
 // end::snippetC4[]
 		}
+	}
+
+	public static class Config4 {
+
+// tag::snippetD[]
+		@Autowired
+		StateMachineRepository<JpaRepositoryStateMachine> stateMachineRepository;
+
+		void persist() {
+
+			JpaRepositoryStateMachine machine = new JpaRepositoryStateMachine();
+			machine.setMachineId("machine");
+			machine.setState("S1");
+			// raw byte[] representation of a context
+			machine.setStateMachineContext(new byte[] { 0 });
+
+			stateMachineRepository.save(machine);
+		}
+// end::snippetD[]
 	}
 }

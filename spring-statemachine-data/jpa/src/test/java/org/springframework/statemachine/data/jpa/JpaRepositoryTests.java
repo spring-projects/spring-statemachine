@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -244,6 +244,28 @@ public class JpaRepositoryTests extends AbstractRepositoryTests {
 		transition2.setActions(new HashSet<>(Arrays.asList(action1, action2)));
 		transitionsRepository.save(transition2);
 		assertThat(transitionsRepository.count(), is(2l));
+	}
+
+	@Test
+	public void testRepository7() {
+		context.register(TestConfig.class);
+		context.refresh();
+
+		JpaStateMachineRepository stateMachineRepository = context.getBean(JpaStateMachineRepository.class);
+
+		JpaRepositoryStateMachine machine1 = new JpaRepositoryStateMachine();
+		machine1.setMachineId("machine1");
+		machine1.setState("S1");
+		machine1.setStateMachineContext(new byte[] { 0 });
+
+		assertThat(stateMachineRepository.count(), is(0l));
+		stateMachineRepository.save(machine1);
+		assertThat(stateMachineRepository.count(), is(1l));
+
+		JpaRepositoryStateMachine machine1x = stateMachineRepository.findOne("machine1");
+		assertThat(machine1x.getMachineId(), is(machine1.getMachineId()));
+		assertThat(machine1x.getState(), is(machine1.getState()));
+		assertThat(machine1x.getStateMachineContext().length, is(1));
 	}
 
 	@Override

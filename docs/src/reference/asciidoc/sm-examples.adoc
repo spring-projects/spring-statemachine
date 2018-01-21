@@ -38,6 +38,8 @@ normal build cycle. Samples in this chapter are:
 
 <<statemachine-examples-datajpa>> JPA Config.
 
+<<statemachine-examples-datajpapersist>> JPA Persist.
+
 <<statemachine-examples-monitoring>> Monitoring.
 
 
@@ -1494,6 +1496,87 @@ Actual source for populator data is shown below.
 ----
 include::samples/data.json[]
 ----
+
+[[statemachine-examples-datajpapersist]]
+== JPA Persist
+JPA Persist is an example how state machine concepts can be used
+with persisting machine in a database. This sample is using
+embedded _H2_ database with a _H2 Console_ to ease playing with a
+database.
+
+This sample uses `spring-statemachine-boot` which on default
+auto-configures repositories and entity classes needed for JPA.
+Thus only `@SpringBootApplication` is needed.
+
+[source,java,indent=0]
+----
+include::samples/demo/datajpapersist/Application.java[tags=snippetA]
+----
+
+`StateMachineRuntimePersister` is a new interface working on a runtime
+level of a 'StateMachine' and its implementation
+`JpaPersistingStateMachineInterceptor` is meant to be used with a
+'JPA'.
+
+[source,java,indent=0]
+----
+include::samples/demo/datajpapersist/StateMachineConfig.java[tags=snippetA]
+----
+
+'StateMachine' can be configured to use runtime persistence by using
+`withPersistence` config method.
+
+[source,java,indent=0]
+----
+include::samples/demo/datajpapersist/StateMachineConfig.java[tags=snippetB]
+----
+
+In this sample we also use `DefaultStateMachineService` which makes it
+easier to work with multiple machines 
+
+[source,java,indent=0]
+----
+include::samples/demo/datajpapersist/StateMachineConfig.java[tags=snippetC]
+----
+
+A logic using a `StateMachineService` in this sample is show below.
+
+[source,java,indent=0]
+----
+include::samples/demo/datajpapersist/StateMachineController.java[tags=snippetA]
+----
+
+Let's get into actual demo. Run the boot based sample application:
+
+[source,text,subs="attributes"]
+----
+# java -jar spring-statemachine-samples-datajpapersist-{revnumber}.jar
+----
+
+Accessing application via _http://localhost:8080_ brings up a new
+constructed machine with every request and you can choose to send
+events to a machine. Possible events and machine configuration are
+updated from a database with every request.
+
+Machines in this sample have a simple configuration with states 'S1'
+to 'S6' and events 'E1' to 'E6' transitioning machine between those
+states. Two machine identifiers 'datajpapersist1' and
+'datajpapersist2' can be used to request particular machine.
+
+image::images/sm-datajpapersist-1.png[scaledwidth="100%"]
+
+Sample defaults to using machine 'datajpapersist1' and goes to its
+initial state 'S1'. 
+
+image::images/sm-datajpapersist-2.png[scaledwidth="100%"]
+
+If events 'E1' and 'E2' are sent into machine 'datajpapersist1' its
+state is persisted as 'S3'.
+
+image::images/sm-datajpapersist-3.png[scaledwidth="100%"]
+
+If requesting machine 'datajpapersist1' by not sending any events,
+machine is restored back to its persisted state 'S3'.
 
 [[statemachine-examples-monitoring]]
 == Monitoring
