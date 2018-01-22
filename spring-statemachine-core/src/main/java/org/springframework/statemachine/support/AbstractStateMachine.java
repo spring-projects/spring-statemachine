@@ -52,7 +52,7 @@ import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.StateMachineExecutor.StateMachineExecutorTransit;
 import org.springframework.statemachine.transition.InitialTransition;
 import org.springframework.statemachine.transition.Transition;
-import org.springframework.statemachine.transition.TransitionConflightPolicy;
+import org.springframework.statemachine.transition.TransitionConflictPolicy;
 import org.springframework.statemachine.transition.TransitionKind;
 import org.springframework.statemachine.trigger.DefaultTriggerContext;
 import org.springframework.statemachine.trigger.Trigger;
@@ -93,7 +93,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	private ExtendedState extendedState;
 
-	private TransitionConflightPolicy transitionConflightPolicy;
+	private TransitionConflictPolicy transitionConflictPolicy;
 
 	private volatile State<S,E> currentState;
 
@@ -273,7 +273,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		}
 
 		DefaultStateMachineExecutor<S, E> executor = new DefaultStateMachineExecutor<S, E>(this, getRelayStateMachine(), transitions,
-				triggerToTransitionMap, triggerlessTransitions, initialTransition, initialEvent, transitionConflightPolicy);
+				triggerToTransitionMap, triggerlessTransitions, initialTransition, initialEvent, transitionConflictPolicy);
 		if (getBeanFactory() != null) {
 			executor.setBeanFactory(getBeanFactory());
 		}
@@ -567,12 +567,12 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	/**
-	 * Sets the transition conflight policy.
+	 * Sets the transition conflict policy.
 	 *
-	 * @param transitionConflightPolicy the new transition conflight policy
+	 * @param transitionConflictPolicy the new transition conflict policy
 	 */
-	public void setTransitionConflightPolicy(TransitionConflightPolicy transitionConflightPolicy) {
-		this.transitionConflightPolicy = transitionConflightPolicy;
+	public void setTransitionConflightPolicy(TransitionConflictPolicy transitionConflictPolicy) {
+		this.transitionConflictPolicy = transitionConflictPolicy;
 	}
 
 	private boolean sendEventInternal(Message<E> event) {

@@ -47,7 +47,7 @@ import org.springframework.statemachine.state.JoinPseudoState;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
-import org.springframework.statemachine.transition.TransitionConflightPolicy;
+import org.springframework.statemachine.transition.TransitionConflictPolicy;
 import org.springframework.statemachine.trigger.DefaultTriggerContext;
 import org.springframework.statemachine.trigger.TimerTrigger;
 import org.springframework.statemachine.trigger.Trigger;
@@ -114,12 +114,12 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 	 * @param triggerlessTransitions the triggerless transitions
 	 * @param initialTransition the initial transition
 	 * @param initialEvent the initial event
-	 * @param transitionConflightPolicy the transition conflight policy
+	 * @param transitionConflictPolicy the transition conflict policy
 	 */
 	public DefaultStateMachineExecutor(StateMachine<S, E> stateMachine, StateMachine<S, E> relayStateMachine,
 			Collection<Transition<S, E>> transitions, Map<Trigger<S, E>, Transition<S, E>> triggerToTransitionMap,
 			List<Transition<S, E>> triggerlessTransitions, Transition<S, E> initialTransition, Message<E> initialEvent,
-			TransitionConflightPolicy transitionConflightPolicy) {
+			TransitionConflictPolicy transitionConflictPolicy) {
 		this.stateMachine = stateMachine;
 		this.relayStateMachine = relayStateMachine;
 		this.triggerToTransitionMap = triggerToTransitionMap;
@@ -127,7 +127,7 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 		this.transitions = transitions;
 		this.initialTransition = initialTransition;
 		this.initialEvent = initialEvent;
-		this.transitionComparator = new TransitionComparator<S, E>(transitionConflightPolicy);
+		this.transitionComparator = new TransitionComparator<S, E>(transitionConflictPolicy);
 		// anonymous transitions are fixed, sort those now
 		this.triggerlessTransitions.sort(transitionComparator);
 		registerTriggerListener();

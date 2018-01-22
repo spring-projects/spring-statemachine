@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import java.util.Comparator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.statemachine.transition.Transition;
-import org.springframework.statemachine.transition.TransitionConflightPolicy;
+import org.springframework.statemachine.transition.TransitionConflictPolicy;
 
 /**
  * {@link Comparator} for {@link Transition}s. This comparator tries to compare
@@ -34,15 +34,15 @@ import org.springframework.statemachine.transition.TransitionConflightPolicy;
 class TransitionComparator<S, E> implements Comparator<Transition<S, E>> {
 
 	private final static Log log = LogFactory.getLog(TransitionComparator.class);
-	private final TransitionConflightPolicy transitionConflightPolicy;
+	private final TransitionConflictPolicy transitionConflictPolicy;
 
 	/**
 	 * Instantiates a new transition comparator.
 	 *
-	 * @param transitionConflightPolicy the transition conflight policy
+	 * @param transitionConflictPolicy the transition conflict policy
 	 */
-	public TransitionComparator(TransitionConflightPolicy transitionConflightPolicy) {
-		this.transitionConflightPolicy = transitionConflightPolicy == null ? TransitionConflightPolicy.CHILD : transitionConflightPolicy;
+	public TransitionComparator(TransitionConflictPolicy transitionConflictPolicy) {
+		this.transitionConflictPolicy = transitionConflictPolicy == null ? TransitionConflictPolicy.CHILD : transitionConflictPolicy;
 	}
 
 	@Override
@@ -54,7 +54,7 @@ class TransitionComparator<S, E> implements Comparator<Transition<S, E>> {
 			return 0;
 		} else {
 			boolean substate = StateMachineUtils.isSubstate(left.getSource(), right.getSource());
-			if (transitionConflightPolicy == TransitionConflightPolicy.CHILD) {
+			if (transitionConflictPolicy == TransitionConflictPolicy.CHILD) {
 				return substate ? 1 : -1;
 			} else {
 				return substate ? -1 : 1;
@@ -64,6 +64,6 @@ class TransitionComparator<S, E> implements Comparator<Transition<S, E>> {
 
 	@Override
 	public String toString() {
-		return "TransitionComparator [transitionConflightPolicy=" + transitionConflightPolicy + "]";
+		return "TransitionComparator [transitionConflightPolicy=" + transitionConflictPolicy + "]";
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import org.springframework.statemachine.config.builders.StateMachineConfiguratio
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerAdapter;
 import org.springframework.statemachine.config.model.ConfigurationData;
 import org.springframework.statemachine.listener.StateMachineListener;
-import org.springframework.statemachine.transition.TransitionConflightPolicy;
+import org.springframework.statemachine.transition.TransitionConflictPolicy;
 
 /**
  * Default implementation of a {@link ConfigurationConfigurer}.
@@ -45,7 +45,7 @@ public class DefaultConfigurationConfigurer<S, E>
 	private TaskExecutor taskExecutor;
 	private TaskScheduler taskScheculer;
 	private boolean autoStart = false;
-	private TransitionConflightPolicy transitionConflightPolicy;
+	private TransitionConflictPolicy transitionConflightPolicy;
 	private final List<StateMachineListener<S, E>> listeners = new ArrayList<StateMachineListener<S, E>>();
 
 	@Override
@@ -56,7 +56,7 @@ public class DefaultConfigurationConfigurer<S, E>
 		builder.setTaskScheculer(taskScheculer);
 		builder.setAutoStart(autoStart);
 		builder.setStateMachineListeners(listeners);
-		builder.setTransitionConflightPolicy(transitionConflightPolicy);
+		builder.setTransitionConflictPolicy(transitionConflightPolicy);
 	}
 
 	@Override
@@ -96,7 +96,7 @@ public class DefaultConfigurationConfigurer<S, E>
 	}
 
 	@Override
-	public ConfigurationConfigurer<S, E> transitionConflightPolicy(TransitionConflightPolicy transitionConflightPolicy) {
+	public ConfigurationConfigurer<S, E> transitionConflictPolicy(TransitionConflictPolicy transitionConflightPolicy) {
 		this.transitionConflightPolicy = transitionConflightPolicy;
 		return this;
 	}

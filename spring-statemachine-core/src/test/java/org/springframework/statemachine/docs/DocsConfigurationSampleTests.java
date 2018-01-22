@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +62,7 @@ import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.StateMachineInterceptor;
 import org.springframework.statemachine.support.StateMachineInterceptorAdapter;
 import org.springframework.statemachine.transition.Transition;
+import org.springframework.statemachine.transition.TransitionConflictPolicy;
 
 /**
  * Tests for state machine configuration.
@@ -1154,10 +1155,12 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 				config
 					.withConfiguration()
 						.autoStartup(true)
+						.machineId("myMachineId")
 						.beanFactory(new StaticListableBeanFactory())
 						.taskExecutor(new SyncTaskExecutor())
 						.taskScheduler(new ConcurrentTaskScheduler())
-						.listener(new StateMachineListenerAdapter<States, Events>());
+						.listener(new StateMachineListenerAdapter<States, Events>())
+						.transitionConflictPolicy(TransitionConflictPolicy.CHILD);
 			}
 		}
 // end::snippetYA[]
