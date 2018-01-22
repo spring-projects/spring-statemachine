@@ -41,4 +41,9 @@ not seen in a point release but these changes didn't merit a fork of
 _Spring Statemachine 1.3_.
 
 * JPA entity classes have changed table names <<sm-repository-config-jpa>>
+* New sample <<statemachine-examples-datajpapersist>>
+* New _Entity_ classes for persistence <<sm-repository-persistence>>
+  used with <<sm-repository-persistence>>
+* Transition conflict policy mentioned in
+  <<statemachine-config-commonsettings>>
 
