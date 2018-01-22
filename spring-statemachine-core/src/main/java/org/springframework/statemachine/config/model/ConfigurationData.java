@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.monitor.StateMachineMonitor;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.support.StateMachineInterceptor;
-import org.springframework.statemachine.transition.TransitionConflightPolicy;
+import org.springframework.statemachine.transition.TransitionConflictPolicy;
 
 /**
  * Configuration object used to keep things together in {@link StateMachineConfigurationBuilder}.
@@ -49,7 +49,7 @@ public class ConfigurationData<S, E> {
 	private final TaskExecutor taskExecutor;
 	private final TaskScheduler taskScheduler;
 	private final boolean autoStart;
-	private final TransitionConflightPolicy transitionConflightPolicy;
+	private final TransitionConflictPolicy transitionConflictPolicy;
 	private final StateMachineEnsemble<S, E> ensemble;
 	private final List<StateMachineListener<S, E>> listeners;
 	private final boolean securityEnabled;
@@ -121,7 +121,7 @@ public class ConfigurationData<S, E> {
 	 * @param machineId the machine id
 	 * @param stateMachineMonitor the state machine monitor
 	 * @param interceptors the state machine interceptors.
-	 * @param transitionConflightPolicy the transition conflight policy
+	 * @param transitionConflightPolicy the transition conflict policy
 	 */
 	public ConfigurationData(BeanFactory beanFactory, TaskExecutor taskExecutor,
 			TaskScheduler taskScheduler, boolean autoStart, StateMachineEnsemble<S, E> ensemble,
@@ -129,7 +129,7 @@ public class ConfigurationData<S, E> {
 			AccessDecisionManager transitionSecurityAccessDecisionManager, AccessDecisionManager eventSecurityAccessDecisionManager,
 			SecurityRule eventSecurityRule, SecurityRule transitionSecurityRule, boolean verifierEnabled,
 			StateMachineModelVerifier<S, E> verifier, String machineId, StateMachineMonitor<S, E> stateMachineMonitor,
-			List<StateMachineInterceptor<S, E>> interceptors, TransitionConflightPolicy transitionConflightPolicy) {
+			List<StateMachineInterceptor<S, E>> interceptors, TransitionConflictPolicy transitionConflightPolicy) {
 		this.beanFactory = beanFactory;
 		this.taskExecutor = taskExecutor;
 		this.taskScheduler = taskScheduler;
@@ -146,7 +146,7 @@ public class ConfigurationData<S, E> {
 		this.machineId = machineId;
 		this.stateMachineMonitor = stateMachineMonitor;
 		this.interceptors = interceptors;
-		this.transitionConflightPolicy = transitionConflightPolicy;
+		this.transitionConflictPolicy = transitionConflightPolicy;
 	}
 
 	public String getMachineId() {
@@ -289,11 +289,11 @@ public class ConfigurationData<S, E> {
 	}
 
 	/**
-	 * Gets the transition conflight policy.
+	 * Gets the transition conflict policy.
 	 *
-	 * @return the transition conflight policy
+	 * @return the transition conflict policy
 	 */
-	public TransitionConflightPolicy getTransitionConflightPolicy() {
-		return transitionConflightPolicy;
+	public TransitionConflictPolicy getTransitionConflictPolicy() {
+		return transitionConflictPolicy;
 	}
 }

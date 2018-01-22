@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ import org.springframework.statemachine.monitor.StateMachineMonitor;
 import org.springframework.statemachine.persist.StateMachineRuntimePersister;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.support.StateMachineInterceptor;
-import org.springframework.statemachine.transition.TransitionConflightPolicy;
+import org.springframework.statemachine.transition.TransitionConflictPolicy;
 
 /**
  * {@link AnnotationBuilder} for {@link StatesData}.
@@ -65,7 +65,7 @@ public class StateMachineConfigurationBuilder<S, E>
 	private TaskExecutor taskExecutor;
 	private TaskScheduler taskScheculer;
 	private boolean autoStart = false;
-	private TransitionConflightPolicy transitionConflightPolicy;
+	private TransitionConflictPolicy transitionConflictPolicy;
 	private StateMachineEnsemble<S, E> ensemble;
 	private final List<StateMachineListener<S, E>> listeners = new ArrayList<StateMachineListener<S, E>>();
 	private boolean securityEnabled = false;
@@ -147,7 +147,7 @@ public class StateMachineConfigurationBuilder<S, E>
 		}
 		return new ConfigurationData<S, E>(beanFactory, taskExecutor, taskScheculer, autoStart, ensemble, listeners,
 				securityEnabled, transitionSecurityAccessDecisionManager, eventSecurityAccessDecisionManager, eventSecurityRule,
-				transitionSecurityRule, verifierEnabled, verifier, machineId, stateMachineMonitor, interceptorsCopy, transitionConflightPolicy);
+				transitionSecurityRule, verifierEnabled, verifier, machineId, stateMachineMonitor, interceptorsCopy, transitionConflictPolicy);
 	}
 
 	/**
@@ -296,11 +296,11 @@ public class StateMachineConfigurationBuilder<S, E>
 	}
 
 	/**
-	 * Sets the transition conflight policy.
+	 * Sets the transition conflict policy.
 	 *
-	 * @param transitionConflightPolicy the new transition conflight policy
+	 * @param transitionConflictPolicy the new transition conflict policy
 	 */
-	public void setTransitionConflightPolicy(TransitionConflightPolicy transitionConflightPolicy) {
-		this.transitionConflightPolicy = transitionConflightPolicy;
+	public void setTransitionConflictPolicy(TransitionConflictPolicy transitionConflictPolicy) {
+		this.transitionConflictPolicy = transitionConflictPolicy;
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,23 @@
 package org.springframework.statemachine.transition;
 
 /**
- * Enumerations for possible transition conflight policies.
+ * Enumerations for possible transition conflict policies. In case multiple
+ * transitions become possible, thus machine having a need to choose one, these
+ * policies determine if transition is picked from originating child or parent
+ * states.
  *
  * @author Janne Valkealahti
  *
  */
-public enum TransitionConflightPolicy {
+public enum TransitionConflictPolicy {
 
 	/**
-	 * Choose transition from a child.
+	 * Policy choosing transition from a child.
 	 */
 	CHILD,
 
 	/**
-	 * Choose transition from a parent.
+	 * Policy choosing from a parent.
 	 */
 	PARENT;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.state.StateMachineState;
 import org.springframework.statemachine.transition.DefaultExternalTransition;
 import org.springframework.statemachine.transition.Transition;
-import org.springframework.statemachine.transition.TransitionConflightPolicy;
+import org.springframework.statemachine.transition.TransitionConflictPolicy;
 import org.springframework.statemachine.trigger.EventTrigger;
 
 /**
@@ -82,13 +82,13 @@ public class TransitionComparatorTests {
 		assertThat(comparator.compare(transitionFromS111ToS1, transitionFromS111ToS1), is(0));
 		assertThat(comparator.compare(transitionFromS11ToS1, transitionFromS11ToS1), is(0));
 
-		comparator = new TransitionComparator<>(TransitionConflightPolicy.CHILD);
+		comparator = new TransitionComparator<>(TransitionConflictPolicy.CHILD);
 		assertThat(comparator.compare(transitionFromS111ToS1, transitionFromS11ToS1), is(-1));
 		assertThat(comparator.compare(transitionFromS11ToS1, transitionFromS111ToS1), is(1));
 		assertThat(comparator.compare(transitionFromS111ToS1, transitionFromS111ToS1), is(0));
 		assertThat(comparator.compare(transitionFromS11ToS1, transitionFromS11ToS1), is(0));
 
-		comparator = new TransitionComparator<>(TransitionConflightPolicy.PARENT);
+		comparator = new TransitionComparator<>(TransitionConflictPolicy.PARENT);
 		assertThat(comparator.compare(transitionFromS111ToS1, transitionFromS11ToS1), is(1));
 		assertThat(comparator.compare(transitionFromS11ToS1, transitionFromS111ToS1), is(-1));
 		assertThat(comparator.compare(transitionFromS111ToS1, transitionFromS111ToS1), is(0));

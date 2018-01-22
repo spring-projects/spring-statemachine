@@ -454,6 +454,9 @@ this decision to a user whether a machine should be started
 automatically or not. This flag will only control an autostart of a
 top-level state machine.
 
+Setting `machineId` within a configuration is simply a convenience if
+user wants or needs to do it here.
+
 Setting a `BeanFactory`, `TaskExecutor` or `TaskScheduler` exist for
 convenience for a user and are also use within a framework itself.
 
@@ -463,6 +466,13 @@ state machine lifecycle like getting notified of a state machine
 start/stop events. Naturally it is not possible to listen a state
 machine start events if `autoStartup` is enabled unless listener can
 be registered during a configuration phase.
+
+`transitionConflictPolicy` can be used in cases where multiple
+transition paths could be selected. One usual use case for this is if
+machine contains anonymous transitions leading out from a sub-state
+and a parent state and user want to define a policy which one will be
+selected. This is a global setting within a machine instance and
+default to _CHILD_.
 
 `DistributedStateMachine` is configured via `withDistributed()` which
 allows to set a `StateMachineEnsemble` which if exists automatically
