@@ -2596,8 +2596,7 @@ Actual _Repository_ implementation for a _JPA_ is
 `JpaStateMachineRepository` which is backed by _Entity_ class
 `JpaRepositoryStateMachine`.
 
-Generic way to persist machine for jpa is shown below. This is
-equivalent to machine shown in <<image-sm-repository-simplemachine>>.
+Generic way to persist machine for jpa is shown below.
 
 [source,java,indent=0]
 ----
@@ -2610,8 +2609,7 @@ Actual _Repository_ implementation for a _Redis_ is
 `RedisStateMachineRepository` which is backed by _Entity_ class
 `RedisRepositoryStateMachine`.
 
-Generic way to persist machine for jpa is shown below. This is
-equivalent to machine shown in <<image-sm-repository-simplemachine>>.
+Generic way to persist machine for jpa is shown below.
 
 [source,java,indent=0]
 ----
@@ -2624,8 +2622,7 @@ Actual _Repository_ implementation for a _MongoDB_ is
 `MongoDbStateMachineRepository` which is backed by _Entity_ class
 `MongoDbRepositoryStateMachine`.
 
-Generic way to persist machine for jpa is shown below. This is
-equivalent to machine shown in <<image-sm-repository-simplemachine>>.
+Generic way to persist machine for jpa is shown below.
 
 [source,java,indent=0]
 ----
