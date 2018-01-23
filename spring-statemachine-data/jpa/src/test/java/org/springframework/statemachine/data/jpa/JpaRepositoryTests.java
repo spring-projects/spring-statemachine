@@ -262,7 +262,7 @@ public class JpaRepositoryTests extends AbstractRepositoryTests {
 		stateMachineRepository.save(machine1);
 		assertThat(stateMachineRepository.count(), is(1l));
 
-		JpaRepositoryStateMachine machine1x = stateMachineRepository.findOne("machine1");
+		JpaRepositoryStateMachine machine1x = stateMachineRepository.findById("machine1").get();
 		assertThat(machine1x.getMachineId(), is(machine1.getMachineId()));
 		assertThat(machine1x.getState(), is(machine1.getState()));
 		assertThat(machine1x.getStateMachineContext().length, is(1));
