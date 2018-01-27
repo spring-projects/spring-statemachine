@@ -2064,6 +2064,13 @@ state machine features and multiple machines can be added to a plan.
 If multiple machines are added then it is also possible to choose if
 event is sent to particular, random or all machines.
 
+Above testing example uses hamcrest imports:
+
+[source,java,indent=0]
+----
+include::samples/DocsTestSampleTests.java[tags=snippetC]
+----
+
 [TIP]
 ====
 All possible options for expected are documented in javadocs

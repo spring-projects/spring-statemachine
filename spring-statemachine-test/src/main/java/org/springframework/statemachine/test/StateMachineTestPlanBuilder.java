@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hamcrest.Matcher;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateMachine;
 
@@ -129,8 +130,8 @@ public class StateMachineTestPlanBuilder<S, E> {
 		Integer expectStateMachineStopped;
 		Integer expectExtendedStateChanged;
 		final Collection<Object> expectVariableKeys = new ArrayList<Object>();
+		final Collection<Matcher<Map<? extends Object, ?>>> expectVariableKeysMatchers = new ArrayList<>();
 		final Map<Object, Object> expectVariables = new HashMap<Object, Object>();
-
 
 		/**
 		 * Expect a state {@code S}.
@@ -249,6 +250,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 		 * by {@code machineId}. Multiple events can be defined which are then
 		 * send in defined order.
 		 *
+		 *
 		 * @param event the event
 		 * @param machineId the machine identifier for sending event
 		 * @return the state machine test plan step builder
@@ -267,6 +269,17 @@ public class StateMachineTestPlanBuilder<S, E> {
 		 */
 		public StateMachineTestPlanStepBuilder expectVariable(Object key) {
 			this.expectVariableKeys.add(key);
+			return this;
+		}
+
+		/**
+		 * Expect variable map with hamcrest {@link Matcher}.
+		 *
+		 * @param matcher the matcher
+		 * @return the state machine test plan step builder
+		 */
+		public StateMachineTestPlanStepBuilder expectVariableMatcher(Matcher<Map<? extends Object, ?>> matcher) {
+			this.expectVariableKeysMatchers.add(matcher);
 			return this;
 		}
 
@@ -458,8 +471,9 @@ public class StateMachineTestPlanBuilder<S, E> {
 			steps.add(new StateMachineTestPlanStep<S, E>(sendEvent, sendMessage, sendEventMachineId, sendEventToAll,
 					sendEventParallel, expectStates, expectStateChanged, expectStateEntered, expectStateExited,
 					expectEventNotAccepted, expectTransition, expectTransitionStarted, expectTransitionEnded,
-					expectStateMachineStarted, expectStateMachineStopped, expectVariableKeys, expectVariables,
-					expectExtendedStateChanged, expectStatesEntrered, expectStatesExited));
+					expectStateMachineStarted, expectStateMachineStopped, expectVariableKeys,
+					expectVariableKeysMatchers, expectVariables, expectExtendedStateChanged,
+					expectStatesEntrered, expectStatesExited));
 			return StateMachineTestPlanBuilder.this;
 		}
 
@@ -485,6 +499,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 		Integer expectStateMachineStopped;
 		Integer expectExtendedStateChanged;
 		final Collection<Object> expectVariableKeys;
+		final Collection<Matcher<Map<? extends Object, ?>>> expectVariableKeysMatchers;
 		final Map<Object, Object> expectVariables;
 
 		public StateMachineTestPlanStep(List<E> sendEvent, List<Message<E>> sendMessage, Object sendEventMachineId,
@@ -492,8 +507,10 @@ public class StateMachineTestPlanBuilder<S, E> {
 				Integer expectStateChanged, Integer expectStateEntered, Integer expectStateExited,
 				Integer expectEventNotAccepted, Integer expectTransition, Integer expectTransitionStarted,
 				Integer expectTransitionEnded, Integer expectStateMachineStarted, Integer expectStateMachineStopped,
-				Collection<Object> expectVariableKeys, Map<Object, Object> expectVariables,
-				Integer expectExtendedStateChanged, Collection<S> expectStatesEntrered, Collection<S> expectStatesExited) {
+				Collection<Object> expectVariableKeys, Collection<Matcher<Map<? extends Object, ?>>> expectVariableKeysMatchers,
+				Map<Object, Object> expectVariables,
+				Integer expectExtendedStateChanged, Collection<S> expectStatesEntrered,
+				Collection<S> expectStatesExited) {
 			this.sendEvent = sendEvent;
 			this.sendMessage = sendMessage;
 			this.sendEventMachineId = sendEventMachineId;
@@ -510,6 +527,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 			this.expectStateMachineStarted = expectStateMachineStarted;
 			this.expectStateMachineStopped = expectStateMachineStopped;
 			this.expectVariableKeys = expectVariableKeys;
+			this.expectVariableKeysMatchers = expectVariableKeysMatchers;
 			this.expectVariables = expectVariables;
 			this.expectExtendedStateChanged = expectExtendedStateChanged;
 			this.expectStatesEntrered = expectStatesEntrered;

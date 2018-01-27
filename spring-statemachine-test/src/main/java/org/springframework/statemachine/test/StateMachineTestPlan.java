@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -264,6 +264,15 @@ public class StateMachineTestPlan<S, E> {
 					for (Object key : step.expectVariableKeys) {
 						assertThat("Key " + key + " doesn't exist in extended state variables",
 								variables.containsKey(key), is(true));
+					}
+				}
+			}
+
+			if (!step.expectVariableKeysMatchers.isEmpty()) {
+				for (StateMachine<S, E> stateMachine : stateMachines.values()) {
+					Map<Object, Object> variables = stateMachine.getExtendedState().getVariables();
+					for (Matcher<Map<? extends Object, ?>> matcher : step.expectVariableKeysMatchers) {
+						org.hamcrest.MatcherAssert.assertThat(variables, matcher);
 					}
 				}
 			}
