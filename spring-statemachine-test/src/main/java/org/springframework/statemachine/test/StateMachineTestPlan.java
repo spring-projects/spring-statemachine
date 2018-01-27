@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hamcrest.Matcher;
+import org.hamcrest.collection.IsMapContaining;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.state.State;
@@ -262,8 +263,18 @@ public class StateMachineTestPlan<S, E> {
 				for (StateMachine<S, E> stateMachine : stateMachines.values()) {
 					Map<Object, Object> variables = stateMachine.getExtendedState().getVariables();
 					for (Object key : step.expectVariableKeys) {
-						assertThat("Key " + key + " doesn't exist in extended state variables",
-								variables.containsKey(key), is(true));
+						org.hamcrest.MatcherAssert.assertThat(
+								"Key [" + key + "] doesn't exist in extended state variables", variables,
+								IsMapContaining.hasKey(key));
+					}
+				}
+			}
+
+			if (!step.expectVariableMatchers.isEmpty()) {
+				for (StateMachine<S, E> stateMachine : stateMachines.values()) {
+					Map<Object, Object> variables = stateMachine.getExtendedState().getVariables();
+					for (Matcher<Map<? extends Object, ?>> matcher : step.expectVariableMatchers) {
+						org.hamcrest.MatcherAssert.assertThat(variables, matcher);
 					}
 				}
 			}
@@ -272,10 +283,10 @@ public class StateMachineTestPlan<S, E> {
 				for (StateMachine<S, E> stateMachine : stateMachines.values()) {
 					Map<Object, Object> variables = stateMachine.getExtendedState().getVariables();
 					for (Entry<Object, Object> entry : step.expectVariables.entrySet()) {
-						assertThat("Key " + entry.getKey() + " doesn't exist in extended state variables",
-								variables.containsKey(entry.getKey()), is(true));
-						assertThat("Variable " + entry.getKey() + " doesn't match in extended state variables",
-								variables.get(entry.getKey()), is(entry.getValue()));
+						org.hamcrest.MatcherAssert.assertThat(
+								"Entry with key=[" + entry.getKey() + "] value=[" + entry.getValue()
+										+ "] doesn't exist in extended state variables",
+								variables, IsMapContaining.hasEntry(entry.getKey(), entry.getValue()));
 					}
 				}
 			}

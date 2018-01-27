@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package org.springframework.statemachine.test;
 
+import static org.hamcrest.CoreMatchers.not;
+
+import org.hamcrest.collection.IsMapContaining;
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -100,6 +103,48 @@ public class StateMachineTestingTests extends AbstractStateMachineTests {
 					.step().expectState("SI").and()
 					.step().sendEvent("E1").expectStateChanged(1).expectState("S1").and()
 					.step().sendEvent("E2").expectStateChanged(2).expectStateEntered("S2", "S3").expectStateExited("S1", "S2").expectState("S3").and()
+					.build();
+
+		plan.test();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testVariables() throws Exception {
+		registerAndRefresh(Config5.class);
+		StateMachine<String, String> machine =	context.getBean(StateMachine.class);
+
+		StateMachineTestPlan<String, String> plan =
+				StateMachineTestPlanBuilder.<String, String>builder()
+					.stateMachine(machine)
+					.step().expectStateMachineStarted(1).and()
+					.step().expectState("SI").and()
+					.step()
+						.sendEvent("E1")
+						.expectStateChanged(1)
+						.expectState("S1")
+						.expectVariable("V1Key")
+						.expectVariable("V1Key", "V1Value")
+						.expectVariableWith(IsMapContaining.hasKey("V1Key"))
+						.expectVariableWith(IsMapContaining.hasValue("V1Value"))
+						.expectVariableWith(IsMapContaining.hasEntry("V1Key", "V1Value"))
+						.expectVariableWith(not(IsMapContaining.hasKey("V2Key")))
+						.and()
+					.step()
+						.sendEvent("E2")
+						.expectStateChanged(1)
+						.expectState("S2")
+						.expectVariable("V1Key")
+						.expectVariable("V1Key", "V1Value")
+						.expectVariable("V2Key")
+						.expectVariable("V2Key", "V2Value")
+						.expectVariableWith(IsMapContaining.hasKey("V1Key"))
+						.expectVariableWith(IsMapContaining.hasValue("V1Value"))
+						.expectVariableWith(IsMapContaining.hasEntry("V1Key", "V1Value"))
+						.expectVariableWith(IsMapContaining.hasKey("V2Key"))
+						.expectVariableWith(IsMapContaining.hasValue("V2Value"))
+						.expectVariableWith(IsMapContaining.hasEntry("V2Key", "V2Value"))
+						.and()
 					.build();
 
 		plan.test();
@@ -246,4 +291,37 @@ public class StateMachineTestingTests extends AbstractStateMachineTests {
 
 	}
 
+	@Configuration
+	@EnableStateMachine
+	static class Config5 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("SI")
+					.state("S1")
+					.state("S2");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("SI")
+					.target("S1")
+					.event("E1")
+					.action(c -> {
+						c.getExtendedState().getVariables().put("V1Key", "V1Value");
+					})
+					.and()
+				.withExternal()
+					.source("S1")
+					.target("S2")
+					.event("E2")
+					.action(c -> {
+						c.getExtendedState().getVariables().put("V2Key", "V2Value");
+					});
+		}
+	}
 }

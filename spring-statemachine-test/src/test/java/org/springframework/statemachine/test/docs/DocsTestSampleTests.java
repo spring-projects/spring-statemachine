@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 package org.springframework.statemachine.test.docs;
+
+//tag::snippetC[]
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.collection.IsMapContaining.hasKey;
+import static org.hamcrest.collection.IsMapContaining.hasValue;
+import static org.hamcrest.collection.IsMapContaining.hasEntry;
+//end::snippetC[]
 
 import org.junit.Test;
 import org.springframework.core.task.SyncTaskExecutor;
@@ -39,6 +46,12 @@ public class DocsTestSampleTests {
 						.sendEvent("E1")
 						.expectStateChanged(1)
 						.expectStates("S1")
+						.expectVariable("key1")
+						.expectVariable("key1", "value1")
+						.expectVariableWith(hasKey("key1"))
+						.expectVariableWith(hasValue("value1"))
+						.expectVariableWith(hasEntry("key1", "value1"))
+						.expectVariableWith(not(hasKey("key2")))
 						.and()
 					.build();
 		plan.test();
@@ -62,7 +75,10 @@ public class DocsTestSampleTests {
 		builder.configureTransitions()
 				.withExternal()
 					.source("SI").target("S1")
-					.event("E1");
+					.event("E1")
+					.action(c -> {
+						c.getExtendedState().getVariables().put("key1", "value1");
+					});
 
 		return builder.build();
 	}
