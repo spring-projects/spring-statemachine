@@ -48,10 +48,10 @@ public class DocsTestSampleTests {
 						.expectStates("S1")
 						.expectVariable("key1")
 						.expectVariable("key1", "value1")
-						.expectVariableMatcher(hasKey("key1"))
-						.expectVariableMatcher(hasValue("value1"))
-						.expectVariableMatcher(hasEntry("key1", "value1"))
-						.expectVariableMatcher(not(hasKey("key2")))
+						.expectVariableWith(hasKey("key1"))
+						.expectVariableWith(hasValue("value1"))
+						.expectVariableWith(hasEntry("key1", "value1"))
+						.expectVariableWith(not(hasKey("key2")))
 						.and()
 					.build();
 		plan.test();

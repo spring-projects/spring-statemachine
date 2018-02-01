@@ -130,7 +130,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 		Integer expectStateMachineStopped;
 		Integer expectExtendedStateChanged;
 		final Collection<Object> expectVariableKeys = new ArrayList<Object>();
-		final Collection<Matcher<Map<? extends Object, ?>>> expectVariableKeysMatchers = new ArrayList<>();
+		final Collection<Matcher<Map<? extends Object, ?>>> expectVariableMatchers = new ArrayList<>();
 		final Map<Object, Object> expectVariables = new HashMap<Object, Object>();
 
 		/**
@@ -278,8 +278,8 @@ public class StateMachineTestPlanBuilder<S, E> {
 		 * @param matcher the matcher
 		 * @return the state machine test plan step builder
 		 */
-		public StateMachineTestPlanStepBuilder expectVariableMatcher(Matcher<Map<? extends Object, ?>> matcher) {
-			this.expectVariableKeysMatchers.add(matcher);
+		public StateMachineTestPlanStepBuilder expectVariableWith(Matcher<Map<? extends Object, ?>> matcher) {
+			this.expectVariableMatchers.add(matcher);
 			return this;
 		}
 
@@ -472,7 +472,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 					sendEventParallel, expectStates, expectStateChanged, expectStateEntered, expectStateExited,
 					expectEventNotAccepted, expectTransition, expectTransitionStarted, expectTransitionEnded,
 					expectStateMachineStarted, expectStateMachineStopped, expectVariableKeys,
-					expectVariableKeysMatchers, expectVariables, expectExtendedStateChanged,
+					expectVariableMatchers, expectVariables, expectExtendedStateChanged,
 					expectStatesEntrered, expectStatesExited));
 			return StateMachineTestPlanBuilder.this;
 		}
@@ -499,7 +499,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 		Integer expectStateMachineStopped;
 		Integer expectExtendedStateChanged;
 		final Collection<Object> expectVariableKeys;
-		final Collection<Matcher<Map<? extends Object, ?>>> expectVariableKeysMatchers;
+		final Collection<Matcher<Map<? extends Object, ?>>> expectVariableMatchers;
 		final Map<Object, Object> expectVariables;
 
 		public StateMachineTestPlanStep(List<E> sendEvent, List<Message<E>> sendMessage, Object sendEventMachineId,
@@ -507,7 +507,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 				Integer expectStateChanged, Integer expectStateEntered, Integer expectStateExited,
 				Integer expectEventNotAccepted, Integer expectTransition, Integer expectTransitionStarted,
 				Integer expectTransitionEnded, Integer expectStateMachineStarted, Integer expectStateMachineStopped,
-				Collection<Object> expectVariableKeys, Collection<Matcher<Map<? extends Object, ?>>> expectVariableKeysMatchers,
+				Collection<Object> expectVariableKeys, Collection<Matcher<Map<? extends Object, ?>>> expectVariableMatchers,
 				Map<Object, Object> expectVariables,
 				Integer expectExtendedStateChanged, Collection<S> expectStatesEntrered,
 				Collection<S> expectStatesExited) {
@@ -527,7 +527,7 @@ public class StateMachineTestPlanBuilder<S, E> {
 			this.expectStateMachineStarted = expectStateMachineStarted;
 			this.expectStateMachineStopped = expectStateMachineStopped;
 			this.expectVariableKeys = expectVariableKeys;
-			this.expectVariableKeysMatchers = expectVariableKeysMatchers;
+			this.expectVariableMatchers = expectVariableMatchers;
 			this.expectVariables = expectVariables;
 			this.expectExtendedStateChanged = expectExtendedStateChanged;
 			this.expectStatesEntrered = expectStatesEntrered;
