@@ -159,6 +159,23 @@ public abstract class AbstractStateMachineTests {
 
 	}
 
+	public static class TestStateAction extends AbstractTestAction {
+
+		public TestStateAction() {
+			super();
+		}
+
+		public TestStateAction(String message) {
+			super(message);
+		}
+
+		@Override
+		public String toString() {
+			return "TestStateAction [message=" + message + "]";
+		}
+
+	}
+
 	public static class TestAction extends AbstractTestAction {
 	}
 

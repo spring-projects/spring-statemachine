@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.springframework.statemachine.AbstractStateMachineTests.TestEntryAction;
 import org.springframework.statemachine.AbstractStateMachineTests.TestEvents;
 import org.springframework.statemachine.AbstractStateMachineTests.TestExitAction;
+import org.springframework.statemachine.AbstractStateMachineTests.TestStateAction;
 import org.springframework.statemachine.AbstractStateMachineTests.TestStates;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.builders.StateMachineStateBuilder;
@@ -97,6 +98,7 @@ public class DefaultStateConfigurerTests {
 
 		assertThat(builder.data.iterator().next().getState(), is(TestStates.S1));
 		assertThat(builder.data.iterator().next().getEntryActions(), nullValue());
+		assertThat(builder.data.iterator().next().getStateActions(), nullValue());
 		assertThat(builder.data.iterator().next().getExitActions(), notNullValue());
 	}
 
@@ -113,7 +115,25 @@ public class DefaultStateConfigurerTests {
 
 		assertThat(builder.data.iterator().next().getState(), is(TestStates.S2));
 		assertThat(builder.data.iterator().next().getExitActions(), nullValue());
+		assertThat(builder.data.iterator().next().getStateActions(), nullValue());
 		assertThat(builder.data.iterator().next().getEntryActions(), notNullValue());
+	}
+
+	@Test
+	public void testStateActions() throws Exception {
+		Collection<Action<TestStates, TestEvents>> stateActions = Arrays.asList(testStateAction());
+
+		DefaultStateConfigurer<TestStates, TestEvents> configurer = new DefaultStateConfigurer<TestStates, TestEvents>();
+		TestStateMachineStateBuilder builder = new TestStateMachineStateBuilder();
+		configurer.state(TestStates.S2, stateActions);
+		configurer.configure(builder);
+		assertThat(builder.data, notNullValue());
+		assertThat(builder.data.size(), is(1));
+
+		assertThat(builder.data.iterator().next().getState(), is(TestStates.S2));
+		assertThat(builder.data.iterator().next().getExitActions(), nullValue());
+		assertThat(builder.data.iterator().next().getStateActions(), notNullValue());
+		assertThat(builder.data.iterator().next().getEntryActions(), nullValue());
 	}
 
 	@Test
@@ -169,4 +189,7 @@ public class DefaultStateConfigurerTests {
 		return new TestExitAction();
 	}
 
+	private Action<TestStates, TestEvents> testStateAction() {
+		return new TestStateAction();
+	}
 }

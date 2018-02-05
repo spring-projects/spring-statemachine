@@ -235,6 +235,11 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 	}
 
 	@Override
+	public Collection<? extends Action<S, E>> getStateActions() {
+		return stateActions;
+	}
+
+	@Override
 	public Collection<? extends Action<S, E>> getExitActions() {
 		return exitActions;
 	}

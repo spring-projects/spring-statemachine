@@ -109,6 +109,13 @@ public interface State<S, E> {
 	Collection<? extends Action<S, E>> getEntryActions();
 
 	/**
+	 * Gets {@link Action}s executed once in this state.
+	 *
+	 * @return the state actions
+	 */
+	Collection<? extends Action<S, E>> getStateActions();
+
+	/**
 	 * Gets {@link Action}s executed exiting from this state.
 	 *
 	 * @return the state exit actions
