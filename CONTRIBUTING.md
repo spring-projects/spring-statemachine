@@ -28,8 +28,8 @@ The following provides information on setting up a development environment that 
 # Understand the basics
 Not sure what a pull request is, or how to submit one? Take a look at GitHub's excellent [help documentation first](https://help.github.com/articles/using-pull-requests).
 
-# Search JIRA first; create an issue if necessary
-Is there already an issue that addresses your concern? Do a bit of searching in our [JIRA issue tracker](https://jira.springsource.org/browse/SEC) to see if you can find something similar. If not, please create a new issue before submitting a pull request unless the change is not a user facing issue.
+# Search issues first; create an issue if necessary
+Is there already an issue that addresses your concern? Do a bit of searching in the [project issues](https://github.com/spring-projects/spring-statemachine/issues) to see if you can find something similar. If not, please create a new issue before submitting a pull request unless the change is not a user facing issue.
 
 # Discuss non-trivial contribution ideas with committers
 If you are considering anything more than correcting a typo or fixing a minor bug , please discuss it on the GitHub issues. We are happy to provide guidance but please spend an hour or two researching the subject on your own including searching the forums for prior discussions.
