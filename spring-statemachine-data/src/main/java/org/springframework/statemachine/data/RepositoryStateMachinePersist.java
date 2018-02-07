@@ -59,7 +59,7 @@ public abstract class RepositoryStateMachinePersist<M extends RepositoryStateMac
 		if (log.isDebugEnabled()) {
 			log.debug("Persisting context " + context + " using contextObj " + contextObj);
 		}
-		M build = build(context, serialisationService.serialiseStateMachineContext(context));
+		M build = build(context, contextObj, serialisationService.serialiseStateMachineContext(context));
 		getRepository().save(build);
 	}
 
@@ -83,8 +83,9 @@ public abstract class RepositoryStateMachinePersist<M extends RepositoryStateMac
 	 * Builds the generic {@link RepositoryStateMachine} entity.
 	 *
 	 * @param context the context
+	 * @param contextObj the context obj
 	 * @param serialisedContext the serialised context
 	 * @return the repository state machine entity
 	 */
-	protected abstract M build(StateMachineContext<S, E> context, byte[] serialisedContext);
+	protected abstract M build(StateMachineContext<S, E> context, Object contextObj, byte[] serialisedContext);
 }

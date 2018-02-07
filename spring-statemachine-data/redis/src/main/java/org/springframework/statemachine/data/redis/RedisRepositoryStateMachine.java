@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,14 @@ public class RedisRepositoryStateMachine extends RepositoryStateMachine {
 	private String machineId;
 	private String state;
 	private byte[] stateMachineContext;
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	@Override
 	public String getMachineId() {
