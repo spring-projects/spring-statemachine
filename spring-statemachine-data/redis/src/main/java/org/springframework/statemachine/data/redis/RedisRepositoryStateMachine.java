@@ -35,6 +35,14 @@ public class RedisRepositoryStateMachine extends RepositoryStateMachine {
 	private String state;
 	private byte[] stateMachineContext;
 
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
 	@Override
 	public String getMachineId() {
 		return machineId;

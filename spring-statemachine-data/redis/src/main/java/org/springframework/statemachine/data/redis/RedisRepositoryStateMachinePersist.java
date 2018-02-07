@@ -60,8 +60,9 @@ public class RedisRepositoryStateMachinePersist<S, E> extends RepositoryStateMac
 	}
 
 	@Override
-	protected RedisRepositoryStateMachine build(StateMachineContext<S, E> context, byte[] serialisedContext) {
+	protected RedisRepositoryStateMachine build(StateMachineContext<S, E> context, Object contextObj, byte[] serialisedContext) {
 		RedisRepositoryStateMachine redisRepositoryStateMachine = new RedisRepositoryStateMachine();
+		redisRepositoryStateMachine.setId(contextObj.toString());
 		redisRepositoryStateMachine.setMachineId(context.getId());
 		redisRepositoryStateMachine.setState(context.getState().toString());
 		redisRepositoryStateMachine.setStateMachineContext(serialisedContext);
