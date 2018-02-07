@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,8 +60,9 @@ public class MongoDbRepositoryStateMachinePersist<S, E> extends RepositoryStateM
 	}
 
 	@Override
-	protected MongoDbRepositoryStateMachine build(StateMachineContext<S, E> context, byte[] serialisedContext) {
+	protected MongoDbRepositoryStateMachine build(StateMachineContext<S, E> context, Object contextObj, byte[] serialisedContext) {
 		MongoDbRepositoryStateMachine mongodbRepositoryStateMachine = new MongoDbRepositoryStateMachine();
+		mongodbRepositoryStateMachine.setId(contextObj.toString());
 		mongodbRepositoryStateMachine.setMachineId(context.getId());
 		mongodbRepositoryStateMachine.setState(context.getState().toString());
 		mongodbRepositoryStateMachine.setStateMachineContext(serialisedContext);

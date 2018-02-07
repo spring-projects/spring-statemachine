@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,8 +60,9 @@ public class RedisRepositoryStateMachinePersist<S, E> extends RepositoryStateMac
 	}
 
 	@Override
-	protected RedisRepositoryStateMachine build(StateMachineContext<S, E> context, byte[] serialisedContext) {
+	protected RedisRepositoryStateMachine build(StateMachineContext<S, E> context, Object contextObj, byte[] serialisedContext) {
 		RedisRepositoryStateMachine redisRepositoryStateMachine = new RedisRepositoryStateMachine();
+		redisRepositoryStateMachine.setId(contextObj.toString());
 		redisRepositoryStateMachine.setMachineId(context.getId());
 		redisRepositoryStateMachine.setState(context.getState().toString());
 		redisRepositoryStateMachine.setStateMachineContext(serialisedContext);

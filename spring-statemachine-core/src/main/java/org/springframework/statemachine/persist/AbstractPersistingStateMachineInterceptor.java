@@ -58,18 +58,20 @@ public abstract class AbstractPersistingStateMachineInterceptor<S, E, T> extends
 
 	private Function<StateMachine<S, E>, Map<Object, Object>> extendedStateVariablesFunction = new AllVariablesFunction<>();
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition, StateMachine<S, E> stateMachine) {
 		// try to persist context and in case of failure, interceptor
 		// call chain aborts transition
 		// TODO: should probably come up with a policy vs. not force feeding this functionality
 		try {
-			write(buildStateMachineContext(stateMachine, state), null);
+			write(buildStateMachineContext(stateMachine, state), (T)stateMachine.getId());
 		} catch (Exception e) {
 			throw new StateMachineException("Unable to persist stateMachineContext", e);
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void postStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition, StateMachine<S, E> stateMachine) {
 		// initial transitions are never intercepted as those cannot fail or get aborted.
@@ -77,7 +79,7 @@ public abstract class AbstractPersistingStateMachineInterceptor<S, E, T> extends
 		// TODO: consider intercept initial transition, but not aborting if error is thrown?
 		if (state != null && transition != null && transition.getKind() == TransitionKind.INITIAL) {
 			try {
-				write(buildStateMachineContext(stateMachine, state), null);
+				write(buildStateMachineContext(stateMachine, state), (T)stateMachine.getId());
 			} catch (Exception e) {
 				throw new StateMachineException("Unable to persist stateMachineContext", e);
 			}
@@ -90,6 +92,7 @@ public abstract class AbstractPersistingStateMachineInterceptor<S, E, T> extends
 	 * @param context the state machine context
 	 * @param contextObj the context object
 	 */
+	@Override
 	public abstract void write(StateMachineContext<S, E> context, T contextObj) throws Exception;
 
 	/**
@@ -98,6 +101,7 @@ public abstract class AbstractPersistingStateMachineInterceptor<S, E, T> extends
 	 * @param contextObj the context object
 	 * @return the state machine context
 	 */
+	@Override
 	public abstract StateMachineContext<S, E> read(T contextObj) throws Exception;
 
 	/**
