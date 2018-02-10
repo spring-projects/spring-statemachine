@@ -16,3 +16,4 @@ metastore_db
 /out/
 target
 classes
+.sts4-cache
