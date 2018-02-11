@@ -1926,13 +1926,15 @@ integration logic with _Spring Boot_ providing functionality i.e. for
 auto-config and actuators. All what is needed is to have _State
 Machine_ as part of a boot application together with this library.
 
+[[sm-boot-monitoring]]
 === Monitoring and Tracing
 `BootStateMachineMonitor` is created automatically and associated with
-a state machine. This `BootStateMachineMonitor` will hook into Boot's
-`CounterService`, `GaugeService` and `TraceRepository` if available.
-Optionally this auto-configuration can be disabled by setting key
-`spring.statemachine.monitor.enabled` to `false`. Use of this
-auto-config is shown in sample <<statemachine-examples-monitoring>>.
+a state machine. `BootStateMachineMonitor` is a custom `StateMachineMonitor`
+implementation which integrates with boot's `MeterRegistry` and endpoints
+via a custom `StateMachineTraceRepository`. Optionally this auto-configuration
+can be disabled by setting key `spring.statemachine.monitor.enabled` to
+`false`. Use of this auto-config is shown in sample
+<<statemachine-examples-monitoring>>.
 
 === Repository Config
 Spring Data Repositories and Entity class scanning is auto-configured

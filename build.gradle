@@ -1,7 +1,7 @@
 buildscript {
 	ext {
 		log4jVersion = '1.2.17'
-		springBootVersion = '2.0.0.M7'
+		springBootVersion = '2.0.0.RC1'
 		eclipsePersistenceVersion = '2.1.1'
 		kryoVersion = '3.0.3'
 		springCloudClusterVersion = '1.0.2.RELEASE'
@@ -195,6 +195,7 @@ project('spring-statemachine-boot') {
 	dependencies {
 		compile project(":spring-statemachine-core")
 		compile "org.springframework.boot:spring-boot-autoconfigure"
+		compile "org.springframework.boot:spring-boot-actuator-autoconfigure"
 		compile "org.springframework.boot:spring-boot-actuator"
 		optional project(":spring-statemachine-data-common:spring-statemachine-data-jpa")
 		optional project(":spring-statemachine-data-common:spring-statemachine-data-redis")

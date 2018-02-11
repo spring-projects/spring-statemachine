@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,8 +99,8 @@ public class MonitoringTests {
 			perform(get("/state")).
 			andExpect(status().isOk());
 		mvc.
-			perform(get("/actuator/trace")).
-			andExpect(jsonPath("$.traces.*.info.transition", containsInAnyOrder("INITIAL_S1")));
+			perform(get("/actuator/statemachinetrace")).
+			andExpect(jsonPath("$.*.info.transition", containsInAnyOrder("INITIAL_S1")));
 	}
 
 	@Before

@@ -4,7 +4,7 @@ logging:
 spring:
   autoconfigure:
     exclude:
-      - org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
 endpoints:
   default:
     web:
@@ -12,4 +12,4 @@ endpoints:
 management:
   endpoints:
     web:
-      expose: metrics,trace
+      expose: "*"

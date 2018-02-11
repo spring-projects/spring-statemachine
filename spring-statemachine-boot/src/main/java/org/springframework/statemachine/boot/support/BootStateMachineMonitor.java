@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.boot.actuate.StateMachineTraceRepository;
 import org.springframework.statemachine.monitor.AbstractStateMachineMonitor;
 import org.springframework.statemachine.monitor.StateMachineMonitor;
 import org.springframework.statemachine.state.State;
@@ -44,18 +44,19 @@ import io.micrometer.core.instrument.Timer;
  */
 public class BootStateMachineMonitor<S, E> extends AbstractStateMachineMonitor<S, E> {
 
-	private final TraceRepository traceRepository;
+	private final StateMachineTraceRepository traceRepository;
 	private final MeterRegistry meterRegistry;
 
 	/**
 	 * Instantiates a new boot state machine monitor.
 	 *
 	 * @param meterRegistry the meter registry
-	 * @param traceRepository the trace repository
+	 * @param stateMachineTraceRepository the statemachine trace repository
 	 */
-	public BootStateMachineMonitor(MeterRegistry meterRegistry, TraceRepository traceRepository) {
+	public BootStateMachineMonitor(MeterRegistry meterRegistry,
+			StateMachineTraceRepository stateMachineTraceRepository) {
 		this.meterRegistry = meterRegistry;
-		this.traceRepository = traceRepository;
+		this.traceRepository = stateMachineTraceRepository;
 	}
 
 	@Override

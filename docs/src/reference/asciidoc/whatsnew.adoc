@@ -47,3 +47,11 @@ _Spring Statemachine 1.3_.
 * Transition conflict policy mentioned in
   <<statemachine-config-commonsettings>>
 
+== In 2.0
+_Spring Statemachine 2.0_ is focusing on _Spring Boot 2.x_ support.
+
+
+=== In 2.0.0
+
+* Format of monitoring and trancing has beenn changed <<sm-boot-monitoring>>
+
