@@ -457,11 +457,6 @@ project('spring-statemachine-starter') {
 		compile project(":spring-statemachine-boot")
 		compile "org.springframework.boot:spring-boot-starter"
 	}
-	dependencyManagement {
-		imports {
-			mavenBom "org.springframework.statemachine:spring-statemachine-bom:${project.version}"
-		}
-	}
 
 	install {
 		repositories.mavenInstaller {
