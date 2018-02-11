@@ -64,6 +64,12 @@ framework.
 
 |spring-statemachine-boot
 |Support module for `Spring Boot`.
+
+|spring-statemachine-bom
+|Bill of Materials pom.
+
+|spring-statemachine-starter
+|`Spring Boot` starter.
 |===
 
 == Using Gradle
