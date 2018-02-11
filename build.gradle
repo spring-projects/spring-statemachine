@@ -450,6 +450,35 @@ project('spring-statemachine-bom') {
 
 }
 
+project('spring-statemachine-starter') {
+	description = "Spring Statemachine Starter"
+	dependencies {
+		compile project(":spring-statemachine-boot")
+		compile "org.springframework.boot:spring-boot-starter"
+	}
+	dependencyManagement {
+		imports {
+			mavenBom "org.springframework.statemachine:spring-statemachine-bom:${project.version}"
+		}
+	}
+
+	install {
+		repositories.mavenInstaller {
+			pom.whenConfigured {
+				withXml {
+					asNode().children().first() + {
+						delegate.parent {
+							delegate.groupId('org.springframework.boot')
+							delegate.artifactId('spring-boot-starter-parent')
+							delegate.version("$springBootVersion")
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 configure(sampleProjects()) {
 	apply plugin: 'org.springframework.boot'
 	configurations.archives.artifacts.removeAll { it.archiveTask.is jar }
