@@ -4,6 +4,13 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 2.0.0.M3 (2018-02-11)
+----------------------------------------
+* Backport 1.2.x changes for 2.0.0.M3 [#435]
+* Add starter for base statemachine features [#458]
+* Implement own tracing features [#491]
+* Fix broken JIRA link in contribution guidelines [#492]
+
 Changes in version 1.2.8.RELEASE (2018-01-22)
 ---------------------------------------------
 * StateMachine restore via Spring Data [#423]
@@ -24,6 +31,10 @@ Changes in version 1.2.8.RELEASE (2018-01-22)
 * Change JPA initial state field [#472]
 * UmlModelParser wrongly sets state action with spel [#474]
 * Update docs for 1.2.8.RELEASE [#476]
+
+Changes in version 2.0.0.M2 (2017-12-04)
+----------------------------------------
+* Upgrade to boot 2.0.0.M7 [#450]
 
 Changes in version 2.0.0.M1 (2017-11-16)
 ----------------------------------------
