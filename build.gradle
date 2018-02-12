@@ -432,7 +432,6 @@ project('spring-statemachine-bom') {
 								parent.subprojects.sort { "$it.name" }.each { p ->
 									if (!p.name.contains('spring-statemachine-samples') &&
 											!p.name.contains('spring-statemachine-build-tests') &&
-											!p.name.contains('spring-statemachine-starter') &&
 											p != project) {
 										delegate.dependency {
 											delegate.groupId(p.group)
