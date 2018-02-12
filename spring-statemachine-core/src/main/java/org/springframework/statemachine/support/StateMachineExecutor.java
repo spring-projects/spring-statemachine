@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.access.StateMachineAccess;
+import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.trigger.Trigger;
 
@@ -55,6 +56,14 @@ public interface StateMachineExecutor<S, E> {
 	 * @param message the message
 	 */
 	void queueDeferredEvent(Message<E> message);
+
+	/**
+	 * Execute and check all triggerless transitions.
+	 *
+	 * @param context the state context
+	 * @param state the state
+	 */
+	void executeTriggerlessTransitions(StateContext<S, E> context, State<S, E> state);
 
 	/**
 	 * Execute {@code StateMachineExecutor} logic.

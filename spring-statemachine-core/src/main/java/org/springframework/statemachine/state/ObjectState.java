@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -153,7 +153,6 @@ public class ObjectState<S, E> extends AbstractSimpleState<S, E> {
 
 	@Override
 	public void entry(StateContext<S, E> context) {
-		super.entry(context);
 		for (Action<S, E> action : getEntryActions()) {
 			try {
 				executeAction(action, context);
@@ -161,6 +160,7 @@ public class ObjectState<S, E> extends AbstractSimpleState<S, E> {
 				log.error("Action execution resulted error", e);
 			}
 		}
+		super.entry(context);
 	}
 
 	@Override

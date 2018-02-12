@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 the original author or authors.
+ * Copyright 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,40 +15,28 @@
  */
 package org.springframework.statemachine.state;
 
-import java.util.Iterator;
-
 import org.springframework.statemachine.StateContext;
-import org.springframework.statemachine.listener.AbstractCompositeListener;
 
 /**
- * Composite state listener.
+ * Adapter implementation of {@link StateListener} implementing all
+ * methods which extended implementation can override.
  *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public class CompositeStateListener<S, E> extends AbstractCompositeListener<StateListener<S, E>>
-		implements StateListener<S, E> {
+public class StateListenerAdapter<S, E> implements StateListener<S, E> {
 
 	@Override
 	public void onEntry(StateContext<S, E> context) {
-		for (Iterator<StateListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
-			iterator.next().onEntry(context);
-		}
 	}
 
 	@Override
 	public void onExit(StateContext<S, E> context) {
-		for (Iterator<StateListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
-			iterator.next().onExit(context);
-		}
 	}
 
 	@Override
 	public void onComplete(StateContext<S, E> context) {
-		for (Iterator<StateListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
-			iterator.next().onComplete(context);
-		}
 	}
 }

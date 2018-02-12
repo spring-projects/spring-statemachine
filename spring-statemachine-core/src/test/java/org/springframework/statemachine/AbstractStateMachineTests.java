@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,6 +87,11 @@ public abstract class AbstractStateMachineTests {
 		READY,
 		FORK, JOIN,
 		TASKS, T1, T1E, T2, T2E, T3, T3E
+	}
+
+	public static enum TestStates4 {
+		READY, DONE,
+		TASKS, T1, T1E, T2, T2E
 	}
 
 	public static enum TestEvents2 {
@@ -273,4 +278,25 @@ public abstract class AbstractStateMachineTests {
 
 	}
 
+	public static class TestStateMachineListener4 extends StateMachineListenerAdapter<TestStates4, TestEvents> {
+
+		public volatile CountDownLatch stateChangedLatch = new CountDownLatch(6);
+		public volatile CountDownLatch stateMachineStartedLatch = new CountDownLatch(1);
+
+		@Override
+		public void stateChanged(State<TestStates4, TestEvents> from, State<TestStates4, TestEvents> to) {
+			stateChangedLatch.countDown();
+		}
+
+		@Override
+		public void stateMachineStarted(StateMachine<TestStates4, TestEvents> stateMachine) {
+			stateMachineStartedLatch.countDown();
+		}
+
+		public void reset(int c1, int c2) {
+			stateChangedLatch = new CountDownLatch(c1);
+			stateMachineStartedLatch = new CountDownLatch(c2);
+		}
+
+	}
 }

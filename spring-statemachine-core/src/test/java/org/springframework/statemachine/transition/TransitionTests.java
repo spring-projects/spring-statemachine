@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -348,7 +348,7 @@ public class TransitionTests extends AbstractStateMachineTests {
 		listener.reset(3);
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("testHeader", "testValue").build());
 		assertThat(testAction1.latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.s20Latch.getCount(), is(1L));
+		assertThat(listener.s20Latch.await(2, TimeUnit.SECONDS), is(true));
 
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(3));
@@ -832,13 +832,11 @@ public class TransitionTests extends AbstractStateMachineTests {
 
 		@Override
 		public void execute(StateContext<TestStates, TestEvents> context) {
-			log.info("XXX11");
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
 			}
 			testHeader = context.getMessageHeaders().get("testHeader", String.class);
-			log.info("XXX12");
 			latch.countDown();
 		}
 

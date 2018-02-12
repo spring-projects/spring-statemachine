@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -133,7 +133,12 @@ public abstract class LifecycleObjectSupport implements InitializingBean, Dispos
 
 	@Override
 	public final void stop() {
-		this.lifecycleLock.lock();
+		if (!this.lifecycleLock.tryLock()) {
+			if (log.isDebugEnabled()) {
+				log.debug("already stopping " + this);
+			}
+			return;
+		}
 		try {
 			if (this.running) {
 				this.doStop();
