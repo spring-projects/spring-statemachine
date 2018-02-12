@@ -4,6 +4,10 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 2.0.0.M4 (2018-02-12)
+----------------------------------------
+* Define starter in bom [#498]
+
 Changes in version 2.0.0.M3 (2018-02-11)
 ----------------------------------------
 * Backport 1.2.x changes for 2.0.0.M3 [#435]
