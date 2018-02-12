@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.statemachine.transition;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.action.ActionListener;
+import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.trigger.Trigger;
@@ -63,6 +64,13 @@ public interface Transition<S, E> {
 	 * @return the target state
 	 */
 	State<S,E> getTarget();
+
+	/**
+	 * Gets the guard of this transition.
+	 *
+	 * @return the guard
+	 */
+	Guard<S, E> getGuard();
 
 	/**
 	 * Gets the transition actions.

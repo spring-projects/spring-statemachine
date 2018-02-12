@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,12 +40,15 @@ import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
+import org.springframework.util.StringUtils;
 
 import demo.CommonConfiguration;
 import demo.tasks.Application.Events;
 import demo.tasks.Application.States;
 
 public class TasksTests {
+
+	private final static Log log = LogFactory.getLog(TasksTests.class);
 
 	private AnnotationConfigApplicationContext context;
 
@@ -61,9 +66,9 @@ public class TasksTests {
 
 	@Test
 	public void testRunOnce() throws InterruptedException {
-		listener.reset(8, 0, 0);
+		listener.reset(8, 8, 0);
 		tasks.run();
-		assertThat(listener.stateChangedLatch.await(8, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateEnteredLatch.await(8, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), contains(States.READY));
 		Map<Object, Object> variables = machine.getExtendedState().getVariables();
 		assertThat(variables.size(), is(3));
@@ -71,21 +76,36 @@ public class TasksTests {
 
 	@Test
 	public void testRunTwice() throws InterruptedException {
-		listener.reset(8, 0, 0);
+		listener.reset(8, 8, 0);
 		tasks.run();
-		assertThat(listener.stateChangedLatch.await(8, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateEnteredLatch.await(8, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), contains(States.READY));
 
 		Map<Object, Object> variables = machine.getExtendedState().getVariables();
 		assertThat(variables.size(), is(3));
 
-		listener.reset(8, 0, 0);
+		listener.reset(8, 8, 0);
 		tasks.run();
-		assertThat(listener.stateChangedLatch.await(8, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateEnteredLatch.await(8, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), contains(States.READY));
 
 		variables = machine.getExtendedState().getVariables();
 		assertThat(variables.size(), is(3));
+	}
+
+	@Test
+	public void testRunSmoke() throws InterruptedException {
+		for (int i = 0; i < 20; i++) {
+			log.info("testRunSmoke SMOKE START " + i);
+			listener.reset(8, 8, 0);
+			tasks.run();
+
+			boolean await = listener.stateEnteredLatch.await(8, TimeUnit.SECONDS);
+			String reason = "Machine was " + machine + " " + StringUtils.collectionToCommaDelimitedString(listener.statesEntered);
+			assertThat(reason , await, is(true));
+			assertThat(machine.getState().getIds(), contains(States.READY));
+			log.info("testRunSmoke SMOKE STOP " + i);
+		}
 	}
 
 	@Test

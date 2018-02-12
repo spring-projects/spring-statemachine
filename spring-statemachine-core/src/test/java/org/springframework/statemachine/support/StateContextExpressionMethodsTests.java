@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.action.ActionListener;
+import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.EnumState;
@@ -116,6 +117,11 @@ public class StateContextExpressionMethodsTests {
 		@Override
 		public State<SpelStates, SpelEvents> getTarget() {
 			return new EnumState<SpelStates, SpelEvents>(SpelStates.S2);
+		}
+
+		@Override
+		public Guard<SpelStates, SpelEvents> getGuard() {
+			return null;
 		}
 
 		@Override

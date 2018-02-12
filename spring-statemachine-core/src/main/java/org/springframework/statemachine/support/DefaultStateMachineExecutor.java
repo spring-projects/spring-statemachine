@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.state.JoinPseudoState;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.transition.AbstractTransition;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionConflictPolicy;
 import org.springframework.statemachine.trigger.DefaultTriggerContext;
@@ -102,7 +103,9 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 
 	private final ReentrantLock lock = new ReentrantLock();
 
-	private final TransitionComparator<S, E> transitionComparator;;
+	private final TransitionComparator<S, E> transitionComparator;
+
+	private final TransitionConflictPolicy transitionConflictPolicy;
 
 	/**
 	 * Instantiates a new default state machine executor.
@@ -128,6 +131,7 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 		this.initialTransition = initialTransition;
 		this.initialEvent = initialEvent;
 		this.transitionComparator = new TransitionComparator<S, E>(transitionConflictPolicy);
+		this.transitionConflictPolicy = transitionConflictPolicy;
 		// anonymous transitions are fixed, sort those now
 		this.triggerlessTransitions.sort(transitionComparator);
 		registerTriggerListener();
@@ -204,6 +208,10 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 	private final Set<State<S, E>> joinSyncStates = new HashSet<>();
 
 	private boolean handleTriggerTrans(List<Transition<S, E>> trans, Message<E> queuedMessage) {
+		return handleTriggerTrans(trans, queuedMessage, null);
+	}
+
+	private boolean handleTriggerTrans(List<Transition<S, E>> trans, Message<E> queuedMessage, State<S, E> completion) {
 		boolean transit = false;
 		for (Transition<S, E> t : trans) {
 			if (t == null) {
@@ -219,6 +227,17 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 			}
 			if (!StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
 				continue;
+			}
+
+			if (transitionConflictPolicy != TransitionConflictPolicy.PARENT && completion != null && !source.getId().equals(completion.getId())) {
+				if (source.isOrthogonal()) {
+					continue;
+				}
+				else if (!StateMachineUtils.isSubstate(source, completion)) {
+					log.info("TTTTTT6 " + source.getId() + " " + completion.getId());
+					continue;
+
+				}
 			}
 
 			// special handling of join
@@ -429,13 +448,29 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 			trans.sort(transitionComparator);
 			handleTriggerTrans(trans, queuedMessage);
 		}
+
+		List<Transition<S, E>> ttt = new ArrayList<>();
+		for (Transition<S, E> tt : triggerlessTransitions) {
+			if (((AbstractTransition<S, E>)tt).getGuard() != null) {
+				ttt.add(tt);
+			}
+		}
+
 		if (stateMachine.getState() != null) {
 			// loop triggerless transitions here so that
 			// all "chained" transitions will get queue message
 			boolean transit = false;
 			do {
-				transit = handleTriggerTrans(triggerlessTransitions, queuedMessage);
+				transit = handleTriggerTrans(ttt, queuedMessage);
 			} while (transit);
+		}
+
+	}
+
+	@Override
+	public void executeTriggerlessTransitions(StateContext<S, E> context, State<S, E> state) {
+		if (stateMachine.getState() != null) {
+			handleTriggerTrans(triggerlessTransitions, context.getMessage(), state);
 		}
 	}
 

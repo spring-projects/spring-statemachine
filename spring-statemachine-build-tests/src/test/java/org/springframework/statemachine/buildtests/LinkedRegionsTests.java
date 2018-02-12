@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ public class LinkedRegionsTests extends AbstractBuildTests {
 		StateMachineTestPlan<String, String> plan =
 				StateMachineTestPlanBuilder.<String, String>builder()
 					.stateMachine(stateMachine)
-					.step().expectStateChanged(19).expectStates("S3").and()
+					.step().expectStateChanged(15).expectStates("S3").and()
 					.build();
 		plan.test();
 		assertThat(listener.statesEntered, not(hasItem(startsWith("JOIN"))));

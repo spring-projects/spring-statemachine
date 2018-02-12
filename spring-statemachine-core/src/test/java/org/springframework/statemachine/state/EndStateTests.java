@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.springframework.statemachine.state;
 
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -163,6 +164,58 @@ public class EndStateTests extends AbstractStateMachineTests {
 		machine.sendEvent(TestEvents.E2);
 		assertThat(machine.isComplete(), is(true));
 		assertThat(machine.getState().getIds(), contains(TestStates.S2));
+	}
+
+	@Test
+	public void testEndStatesWithRegionsCompletionCompletes() throws InterruptedException {
+		context.register(Config8.class, BaseConfig2.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		@SuppressWarnings("unchecked")
+		ObjectStateMachine<TestStates4,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		machine.start();
+		Thread.sleep(1000);
+		machine.sendEvent(TestEvents.E1);
+		Thread.sleep(1000);
+		assertThat(machine.getState().getIds(), contains(TestStates4.DONE));
+	}
+
+	@Test
+	public void testEndStatesWithSubmachineCompletionCompletes() throws InterruptedException {
+		context.register(Config9.class, BaseConfig2.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		@SuppressWarnings("unchecked")
+		ObjectStateMachine<TestStates4,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		machine.start();
+		Thread.sleep(1000);
+		machine.sendEvent(TestEvents.E1);
+		Thread.sleep(1000);
+		assertThat(machine.getState().getIds(), contains(TestStates4.DONE));
+	}
+
+	@Test
+	public void testEndStatesWithRegionsCompletionCompletes2() throws InterruptedException {
+		context.register(Config10.class, BaseConfig2.class);
+		context.refresh();
+		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		@SuppressWarnings("unchecked")
+		ObjectStateMachine<TestStates4,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		machine.start();
+		Thread.sleep(1000);
+		assertThat(machine.getState().getIds(), contains(TestStates4.READY));
+		machine.sendEvent(TestEvents.E1);
+		Thread.sleep(1000);
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates4.TASKS, TestStates4.T1, TestStates4.T2));
+		machine.sendEvent(TestEvents.E2);
+		Thread.sleep(1000);
+		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates4.TASKS, TestStates4.T1E, TestStates4.T2));
+		machine.sendEvent(TestEvents.E3);
+		Thread.sleep(1000);
+		assertThat(machine.getState().getIds(), contains(TestStates4.DONE));
 	}
 
 	@Configuration
@@ -496,4 +549,131 @@ public class EndStateTests extends AbstractStateMachineTests {
 					.event(TestEvents.E2);
 		}
 	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config8 extends EnumStateMachineConfigurerAdapter<TestStates4, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates4, TestEvents> states)
+				throws Exception {
+			states
+				.withStates()
+					.initial(TestStates4.READY)
+					.state(TestStates4.TASKS)
+					.state(TestStates4.DONE)
+					.and()
+					.withStates()
+						.parent(TestStates4.TASKS)
+						.initial(TestStates4.T1)
+						.end(TestStates4.T1E)
+						.and()
+					.withStates()
+						.parent(TestStates4.TASKS)
+						.initial(TestStates4.T2)
+						.end(TestStates4.T2E);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates4, TestEvents> transitions)
+				throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates4.READY).target(TestStates4.TASKS)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates4.T1).target(TestStates4.T1E)
+					.and()
+				.withExternal()
+					.source(TestStates4.T2).target(TestStates4.T2E)
+					.and()
+				.withExternal()
+					.source(TestStates4.TASKS).target(TestStates4.DONE);
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config9 extends EnumStateMachineConfigurerAdapter<TestStates4, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates4, TestEvents> states)
+				throws Exception {
+			states
+				.withStates()
+					.initial(TestStates4.READY)
+					.state(TestStates4.TASKS)
+					.state(TestStates4.DONE)
+					.and()
+					.withStates()
+						.parent(TestStates4.TASKS)
+						.initial(TestStates4.T1)
+						.end(TestStates4.T1E);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates4, TestEvents> transitions)
+				throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates4.READY).target(TestStates4.TASKS)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates4.T1).target(TestStates4.T1E)
+					.and()
+				.withExternal()
+					.source(TestStates4.TASKS).target(TestStates4.DONE);
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config10 extends EnumStateMachineConfigurerAdapter<TestStates4, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates4, TestEvents> states)
+				throws Exception {
+			states
+				.withStates()
+					.initial(TestStates4.READY)
+					.state(TestStates4.TASKS)
+					.state(TestStates4.DONE)
+					.and()
+					.withStates()
+						.parent(TestStates4.TASKS)
+						.initial(TestStates4.T1)
+						.end(TestStates4.T1E)
+						.and()
+					.withStates()
+						.parent(TestStates4.TASKS)
+						.initial(TestStates4.T2)
+						.end(TestStates4.T2E);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates4, TestEvents> transitions)
+				throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates4.READY).target(TestStates4.TASKS)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates4.T1).target(TestStates4.T1E)
+					.event(TestEvents.E2)
+					.and()
+				.withExternal()
+					.source(TestStates4.T2).target(TestStates4.T2E)
+					.event(TestEvents.E3)
+					.and()
+				.withExternal()
+					.source(TestStates4.TASKS).target(TestStates4.DONE);
+		}
+
+	}
+
 }

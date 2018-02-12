@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ import org.springframework.statemachine.state.PseudoStateContext;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.PseudoStateListener;
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.state.StateListenerAdapter;
 import org.springframework.statemachine.support.StateMachineExecutor.StateMachineExecutorTransit;
 import org.springframework.statemachine.transition.InitialTransition;
 import org.springframework.statemachine.transition.Transition;
@@ -255,7 +256,14 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			}
 		}
 
-		for (State<S, E> state : states) {
+		for (final State<S, E> state : states) {
+
+			state.addStateListener(new StateListenerAdapter<S, E>() {
+				public void onComplete(StateContext<S, E> context) {
+					((AbstractStateMachine<S, E>)getRelayStateMachine()).executeTriggerlessTransitions(AbstractStateMachine.this, context, state);
+				};
+			});
+
 			if (state.isSubmachineState()) {
 				StateMachine<S, E> submachine = ((AbstractState<S, E>)state).getSubmachine();
 				submachine.addStateListener(new StateMachineListenerRelay());
@@ -353,10 +361,6 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		}
 	}
 
-	protected StateMachineExecutor<S, E> getStateMachineExecutor() {
-		return stateMachineExecutor;
-	}
-
 	@Override
 	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
 		// last change to set factory because this maybe be called per
@@ -421,6 +425,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		lastState = currentState;
 		currentState = null;
 		initialEnabled = null;
+		log.debug("Stop complete " + this);
 	}
 
 	@Override
@@ -795,6 +800,24 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		this.id = id;
 	}
 
+	protected void executeTriggerlessTransitions(StateMachine<S, E> stateMachine, StateContext<S, E> stateContext, State<S, E> state) {
+		this.stateMachineExecutor.executeTriggerlessTransitions(stateContext, state);
+		State<S, E> cs = currentState;
+		if (cs != null && cs.isOrthogonal()) {
+			Collection<Region<S, E>> regions = ((AbstractState<S, E>)cs).getRegions();
+			for (Region<S, E> region : regions) {
+				((AbstractStateMachine<S, E>)region).executeTriggerlessTransitions(this, stateContext, state);
+			}
+		} else if (cs != null && cs.isSubmachineState()) {
+			StateMachine<S, E> submachine = ((AbstractState<S, E>)cs).getSubmachine();
+			((AbstractStateMachine<S, E>)submachine).executeTriggerlessTransitions(this, stateContext, state);
+		}
+	}
+
+	protected StateMachineExecutor<S, E> getStateMachineExecutor() {
+		return stateMachineExecutor;
+	}
+
 	protected synchronized boolean acceptEvent(Message<E> message) {
 		State<S, E> cs = currentState;
 		if ((cs != null && cs.shouldDefer(message))) {
@@ -1004,12 +1027,18 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 		if (states.contains(state)) {
 			if (exit) {
-				exitCurrentState(state, message, transition, stateMachine, sources, targets);
+				try {
+					exitCurrentState(state, message, transition, stateMachine, sources, targets);
+				} catch (Throwable t) {
+					log.error("Error calling exitCurrentState", t);
+				}
 			}
 			State<S, E> notifyFrom = currentState;
 			currentState = state;
 			entryToState(state, message, transition, stateMachine);
-			notifyStateChanged(buildStateContext(Stage.STATE_CHANGED, message, null, getRelayStateMachine(), notifyFrom, state));
+			if (!StateMachineUtils.isPseudoState(state, PseudoStateKind.JOIN)) {
+				notifyStateChanged(buildStateContext(Stage.STATE_CHANGED, message, null, getRelayStateMachine(), notifyFrom, state));
+			}
 			nonDeepStatePresent = true;
 			if (!isRunning() && !isComplete()) {
 				start();
@@ -1021,7 +1050,9 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			State<S, E> notifyFrom = currentState;
 			currentState = findDeep;
 			entryToState(findDeep, message, transition, stateMachine);
-			notifyStateChanged(buildStateContext(Stage.STATE_CHANGED, message, null, getRelayStateMachine(), notifyFrom, findDeep));
+			if (!StateMachineUtils.isPseudoState(state, PseudoStateKind.JOIN)) {
+				notifyStateChanged(buildStateContext(Stage.STATE_CHANGED, message, null, getRelayStateMachine(), notifyFrom, findDeep));
+			}
 			if (!isRunning() && !isComplete()) {
 				start();
 			}
@@ -1206,6 +1237,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		if (state == null) {
 			return;
 		}
+		log.debug("Trying Enter state=[" + state + "]");
 		if (log.isTraceEnabled()) {
 			log.trace("Trying Enter state=[" + state + "]");
 		}
