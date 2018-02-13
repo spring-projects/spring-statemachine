@@ -234,7 +234,6 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 					continue;
 				}
 				else if (!StateMachineUtils.isSubstate(source, completion)) {
-					log.info("TTTTTT6 " + source.getId() + " " + completion.getId());
 					continue;
 
 				}
@@ -449,10 +448,10 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 			handleTriggerTrans(trans, queuedMessage);
 		}
 
-		List<Transition<S, E>> ttt = new ArrayList<>();
-		for (Transition<S, E> tt : triggerlessTransitions) {
-			if (((AbstractTransition<S, E>)tt).getGuard() != null) {
-				ttt.add(tt);
+		List<Transition<S, E>> transWithGuards = new ArrayList<>();
+		for (Transition<S, E> t : triggerlessTransitions) {
+			if (((AbstractTransition<S, E>)t).getGuard() != null) {
+				transWithGuards.add(t);
 			}
 		}
 
@@ -461,7 +460,7 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 			// all "chained" transitions will get queue message
 			boolean transit = false;
 			do {
-				transit = handleTriggerTrans(ttt, queuedMessage);
+				transit = handleTriggerTrans(transWithGuards, queuedMessage);
 			} while (transit);
 		}
 

@@ -278,4 +278,25 @@ public abstract class AbstractStateMachineTests {
 
 	}
 
+	public static class TestStateMachineListener4 extends StateMachineListenerAdapter<TestStates4, TestEvents> {
+
+		public volatile CountDownLatch stateChangedLatch = new CountDownLatch(6);
+		public volatile CountDownLatch stateMachineStartedLatch = new CountDownLatch(1);
+
+		@Override
+		public void stateChanged(State<TestStates4, TestEvents> from, State<TestStates4, TestEvents> to) {
+			stateChangedLatch.countDown();
+		}
+
+		@Override
+		public void stateMachineStarted(StateMachine<TestStates4, TestEvents> stateMachine) {
+			stateMachineStartedLatch.countDown();
+		}
+
+		public void reset(int c1, int c2) {
+			stateChangedLatch = new CountDownLatch(c1);
+			stateMachineStartedLatch = new CountDownLatch(c2);
+		}
+
+	}
 }

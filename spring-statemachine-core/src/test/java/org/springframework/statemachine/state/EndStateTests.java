@@ -23,6 +23,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.EnumSet;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -174,10 +175,12 @@ public class EndStateTests extends AbstractStateMachineTests {
 		@SuppressWarnings("unchecked")
 		ObjectStateMachine<TestStates4,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		TestStateMachineListener4 listener = new TestStateMachineListener4();
+		machine.addStateListener(listener);
 		machine.start();
-		Thread.sleep(1000);
+		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
 		machine.sendEvent(TestEvents.E1);
-		Thread.sleep(1000);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), contains(TestStates4.DONE));
 	}
 
@@ -189,10 +192,12 @@ public class EndStateTests extends AbstractStateMachineTests {
 		@SuppressWarnings("unchecked")
 		ObjectStateMachine<TestStates4,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		TestStateMachineListener4 listener = new TestStateMachineListener4();
+		machine.addStateListener(listener);
 		machine.start();
-		Thread.sleep(1000);
+		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
 		machine.sendEvent(TestEvents.E1);
-		Thread.sleep(1000);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), contains(TestStates4.DONE));
 	}
 
@@ -204,17 +209,28 @@ public class EndStateTests extends AbstractStateMachineTests {
 		@SuppressWarnings("unchecked")
 		ObjectStateMachine<TestStates4,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		TestStateMachineListener4 listener = new TestStateMachineListener4();
+		machine.addStateListener(listener);
+		listener.reset(1, 1);
+
 		machine.start();
-		Thread.sleep(1000);
+		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), contains(TestStates4.READY));
+
+		listener.reset(3, 0);
 		machine.sendEvent(TestEvents.E1);
-		Thread.sleep(1000);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates4.TASKS, TestStates4.T1, TestStates4.T2));
+
+		listener.reset(1, 0);
 		machine.sendEvent(TestEvents.E2);
-		Thread.sleep(1000);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates4.TASKS, TestStates4.T1E, TestStates4.T2));
+
+		listener.reset(2, 0);
 		machine.sendEvent(TestEvents.E3);
-		Thread.sleep(1000);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), contains(TestStates4.DONE));
 	}
 
