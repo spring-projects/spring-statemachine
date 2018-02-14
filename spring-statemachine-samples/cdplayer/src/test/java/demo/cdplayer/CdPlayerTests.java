@@ -16,9 +16,9 @@
 package demo.cdplayer;
 
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 
@@ -34,12 +34,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.statemachine.ObjectStateMachine;
+import org.springframework.statemachine.StateContext;
+import org.springframework.statemachine.StateContext.Stage;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
-import org.springframework.statemachine.transition.Transition;
+import org.springframework.statemachine.transition.TransitionKind;
 
 import demo.CommonConfiguration;
 import demo.cdplayer.Application.Events;
@@ -81,25 +83,37 @@ public class CdPlayerTests {
 
 	@Test
 	public void testPlayWithCdLoaded() throws Exception {
-		listener.reset(4, 0, 0);
+		listener.reset(1, 0, 0);
 		player.eject();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+
+		listener.reset(1, 0, 0);
 		player.load(library.getCollection().get(0));
 		player.eject();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+
+		listener.reset(2, 0, 0);
 		player.play();
-		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(4));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(2));
 		assertThat(machine.getState().getIds(), contains(States.BUSY, States.PLAYING));
 		assertLcdStatusContains("cd1");
 	}
 
 	@Test
 	public void testPlayWithCdLoadedDeckOpen() throws Exception {
-		listener.reset(4, 0, 0);
+		listener.reset(1, 0, 0);
 		player.eject();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+
+		listener.reset(3, 0, 0);
 		player.load(library.getCollection().get(0));
 		player.play();
-		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(4));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(3));
 		assertThat(machine.getState().getIds(), contains(States.BUSY, States.PLAYING));
 		assertLcdStatusContains("cd1");
 	}
@@ -116,29 +130,37 @@ public class CdPlayerTests {
 
 	@Test
 	public void testPlayLcdTimeChanges() throws Exception {
-		listener.reset(4, 0, 0);
+		listener.reset(1, 0, 0);
 		player.eject();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+
+		listener.reset(1, 0, 0);
 		player.load(library.getCollection().get(0));
 		player.eject();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+
+		listener.reset(2, 0, 0);
 		player.play();
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(4));
+		assertThat(listener.stateChangedCount, is(2));
 		assertThat(machine.getState().getIds(), contains(States.BUSY, States.PLAYING));
 		assertLcdStatusContains("cd1");
 
-		listener.reset(0, 0, 0, 1);
-		assertThat(listener.transitionLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.transitionCount, is(1));
+		listener.reset(0, 0, 0, 0, 1);
+		assertThat(listener.transitionTimerLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.transitionTimerCount, is(1));
 		assertLcdStatusContains("00:01");
 
-		listener.reset(0, 0, 0, 1);
-		assertThat(listener.transitionLatch.await(2, TimeUnit.SECONDS), is(true));
+		listener.reset(0, 0, 0, 0, 1);
+		assertThat(listener.transitionTimerLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertLcdStatusContains("00:02");
-		assertThat(listener.transitionCount, is(1));
+		assertThat(listener.transitionTimerCount, is(1));
 
-		listener.reset(0, 0, 0, 2);
-		assertThat(listener.transitionLatch.await(4, TimeUnit.SECONDS), is(true));
-		assertThat(listener.transitionCount, is(2));
+		listener.reset(0, 0, 0, 0, 2);
+		assertThat(listener.transitionTimerLatch.await(4, TimeUnit.SECONDS), is(true));
+		assertThat(listener.transitionTimerCount, is(2));
 		// ok we have some timing problems with
 		// this test, so for now just check it's
 		// not previous
@@ -147,26 +169,31 @@ public class CdPlayerTests {
 
 	@Test
 	public void testPlayPause() throws Exception {
-		listener.reset(4, 0, 0);
+		listener.reset(1, 0, 0);
 		player.eject();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+
+		listener.reset(1, 0, 0);
 		player.load(library.getCollection().get(0));
 		player.eject();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+
+		listener.reset(2, 0, 0, 0, 1);
 		player.play();
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(4));
+		assertThat(listener.stateChangedCount, is(2));
+		assertThat(listener.transitionTimerLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.transitionTimerCount, is(1));
 		assertThat(machine.getState().getIds(), contains(States.BUSY, States.PLAYING));
 		assertLcdStatusContains("cd1");
-
-		listener.reset(0, 0, 0, 1);
-		assertThat(listener.transitionLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.transitionCount, is(1));
 		assertLcdStatusContains("00:01");
 
-		listener.reset(0, 0, 0, 1);
-		assertThat(listener.transitionLatch.await(2, TimeUnit.SECONDS), is(true));
+		listener.reset(0, 0, 0, 1, 1);
+		assertThat(listener.transitionTimerLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertLcdStatusContains("00:02");
-		assertThat(listener.transitionCount, is(1));
-
+		assertThat(listener.transitionTimerCount, is(1));
 
 		listener.reset(1, 0, 0, 0);
 		player.pause();
@@ -177,26 +204,33 @@ public class CdPlayerTests {
 		listener.reset(1, 0, 0, 1);
 		player.pause();
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		listener.transitionLatch.await(2, TimeUnit.SECONDS);
 		assertThat(listener.stateChangedCount, is(1));
-		assertThat(listener.transitionCount, is(1));
+		assertThat(listener.transitionLatch.await(2, TimeUnit.SECONDS), is(true));
 
-		listener.reset(0, 0, 0, 2);
-		assertThat(listener.transitionLatch.await(2100, TimeUnit.MILLISECONDS), is(true));
-		assertThat(listener.transitionCount, is(2));
+		listener.reset(0, 0, 0, 2, 2);
+		assertThat(listener.transitionTimerLatch.await(2100, TimeUnit.MILLISECONDS), is(true));
+		assertThat(listener.transitionTimerCount, is(2));
 		assertLcdStatusNotContains("00:02");
 	}
 
 	@Test
 	public void testPlayStop() throws Exception {
-		listener.reset(4, 0, 0);
+		listener.reset(1, 0, 0);
 		player.eject();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+
+		listener.reset(1, 0, 0);
 		player.load(library.getCollection().get(0));
 		player.eject();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+
+		listener.reset(2, 0, 0);
 		player.play();
 
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(4));
+		assertThat(listener.stateChangedCount, is(2));
 		assertThat(machine.getState().getIds(), contains(States.BUSY, States.PLAYING));
 
 		listener.reset(2, 0, 0);
@@ -243,8 +277,7 @@ public class CdPlayerTests {
 		library = context.getBean(Library.class);
 		listener = context.getBean(TestListener.class);
 		machine.start();
-		// lets do a little sleep to wait sm to start
-		Thread.sleep(1000);
+		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
 	}
 
 	@After
@@ -286,14 +319,22 @@ public class CdPlayerTests {
 
 	static class TestListener extends StateMachineListenerAdapter<States, Events> {
 
+		volatile CountDownLatch stateMachineStartedLatch = new CountDownLatch(1);
 		volatile CountDownLatch stateChangedLatch = new CountDownLatch(1);
 		volatile CountDownLatch stateEnteredLatch = new CountDownLatch(2);
 		volatile CountDownLatch stateExitedLatch = new CountDownLatch(0);
 		volatile CountDownLatch transitionLatch = new CountDownLatch(0);
+		volatile CountDownLatch transitionTimerLatch = new CountDownLatch(0);
 		volatile int stateChangedCount = 0;
 		volatile int transitionCount = 0;
+		volatile int transitionTimerCount = 0;
 		List<State<States, Events>> statesEntered = new ArrayList<State<States,Events>>();
 		List<State<States, Events>> statesExited = new ArrayList<State<States,Events>>();
+
+		@Override
+		public void stateMachineStarted(StateMachine<States, Events> stateMachine) {
+			stateMachineStartedLatch.countDown();
+		}
 
 		@Override
 		public void stateChanged(State<States, Events> from, State<States, Events> to) {
@@ -314,9 +355,17 @@ public class CdPlayerTests {
 		}
 
 		@Override
-		public void transitionEnded(Transition<States, Events> transition) {
-			transitionCount++;
-			transitionLatch.countDown();
+		public void stateContext(StateContext<States, Events> stateContext) {
+			if (stateContext.getStage() == Stage.TRANSITION_END) {
+				if (stateContext.getTransition().getKind() == TransitionKind.INTERNAL
+						&& stateContext.getEvent() == null) {
+					transitionTimerCount++;
+					transitionTimerLatch.countDown();
+				} else {
+					transitionCount++;
+					transitionLatch.countDown();
+				}
+			}
 		}
 
 		public void reset(int c1, int c2, int c3) {
@@ -324,16 +373,20 @@ public class CdPlayerTests {
 		}
 
 		public void reset(int c1, int c2, int c3, int c4) {
+			reset(c1, c2, c3, c4, 0);
+		}
+
+		public void reset(int c1, int c2, int c3, int c4, int c5) {
 			stateChangedLatch = new CountDownLatch(c1);
 			stateEnteredLatch = new CountDownLatch(c2);
 			stateExitedLatch = new CountDownLatch(c3);
 			transitionLatch = new CountDownLatch(c4);
+			transitionTimerLatch = new CountDownLatch(c5);
 			stateChangedCount = 0;
 			transitionCount = 0;
+			transitionTimerCount = 0;
 			statesEntered.clear();
 			statesExited.clear();
 		}
-
 	}
-
 }
