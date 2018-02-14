@@ -122,9 +122,6 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	private volatile Message<E> forwardedInitialEvent;
 
-	private final Object lock = new Object();
-	private final Object lock2 = new Object();
-
 	private StateMachine<S, E> parentMachine;
 
 	/**
@@ -218,9 +215,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	@Override
 	public boolean sendEvent(Message<E> event) {
-		synchronized (lock2) {
-			return sendEventInternal(event);
-		}
+		return sendEventInternal(event);
 	}
 
 	@Override
@@ -423,15 +418,14 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	@Override
 	protected void doStop() {
-		synchronized (lock) {
-			stateMachineExecutor.stop();
-			notifyStateMachineStopped(buildStateContext(Stage.STATEMACHINE_STOP, null, null, this));
-			// stash current state before we null it so that
-			// we can still return where we 'were' when machine is stopped
-			lastState = currentState;
-			currentState = null;
-			initialEnabled = null;
-		}
+		stateMachineExecutor.stop();
+		notifyStateMachineStopped(buildStateContext(Stage.STATEMACHINE_STOP, null, null, this));
+		// stash current state before we null it so that
+		// we can still return where we 'were' when machine is stopped
+		lastState = currentState;
+		currentState = null;
+		initialEnabled = null;
+		log.debug("Stop complete " + this);
 	}
 
 	@Override
@@ -642,9 +636,10 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	public void resetStateMachine(StateMachineContext<S, E> stateMachineContext) {
 		// TODO: this function needs a serious rewrite
 		if (stateMachineContext == null) {
-			log.info("Got null context, resetting to initial state and clearing extended state");
+			log.info("Got null context, resetting to initial state, clearing extended state and machine id");
 			currentState = initialState;
 			extendedState.getVariables().clear();
+			setId(null);
 			return;
 		}
 		if (log.isDebugEnabled()) {
@@ -824,12 +819,13 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	protected synchronized boolean acceptEvent(Message<E> message) {
-		if ((currentState != null && currentState.shouldDefer(message))) {
-			log.info("Current state " + currentState + " deferred event " + message);
+		State<S, E> cs = currentState;
+		if ((cs != null && cs.shouldDefer(message))) {
+			log.info("Current state " + cs + " deferred event " + message);
 			stateMachineExecutor.queueDeferredEvent(message);
 			return true;
 		}
-		if ((currentState != null && currentState.sendEvent(message))) {
+		if ((cs != null && cs.sendEvent(message))) {
 			return true;
 		}
 
@@ -841,7 +837,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			State<S,E> source = transition.getSource();
 			Trigger<S, E> trigger = transition.getTrigger();
 
-			if (currentState != null && StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
+			if (cs != null && StateMachineUtils.containsAtleastOne(source.getIds(), cs.getIds())) {
 				if (trigger != null && trigger.evaluate(new DefaultTriggerContext<S, E>(message.getPayload()))) {
 					stateMachineExecutor.queueEvent(message);
 					return true;
@@ -850,8 +846,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		}
 		// if we're about to not accept event, check defer again in case
 		// state was changed between original check and now
-		if ((currentState != null && currentState.shouldDefer(message))) {
-			log.info("Current state " + currentState + " deferred event " + message);
+		if ((cs != null && cs.shouldDefer(message))) {
+			log.info("Current state " + cs + " deferred event " + message);
 			stateMachineExecutor.queueDeferredEvent(message);
 			return true;
 		}
@@ -908,12 +904,11 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			setCurrentState(toState, message, transition, true, stateMachine, null, targets);
 		}
 
-		callPostStateChangeInterceptors(toState, message, transition, stateMachine);
-
 		stateMachineExecutor.execute();
 		if (isComplete()) {
 			stop();
 		}
+		callPostStateChangeInterceptors(toState, message, transition, stateMachine);
 	}
 
 	private State<S,E> followLinkedPseudoStates(State<S,E> state, StateContext<S, E> stateContext) {
@@ -1014,9 +1009,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	void setCurrentState(State<S, E> state, Message<E> message, Transition<S, E> transition, boolean exit,
 			StateMachine<S, E> stateMachine, Collection<State<S, E>> sources, Collection<State<S, E>> targets) {
-		synchronized (lock2) {
-			setCurrentStateInternal(state, message, transition, exit, stateMachine, sources, targets);
-		}
+		setCurrentStateInternal(state, message, transition, exit, stateMachine, sources, targets);
 	}
 
 	private void setCurrentStateInternal(State<S, E> state, Message<E> message, Transition<S, E> transition, boolean exit,
