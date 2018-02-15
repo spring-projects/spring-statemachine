@@ -9,7 +9,7 @@ include 'spring-statemachine-cluster'
 include 'spring-statemachine-uml'
 include 'spring-statemachine-build-tests'
 include 'spring-statemachine-recipes'
-include 'spring-statemachine-boot'
+include 'spring-statemachine-autoconfigure'
 include 'spring-statemachine-bom'
 include 'spring-statemachine-starter'
 

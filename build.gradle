@@ -189,8 +189,8 @@ project('spring-statemachine-core') {
 	}
 }
 
-project('spring-statemachine-boot') {
-	description = "Spring State Machine Boot"
+project('spring-statemachine-autoconfigure') {
+	description = "Spring State Machine Boot Autoconfigure"
     
 	dependencies {
 		compile project(":spring-statemachine-core")
@@ -453,7 +453,7 @@ project('spring-statemachine-bom') {
 project('spring-statemachine-starter') {
 	description = "Spring Statemachine Starter"
 	dependencies {
-		compile project(":spring-statemachine-boot")
+		compile project(":spring-statemachine-autoconfigure")
 		compile "org.springframework.boot:spring-boot-starter"
 	}
 

@@ -117,7 +117,7 @@ project('spring-statemachine-samples-ordershipping') {
 project('spring-statemachine-samples-datajpa') {
 	description = 'Spring State Machine Data Jpa Sample'
 	dependencies {
-		compile project(":spring-statemachine-boot")
+		compile project(":spring-statemachine-autoconfigure")
 		compile project(":spring-statemachine-data-common:spring-statemachine-data-jpa")
 		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
@@ -130,7 +130,7 @@ project('spring-statemachine-samples-datajpa') {
 project('spring-statemachine-samples-datajpapersist') {
 	description = 'Spring State Machine Data Jpa Persist Sample'
 	dependencies {
-		compile project(":spring-statemachine-boot")
+		compile project(":spring-statemachine-autoconfigure")
 		compile project(":spring-statemachine-data-common:spring-statemachine-data-jpa")
 		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
@@ -143,7 +143,7 @@ project('spring-statemachine-samples-datajpapersist') {
 project('spring-statemachine-samples-monitoring') {
 	description = 'Spring State Machine Monitoring Sample'
 	dependencies {
-		compile project(":spring-statemachine-boot")
+		compile project(":spring-statemachine-autoconfigure")
 		compile("org.springframework.boot:spring-boot-starter-actuator")
 		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf")

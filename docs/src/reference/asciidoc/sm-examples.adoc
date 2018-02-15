@@ -1438,7 +1438,7 @@ with a machine configuration kept in a database. This sample is using
 embedded _H2_ database with a _H2 Console_ to ease playing with a
 database.
 
-This sample uses `spring-statemachine-boot` which on default
+This sample uses `spring-statemachine-autoconfigure` which on default
 auto-configures repositories and entity classes needed for JPA.
 Thus only `@SpringBootApplication` is needed.
 
@@ -1504,7 +1504,7 @@ with persisting machine in a database. This sample is using
 embedded _H2_ database with a _H2 Console_ to ease playing with a
 database.
 
-This sample uses `spring-statemachine-boot` which on default
+This sample uses `spring-statemachine-autoconfigure` which on default
 auto-configures repositories and entity classes needed for JPA.
 Thus only `@SpringBootApplication` is needed.
 

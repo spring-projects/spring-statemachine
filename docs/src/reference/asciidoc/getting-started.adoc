@@ -62,7 +62,7 @@ framework.
 |spring-statemachine-uml
 |Support module for UI uml modeling with Eclipse Papyrus.
 
-|spring-statemachine-boot
+|spring-statemachine-autoconfigure
 |Support module for `Spring Boot`.
 
 |spring-statemachine-bom

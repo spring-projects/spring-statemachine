@@ -1949,7 +1949,7 @@ Check sample <<statemachine-examples-datajpapersist>> for detailed usage.
 
 [[sm-boot]]
 == Spring Boot Support
-Auto-configuration module `spring-statemachine-boot` contains all
+Auto-configuration module `spring-statemachine-autoconfigure` contains all
 integration logic with _Spring Boot_ providing functionality i.e. for
 auto-config and actuators. All what is needed is to have _State
 Machine_ as part of a boot application together with this library.
