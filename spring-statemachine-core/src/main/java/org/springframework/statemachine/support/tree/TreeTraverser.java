@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,14 +24,14 @@ public abstract class TreeTraverser<T> {
 
 	/**
 	 * Returns the children of the specified node. Must not contain null.
-	 * 
+	 *
 	 * @param root the node
 	 * @return child iterables
 	 */
 	public abstract Iterable<T> children(T root);
 
 	public final Iterable<T> postOrderTraversal(final T root) {
-		Assert.notNull(root);
+		Assert.notNull(root, "root cannot be null");
 		return new Iterable<T>() {
 			@Override
 			public Iterator<T> iterator() {
@@ -49,8 +49,8 @@ public abstract class TreeTraverser<T> {
 		final Iterator<T> childIterator;
 
 		PostOrderNode(T root, Iterator<T> childIterator) {
-			Assert.notNull(root);
-			Assert.notNull(childIterator);
+			Assert.notNull(root, "root cannot be null");
+			Assert.notNull(childIterator, "childIterator cannot be null");
 			this.root = root;
 			this.childIterator = childIterator;
 		}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
 
 	@Override
 	public final boolean hasNext() {
-		Assert.state(state != State.FAILED);
+		Assert.state(state != State.FAILED, "state cannot be null");
 		switch (state) {
 		case DONE:
 			return false;
@@ -78,6 +78,7 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
 		return next;
 	}
 
+	@Override
 	public final void remove() {
 		throw new UnsupportedOperationException("remove");
 	}
