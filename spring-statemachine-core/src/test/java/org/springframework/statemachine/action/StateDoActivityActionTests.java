@@ -26,11 +26,14 @@ import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.AbstractStateMachineTests;
+import org.springframework.statemachine.StateMachineMessageHeaders;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
@@ -244,6 +247,201 @@ public class StateDoActivityActionTests extends AbstractStateMachineTests {
 		@Bean
 		public TestAction testActionS2I() {
 			return new TestAction();
+		}
+	}
+
+	@Test
+	public void testStateDoActionNotCancelledWithEventTimeout() throws Exception {
+		context.register(Config4.class);
+		context.refresh();
+		StateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		TestSleepAction testActionS2 = context.getBean("testActionS2", TestSleepAction.class);
+
+		assertThat(machine, notNullValue());
+		machine.start();
+
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1)
+				.setHeader(StateMachineMessageHeaders.HEADER_DO_ACTION_TIMEOUT, 4000).build());
+		assertThat(testActionS2.onExecuteStartLatch.await(2, TimeUnit.SECONDS), is(true));
+		machine.sendEvent(TestEvents.E2);
+		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS), is(false));
+	}
+
+	@Test
+	public void testStateDoActionCancelledWithEventTimeout() throws Exception {
+		context.register(Config4.class);
+		context.refresh();
+		StateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		TestSleepAction testActionS2 = context.getBean("testActionS2", TestSleepAction.class);
+
+		assertThat(machine, notNullValue());
+		machine.start();
+
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1)
+				.setHeader(StateMachineMessageHeaders.HEADER_DO_ACTION_TIMEOUT, 100).build());
+		assertThat(testActionS2.onExecuteStartLatch.await(2, TimeUnit.SECONDS), is(true));
+		machine.sendEvent(TestEvents.E2);
+		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS), is(true));
+	}
+
+	@Test
+	public void testStateDoActionCancelledWithConfigSetting() throws Exception {
+		context.register(Config5.class);
+		context.refresh();
+		StateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		TestSleepAction testActionS2 = context.getBean("testActionS2", TestSleepAction.class);
+
+		assertThat(machine, notNullValue());
+		machine.start();
+
+		machine.sendEvent(TestEvents.E1);
+		assertThat(testActionS2.onExecuteStartLatch.await(2, TimeUnit.SECONDS), is(true));
+		machine.sendEvent(TestEvents.E2);
+		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS), is(true));
+	}
+
+	@Test
+	public void testStateDoActionNotCancelledWithConfigTimeout() throws Exception {
+		context.register(Config6.class);
+		context.refresh();
+		StateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		TestSleepAction testActionS2 = context.getBean("testActionS2", TestSleepAction.class);
+
+		assertThat(machine, notNullValue());
+		machine.start();
+
+		machine.sendEvent(TestEvents.E1);
+		assertThat(testActionS2.onExecuteStartLatch.await(2, TimeUnit.SECONDS), is(true));
+		machine.sendEvent(TestEvents.E2);
+		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS), is(false));
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config4 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
+			config
+				.withConfiguration()
+					.stateDoActionPolicy(StateDoActionPolicy.TIMEOUT_CANCEL);
+		}
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S2, testActionS2())
+					.state(TestStates.S3);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S2)
+					.target(TestStates.S3)
+					.event(TestEvents.E2);
+		}
+
+		@Bean
+		public TestSleepAction testActionS2() {
+			return new TestSleepAction(2000);
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config5 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
+			config
+				.withConfiguration()
+					.stateDoActionPolicy(StateDoActionPolicy.IMMEDIATE_CANCEL);
+		}
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S2, testActionS2())
+					.state(TestStates.S3);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S2)
+					.target(TestStates.S3)
+					.event(TestEvents.E2);
+		}
+
+		@Bean
+		public TestSleepAction testActionS2() {
+			return new TestSleepAction(2000);
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config6 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
+			config
+				.withConfiguration()
+					.stateDoActionPolicy(StateDoActionPolicy.TIMEOUT_CANCEL)
+					.stateDoActionPolicyTimeout(10, TimeUnit.SECONDS);
+		}
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S2, testActionS2())
+					.state(TestStates.S3);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S2)
+					.target(TestStates.S3)
+					.event(TestEvents.E2);
+		}
+
+		@Bean
+		public TestSleepAction testActionS2() {
+			return new TestSleepAction(2000);
 		}
 	}
 

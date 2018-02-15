@@ -24,6 +24,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.statemachine.action.StateDoActionPolicy;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationBuilder;
 import org.springframework.statemachine.config.model.verifier.DefaultStateMachineModelVerifier;
 import org.springframework.statemachine.config.model.verifier.StateMachineModelVerifier;
@@ -50,6 +51,8 @@ public class ConfigurationData<S, E> {
 	private final TaskScheduler taskScheduler;
 	private final boolean autoStart;
 	private final TransitionConflictPolicy transitionConflictPolicy;
+	private final StateDoActionPolicy stateDoActionPolicy;
+	private final Long stateDoActionPolicyTimeout;
 	private final StateMachineEnsemble<S, E> ensemble;
 	private final List<StateMachineListener<S, E>> listeners;
 	private final boolean securityEnabled;
@@ -99,7 +102,7 @@ public class ConfigurationData<S, E> {
 			List<StateMachineInterceptor<S, E>> interceptors) {
 		this(beanFactory, taskExecutor, taskScheduler, autoStart, ensemble, listeners, securityEnabled,
 				transitionSecurityAccessDecisionManager, eventSecurityAccessDecisionManager, eventSecurityRule, transitionSecurityRule,
-				verifierEnabled, verifier, machineId, stateMachineMonitor, interceptors, null);
+				verifierEnabled, verifier, machineId, stateMachineMonitor, interceptors, null, null, null);
 	}
 
 	/**
@@ -122,6 +125,8 @@ public class ConfigurationData<S, E> {
 	 * @param stateMachineMonitor the state machine monitor
 	 * @param interceptors the state machine interceptors.
 	 * @param transitionConflightPolicy the transition conflict policy
+	 * @param stateDoActionPolicy the state do action policy
+	 * @param stateDoActionPolicyTimeout the state do action policy timeout
 	 */
 	public ConfigurationData(BeanFactory beanFactory, TaskExecutor taskExecutor,
 			TaskScheduler taskScheduler, boolean autoStart, StateMachineEnsemble<S, E> ensemble,
@@ -129,7 +134,8 @@ public class ConfigurationData<S, E> {
 			AccessDecisionManager transitionSecurityAccessDecisionManager, AccessDecisionManager eventSecurityAccessDecisionManager,
 			SecurityRule eventSecurityRule, SecurityRule transitionSecurityRule, boolean verifierEnabled,
 			StateMachineModelVerifier<S, E> verifier, String machineId, StateMachineMonitor<S, E> stateMachineMonitor,
-			List<StateMachineInterceptor<S, E>> interceptors, TransitionConflictPolicy transitionConflightPolicy) {
+			List<StateMachineInterceptor<S, E>> interceptors, TransitionConflictPolicy transitionConflightPolicy,
+			StateDoActionPolicy stateDoActionPolicy, Long stateDoActionPolicyTimeout) {
 		this.beanFactory = beanFactory;
 		this.taskExecutor = taskExecutor;
 		this.taskScheduler = taskScheduler;
@@ -147,6 +153,8 @@ public class ConfigurationData<S, E> {
 		this.stateMachineMonitor = stateMachineMonitor;
 		this.interceptors = interceptors;
 		this.transitionConflictPolicy = transitionConflightPolicy;
+		this.stateDoActionPolicy = stateDoActionPolicy;
+		this.stateDoActionPolicyTimeout = stateDoActionPolicyTimeout;
 	}
 
 	public String getMachineId() {
@@ -295,5 +303,23 @@ public class ConfigurationData<S, E> {
 	 */
 	public TransitionConflictPolicy getTransitionConflictPolicy() {
 		return transitionConflictPolicy;
+	}
+
+	/**
+	 * Gets the state do action policy.
+	 *
+	 * @return the state do action policy
+	 */
+	public StateDoActionPolicy getStateDoActionPolicy() {
+		return stateDoActionPolicy;
+	}
+
+	/**
+	 * Gets the state do action policy timeout.
+	 *
+	 * @return the state do action policy timeout
+	 */
+	public Long getStateDoActionPolicyTimeout() {
+		return stateDoActionPolicyTimeout;
 	}
 }

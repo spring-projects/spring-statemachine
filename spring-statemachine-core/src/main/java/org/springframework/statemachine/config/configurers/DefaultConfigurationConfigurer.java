@@ -17,10 +17,12 @@ package org.springframework.statemachine.config.configurers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.statemachine.action.StateDoActionPolicy;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationBuilder;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerAdapter;
@@ -46,6 +48,8 @@ public class DefaultConfigurationConfigurer<S, E>
 	private TaskScheduler taskScheculer;
 	private boolean autoStart = false;
 	private TransitionConflictPolicy transitionConflightPolicy;
+	private StateDoActionPolicy stateDoActionPolicy;
+	private Long stateDoActionPolicyTimeout;
 	private final List<StateMachineListener<S, E>> listeners = new ArrayList<StateMachineListener<S, E>>();
 
 	@Override
@@ -57,6 +61,7 @@ public class DefaultConfigurationConfigurer<S, E>
 		builder.setAutoStart(autoStart);
 		builder.setStateMachineListeners(listeners);
 		builder.setTransitionConflictPolicy(transitionConflightPolicy);
+		builder.setStateDoActionPolicy(stateDoActionPolicy, stateDoActionPolicyTimeout);
 	}
 
 	@Override
@@ -98,6 +103,18 @@ public class DefaultConfigurationConfigurer<S, E>
 	@Override
 	public ConfigurationConfigurer<S, E> transitionConflictPolicy(TransitionConflictPolicy transitionConflightPolicy) {
 		this.transitionConflightPolicy = transitionConflightPolicy;
+		return this;
+	}
+
+	@Override
+	public ConfigurationConfigurer<S, E> stateDoActionPolicy(StateDoActionPolicy stateDoActionPolicy) {
+		this.stateDoActionPolicy = stateDoActionPolicy;
+		return this;
+	}
+
+	@Override
+	public ConfigurationConfigurer<S, E> stateDoActionPolicyTimeout(long timeout, TimeUnit unit) {
+		this.stateDoActionPolicyTimeout = unit.toMillis(timeout);
 		return this;
 	}
 }

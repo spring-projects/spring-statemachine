@@ -22,6 +22,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.statemachine.action.StateDoActionPolicy;
 import org.springframework.statemachine.config.common.annotation.AbstractConfiguredAnnotationBuilder;
 import org.springframework.statemachine.config.common.annotation.AnnotationBuilder;
 import org.springframework.statemachine.config.common.annotation.ObjectPostProcessor;
@@ -66,6 +67,8 @@ public class StateMachineConfigurationBuilder<S, E>
 	private TaskScheduler taskScheculer;
 	private boolean autoStart = false;
 	private TransitionConflictPolicy transitionConflictPolicy;
+	private StateDoActionPolicy stateDoActionPolicy;
+	private Long stateDoActionPolicyTimeout;
 	private StateMachineEnsemble<S, E> ensemble;
 	private final List<StateMachineListener<S, E>> listeners = new ArrayList<StateMachineListener<S, E>>();
 	private boolean securityEnabled = false;
@@ -146,8 +149,9 @@ public class StateMachineConfigurationBuilder<S, E>
 			}
 		}
 		return new ConfigurationData<S, E>(beanFactory, taskExecutor, taskScheculer, autoStart, ensemble, listeners,
-				securityEnabled, transitionSecurityAccessDecisionManager, eventSecurityAccessDecisionManager, eventSecurityRule,
-				transitionSecurityRule, verifierEnabled, verifier, machineId, stateMachineMonitor, interceptorsCopy, transitionConflictPolicy);
+				securityEnabled, transitionSecurityAccessDecisionManager, eventSecurityAccessDecisionManager,
+				eventSecurityRule, transitionSecurityRule, verifierEnabled, verifier, machineId, stateMachineMonitor,
+				interceptorsCopy, transitionConflictPolicy, stateDoActionPolicy, stateDoActionPolicyTimeout);
 	}
 
 	/**
@@ -302,5 +306,16 @@ public class StateMachineConfigurationBuilder<S, E>
 	 */
 	public void setTransitionConflictPolicy(TransitionConflictPolicy transitionConflictPolicy) {
 		this.transitionConflictPolicy = transitionConflictPolicy;
+	}
+
+	/**
+	 * Sets the state do action policy and timeout.
+	 *
+	 * @param stateDoActionPolicy the new state do action policy
+	 * @param stateDoActionPolicyTimeout the new state do action policy timeout
+	 */
+	public void setStateDoActionPolicy(StateDoActionPolicy stateDoActionPolicy, Long stateDoActionPolicyTimeout) {
+		this.stateDoActionPolicy = stateDoActionPolicy;
+		this.stateDoActionPolicyTimeout = stateDoActionPolicyTimeout;
 	}
 }

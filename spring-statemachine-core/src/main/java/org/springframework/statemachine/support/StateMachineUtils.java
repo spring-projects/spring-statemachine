@@ -18,6 +18,8 @@ package org.springframework.statemachine.support;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.springframework.statemachine.StateContext;
+import org.springframework.statemachine.StateMachineMessageHeaders;
 import org.springframework.statemachine.state.PseudoState;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.State;
@@ -170,4 +172,23 @@ public abstract class StateMachineUtils {
 		return false;
 	}
 
+	/**
+	 * Gets a particular message header from a {@link StateContext} and parses
+	 * it to {@code Long}. Any error parsing header results {@code NULL}.
+	 *
+	 * @param <S> the type of state
+	 * @param <E> the type of event
+	 * @param context the state context
+	 * @return the header as {@code Long} or {@code NULL}
+	 */
+	public static <S, E> Long getMessageHeaderDoActionTimeout(StateContext<S, E> context) {
+		try {
+			Number number = context.getMessageHeaders().get(StateMachineMessageHeaders.HEADER_DO_ACTION_TIMEOUT, Number.class);
+			if (number != null) {
+				return number.longValue();
+			}
+		} catch (Exception e) {
+		}
+		return null;
+	}
 }

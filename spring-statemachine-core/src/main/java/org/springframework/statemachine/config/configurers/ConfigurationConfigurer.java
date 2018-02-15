@@ -15,10 +15,13 @@
  */
 package org.springframework.statemachine.config.configurers;
 
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.action.StateDoActionPolicy;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerBuilder;
 import org.springframework.statemachine.listener.StateMachineListener;
@@ -88,10 +91,27 @@ public interface ConfigurationConfigurer<S, E> extends
 	ConfigurationConfigurer<S, E> listener(StateMachineListener<S, E> listener);
 
 	/**
-	 * Speficy a {@link TransitionConflictPolicy}. Default to {@link TransitionConflictPolicy#CHILD}.
+	 * Specify a {@link TransitionConflictPolicy}. Default to {@link TransitionConflictPolicy#CHILD}.
 	 *
 	 * @param transitionConflictPolicy the transition conflict policy
 	 * @return the configuration configurer
 	 */
 	ConfigurationConfigurer<S, E> transitionConflictPolicy(TransitionConflictPolicy transitionConflictPolicy);
+
+	/**
+	 * Specify a {@link StateDoActionPolicy}. Defaults to {@link StateDoActionPolicy#IMMEDIATE_CANCEL}.
+	 *
+	 * @param stateDoActionPolicy the state do action policy
+	 * @return the configuration configurer
+	 */
+	ConfigurationConfigurer<S, E> stateDoActionPolicy(StateDoActionPolicy stateDoActionPolicy);
+
+	/**
+	 * Specify a timeout used with {@link StateDoActionPolicy}.
+	 *
+	 * @param timeout the timeout
+	 * @param unit the time unit
+	 * @return the configuration configurer
+	 */
+	ConfigurationConfigurer<S, E> stateDoActionPolicyTimeout(long timeout, TimeUnit unit);
 }

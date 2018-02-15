@@ -232,8 +232,36 @@ has been completed.
 State Actions are executed using a normal Spring `TaskScheduler`
 wrapped within a `Runnable` which may get cancelled via
 `ScheduledFuture`. What this means is that whatever you're doing in your
-action, you need to be able to catch `InterruptedException` which is
-raised if task is cancelled.
+action, you need to be able to catch `InterruptedException` or generally
+periodically check if _Thread_ is interrupted.
+
+Below shows typical config which uses default _IMMEDIATE_CANCEL_ which
+would simply cancel running task immediately when state is complete.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests11.java[tags=snippetA]
+----
+
+Policy can be set to _TIMEOUT_CANCEL_ together with a global timeout
+per machine. This changes state behaviour to wait action completion
+before cancel is requested.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests11.java[tags=snippetB]
+----
+
+If _Event_ directly take machine into a state so that event headers
+are available to particular action, it is also possible to use dedicated
+event header to instruct a specific timeout which is defined in _millis_.
+Reserved header value _StateMachineMessageHeaders.HEADER_DO_ACTION_TIMEOUT_
+is used for this.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests11.java[tags=snippetC]
+----
 
 [[statemachine-config-transition-actions-errorhandling]]
 ==== Transition Action Error Handling
