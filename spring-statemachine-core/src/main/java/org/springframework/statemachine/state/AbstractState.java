@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.logging.Log;
@@ -34,10 +35,12 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.action.ActionListener;
 import org.springframework.statemachine.action.CompositeActionListener;
+import org.springframework.statemachine.action.StateDoActionPolicy;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
+import org.springframework.statemachine.support.StateMachineUtils;
 import org.springframework.statemachine.trigger.Trigger;
 
 /**
@@ -61,9 +64,11 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 	private final StateMachine<S, E> submachine;
 	private List<Trigger<S, E>> triggers = new ArrayList<Trigger<S, E>>();
 	private final CompositeStateListener<S, E> stateListener = new CompositeStateListener<S, E>();
-	private final List<ScheduledFuture<?>> cancellableActions = new ArrayList<>();
+	private final List<ScheduledAction> scheduledActions = new ArrayList<>();
 	private CompositeActionListener<S, E> actionListener;
 	private final List<StateMachineListener<S, E>> completionListeners = new CopyOnWriteArrayList<>();
+	private StateDoActionPolicy stateDoActionPolicy;
+	private Long stateDoActionPolicyTimeout;
 
 	/**
 	 * Instantiates a new abstract state.
@@ -399,6 +404,14 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 		return triggers;
 	}
 
+	public void setStateDoActionPolicy(StateDoActionPolicy stateDoActionPolicy) {
+		this.stateDoActionPolicy = stateDoActionPolicy;
+	}
+
+	public void setStateDoActionPolicyTimeout(Long stateDoActionPolicyTimeout) {
+		this.stateDoActionPolicyTimeout = stateDoActionPolicyTimeout;
+	}
+
 	/**
 	 * Arm triggers.
 	 */
@@ -421,10 +434,30 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 	 * Cancel existing state actions and clear list.
 	 */
 	protected void cancelStateActions() {
-		for (ScheduledFuture<?> future : cancellableActions) {
-			future.cancel(true);
+		if (log.isDebugEnabled()) {
+			log.debug("Handling finish of state actions, scheduledActions size is " + scheduledActions.size());
 		}
-		cancellableActions.clear();
+		for (ScheduledAction task : scheduledActions) {
+			if (task.timeout != null) {
+				if (log.isDebugEnabled()) {
+					log.debug("Timeouting scheduled state do action " + task);
+				}
+				try {
+					task.future.get(task.timeout, TimeUnit.MILLISECONDS);
+				} catch (Exception e) {
+					if (log.isDebugEnabled()) {
+						log.debug("Cancelling scheduled state do action after timeout " + task);
+					}
+					task.future.cancel(true);
+				}
+			} else {
+				if (log.isDebugEnabled()) {
+					log.debug("Cancelling scheduled state do action immediately " + task);
+				}
+				task.future.cancel(true);
+			}
+		}
+		scheduledActions.clear();
 	}
 
 	/**
@@ -440,8 +473,11 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 		}
 		for (Action<S, E> action : stateActions) {
 			ScheduledFuture<?> future = scheduleAction(action, context, completionCount);
+			if (log.isDebugEnabled()) {
+				log.debug("Scheduling state do action " + action + " with future " + future);
+			}
 			if (future != null) {
-				cancellableActions.add(future);
+				scheduledActions.add(new ScheduledAction(future, resolveDoActionTimeout(context)));
 			}
 		}
 		if (isSimple() && stateActions.size() == 0) {
@@ -475,7 +511,8 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 	 * @param completionCount the completion count tracker
 	 * @return the scheduled future
 	 */
-	protected ScheduledFuture<?> scheduleAction(final Action<S, E> action, final StateContext<S, E> context, final AtomicInteger completionCount) {
+	protected ScheduledFuture<?> scheduleAction(final Action<S, E> action, final StateContext<S, E> context,
+			final AtomicInteger completionCount) {
 		TaskScheduler taskScheduler = getTaskScheduler();
 		if (taskScheduler == null) {
 			log.error("Unable to schedule action as taskSchedule is not set, action=[" + action + "]");
@@ -496,6 +533,31 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 
 	protected void notifyStateOnComplete(StateContext<S, E> context) {
 		stateListener.onComplete(context);
+	}
+
+	private Long resolveDoActionTimeout(StateContext<S, E> context) {
+		Long timeout = null;
+		if (stateDoActionPolicy == StateDoActionPolicy.TIMEOUT_CANCEL) {
+			timeout = StateMachineUtils.getMessageHeaderDoActionTimeout(context);
+			if (timeout == null) {
+				timeout = stateDoActionPolicyTimeout;
+			}
+		}
+		return timeout;
+	}
+
+	private static class ScheduledAction {
+		ScheduledFuture<?> future;
+		Long timeout;
+
+		public ScheduledAction(ScheduledFuture<?> future, Long timeout) {
+			this.future = future;
+			this.timeout = timeout;
+		}
+		@Override
+		public String toString() {
+			return "ScheduledTask [future=" + future + ", timeout=" + timeout + "]";
+		}
 	}
 
 	@Override

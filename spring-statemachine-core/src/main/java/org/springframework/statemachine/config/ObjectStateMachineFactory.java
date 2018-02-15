@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,13 +112,19 @@ public class ObjectStateMachineFactory<S, E> extends AbstractStateMachineFactory
 		if (taskScheduler != null) {
 			objectState.setTaskScheduler(taskScheduler);
 		}
+		objectState.setStateDoActionPolicy(stateMachineModel.getConfigurationData().getStateDoActionPolicy());
+		objectState.setStateDoActionPolicyTimeout(stateMachineModel.getConfigurationData().getStateDoActionPolicyTimeout());
 		return objectState;
 	}
 
 	@Override
 	protected RegionState<S, E> buildRegionStateInternal(S id, Collection<Region<S, E>> regions, Collection<E> deferred,
-			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions, PseudoState<S, E> pseudoState) {
-		return new RegionState<S, E>(id, regions, deferred, entryActions, exitActions, pseudoState);
+			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
+			PseudoState<S, E> pseudoState, StateMachineModel<S, E> stateMachineModel) {
+		RegionState<S,E> regionState = new RegionState<S, E>(id, regions, deferred, entryActions, exitActions, pseudoState);
+		regionState.setStateDoActionPolicy(stateMachineModel.getConfigurationData().getStateDoActionPolicy());
+		regionState.setStateDoActionPolicyTimeout(stateMachineModel.getConfigurationData().getStateDoActionPolicyTimeout());
+		return regionState;
 	}
 
 }

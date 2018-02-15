@@ -232,8 +232,10 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 					regions.add(pop.machine);
 				}
 				S parent = (S)peek.getParent();
-				RegionState<S, E> rstate = buildRegionStateInternal(parent, regions, null, stateData != null ? stateData.getEntryActions() : null,
-						stateData != null ? stateData.getExitActions() : null, new DefaultPseudoState<S, E>(PseudoStateKind.INITIAL));
+				RegionState<S, E> rstate = buildRegionStateInternal(parent, regions, null,
+						stateData != null ? stateData.getEntryActions() : null,
+						stateData != null ? stateData.getExitActions() : null,
+						new DefaultPseudoState<S, E>(PseudoStateKind.INITIAL), stateMachineModel);
 				if (stateData != null) {
 					stateMap.put(stateData.getState(), rstate);
 				} else {
@@ -580,8 +582,15 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 				if (stateData.isInitial()) {
 					pseudoState = new DefaultPseudoState<S, E>(PseudoStateKind.INITIAL);
 				}
-				state = new StateMachineState<S, E>(stateData.getState(), stateMachine, stateData.getDeferred(),
-						stateData.getEntryActions(), stateData.getExitActions(), pseudoState);
+				StateMachineState<S, E> stateMachineState = new StateMachineState<S, E>(stateData.getState(),
+						stateMachine, stateData.getDeferred(), stateData.getEntryActions(), stateData.getExitActions(),
+						pseudoState);
+				stateMachineState
+						.setStateDoActionPolicy(stateMachineModel.getConfigurationData().getStateDoActionPolicy());
+				stateMachineState.setStateDoActionPolicyTimeout(
+						stateMachineModel.getConfigurationData().getStateDoActionPolicyTimeout());
+				state = stateMachineState;
+
 				// TODO: below if/else doesn't feel right
 				if (stateDatas.size() > 1 && stateData.isInitial()) {
 					initialState = state;
@@ -901,7 +910,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 	protected abstract RegionState<S, E> buildRegionStateInternal(S id, Collection<Region<S, E>> regions, Collection<E> deferred,
 			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
-			PseudoState<S, E> pseudoState);
+			PseudoState<S, E> pseudoState, StateMachineModel<S, E> stateMachineModel);
 
 	/**
 	 * Simple utility listener waiting machine to get started if
