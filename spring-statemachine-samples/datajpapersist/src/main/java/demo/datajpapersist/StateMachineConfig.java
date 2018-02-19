@@ -20,6 +20,7 @@ import java.util.EnumSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.StateMachineFactory;
@@ -28,6 +29,10 @@ import org.springframework.statemachine.config.builders.StateMachineStateConfigu
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.data.jpa.JpaPersistingStateMachineInterceptor;
 import org.springframework.statemachine.data.jpa.JpaStateMachineRepository;
+import org.springframework.statemachine.data.mongodb.MongoDbPersistingStateMachineInterceptor;
+import org.springframework.statemachine.data.mongodb.MongoDbStateMachineRepository;
+import org.springframework.statemachine.data.redis.RedisPersistingStateMachineInterceptor;
+import org.springframework.statemachine.data.redis.RedisStateMachineRepository;
 import org.springframework.statemachine.persist.StateMachineRuntimePersister;
 import org.springframework.statemachine.service.DefaultStateMachineService;
 import org.springframework.statemachine.service.StateMachineService;
@@ -35,22 +40,61 @@ import org.springframework.statemachine.service.StateMachineService;
 @Configuration
 public class StateMachineConfig {
 
+//tag::snippetA[]
+	@Configuration
+	@Profile("jpa")
+	public static class JpaPersisterConfig {
+
+		@Bean
+		public StateMachineRuntimePersister<States, Events, String> stateMachineRuntimePersister(
+				JpaStateMachineRepository jpaStateMachineRepository) {
+			return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository);
+		}
+	}
+//end::snippetA[]
+
+//tag::snippetB[]
+	@Configuration
+	@Profile("mongo")
+	public static class MongoPersisterConfig {
+
+		@Bean
+		public StateMachineRuntimePersister<States, Events, String> stateMachineRuntimePersister(
+				MongoDbStateMachineRepository jpaStateMachineRepository) {
+			return new MongoDbPersistingStateMachineInterceptor<>(jpaStateMachineRepository);
+		}
+	}
+//end::snippetB[]
+
+//tag::snippetC[]
+	@Configuration
+	@Profile("redis")
+	public static class RedisPersisterConfig {
+
+		@Bean
+		public StateMachineRuntimePersister<States, Events, String> stateMachineRuntimePersister(
+				RedisStateMachineRepository jpaStateMachineRepository) {
+			return new RedisPersistingStateMachineInterceptor<>(jpaStateMachineRepository);
+		}
+	}
+//end::snippetC[]
+
 	@Configuration
 	@EnableStateMachineFactory
 	public static class MachineConfig extends StateMachineConfigurerAdapter<States, Events> {
 
-//tag::snippetB[]
+//tag::snippetD[]
 		@Autowired
-		private JpaStateMachineRepository jpaStateMachineRepository;
+		private StateMachineRuntimePersister<States, Events, String> stateMachineRuntimePersister;
 
 		@Override
 		public void configure(StateMachineConfigurationConfigurer<States, Events> config)
 				throws Exception {
 			config
 				.withPersistence()
-					.runtimePersister(stateMachineRuntimePersister());
+					.runtimePersister(stateMachineRuntimePersister);
 		}
-//end::snippetB[]
+//end::snippetD[]
 
 		@Override
 		public void configure(StateMachineStateConfigurer<States, Events> states)
@@ -89,25 +133,19 @@ public class StateMachineConfig {
 					.source(States.S6).target(States.S1)
 					.event(Events.E6);
 		}
-
-//tag::snippetA[]
-		@Bean
-		public StateMachineRuntimePersister<States, Events, String> stateMachineRuntimePersister() {
-			return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository);
-		}
-//end::snippetA[]
 	}
 
 	@Configuration
 	public static class ServiceConfig {
 
-//tag::snippetC[]
+//tag::snippetE[]
 		@Bean
-		public StateMachineService<States, Events> stateMachineService(StateMachineFactory<States, Events> stateMachineFactory,
+		public StateMachineService<States, Events> stateMachineService(
+				StateMachineFactory<States, Events> stateMachineFactory,
 				StateMachineRuntimePersister<States, Events, String> stateMachineRuntimePersister) {
 			return new DefaultStateMachineService<States, Events>(stateMachineFactory, stateMachineRuntimePersister);
 		}
-//end::snippetC[]
+//end::snippetE[]
 	}
 
 	public enum States {
