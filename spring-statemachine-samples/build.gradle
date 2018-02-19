@@ -132,9 +132,13 @@ project('spring-statemachine-samples-datajpapersist') {
 	dependencies {
 		compile project(":spring-statemachine-autoconfigure")
 		compile project(":spring-statemachine-data-common:spring-statemachine-data-jpa")
+		compile project(":spring-statemachine-data-common:spring-statemachine-data-redis")
+		compile project(":spring-statemachine-data-common:spring-statemachine-data-mongodb")
 		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
 		compile("org.springframework.boot:spring-boot-starter-data-jpa")
+		compile("org.springframework.boot:spring-boot-starter-data-redis")
+		compile("org.springframework.boot:spring-boot-starter-data-mongodb")
 		compile("org.springframework.boot:spring-boot-devtools")
 		compile("com.h2database:h2")
 	}

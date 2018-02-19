@@ -1,6 +1,43 @@
 logging:
   level:
     root: INFO
+spring:
+  profiles:
+    active: jpa
 security:
   basic:
     enabled: false
+
+---
+spring:
+  profiles: jpa
+  statemachine:
+    data:
+      mongo:
+        repositories:
+          enabled: false
+      redis:
+        repositories:
+          enabled: false
+---
+spring:
+  profiles: mongo
+  statemachine:
+    data:
+      jpa:
+        repositories:
+          enabled: false
+      redis:
+        repositories:
+          enabled: false
+---
+spring:
+  profiles: redis
+  statemachine:
+    data:
+      jpa:
+        repositories:
+          enabled: false
+      mongo:
+        repositories:
+          enabled: false
