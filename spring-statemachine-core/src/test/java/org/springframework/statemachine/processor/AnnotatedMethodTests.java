@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.transaction.annotation.Transactional;
 
 public class AnnotatedMethodTests extends AbstractStateMachineTests {
 
@@ -83,6 +84,8 @@ public class AnnotatedMethodTests extends AbstractStateMachineTests {
 		assertThat(bean1.onMethod5Latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(bean1.onMethod7Latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(bean1.onMethod9Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean1.onMethod10Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean1.onMethod10Count, is(1));
 	}
 
 	@Test
@@ -105,6 +108,8 @@ public class AnnotatedMethodTests extends AbstractStateMachineTests {
 		assertThat(bean1.onMethod5Latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(bean1.onMethod7Latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(bean1.onMethod9Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean1.onMethod10Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean1.onMethod10Count, is(1));
 	}
 
 	@Test
@@ -127,6 +132,8 @@ public class AnnotatedMethodTests extends AbstractStateMachineTests {
 		assertThat(bean1.onMethod5Latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(bean1.onMethod7Latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(bean1.onMethod9Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean1.onMethod10Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean1.onMethod10Count, is(1));
 	}
 
 	@Test
@@ -143,6 +150,8 @@ public class AnnotatedMethodTests extends AbstractStateMachineTests {
 		assertThat(bean1.onMethod8Latch.await(2, TimeUnit.SECONDS), is(true));
 		machine.sendEvent(TestEvents.E3);
 		assertThat(bean1.onMethod9Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean1.onMethod10Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean1.onMethod10Count, is(1));
 	}
 
 	@Test
@@ -193,7 +202,7 @@ public class AnnotatedMethodTests extends AbstractStateMachineTests {
 		machine.sendEvent(TestEvents.E1);
 		assertThat(bean1.onMethod1Latch.await(2, TimeUnit.SECONDS), is(true));
 	}
-	
+
 	@WithStateMachine
 	static class Bean1 {
 
@@ -207,6 +216,8 @@ public class AnnotatedMethodTests extends AbstractStateMachineTests {
 		CountDownLatch onMethod7Latch = new CountDownLatch(1);
 		CountDownLatch onMethod8Latch = new CountDownLatch(1);
 		CountDownLatch onMethod9Latch = new CountDownLatch(1);
+		CountDownLatch onMethod10Latch = new CountDownLatch(1);
+		volatile int onMethod10Count;
 		CountDownLatch onOnTransitionFromS2ToS3Latch = new CountDownLatch(1);
 
 		@OnTransition(target = "S1")
@@ -257,6 +268,13 @@ public class AnnotatedMethodTests extends AbstractStateMachineTests {
 		@StatesOnTransition(target = TestStates.S30)
 		public void method9() {
 			onMethod9Latch.countDown();
+		}
+
+		@StatesOnTransition(target = TestStates.S30)
+		@Transactional
+		public void method10() {
+			onMethod10Count++;
+			onMethod10Latch.countDown();
 		}
 
 		@OnTransition
@@ -615,7 +633,7 @@ public class AnnotatedMethodTests extends AbstractStateMachineTests {
 				.withConfiguration()
 					.autoStartup(true);
 		}
-		
+
 		@Override
 		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
 			states

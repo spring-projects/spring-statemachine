@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 package org.springframework.statemachine.processor;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 import java.util.EnumSet;
 import java.util.concurrent.CountDownLatch;
@@ -30,6 +33,7 @@ import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.transaction.annotation.Transactional;
 
 public class StateMachineAnnotationPostProcessorTests extends AbstractStateMachineTests {
 
@@ -39,9 +43,17 @@ public class StateMachineAnnotationPostProcessorTests extends AbstractStateMachi
 	}
 
 	@Test
-	public void testWithOtherAnnotations() {
+	public void testWithNormalAnnotation() {
 		context.register(Config1.class, BeanConfig1.class);
 		context.refresh();
+		assertThat(context.getBeansOfType(StateMachineHandler.class).size(), is(2));
+	}
+
+	@Test
+	public void testWithNormalAnnotationWithTransactional() {
+		context.register(Config1.class, BeanConfig2.class);
+		context.refresh();
+		assertThat(context.getBeansOfType(StateMachineHandler.class).size(), is(1));
 	}
 
 	@WithStateMachine
@@ -67,12 +79,41 @@ public class StateMachineAnnotationPostProcessorTests extends AbstractStateMachi
 
 	}
 
+	@WithStateMachine
+	static class Bean2 {
+
+		CountDownLatch onMethod1Latch = new CountDownLatch(1);
+		CountDownLatch onOnTransitionFromS2ToS3Latch = new CountDownLatch(1);
+
+		@OnTransition(source = "S1", target = "S2")
+		@Transactional
+		public void method1() {
+			onMethod1Latch.countDown();
+		}
+
+		@Bean
+		public String dummy() {
+			return "dummy";
+		}
+
+	}
+
 	@Configuration
 	static class BeanConfig1 {
 
 		@Bean
 		public Bean1 bean1() {
 			return new Bean1();
+		}
+
+	}
+
+	@Configuration
+	static class BeanConfig2 {
+
+		@Bean
+		public Bean2 bean2() {
+			return new Bean2();
 		}
 
 	}
@@ -99,5 +140,4 @@ public class StateMachineAnnotationPostProcessorTests extends AbstractStateMachi
 		}
 
 	}
-
 }

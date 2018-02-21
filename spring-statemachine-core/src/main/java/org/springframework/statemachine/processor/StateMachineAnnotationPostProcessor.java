@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,13 @@ package org.springframework.statemachine.processor;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -37,6 +41,7 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.Lifecycle;
 import org.springframework.context.SmartLifecycle;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.statemachine.annotation.OnEventNotAccepted;
 import org.springframework.statemachine.annotation.OnExtendedStateChanged;
@@ -140,53 +145,69 @@ public class StateMachineAnnotationPostProcessor implements BeanPostProcessor, B
 			return bean;
 		}
 
-
 		ReflectionUtils.doWithMethods(beanClass, new ReflectionUtils.MethodCallback() {
 
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			public void doWith(Method method) throws IllegalArgumentException, IllegalAccessException {
-				for (Class<? extends Annotation> ppa : postProcessors.keySet()) {
-					Annotation metaAnnotation = AnnotationUtils.findAnnotation(method, ppa);
-					if (metaAnnotation == null) {
-						continue;
-					}
-					for (Annotation a : AnnotationUtils.getAnnotations(method)) {
-							MethodAnnotationPostProcessor postProcessor = metaAnnotation != null ? postProcessors
-									.get(metaAnnotation.annotationType()) : null;
-						if (postProcessor != null && shouldCreateHandler(a)) {
-							Object result = postProcessor.postProcess(beanClass, bean, beanName, method, metaAnnotation, a);
-							if (result != null && result instanceof StateMachineHandler) {
-								String endpointBeanName = generateBeanName(beanName, method, a.annotationType());
 
-								if (result instanceof BeanNameAware) {
-									((BeanNameAware) result).setBeanName(endpointBeanName);
+				Map<Class<? extends Annotation>, List<Annotation>> annotationChains = new HashMap<>();
+				for (Class<? extends Annotation> annotationType : postProcessors.keySet()) {
+					if (AnnotatedElementUtils.isAnnotated(method, annotationType.getName())) {
+						List<Annotation> annotationChain = getAnnotationChain(method, annotationType);
+						if (annotationChain.size() > 0) {
+							annotationChains.put(annotationType, annotationChain);
+						}
+					}
+				}
+
+				for (Entry<Class<? extends Annotation>, List<Annotation>> entry : annotationChains.entrySet()) {
+					Class<? extends Annotation> annotationType = entry.getKey();
+					List<Annotation> annotations = entry.getValue();
+					Annotation metaAnnotation = null;
+					Annotation annotation = null;
+					if (annotations.size() == 2) {
+						annotation = annotations.get(0);
+						metaAnnotation = annotations.get(1);
+					} else if (annotations.size() == 1) {
+						annotation = annotations.get(0);
+						metaAnnotation = annotations.get(0);
+					}
+
+					MethodAnnotationPostProcessor postProcessor = metaAnnotation != null ? postProcessors.get(annotationType) : null;
+					if (postProcessor != null) {
+						// TODO: should change post processor to handle annotation list
+						Object result = postProcessor.postProcess(beanClass, bean, beanName, method, metaAnnotation, annotation);
+						if (result != null && result instanceof StateMachineHandler) {
+							String endpointBeanName = generateBeanName(beanName, method, annotation.annotationType());
+
+							if (result instanceof BeanNameAware) {
+								((BeanNameAware) result).setBeanName(endpointBeanName);
+							}
+							beanFactory.registerSingleton(endpointBeanName, result);
+							if (result instanceof BeanFactoryAware) {
+								((BeanFactoryAware) result).setBeanFactory(beanFactory);
+							}
+							if (result instanceof InitializingBean) {
+								try {
+									((InitializingBean) result).afterPropertiesSet();
+								} catch (Exception e) {
+									throw new BeanInitializationException("failed to initialize annotated component", e);
 								}
-								beanFactory.registerSingleton(endpointBeanName, result);
-								if (result instanceof BeanFactoryAware) {
-									((BeanFactoryAware) result).setBeanFactory(beanFactory);
+							}
+							if (result instanceof Lifecycle) {
+								lifecycles.add((Lifecycle) result);
+								if (result instanceof SmartLifecycle && ((SmartLifecycle) result).isAutoStartup()) {
+									((SmartLifecycle) result).start();
 								}
-								if (result instanceof InitializingBean) {
-									try {
-										((InitializingBean) result).afterPropertiesSet();
-									} catch (Exception e) {
-										throw new BeanInitializationException("failed to initialize annotated component", e);
-									}
-								}
-								if (result instanceof Lifecycle) {
-									lifecycles.add((Lifecycle) result);
-									if (result instanceof SmartLifecycle && ((SmartLifecycle) result).isAutoStartup()) {
-										((SmartLifecycle) result).start();
-									}
-								}
-								if (result instanceof ApplicationListener) {
-									listeners.add((ApplicationListener) result);
-								}
+							}
+							if (result instanceof ApplicationListener) {
+								listeners.add((ApplicationListener) result);
 							}
 						}
 					}
 				}
 			}
-		});
+		}, ReflectionUtils.USER_DECLARED_METHODS);
 		return bean;
 	}
 
@@ -229,10 +250,6 @@ public class StateMachineAnnotationPostProcessor implements BeanPostProcessor, B
 		this.running = false;
 	}
 
-	private boolean shouldCreateHandler(Annotation annotation) {
-		return true;
-	}
-
 	/**
 	 * Gets the bean class. Will check if bean is a proxy and
 	 * find a class from there as target class, otherwise
@@ -256,4 +273,38 @@ public class StateMachineAnnotationPostProcessor implements BeanPostProcessor, B
 		return name;
 	}
 
+
+	private List<Annotation> getAnnotationChain(Method method, Class<? extends Annotation> annotationType) {
+		Annotation[] annotations = AnnotationUtils.getAnnotations(method);
+		List<Annotation> annotationChain = new LinkedList<Annotation>();
+		Set<Annotation> visited = new HashSet<Annotation>();
+		for (Annotation ann : annotations) {
+			this.recursiveFindAnnotation(annotationType, ann, annotationChain, visited);
+			if (annotationChain.size() > 0) {
+				Collections.reverse(annotationChain);
+				return annotationChain;
+			}
+		}
+		return annotationChain;
+	}
+
+	private boolean recursiveFindAnnotation(Class<? extends Annotation> annotationType, Annotation ann,
+			List<Annotation> annotationChain, Set<Annotation> visited) {
+		if (ann.annotationType().equals(annotationType)) {
+			annotationChain.add(ann);
+			return true;
+		}
+		for (Annotation metaAnn : ann.annotationType().getAnnotations()) {
+			if (!ann.equals(metaAnn) && !visited.contains(metaAnn)
+					&& !(metaAnn.annotationType().getPackage().getName().startsWith("java.lang"))) {
+				visited.add(metaAnn); // prevent infinite recursion if the same
+										// annotation is found again
+				if (this.recursiveFindAnnotation(annotationType, metaAnn, annotationChain, visited)) {
+					annotationChain.add(ann);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }
