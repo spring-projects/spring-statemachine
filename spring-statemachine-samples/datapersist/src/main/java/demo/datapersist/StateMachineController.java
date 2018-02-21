@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package demo.datajpapersist;
+package demo.datapersist;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -29,8 +29,8 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import demo.datajpapersist.StateMachineConfig.Events;
-import demo.datajpapersist.StateMachineConfig.States;
+import demo.datapersist.StateMachineConfig.Events;
+import demo.datapersist.StateMachineConfig.States;
 
 @Controller
 public class StateMachineController {

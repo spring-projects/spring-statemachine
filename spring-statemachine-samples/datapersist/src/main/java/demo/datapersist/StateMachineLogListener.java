@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package demo.datajpapersist;
+package demo.datapersist;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -22,8 +22,8 @@ import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateContext.Stage;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 
-import demo.datajpapersist.StateMachineConfig.Events;
-import demo.datajpapersist.StateMachineConfig.States;
+import demo.datapersist.StateMachineConfig.Events;
+import demo.datapersist.StateMachineConfig.States;
 
 public class StateMachineLogListener extends StateMachineListenerAdapter<States, Events> {
 

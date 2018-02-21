@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package demo.datajpapersist;
+package demo.datapersist;
 
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
@@ -34,7 +34,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import demo.datajpapersist.Application;
+import demo.datapersist.Application;
+import demo.datapersist.StateMachineController;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = { Application.class })
