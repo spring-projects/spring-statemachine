@@ -127,8 +127,8 @@ project('spring-statemachine-samples-datajpa') {
 	}
 }
 
-project('spring-statemachine-samples-datajpapersist') {
-	description = 'Spring State Machine Data Jpa Persist Sample'
+project('spring-statemachine-samples-datapersist') {
+	description = 'Spring State Machine Data Persist Sample'
 	dependencies {
 		compile project(":spring-statemachine-autoconfigure")
 		compile project(":spring-statemachine-data-common:spring-statemachine-data-jpa")

@@ -38,7 +38,7 @@ normal build cycle. Samples in this chapter are:
 
 <<statemachine-examples-datajpa>> JPA Config.
 
-<<statemachine-examples-datajpapersist>> JPA Persist.
+<<statemachine-examples-datapersist>> Data Persist.
 
 <<statemachine-examples-monitoring>> Monitoring.
 
@@ -1497,12 +1497,12 @@ Actual source for populator data is shown below.
 include::samples/data.json[]
 ----
 
-[[statemachine-examples-datajpapersist]]
-== JPA Persist
-JPA Persist is an example how state machine concepts can be used
-with persisting machine in a database. This sample is using
+[[statemachine-examples-datapersist]]
+== Data Persist
+Data Persist is an example how state machine concepts can be used
+with persisting machine in an external repository. This sample is using
 embedded _H2_ database with a _H2 Console_ to ease playing with a
-database.
+database. Optionally it's also possible to enable _Redis_ or _MongoDB_.
 
 This sample uses `spring-statemachine-autoconfigure` which on default
 auto-configures repositories and entity classes needed for JPA.
@@ -1510,25 +1510,39 @@ Thus only `@SpringBootApplication` is needed.
 
 [source,java,indent=0]
 ----
-include::samples/demo/datajpapersist/Application.java[tags=snippetA]
+include::samples/demo/datapersist/Application.java[tags=snippetA]
 ----
 
 `StateMachineRuntimePersister` is a new interface working on a runtime
-level of a 'StateMachine' and its implementation
+level of a `StateMachine` and its implementation
 `JpaPersistingStateMachineInterceptor` is meant to be used with a
-'JPA'.
+_JPA_.
 
 [source,java,indent=0]
 ----
-include::samples/demo/datajpapersist/StateMachineConfig.java[tags=snippetA]
+include::samples/demo/datapersist/StateMachineConfig.java[tags=snippetA]
 ----
 
-'StateMachine' can be configured to use runtime persistence by using
+Same configuration optionally enabled with _mongo_ profile.
+
+[source,java,indent=0]
+----
+include::samples/demo/datapersist/StateMachineConfig.java[tags=snippetB]
+----
+
+Same configuration optionally enabled with _redis_ profile.
+
+[source,java,indent=0]
+----
+include::samples/demo/datapersist/StateMachineConfig.java[tags=snippetC]
+----
+
+`StateMachine` can be configured to use runtime persistence by using
 `withPersistence` config method.
 
 [source,java,indent=0]
 ----
-include::samples/demo/datajpapersist/StateMachineConfig.java[tags=snippetB]
+include::samples/demo/datapersist/StateMachineConfig.java[tags=snippetD]
 ----
 
 In this sample we also use `DefaultStateMachineService` which makes it
@@ -1536,21 +1550,34 @@ easier to work with multiple machines
 
 [source,java,indent=0]
 ----
-include::samples/demo/datajpapersist/StateMachineConfig.java[tags=snippetC]
+include::samples/demo/datapersist/StateMachineConfig.java[tags=snippetE]
 ----
 
 A logic using a `StateMachineService` in this sample is show below.
 
 [source,java,indent=0]
 ----
-include::samples/demo/datajpapersist/StateMachineController.java[tags=snippetA]
+include::samples/demo/datapersist/StateMachineController.java[tags=snippetA]
 ----
 
 Let's get into actual demo. Run the boot based sample application:
 
 [source,text,subs="attributes"]
 ----
-# java -jar spring-statemachine-samples-datajpapersist-{revnumber}.jar
+# java -jar spring-statemachine-samples-datapersist-{revnumber}.jar
+----
+
+[NOTE]
+====
+Profile _jpa_ is enabled on default in _application.yml_. If you want to try
+other backends, enable _mongo_ or _redis_ profile.
+====
+
+[source,text,subs="attributes"]
+----
+# java -jar spring-statemachine-samples-datapersist-{revnumber}.jar --spring.profiles.active=jpa
+# java -jar spring-statemachine-samples-datapersist-{revnumber}.jar --spring.profiles.active=mongo
+# java -jar spring-statemachine-samples-datapersist-{revnumber}.jar --spring.profiles.active=redis
 ----
 
 Accessing application via _http://localhost:8080_ brings up a new
