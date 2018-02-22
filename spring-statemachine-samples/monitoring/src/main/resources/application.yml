@@ -12,4 +12,5 @@ endpoints:
 management:
   endpoints:
     web:
-      expose: "*"
+      exposure:
+        include: "*"
