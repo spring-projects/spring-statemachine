@@ -73,48 +73,59 @@ framework.
 |===
 
 == Using Gradle
-Here is a typical `build.gradle` file:
+Here is a typical `build.gradle` file created by https://start.spring.io:
 
-[source,groovy,indent=0]
+[source,groovy,indent=0,subs="attributes+"]
 ----
 buildscript {
-    repositories {
-        maven { url "http://repo.spring.io/libs-release" }
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.5.RELEASE")
-    }
+	ext {
+		springBootVersion = '{spring-boot-version}'
+	}
+	repositories {
+		mavenCentral()
+		maven { url "https://repo.spring.io/snapshot" }
+		maven { url "https://repo.spring.io/milestone" }
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
 }
 
-apply plugin: 'base'
 apply plugin: 'java'
 apply plugin: 'eclipse'
-apply plugin: 'idea'
-apply plugin: 'spring-boot'
-version =  '0.1.0'
-archivesBaseName = 'gs-statemachine'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
 
 repositories {
-    mavenCentral()
-    maven { url "http://repo.spring.io/libs-release" }
-    maven { url "http://repo.spring.io/libs-milestone" }
-    maven { url "http://repo.spring.io/libs-snapshot" }
+	mavenCentral()
+	maven { url "https://repo.spring.io/snapshot" }
+	maven { url "https://repo.spring.io/milestone" }
+}
+
+
+ext {
+	springStatemachineVersion = '{revnumber}'
 }
 
 dependencies {
-    compile("org.springframework.statemachine:spring-statemachine-core:1.0.0.BUILD-SNAPSHOT")
-    compile("org.springframework.boot:spring-boot-starter:1.2.5.RELEASE")
-    testCompile("org.springframework.statemachine:spring-statemachine-test:1.0.0.BUILD-SNAPSHOT")
+	compile('org.springframework.statemachine:spring-statemachine-starter')
+	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '1.11'
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.statemachine:spring-statemachine-bom:${springStatemachineVersion}"
+	}
 }
 ----
 
 [NOTE]
 ====
-Replace `1.0.0.BUILD-SNAPSHOT` with a version you want to use.
+Replace `0.0.1-SNAPSHOT` with a version you want to use.
 ====
 
 Having a normal project structure you'd build this with command:
@@ -123,7 +134,7 @@ Having a normal project structure you'd build this with command:
 # ./gradlew clean build
 ----
 
-Expected Spring Boot packaged fat-jar would be `build/libs/gs-statemachine-0.1.0.jar`.
+Expected Spring Boot packaged fat-jar would be `build/libs/demo-0.0.1-SNAPSHOT.jar`.
 
 [NOTE]
 ====
@@ -132,103 +143,116 @@ production development.
 ====
 
 == Using Maven
-Here is a typical `pom.xml` file:
+Here is a typical `pom.xml` file created by https://start.spring.io:
 
-[source,xml,indent=0]
+[source,xml,indent=0,subs="attributes+"]
 ----
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.springframework</groupId>
-    <artifactId>gs-statemachine</artifactId>
-    <version>0.1.0</version>
-    <packaging>jar</packaging>
+	<groupId>com.example</groupId>
+	<artifactId>demo</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.2.5.RELEASE</version>
-    </parent>
+	<name>gs-statemachine</name>
+	<description>Demo project for Spring Statemachine</description>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.statemachine</groupId>
-            <artifactId>spring-statemachine-core</artifactId>
-            <version>1.0.0.BUILD-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-            <version>1.0.0.BUILD-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.statemachine</groupId>
-            <artifactId>spring-statemachine-test</artifactId>
-            <version>1.0.0.BUILD-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>{spring-boot-version}</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
 
-    <build>
-        <plugins>
-            <plugin> 
-                <artifactId>maven-compiler-plugin</artifactId> 
-                <version>2.3.2</version> 
-            </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+		<spring-statemachine.version>{revnumber}</spring-statemachine.version>
+	</properties>
 
-    <repositories>
-        <repository>
-            <id>spring-release</id>
-            <url>http://repo.spring.io/libs-release</url>
-            <snapshots><enabled>false</enabled></snapshots>
-        </repository>
-        <repository>
-            <id>spring-milestone</id>
-            <url>http://repo.spring.io/libs-milestone</url>
-            <snapshots><enabled>false</enabled></snapshots>
-        </repository>
-        <repository>
-            <id>spring-snapshot</id>
-            <url>http://repo.spring.io/libs-snapshot</url>
-            <snapshots><enabled>true</enabled></snapshots>
-        </repository>
-    </repositories>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.statemachine</groupId>
+			<artifactId>spring-statemachine-starter</artifactId>
+		</dependency>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>spring-release</id>
-            <url>http://repo.spring.io/libs-release</url>
-            <snapshots><enabled>false</enabled></snapshots>
-        </pluginRepository>
-    </pluginRepositories>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.statemachine</groupId>
+				<artifactId>spring-statemachine-bom</artifactId>
+				<version>${spring-statemachine.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>spring-snapshots</id>
+			<name>Spring Snapshots</name>
+			<url>https://repo.spring.io/snapshot</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/milestone</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>spring-snapshots</id>
+			<name>Spring Snapshots</name>
+			<url>https://repo.spring.io/snapshot</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/milestone</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
 
 </project>
 ----
 
 [NOTE]
 ====
-Replace `1.0.0.BUILD-SNAPSHOT` with a version you want to use.
+Replace `0.0.1-SNAPSHOT` with a version you want to use.
 ====
 
 Having a normal project structure you'd build this with command:
@@ -237,7 +261,7 @@ Having a normal project structure you'd build this with command:
 # mvn clean package
 ----
 
-Expected Spring Boot packaged fat-jar would be `target/gs-statemachine-0.1.0.jar`.
+Expected Spring Boot packaged fat-jar would be `target/demo-0.0.1-SNAPSHOT.jar`.
 
 [NOTE]
 ====

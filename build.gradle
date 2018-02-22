@@ -518,6 +518,7 @@ configure(rootProject) {
 	dependencies {
 		// just used to get version into docs
 		compile "org.springframework:spring-core"
+		compile "org.springframework.boot:spring-boot"
 	}
 
 	// don't publish the default jar for the root project
@@ -554,6 +555,7 @@ configure(rootProject) {
 			numbered: '',
 			'spring-statemachine-version' : project.version,
 			'spring-version' : getResolvedVersionOf("spring-core"),
+			'spring-boot-version' : getResolvedVersionOf("spring-boot"),
 			revnumber : project.version
 	}
 
