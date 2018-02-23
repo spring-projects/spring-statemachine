@@ -265,24 +265,6 @@ project('spring-statemachine-zookeeper') {
 	}
 }
 
-project('spring-statemachine-redis') {
-	description = "Spring State Machine Redis"
-
-	dependencies {
-		compile project(":spring-statemachine-core")
-		compile project(":spring-statemachine-kryo")
-		compile "org.springframework.data:spring-data-redis"
-		compile "redis.clients:jedis"
-
-		testCompile project(":spring-statemachine-test")
-		testCompile "org.springframework:spring-test"
-		testCompile "org.hamcrest:hamcrest-core"
-		testCompile "org.hamcrest:hamcrest-library"
-		testCompile "junit:junit"
-		testRuntime "org.apache.logging.log4j:log4j-core"
-	}
-}
-
 project('spring-statemachine-data-common') {
 	configurations {
 		testArtifacts.extendsFrom testRuntime
@@ -369,12 +351,13 @@ project('spring-statemachine-build-tests') {
 	dependencies {
 		testCompile project(":spring-statemachine-uml")
 		testCompile project(":spring-statemachine-test")
-		testCompile project(":spring-statemachine-redis")
 		testCompile project(":spring-statemachine-data-common:spring-statemachine-data-jpa")
 		testCompile project(":spring-statemachine-data-common:spring-statemachine-data-redis")
 		testCompile project(":spring-statemachine-data-common:spring-statemachine-data-mongodb")
+        testCompile "org.apache.commons:commons-pool2"
 		testRuntime "org.springframework.boot:spring-boot-starter-data-mongodb"
 		testRuntime "org.springframework.boot:spring-boot-starter-data-redis"
+        testRuntime "redis.clients:jedis"
 		testCompile "org.springframework.boot:spring-boot-starter-data-jpa"
 		testCompile "com.h2database:h2"
 		testCompile "org.springframework.boot:spring-boot-starter"

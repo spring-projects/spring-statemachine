@@ -36,10 +36,10 @@ import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter
 import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.data.redis.RedisStateMachineContextRepository;
+import org.springframework.statemachine.data.redis.RedisStateMachinePersister;
 import org.springframework.statemachine.persist.RepositoryStateMachinePersist;
 import org.springframework.statemachine.persist.StateMachinePersister;
-import org.springframework.statemachine.redis.RedisStateMachineContextRepository;
-import org.springframework.statemachine.redis.RedisStateMachinePersister;
 
 public class RedisPersistTests extends AbstractBuildTests {
 

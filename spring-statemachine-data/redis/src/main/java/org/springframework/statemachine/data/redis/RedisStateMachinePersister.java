@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.redis;
+package org.springframework.statemachine.data.redis;
 
 import org.springframework.statemachine.StateMachinePersist;
 import org.springframework.statemachine.persist.AbstractStateMachinePersister;

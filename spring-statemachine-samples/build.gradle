@@ -89,10 +89,11 @@ project('spring-statemachine-samples-security') {
 project('spring-statemachine-samples-eventservice') {
 	description = 'Spring State Machine Event Service Sample'
 	dependencies {
-		compile project(":spring-statemachine-redis")
+		compile project(":spring-statemachine-data-common:spring-statemachine-data-redis")
 		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
 		compile("org.apache.commons:commons-pool2")
+        runtime("redis.clients:jedis")
 	}
 }
 

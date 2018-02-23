@@ -35,9 +35,6 @@ framework.
 |spring-statemachine-kryo
 |`Kryo` serializers for state machine.
 
-|spring-statemachine-redis
-|`Redis` related features for state machine.
-
 |spring-statemachine-data-common
 |Common support module for `Spring Data`.
 
