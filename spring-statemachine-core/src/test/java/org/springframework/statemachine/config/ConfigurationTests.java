@@ -31,6 +31,8 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -313,6 +315,19 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 			}
 		}
 	}
+	
+	@Test
+	public void testMachinesWithDependenciesAndConstructorInjection() {
+		context.register(Config21.class);
+		context.register(Config22.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachineFactory<String, String> stateMachineFactory22 = context.getBean("stateMachineConfig22", StateMachineFactory.class);
+		StateMachine<String,String> stateMachine22 = stateMachineFactory22.getStateMachine();
+		assertThat(stateMachine22, notNullValue());
+	}
+	
+	
 
 	@Configuration
 	@EnableStateMachine
@@ -899,6 +914,54 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 	@Configuration
 	@EnableStateMachine
 	public static class Config20 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("S1")
+					.end("S2")
+					.end("S3");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("S1")
+					.target("S2")
+					.event("E1");
+		}
+	}
+	
+	@Configuration
+	@EnableStateMachineFactory(name="stateMachineConfig21")
+	public static class Config21 extends StateMachineConfigurerAdapter<String, String> {
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("S1")
+					.end("S2")
+					.end("S3");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("S1")
+					.target("S2")
+					.event("E1");
+		}
+	}
+	
+	@Configuration
+	@EnableStateMachineFactory(name="stateMachineConfig22")
+	public static class Config22 extends StateMachineConfigurerAdapter<String, String> {
+		@Autowired
+		Config22(@Qualifier("stateMachineConfig21") StateMachineFactory<String, String> otherStateMachine) {
+		}
 
 		@Override
 		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
