@@ -116,7 +116,6 @@ public class StateMachineFactoryConfiguration<S, E> extends
 			FactoryBean<StateMachineFactory<S, E>>, BeanFactoryAware, InitializingBean {
 
 		private final StateMachineConfigBuilder<S, E> builder;
-		private List<AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>>> configurers;
 		private BeanFactory beanFactory;
 		private StateMachineFactory<S, E> stateMachineFactory;
 		private String clazzName;
@@ -146,18 +145,10 @@ public class StateMachineFactoryConfiguration<S, E> extends
 
 		@Override
 		public void afterPropertiesSet() throws Exception {
-			// do not continue without configurers, it would not work
-			if (configurers == null || configurers.size() == 0) {
-				throw new BeanDefinitionStoreException(
-						"Cannot configure state machine due to missing configurers. Did you remember to use " +
-						"@EnableStateMachineFactory with a StateMachineConfigurerAdapter.");
-			}
-			for (AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>> configurer : configurers) {
-				Class<?> clazz = configurer.getClass();
-				if (ClassUtils.getUserClass(clazz).getName().equals(clazzName)) {
-					builder.apply(configurer);
-				}
-			}
+			AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>> configurer = 
+			        (AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>>) beanFactory.getBean(Class.forName(clazzName));
+		    builder.apply(configurer);
+
 			StateMachineConfig<S, E> stateMachineConfig = builder.getOrBuild();
 			TransitionsData<S, E> stateMachineTransitions = stateMachineConfig.getTransitions();
 			StatesData<S, E> stateMachineStates = stateMachineConfig.getStates();
@@ -186,13 +177,6 @@ public class StateMachineFactoryConfiguration<S, E> extends
 		@Override
 		public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
 			this.beanFactory = beanFactory;
-		}
-
-		@Autowired(required=false)
-		protected void onConfigurers(
-				List<AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>>> configurers)
-				throws Exception {
-			this.configurers = configurers;
 		}
 
 	}
