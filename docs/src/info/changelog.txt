@@ -4,6 +4,21 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 2.0.0.RC1 (2018-03-01)
+-----------------------------------------
+* RepositoryStateMachinePersist not using contextObj as id [#494]
+* Missing accessor for state actions [#502]
+* Rename spring-statemachine-boot to spring-statemachine-autoconfigure [#507]
+* Change jpapersist sample to support mongo and redis [#509]
+* Upgrade to boot 2.0.0.RELEASE [#518]
+
+Changes in version 2.0.0.M5 (2018-02-25)
+----------------------------------------
+* Docs and sample for bom/starter [#499]
+* Backport 1.2.x changes for 2.0.0.M5 [#504]
+* Upgrade to boot 2.0.0.RC2 [#513]
+* Remove spring-statemachine-redis [#514]
+
 Changes in version 2.0.0.M4 (2018-02-12)
 ----------------------------------------
 * Define starter in bom [#498]
