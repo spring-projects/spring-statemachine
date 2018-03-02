@@ -378,6 +378,7 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 					}
 				}
 			}
+			return true;
 		}
 		return false;
 	}

@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.support.GenericMessage;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.statemachine.StateContext;
@@ -252,6 +253,66 @@ public class DefaultStateMachineExecutorTests {
 		triggerTimer.start();
 		assertThat(transit.latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(transit.transitions.size(), is(2));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testEventPolling() throws Exception {
+		// event polling should continue even if an event is no more relevant.
+		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
+		final CountDownLatch latch = new CountDownLatch(1);
+		EventTrigger<String, String> triggerE1 = new EventTrigger<String, String>("E1");
+
+		State<String, String> stateS1 = mock(State.class);
+		when(stateS1.getId()).thenReturn("S1");
+		when(stateS1.getIds()).thenReturn(Arrays.asList("S1"));
+		State<String, String> stateS2 = mock(State.class);
+		when(stateS2.getId()).thenReturn("S2");
+		when(stateS2.getIds()).thenReturn(Arrays.asList("S2"));
+
+		StateMachine<String, String> stateMachine = mock(StateMachine.class);
+		when(stateMachine.getState()).thenReturn(stateS1);
+
+		Transition<String, String> transitionS1S2 = mock(Transition.class);
+		when(transitionS1S2.getSource()).thenReturn(stateS1);
+		when(transitionS1S2.getTarget()).thenReturn(stateS2);
+		when(transitionS1S2.getTrigger()).thenReturn(triggerE1);
+		when(transitionS1S2.transit(any())).thenAnswer(x -> {
+			when(stateMachine.getState()).thenReturn(stateS2);
+			return true;
+		});
+
+		Collection<Transition<String, String>> transitions = new ArrayList<>();
+		transitions.add(transitionS1S2);
+
+		Map<Trigger<String, String>, Transition<String, String>> triggerToTransitionMap = new HashMap<>();
+		triggerToTransitionMap.put(triggerE1, transitionS1S2);
+
+		List<Transition<String, String>> triggerlessTransitions = new ArrayList<>();
+
+		Transition<String, String> initialTransition = mock(Transition.class);
+		Message<String> initialEvent = null;
+
+		DefaultStateMachineExecutor<String, String> executor = new DefaultStateMachineExecutor<>(
+				stateMachine,
+				stateMachine,
+				transitions,
+				triggerToTransitionMap,
+				triggerlessTransitions,
+				initialTransition,
+				initialEvent,
+				null);
+
+		executor.setTaskExecutor(taskExecutor);
+
+		executor.setStateMachineExecutorTransit((x, y, z) -> latch.countDown());
+		executor.start();
+		//E2 should not stuck the event polling as it is not relevant.
+		executor.queueEvent(new GenericMessage<>("E2"));
+		executor.queueEvent(new GenericMessage<>("E1"));
+		executor.execute();
+		latch.await(1, TimeUnit.SECONDS);
+		assertThat(stateMachine.getState().getId(), is(stateS2.getId()));
 	}
 
 	private static class TestStateMachineExecutorTransit implements StateMachineExecutorTransit<String, String> {
