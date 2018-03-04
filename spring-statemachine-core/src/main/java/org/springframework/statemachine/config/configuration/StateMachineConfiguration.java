@@ -155,18 +155,10 @@ public class StateMachineConfiguration<S, E> extends
 
 		@Override
 		public void afterPropertiesSet() throws Exception {
-			// do not continue without configurers, it would not work
-			if (getConfigurers() == null || getConfigurers().size() == 0) {
-				throw new BeanDefinitionStoreException(
-						"Cannot configure state machine due to missing configurers. Did you remember to use " +
-						"@EnableStateMachine with a StateMachineConfigurerAdapter.");
-			}
-			for (AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>> configurer : getConfigurers()) {
-				Class<?> clazz = configurer.getClass();
-				if (ClassUtils.getUserClass(clazz).getName().equals(clazzName)) {
-					getBuilder().apply(configurer);
-				}
-			}
+			AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>> configurer = 
+			        (AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>>) getBeanFactory().getBean(Class.forName(clazzName));
+			getBuilder().apply(configurer);
+			
 			StateMachineConfig<S, E> stateMachineConfig = getBuilder().getOrBuild();
 			TransitionsData<S, E> stateMachineTransitions = stateMachineConfig.getTransitions();
 			StatesData<S, E> stateMachineStates = stateMachineConfig.getStates();
