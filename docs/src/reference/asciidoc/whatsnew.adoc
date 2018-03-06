@@ -41,9 +41,17 @@ not seen in a point release but these changes didn't merit a fork of
 _Spring Statemachine 1.3_.
 
 * JPA entity classes have changed table names <<sm-repository-config-jpa>>
-* New sample <<statemachine-examples-datajpapersist>>
+* New sample <<statemachine-examples-datapersist>>
 * New _Entity_ classes for persistence <<sm-repository-persistence>>
   used with <<sm-repository-persistence>>
 * Transition conflict policy mentioned in
   <<statemachine-config-commonsettings>>
+
+=== In 1.2.9
+_Spring Statemachine 1.2.9_ is mostly a bug fixes but two new features
+went in.
+
+* Support for proper completion transition schematics, meaning state
+  do actions can now be used with anonymous transitions.
+* State actions can be configured with execution timeout.
 
