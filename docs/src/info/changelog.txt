@@ -4,6 +4,11 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 2.0.0.RELEASE (2018-03-06)
+---------------------------------------------
+* Executor should poll until the queue is empty [#520]
+* Backport 1.2.x changes for 2.0.0.RELEASE [#523]
+
 Changes in version 2.0.0.RC1 (2018-03-01)
 -----------------------------------------
 * RepositoryStateMachinePersist not using contextObj as id [#494]
