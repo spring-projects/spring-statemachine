@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -153,12 +152,13 @@ public class StateMachineConfiguration<S, E> extends
 			this.beanName = name;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public void afterPropertiesSet() throws Exception {
-			AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>> configurer = 
+			AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>> configurer =
 			        (AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>>) getBeanFactory().getBean(Class.forName(clazzName));
 			getBuilder().apply(configurer);
-			
+
 			StateMachineConfig<S, E> stateMachineConfig = getBuilder().getOrBuild();
 			TransitionsData<S, E> stateMachineTransitions = stateMachineConfig.getTransitions();
 			StatesData<S, E> stateMachineStates = stateMachineConfig.getStates();
