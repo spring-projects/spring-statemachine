@@ -19,6 +19,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.util.Map;
@@ -50,6 +51,15 @@ public class TimerTriggerTests extends AbstractStateMachineTests {
 	@Override
 	protected AnnotationConfigApplicationContext buildContext() {
 		return new AnnotationConfigApplicationContext();
+	}
+
+	@Test
+	public void testGetter() {
+		final long period = 1000;
+		final int count = 1;
+		final TimerTrigger timerTrigger = new TimerTrigger(period, count);
+		assertEquals(period, timerTrigger.getPeriod());
+		assertEquals(count, timerTrigger.getCount());
 	}
 
 	@Test
