@@ -19,6 +19,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,7 +132,7 @@ public class StateMachineConfiguration<S, E> extends
 
 	private static class StateMachineDelegatingFactoryBean<S, E>
 		extends BeanDelegatingFactoryBean<StateMachine<S, E>,StateMachineConfigBuilder<S, E>,StateMachineConfig<S, E>>
-		implements SmartLifecycle, BeanNameAware {
+		implements SmartLifecycle, BeanNameAware, BeanClassLoaderAware {
 
 		private String clazzName;
 		private Boolean contextEvents;
@@ -139,6 +140,7 @@ public class StateMachineConfiguration<S, E> extends
 		private DisposableBean disposableBean;
 		private String beanName;
 		private StateMachineMonitor<S, E> stateMachineMonitor;
+		private ClassLoader classLoader;
 
 		public StateMachineDelegatingFactoryBean(StateMachineConfigBuilder<S, E> builder, Class<StateMachine<S, E>> clazz,
 				String clazzName, Boolean contextEvents) {
@@ -152,11 +154,17 @@ public class StateMachineConfiguration<S, E> extends
 			this.beanName = name;
 		}
 
+		@Override
+		public void setBeanClassLoader(ClassLoader classLoader) {
+			this.classLoader = classLoader;
+		}
+
 		@SuppressWarnings("unchecked")
 		@Override
 		public void afterPropertiesSet() throws Exception {
 			AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>> configurer =
-			        (AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>>) getBeanFactory().getBean(Class.forName(clazzName));
+					(AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>>) getBeanFactory()
+						.getBean(ClassUtils.forName(clazzName, classLoader));
 			getBuilder().apply(configurer);
 
 			StateMachineConfig<S, E> stateMachineConfig = getBuilder().getOrBuild();

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.FactoryBean;
@@ -111,13 +112,14 @@ public class StateMachineFactoryConfiguration<S, E> extends
 	}
 
 	private static class StateMachineFactoryDelegatingFactoryBean<S, E> implements
-			FactoryBean<StateMachineFactory<S, E>>, BeanFactoryAware, InitializingBean {
+			FactoryBean<StateMachineFactory<S, E>>, BeanFactoryAware, InitializingBean, BeanClassLoaderAware {
 
 		private final StateMachineConfigBuilder<S, E> builder;
 		private BeanFactory beanFactory;
 		private StateMachineFactory<S, E> stateMachineFactory;
 		private String clazzName;
 		private Boolean contextEvents;
+		private ClassLoader classLoader;
 
 		@SuppressWarnings("unused")
 		public StateMachineFactoryDelegatingFactoryBean(StateMachineConfigBuilder<S, E> builder, String clazzName, Boolean contextEvents) {
@@ -141,11 +143,17 @@ public class StateMachineFactoryConfiguration<S, E> extends
 			return true;
 		}
 
+		@Override
+		public void setBeanClassLoader(ClassLoader classLoader) {
+			this.classLoader = classLoader;
+		}
+
 		@SuppressWarnings("unchecked")
 		@Override
 		public void afterPropertiesSet() throws Exception {
 			AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>> configurer =
-			        (AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>>) beanFactory.getBean(Class.forName(clazzName));
+			        (AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>>) beanFactory
+						.getBean(ClassUtils.forName(clazzName, classLoader));
 		    builder.apply(configurer);
 
 			StateMachineConfig<S, E> stateMachineConfig = builder.getOrBuild();
