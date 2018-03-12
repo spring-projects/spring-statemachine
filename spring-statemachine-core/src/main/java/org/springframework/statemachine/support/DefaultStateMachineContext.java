@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.karneim.pojobuilder.GeneratePojoBuilder;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateMachineContext;
 
@@ -122,6 +123,7 @@ public class DefaultStateMachineContext<S, E> implements StateMachineContext<S, 
 	 * @param historyStates the history state mappings
 	 * @param id the machine id
 	 */
+	@GeneratePojoBuilder(withSetterNamePattern = "*", withFactoryMethod = "create")
 	public DefaultStateMachineContext(List<StateMachineContext<S, E>> childs, S state, E event,
 			Map<String, Object> eventHeaders, ExtendedState extendedState, Map<S, S> historyStates, String id) {
 		this.childs = childs;
