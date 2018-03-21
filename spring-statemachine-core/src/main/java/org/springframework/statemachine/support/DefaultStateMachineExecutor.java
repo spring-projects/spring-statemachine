@@ -384,8 +384,16 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 	}
 
 	private void processTriggerQueue() {
+		while(processTriggerQueueUntilConsumed()) {
+			if (log.isTraceEnabled()) {
+				log.trace("calling next processTriggerQueueUntilConsumed");
+			}
+		}
+	}
+
+	private boolean processTriggerQueueUntilConsumed() {
 		if (!isRunning()) {
-			return;
+			return false;
 		}
 		if (!initialHandled.getAndSet(true)) {
 			ArrayList<Transition<S, E>> trans = new ArrayList<Transition<S, E>>();
@@ -396,7 +404,7 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 			} else {
 				handleInitialTrans(initialTransition, forwardedInitialEvent);
 			}
-			return;
+			return false;
 		}
 		if (log.isDebugEnabled()) {
 			log.debug("Process trigger queue, size=" + triggerQueue.size() + " " + this);
@@ -464,7 +472,7 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 				transit = handleTriggerTrans(transWithGuards, queuedMessage);
 			} while (transit);
 		}
-
+		return !triggerQueue.isEmpty();
 	}
 
 	@Override
