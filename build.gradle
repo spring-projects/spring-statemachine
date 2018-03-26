@@ -13,6 +13,7 @@ buildscript {
 		eclipseEmfEcoreVersion = '2.11.1-v20150805-0538'
 		eclipseUml2UmlVersion = '5.0.0-v20140602-0749'
 		curatorVersion = '2.11.1'
+		pojoBuilderVersion = '4.2.0'
 	}
 	repositories {
 		maven { url 'http://repo.springsource.org/libs-release'}
@@ -100,6 +101,7 @@ configure(allprojects) {
 			dependency "org.eclipse.emf:org.eclipse.emf.common:$eclipseEmfCommonVersion"
 			dependency "org.apache.curator:curator-recipes:$curatorVersion"
 			dependency "org.apache.curator:curator-test:$curatorVersion"
+			dependency "net.karneim:pojobuilder:$pojoBuilderVersion"
 		}
 	}
 
@@ -110,6 +112,11 @@ configure(allprojects) {
 	test {
 		exclude '**/*IntegrationTests.*'
 	}
+
+	configurations {
+		codeGeneration
+	}
+
 }
 
 configure(subprojects) { subproject ->
@@ -162,12 +169,19 @@ configure(subprojects) { subproject ->
 			plusConfigurations += [ configurations.optional ]
 		}
 	}
+
+	compileJava.classpath += configurations.codeGeneration
+	compileTestJava.classpath += configurations.codeGeneration
+	// compileJava.options.compilerArgs += ['-s', 'build/generated/java']
 }
+
 
 project('spring-statemachine-core') {
 	description = "Spring State Machine Core"
     
 	dependencies {
+		codeGeneration "net.karneim:pojobuilder"
+		compileOnly "net.karneim:pojobuilder:$pojoBuilderVersion:annotations"
 		compile "org.springframework:spring-tx"
 		compile "org.springframework:spring-messaging"
 		optional "org.springframework.security:spring-security-core"
