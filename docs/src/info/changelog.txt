@@ -4,6 +4,11 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 1.2.10.RELEASE (2018-03-28)
+----------------------------------------------
+* Backport master changes [#529]
+* Executor may build up triggers with timers [#538]
+
 Changes in version 1.2.9.RELEASE (2018-03-06)
 ---------------------------------------------
 * Support proper completion transition schematics [#466]
