@@ -18,6 +18,8 @@ package org.springframework.statemachine;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
@@ -253,6 +255,34 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 		machine.start();
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S1, States.S11));
 		assertThat(machine.getExtendedState().getVariables().size(), is(0));
+	}
+
+	@Test
+	public void testResetWithEnumToCorrectStartState() throws Exception {
+		context.register(Config1.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachine<States, Events> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+
+		machine.start();
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S1, States.S11));
+
+		machine.sendEvent(Events.I);
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S1, States.S12));
+
+		machine.stop();
+		DefaultStateMachineContext<States,Events> stateMachineContext = new DefaultStateMachineContext<States, Events>(States.S11, null, null, null);
+		machine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<States,Events>>() {
+
+			@Override
+			public void apply(StateMachineAccess<States, Events> function) {
+				function.resetStateMachine(stateMachineContext);
+			}
+		});
+		machine.start();
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S1, States.S11));
+		assertEquals(States.S11, stateMachineContext.getState());
+		assertNotEquals(stateMachineContext.getState(), machine.getInitialState());
 	}
 
 	@Test
