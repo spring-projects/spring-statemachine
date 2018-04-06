@@ -4,6 +4,13 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 2.0.1.RELEASE (2018-04-06)
+---------------------------------------------
+* mvn spring-boot:run fails when devtools are on the classpath [#531]
+* Add getters on some fields in TimeTrigger [#533]
+* State Machine Does Not Restore To State After Load From DB [#537]
+* Upgrade to boot 2.0.1 [#543]
+
 Changes in version 2.0.0.RELEASE (2018-03-06)
 ---------------------------------------------
 * Executor should poll until the queue is empty [#520]
