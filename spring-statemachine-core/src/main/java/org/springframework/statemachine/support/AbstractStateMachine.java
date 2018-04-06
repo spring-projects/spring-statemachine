@@ -651,7 +651,13 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		// handle state reset
 		for (State<S, E> s : getStates()) {
 			for (State<S, E> ss : s.getStates()) {
-				if (state != null && ss.getIds().contains(state)) {
+
+				boolean enumMatch = false;
+				if (state instanceof Enum && ss.getId() instanceof Enum && ((Enum) ss.getId()).ordinal() == ((Enum) state).ordinal()) {
+					enumMatch = true;
+				}
+
+				if (state != null && (ss.getIds().contains(state) || enumMatch) ) {
 					currentState = s;
 					// setting lastState here is needed for restore
 					lastState = currentState;
@@ -706,7 +712,11 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 					} else {
 						for (final StateMachineContext<S, E> child : stateMachineContext.getChilds()) {
 							S state2 = child.getState();
-							if (state2 != null && ss.getIds().contains(state2)) {
+							boolean enumMatch2 = false;
+							if (state2 instanceof Enum && ss.getId() instanceof Enum && ((Enum) ss.getId()).ordinal() == ((Enum) state2).ordinal()) {
+								enumMatch2 = true;
+							}
+							if (state2 != null && (ss.getIds().contains(state2) || enumMatch2) ) {
 								currentState = s;
 								lastState = currentState;
 								stateSet = true;
