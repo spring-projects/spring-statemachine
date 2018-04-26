@@ -4,6 +4,10 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 1.2.11.RELEASE (2018-04-26)
+----------------------------------------------
+* Backport master changes [#549]
+
 Changes in version 1.2.10.RELEASE (2018-03-28)
 ----------------------------------------------
 * Backport master changes [#529]
