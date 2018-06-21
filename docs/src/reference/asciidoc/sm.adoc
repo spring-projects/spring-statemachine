@@ -2323,9 +2323,9 @@ with state having sub-states. In a below statechart events `E1` and
 `S2` where normal state behaviour happens by entering initial state
 `S21`.
 
-Using event `S3` takes machine into _EntryPoint_ `ENTRY` which then
+Using event `E3` takes machine into _EntryPoint_ `ENTRY` which then
 leads into `S22` without activating initial state `S21` at any time.
-Similarly _ExitPoint_ `EXIT` with event `S4` controls specific exit
+Similarly _ExitPoint_ `EXIT` with event `E4` controls specific exit
 into state `S4` while normal exit behaviour from `S2` would take
 machine into state `S3`. While being on a state `S22` you can choose
 events `E4` or `E2` to take machine into states `S3` or `S4`
