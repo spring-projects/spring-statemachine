@@ -29,6 +29,11 @@ configure(allprojects) {
 	apply plugin: 'idea'
 	apply plugin: 'propdeps'
 
+	configurations {
+		sniffer
+		javaApiSignature
+	}
+
 	if (System.env.TRAVIS == 'true') {
 		tasks.withType(GroovyCompile) {
 			groovyOptions.fork = false
@@ -67,6 +72,46 @@ configure(allprojects) {
 	test {
 		exclude '**/*IntegrationTests.*'
 	}
+
+	dependencies {
+		sniffer("org.codehaus.mojo:animal-sniffer-ant-tasks:${snifferVersion}")
+		javaApiSignature("org.codehaus.mojo.signature:java17:1.0@signature")  // API level from JDK 7
+	}
+
+	task copyJavaApiSignature(type: Copy) {
+		ext.to = file("$buildDir/javaApiSignature/")
+		description "Copy the resolved Animal Sniffer signature dependency artifact to a known location and name"
+		from configurations.javaApiSignature
+		into to
+		rename '.*signature', 'javaApi.signature'
+	}
+
+	task sniff {
+		group = "Verification"
+		description = "Checks the Java API signatures"
+
+		dependsOn compileJava
+		dependsOn copyJavaApiSignature
+
+		inputs.dir sourceSets.main.output.classesDir
+		inputs.dir copyJavaApiSignature.to
+
+		doLast {
+			ant.taskdef(
+				name: 'animalSniffer',
+				classname: 'org.codehaus.mojo.animal_sniffer.ant.CheckSignatureTask',
+				classpath: configurations.sniffer.asPath
+			)
+
+			ant.animalSniffer(
+					signature: "$buildDir/javaApiSignature/javaApi.signature",
+					classpath: sourceSets.main.compileClasspath.asPath) {
+				path(path: sourceSets.main.output.classesDir)
+			}
+		}
+	}
+
+	build.dependsOn sniff
 }
 
 configure(subprojects) { subproject ->

@@ -133,7 +133,7 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 		this.transitionComparator = new TransitionComparator<S, E>(transitionConflictPolicy);
 		this.transitionConflictPolicy = transitionConflictPolicy;
 		// anonymous transitions are fixed, sort those now
-		this.triggerlessTransitions.sort(transitionComparator);
+		Collections.sort(this.triggerlessTransitions, transitionComparator);
 		registerTriggerListener();
 	}
 
@@ -453,7 +453,7 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 			}
 
 			// go through candidates and transit max one, sort before handling
-			trans.sort(transitionComparator);
+			Collections.sort(trans, transitionComparator);
 			handleTriggerTrans(trans, queuedMessage);
 		}
 
