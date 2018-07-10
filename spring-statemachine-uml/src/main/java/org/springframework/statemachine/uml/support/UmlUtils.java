@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,6 +63,21 @@ public abstract class UmlUtils {
 		Resource resource = resourceSet.getResource(modelUri, true);
 		Model m = (Model) EcoreUtil.getObjectByType(resource.getContents(), UMLPackage.Literals.MODEL);
 		return m;
+	}
+
+	/**
+	 * Gets the resource for a model.
+	 *
+	 * @param modelPath the model path
+	 * @return the resource
+	 */
+	public static Resource getResource(String modelPath) {
+		URI modelUri = URI.createFileURI(modelPath);
+		ResourceSet resourceSet = new ResourceSetImpl();
+		resourceSet.getPackageRegistry().put(UMLPackage.eNS_URI, UMLPackage.eINSTANCE);
+		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(UMLResource.FILE_EXTENSION, UMLResource.Factory.INSTANCE);
+		resourceSet.createResource(modelUri);
+		return resourceSet.getResource(modelUri, true);
 	}
 
 	/**
