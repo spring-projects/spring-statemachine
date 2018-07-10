@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,9 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.uml2.uml.Model;
+import org.eclipse.uml2.uml.UMLPackage;
 import org.springframework.core.io.Resource;
 import org.springframework.statemachine.config.model.AbstractStateMachineModelFactory;
 import org.springframework.statemachine.config.model.DefaultStateMachineModel;
@@ -68,13 +70,40 @@ public class UmlStateMachineModelFactory extends AbstractStateMachineModelFactor
 	@Override
 	public StateMachineModel<String, String> build() {
 		Model model = null;
+		Holder holder = null;
+		org.eclipse.emf.ecore.resource.Resource resource = null;
 		try {
-			model = UmlUtils.getModel(getResourceUri(resolveResource()).getPath());
+			holder = getResourceUri(resolveResource());
+			resource = UmlUtils.getResource(holder.uri.getPath());
+			model = (Model) EcoreUtil.getObjectByType(resource.getContents(), UMLPackage.Literals.MODEL);
 		} catch (IOException e) {
 			throw new IllegalArgumentException("Cannot build build model from resource " + resource + " or location " + location, e);
+		} finally {
+			// if we have a path, tmp file were created, clean it
+			if (holder != null && holder.path != null) {
+				try {
+					Files.deleteIfExists(holder.path);
+				} catch (Exception e2) {
+				}
+			}
 		}
 		UmlModelParser parser = new UmlModelParser(model, this);
 		DataHolder dataHolder = parser.parseModel();
+
+		// clean up
+		if (resource != null) {
+			try {
+				resource.unload();
+			} catch (Exception e) {
+			}
+		}
+		if (holder != null && holder.path != null) {
+			try {
+				Files.deleteIfExists(holder.path);
+			} catch (Exception e2) {
+			}
+		}
+
 		// we don't set configurationData here, so assume null
 		return new DefaultStateMachineModel<String, String>(null, dataHolder.getStatesData(), dataHolder.getTransitionsData());
 	}
@@ -87,16 +116,30 @@ public class UmlStateMachineModelFactory extends AbstractStateMachineModelFactor
 		}
 	}
 
-	private URI getResourceUri(Resource resource) throws IOException {
+	private Holder getResourceUri(Resource resource) throws IOException {
 		// try to see if resource is an actual File and eclipse
 		// libs cannot use input stream. thus creating a tmp file with
 		// needed .uml prefix and getting URI from there.
 		try {
-			return resource.getFile().toURI();
+			return new Holder(resource.getFile().toURI());
 		} catch (Exception e) {
 		}
 		Path tempFile = Files.createTempFile(null, ".uml");
 		FileCopyUtils.copy(resource.getInputStream(), new FileOutputStream(tempFile.toFile()));
-		return tempFile.toUri();
+		return new Holder(tempFile.toUri(), tempFile);
+	}
+
+	private static class Holder {
+		URI uri;
+		Path path;
+
+		public Holder(URI uri) {
+			this(uri, null);
+		}
+
+		public Holder(URI uri, Path path) {
+			this.uri = uri;
+			this.path = path;
+		}
 	}
 }
