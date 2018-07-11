@@ -109,8 +109,7 @@ public class StateMachineHandlerCallHelper<S, E> implements InitializingBean, Be
 			// in a same way further things will be skipped in afterPropertiesSet()
 			return;
 		}
-		Assert.state(beanFactory instanceof ListableBeanFactory,
-				"Bean factory must be instance of ListableBeanFactory, was " + beanFactory);
+		Assert.isInstanceOf(ListableBeanFactory.class, beanFactory);
 		this.beanFactory = (ListableBeanFactory)beanFactory;
 	}
 

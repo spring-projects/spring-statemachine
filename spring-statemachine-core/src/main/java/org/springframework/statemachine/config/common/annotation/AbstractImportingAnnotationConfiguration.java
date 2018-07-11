@@ -128,8 +128,7 @@ public abstract class AbstractImportingAnnotationConfiguration<B extends Annotat
 
 	@Override
 	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-		Assert.isInstanceOf(ListableBeanFactory.class, beanFactory,
-				"beanFactory be of type ListableBeanFactory but was " + beanFactory);
+		Assert.isInstanceOf(ListableBeanFactory.class, beanFactory);
 		this.beanFactory = beanFactory;
 	}
 
