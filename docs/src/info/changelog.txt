@@ -4,6 +4,14 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 2.0.2.RELEASE (2018-07-12)
+---------------------------------------------
+* Update sm.adoc [#565]
+* StateMachineHandlerCallHelper uses BeanFactory#toString [#569]
+* Use Spring Boot autoconfigure-processor to optimize auto-configurations [#570]
+* UML Factory facilities leak memory [#572]
+* Upgrade to boot 2.0.3 [#576]
+
 Changes in version 2.0.1.RELEASE (2018-04-06)
 ---------------------------------------------
 * mvn spring-boot:run fails when devtools are on the classpath [#531]
