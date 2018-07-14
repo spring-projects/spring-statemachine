@@ -48,7 +48,7 @@ public class StateMachineAutoConfiguration {
 	public static class StateMachineTraceEndpointConfiguration {
 
 	    @Bean
-	    public StateMachineTraceEndpoint stateMachieTraceEndpoint(StateMachineTraceRepository stateMachineTraceRepository) {
+	    public StateMachineTraceEndpoint stateMachineTraceEndpoint(StateMachineTraceRepository stateMachineTraceRepository) {
 			return new StateMachineTraceEndpoint(stateMachineTraceRepository);
 	    }
 	}
