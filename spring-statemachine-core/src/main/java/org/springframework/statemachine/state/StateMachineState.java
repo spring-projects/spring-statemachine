@@ -222,12 +222,26 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 							}
 						});
 			}
+			if (immediateDeepParent == null && getSubmachine().getStates().contains(target) && isEntry(target)) {
+				getSubmachine().getStateMachineAccessor().doWithRegion(
+						new StateMachineFunction<StateMachineAccess<S, E>>() {
+
+							@Override
+							public void apply(StateMachineAccess<S, E> function) {
+								function.setInitialEnabled(false);
+							}
+						});
+			}
 		}
 		getSubmachine().start();
 	}
 
 	private boolean isInitial(State<S, E> state) {
 		return state.getPseudoState() != null && state.getPseudoState().getKind() == PseudoStateKind.INITIAL;
+	}
+
+	private boolean isEntry(State<S, E> state) {
+		return state.getPseudoState() != null && state.getPseudoState().getKind() == PseudoStateKind.ENTRY;
 	}
 
 	private State<S, E> findDeepParent(Collection<State<S, E>> states, State<S, E> state) {

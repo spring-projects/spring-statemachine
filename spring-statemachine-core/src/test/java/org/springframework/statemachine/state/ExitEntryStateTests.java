@@ -19,6 +19,9 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +32,7 @@ import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 
 public class ExitEntryStateTests extends AbstractStateMachineTests {
 
@@ -40,12 +44,36 @@ public class ExitEntryStateTests extends AbstractStateMachineTests {
 		StateMachine<String, String> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
 		assertThat(machine, notNullValue());
+		TestStateEntryExitListener listener = new TestStateEntryExitListener();
+		machine.addStateListener(listener);
 		machine.start();
 		assertThat(machine.getState().getIds(), contains("S1"));
+		listener.reset();
 		machine.sendEvent("ENTRY1");
 		assertThat(machine.getState().getIds(), contains("S2", "S22"));
+		assertThat(listener.exited, contains("S1"));
+		assertThat(listener.entered, contains("S2", "S22"));
 		machine.sendEvent("EXIT1");
 		assertThat(machine.getState().getIds(), contains("S4"));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testSimpleEntryToInitial() {
+		context.register(Config1.class);
+		context.refresh();
+		StateMachine<String, String> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		assertThat(machine, notNullValue());
+		TestStateEntryExitListener listener = new TestStateEntryExitListener();
+		machine.addStateListener(listener);
+		machine.start();
+		assertThat(machine.getState().getIds(), contains("S1"));
+		listener.reset();
+		machine.sendEvent("ENTRY3");
+		assertThat(machine.getState().getIds(), contains("S2", "S21"));
+		assertThat(listener.exited, contains("S1"));
+		assertThat(listener.entered, contains("S2", "S21"));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -92,6 +120,7 @@ public class ExitEntryStateTests extends AbstractStateMachineTests {
 						.initial("S21")
 						.entry("S2ENTRY1")
 						.entry("S2ENTRY2")
+						.entry("S2ENTRY3")
 						.exit("S2EXIT1")
 						.exit("S2EXIT2")
 						.state("S22")
@@ -118,6 +147,10 @@ public class ExitEntryStateTests extends AbstractStateMachineTests {
 					.event("ENTRY2")
 					.and()
 				.withExternal()
+					.source("S1").target("S2ENTRY3")
+					.event("ENTRY3")
+					.and()
+				.withExternal()
 					.source("S22").target("S2EXIT1")
 					.event("EXIT1")
 					.and()
@@ -130,6 +163,9 @@ public class ExitEntryStateTests extends AbstractStateMachineTests {
 					.and()
 				.withEntry()
 					.source("S2ENTRY2").target("S23")
+					.and()
+				.withEntry()
+					.source("S2ENTRY3").target("S21")
 					.and()
 				.withExit()
 					.source("S2EXIT1").target("S4")
@@ -197,6 +233,26 @@ public class ExitEntryStateTests extends AbstractStateMachineTests {
 		}
 	}
 
+	private static class TestStateEntryExitListener extends StateMachineListenerAdapter<String, String> {
+
+		List<String> entered = new ArrayList<>();
+		List<String> exited = new ArrayList<>();
+
+		@Override
+		public void stateEntered(State<String, String> state) {
+			entered.add(state.getId());
+		}
+
+		@Override
+		public void stateExited(State<String, String> state) {
+			exited.add(state.getId());
+		}
+
+		public void reset() {
+			entered.clear();
+			exited.clear();
+		}
+	}
 
 	@Override
 	protected AnnotationConfigApplicationContext buildContext() {
