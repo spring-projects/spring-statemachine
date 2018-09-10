@@ -655,7 +655,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			for (State<S, E> ss : s.getStates()) {
 
 				boolean enumMatch = false;
-				if (state instanceof Enum && ss.getId() instanceof Enum
+				if (state instanceof Enum && ss.getId() instanceof Enum && state.getClass() == ss.getId().getClass()
 						&& ((Enum) ss.getId()).ordinal() == ((Enum) state).ordinal()) {
 					enumMatch = true;
 				}
