@@ -15,6 +15,15 @@
  */
 package org.springframework.statemachine.support;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.locks.Lock;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
@@ -59,15 +68,6 @@ import org.springframework.statemachine.trigger.DefaultTriggerContext;
 import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.locks.Lock;
 
 /**
  * Base implementation of a {@link StateMachine} loosely modelled from UML state
@@ -655,7 +655,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			for (State<S, E> ss : s.getStates()) {
 
 				boolean enumMatch = false;
-				if (state instanceof Enum && ss.getId() instanceof Enum
+				if (state instanceof Enum && ss.getId() instanceof Enum && state.getClass() == ss.getId().getClass()
 						&& ((Enum) ss.getId()).ordinal() == ((Enum) state).ordinal()) {
 					enumMatch = true;
 				}
@@ -717,9 +717,11 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 							S state2 = child.getState();
 							boolean enumMatch2 = false;
 							if (state2 instanceof Enum && ss.getId() instanceof Enum
+									&& state.getClass() == ss.getId().getClass()
 									&& ((Enum) ss.getId()).ordinal() == ((Enum) state2).ordinal()) {
 								enumMatch2 = true;
 							}
+
 							if (state2 != null && (ss.getIds().contains(state2) || enumMatch2) ) {
 								currentState = s;
 								lastState = currentState;

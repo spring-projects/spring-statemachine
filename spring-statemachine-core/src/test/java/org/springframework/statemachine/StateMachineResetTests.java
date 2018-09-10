@@ -38,6 +38,7 @@ import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
@@ -375,6 +376,54 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 		assertThat((Integer)machine.getExtendedState().getVariables().get("count2"), is(2));
 		assertThat(listener.count1, is(2));
 		assertThat(listener.count2, is(1));
+	}
+
+	@Test
+	public void testResetFunkyEnumTypes1() throws Exception {
+		context.register(Config6.class);
+		context.refresh();
+
+		@SuppressWarnings("unchecked")
+		StateMachine<MyState, MyEvent> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE,
+				StateMachine.class);
+
+		DefaultStateMachineContext<MyState, MyEvent> stateMachineContext = new DefaultStateMachineContext<MyState, MyEvent>(
+				SubState.SUB_NEXT, null, null, null);
+
+		machine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<MyState, MyEvent>>() {
+
+			@Override
+			public void apply(StateMachineAccess<MyState, MyEvent> function) {
+				function.resetStateMachine(stateMachineContext);
+			}
+		});
+
+		machine.start();
+		assertThat(machine.getState().getIds(), containsInAnyOrder(SuperState.PARENT, SubState.SUB_NEXT));
+	}
+
+	@Test
+	public void testResetFunkyEnumTypes2() throws Exception {
+		context.register(Config6.class);
+		context.refresh();
+
+		@SuppressWarnings("unchecked")
+		StateMachine<MyState, MyEvent> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE,
+				StateMachine.class);
+
+		DefaultStateMachineContext<MyState, MyEvent> stateMachineContext = new DefaultStateMachineContext<MyState, MyEvent>(
+				SuperState.INITIAL, null, null, null);
+
+		machine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<MyState, MyEvent>>() {
+
+			@Override
+			public void apply(StateMachineAccess<MyState, MyEvent> function) {
+				function.resetStateMachine(stateMachineContext);
+			}
+		});
+
+		machine.start();
+		assertThat(machine.getState().getIds(), containsInAnyOrder(SuperState.INITIAL));
 	}
 
 	@Configuration
@@ -756,4 +805,65 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 
 	}
 
-}
+	@Configuration
+	@EnableStateMachine
+	static class Config6 extends StateMachineConfigurerAdapter<MyState, MyEvent> {
+
+		@Override
+		public void configure(final StateMachineStateConfigurer<MyState, MyEvent> states) throws Exception {
+			states
+				.withStates()
+					.end(SuperState.END)
+					.state(SuperState.PARENT)
+					.initial(SuperState.INITIAL)
+					.and()
+				.withStates()
+					.parent(SuperState.PARENT)
+					.initial(SubState.SUB_INITIAL)
+					.state(SubState.SUB_NEXT)
+					.end(SubState.SUB_END);
+		}
+
+		@Override
+		public void configure(final StateMachineTransitionConfigurer<MyState, MyEvent> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(SuperState.INITIAL)
+					.target(SuperState.PARENT)
+					.event(MyEvent.GO)
+					.and()
+				.withExternal()
+					.source(SuperState.PARENT)
+					.target(SuperState.END)
+					.event(MyEvent.GO)
+					.and()
+				.withExternal()
+					.source(SubState.SUB_INITIAL)
+					.target(SubState.SUB_NEXT)
+					.event(MyEvent.GO)
+					.and()
+				.withExternal()
+					.source(SubState.SUB_NEXT)
+					.target(SubState.SUB_END)
+					.event(MyEvent.GO);
+		}
+	}
+
+	public enum SubState implements MyState {
+		SUB_INITIAL,
+		SUB_NEXT,
+		SUB_END;
+	}
+
+	public enum SuperState implements MyState {
+		INITIAL,
+		PARENT,
+		END;
+	}
+
+	public interface MyState {
+	}
+
+	public enum MyEvent {
+		GO;
+	}}
