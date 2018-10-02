@@ -341,8 +341,8 @@ but things gets a little simpler with a simple example.
 Some of us have a full size keyboard with main keys on a left side and numeric
 keys on a right side. You've probably noticed that both sides really
 have their own state which you see if you press a numlock key which
-only alters behaviour of numbad itself. If you don't have a full size
-keyboard you can buy a simple external usb numbad having only numbad
+only alters behaviour of numpad itself. If you don't have a full size
+keyboard you can buy a simple external usb numpad having only numpad
 part of a keys. If left and right side can freely exist without the
 other they must have a totally different states which means they are
 operating on different state machines.
