@@ -4,6 +4,13 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 2.0.3.RELEASE (2018-11-10)
+---------------------------------------------
+* Initial state wrongly entered with entry point [#577]
+* Update sm.adoc [#587]
+* Fixed Enum Comparison [#592]
+* Fix numpad typo in Reference documentation, section B.3.8 [#594]
+
 Changes in version 2.0.2.RELEASE (2018-07-12)
 ---------------------------------------------
 * Update sm.adoc [#565]
