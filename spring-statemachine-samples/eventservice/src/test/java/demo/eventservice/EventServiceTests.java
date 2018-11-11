@@ -46,7 +46,8 @@ import demo.eventservice.StateMachineConfig.Events;
 import demo.eventservice.StateMachineConfig.States;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { Application.class, Config.class })
+@SpringBootTest(classes = { Application.class,
+		Config.class }, properties = "spring.main.allow-bean-definition-overriding=true")
 @WebAppConfiguration
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class EventServiceTests {
