@@ -4,6 +4,10 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 2.1.0.M1 (2018-11-28)
+----------------------------------------
+* Upgrade to Spring Boot 2.1.x [#602]
+
 Changes in version 2.0.3.RELEASE (2018-11-10)
 ---------------------------------------------
 * Initial state wrongly entered with entry point [#577]
