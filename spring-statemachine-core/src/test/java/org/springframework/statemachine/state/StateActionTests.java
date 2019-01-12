@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.springframework.statemachine.state;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
@@ -65,6 +66,27 @@ public class StateActionTests extends AbstractStateMachineTests {
 		ctx.close();
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testEndStateEntryAction() throws Exception {
+		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config2.class);
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		TestEntryAction testEntryAction = ctx.getBean("testEntryAction", TestEntryAction.class);
+		machine.start();
+
+		assertThat(machine, notNullValue());
+		assertThat(machine.isComplete(), is(false));
+		assertThat(machine.getState().getIds(), contains(TestStates.SI));
+
+		machine.sendEvent(TestEvents.E1);
+		assertThat(machine.isComplete(), is(true));
+		assertThat(machine.getState().getIds(), contains(TestStates.SF));
+		assertThat(testEntryAction.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
+
+		ctx.close();
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
@@ -106,4 +128,32 @@ public class StateActionTests extends AbstractStateMachineTests {
 
 	}
 
+	@Configuration
+	@EnableStateMachine
+	static class Config2 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.SI)
+					.state(TestStates.SI)
+					.state(TestStates.SF, testEntryAction(), null)
+					.end(TestStates.SF);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.SI)
+					.target(TestStates.SF)
+					.event(TestEvents.E1);
+		}
+
+		@Bean
+		public Action<TestStates, TestEvents> testEntryAction() {
+			return new TestEntryAction();
+		}
+	}
 }
