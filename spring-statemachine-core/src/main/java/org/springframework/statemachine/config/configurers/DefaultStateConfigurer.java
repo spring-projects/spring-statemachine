@@ -47,7 +47,7 @@ public class DefaultStateConfigurer<S, E>
 		implements StateConfigurer<S, E> {
 
 	private Object parent;
-	private final Object region = UUID.randomUUID().toString();
+	private Object region = UUID.randomUUID().toString();
 	private final Map<S, StateData<S, E>> incomplete = new HashMap<S, StateData<S, E>>();
 	private S initialState;
 	private Action<S, E> initialAction;
@@ -120,6 +120,12 @@ public class DefaultStateConfigurer<S, E>
 	@Override
 	public StateConfigurer<S, E> parent(S state) {
 		this.parent = state;
+		return this;
+	}
+
+	@Override
+	public StateConfigurer<S, E> region(String id) {
+		this.region = id;
 		return this;
 	}
 

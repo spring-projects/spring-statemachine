@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,10 @@ public class StateMachineContextSerializer<S, E> extends Serializer<StateMachine
 		kryo.writeClassAndObject(output, context.getChilds());
 		kryo.writeClassAndObject(output, context.getHistoryStates());
 		kryo.writeClassAndObject(output, context.getId());
+		// child refs is added after initial implementation, leaving this not here
+		// in case it's starting to cause issues with any existing serialized contexts
+		// which doesn't have this field
+		kryo.writeClassAndObject(output, context.getChildReferences());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -58,7 +62,8 @@ public class StateMachineContextSerializer<S, E> extends Serializer<StateMachine
 		List<StateMachineContext<S, E>> childs = (List<StateMachineContext<S, E>>) kryo.readClassAndObject(input);
 		Map<S, S> historyStates = (Map<S, S>) kryo.readClassAndObject(input);
 		String id = (String) kryo.readClassAndObject(input);
-		return new DefaultStateMachineContext<S, E>(childs, state, event, eventHeaders, new DefaultExtendedState(variables), historyStates, id);
+		List<String> childRefs = (List<String>) kryo.readClassAndObject(input);
+		return new DefaultStateMachineContext<S, E>(childRefs, childs, state, event, eventHeaders,
+				new DefaultExtendedState(variables), historyStates, id);
 	}
-
 }

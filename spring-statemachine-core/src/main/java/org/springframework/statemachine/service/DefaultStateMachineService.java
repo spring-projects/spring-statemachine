@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -152,7 +152,8 @@ public class DefaultStateMachineService<S, E> implements StateMachineService<S, 
 			return stateMachine;
 		}
 		stateMachine.stop();
-		stateMachine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<S, E>>() {
+		// only go via top region
+		stateMachine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S, E>>() {
 
 			@Override
 			public void apply(StateMachineAccess<S, E> function) {

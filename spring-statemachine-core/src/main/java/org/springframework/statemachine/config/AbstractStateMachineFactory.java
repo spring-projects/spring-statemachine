@@ -80,6 +80,7 @@ import org.springframework.statemachine.state.StateMachineState;
 import org.springframework.statemachine.support.DefaultExtendedState;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
 import org.springframework.statemachine.support.StateMachineInterceptor;
+import org.springframework.statemachine.support.StateMachineInterceptorAdapter;
 import org.springframework.statemachine.support.tree.Tree;
 import org.springframework.statemachine.support.tree.Tree.Node;
 import org.springframework.statemachine.support.tree.TreeTraverser;
@@ -219,9 +220,14 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 			if (initialCount > 1) {
 				for (Collection<StateData<S, E>> regionStateDatas : regionsStateDatas) {
+					// try to build reqion id's
+					Object rId = regionStateDatas.iterator().next().getRegion();
+					String mId = machineId != null ? machineId : stateMachineModel.getConfigurationData().getMachineId();
+					mId = mId + "#" + (rId != null ? rId.toString() : "");
+
 					machine = buildMachine(machineMap, stateMap, holderList, regionStateDatas, transitionsData, resolveBeanFactory(stateMachineModel),
 							contextEvents, defaultExtendedState, stateMachineModel.getTransitionsData(), resolveTaskExecutor(stateMachineModel),
-							resolveTaskScheduler(stateMachineModel), machineId, null, stateMachineModel);
+							resolveTaskScheduler(stateMachineModel), mId, null, stateMachineModel);
 					regionStack.push(new MachineStackItem<S, E>(machine));
 					machines.add(machine);
 				}
@@ -359,10 +365,12 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		List<StateMachineInterceptor<S,E>> interceptors = stateMachineModel.getConfigurationData().getStateMachineInterceptors();
 		if (interceptors != null) {
 			for (final StateMachineInterceptor<S, E> interceptor : interceptors) {
-				machine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S,E>>() {
+				// add persisting interceptor hooks to all regions
+				RegionPersistingInterceptorAdapter<S, E> adapter = new RegionPersistingInterceptorAdapter<>(interceptor, machine);
+				machine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<S,E>>() {
 					@Override
 					public void apply(StateMachineAccess<S, E> function) {
-						function.addStateMachineInterceptor(interceptor);
+						function.addStateMachineInterceptor(adapter);
 					}
 				});
 			}
@@ -375,6 +383,42 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		}
 
 		return delegateAutoStartup(machine);
+	}
+
+	private static class RegionPersistingInterceptorAdapter<S, E> extends StateMachineInterceptorAdapter<S, E> {
+
+		private final StateMachineInterceptor<S, E> interceptor;
+		private final StateMachine<S, E> rootStateMachine;
+
+		public RegionPersistingInterceptorAdapter(StateMachineInterceptor<S, E> interceptor, StateMachine<S, E> rootStateMachine) {
+			this.interceptor = interceptor;
+			this.rootStateMachine = rootStateMachine;
+		}
+
+		@Override
+		public void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
+				StateMachine<S, E> stateMachine) {
+			interceptor.preStateChange(state, message, transition, stateMachine, rootStateMachine);
+		}
+
+		@Override
+		public void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
+				StateMachine<S, E> stateMachine, StateMachine<S, E> rootStateMachine) {
+			interceptor.preStateChange(state, message, transition, stateMachine, rootStateMachine);
+		}
+
+		@Override
+		public void postStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
+				StateMachine<S, E> stateMachine) {
+			interceptor.postStateChange(state, message, transition, stateMachine, rootStateMachine);
+		}
+
+		@Override
+		public void postStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
+				StateMachine<S, E> stateMachine, StateMachine<S, E> rootStateMachine) {
+			interceptor.postStateChange(state, message, transition, stateMachine, rootStateMachine);
+		}
+
 	}
 
 	/**

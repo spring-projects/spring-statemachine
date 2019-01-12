@@ -1,0 +1,7 @@
+logging:
+  level:
+    root: INFO
+    org.springframework.statemachine: DEBUG
+security:
+  basic:
+    enabled: false

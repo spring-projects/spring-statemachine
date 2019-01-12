@@ -128,6 +128,19 @@ project('spring-statemachine-samples-datajpa') {
 	}
 }
 
+project('spring-statemachine-samples-datajpamultipersist') {
+	description = 'Spring State Machine Data Jpa Multi Persist Sample'
+	dependencies {
+		compile project(":spring-statemachine-autoconfigure")
+		compile project(":spring-statemachine-data-common:spring-statemachine-data-jpa")
+		compile("org.springframework.boot:spring-boot-starter-web")
+		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+		compile("org.springframework.boot:spring-boot-starter-data-jpa")
+		compile("org.springframework.boot:spring-boot-devtools")
+		compile("com.h2database:h2")
+	}
+}
+
 project('spring-statemachine-samples-datapersist') {
 	description = 'Spring State Machine Data Persist Sample'
 	dependencies {

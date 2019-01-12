@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,16 @@
  */
 package org.springframework.statemachine.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.StateMachinePersist;
 import org.springframework.statemachine.kryo.KryoStateMachineSerialisationService;
 import org.springframework.statemachine.service.StateMachineSerialisationService;
+import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.util.Assert;
 
 /**
@@ -66,8 +70,27 @@ public abstract class RepositoryStateMachinePersist<M extends RepositoryStateMac
 	@Override
 	public StateMachineContext<S, E> read(Object contextObj) throws Exception {
 		M repositoryStateMachine = getRepository().findById(contextObj.toString()).orElse(null);
+		// use child contexts if we have those, otherwise fall back to child context refs.
 		if (repositoryStateMachine != null) {
-			return serialisationService.deserialiseStateMachineContext(repositoryStateMachine.getStateMachineContext());
+			StateMachineContext<S, E> context = serialisationService
+					.deserialiseStateMachineContext(repositoryStateMachine.getStateMachineContext());;
+			if (context != null && context.getChilds() != null && context.getChilds().isEmpty()
+					&& context.getChildReferences() != null) {
+				List<StateMachineContext<S, E>> contexts = new ArrayList<>();
+				for (String childRef : context.getChildReferences()) {
+					repositoryStateMachine = getRepository().findById(childRef).orElse(null);
+					if (repositoryStateMachine != null) {
+						contexts.add(serialisationService
+								.deserialiseStateMachineContext(repositoryStateMachine.getStateMachineContext()));
+					}
+				}
+				return new DefaultStateMachineContext<S, E>(contexts, context.getState(), context.getEvent(),
+						context.getEventHeaders(), context.getExtendedState(), context.getHistoryStates(),
+						context.getId());
+			} else {
+				return context;
+			}
+
 		}
 		return null;
 	}

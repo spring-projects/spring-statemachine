@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,19 @@ public interface StateMachineInterceptor<S, E> {
 			StateMachine<S, E> stateMachine);
 
 	/**
+	 * Called prior of a state change. Throwing an exception
+	 * from this method will stop a state change logic.
+	 *
+	 * @param state the state
+	 * @param message the message
+	 * @param transition the transition
+	 * @param stateMachine the state machine
+	 * @param rootStateMachine the root state machine
+	 */
+	void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
+			StateMachine<S, E> stateMachine, StateMachine<S, E> rootStateMachine);
+
+	/**
 	 * Called after a state change.
 	 *
 	 * @param state the state
@@ -64,6 +77,18 @@ public interface StateMachineInterceptor<S, E> {
 	 */
 	void postStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
 			StateMachine<S, E> stateMachine);
+
+	/**
+	 * Called after a state change.
+	 *
+	 * @param state the state
+	 * @param message the message
+	 * @param transition the transition
+	 * @param stateMachine the state machine
+	 * @param rootStateMachine the root state machine
+	 */
+	void postStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
+			StateMachine<S, E> stateMachine, StateMachine<S, E> rootStateMachine);
 
 	/**
 	 * Called prior of a start of a transition. Returning

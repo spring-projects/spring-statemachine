@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -321,6 +321,39 @@ public class StateMachinePersistTests extends AbstractStateMachineTests {
 		stateMachine = persister.restore(stateMachine, "xxx");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
 		assertThat(stateMachine.isComplete(), is(true));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testRegions2() throws Exception {
+		context.register(Config9.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		stateMachine.start();
+
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S11", "S21", "S31"));
+
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S12", "S21", "S31"));
+		stateMachine.sendEvent("E2");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S12", "S22", "S31"));
+		stateMachine.sendEvent("E3");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S12", "S22", "S32"));
+
+		InMemoryStateMachinePersist1 stateMachinePersist = new InMemoryStateMachinePersist1();
+		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(stateMachinePersist);
+
+		persister.persist(stateMachine, "xxx");
+		stateMachine = persister.restore(stateMachine, "xxx");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S12", "S22", "S32"));
+
+		stateMachine.sendEvent("E4");
+		stateMachine.sendEvent("E5");
+		stateMachine.sendEvent("E6");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S13", "S23", "S33"));
+
+		stateMachine = persister.restore(stateMachine, "xxx");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S12", "S22", "S32"));
 	}
 
 	@Configuration
@@ -682,6 +715,67 @@ public class StateMachinePersistTests extends AbstractStateMachineTests {
 					.source("S1")
 					.target("S2")
 					.event("E1");
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config9 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("S11")
+					.state("S11")
+					.state("S12")
+					.state("S13")
+					.and()
+				.withStates()
+					.initial("S21")
+					.state("S21")
+					.state("S22")
+					.state("S23")
+					.and()
+				.withStates()
+					.initial("S31")
+					.state("S31")
+					.state("S32")
+					.state("S33");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("S11")
+					.target("S12")
+					.event("E1")
+					.and()
+				.withExternal()
+					.source("S21")
+					.target("S22")
+					.event("E2")
+					.and()
+				.withExternal()
+					.source("S31")
+					.target("S32")
+					.event("E3")
+					.and()
+				.withExternal()
+					.source("S12")
+					.target("S13")
+					.event("E4")
+					.and()
+				.withExternal()
+					.source("S22")
+					.target("S23")
+					.event("E5")
+					.and()
+				.withExternal()
+					.source("S32")
+					.target("S33")
+					.event("E6");
 		}
 	}
 

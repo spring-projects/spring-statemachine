@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -620,11 +620,25 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		}
 
 		@Override
+		public void preStateChange(State<States, Events> state, Message<Events> message,
+				Transition<States, Events> transition, StateMachine<States, Events> stateMachine,
+				StateMachine<States, Events> rootStateMachine) {
+			preStateChange(state, message, transition, stateMachine);
+		}
+
+		@Override
 		public void postStateChange(State<States, Events> state, Message<Events> message,
 				Transition<States, Events> transition, StateMachine<States, Events> stateMachine) {
 			postStateChangeStates.add(state);
 			postStateChangeCount++;
 			postStateChangeLatch.countDown();
+		}
+
+		@Override
+		public void postStateChange(State<States, Events> state, Message<Events> message,
+				Transition<States, Events> transition, StateMachine<States, Events> stateMachine,
+				StateMachine<States, Events> rootStateMachine) {
+			postStateChange(state, message, transition, stateMachine);
 		}
 
 		@Override

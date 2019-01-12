@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,15 @@
 package org.springframework.statemachine.data.jpa;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -314,6 +317,30 @@ public class JpaRepositoryTests extends AbstractRepositoryTests {
 		assertThat(stateMachine.getState().getId(), is(PersistTestStates.S1));
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testStateMachinePersistWithRootRegions() {
+		context.register(TestConfig.class, ConfigWithRootRegions.class);
+		context.refresh();
+		JpaStateMachineRepository stateMachineRepository = context.getBean(JpaStateMachineRepository.class);
+
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S10", "S20"));
+		stateMachine.sendEvent("E1");
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S11", "S21"));
+
+		assertThat(stateMachineRepository.count(), is(3l));
+
+		List<String> ids = StreamSupport.stream(stateMachineRepository.findAll().spliterator(), false)
+				.map(jrsm -> jrsm.getMachineId()).collect(Collectors.toList());
+		assertThat(ids.size(), is(3));
+
+		// [null#238e8cc0-a932-4583-b696-2c057e5ebefe, null#486e20be-853e-4e4d-9a68-c62c061469ef, testid]
+		assertThat(ids, containsInAnyOrder("testid", "testid#R1", "testid#R2"));
+
+	}
+
 	@EnableAutoConfiguration
 	static class TestConfig {
 	}
@@ -441,5 +468,58 @@ public class JpaRepositoryTests extends AbstractRepositoryTests {
 
 	public enum PersistTestEvents {
 		E1, E2;
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class ConfigWithRootRegions extends StateMachineConfigurerAdapter<String, String> {
+
+		@Autowired
+		private JpaStateMachineRepository jpaStateMachineRepository;
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<String, String> config) throws Exception {
+			config
+				.withConfiguration()
+					.machineId("testid")
+					.and()
+				.withPersistence()
+					.runtimePersister(stateMachineRuntimePersister());
+		}
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.region("R1")
+					.initial("S10")
+					.state("S10")
+					.state("S11")
+					.and()
+				.withStates()
+					.region("R2")
+					.initial("S20")
+					.state("S20")
+					.state("S21");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("S10")
+					.target("S11")
+					.event("E1")
+					.and()
+				.withExternal()
+					.source("S20")
+					.target("S21")
+					.event("E1");
+		}
+
+		@Bean
+		public StateMachineRuntimePersister<String, String, String> stateMachineRuntimePersister() {
+			return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository);
+		}
 	}
 }

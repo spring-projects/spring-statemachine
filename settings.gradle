@@ -27,6 +27,7 @@ include 'spring-statemachine-samples:eventservice'
 include 'spring-statemachine-samples:deploy'
 include 'spring-statemachine-samples:ordershipping'
 include 'spring-statemachine-samples:datajpa'
+include 'spring-statemachine-samples:datajpamultipersist'
 include 'spring-statemachine-samples:datapersist'
 include 'spring-statemachine-samples:monitoring'
 

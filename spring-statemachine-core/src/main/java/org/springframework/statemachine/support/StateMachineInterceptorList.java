@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,6 +102,13 @@ public class StateMachineInterceptorList<S, E> {
 		}
 	}
 
+	public void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
+			StateMachine<S, E> stateMachine, StateMachine<S, E> rootStateMachine) {
+		for (StateMachineInterceptor<S, E> interceptor : interceptors) {
+			interceptor.preStateChange(state, message, transition, stateMachine, rootStateMachine);
+		}
+	}
+
 	/**
 	 * Post state change.
 	 *
@@ -114,6 +121,13 @@ public class StateMachineInterceptorList<S, E> {
 			StateMachine<S, E> stateMachine) {
 		for (StateMachineInterceptor<S, E> interceptor : interceptors) {
 			interceptor.postStateChange(state, message, transition, stateMachine);
+		}
+	}
+
+	public void postStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
+			StateMachine<S, E> stateMachine, StateMachine<S, E> rootStateMachine) {
+		for (StateMachineInterceptor<S, E> interceptor : interceptors) {
+			interceptor.postStateChange(state, message, transition, stateMachine, rootStateMachine);
 		}
 	}
 

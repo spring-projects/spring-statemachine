@@ -64,6 +64,14 @@ public interface StateConfigurer<S, E> extends
 	StateConfigurer<S, E> parent(S state);
 
 	/**
+	 * Specify a region for these states configured by this configurer instance.
+	 *
+	 * @param id the region id
+	 * @return configurer for chaining
+	 */
+	StateConfigurer<S, E> region(String id);
+
+	/**
 	 * Specify a state {@code S}.
 	 *
 	 * @param state the state

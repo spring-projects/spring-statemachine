@@ -1,0 +1,172 @@
+[
+	{
+		"@id": "100",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryAction",
+		"spel": "T(System).out.println('hello exit S1')"
+	},
+	{
+		"@id": "101",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryAction",
+		"spel": "T(System).out.println('hello entry S2')"
+	},
+	{
+		"@id": "102",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryAction",
+		"spel": "T(System).out.println('hello state S3')"
+	},
+	{
+		"@id": "103",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryAction",
+		"spel": "T(System).out.println('hello')"
+	},
+	{
+		"@id": "10",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"machineId": "datajpamultipersist1",
+		"initial": true,
+		"state": "S1",
+		"exitActions": ["100"]
+	},
+	{
+		"@id": "11",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"machineId": "datajpamultipersist1",
+		"initial": false,
+		"state": "S2",
+		"entryActions": ["101"]
+	},
+	{
+		"@id": "12",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"machineId": "datajpamultipersist1",
+		"initial": false,
+		"state": "S3",
+		"stateActions": ["102"]
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"machineId": "datajpamultipersist1",
+		"source": "10",
+		"target": "11",
+		"event": "E1",
+		"kind": "EXTERNAL"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"machineId": "datajpamultipersist1",
+		"source": "11",
+		"target": "12",
+		"event": "E2",
+		"actions": ["103"]
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"machineId": "datajpamultipersist1",
+		"source": "12",
+		"target": "11",
+		"event": "E3",
+		"actions": ["103"]
+	},
+	{
+		"@id": "20",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"machineId": "datajpamultipersist2",
+		"region": "R1",
+		"initial": true,
+		"state": "S10",
+		"exitActions": ["100"]
+	},
+	{
+		"@id": "21",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"machineId": "datajpamultipersist2",
+		"region": "R1",
+		"initial": false,
+		"state": "S11",
+		"entryActions": ["101"]
+	},
+	{
+		"@id": "22",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"machineId": "datajpamultipersist2",
+		"region": "R1",
+		"initial": false,
+		"state": "S12",
+		"stateActions": ["102"]
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"machineId": "datajpamultipersist2",
+		"source": "20",
+		"target": "21",
+		"event": "E10",
+		"kind": "EXTERNAL"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"machineId": "datajpamultipersist2",
+		"source": "21",
+		"target": "22",
+		"event": "E11",
+		"actions": ["103"]
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"machineId": "datajpamultipersist2",
+		"source": "22",
+		"target": "21",
+		"event": "E12",
+		"actions": ["103"]
+	},
+	{
+		"@id": "30",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"machineId": "datajpamultipersist2",
+		"region": "R2",
+		"initial": true,
+		"state": "S20",
+		"exitActions": ["100"]
+	},
+	{
+		"@id": "31",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"machineId": "datajpamultipersist2",
+		"region": "R2",
+		"initial": false,
+		"state": "S21",
+		"entryActions": ["101"]
+	},
+	{
+		"@id": "32",
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryState",
+		"machineId": "datajpamultipersist2",
+		"region": "R2",
+		"initial": false,
+		"state": "S22",
+		"stateActions": ["102"]
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"machineId": "datajpamultipersist2",
+		"source": "30",
+		"target": "31",
+		"event": "E20",
+		"kind": "EXTERNAL"
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"machineId": "datajpamultipersist2",
+		"source": "31",
+		"target": "32",
+		"event": "E21",
+		"actions": ["103"]
+	},
+	{
+		"_class": "org.springframework.statemachine.data.jpa.JpaRepositoryTransition",
+		"machineId": "datajpamultipersist2",
+		"source": "32",
+		"target": "31",
+		"event": "E22",
+		"actions": ["103"]
+	}
+]

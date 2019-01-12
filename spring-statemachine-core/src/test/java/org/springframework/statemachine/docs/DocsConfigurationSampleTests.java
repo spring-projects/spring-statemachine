@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1295,6 +1295,12 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 						}
 
 						@Override
+						public void preStateChange(State<String, String> state, Message<String> message,
+								Transition<String, String> transition, StateMachine<String, String> stateMachine,
+								StateMachine<String, String> rootStateMachine) {
+						}
+
+						@Override
 						public StateContext<String, String> postTransition(StateContext<String, String> stateContext) {
 							return stateContext;
 						}
@@ -1302,6 +1308,12 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 						@Override
 						public void postStateChange(State<String, String> state, Message<String> message,
 								Transition<String, String> transition, StateMachine<String, String> stateMachine) {
+						}
+
+						@Override
+						public void postStateChange(State<String, String> state, Message<String> message,
+								Transition<String, String> transition, StateMachine<String, String> stateMachine,
+								StateMachine<String, String> rootStateMachine) {
 						}
 
 						@Override
