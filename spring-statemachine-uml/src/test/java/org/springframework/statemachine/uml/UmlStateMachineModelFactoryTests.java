@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -328,6 +328,18 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
+	public void testMissingNameChoice() {
+		context.register(Config6MissingName.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		stateMachine.sendEvent(MessageBuilder.withPayload("E1").setHeader("choice", "s2").build());
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
 	public void testSimpleForkJoin() {
 		context.register(Config7.class);
 		context.refresh();
@@ -513,16 +525,18 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		Collection<StateData<String, String>> stateDatas = stateMachineModel.getStatesData().getStateData();
 		Collection<TransitionData<String, String>> transitionDatas = stateMachineModel.getTransitionsData().getTransitions();
 		assertThat(stateDatas.size(), is(2));
-		assertThat(transitionDatas.size(), is(3));
+		assertThat(transitionDatas.size(), is(4));
 		for (TransitionData<String, String> transitionData : transitionDatas) {
-			if (transitionData.getEvent().equals("E1")) {
-				assertThat(transitionData.getKind(), is(TransitionKind.EXTERNAL));
-			} else if (transitionData.getEvent().equals("E2")) {
-				assertThat(transitionData.getKind(), is(TransitionKind.LOCAL));
-			} else if (transitionData.getEvent().equals("E3")) {
-				assertThat(transitionData.getKind(), is(TransitionKind.INTERNAL));
-			} else {
-				throw new IllegalArgumentException();
+			if (transitionData.getEvent() != null) {
+				if (transitionData.getEvent().equals("E1")) {
+					assertThat(transitionData.getKind(), is(TransitionKind.EXTERNAL));
+				} else if (transitionData.getEvent().equals("E2")) {
+					assertThat(transitionData.getKind(), is(TransitionKind.LOCAL));
+				} else if (transitionData.getEvent().equals("E3")) {
+					assertThat(transitionData.getKind(), is(TransitionKind.INTERNAL));
+				} else {
+					throw new IllegalArgumentException();
+				}
 			}
 		}
 	}
@@ -1159,6 +1173,34 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		@Bean
 		public StateMachineModelFactory<String, String> modelFactory() {
 			Resource model = new ClassPathResource("org/springframework/statemachine/uml/simple-choice.uml");
+			return new UmlStateMachineModelFactory(model);
+		}
+
+		@Bean
+		public ChoiceGuard s2Guard() {
+			return new ChoiceGuard("s2");
+		}
+
+		@Bean
+		public ChoiceGuard s3Guard() {
+			return new ChoiceGuard("s3");
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config6MissingName extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			Resource model = new ClassPathResource("org/springframework/statemachine/uml/missingname-choice.uml");
 			return new UmlStateMachineModelFactory(model);
 		}
 
