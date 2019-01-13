@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -242,8 +242,10 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 			// special handling of join
 			if (StateMachineUtils.isPseudoState(t.getTarget(), PseudoStateKind.JOIN)) {
 				if (joinSyncStates.isEmpty()) {
-					List<State<S, E>> joins = ((JoinPseudoState<S, E>)t.getTarget().getPseudoState()).getJoins();
-					joinSyncStates.addAll(joins);
+					List<List<State<S,E>>> joins = ((JoinPseudoState<S, E>)t.getTarget().getPseudoState()).getJoins();
+					for (List<State<S,E>> j : joins) {
+						joinSyncStates.addAll(j);
+					}
 				}
 				joinSyncTransitions.add(t);
 				boolean removed = joinSyncStates.remove(t.getSource());

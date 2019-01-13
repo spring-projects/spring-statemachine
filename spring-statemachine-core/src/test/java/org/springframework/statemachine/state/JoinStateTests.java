@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -313,6 +313,72 @@ public class JoinStateTests extends AbstractStateMachineTests {
 		assertThat("Interceptor postStateChange has null transition", nullCheck.get(), is(false));
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testJoinSuperMultipleEnds1() throws Exception {
+		context.register(BaseConfig.class, Config4.class);
+		context.refresh();
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		TestListener listener = new TestListener();
+		machine.addStateListener(listener);
+		listener.reset(1);
+		assertThat(machine, notNullValue());
+		machine.start();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+
+		listener.reset(3);
+		machine.sendEvent(TestEvents.E1);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(3));
+
+		listener.reset(1);
+		machine.sendEvent(TestEvents.E2);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+
+		listener.reset(2);
+		machine.sendEvent(TestEvents.E3);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(2));
+
+		assertThat(machine.getState().getIds(), contains(TestStates.S4));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testJoinSuperMultipleEnds2() throws Exception {
+		context.register(BaseConfig.class, Config4.class);
+		context.refresh();
+		ObjectStateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		TestListener listener = new TestListener();
+		machine.addStateListener(listener);
+		listener.reset(1);
+		assertThat(machine, notNullValue());
+		machine.start();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+
+		listener.reset(3);
+		machine.sendEvent(TestEvents.E1);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(3));
+
+		listener.reset(1);
+		machine.sendEvent(TestEvents.E5);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+
+		listener.reset(2);
+		machine.sendEvent(TestEvents.E3);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(2));
+
+		assertThat(machine.getState().getIds(), contains(TestStates.S4));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	static class Config1 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
@@ -488,6 +554,70 @@ public class JoinStateTests extends AbstractStateMachineTests {
 					.source(TestStates.S3)
 					.target(TestStates.S4)
 					.guardExpression("extendedState.variables.isEmpty()")
+					.and()
+				.withExternal()
+					.source(TestStates.S4)
+					.target(TestStates.SI)
+					.event(TestEvents.E4);
+		}
+
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config4 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.SI)
+					.state(TestStates.S2)
+					.join(TestStates.S3)
+					.state(TestStates.S4)
+					.and()
+					.withStates()
+						.parent(TestStates.S2)
+						.initial(TestStates.S20)
+						.end(TestStates.S21)
+						.end(TestStates.S22)
+						.and()
+					.withStates()
+						.parent(TestStates.S2)
+						.initial(TestStates.S30)
+						.end(TestStates.S31);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.SI)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S20)
+					.target(TestStates.S21)
+					.event(TestEvents.E2)
+					.and()
+				.withExternal()
+					.source(TestStates.S20)
+					.target(TestStates.S22)
+					.event(TestEvents.E5)
+					.and()
+				.withExternal()
+					.source(TestStates.S30)
+					.target(TestStates.S31)
+					.event(TestEvents.E3)
+					.and()
+				.withJoin()
+					.source(TestStates.S2)
+					.target(TestStates.S3)
+					.and()
+				.withExternal()
+					.source(TestStates.S3)
+					.target(TestStates.S4)
 					.and()
 				.withExternal()
 					.source(TestStates.S4)

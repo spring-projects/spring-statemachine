@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.springframework.statemachine.state;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -37,7 +38,7 @@ import org.springframework.util.Assert;
 public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 
 	private final static Log log = LogFactory.getLog(JoinPseudoState.class);
-	private final List<State<S, E>> joins;
+	private final List<List<State<S, E>>> joins;
 	private final JoinTracker tracker;
 	private final List<JoinStateData<S, E>> joinTargets;
 
@@ -47,7 +48,7 @@ public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 	 * @param joins the joins
 	 * @param joinTargets the target states
 	 */
-	public JoinPseudoState(List<State<S, E>> joins, List<JoinStateData<S, E>> joinTargets) {
+	public JoinPseudoState(List<List<State<S, E>>> joins, List<JoinStateData<S, E>> joinTargets) {
 		super(PseudoStateKind.JOIN);
 		this.joins = joins;
 		this.joinTargets = joinTargets;
@@ -79,7 +80,7 @@ public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 	 *
 	 * @return the joins
 	 */
-	public List<State<S, E>> getJoins() {
+	public List<List<State<S, E>>> getJoins() {
 		return joins;
 	}
 
@@ -104,48 +105,67 @@ public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 
 	private class JoinTracker {
 
-		private final List<State<S, E>> track;
+		private final List<List<State<S, E>>> track;
 		private volatile boolean notified = false;
 
 		public JoinTracker() {
-			this.track = new ArrayList<State<S,E>>(joins);
-			for (State<S, E> tt : joins) {
-				final State<S, E> t = tt;
-				t.addStateListener(new StateListenerAdapter<S, E>() {
+			this.track = new ArrayList<List<State<S,E>>>(joins.size());
+			for (List<State<S, E>> list : joins) {
+				this.track.add(new ArrayList<State<S,E>>(list));
+				for (State<S, E> tt : list) {
+					final State<S, E> t = tt;
+					t.addStateListener(new StateListenerAdapter<S, E>() {
 
-					@Override
-					public void onComplete(StateContext<S, E> context) {
-						boolean trackSizeZero = false;
-						synchronized (track) {
-							track.remove(t);
-							if (track.size() == 0) {
-								trackSizeZero = true;
+						@Override
+						public void onComplete(StateContext<S, E> context) {
+							synchronized (track) {
+								Iterator<List<State<S, E>>> iterator = track.iterator();
+								while(iterator.hasNext()) {
+									List<State<S,E>> next = iterator.next();
+									if (next.contains(t)) {
+										iterator.remove();
+									}
+								}
+							}
+							if (!notified && track.isEmpty()) {
+								log.debug("Join complete");
+								notified = true;
+								notifyContext(new DefaultPseudoStateContext<S, E>(JoinPseudoState.this, PseudoAction.JOIN_COMPLETED));
 							}
 						}
-						if (!notified && trackSizeZero) {
-							log.debug("Join complete");
-							notified = true;
-							notifyContext(new DefaultPseudoStateContext<S, E>(JoinPseudoState.this, PseudoAction.JOIN_COMPLETED));
-						}
-					}
-				});
+					});
+				}
 			}
 		}
 
 		void reset() {
 			track.clear();
-			track.addAll(joins);
+			for (List<State<S, E>> list : joins) {
+				track.add(new ArrayList<State<S,E>>(list));
+			}
 			notified = false;
 		}
 
 		void reset(Collection<S> ids) {
-			track.clear();
-			for (State<S, E> j : joins) {
-				if (!ids.contains(j.getId())) {
-					track.add(j);
+			// put pack all as normal reset
+			reset();
+
+			// remove given states to reflect correct join stage
+			Iterator<List<State<S, E>>> trackIter = track.iterator();
+			while(trackIter.hasNext()) {
+				List<State<S, E>> list = trackIter.next();
+				Iterator<State<S, E>> iterator = list.iterator();
+				while(iterator.hasNext()) {
+					State<S, E> next = iterator.next();
+					if (ids.contains(next.getId())) {
+						iterator.remove();
+					}
+				}
+				// also remove list if it became empty
+				if (list.isEmpty()) {
+					trackIter.remove();
 				}
 			}
-			notified = false;
 		}
 
 		public boolean isNotified() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.springframework.statemachine.config;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -799,27 +800,29 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			} else if (stateData.getPseudoStateKind() == PseudoStateKind.JOIN) {
 				S s = stateData.getState();
 				List<S> list = stateMachineTransitions.getJoins().get(s);
-				List<State<S, E>> joins = new ArrayList<State<S,E>>();
+				List<List<State<S, E>>> joins = new ArrayList<List<State<S, E>>>();
 
-				// if join source is a regionstate, get
-				// it's end states from regions
+				// if join source is an orthogonal state, assume we're joining by region end states
+				// and actually use list of states from each region to support case where one region
+				// defines multiple end states.
 				if (list.size() == 1) {
 					State<S, E> ss1 = stateMap.get(list.get(0));
 					if (ss1 instanceof RegionState) {
 						Collection<Region<S, E>> regions = ((RegionState<S, E>)ss1).getRegions();
 						for (Region<S, E> r : regions) {
+							List<State<S, E>> j = new ArrayList<State<S, E>>();
 							Collection<State<S, E>> ss2 = r.getStates();
 							for (State<S, E> ss3 : ss2) {
 								if (ss3.getPseudoState() != null && ss3.getPseudoState().getKind() == PseudoStateKind.END) {
-									joins.add(ss3);
-									continue;
+									j.add(ss3);
 								}
 							}
+							joins.add(j);
 						}
 					}
 				} else {
 					for (S fs : list) {
-						joins.add(stateMap.get(fs));
+						joins.add(Collections.singletonList(stateMap.get(fs)));
 					}
 				}
 
