@@ -480,6 +480,9 @@ configure(sampleProjects()) {
 		testCompile "org.hamcrest:hamcrest-library"
 		testCompile "junit:junit"
 	}
+	bootJar {
+		excludeDevtools = false
+	}
 	build.dependsOn bootJar
 }
 

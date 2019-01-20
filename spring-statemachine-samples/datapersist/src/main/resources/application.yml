@@ -4,6 +4,9 @@ logging:
 spring:
   profiles:
     active: jpa
+  h2:
+    console:
+      enabled: true
 security:
   basic:
     enabled: false
