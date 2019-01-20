@@ -145,6 +145,17 @@ mean that a specific state must have multiple independent regions.
 include::samples/DocsConfigurationSampleTests.java[tags=snippetP]
 ----
 
+When working with persisting machines with regions or generally
+relying any functionalities to reset a machine it may be required
+to have a dedicated id for a region itself. On default this id
+is just a generated _UUID_. As shown below `StateConfigurer` has
+a method `region(String id)` for it.
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetPP]
+----
+
 === Configuring Transitions
 We support three different types of transitions, `external`,
 `internal` and `local`. Transitions are either triggered by a signal
@@ -1865,6 +1876,21 @@ dependencies into other Spring context classes. `StateMachineContext`
 is a runtime representation of a state machine which can be used to
 restore an existing machine into a state represented by a particular
 `StateMachineContext` object.
+
+`StateMachineContext` contains two different ways to include information
+for a child contexts. These are generally used when machine contains
+orthogonal regions. Firstly context can have a list of child context
+as is which takes a presence if exists, secondly it is possible
+to include a list of references which are used if raw context childs
+are not in place. These child references are really only way to
+persist a machine where multiple parallel regions are running
+independently.
+
+[TIP]
+====
+There is a sample <<statemachine-examples-datajpamultipersist>> showing
+how parallel regions can be persisted.
+====
 
 [[sm-persist-statemachinepersister]]
 === Using StateMachinePersister

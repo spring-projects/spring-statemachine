@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2018-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,26 +41,33 @@ import org.springframework.statemachine.service.StateMachineService;
 @Configuration
 public class StateMachineConfig {
 
+//tag::snippetA[]
 	@Bean
 	public StateMachineRuntimePersister<String, String, String> stateMachineRuntimePersister(
 			JpaStateMachineRepository jpaStateMachineRepository) {
 		return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository);
 	}
+//end::snippetA[]
 
+//tag::snippetB[]
 	@Bean
 	public StateMachineService<String, String> stateMachineService(
 			StateMachineFactory<String, String> stateMachineFactory,
 			StateMachineRuntimePersister<String, String, String> stateMachineRuntimePersister) {
 		return new DefaultStateMachineService<String, String>(stateMachineFactory, stateMachineRuntimePersister);
 	}
+//end::snippetB[]
 
+//tag::snippetC[]
 	@Bean
 	public StateMachineJackson2RepositoryPopulatorFactoryBean jackson2RepositoryPopulatorFactoryBean() {
 		StateMachineJackson2RepositoryPopulatorFactoryBean factoryBean = new StateMachineJackson2RepositoryPopulatorFactoryBean();
-		factoryBean.setResources(new Resource[] { new ClassPathResource("data.json") });
+		factoryBean.setResources(new Resource[] { new ClassPathResource("datajpamultipersist.json") });
 		return factoryBean;
 	}
+//end::snippetC[]
 
+//tag::snippetD[]
 	@Configuration
 	@EnableStateMachineFactory
 	public static class Config extends StateMachineConfigurerAdapter<String, String> {
@@ -95,4 +102,5 @@ public class StateMachineConfig {
 			return new RepositoryStateMachineModelFactory(stateRepository, transitionRepository);
 		}
 	}
+//end::snippetD[]
 }

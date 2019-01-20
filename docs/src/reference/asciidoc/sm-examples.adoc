@@ -40,6 +40,8 @@ normal build cycle. Samples in this chapter are:
 
 <<statemachine-examples-datapersist>> Data Persist.
 
+<<statemachine-examples-datajpamultipersist>> Data Multi Persist.
+
 <<statemachine-examples-monitoring>> Monitoring.
 
 
@@ -1604,6 +1606,90 @@ image::images/sm-datajpapersist-3.png[scaledwidth="100%"]
 
 If requesting machine 'datajpapersist1' by not sending any events,
 machine is restored back to its persisted state 'S3'.
+
+[[statemachine-examples-datajpamultipersist]]
+== Data Multi Persist
+Data Multi Persist is an example which is an extension of two other samples
+<<statemachine-examples-datajpa>> and <<statemachine-examples-datapersist>>.
+We still keep machine configuration in a database and persist into a
+database but this time we also have a machine containing two orthogonal
+regions showing how those are persisted independently. This sample
+is also using embedded _H2_ database with a _H2 Console_ to ease playing
+with a database.
+
+This sample uses `spring-statemachine-autoconfigure` which on default
+auto-configures repositories and entity classes needed for JPA.
+Thus only `@SpringBootApplication` is needed.
+
+[source,java,indent=0]
+----
+include::samples/demo/datajpamultipersist/Application.java[tags=snippetA]
+----
+
+We again create a `StateMachineRuntimePersister`.
+
+[source,java,indent=0]
+----
+include::samples/demo/datajpamultipersist/StateMachineConfig.java[tags=snippetA]
+----
+
+`StateMachineService` makes it easier to work with a machines.
+
+[source,java,indent=0]
+----
+include::samples/demo/datajpamultipersist/StateMachineConfig.java[tags=snippetB]
+----
+
+We use data from json to import configuration.
+
+[source,java,indent=0]
+----
+include::samples/demo/datajpamultipersist/StateMachineConfig.java[tags=snippetC]
+----
+
+What comes for a machine config `RepositoryStateMachineModelFactory`
+can be used as shown below.
+
+[source,java,indent=0]
+----
+include::samples/demo/datajpamultipersist/StateMachineConfig.java[tags=snippetD]
+----
+
+Let's get into actual demo. Run the boot based sample application:
+
+[source,text,subs="attributes"]
+----
+# java -jar spring-statemachine-samples-datajpamultipersist-{revnumber}.jar
+----
+
+Accessing application via _http://localhost:8080_ brings up a new
+constructed machine with every request and you can choose to send
+events to a machine. Possible events and machine configuration are
+updated from a database with every request. We also print out
+all state machine contexts and current root machine.
+
+image::images/sm-datajpamultipersist-1.png[scaledwidth="100%"]
+
+Machine _datajpamultipersist1_ is simple flat machine where states _S1_,
+_S2_ and _S3_ are transitioned with events _E1_, _E2_ and _E3_ meaning
+nothing new there. However machine _datajpamultipersist2_ contains two
+regions _R1_ and _R2_ directly under root level, thus a reason why
+root level machine really doesn't have a state at all but we still need
+that root level machine to host those regions.
+
+Regions _R1_ and _R2_ in machine _datajpamultipersist2_ contains states
+_S10_, _S11_, _S12_ and _S20_, _S21_, _S22_ respectively and events
+_E10_, _E11_ and _E12_ are used for region _R1_ and events _E20_, _E21_
+and _E22_ for region _R2_. Lets send events _E10_ and _E20_ to machine
+_datajpamultipersist2_ and see how things look like.
+
+image::images/sm-datajpamultipersist-2.png[scaledwidth="100%"]
+
+Regions have their own contexts with their own id's and where the actual
+id is postfixed with `#` plus `region id`. As shown below there are
+different contexts in a database for regions.
+
+image::images/sm-datajpamultipersist-3.png[scaledwidth="100%"]
 
 [[statemachine-examples-monitoring]]
 == Monitoring

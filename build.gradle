@@ -568,6 +568,8 @@ configure(rootProject) {
 		from 'spring-statemachine-samples/eventservice/src/main/java/'
 		from 'spring-statemachine-samples/datajpa/src/main/java/'
 		from 'spring-statemachine-samples/datajpa/src/main/resources/'
+		from 'spring-statemachine-samples/datajpamultipersist/src/main/java/'
+		from 'spring-statemachine-samples/datajpamultipersist/src/main/resources/'
 		from 'spring-statemachine-samples/datapersist/src/main/java/'
 		from 'spring-statemachine-samples/monitoring/src/main/java/'
 		include '**/*.java'
