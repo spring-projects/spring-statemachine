@@ -3,7 +3,7 @@ buildscript {
 		log4jVersion = '1.2.17'
 		springBootVersion = '2.1.0.RELEASE'
 		eclipsePersistenceVersion = '2.1.1'
-		kryoVersion = '3.0.3'
+		kryoVersion = '4.0.2'
 		springCloudClusterVersion = '1.0.2.RELEASE'
 		springShellVersion = '1.1.0.RELEASE'
 		eclipseEmfXmiVersion = '2.11.1-v20150805-0538'
