@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -162,6 +162,36 @@ public class ObservableMap<K, V> implements Map<K, V> {
 	 */
 	public void setListener(MapChangeListener<K, V> listener) {
 		this.listener = listener;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((delegate == null) ? 0 : delegate.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		ObservableMap<?, ?> other = (ObservableMap<?, ?>) obj;
+		if (delegate == null) {
+			if (other.delegate != null) {
+				return false;
+			}
+		} else if (!delegate.equals(other.delegate)) {
+			return false;
+		}
+		return true;
 	}
 
 	/**

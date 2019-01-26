@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,6 +71,36 @@ public class DefaultExtendedState implements ExtendedState {
 	@Override
 	public void setExtendedStateChangeListener(ExtendedStateChangeListener listener) {
 		this.listener = listener;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((variables == null) ? 0 : variables.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		DefaultExtendedState other = (DefaultExtendedState) obj;
+		if (variables == null) {
+			if (other.variables != null) {
+				return false;
+			}
+		} else if (!variables.equals(other.variables)) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override

@@ -200,6 +200,92 @@ public class DefaultStateMachineContext<S, E> implements StateMachineContext<S, 
 	}
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((childRefs == null) ? 0 : childRefs.hashCode());
+		result = prime * result + ((childs == null) ? 0 : childs.hashCode());
+		result = prime * result + ((event == null) ? 0 : event.hashCode());
+		result = prime * result + ((eventHeaders == null) ? 0 : eventHeaders.hashCode());
+		result = prime * result + ((extendedState == null) ? 0 : extendedState.hashCode());
+		result = prime * result + ((historyStates == null) ? 0 : historyStates.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((state == null) ? 0 : state.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		DefaultStateMachineContext<?, ?> other = (DefaultStateMachineContext<?, ?>) obj;
+		if (childRefs == null) {
+			if (other.childRefs != null) {
+				return false;
+			}
+		} else if (!childRefs.equals(other.childRefs)) {
+			return false;
+		}
+		if (childs == null) {
+			if (other.childs != null) {
+				return false;
+			}
+		} else if (!childs.equals(other.childs)) {
+			return false;
+		}
+		if (event == null) {
+			if (other.event != null) {
+				return false;
+			}
+		} else if (!event.equals(other.event)) {
+			return false;
+		}
+		if (eventHeaders == null) {
+			if (other.eventHeaders != null) {
+				return false;
+			}
+		} else if (!eventHeaders.equals(other.eventHeaders)) {
+			return false;
+		}
+		if (extendedState == null) {
+			if (other.extendedState != null) {
+				return false;
+			}
+		} else if (!extendedState.equals(other.extendedState)) {
+			return false;
+		}
+		if (historyStates == null) {
+			if (other.historyStates != null) {
+				return false;
+			}
+		} else if (!historyStates.equals(other.historyStates)) {
+			return false;
+		}
+		if (id == null) {
+			if (other.id != null) {
+				return false;
+			}
+		} else if (!id.equals(other.id)) {
+			return false;
+		}
+		if (state == null) {
+			if (other.state != null) {
+				return false;
+			}
+		} else if (!state.equals(other.state)) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
 	public String toString() {
 		return "DefaultStateMachineContext [id=" + id + ", childs=" + childs + ", childRefs=" + childRefs + ", state="
 				+ state + ", historyStates=" + historyStates + ", event=" + event + ", eventHeaders=" + eventHeaders
