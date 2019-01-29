@@ -4,6 +4,18 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 2.1.0.RC1 (2019-01-29)
+-----------------------------------------
+* Cannot define unnamed choice: "Initial state must be set" error bug [#591]
+* SM persistence and change of configuration [#605]
+* SOE with persistence and orthogonal states [#615]
+* Kryo seem to miss StateMachineContextSerializer at times bug [#617]
+* Multiple end states for Join/Fork bug [#619]
+* Document region changes docs [#621]
+* Re-enable devtools for samples enhancement [#623]
+* Upgrade to Kryo 4 [#625]
+* DefaultStateMachineContext does not override equals [#628]
+
 Changes in version 2.1.0.M1 (2018-11-28)
 ----------------------------------------
 * Upgrade to Spring Boot 2.1.x [#602]
