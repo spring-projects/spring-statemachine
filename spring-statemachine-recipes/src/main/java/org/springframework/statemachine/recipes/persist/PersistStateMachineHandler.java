@@ -117,12 +117,6 @@ public class PersistStateMachineHandler extends LifecycleObjectSupport {
 
 		@Override
 		public void preStateChange(State<String, String> state, Message<String> message,
-				Transition<String, String> transition, StateMachine<String, String> stateMachine) {
-			listeners.onPersist(state, message, transition, stateMachine);
-		}
-
-		@Override
-		public void preStateChange(State<String, String> state, Message<String> message,
 				Transition<String, String> transition, StateMachine<String, String> stateMachine,
 				StateMachine<String, String> rootStateMachine) {
 			listeners.onPersist(state, message, transition, stateMachine);

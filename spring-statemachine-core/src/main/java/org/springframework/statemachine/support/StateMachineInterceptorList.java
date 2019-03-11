@@ -94,17 +94,12 @@ public class StateMachineInterceptorList<S, E> {
 	 * @param message the message
 	 * @param transition the transition
 	 * @param stateMachine the state machine
+	 * @param rootStateMachine the root state machine
 	 */
-	public void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
-			StateMachine<S, E> stateMachine) {
-		for (StateMachineInterceptor<S, E> interceptor : interceptors) {
-			interceptor.preStateChange(state, message, transition, stateMachine);
-		}
-	}
-
 	public void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
 			StateMachine<S, E> stateMachine, StateMachine<S, E> rootStateMachine) {
 		for (StateMachineInterceptor<S, E> interceptor : interceptors) {
+			interceptor.preStateChange(state, message, transition, stateMachine);
 			interceptor.preStateChange(state, message, transition, stateMachine, rootStateMachine);
 		}
 	}
@@ -116,17 +111,13 @@ public class StateMachineInterceptorList<S, E> {
 	 * @param message the message
 	 * @param transition the transition
 	 * @param stateMachine the state machine
+	 * @param rootStateMachine the root state machine
 	 */
-	public void postStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
-			StateMachine<S, E> stateMachine) {
-		for (StateMachineInterceptor<S, E> interceptor : interceptors) {
-			interceptor.postStateChange(state, message, transition, stateMachine);
-		}
-	}
 
 	public void postStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
 			StateMachine<S, E> stateMachine, StateMachine<S, E> rootStateMachine) {
 		for (StateMachineInterceptor<S, E> interceptor : interceptors) {
+			interceptor.postStateChange(state, message, transition, stateMachine);
 			interceptor.postStateChange(state, message, transition, stateMachine, rootStateMachine);
 		}
 	}

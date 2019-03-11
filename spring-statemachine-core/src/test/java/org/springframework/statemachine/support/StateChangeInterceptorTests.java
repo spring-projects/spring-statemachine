@@ -83,8 +83,10 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		machine.sendEvent(Events.C);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(3));
-		assertThat(interceptor.preStateChangeLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount, is(1));
+		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount1, is(1));
+		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount2, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S2, States.S21, States.S211));
 		machine.sendEvent(Events.H);
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S2, States.S21, States.S211));
@@ -120,8 +122,10 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S1));
-		assertThat(interceptor.preStateChangeLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount, is(1));
+		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount1, is(1));
+		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount2, is(1));
 
 		interceptor.reset(1);
 		listener.reset(1);
@@ -129,8 +133,10 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S2));
-		assertThat(interceptor.preStateChangeLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount, is(1));
+		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount1, is(1));
+		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount2, is(1));
 	}
 
 	@Test
@@ -162,8 +168,10 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S2));
-		assertThat(interceptor.preStateChangeLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount, is(1));
+		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount1, is(1));
+		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount2, is(1));
 	}
 
 	@Test
@@ -195,13 +203,20 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S2));
-		assertThat(interceptor.preStateChangeLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount, is(1));
-		assertThat(interceptor.postStateChangeLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.postStateChangeCount, is(1));
-		assertThat(interceptor.preStateChangeStates.size(), is(1));
-		assertThat(interceptor.postStateChangeStates.size(), is(1));
-		assertThat(interceptor.preStateChangeStates.get(0).getId(), is(interceptor.postStateChangeStates.get(0).getId()));
+		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount1, is(1));
+		assertThat(interceptor.postStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.postStateChangeCount1, is(1));
+		assertThat(interceptor.preStateChangeStates1.size(), is(1));
+		assertThat(interceptor.postStateChangeStates1.size(), is(1));
+		assertThat(interceptor.preStateChangeStates1.get(0).getId(), is(interceptor.postStateChangeStates1.get(0).getId()));
+		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount2, is(1));
+		assertThat(interceptor.postStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.postStateChangeCount2, is(1));
+		assertThat(interceptor.preStateChangeStates2.size(), is(1));
+		assertThat(interceptor.postStateChangeStates2.size(), is(1));
+		assertThat(interceptor.preStateChangeStates2.get(0).getId(), is(interceptor.postStateChangeStates2.get(0).getId()));
 	}
 
 	@Test
@@ -233,13 +248,20 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S3));
-		assertThat(interceptor.preStateChangeLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount, is(1));
-		assertThat(interceptor.postStateChangeLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.postStateChangeCount, is(1));
-		assertThat(interceptor.preStateChangeStates.size(), is(1));
-		assertThat(interceptor.postStateChangeStates.size(), is(1));
-		assertThat(interceptor.preStateChangeStates.get(0).getId(), is(interceptor.postStateChangeStates.get(0).getId()));
+		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount1, is(1));
+		assertThat(interceptor.postStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.postStateChangeCount1, is(1));
+		assertThat(interceptor.preStateChangeStates1.size(), is(1));
+		assertThat(interceptor.postStateChangeStates1.size(), is(1));
+		assertThat(interceptor.preStateChangeStates1.get(0).getId(), is(interceptor.postStateChangeStates1.get(0).getId()));
+		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount2, is(1));
+		assertThat(interceptor.postStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.postStateChangeCount2, is(1));
+		assertThat(interceptor.preStateChangeStates2.size(), is(1));
+		assertThat(interceptor.postStateChangeStates2.size(), is(1));
+		assertThat(interceptor.preStateChangeStates2.get(0).getId(), is(interceptor.postStateChangeStates2.get(0).getId()));
 	}
 
 	@Test
@@ -271,8 +293,10 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S1));
-		assertThat(interceptor.preStateChangeLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount, is(1));
+		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount1, is(1));
+		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount2, is(1));
 
 		interceptor.reset(1);
 		listener.reset(1);
@@ -280,8 +304,10 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S2));
-		assertThat(interceptor.preStateChangeLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount, is(1));
+		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount1, is(1));
+		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount2, is(1));
 	}
 
 	@Configuration
@@ -598,12 +624,18 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 
 	private static class TestStateChangeInterceptor implements StateMachineInterceptor<States, Events> {
 
-		volatile CountDownLatch preStateChangeLatch = new CountDownLatch(1);
-		volatile CountDownLatch postStateChangeLatch = new CountDownLatch(1);
-		volatile int preStateChangeCount = 0;
-		volatile int postStateChangeCount = 0;
-		ArrayList<State<States, Events>> preStateChangeStates = new ArrayList<>();
-		ArrayList<State<States, Events>> postStateChangeStates = new ArrayList<>();
+		volatile CountDownLatch preStateChangeLatch1 = new CountDownLatch(1);
+		volatile CountDownLatch preStateChangeLatch2 = new CountDownLatch(1);
+		volatile CountDownLatch postStateChangeLatch1 = new CountDownLatch(1);
+		volatile CountDownLatch postStateChangeLatch2 = new CountDownLatch(1);
+		volatile int preStateChangeCount1 = 0;
+		volatile int preStateChangeCount2 = 0;
+		volatile int postStateChangeCount1 = 0;
+		volatile int postStateChangeCount2 = 0;
+		ArrayList<State<States, Events>> preStateChangeStates1 = new ArrayList<>();
+		ArrayList<State<States, Events>> preStateChangeStates2 = new ArrayList<>();
+		ArrayList<State<States, Events>> postStateChangeStates1 = new ArrayList<>();
+		ArrayList<State<States, Events>> postStateChangeStates2 = new ArrayList<>();
 
 		@Override
 		public Message<Events> preEvent(Message<Events> message, StateMachine<States, Events> stateMachine) {
@@ -613,32 +645,35 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		@Override
 		public void preStateChange(State<States, Events> state, Message<Events> message,
 				Transition<States, Events> transition, StateMachine<States, Events> stateMachine) {
-			preStateChangeStates.add(state);
-			preStateChangeCount++;
-			preStateChangeLatch.countDown();
-
+			preStateChangeStates1.add(state);
+			preStateChangeCount1++;
+			preStateChangeLatch1.countDown();
 		}
 
 		@Override
 		public void preStateChange(State<States, Events> state, Message<Events> message,
 				Transition<States, Events> transition, StateMachine<States, Events> stateMachine,
 				StateMachine<States, Events> rootStateMachine) {
-			preStateChange(state, message, transition, stateMachine);
+			preStateChangeStates2.add(state);
+			preStateChangeCount2++;
+			preStateChangeLatch2.countDown();
 		}
 
 		@Override
 		public void postStateChange(State<States, Events> state, Message<Events> message,
 				Transition<States, Events> transition, StateMachine<States, Events> stateMachine) {
-			postStateChangeStates.add(state);
-			postStateChangeCount++;
-			postStateChangeLatch.countDown();
+			postStateChangeStates1.add(state);
+			postStateChangeCount1++;
+			postStateChangeLatch1.countDown();
 		}
 
 		@Override
 		public void postStateChange(State<States, Events> state, Message<Events> message,
 				Transition<States, Events> transition, StateMachine<States, Events> stateMachine,
 				StateMachine<States, Events> rootStateMachine) {
-			postStateChange(state, message, transition, stateMachine);
+			postStateChangeStates2.add(state);
+			postStateChangeCount2++;
+			postStateChangeLatch2.countDown();
 		}
 
 		@Override
@@ -653,12 +688,18 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 
 
 		public void reset(int c1) {
-			preStateChangeLatch = new CountDownLatch(c1);
-			preStateChangeCount = 0;
-			postStateChangeLatch = new CountDownLatch(c1);
-			postStateChangeCount = 0;
-			preStateChangeStates.clear();
-			postStateChangeStates.clear();
+			preStateChangeLatch1 = new CountDownLatch(c1);
+			preStateChangeLatch2 = new CountDownLatch(c1);
+			preStateChangeCount1 = 0;
+			preStateChangeCount2 = 0;
+			postStateChangeLatch1 = new CountDownLatch(c1);
+			postStateChangeLatch2 = new CountDownLatch(c1);
+			postStateChangeCount1 = 0;
+			postStateChangeCount2 = 0;
+			preStateChangeStates1.clear();
+			preStateChangeStates2.clear();
+			postStateChangeStates1.clear();
+			postStateChangeStates2.clear();
 		}
 
 		@Override

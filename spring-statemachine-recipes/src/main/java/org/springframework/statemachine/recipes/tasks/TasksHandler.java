@@ -850,7 +850,8 @@ public class TasksHandler {
 
 		@Override
 		public void preStateChange(State<String, String> state, Message<String> message,
-				Transition<String, String> transition, StateMachine<String, String> stateMachine) {
+				Transition<String, String> transition, StateMachine<String, String> stateMachine,
+				StateMachine<String, String> rootStateMachine) {
 
 			// skip all other pseudostates than initial
 			if (state == null || (state.getPseudoState() != null && state.getPseudoState().getKind() != PseudoStateKind.INITIAL)) {
@@ -877,13 +878,6 @@ public class TasksHandler {
 			} catch (Exception e) {
 				throw new StateMachineException("Error persisting", e);
 			}
-		}
-
-		@Override
-		public void preStateChange(State<String, String> state, Message<String> message,
-				Transition<String, String> transition, StateMachine<String, String> stateMachine,
-				StateMachine<String, String> rootStateMachine) {
-			preStateChange(state, message, transition, stateMachine);
 		}
 	}
 
