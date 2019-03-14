@@ -129,6 +129,18 @@ public class DefaultStateMachineService<S, E> implements StateMachineService<S, 
 	}
 
 	/**
+	 * Determines if the given machine identifier denotes a known managed state machine.
+	 *
+	 * @param machineId machine identifier
+	 * @return true if machineId denotes a known managed state machine currently in memory
+	 */
+	public boolean isStateMachineManaged(String machineId) {
+		synchronized (machines) {
+			return machines.containsKey(machineId);
+		}
+	}
+
+	/**
 	 * Sets the state machine persist.
 	 *
 	 * @param stateMachinePersist the state machine persist
