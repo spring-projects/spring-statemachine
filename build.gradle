@@ -15,9 +15,9 @@ buildscript {
 		curatorVersion = '2.11.1'
 	}
 	repositories {
-		maven { url 'http://repo.springsource.org/libs-release'}
-		maven { url 'http://repo.springsource.org/plugins-release' }
-		maven { url 'http://repo.springsource.org/plugins-snapshot' }
+		maven { url 'https://repo.springsource.org/libs-release'}
+		maven { url 'https://repo.springsource.org/plugins-release' }
+		maven { url 'https://repo.springsource.org/plugins-snapshot' }
 	}
 	dependencies {
 		classpath("io.spring.gradle:propdeps-plugin:0.0.8")
@@ -78,9 +78,9 @@ configure(allprojects) {
 
 	repositories {
 		mavenCentral()
-		maven { url "http://repo.springsource.org/libs-snapshot" }
-		maven { url "http://repo.springsource.org/libs-release" }
-		maven { url "http://repo.springsource.org/libs-milestone" }
+		maven { url "https://repo.springsource.org/libs-snapshot" }
+		maven { url "https://repo.springsource.org/libs-release" }
+		maven { url "https://repo.springsource.org/libs-milestone" }
 	}
 
 	dependencyManagement {
@@ -600,7 +600,7 @@ configure(rootProject) {
 		options.author = true
 		options.header = rootProject.description
 		options.links(
-			'http://docs.jboss.org/jbossas/javadoc/4.0.5/connector'
+			'https://docs.jboss.org/jbossas/javadoc/4.0.5/connector'
 		)
 
 		// disable javadocs for samples
