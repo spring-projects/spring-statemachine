@@ -134,7 +134,7 @@ public class DefaultStateMachineService<S, E> implements StateMachineService<S, 
 	 * @param machineId machine identifier
 	 * @return true if machineId denotes a known managed state machine currently in memory
 	 */
-	public boolean isStateMachineManaged(String machineId) {
+	public boolean hasStateMachine(String machineId) {
 		synchronized (machines) {
 			return machines.containsKey(machineId);
 		}
