@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.springframework.core.annotation.AliasFor;
+
 /**
- * Annotation which indicates that a method parameter should be bound to the
- * event headers of a message. The annotated parameter must be assignable to
- * {@link java.util.Map} with String keys and Object values.
+ * Annotation which indicates that a method parameter should be bound to a event header.
  *
  * @author Janne Valkealahti
  *
@@ -32,5 +32,31 @@ import java.lang.annotation.Target;
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface EventHeaders {
+public @interface EventHeader {
+
+	/**
+	 * Alias for {@link #name}.
+	 *
+	 * @return the header name
+	 */
+	@AliasFor("name")
+	String value() default "";
+
+	/**
+	 * The name of the request header to bind to.
+	 *
+	 * @return the header name
+	 */
+	@AliasFor("value")
+	String name() default "";
+
+	/**
+	 * Whether the header is required.
+	 * <p>Default is {@code true}, leading to an exception if the header is
+	 * missing. Switch this to {@code false} if you prefer a {@code null}
+	 * value in case of a header missing.
+	 *
+	 * @return the required flag
+	 */
+	boolean required() default true;
 }

@@ -1300,6 +1300,12 @@ Number of parameters or order of those doesn't matter.
 include::samples/DocsConfigurationSampleTests4.java[tags=snippetBB]
 ----
 
+[NOTE]
+====
+Instead of getting all event headers with `@EventHeaders` you can use
+`@EventHeader` which can bound to a single header.
+====
+
 === Transition Annotations
 Annotations for transitions are `OnTransition`, `OnTransitionStart`
 and `OnTransitionEnd`.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -177,7 +177,12 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		Bean2 bean2 = context.getBean(Bean2.class);
 
 		// this event should cause 'method1' to get called
-		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("foo", "jee").build());
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1)
+				.setHeader("foo", "jee")
+				.setHeader("bar1", "jee1")
+				.setHeader("bar2", "jee2")
+				.setHeader("bar3", "jee3")
+				.build());
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E2).build());
 
 		assertThat(bean2.onMethod1Latch.await(2, TimeUnit.SECONDS), is(true));
@@ -188,6 +193,11 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		assertThat(bean2.onMethod2Latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(bean2.variable, notNullValue());
 		assertThat((String)bean2.variable, is("jee"));
+
+		assertThat((String)bean2.fooHeader, is("jee"));
+		assertThat((String)bean2.bar1Header, is("jee1"));
+		assertThat((String)bean2.bar2Header, is("jee2"));
+		assertThat(bean2.bar3Header, is("jee3"));
 	}
 
 	@Test
@@ -460,6 +470,10 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		Map<String, Object> headers;
 		ExtendedState extendedState;
 		Object variable;
+		Object fooHeader;
+		Object bar1Header;
+		Object bar2Header;
+		String bar3Header;
 
 		@OnTransition(source = "S1", target = "S2")
 		public void method1(@EventHeaders Map<String, Object> headers, ExtendedState extendedState) {
@@ -475,6 +489,18 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 			onMethod2Latch.countDown();
 		}
 
+		@OnTransition(source = "S1", target = "S2")
+		public void method3(@EventHeader(name = "foo") Object header) {
+			this.fooHeader = header;
+		}
+
+		@OnTransition(source = "S1", target = "S2")
+		public void method4(@EventHeader(name = "bar1") Object header1, @EventHeader(value = "bar2") Object header2,
+				@EventHeader(value = "bar3") String header3) {
+			this.bar1Header = header1;
+			this.bar2Header = header2;
+			this.bar3Header = header3;
+		}
 	}
 
 	@WithStateMachine

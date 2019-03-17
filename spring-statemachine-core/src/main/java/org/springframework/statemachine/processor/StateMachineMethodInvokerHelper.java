@@ -29,7 +29,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.MethodParameter;
+import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.convert.TypeDescriptor;
@@ -42,6 +44,8 @@ import org.springframework.messaging.Message;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.StateMachineException;
+import org.springframework.statemachine.annotation.EventHeader;
 import org.springframework.statemachine.annotation.EventHeaders;
 import org.springframework.statemachine.annotation.ExtendedStateVariable;
 import org.springframework.statemachine.support.AbstractExpressionEvaluator;
@@ -52,6 +56,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 import org.springframework.util.ReflectionUtils.MethodFilter;
+import org.springframework.util.StringUtils;
 
 /**
  * A helper class using spel to execute target methods.
@@ -134,7 +139,11 @@ public class StateMachineMethodInvokerHelper<T, S, E> extends AbstractExpression
 		this.handlerMethods = null;
 		this.handlerMessageMethods = null;
 		this.handlerMethodsList = null;
-		this.prepareEvaluationContext(this.getEvaluationContext(false), method, annotationType);
+		try {
+			this.prepareEvaluationContext(this.getEvaluationContext(false), method, annotationType);
+		} catch (Exception e) {
+			throw new StateMachineException("Unable to prepare evaluation context", e);
+		}
 		this.setDisplayString(targetObject, method);
 	}
 
@@ -169,7 +178,11 @@ public class StateMachineMethodInvokerHelper<T, S, E> extends AbstractExpression
 			this.handlerMethodsList.add(this.handlerMethods);
 			this.handlerMethodsList.add(this.handlerMessageMethods);
 		}
-		this.prepareEvaluationContext(this.getEvaluationContext(false), methodName, annotationType);
+		try {
+			this.prepareEvaluationContext(this.getEvaluationContext(false), methodName, annotationType);
+		} catch (Exception e) {
+			throw new StateMachineException("Unable to prepare evaluation context", e);
+		}
 		this.setDisplayString(targetObject, methodName);
 	}
 
@@ -184,7 +197,7 @@ public class StateMachineMethodInvokerHelper<T, S, E> extends AbstractExpression
 	}
 
 	private void prepareEvaluationContext(StandardEvaluationContext context, Object method,
-			Class<? extends Annotation> annotationType) {
+			Class<? extends Annotation> annotationType) throws Exception {
 		Class<?> targetType = AopUtils.getTargetClass(this.targetObject);
 		if (method instanceof Method) {
 			context.registerMethodFilter(targetType, new FixedMethodFilter((Method) method));
@@ -203,6 +216,8 @@ public class StateMachineMethodInvokerHelper<T, S, E> extends AbstractExpression
 			context.registerMethodFilter(targetType, filter);
 		}
 		context.setVariable("target", targetObject);
+        context.registerFunction("requiredHeader", ParametersWrapper.class.getDeclaredMethod("getHeader",
+                Map.class, String.class));
 	}
 
 	private boolean canReturnExpectedType(AnnotatedMethodFilter filter, Class<?> targetType, TypeConverter typeConverter) {
@@ -382,7 +397,7 @@ public class StateMachineMethodInvokerHelper<T, S, E> extends AbstractExpression
 
 		private static final SpelExpressionParser EXPRESSION_PARSER = new SpelExpressionParser();
 
-//		private static final ParameterNameDiscoverer PARAMETER_NAME_DISCOVERER = new LocalVariableTableParameterNameDiscoverer();
+		private static final ParameterNameDiscoverer PARAMETER_NAME_DISCOVERER = new LocalVariableTableParameterNameDiscoverer();
 
 		private final Method method;
 
@@ -398,7 +413,6 @@ public class StateMachineMethodInvokerHelper<T, S, E> extends AbstractExpression
 			this.method = method;
 			this.expression = this.generateExpression(method);
 		}
-
 
 		Expression getExpression() {
 			return this.expression;
@@ -435,6 +449,8 @@ public class StateMachineMethodInvokerHelper<T, S, E> extends AbstractExpression
 
 					if (annotationType.equals(EventHeaders.class)) {
 						sb.append("headers");
+					} else if (annotationType.equals(EventHeader.class)) {
+						sb.append(this.determineHeaderExpression(mappingAnnotation, methodParameter));
 					} else if (annotationType.equals(ExtendedStateVariable.class)) {
 						AnnotationAttributes annotationAttributes = AnnotationAttributes
 								.fromMap(AnnotationUtils.getAnnotationAttributes(mappingAnnotation));
@@ -483,6 +499,8 @@ public class StateMachineMethodInvokerHelper<T, S, E> extends AbstractExpression
 										+ annotation.annotationType().getName() + "]");
 					}
 					match = annotation;
+				} else if (type.equals(EventHeader.class)) {
+					match = annotation;
 				} else if (type.equals(ExtendedStateVariable.class)) {
 					if (match != null) {
 						throw new IllegalArgumentException(
@@ -496,12 +514,43 @@ public class StateMachineMethodInvokerHelper<T, S, E> extends AbstractExpression
 			return match;
 		}
 
+		private String determineHeaderExpression(Annotation headerAnnotation, MethodParameter methodParameter) {
+			methodParameter.initParameterNameDiscovery(PARAMETER_NAME_DISCOVERER);
+			String headerName = null;
+			String relativeExpression = "";
+			AnnotationAttributes annotationAttributes = (AnnotationAttributes) AnnotationUtils
+					.getAnnotationAttributes(headerAnnotation);
+			String valueAttribute = annotationAttributes.getString(AnnotationUtils.VALUE);
+			if (!StringUtils.hasText(valueAttribute)) {
+				headerName = methodParameter.getParameterName();
+			} else if (valueAttribute.indexOf('.') != -1) {
+				String[] tokens = valueAttribute.split("\\.", 2);
+				headerName = tokens[0];
+				if (StringUtils.hasText(tokens[1])) {
+					relativeExpression = "." + tokens[1];
+				}
+			} else {
+				headerName = valueAttribute;
+			}
+			Assert.notNull(headerName, "Cannot determine header name. Possible reasons: -debug is "
+					+ "disabled or header name is not explicitly provided via @EventHeader annotation.");
+			String headerRetrievalExpression = "headers['" + headerName + "']";
+			String fullHeaderExpression = headerRetrievalExpression + relativeExpression;
+			if (annotationAttributes.getBoolean("required")
+					&& !methodParameter.getParameterType().getName().equals("java.util.Optional")) {
+				return "#requiredHeader(headers, '" + headerName + "')" + relativeExpression;
+			} else if (!StringUtils.hasLength(relativeExpression)) {
+				return headerRetrievalExpression + " ?: null";
+			} else {
+				return headerRetrievalExpression + " != null ? " + fullHeaderExpression + " : null";
+			}
+		}
 	}
 
 	/**
 	 * Wrapping everything we need to work with spel.
 	 */
-	public class ParametersWrapper<SS, EE> {
+	public static class ParametersWrapper<SS, EE> {
 
 		private final StateContext<SS, EE> stateContext;
 
@@ -511,6 +560,14 @@ public class StateMachineMethodInvokerHelper<T, S, E> extends AbstractExpression
 
 		public StateContext<SS, EE> getStateContext() {
 			return stateContext;
+		}
+
+		public static Object getHeader(Map<?, ?> headers, String header) {
+			Object object = headers.get(header);
+			if (object == null) {
+				throw new IllegalArgumentException("required header not available: " + header);
+			}
+			return object;
 		}
 
 		public Map<String, ?> getHeaders() {

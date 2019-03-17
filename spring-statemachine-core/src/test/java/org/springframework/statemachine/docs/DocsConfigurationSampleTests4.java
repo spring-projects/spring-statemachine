@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.annotation.EventHeader;
 import org.springframework.statemachine.annotation.EventHeaders;
 import org.springframework.statemachine.annotation.OnEventNotAccepted;
 import org.springframework.statemachine.annotation.OnExtendedStateChanged;
@@ -131,6 +132,8 @@ public class DocsConfigurationSampleTests4 extends AbstractStateMachineTests {
 		@OnTransition
 		public void anyTransition(
 				@EventHeaders Map<String, Object> headers,
+				@EventHeader("myheader1") Object myheader1,
+				@EventHeader(name = "myheader2", required = false) String myheader2,
 				ExtendedState extendedState,
 				StateMachine<String, String> stateMachine,
 				Message<String> message,
