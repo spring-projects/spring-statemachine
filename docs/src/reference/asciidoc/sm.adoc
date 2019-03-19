@@ -1971,12 +1971,12 @@ stop and start a machine.
 
 Currently there are implementations for this interface for out-of-the-box
 supported _Spring Data Repositories_. These are
-`JpaStateMachineRuntimePersister`, `RedisStateMachineRuntimePersister`
-and `MongoDbStateMachineRuntimePersister`.
+`JpaPersistingStateMachineInterceptor`, `MongoDbPersistingStateMachineInterceptor`
+and `RedisPersistingStateMachineInterceptor`.
 
 [TIP]
 ====
-Check sample <<statemachine-examples-datajpapersist>> for detailed usage.
+Check sample <<statemachine-examples-datapersist>> for detailed usage.
 ====
 
 [[sm-boot]]
