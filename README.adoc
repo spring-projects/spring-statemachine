@@ -8,10 +8,6 @@ image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B12X[Ba
 Build Status, link=https://build.spring.io/browse/SDG-B12X] (1.2.x)
 image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B11X[Bamboo
 Build Status, link=https://build.spring.io/browse/SDG-B11X] (1.1.x)
-image:https://api.travis-ci.org/spring-projects/spring-statemachine.svg?branch=master[Travis
-CI Build Status,
-link=https://travis-ci.org/spring-projects/spring-statemachine]
-(Travis)
 
 The Spring Statemachine project aims to provide a common infrastructure 
 to work with state machine concepts in Spring applications.
