@@ -152,18 +152,15 @@ public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 
 			// remove given states to reflect correct join stage
 			Iterator<List<State<S, E>>> trackIter = track.iterator();
-			while(trackIter.hasNext()) {
+			while (trackIter.hasNext()) {
 				List<State<S, E>> list = trackIter.next();
 				Iterator<State<S, E>> iterator = list.iterator();
-				while(iterator.hasNext()) {
+				while (iterator.hasNext()) {
 					State<S, E> next = iterator.next();
 					if (ids.contains(next.getId())) {
 						iterator.remove();
+						trackIter.remove();
 					}
-				}
-				// also remove list if it became empty
-				if (list.isEmpty()) {
-					trackIter.remove();
 				}
 			}
 		}
