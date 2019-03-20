@@ -1249,7 +1249,7 @@ configuration into Spring Application Context. Both
 _@EnableStateMachine_ and _@EnableStateMachineFactory_ are already
 annotated with this so there is no need for user to add it again.
 However if machine is build and configured without a use of
-configuration adapters, _@EnableWithStateMachine_ must be used order
+configuration adapters, _@EnableWithStateMachine_ must be used in order
 to use features with _@WithStateMachine_. Idea for this is shown
 below.
 
