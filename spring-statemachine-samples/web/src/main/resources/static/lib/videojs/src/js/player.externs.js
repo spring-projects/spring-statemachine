@@ -12,7 +12,7 @@
 /**
  * Native HTML5 video properties
  * Most likely covered by the default closure compiler externs
- * Copied list from http://code.google.com/p/closure-compiler/source/browse/externs/html5.js?spec=svne2e531de906d9ccccf23516bd2dd6152a93f6468&r=e2e531de906d9ccccf23516bd2dd6152a93f6468
+ * Copied list from https://code.google.com/p/closure-compiler/source/browse/externs/html5.js?spec=svne2e531de906d9ccccf23516bd2dd6152a93f6468&r=e2e531de906d9ccccf23516bd2dd6152a93f6468
  * May not all be available on a videojs player yet
  */
 videojs.Player.prototype.error = function(){};

@@ -4,10 +4,10 @@
 <meta charset="utf-8" />
 <title>STOMP Over WebSocket</title>
 <!--[if IE]>
-<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 <![endif]-->
 <link rel=stylesheet href=screen.css>
-<link rel=alternate type=application/atom+xml href=http://github.com/feeds/jmesnil/commits/stomp-websocket/master>
+<link rel=alternate type=application/atom+xml href=https://github.com/feeds/jmesnil/commits/stomp-websocket/master>
 </head>
 
 <body>
@@ -21,10 +21,10 @@
 <h2 id=stomp>What is STOMP?</h2>
 
 <p><img src=i/johnny_automatic/johnny_automatic_elephant_climbing.svg></p>
-<p><a href=http://stomp.github.com/>STOMP</a> is a simple text-orientated messaging protocol.
-  It defines an <a href=http://stomp.github.com/stomp-specification-1.1.html>interoperable wire format</a> 
+<p><a href=https://stomp.github.com/>STOMP</a> is a simple text-orientated messaging protocol.
+  It defines an <a href=https://stomp.github.com/stomp-specification-1.1.html>interoperable wire format</a> 
   so that any of the available STOMP clients can communicate with any STOMP message broker to provide easy and widespread
-  messaging interoperability among languages and platforms (the STOMP web site has a <a href=http://stomp.github.com/implementations.html>list of STOMP client and server implementations</a>.</p>
+  messaging interoperability among languages and platforms (the STOMP web site has a <a href=https://stomp.github.com/implementations.html>list of STOMP client and server implementations</a>.</p>
 </section>
 
 <section>
@@ -32,9 +32,9 @@
 
 <p class=ss style="width:248px"><img width=248 src=i/johnny_automatic/johnny_automatic_follow_the_leader.svg><br>
   <span id=live-web-sockets></span></p>
-<p><a href=http://dev.w3.org/html5/websockets/>WebSockets</a> are "TCP for the Web".</p>
+<p><a href=https://dev.w3.org/html5/websockets/>WebSockets</a> are "TCP for the Web".</p>
 <p>When Google announced the availability of
-<a href=http://blog.chromium.org/2009/12/web-sockets-now-available-in-google.html>WebSocket in Google Chrome</a>,
+<a href=https://blog.chromium.org/2009/12/web-sockets-now-available-in-google.html>WebSocket in Google Chrome</a>,
 it explained the idea behind WebSockets:</p>
 <blockquote>
   <p>The WebSocket API enables web applications to handle bidirectional communications
@@ -59,7 +59,7 @@ it explained the idea behind WebSockets:</p>
     with.</p>
 </blockquote>
 
-<p>The API is part of <a href=>HTML5</a> and is supported (<a href=http://en.wikipedia.org/wiki/WebSocket#Browser_support>at various degree...</a>) by most modern Web Browsers (including Google Chrome, Firefox and Safari on Mac OS X and iOS).</p>
+<p>The API is part of <a href=>HTML5</a> and is supported (<a href=https://en.wikipedia.org/wiki/WebSocket#Browser_support>at various degree...</a>) by most modern Web Browsers (including Google Chrome, Firefox and Safari on Mac OS X and iOS).</p>
 
 </section>
 
@@ -69,8 +69,8 @@ it explained the idea behind WebSockets:</p>
 <p>This library supports multiple version of STOMP protocols:
 
 <ul>
-  <li><a href=http://stomp.github.com/stomp-specification-1.0.html>STOMP 1.0</a>
-  <li><a href=http://stomp.github.com/stomp-specification-1.1.html>STOMP 1.1<a> (including <a href=#heartbeat>heart-beating</a>)
+  <li><a href=https://stomp.github.com/stomp-specification-1.0.html>STOMP 1.0</a>
+  <li><a href=https://stomp.github.com/stomp-specification-1.1.html>STOMP 1.1<a> (including <a href=#heartbeat>heart-beating</a>)
 </ul>
 
 <h2 id=requirements>Server Requirements</h2>
@@ -86,10 +86,10 @@ it explained the idea behind WebSockets:</p>
 
 <h3 id=hornetq>HornetQ</h3>
 
-<p><a href=http://jboss.org/hornetq>HornetQ</a> is the Open Source messaging system developed
+<p><a href=https://jboss.org/hornetq>HornetQ</a> is the Open Source messaging system developed
   by Red Hat and JBoss.</p>
   
-<p>To start HornetQ with support for STOMP Over WebSocket, <a href=http://www.jboss.org/hornetq/downloads.html>download the latest version</a> and run the following steps:</p>
+<p>To start HornetQ with support for STOMP Over WebSocket, <a href=https://www.jboss.org/hornetq/downloads.html>download the latest version</a> and run the following steps:</p>
 
 <pre>
   <samp>$ </samp><kbd>cd hornetq-x.y.z/examples/jms/stomp-websockets</kbd>
@@ -107,26 +107,26 @@ It accepts <em>WebSocket connections</em> from the URL <code>ws://localhost:6161
 </section>
 
 <p>To configure and run HornetQ with STOMP Over WebSocket enabled, follow the
-  <a href=http://docs.jboss.org/hornetq/2.3.0.CR2/docs/user-manual/html/interoperability.html#stomp.websockets>instructions</a>.</p>
+  <a href=https://docs.jboss.org/hornetq/2.3.0.CR2/docs/user-manual/html/interoperability.html#stomp.websockets>instructions</a>.</p>
 
 <h3 id=activemq>ActiveMQ</h3>
 
-<p><a href=http://activemq.apache.org>ActiveMQ</a> is the Open Source messaging system developed by Apache.
+<p><a href=https://activemq.apache.org>ActiveMQ</a> is the Open Source messaging system developed by Apache.
   Starting with 5.4 snapshots, ActiveMQ supports STOMP Over WebSocket.</p>
 <p>To configure and run ActiveMQ with STOMP Over WebSocket enabled, follow the
-  <a href=http://activemq.apache.org/websockets.html>instructions</a>.</p>
+  <a href=https://activemq.apache.org/websockets.html>instructions</a>.</p>
 
 <h3 id=apollo>ActiveMQ Apollo</h3>
 
-<p><a href=http://activemq.apache.org/apollo/>ActiveMQ Apollo</a> is the next generation of ActiveMQ broker.
+<p><a href=https://activemq.apache.org/apollo/>ActiveMQ Apollo</a> is the next generation of ActiveMQ broker.
   From the start, Apollo supports STOMP Over WebSocket.</p>
 <p>To configure and run Apollo with STOMP Over WebSocket enabled, follow the
-  <a href=http://activemq.apache.org/apollo/documentation/user-manual.html#WebSocket_Transports>instructions</a>.</p>
+  <a href=https://activemq.apache.org/apollo/documentation/user-manual.html#WebSocket_Transports>instructions</a>.</p>
 
 <h3 id=rabbitmq>RabbitMQ</h3>
 
-<p><a href=http://www.rabbitmq.com/>RabbitMQ</a> is Open Source messaging system sponsored by VMware.
-<p>To configure and run RabbitMQ with STOMP Over WebSocket enabled, follow the instructions to install the <a href=http://www.rabbitmq.com/web-stomp.html>Web-Stomp plugin</a>.</p>
+<p><a href=https://www.rabbitmq.com/>RabbitMQ</a> is Open Source messaging system sponsored by VMware.
+<p>To configure and run RabbitMQ with STOMP Over WebSocket enabled, follow the instructions to install the <a href=https://www.rabbitmq.com/web-stomp.html>Web-Stomp plugin</a>.</p>
 
 <h3 id=stilts>Stilts &amp; Torquebox</h3>
 
@@ -142,7 +142,7 @@ It accepts <em>WebSocket connections</em> from the URL <code>ws://localhost:6161
 
 <p>A <a href="https://raw.github.com/jmesnil/stomp-websocket/master/lib/stomp.min.js">minified version</a> is also provided to be used in production.
 
-<p>This JavaScript file is generated from <a href=http://jashkenas.github.com/coffee-script/>CoffeeScript</a> files. See the <a href=#contribute>Contribute</a> section to download the source code or browse the <a href="stomp.html">annotated source code</a>.
+<p>This JavaScript file is generated from <a href=https://jashkenas.github.com/coffee-script/>CoffeeScript</a> files. See the <a href=#contribute>Contribute</a> section to download the source code or browse the <a href="stomp.html">annotated source code</a>.
 
 <h2 id=api>STOMP API</h2>
 
@@ -201,7 +201,7 @@ This method expects an object that conforms to the WebSocket definition.
 
 <h4 id=nodejs>In a node.js application</h3>
 
-<p>The library can also be used in <a href="http://nodejs.org">node.js</a> application by using the 
+<p>The library can also be used in <a href="https://nodejs.org">node.js</a> application by using the 
   <a href="https://npmjs.org/package/stompjs">stompjs npm package</a>.
 
 <pre>
@@ -234,7 +234,7 @@ This method expects an object that conforms to the WebSocket definition.
   connect and authenticate to the STOMP server. The method takes two mandatory arguments,
   <code>login</code> and <code>passcode</code> corresponding to the user credentials.</p>
 <p>Behind the scene, the client will open a connection using a WebSocket and send
-  a <a href=http://stomp.github.com/stomp-specification-1.1.html#CONNECT_or_STOMP_Frame>CONNECT</a> frame.</p>
+  a <a href=https://stomp.github.com/stomp-specification-1.1.html#CONNECT_or_STOMP_Frame>CONNECT</a> frame.</p>
 <p>The connection is done asynchronously: you have no guarantee to be effectively connected when
   the call to <code>connect</code> returns. To be notified of the connection, you need to pass a
   <code>connect_callback</code> function to the <code>connect()</code> method:</p>
@@ -247,7 +247,7 @@ This method expects an object that conforms to the WebSocket definition.
   optional <code>error_callback</code> argument which will be called if the client is not able
   to connect to the server.
   The callback will be called with a single argument, an error object corresponding to STOMP
-  <a href=http://stomp.github.com/stomp-specification-1.1.html#ERROR>ERROR</a> frame:</p>
+  <a href=https://stomp.github.com/stomp-specification-1.1.html#ERROR>ERROR</a> frame:</p>
   
 <pre><code>
   <mark>var error_callback</mark> = function(error) {
@@ -265,7 +265,7 @@ This method expects an object that conforms to the WebSocket definition.
 </code></pre>
 
 <p>where <code>login</code>, <code>passcode</code> are strings and <code>connectCallback</code> and <code>errorCallback</code> are functions
-  (some brokers also require to pass a <a href=http://stomp.github.io/stomp-specification-1.1.html#CONNECT_or_STOMP_Frame>host</a> String).
+  (some brokers also require to pass a <a href=https://stomp.github.io/stomp-specification-1.1.html#CONNECT_or_STOMP_Frame>host</a> String).
 
 <p>The <code>connect()</code> method also accepts two other variants if you need to pass additional headers:
 
@@ -327,7 +327,7 @@ This method expects an object that conforms to the WebSocket definition.
 </code></pre>
 
 <p>The client will send a STOMP
-  <a href=http://stomp.github.com/stomp-specification-1.1.html#SEND>SEND</a> frame to <code>/queue/test</code> destination
+  <a href=https://stomp.github.com/stomp-specification-1.1.html#SEND>SEND</a> frame to <code>/queue/test</code> destination
   with a header <code>priority</code> set to <code>9</code> and a body <code>Hello, STOMP</code>.</p>
 
 <div class=advice>
@@ -362,7 +362,7 @@ This method expects an object that conforms to the WebSocket definition.
 
 
 <p>The client will send a STOMP
-  <a href=http://stomp.github.com/stomp-specification-1.1.html#SUBSCRIBE>SUBSCRIBE</a> frame to the server
+  <a href=https://stomp.github.com/stomp-specification-1.1.html#SUBSCRIBE>SUBSCRIBE</a> frame to the server
   and register the callback. Every time the server
   send a message to the client, the client will in turn call the callback with a STOMP Frame object
   corresponding to the message:</p>
@@ -415,7 +415,7 @@ This method expects an object that conforms to the WebSocket definition.
 <h3 id=json>JSON support</h3>
 
 <p>The body of a STOMP message must be a <code>String</code>. If you want to send and receive
-  <a href=http://json.org/>JSON</a> objects, you can use <code>JSON.stringify()</code> and <code>JSON.parse()</code> to transform the JSON
+  <a href=https://json.org/>JSON</a> objects, you can use <code>JSON.stringify()</code> and <code>JSON.parse()</code> to transform the JSON
   object to a String and vice versa.</p>
 
 <pre><code>
@@ -432,7 +432,7 @@ This method expects an object that conforms to the WebSocket definition.
 
 <p>By default, STOMP messages will be automatically acknowledged by the server before the message
   is delivered to the client.</p>
-<p>The client can chose instead to handle message <a href=http://stomp.github.com/stomp-specification-1.1.html#SUBSCRIBE_ack_Header>acknowledgement</a> by subscribing to a destination and
+<p>The client can chose instead to handle message <a href=https://stomp.github.com/stomp-specification-1.1.html#SUBSCRIBE_ack_Header>acknowledgement</a> by subscribing to a destination and
   specify a <code>ack</code> header set to <code>client</code> or <code>client-individual</code>.</p>
 <p>In that case, the client must use the <code>message.ack()</code> method to inform the server that it has
   acknowledge the message.</p>
@@ -560,10 +560,10 @@ The client can then send and/or acknowledge messages in the transaction by speci
 <h2 id=contribute>Contribute</h2>
 
 <p><img width=240 src=i/johnny_automatic/johnny_automatic_the_dynamometer_test.svg></p>
-<p> The source code is hosted on <a href=http://github/org>GitHub</a>:</p>
+<p> The source code is hosted on <a href=https://github/org>GitHub</a>:</p>
 
 <pre>
-  <kbd>git clone <a href=http://github.com/jmesnil/stomp-websocket>git://github.com/jmesnil/stomp-websocket.git</a></kbd>
+  <kbd>git clone <a href=https://github.com/jmesnil/stomp-websocket>git://github.com/jmesnil/stomp-websocket.git</a></kbd>
 </pre>
 
 </section>
@@ -572,10 +572,10 @@ The client can then send and/or acknowledge messages in the transaction by speci
 &copy; 2012 <a href="http://jmesnil.net/">Jeff Mesnil</a>
 </footer>
 
-<script src='http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js'></script>
+<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js'></script>
 <script src='j/doc.js'></script>
 <script type="text/javascript">
-var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "https://www.");
 document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
 </script>
 <script type="text/javascript">
