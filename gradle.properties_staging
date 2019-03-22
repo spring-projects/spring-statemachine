@@ -1,0 +1,6 @@
+version=2.0.3-SNAPSHOT
+artifactory_dev=http://172.16.0.32:9090/artifactory
+artifactory_staging=http://172.16.0.32:9090/artifactory
+artifactory_prod=http://172.16.0.32:9090/artifactory
+artifactory_user=admin
+artifactory_password=kar.95424

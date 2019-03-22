@@ -14,16 +14,27 @@ buildscript {
 		eclipseUml2UmlVersion = '5.0.0-v20140602-0749'
 		curatorVersion = '2.11.1'
 	}
+
 	repositories {
-		maven { url 'http://repo.springsource.org/libs-release'}
+        maven { url "https://repo.spring.io/plugins-release" }
+        maven { url 'http://repo.springsource.org/libs-release'}
 		maven { url 'http://repo.springsource.org/plugins-release' }
 		maven { url 'http://repo.springsource.org/plugins-snapshot' }
+		jcenter()
+		mavenCentral()
+		
+		maven { url "https://plugins.gradle.org/m2" }
+        maven { url 'http://repo1.maven.org/maven2' }
 	}
+
 	dependencies {
 		classpath("io.spring.gradle:propdeps-plugin:0.0.8")
 		classpath('org.asciidoctor:asciidoctor-gradle-plugin:1.5.2')
 		classpath("io.spring.gradle:docbook-reference-plugin:0.3.1")
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
+		classpath(group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '4' +
+				'.+')
+
 	}
 }
 
@@ -665,4 +676,73 @@ configure(rootProject) {
 	}
 
 }
+
+/*allprojects {
+	apply plugin: 'java'
+	apply plugin: 'maven'
+	apply plugin: 'eclipse'
+	apply plugin: 'idea'
+	group = 'com.bizdirect'
+	version = '2.0.3-CUSTOM-SNAPSHOT'
+}*/
+
+
+
+
+configure(subprojects.findAll { (it.name == 'spring-statemachine-core') } ) {
+
+	apply plugin: 'com.jfrog.artifactory'
+	apply plugin: 'maven-publish'
+
+	publishing {
+
+		publications {
+			mavenJava(MavenPublication) {
+				from components.java
+				artifact(file("$rootDir/gradle.properties"))
+			}
+		}
+
+	}
+
+}
+
+
+
+
+artifactoryPublish.skip = true
+
+artifactory {
+
+	clientConfig.setIncludeEnvVars(true)
+	clientConfig.info.addEnvironmentProperty('test.adding.dynVar', new java.util.Date().toString())
+
+	contextUrl = "${artifactory_dev}"
+	if (project.hasProperty('env')) {
+		println "Target environment : $env"
+		if ("$env" == 'staging') {
+			contextUrl = "${artifactory_staging}"
+		} else if ("$env" == 'prod') {
+			contextUrl = "${artifactory_prod}"
+		} else {
+			contextUrl = "${artifactory_dev}"
+		}
+	}
+	publish {
+		repository {
+			repoKey = 'libs-snapshot-local'
+			username = "${artifactory_user}"
+			password = "${artifactory_password}"
+		}
+		defaults {
+			publications('mavenJava')
+			publishArtifacts = true
+			publishPom = true
+			publishIvy = true
+		}
+	}
+
+}
+
+
 

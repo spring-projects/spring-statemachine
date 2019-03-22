@@ -91,6 +91,11 @@ public abstract class AbstractStateMachineConfigurerAdapter<S, E> implements Sta
 		}
 		transitionBuilder = new StateMachineTransitionBuilder<S, E>(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR, true);
 		configure(transitionBuilder);
+    StateMachineTransitionBuilder<S, E> userTransitions = configureTransitions();
+    if (userTransitions != null) {
+      transitionBuilder = userTransitions;
+    }
+
 		return transitionBuilder;
 	}
 
@@ -111,5 +116,10 @@ public abstract class AbstractStateMachineConfigurerAdapter<S, E> implements Sta
 		configure(configurationBuilder);
 		return configurationBuilder;
 	}
+
+	public StateMachineTransitionBuilder<S, E> configureTransitions() {
+
+	  return null;
+  }
 
 }
