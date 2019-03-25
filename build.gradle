@@ -7,7 +7,7 @@ buildscript {
 		classpath("org.springframework.build.gradle:propdeps-plugin:0.0.7")
 		classpath('org.asciidoctor:asciidoctor-gradle-plugin:1.5.2')
 		classpath("io.spring.gradle:docbook-reference-plugin:0.3.1")
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.1.RELEASE")
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.19.RELEASE")
 	}
 }
 
@@ -365,6 +365,7 @@ project('spring-statemachine-build-tests') {
 		testCompile project(":spring-statemachine-data-common:spring-statemachine-data-mongodb")
 		testRuntime "org.springframework.boot:spring-boot-starter-data-redis:$springBootVersion"
 		testCompile "org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion"
+		testCompile "org.mongodb:mongodb-driver:$mongoDbVersion"
 		testCompile "com.h2database:h2:$h2Version"
 		testCompile "org.springframework.boot:spring-boot-starter:$springBootVersion"
 		testCompile "org.springframework:spring-test:$springVersion"

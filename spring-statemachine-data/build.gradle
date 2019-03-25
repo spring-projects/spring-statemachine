@@ -33,7 +33,10 @@ project('spring-statemachine-data-mongodb') {
 	description = "Spring State Machine Data MongoDB"
 	dependencies {
 		compile project(":spring-statemachine-data-common")
-		compile "org.springframework.data:spring-data-mongodb:$springDataMongoDbVersion"
+		compile("org.springframework.data:spring-data-mongodb:$springDataMongoDbVersion") { dep ->
+			exclude group: "org.mongodb", module: "mongo-java-driver"
+		}
+		testCompile "org.mongodb:mongodb-driver:$mongoDbVersion"
 		testCompile project(":spring-statemachine-test")
 		optional "org.eclipse.persistence:javax.persistence:$eclipsePersistenceVersion"
 		testCompile project(path:":spring-statemachine-data-common", configuration:"testArtifacts")
