@@ -1,14 +1,14 @@
-:java-ClassLoader: http://docs.oracle.com/javase/7/docs/api/java/lang/ClassLoader.html
-:core-ApplicationContext: http://docs.spring.io/spring/docs/{spring-version}/javadoc-api/org/springframework/context/ApplicationContext.html
-:core-beans-factory-placeholderconfigurer: http://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/beans.html#beans-factory-placeholderconfigurer
-:core-beans-environment: http://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/beans.html#beans-environment
-:core-ResourcePatternResolver: http://docs.spring.io/spring/docs/{spring-version}/javadoc-api/org/springframework/core/io/support/ResourcePatternResolver.html
-:core-ref-util: http://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/xsd-config.html#xsd-config-body-schemas-util-properties
-:core-aop-schema-advisors: http://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/aop.html#aop-schema-advisors
-:core-dao: http://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/dao.html
-:core-dao-exceptions: http://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/dao.html#dao-exceptions
-:core-jdbc: http://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/jdbc.html
-:core-jdbc-JdbcTemplate: http://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/jdbc.html#jdbc-JdbcTemplate
+:java-ClassLoader: https://docs.oracle.com/javase/7/docs/api/java/lang/ClassLoader.html
+:core-ApplicationContext: https://docs.spring.io/spring/docs/{spring-version}/javadoc-api/org/springframework/context/ApplicationContext.html
+:core-beans-factory-placeholderconfigurer: https://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/beans.html#beans-factory-placeholderconfigurer
+:core-beans-environment: https://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/beans.html#beans-environment
+:core-ResourcePatternResolver: https://docs.spring.io/spring/docs/{spring-version}/javadoc-api/org/springframework/core/io/support/ResourcePatternResolver.html
+:core-ref-util: https://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/xsd-config.html#xsd-config-body-schemas-util-properties
+:core-aop-schema-advisors: https://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/aop.html#aop-schema-advisors
+:core-dao: https://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/dao.html
+:core-dao-exceptions: https://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/dao.html#dao-exceptions
+:core-jdbc: https://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/jdbc.html
+:core-jdbc-JdbcTemplate: https://docs.spring.io/spring/docs/{spring-version}/spring-framework-reference/html/jdbc.html#jdbc-JdbcTemplate
 
 = Spring Statemachine - Reference Documentation
 

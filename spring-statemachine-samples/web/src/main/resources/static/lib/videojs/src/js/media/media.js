@@ -89,7 +89,7 @@ vjs.MediaTechController.prototype.addControlsListeners = function(){
 
   // Some browsers (Chrome & IE) don't trigger a click on a flash swf, but do
   // trigger mousedown/up.
-  // http://stackoverflow.com/questions/1444562/javascript-onclick-event-over-flash-object
+  // https://stackoverflow.com/questions/1444562/javascript-onclick-event-over-flash-object
   // Any touch events are set to block the mousedown event from happening
   this.on('mousedown', this.onClick);
 

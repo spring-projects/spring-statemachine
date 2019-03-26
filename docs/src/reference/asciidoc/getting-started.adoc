@@ -45,7 +45,7 @@ Here is a typical `build.gradle` file:
 ----
 buildscript {
     repositories {
-        maven { url "http://repo.spring.io/libs-release" }
+        maven { url "https://repo.spring.io/libs-release" }
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.5.RELEASE")
@@ -62,9 +62,9 @@ archivesBaseName = 'gs-statemachine'
 
 repositories {
     mavenCentral()
-    maven { url "http://repo.spring.io/libs-release" }
-    maven { url "http://repo.spring.io/libs-milestone" }
-    maven { url "http://repo.spring.io/libs-snapshot" }
+    maven { url "https://repo.spring.io/libs-release" }
+    maven { url "https://repo.spring.io/libs-milestone" }
+    maven { url "https://repo.spring.io/libs-snapshot" }
 }
 
 dependencies {
@@ -105,7 +105,7 @@ Here is a typical `pom.xml` file:
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.springframework</groupId>
@@ -166,17 +166,17 @@ Here is a typical `pom.xml` file:
     <repositories>
         <repository>
             <id>spring-release</id>
-            <url>http://repo.spring.io/libs-release</url>
+            <url>https://repo.spring.io/libs-release</url>
             <snapshots><enabled>false</enabled></snapshots>
         </repository>
         <repository>
             <id>spring-milestone</id>
-            <url>http://repo.spring.io/libs-milestone</url>
+            <url>https://repo.spring.io/libs-milestone</url>
             <snapshots><enabled>false</enabled></snapshots>
         </repository>
         <repository>
             <id>spring-snapshot</id>
-            <url>http://repo.spring.io/libs-snapshot</url>
+            <url>https://repo.spring.io/libs-snapshot</url>
             <snapshots><enabled>true</enabled></snapshots>
         </repository>
     </repositories>
@@ -184,7 +184,7 @@ Here is a typical `pom.xml` file:
     <pluginRepositories>
         <pluginRepository>
             <id>spring-release</id>
-            <url>http://repo.spring.io/libs-release</url>
+            <url>https://repo.spring.io/libs-release</url>
             <snapshots><enabled>false</enabled></snapshots>
         </pluginRepository>
     </pluginRepositories>

@@ -11,9 +11,9 @@ Text Tracks are a function of HTML5 video for providing time triggered text to t
 
 Creating the Text File
 ----------------------
-Timed text requires a text file in [WebVTT](http://dev.w3.org/html5/webvtt/) format. This format defines a list of "cues" that have a start time, and end time, and text to display. [Microsoft has a builder](http://ie.microsoft.com/testdrive/Graphics/CaptionMaker/) that can help you get started on the file.
+Timed text requires a text file in [WebVTT](https://dev.w3.org/html5/webvtt/) format. This format defines a list of "cues" that have a start time, and end time, and text to display. [Microsoft has a builder](https://ie.microsoft.com/testdrive/Graphics/CaptionMaker/) that can help you get started on the file.
 
-When creating captions, there's also additional [caption formatting techniques] (http://www.theneitherworld.com/mcpoodle/SCC_TOOLS/DOCS/SCC_FORMAT.HTML#style) that would be good to use, like brackets around sound effects: [ sound effect ]. If you'd like a more in depth style guide for captioning, you can reference the [Captioning Key](http://www.dcmp.org/captioningkey/), but keep in mind not all features are supported by WebVTT or (more likely) the Video.js WebVTT implementation.
+When creating captions, there's also additional [caption formatting techniques] (http://www.theneitherworld.com/mcpoodle/SCC_TOOLS/DOCS/SCC_FORMAT.HTML#style) that would be good to use, like brackets around sound effects: [ sound effect ]. If you'd like a more in depth style guide for captioning, you can reference the [Captioning Key](https://www.dcmp.org/captioningkey/), but keep in mind not all features are supported by WebVTT or (more likely) the Video.js WebVTT implementation.
 
 Adding to Video.js
 ------------------
@@ -23,11 +23,11 @@ Once you have your WebVTT file created, you can add it to Video.js using the tra
 <video id="example_video_1" class="video-js vjs-default-skin"  
   controls preload="auto" width="640" height="264"  
   data-setup='{"example_option":true}'>  
- <source src="http://video-js.zencoder.com/oceans-clip.mp4" type='video/mp4' />  
- <source src="http://video-js.zencoder.com/oceans-clip.webm" type='video/webm' />  
- <source src="http://video-js.zencoder.com/oceans-clip.ogv" type='video/ogg' />  
+ <source src="https://vjs.zencdn.net/oceans-clip.mp4" type='video/mp4' />  
+ <source src="https://vjs.zencdn.net/oceans-clip.webm" type='video/webm' />  
+ <source src="https://vjs.zencdn.net/oceans-clip.ogv" type='video/ogg' />  
 
- <track kind="captions" src="http://example.com/path/to/captions.vtt" srclang="en" label="English" default>
+ <track kind="captions" src="https://example.com/path/to/captions.vtt" srclang="en" label="English" default>
 
 </video>
 ```
