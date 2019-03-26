@@ -23,7 +23,7 @@ vjs.createEl = function(tagName, properties){
     // The additional check for "role" is because the default method for adding attributes does not
     // add the attribute "role". My guess is because it's not a valid attribute in some namespaces, although
     // browsers handle the attribute just fine. The W3C allows for aria-* attributes to be used in pre-HTML5 docs.
-    // http://www.w3.org/TR/wai-aria-primer/#ariahtml. Using setAttribute gets around this problem.
+    // https://www.w3.org/TR/wai-aria-primer/#ariahtml. Using setAttribute gets around this problem.
     if (propName.indexOf('aria-') !== -1 || propName == 'role') {
      el.setAttribute(propName, val);
     } else {
@@ -260,7 +260,7 @@ vjs.removeData = function(el){
   if (!id) { return; }
   // Remove all stored data
   // Changed to = null
-  // http://coding.smashingmagazine.com/2012/11/05/writing-fast-memory-efficient-javascript/
+  // https://coding.smashingmagazine.com/2012/11/05/writing-fast-memory-efficient-javascript/
   // vjs.cache[id] = null;
   delete vjs.cache[id];
 
@@ -451,7 +451,7 @@ vjs.getElementAttributes = function(tag){
 
 /**
  * Get the computed style value for an element
- * From http://robertnyman.com/2006/04/24/get-the-rendered-style-of-an-element/
+ * From https://robertnyman.com/2006/04/24/get-the-rendered-style-of-an-element/
  * @param  {Element} el        Element to get style value for
  * @param  {String} strCssRule Style name
  * @return {String}            Style value
@@ -631,7 +631,7 @@ vjs.get = function(url, onSuccess, onError, withCredentials){
       onSuccess(request.responseText);
     };
     request.onerror = onError;
-    // these blank handlers need to be set to fix ie9 http://cypressnorth.com/programming/internet-explorer-aborting-ajax-requests-fixed/
+    // these blank handlers need to be set to fix ie9 https://cypressnorth.com/programming/internet-explorer-aborting-ajax-requests-fixed/
     request.onprogress = function() {};
     request.ontimeout = onError;
 
@@ -696,7 +696,7 @@ vjs.setLocalStorage = function(key, value){
 
 /**
  * Get abosolute version of relative URL. Used to tell flash correct URL.
- * http://stackoverflow.com/questions/470832/getting-an-absolute-url-from-a-relative-one-ie6-issue
+ * https://stackoverflow.com/questions/470832/getting-an-absolute-url-from-a-relative-one-ie6-issue
  * @param  {String} url URL to make absolute
  * @return {String}     Absolute URL
  * @private
@@ -830,7 +830,7 @@ vjs.log.warn = function(){
 };
 
 // Offset Left
-// getBoundingClientRect technique from John Resig http://ejohn.org/blog/getboundingclientrect-is-awesome/
+// getBoundingClientRect technique from John Resig https://johnresig.com/blog/getboundingclientrect-is-awesome/
 vjs.findPosition = function(el) {
   var box, docEl, body, clientLeft, scrollLeft, left, clientTop, scrollTop, top;
 

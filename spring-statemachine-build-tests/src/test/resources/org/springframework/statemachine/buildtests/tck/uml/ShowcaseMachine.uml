@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_uXKzoA7PEeaxyZlCCSfciw" name="RootElement">
+<uml:Model xmi:version="20131001" xmlns:xmi="https://www.omg.org/spec/XMI/20131001" xmlns:ecore="https://www.eclipse.org/emf/2002/Ecore" xmlns:uml="https://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_uXKzoA7PEeaxyZlCCSfciw" name="RootElement">
   <packagedElement xmi:type="uml:StateMachine" xmi:id="_uXNP4A7PEeaxyZlCCSfciw" name="StateMachine">
     <region xmi:type="uml:Region" xmi:id="_uXOeAA7PEeaxyZlCCSfciw" name="Region1">
       <transition xmi:type="uml:Transition" xmi:id="_4ockQA7REeaxyZlCCSfciw" source="_JeMEQA7QEeaxyZlCCSfciw" target="_BWMCYA7QEeaxyZlCCSfciw">
@@ -145,7 +145,7 @@
   <packagedElement xmi:type="uml:SignalEvent" xmi:id="_oHYNkA7wEeaqleSKKcvuHQ" name="SignalEventJ" signal="_k5n4IA7wEeaqleSKKcvuHQ"/>
   <packagedElement xmi:type="uml:SignalEvent" xmi:id="_qxhfoA7wEeaqleSKKcvuHQ" name="SignalEventK" signal="_m0IdAA7wEeaqleSKKcvuHQ"/>
   <profileApplication xmi:type="uml:ProfileApplication" xmi:id="_97YgcA90EeaqleSKKcvuHQ">
-    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_97bjwA90EeaqleSKKcvuHQ" source="http://www.eclipse.org/uml2/2.0.0/UML">
+    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_97bjwA90EeaqleSKKcvuHQ" source="https://www.eclipse.org/uml2/2.0.0/UML">
       <references xmi:type="ecore:EPackage" href="pathmap://PAPYRUS_ACTIONLANGUAGE_PROFILE/ActionLanguage-Profile.profile.uml#_Kv8EIKFXEeS_KNX0nfvIVQ"/>
     </eAnnotations>
     <appliedProfile xmi:type="uml:Profile" href="pathmap://PAPYRUS_ACTIONLANGUAGE_PROFILE/ActionLanguage-Profile.profile.uml#ActionLanguage"/>

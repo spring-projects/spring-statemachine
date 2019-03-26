@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<notation:Diagram xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:notation="http://www.eclipse.org/gmf/runtime/1.0.2/notation" xmlns:style="http://www.eclipse.org/papyrus/infra/viewpoints/policy/style" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_B9kvMK8FEear5exMwQ8r0A" type="PapyrusUMLStateMachineDiagram" name="StateMachine Diagram" measurementUnit="Pixel">
+<notation:Diagram xmi:version="2.0" xmlns:xmi="https://www.omg.org/XMI" xmlns:ecore="https://www.eclipse.org/emf/2002/Ecore" xmlns:notation="https://www.eclipse.org/gmf/runtime/1.0.2/notation" xmlns:style="https://www.eclipse.org/papyrus/infra/viewpoints/policy/style" xmlns:uml="https://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_B9kvMK8FEear5exMwQ8r0A" type="PapyrusUMLStateMachineDiagram" name="StateMachine Diagram" measurementUnit="Pixel">
   <children xmi:type="notation:Shape" xmi:id="_B9kvMa8FEear5exMwQ8r0A" type="2000">
     <children xmi:type="notation:DecorationNode" xmi:id="_B9kvMq8FEear5exMwQ8r0A" type="2001">
       <layoutConstraint xmi:type="notation:Bounds" xmi:id="_B9kvM68FEear5exMwQ8r0A" width="700" height="23"/>
