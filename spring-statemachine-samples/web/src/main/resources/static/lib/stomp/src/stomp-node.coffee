@@ -4,7 +4,7 @@
 # or Web sockets.
 
 ###
-   Stomp Over WebSocket http://www.jmesnil.net/stomp-websocket/doc/ | Apache License V2.0
+   Stomp Over WebSocket http://jmesnil.net/stomp-websocket/doc/ | Apache License V2.0
 
    Copyright (C) 2013 [Jeff Mesnil](http://jmesnil.net/)
 ###

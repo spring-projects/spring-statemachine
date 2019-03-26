@@ -1,23 +1,23 @@
 
 # **STOMP Over Web Socket** is a JavaScript STOMP Client using
-# [HTML5 Web Sockets API](http://www.w3.org/TR/websockets).
+# [HTML5 Web Sockets API](https://www.w3.org/TR/websockets).
 #
 # * Copyright (C) 2010-2012 [Jeff Mesnil](http://jmesnil.net/)
-# * Copyright (C) 2012 [FuseSource, Inc.](http://fusesource.com)
+# * Copyright (C) 2012 [FuseSource, Inc.](https://www.jboss.org/)
 #
 # This library supports:
 #
-# * [STOMP 1.0](http://stomp.github.com/stomp-specification-1.0.html)
-# * [STOMP 1.1](http://stomp.github.com/stomp-specification-1.1.html)
+# * [STOMP 1.0](https://stomp.github.com/stomp-specification-1.0.html)
+# * [STOMP 1.1](https://stomp.github.com/stomp-specification-1.1.html)
 #
 # The library is accessed through the `Stomp` object that is set on the `window`
 # when running in a Web browser.
 
 ###
-   Stomp Over WebSocket http://www.jmesnil.net/stomp-websocket/doc/ | Apache License V2.0
+   Stomp Over WebSocket http://jmesnil.net/stomp-websocket/doc/ | Apache License V2.0
 
    Copyright (C) 2010-2013 [Jeff Mesnil](http://jmesnil.net/)
-   Copyright (C) 2012 [FuseSource, Inc.](http://fusesource.com)
+   Copyright (C) 2012 [FuseSource, Inc.](https://www.jboss.org/)
 ###
 
 # Define constants for bytes used throughout the code.
@@ -27,7 +27,7 @@ Byte =
   # NULL byte (octet 0)
   NULL: '\x00'
 
-# ##[STOMP Frame](http://stomp.github.com/stomp-specification-1.1.html#STOMP_Frames) Class
+# ##[STOMP Frame](https://stomp.github.com/stomp-specification-1.1.html#STOMP_Frames) Class
 class Frame
   # Frame constructor
   constructor: (@command, @headers={}, @body='') ->
@@ -229,7 +229,7 @@ class Client
 
     [headers, connectCallback, errorCallback]
 
-  # [CONNECT Frame](http://stomp.github.com/stomp-specification-1.1.html#CONNECT_or_STOMP_Frame)
+  # [CONNECT Frame](https://stomp.github.com/stomp-specification-1.1.html#CONNECT_or_STOMP_Frame)
   #
   # The `connect` method accepts different number of arguments and types:
   #
@@ -268,13 +268,13 @@ class Client
       @partialData = unmarshalledData.partial
       for frame in unmarshalledData.frames
         switch frame.command
-          # [CONNECTED Frame](http://stomp.github.com/stomp-specification-1.1.html#CONNECTED_Frame)
+          # [CONNECTED Frame](https://stomp.github.com/stomp-specification-1.1.html#CONNECTED_Frame)
           when "CONNECTED"
             @debug? "connected to server #{frame.headers.server}"
             @connected = true
             @_setupHeartbeat(frame.headers)
             @connectCallback? frame
-          # [MESSAGE Frame](http://stomp.github.com/stomp-specification-1.1.html#MESSAGE)
+          # [MESSAGE Frame](https://stomp.github.com/stomp-specification-1.1.html#MESSAGE)
           when "MESSAGE"
             # the `onreceive` callback is registered when the client calls
             # `subscribe()`.
@@ -282,7 +282,7 @@ class Client
             # we used the default `onreceive` method that the client can set.
             # This is useful for subscriptions that are automatically created
             # on the browser side (e.g. [RabbitMQ's temporary
-            # queues](http://www.rabbitmq.com/stomp.html)).
+            # queues](https://www.rabbitmq.com/stomp.html)).
             subscription = frame.headers.subscription
             onreceive = @subscriptions[subscription] or @onreceive
             if onreceive
@@ -297,7 +297,7 @@ class Client
               onreceive frame
             else
               @debug? "Unhandled received MESSAGE: #{frame}"
-          # [RECEIPT Frame](http://stomp.github.com/stomp-specification-1.1.html#RECEIPT)
+          # [RECEIPT Frame](https://stomp.github.com/stomp-specification-1.1.html#RECEIPT)
           #
           # The client instance can set its `onreceipt` field to a function taking
           # a frame argument that will be called when a receipt is received from
@@ -309,7 +309,7 @@ class Client
           #     }
           when "RECEIPT"
             @onreceipt?(frame)
-          # [ERROR Frame](http://stomp.github.com/stomp-specification-1.1.html#ERROR)
+          # [ERROR Frame](https://stomp.github.com/stomp-specification-1.1.html#ERROR)
           when "ERROR"
             errorCallback?(frame)
           else
@@ -325,7 +325,7 @@ class Client
       headers["heart-beat"] = [@heartbeat.outgoing, @heartbeat.incoming].join(',')
       @_transmit "CONNECT", headers
 
-  # [DISCONNECT Frame](http://stomp.github.com/stomp-specification-1.1.html#DISCONNECT)
+  # [DISCONNECT Frame](https://stomp.github.com/stomp-specification-1.1.html#DISCONNECT)
   disconnect: (disconnectCallback, headers={}) ->
     @_transmit "DISCONNECT", headers
     # Discard the onclose callback to avoid calling the errorCallback when
@@ -342,14 +342,14 @@ class Client
     Stomp.clearInterval @pinger if @pinger
     Stomp.clearInterval @ponger if @ponger
 
-  # [SEND Frame](http://stomp.github.com/stomp-specification-1.1.html#SEND)
+  # [SEND Frame](https://stomp.github.com/stomp-specification-1.1.html#SEND)
   #
   # * `destination` is MANDATORY.
   send: (destination, headers={}, body='') ->
     headers.destination = destination
     @_transmit "SEND", headers, body
 
-  # [SUBSCRIBE Frame](http://stomp.github.com/stomp-specification-1.1.html#SUBSCRIBE)
+  # [SUBSCRIBE Frame](https://stomp.github.com/stomp-specification-1.1.html#SUBSCRIBE)
   subscribe: (destination, callback, headers={}) ->
     # for convenience if the `id` header is not set, we create a new one for this client
     # that will be returned to be able to unsubscribe this subscription
@@ -366,7 +366,7 @@ class Client
         client.unsubscribe headers.id
     }
 
-  # [UNSUBSCRIBE Frame](http://stomp.github.com/stomp-specification-1.1.html#UNSUBSCRIBE)
+  # [UNSUBSCRIBE Frame](https://stomp.github.com/stomp-specification-1.1.html#UNSUBSCRIBE)
   #
   # * `id` is MANDATORY.
   #
@@ -382,7 +382,7 @@ class Client
       id: id
     }
 
-  # [BEGIN Frame](http://stomp.github.com/stomp-specification-1.1.html#BEGIN)
+  # [BEGIN Frame](https://stomp.github.com/stomp-specification-1.1.html#BEGIN)
   #
   # If no transaction ID is passed, one will be created automatically
   begin: (transaction) ->
@@ -399,7 +399,7 @@ class Client
         client.abort txid
     }
   
-  # [COMMIT Frame](http://stomp.github.com/stomp-specification-1.1.html#COMMIT)
+  # [COMMIT Frame](https://stomp.github.com/stomp-specification-1.1.html#COMMIT)
   #
   # * `transaction` is MANDATORY.
   #
@@ -414,7 +414,7 @@ class Client
       transaction: transaction
     }
   
-  # [ABORT Frame](http://stomp.github.com/stomp-specification-1.1.html#ABORT)
+  # [ABORT Frame](https://stomp.github.com/stomp-specification-1.1.html#ABORT)
   #
   # * `transaction` is MANDATORY.
   #
@@ -429,7 +429,7 @@ class Client
       transaction: transaction
     }
   
-  # [ACK Frame](http://stomp.github.com/stomp-specification-1.1.html#ACK)
+  # [ACK Frame](https://stomp.github.com/stomp-specification-1.1.html#ACK)
   #
   # * `messageID` & `subscription` are MANDATORY.
   #
@@ -449,7 +449,7 @@ class Client
     headers.subscription = subscription
     @_transmit "ACK", headers
 
-  # [NACK Frame](http://stomp.github.com/stomp-specification-1.1.html#NACK)
+  # [NACK Frame](https://stomp.github.com/stomp-specification-1.1.html#NACK)
   #
   # * `messageID` & `subscription` are MANDATORY.
   #

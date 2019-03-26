@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_Hc1TIGFnEeayxc_c7moBjA" name="RootElement">
+<uml:Model xmi:version="20131001" xmlns:xmi="https://www.omg.org/spec/XMI/20131001" xmlns:uml="https://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_Hc1TIGFnEeayxc_c7moBjA" name="RootElement">
   <packagedElement xmi:type="uml:StateMachine" xmi:id="_HdEjsGFnEeayxc_c7moBjA" name="StateMachine">
     <region xmi:type="uml:Region" xmi:id="_HdOUsGFnEeayxc_c7moBjA" name="Region1">
       <transition xmi:type="uml:Transition" xmi:id="_PsRZwGFnEeayxc_c7moBjA" source="_OUDCkGFnEeayxc_c7moBjA" target="_J_W6QGFnEeayxc_c7moBjA"/>
