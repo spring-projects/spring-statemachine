@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_Uc2AwCWmEeaXAJvnS1wEeA" name="RootElement">
+<uml:Model xmi:version="20131001" xmlns:xmi="https://www.omg.org/spec/XMI/20131001" xmlns:uml="https://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_Uc2AwCWmEeaXAJvnS1wEeA" name="RootElement">
   <packagedElement xmi:type="uml:StateMachine" xmi:id="_UduxkCWmEeaXAJvnS1wEeA" name="StateMachine">
     <nestedClassifier xmi:type="uml:Signal" xmi:id="_gMGAsCWnEeaXAJvnS1wEeA" name="E1"/>
     <nestedClassifier xmi:type="uml:Signal" xmi:id="_DSP9kLsCEeauVcT_eKskGw" name="E4"/>

@@ -10,7 +10,7 @@ The Video.js embed code is simply an HTML5 video tag, so for many of the options
 <video controls autoplay preload="auto" ...>
 ```
 
-Alternatively, you can use the data-setup attribute to provide options in the [JSON](http://json.org/example.html) format. This is also how you would set options that aren't standard to the video tag.
+Alternatively, you can use the data-setup attribute to provide options in the [JSON](https://json.org/example.html) format. This is also how you would set options that aren't standard to the video tag.
 
 ```html
 <video data-setup='{ "controls": true, "autoplay": false, "preload": "auto" }'...>

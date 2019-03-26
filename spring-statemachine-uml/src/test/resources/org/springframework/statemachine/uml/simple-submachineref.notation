@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:notation="http://www.eclipse.org/gmf/runtime/1.0.2/notation" xmlns:style="http://www.eclipse.org/papyrus/infra/viewpoints/policy/style" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML">
+<xmi:XMI xmi:version="2.0" xmlns:xmi="https://www.omg.org/XMI" xmlns:ecore="https://www.eclipse.org/emf/2002/Ecore" xmlns:notation="https://www.eclipse.org/gmf/runtime/1.0.2/notation" xmlns:style="https://www.eclipse.org/papyrus/infra/viewpoints/policy/style" xmlns:uml="https://www.eclipse.org/uml2/5.0.0/UML">
   <notation:Diagram xmi:id="_UeniYCWmEeaXAJvnS1wEeA" type="PapyrusUMLStateMachineDiagram" name="StateMachine Diagram" measurementUnit="Pixel">
     <children xmi:type="notation:Shape" xmi:id="_UeoJcCWmEeaXAJvnS1wEeA" type="StateMachine_Shape">
       <children xmi:type="notation:DecorationNode" xmi:id="_UeoJcSWmEeaXAJvnS1wEeA" type="StateMachine_NameLabel">

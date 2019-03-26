@@ -1,7 +1,7 @@
 /*!
-Video.js Default Styles (http://videojs.com)
+Video.js Default Styles (https://videojs.com)
 Version 4.7.3
-Create your own skin at http://designer.videojs.com
+Create your own skin at https://designer.videojs.com
 */
 /* SKIN
 ================================================================================
@@ -126,7 +126,7 @@ The default control bar that is a container for most of the controls.
 /* IE8 is flakey with fonts, and you have to change the actual content to force
 fonts to show/hide properly.
   - "\9" IE8 hack didn't work for this
-  - Found in XP IE8 from http://modern.ie. Does not show up in "IE8 mode" in IE9
+  - Found in XP IE8 from https://developer.microsoft.com/en-us/microsoft-edge. Does not show up in "IE8 mode" in IE9
 */
 @media \0screen {
   .vjs-default-skin.vjs-user-inactive.vjs-playing .vjs-control-bar :before {
@@ -419,7 +419,7 @@ fonts to show/hide properly.
 /* Big Play Button (play button at start)
 --------------------------------------------------------------------------------
 Positioning of the play button in the center or other corners can be done more
-easily in the skin designer. http://designer.videojs.com/
+easily in the skin designer. https://designer.videojs.com/
 */
 .vjs-default-skin .vjs-big-play-button {
   left: 0.5em;
