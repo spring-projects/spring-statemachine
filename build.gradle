@@ -13,6 +13,7 @@ buildscript {
 		eclipseEmfEcoreVersion = '2.11.1-v20150805-0538'
 		eclipseUml2UmlVersion = '5.0.0-v20140602-0749'
 		curatorVersion = '2.11.1'
+		docResourcesVersion = '0.1.1.RELEASE'
 	}
 	repositories {
 		maven { url 'https://repo.springsource.org/libs-release'}
@@ -21,8 +22,8 @@ buildscript {
 	}
 	dependencies {
 		classpath("io.spring.gradle:propdeps-plugin:0.0.8")
-		classpath('org.asciidoctor:asciidoctor-gradle-plugin:1.5.2')
-		classpath("io.spring.gradle:docbook-reference-plugin:0.3.1")
+		classpath('org.asciidoctor:asciidoctor-gradle-plugin:1.5.6')
+		classpath 'org.asciidoctor:asciidoctorj-pdf:1.5.0-alpha.16'
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
 	}
 }
@@ -73,7 +74,7 @@ configure(allprojects) {
 	}
 
 	group = 'org.springframework.statemachine'
-	
+
 	[compileJava, compileTestJava]*.options*.compilerArgs = ['-Xlint:none']
 
 	repositories {
@@ -166,7 +167,7 @@ configure(subprojects) { subproject ->
 
 project('spring-statemachine-core') {
 	description = "Spring State Machine Core"
-    
+
 	dependencies {
 		compile "org.springframework:spring-tx"
 		compile "org.springframework:spring-messaging"
@@ -191,7 +192,7 @@ project('spring-statemachine-core') {
 
 project('spring-statemachine-autoconfigure') {
 	description = "Spring State Machine Boot Autoconfigure"
-    
+
 	dependencies {
 		compile project(":spring-statemachine-core")
 		compile "org.springframework.boot:spring-boot-autoconfigure"
@@ -217,7 +218,7 @@ project('spring-statemachine-autoconfigure') {
 
 project('spring-statemachine-test') {
 	description = "Spring State Machine Test"
-    
+
 	dependencies {
 		compile "org.springframework:spring-context"
 		compile project(":spring-statemachine-core")
@@ -500,7 +501,6 @@ configure(rootProject) {
 	description = 'Spring State Machine'
 
 	apply plugin: 'org.asciidoctor.gradle.asciidoctor'
-	apply plugin: "docbook-reference"
 
 	dependencies {
 		// just used to get version into docs
@@ -511,42 +511,80 @@ configure(rootProject) {
 	// don't publish the default jar for the root project
 	configurations.archives.artifacts.clear()
 
-	reference {
-		sourceDir = new File(asciidoctor.outputDir , 'docbook5')
-		pdfFilename = "spring-statemachine-reference.pdf"
-		epubFilename = "spring-statemachine-reference.epub"
-		expandPlaceholders = ""
-	}
-
 	afterEvaluate {
 		tasks.findAll { it.name.startsWith("reference") }.each{ it.dependsOn.add("asciidoctor") }
 	}
 
 	asciidoctorj {
-		version = '1.5.2'
+		version = '1.5.8.1'
+	}
+
+	configurations {
+		docs
+	}
+
+	task prepareAsciidocBuild(type: Sync) {
+		dependsOn configurations.docs
+		// copy doc resources
+		from {
+			configurations.docs.collect { zipTree(it) }
+		}
+		// and doc sources
+		from "docs/src/reference/asciidoc/"
+		// to a build directory of your choice
+		into "$buildDir/asciidoc/assemble"
+	}
+
+	task('reference', type: org.asciidoctor.gradle.AsciidoctorTask){
+		dependsOn 'prepareAsciidocBuild'
+		dependsOn 'copyDocsSamples'
+		backends 'pdf'
+		sourceDir "$buildDir/asciidoc/assemble"
+		sources {
+			include 'index.adoc'
+		}
+		options doctype: 'book', eruby: 'erubis'
+		logDocuments = true
+		attributes 'icons': 'font',
+			'sectanchors': '',
+			'toc': '',
+			'source-highlighter' : 'coderay'
 	}
 
 	asciidoctor {
-		sourceDir = file("docs/src/reference/asciidoc")
-		backends = ['docbook5']
-		options eruby: 'erubis'
-		attributes docinfo: '',
-			copycss : '',
-			icons : 'font',
-			'source-highlighter': 'prettify',
-			sectanchors : '',
-			toc2: '',
-			idprefix: '',
-			idseparator: '-',
-			doctype: 'book',
-			numbered: '',
-			'spring-statemachine-version' : project.version,
-			'spring-version' : getResolvedVersionOf("spring-core"),
-			'spring-boot-version' : getResolvedVersionOf("spring-boot"),
-			revnumber : project.version
+		dependsOn 'prepareAsciidocBuild'
+		dependsOn 'copyDocsSamples'
+		backends 'html5'
+		sourceDir "$buildDir/asciidoc/assemble"
+		sources {
+			include 'index.adoc'
+		}
+		resources {
+			from(sourceDir) {
+				include 'images/*', 'css/**', 'js/**', 'samples/**'
+			}
+		}
+		options doctype: 'book', eruby: 'erubis'
+		logDocuments = true
+		attributes 'docinfo': 'shared',
+			toc: 'left',
+			'toc-levels': '4',
+			// use provided stylesheet
+			stylesdir: "css/",
+			stylesheet: 'spring.css',
+			'linkcss': true,
+			'icons': 'font',
+	    'sectanchors': '',
+			// use provided highlighter
+			'source-highlighter=highlight.js',
+			'highlightjsdir=js/highlight',
+			'highlightjs-theme=atom-one-dark-reasonable',
+			'idprefix': '',
+			'idseparator': '-'
 	}
 
 	dependencies { // for integration tests
+		docs "io.spring.docresources:spring-doc-resources:${docResourcesVersion}@zip"
 	}
 
 	task copyDocsSamples(type: Copy) {
@@ -580,8 +618,6 @@ configure(rootProject) {
 		include '**/*.json'
 		into 'docs/src/reference/asciidoc/samples'
 	}
-
-	asciidoctor.dependsOn copyDocsSamples
 
 	task api(type: Javadoc) {
 		group = 'Documentation'
@@ -622,6 +658,15 @@ configure(rootProject) {
 		}
 		from (reference) {
 			into 'reference'
+			include 'index.pdf'
+		}
+		from (asciidoctor) {
+			into 'reference'
+			include 'index.html'
+			include 'js/**'
+			include 'css/**'
+			include 'images/**'
+			include 'samples/**'
 		}
 	}
 
@@ -670,4 +715,3 @@ configure(rootProject) {
 	}
 
 }
-
