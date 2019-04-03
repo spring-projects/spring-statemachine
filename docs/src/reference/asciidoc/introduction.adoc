@@ -1,60 +1,62 @@
 [[introduction]]
 = Introduction
-Spring Statemachine(SSM) is a framework for application developers to
-use traditional state machine concepts with Spring applications. SSM
-aims to provide the following features:
 
-* Easy to use flat one level state machine for simple use cases.
+Spring Statemachine (SSM) is a framework that lets application developers
+use traditional state machine concepts with Spring applications. SSM
+provides the following features:
+
+* Easy-to-use flat (one-level) state machine for simple use cases.
 * Hierarchical state machine structure to ease complex state
   configuration.
 * State machine regions to provide even more complex state
   configurations.
-* Usage of triggers, transitions, guards and actions.
-* Type safe configuration adapter.
+* Usage of triggers, transitions, guards, and actions.
+* Type-safe configuration adapter.
 * State machine event listeners.
-* Spring IOC integration to associate beans with a state machine.
+* Spring IoC integration to associate beans with a state machine.
 
-Before you continue it's worth to go through appendices <<glossary>>
-and <<crashcourse>> to get a generic idea of what state machines are,
-mostly because the rest of the documentation expects the reader to be
-fairly familiar with state machine concepts.
+Before you continue, we recommend going through the appendices <<glossary>>
+and <<crashcourse>> to get a generic idea of what state machines are.
+The rest of the documentation expects you to be
+familiar with state machine concepts.
 
 == Background
-State machines are powerful because behaviour is always guaranteed to be
+
+State machines are powerful because their behavior is always guaranteed to be
 consistent and relatively easily debugged due to how operational
-rules are written in stone when machine is started. The idea is that your
-application is and may exist in a finite number of states and then something
-happens which takes your application from one state to the next. What
-will drive a state machine are triggers, which are either based on
+rules are written in stone when a machine is started. The idea is that your
+application is now in and may exist in a finite number of states. Then something
+happens that takes your application from one state to the next.
+A state machine is driven by triggers, which are based on either
 events or timers.
 
-It is much easier to design high level logic outside of your
+It is much easier to design high-level logic outside of your
 application and then interact with a state machine in various
-different ways. You can simply interact with a state machine by
-sending events, listening to what a state machine does or simply requesting
+different ways. You can interact with a state machine by
+sending events, listening to what a state machine does, or requesting
 the current state.
 
-Traditionally state machines are added to an existing project when
+Traditionally, state machines are added to an existing project when
 developers realize that the code base is starting to look like a plate
 full of spaghetti. Spaghetti code looks like a never ending, hierarchical
-structure of IFs, ELSEs and BREAK clauses and probably compilers should
+structure of IF, ELSE, and BREAK clauses, and compilers should probably
 ask developers to go home when things are starting to look too complex.
 
 == Usage Scenarios
 
-A project is a good candidate to use a state machine if:
+A project is a good candidate to use a state machine when:
 
-* The application or part of its structure can be represented as states.
+* You can represent the application or part of its structure as states.
 * You want to split complex logic into smaller manageable tasks.
-* The application is already suffering concurrency issues with i.e.
+* The application is already suffering concurrency issues with (for example)
   something happening asynchronously.
 
-You are already trying to implement a state machine if:
+You are already trying to implement a state machine when you:
 
-* Using boolean flags or enums to model situations.
-* Having variables which only have meaning for some part of your
+* Use boolean flags or enums to model situations.
+* Have variables that have meaning only for some part of your
   application lifecycle.
-* Looping through if/else structure and checking if a particular flag or
-  enum is set and then making further exceptions about what to do when certain
-  combinations of your flags and enums exist or don't exist together.
-
+* Loop through an if-else structure (or, worse, multiple such structures),
+  check whether a particular flag or
+  enum is set, and then make further exceptions about what to do when certain
+  combinations of your flags and enums exist or do not exist.

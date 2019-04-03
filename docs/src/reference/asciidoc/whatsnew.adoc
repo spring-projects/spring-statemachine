@@ -2,57 +2,62 @@
 = What's New
 
 == In 1.1
-_Spring Statemachine 1.1_ is focusing on security and a better
-interoperability with web applications.
 
-* Comprehensive support for _Spring Security_ is added, <<sm-security>>
+Spring Statemachine 1.1 focuses on security and better
+interoperability with web applications. It includes the following:
+
+* Comprehensive support for Spring Security has been added. See <<sm-security>>.
 * Context integration with `@WithStateMachine' has been greatly
-  enhanced, <<sm-context>>
-* `StateContext` is now a first class citizen with how user can
-  interact with a State Machine, <<sm-statecontext>>.
-* Features around persistence has been enhanced with a build-in
-  support for redis, <<sm-persist-redis>>.
-* New feature helping with persist operations,
+  enhanced. See <<sm-context>>.
+* `StateContext` is now a first class citizen, letting you
+  interact with a State Machine. See <<sm-statecontext>>.
+* Features around persistence have been enhanced with built-in
+  support for redis. See <<sm-persist-redis>>.
+* A new feature helps with persist operations. See
   <<sm-persist-statemachinepersister>>.
-* Configuration model classes are now a public API.
-* New features in timer based events.
-* New _Junction_ pseudostate <<statemachine-config-states-junction>>.
-* New _Exit Point_ and _Entry Point_ pseudostates <<statemachine-config-states-exitentry>>.
+* Configuration model classes are now in a public API.
+* New features in timer-based events.
+* New `Junction` pseudostate. See <<statemachine-config-states-junction>>.
+* New Exit Point and Entry Point pseudostates. See <<statemachine-config-states-exitentry>>.
 * Configuration model verifier.
-* New samples, <<statemachine-examples-security>>, <<statemachine-examples-eventservice>>.
-* UI modeling support using Eclipse Papyrus, <<sm-papyrus>>.
+* New samples. See <<statemachine-examples-security>> and <<statemachine-examples-eventservice>>.
+* UI modeling support using Eclipse Papyrus. See <<sm-papyrus>>.
 
 == In 1.2
-_Spring Statemachine 1.2_ is focusing generic enhancements, better
-_UML_ support and integrations with external config repositories.
 
-* Support for UML submachines <<sm-papyrus-submachineref>>
-* New _Repository_ abstraction keeping machine configuration in an
-  external repository <<sm-repository>>
-* New support for state actions. <<state-actions>>
-* New transition error action concepts. <<statemachine-config-transition-actions-errorhandling>>
-* New action error action concepts. <<statemachine-config-state-actions-errorhandling>>
-* Initial work for _Spring Boot_ support. <<sm-boot>>
-* Support for tracing and monitoring. <<sm-monitoring>>
+Spring Statemachine 1.2 focuses on generic enhancements, better
+UML support, and integrations with external config repositories.
+It includes the following:
+
+* Support for UML sub-machines. See <<sm-papyrus-submachineref>>.
+* A new repository abstraction that keeps machine configuration in an
+  external repository. See <<sm-repository>>.
+* New support for state actions. See <<state-actions>>.
+* New transition error action concepts. See <<statemachine-config-transition-actions-errorhandling>>.
+* New action error concepts. See <<statemachine-config-state-actions-errorhandling>>.
+* Initial work for Spring Boot support. See <<sm-boot>>.
+* Support for tracing and monitoring. See <<sm-monitoring>>.
 
 === In 1.2.8
-_Spring Statemachine 1.2.8_ contains a bit more functionality normally
-not seen in a point release but these changes didn't merit a fork of
-_Spring Statemachine 1.3_.
 
-* JPA entity classes have changed table names <<sm-repository-config-jpa>>
-* New sample <<statemachine-examples-datapersist>>
-* New _Entity_ classes for persistence <<sm-repository-persistence>>
-  used with <<sm-repository-persistence>>
-* Transition conflict policy mentioned in
+Spring Statemachine 1.2.8 contains a bit more functionality than normally
+not seen in a point release, but these changes did not merit a fork of
+Spring Statemachine 1.3. It includes the following:
+
+* JPA entity classes have changed table names. See <<sm-repository-config-jpa>>.
+* A new sample. See <<statemachine-examples-datapersist>>.
+* New entity classes for persistence. See <<sm-repository-persistence>>.
+* Transition conflict policy. See
   <<statemachine-config-commonsettings>>
 
 == In 2.0
-_Spring Statemachine 2.0_ is focusing on _Spring Boot 2.x_ support.
+
+Spring Statemachine 2.0 focuses on Spring Boot 2.x support.
 
 
 === In 2.0.0
 
-* Format of monitoring and tracing has been changed <<sm-boot-monitoring>>
-* Module `spring-statemachine-boot` has been renamed to `spring-statemachine-autoconfigure`
+Spring Statemachine 2.0.0 includes the following:
 
+* The format of monitoring and tracing has been changed. See <<sm-boot-monitoring>>.
+* The `spring-statemachine-boot` module has been renamed to `spring-statemachine-autoconfigure`.
