@@ -1,77 +1,83 @@
 [[statemachine-getting-started]]
 = Getting started
-If you’re just getting started with Spring Statemachine,
-this is the section for you! Here we answer the basic
-“what?”, “how?” and “why?” questions. You’ll find a gentle
-introduction to Spring Statemachine. We’ll then build our
-first Spring Statemachine application, discussing some
+
+If you are just getting started with Spring Statemachine,
+this is the section for you! Here, we answer the basic
+“`what?`”, “`how?`” and “`why?`” questions. We start with a gentle
+introduction to Spring Statemachine. We then build our
+first Spring Statemachine application and discuss some
 core principles as we go.
 
-== System Requirements
+== System Requirement
+
 Spring Statemachine {revnumber} is built and tested with
-JDK 8(all artifacts have JDK 7 compatibility) and Spring
-Framework {spring-version} and doesn't require any other
+JDK 8 (all artifacts have JDK 7 compatibility) and Spring
+Framework {spring-version}. It does not require any other
 dependencies outside of Spring Framework within its core system.
 
-Other optional parts like <<sm-distributed>> has dependencies to
-a `Zookeeper`, while <<statemachine-examples>> has dependencies
-to spring-shell and spring-boot which pulls other dependencies
-beyond framework itself. Also optional security and data access has
-dependencies to _Spring Security_ and _Spring Data Modules_.
+Other optional parts (such as <<sm-distributed>>) have dependencies on
+Zookeeper, while <<statemachine-examples>> has dependencies
+on `spring-shell` and `spring-boot`, which pull other dependencies
+beyond the framework itself. Also, the optional security and data access features have
+dependencies to on Spring Security and Spring Data modules.
 
 == Modules
-The following modules are available for Spring Statemachine.
+
+The following table describes the modules that are available for Spring Statemachine.
 
 |===
 |Module |Description
 
-|spring-statemachine-core
-|Core system of a Spring Statemachine.
+|`spring-statemachine-core`
+|The core system of Spring Statemachine.
 
-|spring-statemachine-recipes-common
-|Common recipes which doesn't require dependencies outside of a core
+|`spring-statemachine-recipes-common`
+|Common recipes that do not require dependencies outside of the core
 framework.
 
-|spring-statemachine-kryo
-|`Kryo` serializers for state machine.
+|`spring-statemachine-kryo`
+|`Kryo` serializers for Spring Statemachine.
 
-|spring-statemachine-data-common
+|`spring-statemachine-data-common`
 |Common support module for `Spring Data`.
 
-|spring-statemachine-data-jpa
+|`spring-statemachine-data-jpa`
 |Support module for `Spring Data JPA`.
 
-|spring-statemachine-data-redis
+|`spring-statemachine-data-redis`
 |Support module for `Spring Data Redis`.
 
-|spring-statemachine-data-mongodb
+|`spring-statemachine-data-mongodb`
 |Support module for `Spring Data MongoDB`.
 
-|spring-statemachine-zookeeper
-|`Zookeeper` integration for a distributed state machine.
+|`spring-statemachine-zookeeper`
+|Zookeeper integration for a distributed state machine.
 
-|spring-statemachine-test
+|`spring-statemachine-test`
 |Support module for state machine testing.
 
-|spring-statemachine-cluster
+|`spring-statemachine-cluster`
 |Support module for Spring Cloud Cluster.
+Note that Spring Cloud Cluster has been superseded by Spring Integration.
 
-|spring-statemachine-uml
-|Support module for UI uml modeling with Eclipse Papyrus.
+|`spring-statemachine-uml`
+|Support module for UI UML modeling with Eclipse Papyrus.
 
-|spring-statemachine-autoconfigure
-|Support module for `Spring Boot`.
+|`spring-statemachine-autoconfigure`
+|Support module for Spring Boot.
 
-|spring-statemachine-bom
+|`spring-statemachine-bom`
 |Bill of Materials pom.
 
-|spring-statemachine-starter
-|`Spring Boot` starter.
+|`spring-statemachine-starter`
+|Spring Boot starter.
 |===
 
 == Using Gradle
-Here is a typical `build.gradle` file created by https://start.spring.io:
 
+The following listing shows a typical `build.gradle` file created by choosing various settings at https://start.spring.io:
+
+====
 [source,groovy,indent=0,subs="attributes+"]
 ----
 buildscript {
@@ -119,29 +125,29 @@ dependencyManagement {
 	}
 }
 ----
-
-[NOTE]
-====
-Replace `0.0.1-SNAPSHOT` with a version you want to use.
 ====
 
-Having a normal project structure you'd build this with command:
+IMPORTANT: Replace `0.0.1-SNAPSHOT` with a version you want to use.
+
+With a normal project structure, you can build this project with the following command:
+
+====
 [source,text,indent=0]
 ----
 # ./gradlew clean build
 ----
-
-Expected Spring Boot packaged fat-jar would be `build/libs/demo-0.0.1-SNAPSHOT.jar`.
-
-[NOTE]
 ====
-You don't need repos `libs-milestone` and `libs-snapshot` for
+
+The expected Spring Boot-packaged fat jar would be `build/libs/demo-0.0.1-SNAPSHOT.jar`.
+
+NOTE: You do not need the`libs-milestone` and `libs-snapshot` repositories for
 production development.
-====
 
 == Using Maven
-Here is a typical `pom.xml` file created by https://start.spring.io:
 
+The following example shows a typical `pom.xml` file, which was created by choosing various options at https://start.spring.io:
+
+====
 [source,xml,indent=0,subs="attributes+"]
 ----
 <?xml version="1.0" encoding="UTF-8"?>
@@ -246,30 +252,30 @@ Here is a typical `pom.xml` file created by https://start.spring.io:
 
 </project>
 ----
-
-[NOTE]
-====
-Replace `0.0.1-SNAPSHOT` with a version you want to use.
 ====
 
-Having a normal project structure you'd build this with command:
+IMPORTANT: Replace `0.0.1-SNAPSHOT` with a version you want to use.
+
+With a normal project structure, you can build this project with the following command:
+
+====
 [source,text,indent=0]
 ----
 # mvn clean package
 ----
-
-Expected Spring Boot packaged fat-jar would be `target/demo-0.0.1-SNAPSHOT.jar`.
-
-[NOTE]
 ====
-You don't need repos `libs-milestone` and `libs-snapshot` for
+
+The expected Spring Boot-packaged fat-jar would be `target/demo-0.0.1-SNAPSHOT.jar`.
+
+NOTE: You do not need the `libs-milestone` and `libs-snapshot` repositories for
 production development.
+
+==  Developing Your First Spring Statemachine Application
+
+You can start by creating a simple Spring Boot `Application` class
+that implements `CommandLineRunner`. The following example shows how to do so:
+
 ====
-
-==  Developing your first Spring Statemachine application
-Let's start by creating a simple Spring Boot `Application` class
-implementing `CommandLineRunner`.
-
 [source,java,indent=0]
 ----
 @SpringBootApplication
@@ -281,8 +287,11 @@ public class Application implements CommandLineRunner {
 
 }
 ----
+====
 
-Add states and events:
+Then you need to add states and events, as the following example shows:
+
+====
 [source,java,indent=0]
 ----
 public enum States {
@@ -293,8 +302,11 @@ public enum Events {
     E1, E2
 }
 ----
+====
 
-Add state machine configuration:
+Then you need to add state machine configuration, as the following example shows:
+
+====
 [source,java,indent=0]
 ----
 @Configuration
@@ -342,8 +354,12 @@ public class StateMachineConfig
     }
 }
 ----
+====
 
-Implement `CommandLineRunner`, autowire `StateMachine`:
+Then you need to implement `CommandLineRunner` and autowire `StateMachine`.
+The following example shows how to do so:
+
+====
 [source,java,indent=0]
 ----
 @Autowired
@@ -355,18 +371,23 @@ public void run(String... args) throws Exception {
     stateMachine.sendEvent(Events.E2);
 }
 ----
+====
 
-Depending whether you build your application using `Gradle` or `Maven`
-it's run `java -jar build/libs/gs-statemachine-0.1.0.jar` or
-`java -jar target/gs-statemachine-0.1.0.jar` respectively.
+Depending on whether you build your application with `Gradle` or `Maven`,
+you can run it by using `java -jar build/libs/gs-statemachine-0.1.0.jar` or
+`java -jar target/gs-statemachine-0.1.0.jar`, respectively.
 
-What is expected for running this command is a normal Spring Boot output
-but if you look closely you see lines:
+The result of this command should be normal Spring Boot output.
+However, you should also find the following lines:
 
+====
 [source,text,indent=0]
 ----
 State change to SI
 State change to S1
 State change to S2
 ----
+====
 
+These lines indicate that the machine you constructed
+is moving from one state to another, as it should.

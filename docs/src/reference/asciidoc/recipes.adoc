@@ -1,130 +1,145 @@
 [[statemachine-recipes]]
 = Recipes
+
 This chapter contains documentation for existing built-in state
 machine recipes.
 
-What exactly is a recipe? As Spring Statemachine is always going to be
-a foundational framework meaning that its core will not have that much
-higher level functionality or dependencies outside of a Spring
-Framework. Correct usage of a state machine may be a little difficult
-time to time and there's always some common use cases how state
-machine can be used. Recipe modules are meant to provide a higher
-level solutions to these common use cases and also provide examples
-beyond samples how framework can be used.
+Spring Statemachine is a foundational framework. That is, it does not have much
+higher-level functionality or many dependencies beyond Spring Framework.
+Consequently, correctly using a state machine may be difficult. To help,
+we have created a set of recipe modules that address common use cases.
 
-[NOTE]
-====
-Recipes are a great way to make external contributions this Spring
-Statemachine project. If you're not ready to contribute to the
+What exactly is a recipe? A state machine recipe is a module that addresses a common
+use case. In essence, a state machine recipe is both an example that we have tried to
+make it easy for you to reuse and extend.
+
+NOTE: Recipes are a great way to make external contributions to the Spring
+Statemachine project. If you are not ready to contribute to the
 framework core itself, a custom and common recipe is a great way to
-share functionality among other users.
-====
+share functionality with other users.
 
 [[statemachine-recipes-persist]]
 == Persist
-Persist recipe is a simple utility which allows to use a single state
-machine instance to persist and update a state of an arbitrary item in
+
+The persist recipe is a simple utility that lets you use a single state
+machine instance to persist and update the state of an arbitrary item in
 a repository.
 
-Recipes main class is `PersistStateMachineHandler` which assumes user
-to do three different things:
+The recipe's main class is `PersistStateMachineHandler`, which makes three assumptions:
 
-- An instance of a `StateMachine<String, String>` needs to be used
-  with a `PersistStateMachineHandler`. States and Events are required
-  to be type of Strings.
-- `PersistStateChangeListener` need to be registered with handler
-  order to react to persist request.
-- Method `handleEventWithState` is used to orchestrate state changes.
+* An instance of a `StateMachine<String, String>` needs to be used
+  with a `PersistStateMachineHandler`. Note that states and Events are required
+  to be type of `String`.
+* `PersistStateChangeListener` needs to be registered with handler
+  to react to persist request.
+* The `handleEventWithState` method is used to orchestrate state changes.
 
-There is a sample demonstrating usage of this recipe at
+You can find a sample that shows how to use this recipe at
 <<statemachine-examples-persist>>.
 
 [[statemachine-recipes-tasks]]
 == Tasks
-Tasks recipe is a concept to execute DAG of `Runnable` instances using
-a state machine. This recipe has been developed from ideas introduced
-in sample <<statemachine-examples-tasks>>.
 
-Generic concept of a state machine is shown below. In this state chart
-everything under `TASKS` just shows a generic concept of how a single
-task is executed. Because this recipe allows to register deep
-hierarchical DAG of tasks, meaning a real state chart would be deep
-nested collection of sub-states and regions, there's no need to be
+The tasks recipe is a concept to run DAG (Directed Acrylic Graph) of `Runnable` instances that use
+a state machine. This recipe has been developed from ideas introduced
+in <<statemachine-examples-tasks>> sample.
+
+The next image shows the generic concept of a state machine. In this state chart,
+everything under `TASKS` shows a generic concept of how a single
+task is executed. Because this recipe lets you register a deep
+hierarchical DAG of tasks (meaning a real state chart would be a deeply
+nested collection of sub-states and regions), we have no need to be
 more precise.
 
-For example if you have only two registered tasks, below state chart
-would be correct with `TASK_id` replaced with `TASK_1` and `TASK_2` if
-registered tasks ids are `1` and `2`.
+For example, if you have only two registered tasks, the following state chart
+would be correct when `TASK_id` is replaced with `TASK_1` and `TASK_2` (assuming
+the registered tasks IDs are `1` and `2`).
 
 image::images/statechart9.png[width=500]
 
-Executing a `Runnable` may result an error and especially if a complex
-DAG of tasks is involved it is desirable that there is a way to handle
-tasks execution errors and then having a way to continue execution
-without executing already successfully executed tasks. Addition to
-this it would be nice if some execution errors can be handled
-automatically and as a last fallback, if error can't be handled
-automatically, state machine is put into a state where user can handle
+Executing a `Runnable` may result an error. Especially if a complex
+DAG of tasks is involved, you want to have a way to handle
+task execution errors and then have a way to continue execution
+without executing already successfully executed tasks. Also,
+it would be nice if some execution errors can be handled
+automatically. As a last fallback, if an error cannot be handled
+automatically, the state machine is put into a state where the user can handle
 errors manually.
 
-`TasksHandler` contains a builder method to configure handler instance
-and follows a simple builder pattern. This builder can be used to
-register `Runnable` tasks, `TasksListener` instances, define
-`StateMachinePersist` hook, and setup custom `TaskExecutor` instance.
+`TasksHandler` contains a builder method to configure a handler instance
+and follows a simple builder pattern. You can use this builder to
+register `Runnable` tasks and `TasksListener` instances, define
+`StateMachinePersist` hook, and set up custom `TaskExecutor` instance.
 
-Now let's take a simple `Runnable` just doing a simple sleep as shown
-below. This is a base of all examples in this chapter.
+Now we can take a simple `Runnable` that runs a simple sleep as the following
+example shows:
 
+====
 [source,java,indent=0]
 ----
 include::samples/DocsTasksSampleTests.java[tags=snippetAA]
 ----
+====
 
-To execute multiple `sleepRunnable` tasks just register tasks and
-execute `runTasks()` method from `TasksHandler`.
+NOTE: The preceding example is the base for all of the examples in this chapter.
 
+To execute multiple `sleepRunnable` tasks, you can register tasks and
+execute `runTasks()` method from `TasksHandler`, as the following example shows:
+
+====
 [source,java,indent=0]
 ----
 include::samples/DocsTasksSampleTests.java[tags=snippetB]
 ----
+====
 
-Order to listen what is happening with a task execution an instance of
-a `TasksListener` can be registered with a `TasksHandler`. Recipe
-provides an adapter `TasksListenerAdapter` if you don't want to
-implement a full interface. Listener provides a various hooks to
-listen tasks execution events.
+To listen to what is happening with a task execution, you can register an instance of
+a `TasksListener` with a `TasksHandler`. This recipe
+provides an adapter `TasksListenerAdapter` if you do not want to
+implement a full interface. The listener provides a various hooks to
+listen tasks execution events. The following example shows the definition of the
+`MyTasksListener` class:
 
+====
 [source,java,indent=0]
 ----
 include::samples/DocsTasksSampleTests.java[tags=snippetAB]
 ----
+====
 
-Listeners can be either registered via a builder or directly with a
-`TasksHandler` as shown above.
+You can either register listeners by using a builder or register them directly with a
+`TasksHandler` as the following example shows:
 
+====
 [source,java,indent=0]
 ----
 include::samples/DocsTasksSampleTests.java[tags=snippetC]
 ----
+====
 
-Above sample show how to create a deep nested DAG of tasks. Every task
-needs to have an unique identifier and optionally as task can be
-defined to be a sub-task. Effectively this will create a DAG of tasks.
+Every task
+needs to have a unique identifier, and (optionally) a task can be
+defined to be a sub-task. Effectively, this creates a DAG of tasks.
+The following example shows how to create a deep nested DAG of tasks:
 
+====
 [source,java,indent=0]
 ----
 include::samples/DocsTasksSampleTests.java[tags=snippetD]
 ----
+====
 
-When error happens and a state machine running these tasks goes into a
-`ERROR` state, user can call handler methods `fixCurrentProblems` to
-reset current state of tasks kept in a state machine extended state
-variables. Handler method `continueFromError` can then be used to
-instruct state machine to transition from `ERROR` state back to
-`READY` state where tasks can be executed again.
+When an error happens and the state machine running these tasks goes into an
+`ERROR` state, you can call `fixCurrentProblems` handler method to
+reset the current state of the tasks kept in the state machine's extended state
+variables. You can then use the `continueFromError` handler method to
+instruct the state machine to transition from the `ERROR` state back to the
+`READY` state, where you can again run tasks.
+The following example shows how to do so:
 
+====
 [source,java,indent=0]
 ----
 include::samples/DocsTasksSampleTests.java[tags=snippetE]
 ----
-
+====

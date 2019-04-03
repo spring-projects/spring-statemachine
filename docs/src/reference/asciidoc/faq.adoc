@@ -1,37 +1,32 @@
 [[statemachine-faq]]
 = FAQ
-This chapter tries to give solutions to question user is most likely
-to ask.
+
+This chapter answers the questions that Spring Statemachine users most often ask.
 
 == State Changes
 
-.I want to transit to next state automatically
+.How can I automatically transit to the next state?
 
-{zwsp} +
+You can choose from three approaches:
 
-There are few choices a state machine developer can choose.
-
-* Implement an action and send appropriate event into a state machine
-  which triggers a transition into a proper target state.
-* Define deferred event within a state and before sending an event
-  send an event which will be deferred and thus causing next
+* Implement an action and send an appropriate event to a state machine
+  to trigger a transition into the proper target state.
+* Define a deferred event within a state and, before sending an event,
+  send another event that is deferred. Doing so causes the next
   appropriate state transition when it is more convenient to handle
   that event.
-* Implement a triggerless transition which will automatically cause
-  state transition into a next state when state has entry and its
+* Implement a triggerless transition, which automatically causes a
+  state transition into the next state when state is entered and its
   actions has been completed.
 
 == Extended State
 
-.How I can initialise variables on state machine start
+.How I can initialize variables on state machine start?
 
-{zwsp} +
-
-Important concept in a state machine is that nothing really happens
-unless there is a trigger which is causing a state transition which
+An important concept in a state machine is that nothing really happens
+unless a trigger causes a state transition that
 then can fire actions. However, having said that, Spring Statemachine
-always have an initial transition when state machine is started. With
-this initial transition user can execute a simple action which within
-a _StateContext_ can do whatever it likes with an extended state
+always has an initial transition when a state machine is started. With
+this initial transition, you can run a simple action that, within
+a `StateContext`, can do whatever it likes with extended state
 variables.
-

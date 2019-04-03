@@ -17,11 +17,19 @@
 = Spring Statemachine - Reference Documentation
 
 include::preface.adoc[]
+
 include::introduction.adoc[]
+
 include::getting-started.adoc[]
+
 include::whatsnew.adoc[]
+
 include::sm.adoc[]
+
 include::recipes.adoc[]
+
 include::sm-examples.adoc[]
+
 include::faq.adoc[]
+
 include::appendix.adoc[]
