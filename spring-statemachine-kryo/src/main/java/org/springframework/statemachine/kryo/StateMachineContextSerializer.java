@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine.kryo;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -62,7 +63,11 @@ public class StateMachineContextSerializer<S, E> extends Serializer<StateMachine
 		List<StateMachineContext<S, E>> childs = (List<StateMachineContext<S, E>>) kryo.readClassAndObject(input);
 		Map<S, S> historyStates = (Map<S, S>) kryo.readClassAndObject(input);
 		String id = (String) kryo.readClassAndObject(input);
-		List<String> childRefs = (List<String>) kryo.readClassAndObject(input);
+		List<String> childRefs = new ArrayList<>();
+		if(input.canReadInt()) {
+			childRefs = (List<String>) kryo.readClassAndObject(input);
+		}
+
 		return new DefaultStateMachineContext<S, E>(childRefs, childs, state, event, eventHeaders,
 				new DefaultExtendedState(variables), historyStates, id);
 	}
