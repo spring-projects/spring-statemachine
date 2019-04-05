@@ -126,7 +126,7 @@ public class DefaultStateMachineContext<S, E> implements StateMachineContext<S, 
 	public DefaultStateMachineContext(List<StateMachineContext<S, E>> childs, S state, E event,
 			Map<String, Object> eventHeaders, ExtendedState extendedState, Map<S, S> historyStates, String id) {
 		this.childs = childs;
-		this.childRefs = null;
+		this.childRefs = new ArrayList<>();
 		this.state = state;
 		this.event = event;
 		this.eventHeaders = eventHeaders;

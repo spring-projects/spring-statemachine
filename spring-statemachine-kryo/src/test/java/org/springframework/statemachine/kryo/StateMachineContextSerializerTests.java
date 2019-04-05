@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2018-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,41 +15,41 @@
  */
 package org.springframework.statemachine.kryo;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.support.DefaultExtendedState;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
 /**
  * Tests for {@link StateMachineContextSerializer}.
+ * <p>
+ * When StateMachineContextSerializer structure is changes, copy previous
+ * version here and test raw bytes from old serializer against new one and other
+ * combinations as needed.
  *
  * @author Janne Valkealahti
  *
  */
 public class StateMachineContextSerializerTests {
 
-	private Kryo kryo;
-	private Output output;
-	private Input input;
-
-	@Before
-	public void setUp() throws Exception {
-		kryo = new Kryo();
-	}
-
 	@Test
 	public void testContextWithChilds() {
+		Kryo kryo = new Kryo();
 		StateMachineContextSerializer<String, String> serializer = new StateMachineContextSerializer<>();
 		kryo.addDefaultSerializer(StateMachineContext.class, serializer);
 
@@ -61,11 +61,75 @@ public class StateMachineContextSerializerTests {
 				new HashMap<String, Object>(), new DefaultExtendedState());
 
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-		output = new Output(outStream);
+		Output output = new Output(outStream);
 		kryo.writeClassAndObject(output, root);
 		output.flush();
 
-		input = new Input(new ByteArrayInputStream(outStream.toByteArray()));
+		Input input = new Input(new ByteArrayInputStream(outStream.toByteArray()));
 		kryo.readClassAndObject(input);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testContextFromInitialVersionToCurrent() {
+		// test added for PR #722
+		// as a time writing this test, we had two version, initial(V1)
+		// and current(V2). raw bytes from V1 to V2.
+		Kryo kryoFrom = new Kryo();
+		Kryo kryoTo = new Kryo();
+
+		StateMachineContextSerializerV1<String, String> serializerV1 = new StateMachineContextSerializerV1<>();
+		kryoFrom.addDefaultSerializer(StateMachineContext.class, serializerV1);
+
+		StateMachineContext<String, String> childFrom = new DefaultStateMachineContext<String, String>("child", "event1",
+				new HashMap<String, Object>(), new DefaultExtendedState());
+		List<StateMachineContext<String, String>> childsFrom = new ArrayList<>();
+		childsFrom.add(childFrom);
+		StateMachineContext<String, String> rootFrom = new DefaultStateMachineContext<String, String>("root", "event2",
+				new HashMap<String, Object>(), new DefaultExtendedState());
+
+		ByteArrayOutputStream outStreamFrom = new ByteArrayOutputStream();
+		Output outputFrom = new Output(outStreamFrom);
+		kryoFrom.writeClassAndObject(outputFrom, rootFrom);
+		outputFrom.flush();
+
+		StateMachineContextSerializer<String, String> serializerCurrent = new StateMachineContextSerializer<>();
+		kryoTo.addDefaultSerializer(StateMachineContext.class, serializerCurrent);
+
+		Input inputTo = new Input(new ByteArrayInputStream(outStreamFrom.toByteArray()));
+		StateMachineContext<String, String> rootTo = (StateMachineContext<String, String>) kryoTo.readClassAndObject(inputTo);
+		assertThat(rootFrom, equalTo(rootTo));
+	}
+
+	/**
+	 * Initial implementation of a StateMachineContextSerializer which is used to
+	 * test read to current version.
+	 */
+	private static class StateMachineContextSerializerV1<S, E> extends Serializer<StateMachineContext<S, E>> {
+
+		@Override
+		public void write(Kryo kryo, Output output, StateMachineContext<S, E> context) {
+			kryo.writeClassAndObject(output, context.getEvent());
+			kryo.writeClassAndObject(output, context.getState());
+			kryo.writeClassAndObject(output, context.getEventHeaders());
+			kryo.writeClassAndObject(output, context.getExtendedState() != null ? context.getExtendedState().getVariables() : null);
+			kryo.writeClassAndObject(output, context.getChilds());
+			kryo.writeClassAndObject(output, context.getHistoryStates());
+			kryo.writeClassAndObject(output, context.getId());
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public StateMachineContext<S, E> read(Kryo kryo, Input input, Class<StateMachineContext<S, E>> clazz) {
+			E event = (E) kryo.readClassAndObject(input);
+			S state = (S) kryo.readClassAndObject(input);
+			Map<String, Object> eventHeaders = (Map<String, Object>) kryo.readClassAndObject(input);
+			Map<Object, Object> variables = (Map<Object, Object>) kryo.readClassAndObject(input);
+			List<StateMachineContext<S, E>> childs = (List<StateMachineContext<S, E>>) kryo.readClassAndObject(input);
+			Map<S, S> historyStates = (Map<S, S>) kryo.readClassAndObject(input);
+			String id = (String) kryo.readClassAndObject(input);
+			return new DefaultStateMachineContext<S, E>(childs, state, event, eventHeaders,
+					new DefaultExtendedState(variables), historyStates, id);
+		}
 	}
 }
