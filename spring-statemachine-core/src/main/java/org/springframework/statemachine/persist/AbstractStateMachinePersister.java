@@ -88,7 +88,9 @@ public abstract class AbstractStateMachinePersister<S, E, T> implements StateMac
 		S id = null;
 		State<S, E> state = stateMachine.getState();
 		if (state.isSubmachineState()) {
-			id = getDeepState(state);
+			StateMachine<S, E> submachine = ((AbstractState<S, E>) state).getSubmachine();
+			id = submachine.getState().getId();
+			childs.add(buildStateMachineContext(submachine));
 		} else if (state.isOrthogonal()) {
 			Collection<Region<S, E>> regions = ((AbstractState<S, E>)state).getRegions();
 			for (Region<S, E> r : regions) {
@@ -103,8 +105,8 @@ public abstract class AbstractStateMachinePersister<S, E, T> implements StateMac
 		// building history state mappings
 		Map<S, S> historyStates = new HashMap<S, S>();
 		PseudoState<S, E> historyState = ((AbstractStateMachine<S, E>) stateMachine).getHistoryState();
-		if (historyState != null) {
-			historyStates.put(null, ((HistoryPseudoState<S, E>)historyState).getState().getId());
+		if (historyState != null && ((HistoryPseudoState<S, E>)historyState).getState() != null) {
+		    historyStates.put(null, ((HistoryPseudoState<S, E>) historyState).getState().getId());
 		}
 		Collection<State<S, E>> states = stateMachine.getStates();
 		for (State<S, E> ss : states) {
@@ -120,13 +122,5 @@ public abstract class AbstractStateMachinePersister<S, E, T> implements StateMac
 			}
 		}
 		return new DefaultStateMachineContext<S, E>(childs, id, null, null, extendedState, historyStates, stateMachine.getId());
-	}
-
-	private S getDeepState(State<S, E> state) {
-		Collection<S> ids1 = state.getIds();
-		@SuppressWarnings("unchecked")
-		S[] ids2 = (S[]) ids1.toArray();
-		// TODO: can this be empty as then we'd get error?
-		return ids2[ids2.length-1];
 	}
 }
