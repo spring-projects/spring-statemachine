@@ -37,6 +37,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.Message;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.statemachine.ExtendedState;
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineFunction;
@@ -396,7 +397,27 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			this.rootStateMachine = rootStateMachine;
 		}
 
-		@Override
+        @Override
+        public Message<E> preEvent(Message<E> message, StateMachine<S, E> stateMachine) {
+            return interceptor.preEvent(message, stateMachine);
+        }
+
+        @Override
+        public StateContext<S, E> preTransition(StateContext<S, E> stateContext) {
+            return interceptor.preTransition(stateContext);
+        }
+
+        @Override
+        public StateContext<S, E> postTransition(StateContext<S, E> stateContext) {
+            return interceptor.postTransition(stateContext);
+        }
+
+        @Override
+        public Exception stateMachineError(StateMachine<S, E> stateMachine, Exception exception) {
+            return interceptor.stateMachineError(stateMachine, exception);
+        }
+
+        @Override
 		public void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
 				StateMachine<S, E> stateMachine) {
 			interceptor.preStateChange(state, message, transition, stateMachine, rootStateMachine);
