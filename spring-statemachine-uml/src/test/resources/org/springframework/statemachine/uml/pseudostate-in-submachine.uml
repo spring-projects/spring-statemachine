@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_Iosa0GHZEemXZLuVVkpDrQ" name="pseudostate-in-submachine">
+  <packageImport xmi:type="uml:PackageImport" xmi:id="_IyBV8GHZEemXZLuVVkpDrQ">
+    <importedPackage xmi:type="uml:Model" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#_0"/>
+  </packageImport>
+  <packagedElement xmi:type="uml:StateMachine" xmi:id="_IpRpoGHZEemXZLuVVkpDrQ" name="StateMachine">
+    <region xmi:type="uml:Region" xmi:id="_IpsgYGHZEemXZLuVVkpDrQ" name="Region1">
+      <transition xmi:type="uml:Transition" xmi:id="_6BUsUGHZEemXZLuVVkpDrQ" source="_3K1nYGHZEemXZLuVVkpDrQ" target="_jlVncGHZEemXZLuVVkpDrQ"/>
+      <subvertex xmi:type="uml:State" xmi:id="_jlVncGHZEemXZLuVVkpDrQ" name="S1">
+        <region xmi:type="uml:Region" xmi:id="_oG1csGHZEemXZLuVVkpDrQ" name="Region1">
+          <transition xmi:type="uml:Transition" xmi:id="_-5HhsGHZEemXZLuVVkpDrQ" source="_4Gun4GHZEemXZLuVVkpDrQ" target="_oG7jUGHZEemXZLuVVkpDrQ"/>
+          <transition xmi:type="uml:Transition" xmi:id="__vOqUGHZEemXZLuVVkpDrQ" source="_oG7jUGHZEemXZLuVVkpDrQ" target="_rBTCsGHZEemXZLuVVkpDrQ"/>
+          <transition xmi:type="uml:Transition" xmi:id="_Al7BwGHaEemXZLuVVkpDrQ" source="_rBTCsGHZEemXZLuVVkpDrQ" target="_wxTScGHZEemXZLuVVkpDrQ"/>
+          <subvertex xmi:type="uml:State" xmi:id="_oG7jUGHZEemXZLuVVkpDrQ" name="S11"/>
+          <subvertex xmi:type="uml:Pseudostate" xmi:id="_rBTCsGHZEemXZLuVVkpDrQ" name="CHOICE" kind="choice"/>
+          <subvertex xmi:type="uml:State" xmi:id="_wxTScGHZEemXZLuVVkpDrQ" name="S12"/>
+          <subvertex xmi:type="uml:Pseudostate" xmi:id="_4Gun4GHZEemXZLuVVkpDrQ" name=""/>
+        </region>
+      </subvertex>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_3K1nYGHZEemXZLuVVkpDrQ" name=""/>
+    </region>
+  </packagedElement>
+</uml:Model>

@@ -1082,6 +1082,46 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(choiceToS6.latch.await(1, TimeUnit.SECONDS), is(true));
 	}
 
+	@Test
+	public void testPseudostateInSubmachineHaveCorrectParent() {
+		context.refresh();
+		Resource model = new ClassPathResource("org/springframework/statemachine/uml/pseudostate-in-submachine.uml");
+		UmlStateMachineModelFactory builder = new UmlStateMachineModelFactory(model);
+		assertThat(model.exists(), is(true));
+		StateMachineModel<String, String> stateMachineModel = builder.build();
+		assertThat(stateMachineModel, notNullValue());
+		Collection<StateData<String, String>> stateDatas = stateMachineModel.getStatesData().getStateData();
+
+		assertThat(stateDatas.size(), is(4));
+
+		StateData<String, String> choiceStateData = stateDatas.stream()
+				.filter(sd -> "CHOICE".equals(sd.getState()))
+				.findFirst()
+				.get();
+		assertThat(choiceStateData, notNullValue());
+		assertThat(choiceStateData.getParent(), is("S1"));
+	}
+
+	@Test
+	public void testPseudostateInSubmachinerefHaveCorrectParent() {
+		context.refresh();
+		Resource model = new ClassPathResource("org/springframework/statemachine/uml/pseudostate-in-submachineref.uml");
+		UmlStateMachineModelFactory builder = new UmlStateMachineModelFactory(model);
+		assertThat(model.exists(), is(true));
+		StateMachineModel<String, String> stateMachineModel = builder.build();
+		assertThat(stateMachineModel, notNullValue());
+		Collection<StateData<String, String>> stateDatas = stateMachineModel.getStatesData().getStateData();
+
+		assertThat(stateDatas.size(), is(4));
+
+		StateData<String, String> choiceStateData = stateDatas.stream()
+				.filter(sd -> "CHOICE".equals(sd.getState()))
+				.findFirst()
+				.get();
+		assertThat(choiceStateData, notNullValue());
+		assertThat(choiceStateData.getParent(), is("S1"));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config2 extends StateMachineConfigurerAdapter<String, String> {
