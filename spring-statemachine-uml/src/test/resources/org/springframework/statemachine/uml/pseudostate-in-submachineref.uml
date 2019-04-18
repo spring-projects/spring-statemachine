@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_yHny4GHeEemXZLuVVkpDrQ" name="pseudostate-in-submachineref">
+  <packageImport xmi:type="uml:PackageImport" xmi:id="_yLWcUGHeEemXZLuVVkpDrQ">
+    <importedPackage xmi:type="uml:Model" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#_0"/>
+  </packageImport>
+  <packagedElement xmi:type="uml:StateMachine" xmi:id="_yHyK8GHeEemXZLuVVkpDrQ" name="StateMachine">
+    <region xmi:type="uml:Region" xmi:id="_yHyyAGHeEemXZLuVVkpDrQ" name="Region1">
+      <transition xmi:type="uml:Transition" xmi:id="_6xrjgGHfEemXZLuVVkpDrQ" source="_5ZdMUGHfEemXZLuVVkpDrQ" target="_4XtbcGHfEemXZLuVVkpDrQ"/>
+      <subvertex xmi:type="uml:State" xmi:id="_4XtbcGHfEemXZLuVVkpDrQ" name="S1" submachine="_mvkgEGHfEemXZLuVVkpDrQ"/>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_5ZdMUGHfEemXZLuVVkpDrQ" name=""/>
+    </region>
+  </packagedElement>
+  <packagedElement xmi:type="uml:StateMachine" xmi:id="_mvkgEGHfEemXZLuVVkpDrQ" name="SubStateMachine" submachineState="_4XtbcGHfEemXZLuVVkpDrQ">
+    <region xmi:type="uml:Region" xmi:id="_o0eXEGHfEemXZLuVVkpDrQ" name="Region1">
+      <transition xmi:type="uml:Transition" xmi:id="_GI7voGHgEemXZLuVVkpDrQ" source="_Ei1UgGHgEemXZLuVVkpDrQ" target="__zdbUGHfEemXZLuVVkpDrQ"/>
+      <transition xmi:type="uml:Transition" xmi:id="_Gxu1AGHgEemXZLuVVkpDrQ" source="__zdbUGHfEemXZLuVVkpDrQ" target="_A0uEAGHgEemXZLuVVkpDrQ"/>
+      <transition xmi:type="uml:Transition" xmi:id="_HjQ_oGHgEemXZLuVVkpDrQ" source="_A0uEAGHgEemXZLuVVkpDrQ" target="_Ckn7YGHgEemXZLuVVkpDrQ"/>
+      <subvertex xmi:type="uml:State" xmi:id="__zdbUGHfEemXZLuVVkpDrQ" name="S11"/>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_A0uEAGHgEemXZLuVVkpDrQ" name="CHOICE" kind="choice"/>
+      <subvertex xmi:type="uml:State" xmi:id="_Ckn7YGHgEemXZLuVVkpDrQ" name="S12"/>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_Ei1UgGHgEemXZLuVVkpDrQ"/>
+    </region>
+  </packagedElement>
+</uml:Model>

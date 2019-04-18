@@ -239,6 +239,16 @@ public class UmlModelParser {
 				String regionId = null;
 				if (state.getContainer().getOwner() instanceof State) {
 					parent = ((State)state.getContainer().getOwner()).getName();
+				} else if (state.getContainer().getOwner() instanceof StateMachine) {
+					// in case of a submachine ref, owner should be StateMachine instead
+					// of State so try to find from owning submachines states a matching one with a
+					// same name.
+					StateMachine owningMachine = (StateMachine)state.getContainer().getOwner();
+					parent = owningMachine.getSubmachineStates().stream()
+							.filter(m -> owningMachine == m.getSubmachine())
+							.map(s -> s.getName())
+							.findFirst()
+							.orElse(null);
 				}
 				if (state.getOwner() instanceof Region) {
 					regionId = ((Region)state.getOwner()).getName();
