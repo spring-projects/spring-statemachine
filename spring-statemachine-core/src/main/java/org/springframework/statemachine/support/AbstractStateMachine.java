@@ -930,7 +930,6 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		if (isComplete()) {
 			stop();
 		}
-		callPostStateChangeInterceptors(toState, message, transition, stateMachine);
 	}
 
 	private State<S,E> followLinkedPseudoStates(State<S,E> state, StateContext<S, E> stateContext) {
@@ -1259,6 +1258,9 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		if (state == null) {
 			return;
 		}
+		// call post interceptors here instead end of switchToState
+		// as anonymous transition would cause post calls to happen on wrong order
+		callPostStateChangeInterceptors(state, message, transition, stateMachine);
 		log.debug("Trying Enter state=[" + state + "]");
 		if (log.isTraceEnabled()) {
 			log.trace("Trying Enter state=[" + state + "]");

@@ -137,6 +137,17 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		assertThat(interceptor.preStateChangeCount1, is(1));
 		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(interceptor.preStateChangeCount2, is(1));
+
+		interceptor.reset(1);
+		listener.reset(1);
+		machine.sendEvent(Events.C);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
+		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount1, is(1));
+		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount2, is(1));
 	}
 
 	@Test
@@ -310,6 +321,54 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		assertThat(interceptor.preStateChangeCount2, is(1));
 	}
 
+	@Test
+	public void testIntercept7() throws InterruptedException {
+		context.register(Config6.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachine<States, Events> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		TestListener listener = new TestListener();
+		machine.addStateListener(listener);
+		TestStateChangeInterceptor interceptor = new TestStateChangeInterceptor();
+
+		machine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<States, Events>>() {
+
+			@Override
+			public void apply(StateMachineAccess<States, Events> function) {
+				function.addStateMachineInterceptor(interceptor);
+			}
+		});
+
+		machine.start();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(1));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
+
+		interceptor.reset(2);
+		listener.reset(2);
+		machine.sendEvent(Events.A);
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateChangedCount, is(2));
+		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S2));
+		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount1, is(2));
+		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.preStateChangeCount2, is(2));
+		assertThat(interceptor.postStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.postStateChangeCount1, is(2));
+		assertThat(interceptor.postStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(interceptor.postStateChangeCount2, is(2));
+
+		assertThat(interceptor.preStateChangeStates1.size(), is(2));
+		assertThat(interceptor.postStateChangeStates1.size(), is(2));
+
+		assertThat(interceptor.preStateChangeStates1.get(0).getId(), is(States.S1));
+		assertThat(interceptor.preStateChangeStates1.get(1).getId(), is(States.S2));
+
+		assertThat(interceptor.postStateChangeStates1.get(0).getId(), is(States.S1));
+		assertThat(interceptor.postStateChangeStates1.get(1).getId(), is(States.S2));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	static class Config1 extends EnumStateMachineConfigurerAdapter<States, Events> {
@@ -455,7 +514,11 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 					.and()
 				.withExternal()
 					.source(States.S1).target(States.S2)
-					.event(Events.B);
+					.event(Events.B)
+					.and()
+				.withExternal()
+					.source(States.S2).target(States.S0)
+					.event(Events.C);
 		}
 	}
 
@@ -549,6 +612,37 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 					.event(Events.E);
 		}
 
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config6 extends EnumStateMachineConfigurerAdapter<States, Events> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<States, Events> states)
+				throws Exception {
+			states
+				.withStates()
+					.initial(States.S0)
+					.state(States.S1)
+					.state(States.S2);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<States, Events> transitions)
+				throws Exception {
+			transitions
+				.withExternal()
+					.source(States.S0).target(States.S1)
+					.event(Events.A)
+					.and()
+				.withExternal()
+					.source(States.S1).target(States.S2)
+					.and()
+				.withExternal()
+					.source(States.S2).target(States.S0)
+					.event(Events.C);
+		}
 	}
 
 	public static enum States {
@@ -685,7 +779,6 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		public StateContext<States, Events> postTransition(StateContext<States, Events> stateContext) {
 			return stateContext;
 		}
-
 
 		public void reset(int c1) {
 			preStateChangeLatch1 = new CountDownLatch(c1);
