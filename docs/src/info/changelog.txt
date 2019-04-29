@@ -4,6 +4,17 @@ http://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 2.1.2.RELEASE (2019-04-29)
+---------------------------------------------
+* Polish docs [#687]
+* Editing pass [#719]
+* Modernized the document production [#720]
+* Add backwards compatibility between StateMachineContext serialization [#722]
+* AbstractStateMachinePersister incorrectly build StateMachineContext for nested region and Fork/Join SM [#723]
+* RegionPersistingInterceptorAdapter missing methods [#726]
+* Infinite loop when triggering initial event of a submachine [#729]
+* Post state change intercept may happen too early [#734]
+
 Changes in version 2.1.1.RELEASE (2019-03-19)
 ---------------------------------------------
 * Fix wrong docs in Using StateMachineRuntimePersister [#595]
