@@ -1167,15 +1167,19 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		if (currentState.isSubmachineState()) {
 			StateMachine<S, E> submachine = ((AbstractState<S, E>)currentState).getSubmachine();
 			((AbstractStateMachine<S, E>)submachine).exitCurrentState(state, message, transition, stateMachine);
-			exitFromState(currentState, message, transition, stateMachine, sources, targets);
+			if (submachine.isComplete()) {
+				exitFromState(currentState, message, transition, stateMachine, sources, targets);
+			}
 		} else if (currentState.isOrthogonal()) {
 			Collection<Region<S,E>> regions = ((AbstractState<S, E>)currentState).getRegions();
-			for (Region<S,E> r : regions) {
-				if (r.getStates().contains(state)) {
-					exitFromState(r.getState(), message, transition, stateMachine, sources, targets);
+			if (regions.stream().allMatch(Region::isComplete) ) {
+				for (Region<S,E> r : regions) {
+					if (r.getStates().contains(state)) {
+						exitFromState(r.getState(), message, transition, stateMachine, sources, targets);
+					}
 				}
+				exitFromState(currentState, message, transition, stateMachine, sources, targets);
 			}
-			exitFromState(currentState, message, transition, stateMachine, sources, targets);
 		} else {
 			exitFromState(currentState, message, transition, stateMachine, sources, targets);
 		}
