@@ -1222,6 +1222,16 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				if (isPseudoStateSubstate(findDeep, targets)) {
 					return;
 				}
+				if (StateMachineUtils.isSubstate(currentState, transition.getTarget())) {
+					// don't exit if we're targeting fork within a substate or other
+					// pseudostate if we're within region.
+					if (currentState.isSubmachineState()
+							&& StateMachineUtils.isPseudoState(transition.getTarget(), PseudoStateKind.FORK)) {
+						return;
+					} else if (currentState.isOrthogonal()) {
+						return;
+					}
+				}
 			} else if (findDeep != null && findDeep != state && findDeep.getStates().contains(state)) {
 			} else if (!isSubOfSource && !isSubOfTarget) {
 				return;
