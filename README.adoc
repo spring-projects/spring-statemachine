@@ -8,6 +8,10 @@ image:https://badges.gitter.im/spring-projects/spring-statemachine.svg[link="htt
 
 image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-MAS[Bamboo
 Build Status, link=https://build.spring.io/browse/SDG-MAS] (master)
+image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B21X[Bamboo
+Build Status, link=https://build.spring.io/browse/SDG-B21X] (2.1.x)
+image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B20X[Bamboo
+Build Status, link=https://build.spring.io/browse/SDG-B20X] (2.0.x)
 image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B12X[Bamboo
 Build Status, link=https://build.spring.io/browse/SDG-B12X] (1.2.x)
 image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B11X[Bamboo
