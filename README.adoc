@@ -1,5 +1,9 @@
 = Spring Statemachine
 
+NOTE: Master is now in a development of a `3.x` which may be extremely unstable.
+      Current stable release branch is `2.1.x`. Unless you are not planning to contribute to
+      initial reactive stories, PR's and issues should target towards `2.1.x` branch.
+
 image:https://badges.gitter.im/spring-projects/spring-statemachine.svg[link="https://gitter.im/spring-projects/spring-statemachine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
 
 image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-MAS[Bamboo
