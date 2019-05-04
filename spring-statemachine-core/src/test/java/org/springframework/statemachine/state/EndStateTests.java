@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -193,6 +193,7 @@ public class EndStateTests extends AbstractStateMachineTests {
 		ObjectStateMachine<TestStates4,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		TestStateMachineListener4 listener = new TestStateMachineListener4();
+		listener.reset(5, 1);
 		machine.addStateListener(listener);
 		machine.start();
 		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));

@@ -244,6 +244,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 						stateData != null ? stateData.getEntryActions() : null,
 						stateData != null ? stateData.getExitActions() : null,
 						new DefaultPseudoState<S, E>(PseudoStateKind.INITIAL), stateMachineModel);
+				rstate.setRegionExecutionPolicy(stateMachineModel.getConfigurationData().getRegionExecutionPolicy());
 				if (stateData != null) {
 					stateMap.put(stateData.getState(), rstate);
 				} else {

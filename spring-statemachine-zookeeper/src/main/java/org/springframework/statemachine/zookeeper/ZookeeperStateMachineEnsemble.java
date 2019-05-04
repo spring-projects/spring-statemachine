@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,8 @@ import org.springframework.statemachine.StateMachinePersist;
 import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 import org.springframework.statemachine.ensemble.StateMachineEnsembleException;
 import org.springframework.statemachine.ensemble.StateMachineEnsembleObjectSupport;
+
+import reactor.core.publisher.Mono;
 
 /**
  * {@link StateMachineEnsemble} backed by a zookeeper.
@@ -118,6 +120,10 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	}
 
 	@Override
+	protected Mono<Void> doPreStartReactively() {
+		return Mono.fromRunnable(() -> doStart());
+	}
+
 	protected void doStart() {
 		// initially setting a watcher here, further watchers
 		// will be set when events are received.
@@ -142,6 +148,10 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	}
 
 	@Override
+	protected Mono<Void> doPreStopReactively() {
+		return Mono.fromRunnable(() -> doStop());
+	}
+
 	protected void doStop() {
 		if (node != null && curatorClient.getState() != CuratorFrameworkState.STOPPED) {
 			try {

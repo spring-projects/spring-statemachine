@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.statemachine.support.CountTrigger;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
+
+import reactor.core.publisher.Mono;
 
 /**
  * Implementation of a {@link Trigger} capable of firing on a
@@ -81,16 +83,21 @@ public class TimerTrigger<S, E> extends LifecycleObjectSupport implements Trigge
 	}
 
 	@Override
-	protected void doStart() {
-		if (count > 0) {
-			return;
-		}
-		schedule();
+	protected Mono<Void> doPreStartReactively() {
+		return Mono.defer(() -> {
+			if (count > 0) {
+				return Mono.empty();
+			}
+			return Mono.fromRunnable(() -> schedule());
+		});
 	}
 
 	@Override
-	protected void doStop() {
-		cancel();
+	protected Mono<Void> doPreStopReactively() {
+		return Mono.defer(() -> {
+			cancel();
+			return Mono.empty();
+		});
 	}
 
 	@Override

@@ -14,6 +14,7 @@ include 'spring-statemachine-starter'
 
 include 'spring-statemachine-samples'
 include 'spring-statemachine-samples:turnstile'
+include 'spring-statemachine-samples:turnstilereactive'
 include 'spring-statemachine-samples:showcase'
 include 'spring-statemachine-samples:cdplayer'
 include 'spring-statemachine-samples:tasks'

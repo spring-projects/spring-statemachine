@@ -109,7 +109,7 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		AtomicReference<Exception> error = new AtomicReference<>();
 		AtomicInteger i1 = new AtomicInteger();
 		Thread t1 = new Thread(() -> {
-			while(i1.incrementAndGet() < 1000) {
+			while(i1.incrementAndGet() < 200) {
 				try {
 					machine.sendEvent("E1");
 					machine.sendEvent("E2");
@@ -121,7 +121,7 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		});
 		AtomicInteger i2 = new AtomicInteger();
 		Thread t2 = new Thread(() -> {
-			while(i2.incrementAndGet() < 1000) {
+			while(i2.incrementAndGet() < 200) {
 				try {
 					machine.sendEvent("E1");
 					machine.sendEvent("E2");

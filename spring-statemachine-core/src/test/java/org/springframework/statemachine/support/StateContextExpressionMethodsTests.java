@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.StateMachineEventResult;
 import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.action.ActionListener;
@@ -45,6 +46,9 @@ import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionKind;
 import org.springframework.statemachine.trigger.Trigger;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public class StateContextExpressionMethodsTests {
 
@@ -163,6 +167,16 @@ public class StateContextExpressionMethodsTests {
 		}
 
 		@Override
+		public Mono<Void> startReactively() {
+			return null;
+		}
+
+		@Override
+		public Mono<Void> stopReactively() {
+			return null;
+		}
+
+		@Override
 		public void start() {
 		}
 
@@ -179,6 +193,16 @@ public class StateContextExpressionMethodsTests {
 		@Override
 		public boolean sendEvent(SpelEvents event) {
 			return sendEvent(MessageBuilder.createMessage(event, new MessageHeaders(new HashMap<String, Object>())));
+		}
+
+		@Override
+		public Flux<StateMachineEventResult<SpelStates, SpelEvents>> sendEvent(Mono<Message<SpelEvents>> event) {
+			return null;
+		}
+
+		@Override
+		public Flux<StateMachineEventResult<SpelStates, SpelEvents>> sendEvents(Flux<Message<SpelEvents>> events) {
+			return null;
 		}
 
 		@Override
