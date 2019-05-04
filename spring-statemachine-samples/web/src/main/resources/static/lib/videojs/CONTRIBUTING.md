@@ -5,7 +5,7 @@ So you want to help out? Great! There's a number of ways you can get involved.
   * [File and discuss issues](#filing-issues)
   * [Contribute code](#contributing-code)
   * [Build and share plugins](docs/plugins.md)
-  * [Answer questions on Stack Overflow](http://stackoverflow.com/questions/tagged/video.js)
+  * [Answer questions on Stack Overflow](https://stackoverflow.com/questions/tagged/video.js)
 
 There's also other Video.js projects where you can help. (check the [video.js org](https://github.com/videojs) for an up-to-date list of projects)
 
@@ -28,7 +28,7 @@ Guidelines for bug reports:
 
 2. Check if the issue has already been fixed &mdash; try to reproduce it using the latest `master` branch in the repository.
 
-3. Isolate the problem &mdash; **create a [reduced test case](http://css-tricks.com/6263-reduced-test-cases/)** with a live example. You can possibly use [this JSBin example](http://jsbin.com/axedog/7/edit) as a starting point.
+3. Isolate the problem &mdash; **create a [reduced test case](https://css-tricks.com/6263-reduced-test-cases/)** with a live example. You can possibly use [this JSBin example](https://jsbin.com/axedog/7/edit) as a starting point.
 
 A good bug report should be as detailed as possible, so that others won't have to follow up for the essential details.
 
@@ -73,7 +73,7 @@ Contributing code
 
 To contibute code you'll need to be able to build a copy of Video.js and run tests locally. There are a few requirements before getting started.
 
-- Node.js -- Video.js uses Node for build and test automation. Node is available for Windows, Mac OS X, Linux, and SunOS, as well as source code if that doesn't scare you. [Download and install Node.js](http://nodejs.org/download/)
+- Node.js -- Video.js uses Node for build and test automation. Node is available for Windows, Mac OS X, Linux, and SunOS, as well as source code if that doesn't scare you. [Download and install Node.js](https://nodejs.org/download/)
 
 - grunt-cli -- Install grunt-cli globally so that you will have the correct version of grunt available for any project that needs it.
 
@@ -104,7 +104,7 @@ npm install -g contribflow
 
 ### Building your own copy of Video.js
 
-First, [fork](http://help.github.com/fork-a-repo/) the video.js git repository. At the top of every github page, there is a Fork button. Click it, and the forking process will copy Video.js into your own GitHub account.
+First, [fork](https://help.github.com/fork-a-repo/) the video.js git repository. At the top of every github page, there is a Fork button. Click it, and the forking process will copy Video.js into your own GitHub account.
 
 Clone your fork of the repo into your code directory
 
@@ -164,7 +164,7 @@ At this point you should have a built copy of video.js in a directory named `dis
 
 Whether you're adding something new, making something better, or fixing a bug, you'll first want to search the [GitHub issues](https://github.com/videojs/video.js/issues) and [plugins list](https://github.com/videojs/video.js/wiki/Plugins) to make sure you're aware of any previous discussion or work. If an unclaimed issue exists, claim it via a comment. If no issue exists for your change, submit one, follwing the [issue filing guidelines](#filing-issues).
 
-There are two categories of changes in video.js land, features and hotfixes (Video.js follows a branching model similar to [gitflow](http://nvie.com/posts/a-successful-git-branching-model/)). Hotfixes are for urgent fixes that need to be released immediately as a patch. Features are for everything else (including non-urgent fixes). If you think you have a hotfix scenario, verify that (via comment) before starting the work. We'll focus on features here, but you can swap `hotfix` for `feature` in any command.
+There are two categories of changes in video.js land, features and hotfixes (Video.js follows a branching model similar to [gitflow](https://nvie.com/posts/a-successful-git-branching-model/)). Hotfixes are for urgent fixes that need to be released immediately as a patch. Features are for everything else (including non-urgent fixes). If you think you have a hotfix scenario, verify that (via comment) before starting the work. We'll focus on features here, but you can swap `hotfix` for `feature` in any command.
 
 Start a new development branch
 
@@ -199,7 +199,7 @@ open http://localhost:9999/sandbox/index.html
 >
 > 1. Do your development and testing using a local HTTP server. See Grunt commands above.
 >
-> 2. [Disable the version of Flash included with Chrome](http://helpx.adobe.com/flash-player/kb/flash-player-google-chrome.html#How_can_I_run_debugger_or_alternate_versions_of_Flash_Player_in_Google_Chrome) and enable a system-wide version of Flash instead.
+> 2. [Disable the version of Flash included with Chrome](https://helpx.adobe.com/flash-player/kb/flash-player-google-chrome.html#How_can_I_run_debugger_or_alternate_versions_of_Flash_Player_in_Google_Chrome) and enable a system-wide version of Flash instead.
 
 Commit and push changes as you go (using git directly). Write thorough descriptions of your changes in your commit messages.
 
@@ -258,14 +258,14 @@ contrib hotfix delete
 
 Code Style Guide
 ----------------
-Please follow [Google's JavaScript Style Guide](http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml) to the letter. If your editor supports [.editorconfig](http://editorconfig.org/#download) it will make it easier to manage differences from your own coding style.
+Please follow [Google's JavaScript Style Guide](https://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml) to the letter. If your editor supports [.editorconfig](https://editorconfig.org/#download) it will make it easier to manage differences from your own coding style.
 
 ### Style examples include:
 * Two space indents.
 * Delimit strings with single-quotes `'`, not double-quotes `"`.
 * No trailing whitespace, except in markdown files where a linebreak must be forced.
 * No more than [one assignment](http://benalman.com/news/2012/05/multiple-var-statements-javascript/) per `var` statement.
-* Prefer `if` and `else` to ["clever"](http://programmers.stackexchange.com/a/25281) uses of `? :` conditional or `||`, `&&` logical operators.
+* Prefer `if` and `else` to ["clever"](https://programmers.stackexchange.com/a/25281) uses of `? :` conditional or `||`, `&&` logical operators.
 * **When in doubt, follow the conventions you see used in the source already.**
 
 If you happen to find something in the codebase that does not follow the style guide, that's a good opportunity to make your first contribution!

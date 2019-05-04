@@ -35,7 +35,7 @@ For development (testing, building) the project requires node.js. This allows us
 
 ## Building and Testing
 
-[![Build Status](https://secure.travis-ci.org/jmesnil/stomp-websocket.png)](http://travis-ci.org/jmesnil/stomp-websocket)
+[![Build Status](https://secure.travis-ci.org/jmesnil/stomp-websocket.png)](https://travis-ci.org/jmesnil/stomp-websocket)
 
 To build JavaScript from the CoffeeScript source code:
 
@@ -65,7 +65,7 @@ to send and receive STOMP messages from a server directly in the Web Browser or 
 ## Authors
 
  * [Jeff Mesnil](http://jmesnil.net/)
- * [Jeff Lindsay](http://github.com/progrium)
+ * [Jeff Lindsay](https://github.com/progrium)
 
 [doc]: http://jmesnil.net/stomp-websocket/doc/
 [annotated]: http://jmesnil.net/stomp-websocket/doc/stomp.html
