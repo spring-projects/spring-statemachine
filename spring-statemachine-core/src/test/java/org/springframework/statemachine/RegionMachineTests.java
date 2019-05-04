@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,19 @@
  */
 package org.springframework.statemachine;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Test;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -25,9 +38,11 @@ import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.region.Region;
+import org.springframework.statemachine.region.RegionExecutionPolicy;
 import org.springframework.statemachine.state.DefaultPseudoState;
 import org.springframework.statemachine.state.EnumState;
 import org.springframework.statemachine.state.ObjectState;
@@ -39,19 +54,6 @@ import org.springframework.statemachine.transition.DefaultExternalTransition;
 import org.springframework.statemachine.transition.InitialTransition;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.trigger.EventTrigger;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.concurrent.TimeUnit;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.lessThan;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Statemachine tests using regions.
@@ -450,6 +452,13 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 	static class Config3 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
 
 		@Override
+		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
+			config
+				.withConfiguration()
+					.regionExecutionPolicy(RegionExecutionPolicy.PARALLEL);
+		}
+
+		@Override
 		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
 			states
 				.withStates()
@@ -507,6 +516,13 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 	@Configuration
 	@EnableStateMachine
 	static class Config4 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
+			config
+				.withConfiguration()
+					.regionExecutionPolicy(RegionExecutionPolicy.PARALLEL);
+		}
 
 		@Override
 		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {

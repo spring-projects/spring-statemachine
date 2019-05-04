@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import org.springframework.messaging.Message;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
+import org.springframework.statemachine.StateMachineEventResult;
 import org.springframework.statemachine.StateMachineException;
 import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.ensemble.EnsembleListener;
@@ -47,6 +48,9 @@ import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.DefaultExtendedState;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.statemachine.transition.Transition;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 
@@ -701,6 +705,16 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 		}
 
 		@Override
+		public Mono<Void> startReactively() {
+			return null;
+		}
+
+		@Override
+		public Mono<Void> stopReactively() {
+			return null;
+		}
+
+		@Override
 		public void start() {
 		}
 
@@ -716,6 +730,16 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 		@Override
 		public boolean sendEvent(String event) {
 			return false;
+		}
+
+		@Override
+		public Flux<StateMachineEventResult<String, String>> sendEvent(Mono<Message<String>> event) {
+			return null;
+		}
+
+		@Override
+		public Flux<StateMachineEventResult<String, String>> sendEvents(Flux<Message<String>> events) {
+			return null;
 		}
 
 		@Override

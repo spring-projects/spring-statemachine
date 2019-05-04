@@ -7,6 +7,16 @@ project('spring-statemachine-samples-turnstile') {
 	}
 }
 
+project('spring-statemachine-samples-turnstilereactive') {
+	description = 'Spring State Machine Turnstile Reactive Sample'
+	dependencies {
+		compile project(":spring-statemachine-samples-common")
+		compile 'org.springframework.boot:spring-boot-starter-webflux'
+		testCompile 'io.projectreactor:reactor-test'
+		testCompile 'org.springframework.boot:spring-boot-starter-test'
+	}
+}
+
 project('spring-statemachine-samples-showcase') {
 	description = 'Spring State Machine Showcase Sample'
 	dependencies {

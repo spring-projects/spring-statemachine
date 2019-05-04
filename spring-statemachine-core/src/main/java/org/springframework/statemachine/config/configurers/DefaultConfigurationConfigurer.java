@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.springframework.statemachine.config.builders.StateMachineConfiguratio
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerAdapter;
 import org.springframework.statemachine.config.model.ConfigurationData;
 import org.springframework.statemachine.listener.StateMachineListener;
+import org.springframework.statemachine.region.RegionExecutionPolicy;
 import org.springframework.statemachine.transition.TransitionConflictPolicy;
 
 /**
@@ -50,6 +51,7 @@ public class DefaultConfigurationConfigurer<S, E>
 	private TransitionConflictPolicy transitionConflightPolicy;
 	private StateDoActionPolicy stateDoActionPolicy;
 	private Long stateDoActionPolicyTimeout;
+	private RegionExecutionPolicy regionExecutionPolicy;
 	private final List<StateMachineListener<S, E>> listeners = new ArrayList<StateMachineListener<S, E>>();
 
 	@Override
@@ -62,6 +64,7 @@ public class DefaultConfigurationConfigurer<S, E>
 		builder.setStateMachineListeners(listeners);
 		builder.setTransitionConflictPolicy(transitionConflightPolicy);
 		builder.setStateDoActionPolicy(stateDoActionPolicy, stateDoActionPolicyTimeout);
+		builder.setRegionExecutionPolicy(regionExecutionPolicy);
 	}
 
 	@Override
@@ -115,6 +118,12 @@ public class DefaultConfigurationConfigurer<S, E>
 	@Override
 	public ConfigurationConfigurer<S, E> stateDoActionPolicyTimeout(long timeout, TimeUnit unit) {
 		this.stateDoActionPolicyTimeout = unit.toMillis(timeout);
+		return this;
+	}
+
+	@Override
+	public ConfigurationConfigurer<S, E> regionExecutionPolicy(RegionExecutionPolicy regionExecutionPolicy) {
+		this.regionExecutionPolicy = regionExecutionPolicy;
 		return this;
 	}
 }

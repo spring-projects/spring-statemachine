@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,7 +143,7 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 		assertThat(accepted, is(false));
 		assertThat(machine.getState().getIds(), contains(TestStates.S1, TestStates.S11, TestStates.S111));
 		assertThat(listener.eventNotAcceptedLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(listener.eventNotAccepted.size(), is(1));
+		assertThat(listener.eventNotAccepted.size(), is(3));
 	}
 
 	@Test
@@ -164,8 +164,8 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 		boolean accepted = machine.sendEvent(TestEvents.E1);
 		assertThat(accepted, is(true));
 		assertThat(machine.getState().getIds(), contains(TestStates.S1, TestStates.S11, TestStates.S111));
-		assertThat(listener.eventNotAcceptedLatch.await(1, TimeUnit.SECONDS), is(false));
-		assertThat(listener.eventNotAccepted.size(), is(0));
+		assertThat(listener.eventNotAcceptedLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(listener.eventNotAccepted.size(), is(2));
 	}
 
 	@Test
@@ -186,8 +186,8 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 		boolean accepted = machine.sendEvent(TestEvents.E1);
 		assertThat(accepted, is(true));
 		assertThat(machine.getState().getIds(), contains(TestStates.S1, TestStates.S11, TestStates.S111));
-		assertThat(listener.eventNotAcceptedLatch.await(1, TimeUnit.SECONDS), is(false));
-		assertThat(listener.eventNotAccepted.size(), is(0));
+		assertThat(listener.eventNotAcceptedLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(listener.eventNotAccepted.size(), is(2));
 	}
 
 	@Test
@@ -209,8 +209,8 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 		boolean accepted = machine.sendEvent(TestEvents.E1);
 		assertThat(accepted, is(true));
 		assertThat(machine.getState().getIds(), contains(TestStates.S2));
-		assertThat(listener.eventNotAcceptedLatch.await(1, TimeUnit.SECONDS), is(false));
-		assertThat(listener.eventNotAccepted.size(), is(0));
+		assertThat(listener.eventNotAcceptedLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(listener.eventNotAccepted.size(), is(2));
 	}
 
 	@Test
@@ -232,8 +232,8 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 		boolean accepted = machine.sendEvent(TestEvents.E1);
 		assertThat(accepted, is(true));
 		assertThat(machine.getState().getIds(), contains(TestStates.S1, TestStates.S12));
-		assertThat(listener.eventNotAcceptedLatch.await(1, TimeUnit.SECONDS), is(false));
-		assertThat(listener.eventNotAccepted.size(), is(0));
+		assertThat(listener.eventNotAcceptedLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(listener.eventNotAccepted.size(), is(2));
 	}
 
 	@Test
@@ -255,8 +255,8 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 		boolean accepted = machine.sendEvent(TestEvents.E1);
 		assertThat(accepted, is(true));
 		assertThat(machine.getState().getIds(), contains(TestStates.S1, TestStates.S11, TestStates.S112));
-		assertThat(listener.eventNotAcceptedLatch.await(1, TimeUnit.SECONDS), is(false));
-		assertThat(listener.eventNotAccepted.size(), is(0));
+		assertThat(listener.eventNotAcceptedLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(listener.eventNotAccepted.size(), is(2));
 	}
 
 	@Configuration

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -393,17 +393,35 @@ public class TransitionEventHeaderTests extends AbstractStateMachineTests {
 
 		@Override
 		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
-			states.withStates().initial(TestStates.S1).state(TestStates.S2, eventCheckAction2(), null).and()
-					.withStates().parent(TestStates.S2).initial(TestStates.S20)
-					.state(TestStates.S20, eventCheckAction20(), null).choice(TestStates.S211)
-					.state(TestStates.S212, eventCheckAction212(), null);
+			states
+				.withStates()
+					.initial(TestStates.S1)
+					.state(TestStates.S2, eventCheckAction2(), null)
+					.and()
+					.withStates()
+						.parent(TestStates.S2)
+						.initial(TestStates.S20)
+						.state(TestStates.S20, eventCheckAction20(), null)
+						.choice(TestStates.S211)
+						.state(TestStates.S212, eventCheckAction212(), null);
 		}
 
 		@Override
 		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
-			transitions.withExternal().source(TestStates.S1).target(TestStates.S2).event(TestEvents.E1).and()
-					.withExternal().source(TestStates.S20).target(TestStates.S211).and().withChoice()
-					.source(TestStates.S211).first(TestStates.S212, eventCheckGuard()).last(TestStates.S212);
+			transitions
+				.withExternal()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.event(TestEvents.E1)
+					.and()
+				.withExternal()
+					.source(TestStates.S20)
+					.target(TestStates.S211)
+					.and()
+				.withChoice()
+					.source(TestStates.S211)
+					.first(TestStates.S212, eventCheckGuard())
+					.last(TestStates.S212);
 		}
 
 		@Bean

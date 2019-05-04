@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.monitor.StateMachineMonitor;
 import org.springframework.statemachine.persist.StateMachineRuntimePersister;
+import org.springframework.statemachine.region.RegionExecutionPolicy;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.support.StateMachineInterceptor;
 import org.springframework.statemachine.transition.TransitionConflictPolicy;
@@ -69,6 +70,7 @@ public class StateMachineConfigurationBuilder<S, E>
 	private TransitionConflictPolicy transitionConflictPolicy;
 	private StateDoActionPolicy stateDoActionPolicy;
 	private Long stateDoActionPolicyTimeout;
+	private RegionExecutionPolicy regionExecutionPolicy;
 	private StateMachineEnsemble<S, E> ensemble;
 	private final List<StateMachineListener<S, E>> listeners = new ArrayList<StateMachineListener<S, E>>();
 	private boolean securityEnabled = false;
@@ -145,13 +147,14 @@ public class StateMachineConfigurationBuilder<S, E>
 		if (persister != null) {
 			StateMachineInterceptor<S, E> interceptor = persister.getInterceptor();
 			if (interceptor != null) {
-				interceptorsCopy.add((StateMachineInterceptor<S, E>) interceptor);
+				interceptorsCopy.add(interceptor);
 			}
 		}
 		return new ConfigurationData<S, E>(beanFactory, taskExecutor, taskScheculer, autoStart, ensemble, listeners,
 				securityEnabled, transitionSecurityAccessDecisionManager, eventSecurityAccessDecisionManager,
 				eventSecurityRule, transitionSecurityRule, verifierEnabled, verifier, machineId, stateMachineMonitor,
-				interceptorsCopy, transitionConflictPolicy, stateDoActionPolicy, stateDoActionPolicyTimeout);
+				interceptorsCopy, transitionConflictPolicy, stateDoActionPolicy, stateDoActionPolicyTimeout,
+				regionExecutionPolicy);
 	}
 
 	/**
@@ -317,5 +320,14 @@ public class StateMachineConfigurationBuilder<S, E>
 	public void setStateDoActionPolicy(StateDoActionPolicy stateDoActionPolicy, Long stateDoActionPolicyTimeout) {
 		this.stateDoActionPolicy = stateDoActionPolicy;
 		this.stateDoActionPolicyTimeout = stateDoActionPolicyTimeout;
+	}
+
+	/**
+	 * Sets the region execution policy.
+	 *
+	 * @param regionExecutionPolicy the region execution policy
+	 */
+	public void setRegionExecutionPolicy(RegionExecutionPolicy regionExecutionPolicy) {
+		this.regionExecutionPolicy = regionExecutionPolicy;
 	}
 }

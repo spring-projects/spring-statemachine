@@ -61,3 +61,7 @@ Spring Statemachine 2.0.0 includes the following:
 
 * The format of monitoring and tracing has been changed. See <<sm-boot-monitoring>>.
 * The `spring-statemachine-boot` module has been renamed to `spring-statemachine-autoconfigure`.
+
+== In 3.0
+
+Spring Statemachine 3.0 focuses on a Reactive support.

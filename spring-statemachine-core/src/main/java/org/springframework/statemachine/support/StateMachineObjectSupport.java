@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,9 +61,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 	private volatile boolean handlersInitialized;
 	private final StateMachineHandlerCallHelper<S, E> stateMachineHandlerCallHelper = new StateMachineHandlerCallHelper<S, E>();
 
-	@Override
 	protected void doStart() {
-		super.doStart();
 		if (!handlersInitialized) {
 			try {
 				stateMachineHandlerCallHelper.setBeanFactory(getBeanFactory());
@@ -338,16 +336,6 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		}
 	}
 
-	protected void stateChangedInRelay() {
-		// TODO: this is a temporary tweak to know when state is
-		//       changed in a submachine/regions order to give
-		//       state machine a change to request executor login again
-		//       which is needed when we use multiple thread. with multiple
-		//       threads submachines may do their stuff after thread handling
-		//       main machine has already finished its execution logic, thus
-		//       re-scheduling is needed.
-	}
-
 	protected StateMachineInterceptorList<S, E> getStateMachineInterceptors() {
 		return interceptors;
 	}
@@ -367,7 +355,6 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		@Override
 		public void stateChanged(State<S, E> from, State<S, E> to) {
 			stateListener.stateChanged(from, to);
-			stateChangedInRelay();
 		}
 
 		@Override
@@ -424,7 +411,5 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		public void stateContext(StateContext<S, E> stateContext) {
 			stateListener.stateContext(stateContext);
 		}
-
 	}
-
 }
