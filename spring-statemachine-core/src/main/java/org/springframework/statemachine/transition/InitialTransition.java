@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,14 @@
  */
 package org.springframework.statemachine.transition;
 
-import org.springframework.statemachine.StateContext;
-import org.springframework.statemachine.action.Action;
-import org.springframework.statemachine.state.State;
-
 import java.util.Collection;
 import java.util.Collections;
+import java.util.function.Function;
+
+import org.springframework.statemachine.StateContext;
+import org.springframework.statemachine.state.State;
+
+import reactor.core.publisher.Mono;
 
 /**
  * {@link Transition} used during a state machine start.
@@ -48,8 +50,9 @@ public class InitialTransition<S, E> extends AbstractTransition<S, E>
 	 * @param target the target
 	 * @param action the action
 	 */
-	public InitialTransition(State<S, E> target, Action<S, E> action) {
-		super(null, target, action != null ? Collections.singleton(action) : null, null, TransitionKind.INITIAL, null, null, null);
+	public InitialTransition(State<S, E> target, Function<StateContext<S, E>, Mono<Void>> action) {
+		super(null, target, action != null ? Collections.singleton(action) : null, null, TransitionKind.INITIAL, null,
+				null, null);
 	}
 
 	/**
@@ -58,7 +61,7 @@ public class InitialTransition<S, E> extends AbstractTransition<S, E>
 	 * @param target the target
 	 * @param actions the actions
 	 */
-	public InitialTransition(State<S, E> target, Collection<Action<S, E>> actions) {
+	public InitialTransition(State<S, E> target, Collection<Function<StateContext<S, E>, Mono<Void>>> actions) {
 		super(null, target, actions, null, TransitionKind.INITIAL, null, null, null);
 	}
 

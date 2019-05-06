@@ -16,6 +16,7 @@
 package org.springframework.statemachine.state;
 
 import java.util.Collection;
+import java.util.function.Function;
 
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
@@ -113,21 +114,21 @@ public interface State<S, E> {
 	 *
 	 * @return the state entry actions
 	 */
-	Collection<? extends Action<S, E>> getEntryActions();
+	Collection<Function<StateContext<S, E>, Mono<Void>>> getEntryActions();
 
 	/**
 	 * Gets {@link Action}s executed once in this state.
 	 *
 	 * @return the state actions
 	 */
-	Collection<? extends Action<S, E>> getStateActions();
+	Collection<Function<StateContext<S, E>, Mono<Void>>> getStateActions();
 
 	/**
 	 * Gets {@link Action}s executed exiting from this state.
 	 *
 	 * @return the state exit actions
 	 */
-	Collection<? extends Action<S, E>> getExitActions();
+	Collection<Function<StateContext<S, E>, Mono<Void>>> getExitActions();
 
 	/**
 	 * Checks if state is a simple state. A simple state does not have any

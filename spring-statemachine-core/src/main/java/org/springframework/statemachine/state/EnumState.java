@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,13 @@
 package org.springframework.statemachine.state;
 
 import java.util.Collection;
+import java.util.function.Function;
 
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.region.Region;
+
+import reactor.core.publisher.Mono;
 
 /**
  * A {@link State} implementation where state and event is enum based.
@@ -68,7 +71,8 @@ public class EnumState<S extends Enum<S>, E extends Enum<E>> extends ObjectState
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 */
-	public EnumState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions) {
+	public EnumState(S id, Collection<E> deferred, Collection<Function<StateContext<S, E>, Mono<Void>>> entryActions,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> exitActions) {
 		super(id, deferred, entryActions, exitActions);
 	}
 
@@ -81,8 +85,8 @@ public class EnumState<S extends Enum<S>, E extends Enum<E>> extends ObjectState
 	 * @param exitActions the exit actions
 	 * @param pseudoState the pseudo state
 	 */
-	public EnumState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
-			PseudoState<S, E> pseudoState) {
+	public EnumState(S id, Collection<E> deferred, Collection<Function<StateContext<S, E>, Mono<Void>>> entryActions,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> exitActions, PseudoState<S, E> pseudoState) {
 		super(id, deferred, entryActions, exitActions, pseudoState);
 	}
 
@@ -96,8 +100,9 @@ public class EnumState<S extends Enum<S>, E extends Enum<E>> extends ObjectState
 	 * @param pseudoState the pseudo state
 	 * @param regions the regions
 	 */
-	public EnumState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
-			PseudoState<S, E> pseudoState, Collection<Region<S, E>> regions) {
+	public EnumState(S id, Collection<E> deferred, Collection<Function<StateContext<S, E>, Mono<Void>>> entryActions,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> exitActions, PseudoState<S, E> pseudoState,
+			Collection<Region<S, E>> regions) {
 		super(id, deferred, entryActions, exitActions, pseudoState, regions);
 	}
 
@@ -111,8 +116,9 @@ public class EnumState<S extends Enum<S>, E extends Enum<E>> extends ObjectState
 	 * @param pseudoState the pseudo state
 	 * @param submachine the submachine
 	 */
-	public EnumState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
-			PseudoState<S, E> pseudoState, StateMachine<S, E> submachine) {
+	public EnumState(S id, Collection<E> deferred, Collection<Function<StateContext<S, E>, Mono<Void>>> entryActions,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> exitActions, PseudoState<S, E> pseudoState,
+			StateMachine<S, E> submachine) {
 		super(id, deferred, entryActions, exitActions, pseudoState, submachine);
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,32 +15,20 @@
  */
 package org.springframework.statemachine.action;
 
-import java.util.Iterator;
 import java.util.function.Function;
 
 import org.springframework.statemachine.StateContext;
-import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.support.AbstractCompositeItems;
 
 import reactor.core.publisher.Mono;
 
 /**
- * Implementation of a {@link ActionListener} backed by a multiple listeners.
+ * Reactive counterpart of a {@link Action} being simply a {@link Function} of a
+ * return type of a {@link Mono}.
  *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public class CompositeActionListener<S, E> extends AbstractCompositeItems<ActionListener<S, E>>
-		implements ActionListener<S, E> {
-
-	@Override
-	public void onExecute(StateMachine<S, E> stateMachine, Function<StateContext<S, E>, Mono<Void>> action,
-			long duration) {
-		for (Iterator<ActionListener<S, E>> iterator = getItems().reverse(); iterator.hasNext();) {
-			ActionListener<S, E> listener = iterator.next();
-			listener.onExecute(stateMachine, action, duration);
-		}
-	}
+public interface ReactiveAction<S, E> extends Function<StateContext<S, E>, Mono<Void>> {
 }

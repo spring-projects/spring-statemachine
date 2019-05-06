@@ -24,6 +24,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,7 +34,6 @@ import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateContext.Stage;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineEventResult;
-import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.action.ActionListener;
 import org.springframework.statemachine.action.CompositeActionListener;
 import org.springframework.statemachine.action.StateDoActionPolicy;
@@ -61,9 +61,9 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 	private final S id;
 	private final PseudoState<S, E> pseudoState;
 	private final Collection<E> deferred;
-	private final Collection<? extends Action<S, E>> entryActions;
-	private final Collection<? extends Action<S, E>> exitActions;
-	private final Collection<? extends Action<S, E>> stateActions;
+	private final Collection<Function<StateContext<S, E>, Mono<Void>>> entryActions;
+	private final Collection<Function<StateContext<S, E>, Mono<Void>>> exitActions;
+	private final Collection<Function<StateContext<S, E>, Mono<Void>>> stateActions;
 	private final Collection<Region<S, E>> regions = new ArrayList<Region<S, E>>();
 	private final StateMachine<S, E> submachine;
 	private List<Trigger<S, E>> triggers = new ArrayList<Trigger<S, E>>();
@@ -102,8 +102,9 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 	 * @param entryActions the entry actions
 	 * @param exitActions the exit actions
 	 */
-	public AbstractState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions,
-			Collection<? extends Action<S, E>> exitActions) {
+	public AbstractState(S id, Collection<E> deferred,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> entryActions,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> exitActions) {
 		this(id, deferred, entryActions, exitActions, null);
 	}
 
@@ -116,8 +117,9 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 	 * @param exitActions the exit actions
 	 * @param pseudoState the pseudo state
 	 */
-	public AbstractState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions,
-			Collection<? extends Action<S, E>> exitActions, PseudoState<S, E> pseudoState) {
+	public AbstractState(S id, Collection<E> deferred,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> entryActions,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> exitActions, PseudoState<S, E> pseudoState) {
 		this(id, deferred, entryActions, exitActions, pseudoState, null, null);
 	}
 
@@ -131,8 +133,10 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 	 * @param pseudoState the pseudo state
 	 * @param submachine the submachine
 	 */
-	public AbstractState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions,
-			Collection<? extends Action<S, E>> exitActions, PseudoState<S, E> pseudoState, StateMachine<S, E> submachine) {
+	public AbstractState(S id, Collection<E> deferred,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> entryActions,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> exitActions, PseudoState<S, E> pseudoState,
+			StateMachine<S, E> submachine) {
 		this(id, deferred, entryActions, exitActions, pseudoState, null, submachine);
 	}
 
@@ -146,8 +150,10 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 	 * @param pseudoState the pseudo state
 	 * @param regions the regions
 	 */
-	public AbstractState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions,
-			Collection<? extends Action<S, E>> exitActions, PseudoState<S, E> pseudoState, Collection<Region<S, E>> regions) {
+	public AbstractState(S id, Collection<E> deferred,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> entryActions,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> exitActions, PseudoState<S, E> pseudoState,
+			Collection<Region<S, E>> regions) {
 		this(id, deferred, entryActions, exitActions, pseudoState, regions, null);
 	}
 
@@ -162,9 +168,10 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 	 * @param regions the regions
 	 * @param submachine the submachine
 	 */
-	public AbstractState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions,
-			Collection<? extends Action<S, E>> exitActions, PseudoState<S, E> pseudoState, Collection<Region<S, E>> regions,
-			StateMachine<S, E> submachine) {
+	public AbstractState(S id, Collection<E> deferred,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> entryActions,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> exitActions, PseudoState<S, E> pseudoState,
+			Collection<Region<S, E>> regions, StateMachine<S, E> submachine) {
 		this(id, deferred, entryActions, exitActions, null, pseudoState, regions, submachine);
 	}
 
@@ -180,14 +187,16 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 	 * @param regions the regions
 	 * @param submachine the submachine
 	 */
-	public AbstractState(S id, Collection<E> deferred, Collection<? extends Action<S, E>> entryActions,
-			Collection<? extends Action<S, E>> exitActions, Collection<? extends Action<S, E>> stateActions,
-			PseudoState<S, E> pseudoState, Collection<Region<S, E>> regions, StateMachine<S, E> submachine) {
+	public AbstractState(S id, Collection<E> deferred,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> entryActions,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> exitActions,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> stateActions, PseudoState<S, E> pseudoState,
+			Collection<Region<S, E>> regions, StateMachine<S, E> submachine) {
 		this.id = id;
 		this.deferred = deferred != null ? deferred : Collections.<E>emptySet();
-		this.entryActions = entryActions != null ? entryActions : Collections.<Action<S, E>>emptySet();
-		this.exitActions = exitActions != null ? exitActions : Collections.<Action<S, E>>emptySet();
-		this.stateActions = stateActions != null ? stateActions : Collections.<Action<S, E>>emptySet();
+		this.entryActions = entryActions != null ? entryActions : Collections.emptySet();
+		this.exitActions = exitActions != null ? exitActions : Collections.emptySet();
+		this.stateActions = stateActions != null ? stateActions : Collections.emptySet();
 		this.pseudoState = pseudoState;
 
 		// use of private ctor should prevent user to
@@ -301,17 +310,17 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 	}
 
 	@Override
-	public Collection<? extends Action<S, E>> getEntryActions() {
+	public Collection<Function<StateContext<S, E>, Mono<Void>>> getEntryActions() {
 		return entryActions;
 	}
 
 	@Override
-	public Collection<? extends Action<S, E>> getStateActions() {
+	public Collection<Function<StateContext<S, E>, Mono<Void>>> getStateActions() {
 		return stateActions;
 	}
 
 	@Override
-	public Collection<? extends Action<S, E>> getExitActions() {
+	public Collection<Function<StateContext<S, E>, Mono<Void>>> getExitActions() {
 		return exitActions;
 	}
 
@@ -481,7 +490,7 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 		if (isSimple()) {
 			completionCount = new AtomicInteger(stateActions.size());
 		}
-		for (Action<S, E> action : stateActions) {
+		for (Function<StateContext<S, E>, Mono<Void>> action : stateActions) {
 			ScheduledFuture<?> future = scheduleAction(action, context, completionCount);
 			if (log.isDebugEnabled()) {
 				log.debug("Scheduling state do action " + action + " with future " + future);
@@ -500,17 +509,23 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 	 *
 	 * @param action the action
 	 * @param context the context
+	 * @return mono for completion
 	 */
-	protected void executeAction(Action<S, E> action, StateContext<S, E> context) {
-		long now = System.currentTimeMillis();
-		action.execute(context);
-		if (this.actionListener != null) {
-			try {
-				this.actionListener.onExecute(context.getStateMachine(), action, System.currentTimeMillis() - now);
-			} catch (Exception e) {
-				log.warn("Error with actionListener", e);
-			}
-		}
+	protected Mono<Void> executeAction(Function<StateContext<S, E>, Mono<Void>> action, StateContext<S, E> context) {
+		return Mono.just(action)
+			.flatMap(a -> {
+				long now = System.currentTimeMillis();
+				return a.apply(context)
+					.thenEmpty(Mono.fromRunnable(() -> {
+						if (this.actionListener != null) {
+							try {
+								this.actionListener.onExecute(context.getStateMachine(), action, System.currentTimeMillis() - now);
+							} catch (Exception e) {
+								log.warn("Error with actionListener", e);
+							}
+						}
+					}));
+			});
 	}
 
 	/**
@@ -521,7 +536,7 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 	 * @param completionCount the completion count tracker
 	 * @return the scheduled future
 	 */
-	protected ScheduledFuture<?> scheduleAction(final Action<S, E> action, final StateContext<S, E> context,
+	protected ScheduledFuture<?> scheduleAction(final Function<StateContext<S, E>, Mono<Void>> action, final StateContext<S, E> context,
 			final AtomicInteger completionCount) {
 		TaskScheduler taskScheduler = getTaskScheduler();
 		if (taskScheduler == null) {
@@ -532,7 +547,8 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 
 			@Override
 			public void run() {
-				executeAction(action, context);
+				// TODO: REACTOR subscribe is probably wrong!
+				executeAction(action, context).subscribe();
 				if (completionCount != null && completionCount.decrementAndGet() <= 0) {
 					notifyStateOnComplete(context);
 				}

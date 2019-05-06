@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.util.EcoreUtil;
@@ -49,7 +50,9 @@ import org.eclipse.uml2.uml.Vertex;
 import org.springframework.expression.spel.SpelCompilerMode;
 import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.action.Actions;
 import org.springframework.statemachine.action.SpelExpressionAction;
 import org.springframework.statemachine.config.model.ChoiceData;
 import org.springframework.statemachine.config.model.EntryData;
@@ -67,6 +70,8 @@ import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+
+import reactor.core.publisher.Mono;
 
 /**
  * Model parser which constructs states and transitions data out from
@@ -373,14 +378,17 @@ public class UmlModelParser {
 						if (transition.getTarget() instanceof ConnectionPointReference) {
 							EList<Pseudostate> cprentries = ((ConnectionPointReference)transition.getTarget()).getEntries();
 							if (cprentries != null && cprentries.size() == 1) {
-								transitionDatas.add(new TransitionData<String, String>(resolveName(transition.getSource()),
-										cprentries.get(0).getName(), signal.getName(), UmlUtils.resolveTransitionActions(transition, resolver),
-										guard, UmlUtils.mapUmlTransitionType(transition)));
+								transitionDatas
+										.add(new TransitionData<String, String>(resolveName(transition.getSource()),
+												cprentries.get(0).getName(), signal.getName(),
+												UmlUtils.resolveTransitionActionFunctions(transition, resolver), guard,
+												UmlUtils.mapUmlTransitionType(transition)));
 							}
 						} else {
 							transitionDatas.add(new TransitionData<String, String>(resolveName(transition.getSource()),
-									resolveName(transition.getTarget()), signal.getName(), UmlUtils.resolveTransitionActions(transition, resolver),
-									guard, UmlUtils.mapUmlTransitionType(transition)));
+									resolveName(transition.getTarget()), signal.getName(),
+									UmlUtils.resolveTransitionActionFunctions(transition, resolver), guard,
+									UmlUtils.mapUmlTransitionType(transition)));
 						}
 					}
 				} else if (event instanceof TimeEvent) {
@@ -392,16 +400,18 @@ public class UmlModelParser {
 							count = 1;
 						}
 						transitionDatas.add(new TransitionData<String, String>(resolveName(transition.getSource()),
-								resolveName(transition.getTarget()), period, count, UmlUtils.resolveTransitionActions(transition, resolver),
-								guard, UmlUtils.mapUmlTransitionType(transition)));
+								resolveName(transition.getTarget()), period, count,
+								UmlUtils.resolveTransitionActionFunctions(transition, resolver), guard,
+								UmlUtils.mapUmlTransitionType(transition)));
 					}
 				}
 			}
 
 			// create anonymous transition if needed
 			if (shouldCreateAnonymousTransition(transition)) {
-				transitionDatas.add(new TransitionData<String, String>(resolveName(transition.getSource()), resolveName(transition.getTarget()),
-						null, UmlUtils.resolveTransitionActions(transition, resolver), resolveGuard(transition),
+				transitionDatas.add(new TransitionData<String, String>(resolveName(transition.getSource()),
+						resolveName(transition.getTarget()), null,
+						UmlUtils.resolveTransitionActionFunctions(transition, resolver), resolveGuard(transition),
 						UmlUtils.mapUmlTransitionType(transition)));
 			}
 		}
@@ -477,8 +487,8 @@ public class UmlModelParser {
 			if (StringUtils.hasText(beanId)) {
 				Action<String, String> bean = resolver.resolveAction(beanId);
 				if (bean != null) {
-					ArrayList<Action<String, String>> entrys = new ArrayList<Action<String, String>>();
-					entrys.add(bean);
+					ArrayList<Function<StateContext<String, String>, Mono<Void>>> entrys = new ArrayList<>();
+					entrys.add(Actions.from(bean));
 					stateData.setEntryActions(entrys);
 				}
 			} else {
@@ -486,8 +496,8 @@ public class UmlModelParser {
 				if (StringUtils.hasText(expression)) {
 					SpelExpressionParser parser = new SpelExpressionParser(
 							new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
-					ArrayList<Action<String, String>> entrys = new ArrayList<Action<String, String>>();
-					entrys.add(new SpelExpressionAction<String, String>(parser.parseExpression(expression)));
+					ArrayList<Function<StateContext<String, String>, Mono<Void>>> entrys = new ArrayList<>();
+					entrys.add(Actions.from(new SpelExpressionAction<String, String>(parser.parseExpression(expression))));
 					stateData.setEntryActions(entrys);
 				}
 			}
@@ -497,8 +507,8 @@ public class UmlModelParser {
 			if (StringUtils.hasText(beanId)) {
 				Action<String, String> bean = resolver.resolveAction(beanId);
 				if (bean != null) {
-					ArrayList<Action<String, String>> exits = new ArrayList<Action<String, String>>();
-					exits.add(bean);
+					ArrayList<Function<StateContext<String, String>, Mono<Void>>> exits = new ArrayList<>();
+					exits.add(Actions.from(bean));
 					stateData.setExitActions(exits);
 				}
 			} else {
@@ -506,8 +516,8 @@ public class UmlModelParser {
 				if (StringUtils.hasText(expression)) {
 					SpelExpressionParser parser = new SpelExpressionParser(
 							new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
-					ArrayList<Action<String, String>> exits = new ArrayList<Action<String, String>>();
-					exits.add(new SpelExpressionAction<String, String>(parser.parseExpression(expression)));
+					ArrayList<Function<StateContext<String, String>, Mono<Void>>> exits = new ArrayList<>();
+					exits.add(Actions.from(new SpelExpressionAction<String, String>(parser.parseExpression(expression))));
 					stateData.setExitActions(exits);
 				}
 			}
@@ -517,8 +527,8 @@ public class UmlModelParser {
 			if (StringUtils.hasText(beanId)) {
 				Action<String, String> bean = resolver.resolveAction(beanId);
 				if (bean != null) {
-					ArrayList<Action<String, String>> stateActions = new ArrayList<Action<String, String>>();
-					stateActions.add(bean);
+					ArrayList<Function<StateContext<String, String>, Mono<Void>>> stateActions = new ArrayList<>();
+					stateActions.add(Actions.from(bean));
 					stateData.setStateActions(stateActions);
 				}
 			} else {
@@ -526,8 +536,8 @@ public class UmlModelParser {
 				if (StringUtils.hasText(expression)) {
 					SpelExpressionParser parser = new SpelExpressionParser(
 							new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
-					ArrayList<Action<String, String>> stateActions = new ArrayList<Action<String, String>>();
-					stateActions.add(new SpelExpressionAction<String, String>(parser.parseExpression(expression)));
+					ArrayList<Function<StateContext<String, String>, Mono<Void>>> stateActions = new ArrayList<>();
+					stateActions.add(Actions.from(new SpelExpressionAction<String, String>(parser.parseExpression(expression))));
 					stateData.setStateActions(stateActions);
 				}
 			}
@@ -536,8 +546,8 @@ public class UmlModelParser {
 			String beanId = ((Activity)state.getEntry()).getName();
 			Action<String, String> bean = resolver.resolveAction(beanId);
 			if (bean != null) {
-				ArrayList<Action<String, String>> entrys = new ArrayList<Action<String, String>>();
-				entrys.add(bean);
+				ArrayList<Function<StateContext<String, String>, Mono<Void>>> entrys = new ArrayList<>();
+				entrys.add(Actions.from(bean));
 				stateData.setEntryActions(entrys);
 			}
 		}
@@ -545,8 +555,8 @@ public class UmlModelParser {
 			String beanId = ((Activity)state.getExit()).getName();
 			Action<String, String> bean = resolver.resolveAction(beanId);
 			if (bean != null) {
-				ArrayList<Action<String, String>> exits = new ArrayList<Action<String, String>>();
-				exits.add(bean);
+				ArrayList<Function<StateContext<String, String>, Mono<Void>>> exits = new ArrayList<>();
+				exits.add(Actions.from(bean));
 				stateData.setExitActions(exits);
 			}
 		}
@@ -554,8 +564,8 @@ public class UmlModelParser {
 			String beanId = ((Activity)state.getDoActivity()).getName();
 			Action<String, String> bean = resolver.resolveAction(beanId);
 			if (bean != null) {
-				ArrayList<Action<String, String>> stateActions = new ArrayList<Action<String, String>>();
-				stateActions.add(bean);
+				ArrayList<Function<StateContext<String, String>, Mono<Void>>> stateActions = new ArrayList<>();
+				stateActions.add(Actions.from(bean));
 				stateData.setStateActions(stateActions);
 			}
 		}

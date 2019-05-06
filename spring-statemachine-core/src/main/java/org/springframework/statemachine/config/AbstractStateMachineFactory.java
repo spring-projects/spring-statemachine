@@ -27,6 +27,7 @@ import java.util.Stack;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,6 +43,7 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.action.Actions;
 import org.springframework.statemachine.config.model.ChoiceData;
 import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.EntryData;
@@ -96,6 +98,8 @@ import org.springframework.statemachine.trigger.EventTrigger;
 import org.springframework.statemachine.trigger.TimerTrigger;
 import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.util.ObjectUtils;
+
+import reactor.core.publisher.Mono;
 
 /**
  * Base {@link StateMachineFactory} implementation building {@link StateMachine}s.
@@ -938,7 +942,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			}
 		}
 
-		Transition<S, E> initialTransition = new InitialTransition<S, E>(initialState, initialAction);
+		Transition<S, E> initialTransition = new InitialTransition<S, E>(initialState, Actions.from(initialAction));
 		StateMachine<S, E> machine = buildStateMachineInternal(states, transitions, initialState, initialTransition,
 				null, defaultExtendedState, historyState, contextEvents, beanFactory, taskExecutor, taskScheduler,
 				beanName, machineId != null ? machineId : stateMachineModel.getConfigurationData().getMachineId(), uuid, stateMachineModel);
@@ -952,8 +956,10 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			StateMachineModel<S, E> stateMachineModel);
 
 	protected abstract State<S, E> buildStateInternal(S id, Collection<E> deferred,
-			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
-			Collection<? extends Action<S, E>> stateActions, PseudoState<S, E> pseudoState, StateMachineModel<S, E> stateMachineModel);
+			Collection<Function<StateContext<S, E>, Mono<Void>>> entryActions,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> exitActions,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> stateActions, PseudoState<S, E> pseudoState,
+			StateMachineModel<S, E> stateMachineModel);
 
 	private Iterator<Node<StateData<S, E>>> buildStateDataIterator(StateMachineModel<S, E> stateMachineModel) {
 		Tree<StateData<S, E>> tree = new Tree<StateData<S, E>>();
@@ -977,9 +983,10 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		}
 	}
 
-	protected abstract RegionState<S, E> buildRegionStateInternal(S id, Collection<Region<S, E>> regions, Collection<E> deferred,
-			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
-			PseudoState<S, E> pseudoState, StateMachineModel<S, E> stateMachineModel);
+	protected abstract RegionState<S, E> buildRegionStateInternal(S id, Collection<Region<S, E>> regions,
+			Collection<E> deferred, Collection<Function<StateContext<S, E>, Mono<Void>>> entryActions,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> exitActions, PseudoState<S, E> pseudoState,
+			StateMachineModel<S, E> stateMachineModel);
 
 	/**
 	 * Simple utility listener waiting machine to get started if

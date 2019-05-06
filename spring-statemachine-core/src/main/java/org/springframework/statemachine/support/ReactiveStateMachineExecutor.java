@@ -352,6 +352,7 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 						for (Transition<S, E> tt : joinSyncTransitions) {
 							StateContext<S, E> stateContext = buildStateContext(queuedMessage, tt, relayStateMachine);
 							tt.transit(stateContext);
+							// TODO: REACTOR damn, this is not chained! we tests didn't fail?
 							stateMachineExecutorTransit.transit(tt, stateContext, queuedMessage).block();
 						}
 						joinSyncTransitions.clear();
@@ -382,12 +383,16 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 				}
 				if (transit) {
 					// if executor transit is raising exception, stop here
-					try {
-						mono = stateMachineExecutorTransit.transit(t, stateContext, queuedMessage).then(Mono.just(true));
-					} catch (Exception e) {
-						interceptors.postTransition(stateContext);
-					}
-					interceptors.postTransition(stateContext);
+					final StateContext<S, E> st = stateContext;
+					mono = stateMachineExecutorTransit.transit(t, stateContext, queuedMessage)
+						.thenReturn(true)
+						.doOnNext(a -> {
+							interceptors.postTransition(st);
+						})
+						.onErrorResume(e -> {
+							interceptors.postTransition(st);
+							return Mono.just(false);
+						});
 					break;
 				}
 			}

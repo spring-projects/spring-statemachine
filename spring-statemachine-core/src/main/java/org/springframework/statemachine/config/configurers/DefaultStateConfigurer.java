@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.action.Actions;
@@ -33,6 +36,8 @@ import org.springframework.statemachine.config.common.annotation.AnnotationConfi
 import org.springframework.statemachine.config.model.StateData;
 import org.springframework.statemachine.config.model.StatesData;
 import org.springframework.statemachine.state.PseudoStateKind;
+
+import reactor.core.publisher.Mono;
 
 /**
  * Default implementation of a {@link StateConfigurer}.
@@ -310,9 +315,24 @@ public class DefaultStateConfigurer<S, E>
 	private void addIncomplete(Object parent, S state, Collection<E> deferred,
 			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
 			Collection<? extends Action<S, E>> stateActions) {
+		Collection<Function<StateContext<S, E>, Mono<Void>>> rEntryActions = null;
+		Collection<Function<StateContext<S, E>, Mono<Void>>> rExitActions = null;
+		Collection<Function<StateContext<S, E>, Mono<Void>>> rStateActions = null;
+		if (entryActions != null) {
+			rEntryActions = new ArrayList<>();
+			rEntryActions.addAll(entryActions.stream().map(a -> Actions.from(a)).collect(Collectors.toList()));
+		}
+		if (exitActions != null) {
+			rExitActions = new ArrayList<>();
+			rExitActions.addAll(exitActions.stream().map(a -> Actions.from(a)).collect(Collectors.toList()));
+		}
+		if (stateActions != null) {
+			rStateActions = new ArrayList<>();
+			rStateActions.addAll(stateActions.stream().map(a -> Actions.from(a)).collect(Collectors.toList()));
+		}
 		StateData<S, E> stateData = incomplete.get(state);
 		if (stateData == null) {
-			stateData = new StateData<S, E>(parent, region, state, deferred, entryActions, exitActions);
+			stateData = new StateData<S, E>(parent, region, state, deferred, rEntryActions, rExitActions);
 			incomplete.put(state, stateData);
 		}
 		if (stateData.getParent() == null) {
@@ -325,13 +345,13 @@ public class DefaultStateConfigurer<S, E>
 			stateData.setDeferred(deferred);
 		}
 		if (stateData.getEntryActions() == null) {
-			stateData.setEntryActions(entryActions);
+			stateData.setEntryActions(rEntryActions);
 		}
 		if (stateData.getExitActions() == null) {
-			stateData.setExitActions(exitActions);
+			stateData.setExitActions(rExitActions);
 		}
 		if (stateData.getStateActions() == null) {
-			stateData.setStateActions(stateActions);
+			stateData.setStateActions(rStateActions);
 		}
 	}
 

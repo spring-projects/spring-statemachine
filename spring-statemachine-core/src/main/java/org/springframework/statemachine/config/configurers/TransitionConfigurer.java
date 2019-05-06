@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,17 @@
  */
 package org.springframework.statemachine.config.configurers;
 
+import java.util.function.Function;
+
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerBuilder;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule.ComparisonType;
 import org.springframework.statemachine.transition.Transition;
+
+import reactor.core.publisher.Mono;
 
 /**
  * Base {@code TransitionConfigurer} interface for configuring {@link Transition}s.
@@ -93,6 +98,14 @@ public interface TransitionConfigurer<T, S, E> extends
 	T action(Action<S, E> action, Action<S, E> error);
 
 	/**
+	 * Specify {@link Function} for this {@link Transition}.
+	 *
+	 * @param action the function action
+	 * @return configurer for chaining
+	 */
+	T actionFunction(Function<StateContext<S, E>, Mono<Void>> action);
+
+	/**
 	 * Specify a {@link Guard} for this {@link Transition}.
 	 *
 	 * @param guard the guard
@@ -107,7 +120,6 @@ public interface TransitionConfigurer<T, S, E> extends
 	 * @return configurer for chaining
 	 */
 	T guardExpression(String expression);
-
 
 	/**
 	 * Specify a security attributes for this {@link Transition}.

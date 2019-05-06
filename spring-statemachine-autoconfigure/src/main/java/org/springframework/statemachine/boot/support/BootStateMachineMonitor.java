@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,10 @@ package org.springframework.statemachine.boot.support;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.boot.actuate.StateMachineTraceRepository;
 import org.springframework.statemachine.monitor.AbstractStateMachineMonitor;
 import org.springframework.statemachine.monitor.StateMachineMonitor;
@@ -31,6 +32,7 @@ import org.springframework.util.ObjectUtils;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import reactor.core.publisher.Mono;
 
 /**
  * Implementation of a {@link StateMachineMonitor} which converts monitoring
@@ -71,8 +73,8 @@ public class BootStateMachineMonitor<S, E> extends AbstractStateMachineMonitor<S
 	}
 
 	@Override
-	public void action(StateMachine<S, E> stateMachine, Action<S, E> action, long duration) {
-		String actionName = actionToName(action);
+	public void action(StateMachine<S, E> stateMachine, Function<StateContext<S, E>, Mono<Void>> action, long duration) {
+		String actionName = actionFunctionToName(action);
 		getActionCounterBuilder(action).register(meterRegistry).increment();
 		getActionTimerBuilder(action).register(meterRegistry).record(duration, TimeUnit.MILLISECONDS);
 		Map<String, Object> traceInfo = new HashMap<>();
@@ -99,7 +101,7 @@ public class BootStateMachineMonitor<S, E> extends AbstractStateMachineMonitor<S
 		return builder;
 	}
 
-	private Counter.Builder getActionCounterBuilder(Action<S, E> action) {
+	private Counter.Builder getActionCounterBuilder(Function<StateContext<S, E>, Mono<Void>> action) {
 		String actionName = actionToName(action);
 		Counter.Builder builder = Counter.builder("ssm.action.execute")
 				.tags("actionName", actionName)
@@ -107,7 +109,7 @@ public class BootStateMachineMonitor<S, E> extends AbstractStateMachineMonitor<S
 		return builder;
 	}
 
-	private Timer.Builder getActionTimerBuilder(Action<S, E> action) {
+	private Timer.Builder getActionTimerBuilder(Function<StateContext<S, E>, Mono<Void>> action) {
 		String actionName = actionToName(action);
 		Timer.Builder builder = Timer.builder("ssm.action.duration")
 				.tags("actionName", actionName)
@@ -132,7 +134,11 @@ public class BootStateMachineMonitor<S, E> extends AbstractStateMachineMonitor<S
 		return buf.toString();
 	}
 
-	private static <S, E> String actionToName(Action<S, E> action) {
+	private static <S, E> String actionToName(Function<StateContext<S, E>, Mono<Void>> action) {
+		return ObjectUtils.getDisplayString(action);
+	}
+
+	private static <S, E> String actionFunctionToName(Function<StateContext<S, E>, Mono<Void>> action) {
 		return ObjectUtils.getDisplayString(action);
 	}
 

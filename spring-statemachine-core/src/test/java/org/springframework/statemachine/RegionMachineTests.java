@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import org.junit.Test;
 import org.springframework.beans.factory.BeanFactory;
@@ -35,7 +36,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.action.Actions;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
@@ -55,6 +56,8 @@ import org.springframework.statemachine.transition.InitialTransition;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.trigger.EventTrigger;
 
+import reactor.core.publisher.Mono;
+
 /**
  * Statemachine tests using regions.
  *
@@ -73,10 +76,10 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 		PseudoState<TestStates,TestEvents> pseudoState = new DefaultPseudoState<TestStates,TestEvents>(PseudoStateKind.INITIAL);
 		TestEntryAction entryActionS1 = new TestEntryAction("S1");
 		TestExitAction exitActionS1 = new TestExitAction("S1");
-		Collection<Action<TestStates, TestEvents>> entryActionsS1 = new ArrayList<Action<TestStates, TestEvents>>();
-		entryActionsS1.add(entryActionS1);
-		Collection<Action<TestStates, TestEvents>> exitActionsS1 = new ArrayList<Action<TestStates, TestEvents>>();
-		exitActionsS1.add(exitActionS1);
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> entryActionsS1 = new ArrayList<>();
+		entryActionsS1.add(Actions.from(entryActionS1));
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> exitActionsS1 = new ArrayList<>();
+		exitActionsS1.add(Actions.from(exitActionS1));
 
 
 		State<TestStates,TestEvents> stateSI = new EnumState<TestStates,TestEvents>(TestStates.SI, pseudoState);
@@ -143,26 +146,26 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 
 		TestEntryAction entryActionS111 = new TestEntryAction("S111");
 		TestExitAction exitActionS111 = new TestExitAction("S111");
-		Collection<Action<TestStates, TestEvents>> entryActionsS111 = new ArrayList<Action<TestStates, TestEvents>>();
-		entryActionsS111.add(entryActionS111);
-		Collection<Action<TestStates, TestEvents>> exitActionsS111 = new ArrayList<Action<TestStates, TestEvents>>();
-		exitActionsS111.add(exitActionS111);
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> entryActionsS111 = new ArrayList<>();
+		entryActionsS111.add(Actions.from(entryActionS111));
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> exitActionsS111 = new ArrayList<>();
+		exitActionsS111.add(Actions.from(exitActionS111));
 		State<TestStates,TestEvents> stateS111 = new EnumState<TestStates,TestEvents>(TestStates.S111, null, entryActionsS111, exitActionsS111, pseudoState);
 
 		TestEntryAction entryActionS112 = new TestEntryAction("S112");
 		TestExitAction exitActionS112 = new TestExitAction("S112");
-		Collection<Action<TestStates, TestEvents>> entryActionsS112 = new ArrayList<Action<TestStates, TestEvents>>();
-		entryActionsS112.add(entryActionS112);
-		Collection<Action<TestStates, TestEvents>> exitActionsS112 = new ArrayList<Action<TestStates, TestEvents>>();
-		exitActionsS112.add(exitActionS112);
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> entryActionsS112 = new ArrayList<>();
+		entryActionsS112.add(Actions.from(entryActionS112));
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> exitActionsS112 = new ArrayList<>();
+		exitActionsS112.add(Actions.from(exitActionS112));
 		State<TestStates,TestEvents> stateS112 = new EnumState<TestStates,TestEvents>(TestStates.S112, null, entryActionsS112, exitActionsS112);
 
 		TestEntryAction entryActionS121 = new TestEntryAction("S121");
 		TestExitAction exitActionS121 = new TestExitAction("S121");
-		Collection<Action<TestStates, TestEvents>> entryActionsS121 = new ArrayList<Action<TestStates, TestEvents>>();
-		entryActionsS111.add(entryActionS121);
-		Collection<Action<TestStates, TestEvents>> exitActionsS121 = new ArrayList<Action<TestStates, TestEvents>>();
-		exitActionsS111.add(exitActionS121);
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> entryActionsS121 = new ArrayList<>();
+		entryActionsS111.add(Actions.from(entryActionS121));
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> exitActionsS121 = new ArrayList<>();
+		exitActionsS111.add(Actions.from(exitActionS121));
 		State<TestStates,TestEvents> stateS121 = new EnumState<TestStates,TestEvents>(TestStates.S121, null, entryActionsS121, exitActionsS121, pseudoState);
 
 		Collection<State<TestStates,TestEvents>> states11 = new ArrayList<State<TestStates,TestEvents>>();

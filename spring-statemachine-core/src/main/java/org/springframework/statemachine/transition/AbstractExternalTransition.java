@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,16 @@
  */
 package org.springframework.statemachine.transition;
 
-import org.springframework.statemachine.action.Action;
+import java.util.Collection;
+import java.util.function.Function;
+
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.trigger.Trigger;
 
-import java.util.Collection;
+import reactor.core.publisher.Mono;
 
 public abstract class AbstractExternalTransition<S, E> extends AbstractTransition<S, E> implements Transition<S, E> {
 
@@ -36,8 +39,9 @@ public abstract class AbstractExternalTransition<S, E> extends AbstractTransitio
 	 * @param trigger the trigger
 	 * @param securityRule the security rule
 	 */
-	public AbstractExternalTransition(State<S, E> source, State<S, E> target, Collection<Action<S, E>> actions,
-			E event, Guard<S, E> guard, Trigger<S, E> trigger, SecurityRule securityRule) {
+	public AbstractExternalTransition(State<S, E> source, State<S, E> target,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> actions, E event, Guard<S, E> guard,
+			Trigger<S, E> trigger, SecurityRule securityRule) {
 		super(source, target, actions, event, TransitionKind.EXTERNAL, guard, trigger, securityRule);
 	}
 
@@ -51,8 +55,9 @@ public abstract class AbstractExternalTransition<S, E> extends AbstractTransitio
 	 * @param guard the guard
 	 * @param trigger the trigger
 	 */
-	public AbstractExternalTransition(State<S, E> source, State<S, E> target, Collection<Action<S, E>> actions,
-			E event, Guard<S, E> guard, Trigger<S, E> trigger) {
+	public AbstractExternalTransition(State<S, E> source, State<S, E> target,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> actions, E event, Guard<S, E> guard,
+			Trigger<S, E> trigger) {
 		super(source, target, actions, event, TransitionKind.EXTERNAL, guard, trigger);
 	}
 }

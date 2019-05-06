@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,15 @@
  */
 package org.springframework.statemachine.config.model;
 
-import org.springframework.statemachine.action.Action;
+import java.util.Collection;
+import java.util.function.Function;
+
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.transition.TransitionKind;
 
-import java.util.Collection;
+import reactor.core.publisher.Mono;
 
 /**
  * A simple data object keeping transition related configs in a same place.
@@ -35,7 +38,7 @@ public class TransitionData<S, E> {
 	private final E event;
 	private final Long period;
 	private final Integer count;
-	private final Collection<Action<S, E>> actions;
+	private final Collection<Function<StateContext<S, E>, Mono<Void>>> actions;
 	private final Guard<S, E> guard;
 	private final TransitionKind kind;
 	private final SecurityRule securityRule;
@@ -61,7 +64,7 @@ public class TransitionData<S, E> {
 	 * @param guard the guard
 	 * @param kind the kind
 	 */
-	public TransitionData(S source, S target, E event, Collection<Action<S, E>> actions,
+	public TransitionData(S source, S target, E event, Collection<Function<StateContext<S, E>, Mono<Void>>> actions,
 			Guard<S, E> guard, TransitionKind kind) {
 		this(source, target, null, event, null, null, actions, guard, kind, null);
 	}
@@ -77,8 +80,8 @@ public class TransitionData<S, E> {
 	 * @param guard the guard
 	 * @param kind the kind
 	 */
-	public TransitionData(S source, S target, Long period, Integer count, Collection<Action<S, E>> actions,
-			Guard<S, E> guard, TransitionKind kind) {
+	public TransitionData(S source, S target, Long period, Integer count,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> actions, Guard<S, E> guard, TransitionKind kind) {
 		this(source, target, null, null, period, count, actions, guard, kind, null);
 	}
 
@@ -96,8 +99,9 @@ public class TransitionData<S, E> {
 	 * @param kind the kind
 	 * @param securityRule the security rule
 	 */
-	public TransitionData(S source, S target, S state, E event, Long period, Integer count, Collection<Action<S, E>> actions,
-			Guard<S, E> guard, TransitionKind kind, SecurityRule securityRule) {
+	public TransitionData(S source, S target, S state, E event, Long period, Integer count,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> actions, Guard<S, E> guard, TransitionKind kind,
+			SecurityRule securityRule) {
 		this.source = source;
 		this.target = target;
 		this.state = state;
@@ -169,7 +173,7 @@ public class TransitionData<S, E> {
 	 *
 	 * @return the actions
 	 */
-	public Collection<Action<S, E>> getActions() {
+	public Collection<Function<StateContext<S, E>, Mono<Void>>> getActions() {
 		return actions;
 	}
 

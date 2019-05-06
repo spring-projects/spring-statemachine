@@ -17,11 +17,11 @@ package org.springframework.statemachine.state;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Function;
 
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachineEventResult;
-import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.region.RegionExecutionPolicy;
 import org.springframework.statemachine.support.StateMachineUtils;
@@ -85,7 +85,8 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 	 * @param pseudoState the pseudo state
 	 */
 	public RegionState(S id, Collection<Region<S, E>> regions, Collection<E> deferred,
-			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions, PseudoState<S, E> pseudoState) {
+			Collection<Function<StateContext<S, E>, Mono<Void>>> entryActions,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> exitActions, PseudoState<S, E> pseudoState) {
 		super(id, deferred, entryActions, exitActions, pseudoState, regions);
 	}
 
@@ -99,7 +100,8 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 	 * @param exitActions the exit actions
 	 */
 	public RegionState(S id, Collection<Region<S, E>> regions, Collection<E> deferred,
-			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions) {
+			Collection<Function<StateContext<S, E>, Mono<Void>>> entryActions,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> exitActions) {
 		super(id, deferred, entryActions, exitActions, null, regions);
 	}
 
@@ -137,15 +139,14 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 
 	@Override
 	public Mono<Void> exit(StateContext<S, E> context) {
-		return super.exit(context).and(Mono.defer(() -> {
-			return Flux.fromIterable(getRegions())
-				.flatMap(r -> r.stopReactively())
-				.then(Flux.fromIterable(getExitActions())
-					.doOnNext(ea -> {
-						executeAction(ea, context);
-					})
-				.then());
-		}));
+		Mono<Void> actions = Flux.fromIterable(getExitActions())
+			.flatMap(a -> executeAction(a, context))
+			.then();
+		Mono<Void> regionsThenActions = Flux.fromIterable(getRegions())
+			.flatMap(r -> r.stopReactively())
+			.then(actions);
+		return super.exit(context)
+			.then(regionsThenActions);
 	}
 
 	private Mono<Void> startOrEntry(StateContext<S, E> context) {
@@ -175,12 +176,12 @@ public class RegionState<S, E> extends AbstractState<S, E> {
 
 	@Override
 	public Mono<Void> entry(StateContext<S, E> context) {
+		Mono<Void> actions = Flux.fromIterable(getEntryActions())
+			.flatMap(a -> executeAction(a, context))
+			.then();
 		return super.entry(context)
-			.and(Flux.fromIterable(getEntryActions())
-			.doOnNext(ea -> {
-				executeAction(ea, context);
-			})
-			.then(startOrEntry(context)));
+			.and(actions)
+			.then(startOrEntry(context));
 	}
 
 	@Override
