@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,16 @@
 package org.springframework.statemachine.config.model;
 
 import java.util.Collection;
+import java.util.function.Function;
 
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.State;
+
+import reactor.core.publisher.Mono;
 
 /**
  * {@code StateData} is a data representation of a {@link State} used as an
@@ -42,9 +46,9 @@ public class StateData<S, E> {
 	private StateMachine<S, E> submachine;
 	private StateMachineFactory<S, E> submachineFactory;
 	private Collection<E> deferred;
-	private Collection<? extends Action<S, E>> entryActions;
-	private Collection<? extends Action<S, E>> exitActions;
-	private Collection<? extends Action<S, E>> stateActions;
+	private Collection<Function<StateContext<S, E>, Mono<Void>>> entryActions;
+	private Collection<Function<StateContext<S, E>, Mono<Void>>> exitActions;
+	private Collection<Function<StateContext<S, E>, Mono<Void>>> stateActions;
 	private boolean initial = false;
 	private Action<S, E> initialAction;
 	private boolean end = false;
@@ -92,7 +96,8 @@ public class StateData<S, E> {
 	 * @param exitActions the exit actions
 	 */
 	public StateData(Object parent, Object region, S state, Collection<E> deferred,
-			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions) {
+			Collection<Function<StateContext<S, E>, Mono<Void>>> entryActions,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> exitActions) {
 		this(parent, region, state, deferred, entryActions, exitActions, false);
 	}
 
@@ -108,7 +113,8 @@ public class StateData<S, E> {
 	 * @param initial the initial
 	 */
 	public StateData(Object parent, Object region, S state, Collection<E> deferred,
-			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions, boolean initial) {
+			Collection<Function<StateContext<S, E>, Mono<Void>>> entryActions,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> exitActions, boolean initial) {
 		this(parent, region, state, deferred, entryActions, exitActions, initial, null);
 	}
 
@@ -125,7 +131,9 @@ public class StateData<S, E> {
 	 * @param initialAction the initial action
 	 */
 	public StateData(Object parent, Object region, S state, Collection<E> deferred,
-			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions, boolean initial, Action<S, E> initialAction) {
+			Collection<Function<StateContext<S, E>, Mono<Void>>> entryActions,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> exitActions, boolean initial,
+			Action<S, E> initialAction) {
 		this.state = state;
 		this.deferred = deferred;
 		this.entryActions = entryActions;
@@ -231,7 +239,7 @@ public class StateData<S, E> {
 	 *
 	 * @return the entry actions
 	 */
-	public Collection<? extends Action<S, E>> getEntryActions() {
+	public Collection<Function<StateContext<S, E>, Mono<Void>>> getEntryActions() {
 		return entryActions;
 	}
 
@@ -240,7 +248,7 @@ public class StateData<S, E> {
 	 *
 	 * @param entryActions the entry actions
 	 */
-	public void setEntryActions(Collection<? extends Action<S, E>> entryActions) {
+	public void setEntryActions(Collection<Function<StateContext<S, E>, Mono<Void>>> entryActions) {
 		this.entryActions = entryActions;
 	}
 
@@ -249,7 +257,7 @@ public class StateData<S, E> {
 	 *
 	 * @return the exit actions
 	 */
-	public Collection<? extends Action<S, E>> getExitActions() {
+	public Collection<Function<StateContext<S, E>, Mono<Void>>> getExitActions() {
 		return exitActions;
 	}
 
@@ -258,7 +266,7 @@ public class StateData<S, E> {
 	 *
 	 * @param exitActions the exit actions
 	 */
-	public void setExitActions(Collection<? extends Action<S, E>> exitActions) {
+	public void setExitActions(Collection<Function<StateContext<S, E>, Mono<Void>>> exitActions) {
 		this.exitActions = exitActions;
 	}
 
@@ -267,7 +275,7 @@ public class StateData<S, E> {
 	 *
 	 * @return the state actions
 	 */
-	public Collection<? extends Action<S, E>> getStateActions() {
+	public Collection<Function<StateContext<S, E>, Mono<Void>>> getStateActions() {
 		return stateActions;
 	}
 
@@ -276,7 +284,7 @@ public class StateData<S, E> {
 	 *
 	 * @param stateActions the state actions
 	 */
-	public void setStateActions(Collection<? extends Action<S, E>> stateActions) {
+	public void setStateActions(Collection<Function<StateContext<S, E>, Mono<Void>>> stateActions) {
 		this.stateActions = stateActions;
 	}
 

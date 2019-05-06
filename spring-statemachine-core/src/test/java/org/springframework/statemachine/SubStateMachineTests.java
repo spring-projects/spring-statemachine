@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import org.junit.Test;
 import org.springframework.beans.factory.BeanFactory;
@@ -34,6 +35,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.action.Actions;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
@@ -49,6 +51,8 @@ import org.springframework.statemachine.transition.DefaultExternalTransition;
 import org.springframework.statemachine.transition.DefaultLocalTransition;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.trigger.EventTrigger;
+
+import reactor.core.publisher.Mono;
 
 public class SubStateMachineTests extends AbstractStateMachineTests {
 
@@ -86,10 +90,10 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 
 		TestEntryAction entryActionS111 = new TestEntryAction("S111");
 		TestExitAction exitActionS111 = new TestExitAction("S111");
-		Collection<Action<TestStates, TestEvents>> entryActionsS111 = new ArrayList<Action<TestStates, TestEvents>>();
-		entryActionsS111.add(entryActionS111);
-		Collection<Action<TestStates, TestEvents>> exitActionsS111 = new ArrayList<Action<TestStates, TestEvents>>();
-		exitActionsS111.add(exitActionS111);
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> entryActionsS111 = new ArrayList<>();
+		entryActionsS111.add(Actions.from(entryActionS111));
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> exitActionsS111 = new ArrayList<>();
+		exitActionsS111.add(Actions.from(exitActionS111));
 		State<TestStates,TestEvents> stateS111 = new EnumState<TestStates,TestEvents>(TestStates.S111, null, entryActionsS111, exitActionsS111, pseudoState);
 
 		// submachine 11
@@ -101,10 +105,10 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		// submachine 1
 		TestEntryAction entryActionS11 = new TestEntryAction("S11");
 		TestExitAction exitActionS11 = new TestExitAction("S11");
-		Collection<Action<TestStates, TestEvents>> entryActionsS11 = new ArrayList<Action<TestStates, TestEvents>>();
-		entryActionsS11.add(entryActionS11);
-		Collection<Action<TestStates, TestEvents>> exitActionsS11 = new ArrayList<Action<TestStates, TestEvents>>();
-		exitActionsS11.add(exitActionS11);
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> entryActionsS11 = new ArrayList<>();
+		entryActionsS11.add(Actions.from(entryActionS11));
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> exitActionsS11 = new ArrayList<>();
+		exitActionsS11.add(Actions.from(exitActionS11));
 		StateMachineState<TestStates,TestEvents> stateS11 = new StateMachineState<TestStates,TestEvents>(TestStates.S11, submachine11, null, entryActionsS11, exitActionsS11, pseudoState);
 
 		Collection<State<TestStates,TestEvents>> substates11 = new ArrayList<State<TestStates,TestEvents>>();
@@ -115,10 +119,10 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		// machine
 		TestEntryAction entryActionS1 = new TestEntryAction("S1");
 		TestExitAction exitActionS1 = new TestExitAction("S1");
-		Collection<Action<TestStates, TestEvents>> entryActionsS1 = new ArrayList<Action<TestStates, TestEvents>>();
-		entryActionsS1.add(entryActionS1);
-		Collection<Action<TestStates, TestEvents>> exitActionsS1 = new ArrayList<Action<TestStates, TestEvents>>();
-		exitActionsS1.add(exitActionS1);
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> entryActionsS1 = new ArrayList<>();
+		entryActionsS1.add(Actions.from(entryActionS1));
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> exitActionsS1 = new ArrayList<>();
+		exitActionsS1.add(Actions.from(exitActionS1));
 
 		StateMachineState<TestStates,TestEvents> stateS1 = new StateMachineState<TestStates,TestEvents>(TestStates.S1, submachine1, null, entryActionsS1, exitActionsS1, pseudoState);
 		Collection<State<TestStates,TestEvents>> states = new ArrayList<State<TestStates,TestEvents>>();
@@ -187,18 +191,19 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 
 		TestEntryAction entryActionS111 = new TestEntryAction("S111");
 		TestExitAction exitActionS111 = new TestExitAction("S111");
-		Collection<Action<TestStates, TestEvents>> entryActionsS111 = new ArrayList<Action<TestStates, TestEvents>>();
-		entryActionsS111.add(entryActionS111);
-		Collection<Action<TestStates, TestEvents>> exitActionsS111 = new ArrayList<Action<TestStates, TestEvents>>();
-		exitActionsS111.add(exitActionS111);
+
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> entryActionsS111 = new ArrayList<>();
+		entryActionsS111.add(Actions.from(entryActionS111));
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> exitActionsS111 = new ArrayList<>();
+		exitActionsS111.add(Actions.from(exitActionS111));
 		State<TestStates,TestEvents> stateS111 = new EnumState<TestStates,TestEvents>(TestStates.S111, null, entryActionsS111, exitActionsS111, pseudoState);
 
 		TestEntryAction entryActionS112 = new TestEntryAction("S112");
 		TestExitAction exitActionS112 = new TestExitAction("S112");
-		Collection<Action<TestStates, TestEvents>> entryActionsS112 = new ArrayList<Action<TestStates, TestEvents>>();
-		entryActionsS112.add(entryActionS112);
-		Collection<Action<TestStates, TestEvents>> exitActionsS112 = new ArrayList<Action<TestStates, TestEvents>>();
-		exitActionsS112.add(exitActionS112);
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> entryActionsS112 = new ArrayList<>();
+		entryActionsS112.add(Actions.from(entryActionS112));
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> exitActionsS112 = new ArrayList<>();
+		exitActionsS112.add(Actions.from(exitActionS112));
 		State<TestStates,TestEvents> stateS112 = new EnumState<TestStates,TestEvents>(TestStates.S112, null, entryActionsS112, exitActionsS112, null);
 
 		// submachine 1
@@ -211,10 +216,10 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		// machine
 		TestEntryAction entryActionS1 = new TestEntryAction("S1");
 		TestExitAction exitActionS1 = new TestExitAction("S1");
-		Collection<Action<TestStates, TestEvents>> entryActionsS1 = new ArrayList<Action<TestStates, TestEvents>>();
-		entryActionsS1.add(entryActionS1);
-		Collection<Action<TestStates, TestEvents>> exitActionsS1 = new ArrayList<Action<TestStates, TestEvents>>();
-		exitActionsS1.add(exitActionS1);
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> entryActionsS1 = new ArrayList<>();
+		entryActionsS1.add(Actions.from(entryActionS1));
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> exitActionsS1 = new ArrayList<>();
+		exitActionsS1.add(Actions.from(exitActionS1));
 
 		StateMachineState<TestStates,TestEvents> stateS1 = new StateMachineState<TestStates,TestEvents>(TestStates.S1, submachine11, null, entryActionsS1, exitActionsS1, pseudoState);
 		Collection<State<TestStates,TestEvents>> states = new ArrayList<State<TestStates,TestEvents>>();
@@ -283,10 +288,10 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 
 		TestEntryAction entryActionS111 = new TestEntryAction("S111");
 		TestExitAction exitActionS111 = new TestExitAction("S111");
-		Collection<Action<TestStates, TestEvents>> entryActionsS111 = new ArrayList<Action<TestStates, TestEvents>>();
-		entryActionsS111.add(entryActionS111);
-		Collection<Action<TestStates, TestEvents>> exitActionsS111 = new ArrayList<Action<TestStates, TestEvents>>();
-		exitActionsS111.add(exitActionS111);
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> entryActionsS111 = new ArrayList<>();
+		entryActionsS111.add(Actions.from(entryActionS111));
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> exitActionsS111 = new ArrayList<>();
+		exitActionsS111.add(Actions.from(exitActionS111));
 		State<TestStates,TestEvents> stateS111 = new EnumState<TestStates,TestEvents>(TestStates.S111, null, entryActionsS111, exitActionsS111, pseudoState);
 
 		// submachine 11
@@ -298,10 +303,10 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		// submachine 1
 		TestEntryAction entryActionS11 = new TestEntryAction("S11");
 		TestExitAction exitActionS11 = new TestExitAction("S11");
-		Collection<Action<TestStates, TestEvents>> entryActionsS11 = new ArrayList<Action<TestStates, TestEvents>>();
-		entryActionsS11.add(entryActionS11);
-		Collection<Action<TestStates, TestEvents>> exitActionsS11 = new ArrayList<Action<TestStates, TestEvents>>();
-		exitActionsS11.add(exitActionS11);
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> entryActionsS11 = new ArrayList<>();
+		entryActionsS11.add(Actions.from(entryActionS11));
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> exitActionsS11 = new ArrayList<>();
+		exitActionsS11.add(Actions.from(exitActionS11));
 		StateMachineState<TestStates,TestEvents> stateS11 = new StateMachineState<TestStates,TestEvents>(TestStates.S11, submachine11, null, entryActionsS11, exitActionsS11, pseudoState);
 
 		Collection<State<TestStates,TestEvents>> substates11 = new ArrayList<State<TestStates,TestEvents>>();
@@ -312,10 +317,10 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		// machine
 		TestEntryAction entryActionS1 = new TestEntryAction("S1");
 		TestExitAction exitActionS1 = new TestExitAction("S1");
-		Collection<Action<TestStates, TestEvents>> entryActionsS1 = new ArrayList<Action<TestStates, TestEvents>>();
-		entryActionsS1.add(entryActionS1);
-		Collection<Action<TestStates, TestEvents>> exitActionsS1 = new ArrayList<Action<TestStates, TestEvents>>();
-		exitActionsS1.add(exitActionS1);
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> entryActionsS1 = new ArrayList<>();
+		entryActionsS1.add(Actions.from(entryActionS1));
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> exitActionsS1 = new ArrayList<>();
+		exitActionsS1.add(Actions.from(exitActionS1));
 
 		StateMachineState<TestStates,TestEvents> stateS1 = new StateMachineState<TestStates,TestEvents>(TestStates.S1, submachine1, null, entryActionsS1, exitActionsS1, pseudoState);
 		Collection<State<TestStates,TestEvents>> states = new ArrayList<State<TestStates,TestEvents>>();

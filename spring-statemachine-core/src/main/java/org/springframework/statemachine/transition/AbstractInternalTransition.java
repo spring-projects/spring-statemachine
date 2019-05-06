@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,15 @@
 package org.springframework.statemachine.transition;
 
 import java.util.Collection;
+import java.util.function.Function;
 
-import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.trigger.Trigger;
+
+import reactor.core.publisher.Mono;
 
 public class AbstractInternalTransition<S, E> extends AbstractTransition<S, E> implements Transition<S, E> {
 
@@ -34,8 +37,8 @@ public class AbstractInternalTransition<S, E> extends AbstractTransition<S, E> i
 	 * @param guard the guard
 	 * @param trigger the trigger
 	 */
-	public AbstractInternalTransition(State<S, E> source, Collection<Action<S, E>> actions, E event, Guard<S, E> guard,
-			Trigger<S, E> trigger) {
+	public AbstractInternalTransition(State<S, E> source, Collection<Function<StateContext<S, E>, Mono<Void>>> actions,
+			E event, Guard<S, E> guard, Trigger<S, E> trigger) {
 		super(source, source, actions, event, TransitionKind.INTERNAL, guard, trigger);
 	}
 
@@ -49,8 +52,8 @@ public class AbstractInternalTransition<S, E> extends AbstractTransition<S, E> i
 	 * @param trigger the trigger
 	 * @param securityRule the security rule
 	 */
-	public AbstractInternalTransition(State<S, E> source, Collection<Action<S, E>> actions, E event, Guard<S, E> guard,
-			Trigger<S, E> trigger, SecurityRule securityRule) {
+	public AbstractInternalTransition(State<S, E> source, Collection<Function<StateContext<S, E>, Mono<Void>>> actions,
+			E event, Guard<S, E> guard, Trigger<S, E> trigger, SecurityRule securityRule) {
 		super(source, source, actions, event, TransitionKind.INTERNAL, guard, trigger, securityRule);
 	}
 }

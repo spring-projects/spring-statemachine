@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Function;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,6 +30,7 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.action.Actions;
 import org.springframework.statemachine.state.DefaultPseudoState;
 import org.springframework.statemachine.state.EnumState;
 import org.springframework.statemachine.state.PseudoState;
@@ -38,6 +40,8 @@ import org.springframework.statemachine.transition.DefaultExternalTransition;
 import org.springframework.statemachine.transition.DefaultInternalTransition;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.trigger.EventTrigger;
+
+import reactor.core.publisher.Mono;
 
 public class EnumStateMachineTests extends AbstractStateMachineTests {
 
@@ -57,18 +61,18 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 
 		Collection<Transition<TestStates,TestEvents>> transitions = new ArrayList<Transition<TestStates,TestEvents>>();
 
-		Collection<Action<TestStates,TestEvents>> actionsFromSIToS1 = new ArrayList<Action<TestStates,TestEvents>>();
-		actionsFromSIToS1.add(new LoggingAction("actionsFromSIToS1"));
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> actionsFromSIToS1 = new ArrayList<>();
+		actionsFromSIToS1.add(Actions.from(new LoggingAction("actionsFromSIToS1")));
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromSIToS1 =
 				new DefaultExternalTransition<TestStates,TestEvents>(stateSI, stateS1, actionsFromSIToS1, TestEvents.E1, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E1));
 
-		Collection<Action<TestStates,TestEvents>> actionsFromS1ToS2 = new ArrayList<Action<TestStates,TestEvents>>();
-		actionsFromS1ToS2.add(new LoggingAction("actionsFromS1ToS2"));
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> actionsFromS1ToS2 = new ArrayList<>();
+		actionsFromS1ToS2.add(Actions.from(new LoggingAction("actionsFromS1ToS2")));
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromS1ToS2 =
 				new DefaultExternalTransition<TestStates,TestEvents>(stateS1, stateS2, actionsFromS1ToS2, TestEvents.E2, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E2));
 
-		Collection<Action<TestStates,TestEvents>> actionsFromS2ToS3 = new ArrayList<Action<TestStates,TestEvents>>();
-		actionsFromS1ToS2.add(new LoggingAction("actionsFromS2ToS3"));
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> actionsFromS2ToS3 = new ArrayList<>();
+		actionsFromS1ToS2.add(Actions.from(new LoggingAction("actionsFromS2ToS3")));
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromS2ToS3 =
 				new DefaultExternalTransition<TestStates,TestEvents>(stateS2, stateS3, actionsFromS2ToS3, TestEvents.E3, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E3));
 
@@ -131,18 +135,18 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 		// transitions
 		Collection<Transition<TestStates,TestEvents>> transitions = new ArrayList<Transition<TestStates,TestEvents>>();
 
-		Collection<Action<TestStates,TestEvents>> actionsFromSIToS1 = new ArrayList<Action<TestStates,TestEvents>>();
-		actionsFromSIToS1.add(new LoggingAction("actionsFromSIToS1"));
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> actionsFromSIToS1 = new ArrayList<>();
+		actionsFromSIToS1.add(Actions.from(new LoggingAction("actionsFromSIToS1")));
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromSIToS1 =
 				new DefaultExternalTransition<TestStates,TestEvents>(stateSI, stateS1, actionsFromSIToS1, TestEvents.E1, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E1));
 
-		Collection<Action<TestStates,TestEvents>> actionsFromS1ToS2 = new ArrayList<Action<TestStates,TestEvents>>();
-		actionsFromS1ToS2.add(new LoggingAction("actionsFromS1ToS2"));
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> actionsFromS1ToS2 = new ArrayList<>();
+		actionsFromS1ToS2.add(Actions.from(new LoggingAction("actionsFromS1ToS2")));
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromS1ToS2 =
 				new DefaultExternalTransition<TestStates,TestEvents>(stateS1, stateS2, actionsFromS1ToS2, TestEvents.E2, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E2));
 
-		Collection<Action<TestStates,TestEvents>> actionsFromS2ToS3 = new ArrayList<Action<TestStates,TestEvents>>();
-		actionsFromS1ToS2.add(new LoggingAction("actionsFromS2ToS3"));
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> actionsFromS2ToS3 = new ArrayList<>();
+		actionsFromS1ToS2.add(Actions.from(new LoggingAction("actionsFromS2ToS3")));
 		DefaultExternalTransition<TestStates,TestEvents> transitionFromS2ToS3 =
 				new DefaultExternalTransition<TestStates,TestEvents>(stateS2, stateS3, actionsFromS2ToS3, TestEvents.E3, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E3));
 
@@ -185,8 +189,8 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 		Collection<State<TestStates,TestEvents>> states = new ArrayList<State<TestStates,TestEvents>>();
 		states.add(stateSI);
 
-		Collection<Action<TestStates,TestEvents>> actionsInSI = new ArrayList<Action<TestStates,TestEvents>>();
-		actionsInSI.add(new LoggingAction("actionsInSI"));
+		Collection<Function<StateContext<TestStates, TestEvents>, Mono<Void>>> actionsInSI = new ArrayList<>();
+		actionsInSI.add(Actions.from(new LoggingAction("actionsInSI")));
 		DefaultInternalTransition<TestStates,TestEvents> transitionInternalSI =
 				new DefaultInternalTransition<TestStates,TestEvents>(stateSI, actionsInSI, TestEvents.E1, null, new EventTrigger<TestStates,TestEvents>(TestEvents.E1));
 

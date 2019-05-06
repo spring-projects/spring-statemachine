@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 
 import org.junit.Test;
 import org.springframework.expression.ExpressionParser;
@@ -36,7 +37,6 @@ import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineEventResult;
 import org.springframework.statemachine.access.StateMachineAccessor;
-import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.action.ActionListener;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.listener.StateMachineListener;
@@ -110,7 +110,8 @@ public class StateContextExpressionMethodsTests {
 		}
 
 		@Override
-		public void executeTransitionActions(StateContext<SpelStates, SpelEvents> context) {
+		public Mono<Void> executeTransitionActions(StateContext<SpelStates, SpelEvents> context) {
+			return null;
 		}
 
 		@Override
@@ -129,7 +130,7 @@ public class StateContextExpressionMethodsTests {
 		}
 
 		@Override
-		public Collection<Action<SpelStates, SpelEvents>> getActions() {
+		public Collection<Function<StateContext<SpelStates, SpelEvents>, Mono<Void>>> getActions() {
 			return null;
 		}
 

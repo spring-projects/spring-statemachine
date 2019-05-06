@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 
 import org.junit.Test;
 import org.springframework.beans.BeansException;
@@ -35,6 +36,7 @@ import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.TestUtils;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.action.Actions;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.ObjectStateMachineFactory;
@@ -44,6 +46,8 @@ import org.springframework.statemachine.config.builders.StateMachineConfiguratio
 import org.springframework.statemachine.config.builders.StateMachineModelConfigurer;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
+
+import reactor.core.publisher.Mono;
 
 public class StateMachineModelFactoryTests extends AbstractStateMachineTests {
 
@@ -280,8 +284,8 @@ public class StateMachineModelFactoryTests extends AbstractStateMachineTests {
 		public StateMachineModel<String, String> build() {
 
 			Action<String, String> action1 = beanFactory.getBean("action1", Action.class);
-			Collection<Action<String, String>> s2Actions = new ArrayList<>();
-			s2Actions.add(action1);
+			Collection<Function<StateContext<String, String>, Mono<Void>>> s2Actions = new ArrayList<>();
+			s2Actions.add(Actions.from(action1));
 
 			ConfigurationData<String, String> configurationData = new ConfigurationData<>();
 
@@ -320,8 +324,8 @@ public class StateMachineModelFactoryTests extends AbstractStateMachineTests {
 		public StateMachineModel<String, String> build() {
 
 			Action<String, String> action1 = beanFactory.getBean("action1", Action.class);
-			Collection<Action<String, String>> s2Actions = new ArrayList<>();
-			s2Actions.add(action1);
+			Collection<Function<StateContext<String, String>, Mono<Void>>> s2Actions = new ArrayList<>();
+			s2Actions.add(Actions.from(action1));
 
 			Collection<StateData<String, String>> stateData = new ArrayList<>();
 			stateData.add(new StateData<String, String>(state1, true));

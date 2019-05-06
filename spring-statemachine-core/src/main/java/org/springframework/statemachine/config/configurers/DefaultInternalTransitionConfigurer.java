@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,20 @@
  */
 package org.springframework.statemachine.config.configurers;
 
+import java.util.function.Function;
+
 import org.springframework.expression.spel.SpelCompilerMode;
 import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.builders.StateMachineTransitionBuilder;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.guard.SpelExpressionGuard;
 import org.springframework.statemachine.security.SecurityRule.ComparisonType;
 import org.springframework.statemachine.transition.TransitionKind;
+
+import reactor.core.publisher.Mono;
 
 /**
  * Default implementation of a {@link InternalTransitionConfigurer}.
@@ -81,6 +86,12 @@ public class DefaultInternalTransitionConfigurer<S, E> extends AbstractTransitio
 	@Override
 	public InternalTransitionConfigurer<S, E> action(Action<S, E> action, Action<S, E> error) {
 		addAction(action, error);
+		return this;
+	}
+
+	@Override
+	public InternalTransitionConfigurer<S, E> actionFunction(Function<StateContext<S, E>, Mono<Void>> action) {
+		addActionFunction(action);
 		return this;
 	}
 

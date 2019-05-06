@@ -63,116 +63,91 @@ public class StateContextTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S1, States.S11));
 		assertThat(listener.contexts, hasSize(19));
 
-		// TODO: REACTOR check and add removed asserts
-
 		assertThat(listener.contexts, contains(
 				hasStage(Stage.TRANSITION_START),
 				hasStage(Stage.EXTENDED_STATE_CHANGED),
 				hasStage(Stage.TRANSITION),
-				hasStage(Stage.TRANSITION_END),
 				hasStage(Stage.STATE_ENTRY),
 				hasStage(Stage.TRANSITION_START),
 				hasStage(Stage.TRANSITION),
-				hasStage(Stage.TRANSITION_END),
 				hasStage(Stage.STATE_ENTRY),
 				hasStage(Stage.TRANSITION_START),
 				hasStage(Stage.TRANSITION),
-				hasStage(Stage.TRANSITION_END),
 				hasStage(Stage.STATE_ENTRY),
 				hasStage(Stage.STATE_CHANGED),
 				hasStage(Stage.STATEMACHINE_START),
+				hasStage(Stage.TRANSITION_END),
 				hasStage(Stage.STATE_CHANGED),
 				hasStage(Stage.STATEMACHINE_START),
+				hasStage(Stage.TRANSITION_END),
 				hasStage(Stage.STATE_CHANGED),
-				hasStage(Stage.STATEMACHINE_START)
+				hasStage(Stage.STATEMACHINE_START),
+				hasStage(Stage.TRANSITION_END)
 		));
 
+		assertThat(listener.contexts.get(0).getStage(), is(Stage.TRANSITION_START));
+		assertThat(listener.contexts.get(0).getTransition(), notNullValue());
+		assertThat(listener.contexts.get(0).getTransition().getSource(), nullValue());
+		assertThat(listener.contexts.get(0).getTransition().getTarget(), notNullValue());
+		assertThat(listener.contexts.get(0).getTransition().getTarget().getId(), is(States.S0));
+		assertThat(listener.contexts.get(0).getSource(), nullValue());
+		assertThat(listener.contexts.get(0).getTarget(), notNullValue());
 
-//		assertThat(listener.contexts, contains(
-//				hasStage(Stage.TRANSITION_START),
-//				hasStage(Stage.EXTENDED_STATE_CHANGED),
-//				hasStage(Stage.TRANSITION),
-//				hasStage(Stage.STATE_ENTRY),
-//				hasStage(Stage.TRANSITION_START),
-//				hasStage(Stage.TRANSITION),
-//				hasStage(Stage.STATE_ENTRY),
-//				hasStage(Stage.TRANSITION_START),
-//				hasStage(Stage.TRANSITION),
-//				hasStage(Stage.STATE_ENTRY),
-//				hasStage(Stage.STATE_CHANGED),
-//				hasStage(Stage.STATEMACHINE_START),
-//				hasStage(Stage.TRANSITION_END),
-//				hasStage(Stage.STATE_CHANGED),
-//				hasStage(Stage.STATEMACHINE_START),
-//				hasStage(Stage.TRANSITION_END),
-//				hasStage(Stage.STATE_CHANGED),
-//				hasStage(Stage.STATEMACHINE_START),
-//				hasStage(Stage.TRANSITION_END)
-//		));
-//
-//		assertThat(listener.contexts.get(0).getStage(), is(Stage.TRANSITION_START));
-//		assertThat(listener.contexts.get(0).getTransition(), notNullValue());
-//		assertThat(listener.contexts.get(0).getTransition().getSource(), nullValue());
-//		assertThat(listener.contexts.get(0).getTransition().getTarget(), notNullValue());
-//		assertThat(listener.contexts.get(0).getTransition().getTarget().getId(), is(States.S0));
-//		assertThat(listener.contexts.get(0).getSource(), nullValue());
-//		assertThat(listener.contexts.get(0).getTarget(), notNullValue());
-//
-//		assertThat(listener.contexts.get(1).getStage(), is(Stage.EXTENDED_STATE_CHANGED));
-//
-//		assertThat(listener.contexts.get(2).getStage(), is(Stage.TRANSITION));
-//		assertThat(listener.contexts.get(2).getTransition(), notNullValue());
-//		assertThat(listener.contexts.get(2).getTransition().getSource(), nullValue());
-//		assertThat(listener.contexts.get(2).getTransition().getTarget(), notNullValue());
-//		assertThat(listener.contexts.get(2).getTransition().getTarget().getId(), is(States.S0));
-//		assertThat(listener.contexts.get(2).getSource(), nullValue());
-//		assertThat(listener.contexts.get(2).getTarget(), notNullValue());
-//
-//
-//		assertThat(listener.contexts.get(3).getStage(), is(Stage.STATE_ENTRY));
-//		assertThat(listener.contexts.get(3).getTarget(), notNullValue());
-//		assertThat(listener.contexts.get(3).getTarget().getId(), is(States.S0));
-//		assertThat(listener.contexts.get(3).getTransition(), notNullValue());
-//
-//		assertThat(listener.contexts.get(4).getStage(), is(Stage.TRANSITION_START));
-//
-//		assertThat(listener.contexts.get(5).getStage(), is(Stage.TRANSITION));
-//
-//		assertThat(listener.contexts.get(6).getStage(), is(Stage.STATE_ENTRY));
-//		assertThat(listener.contexts.get(6).getTarget(), notNullValue());
-//		assertThat(listener.contexts.get(6).getTarget().getId(), is(States.S1));
-//		assertThat(listener.contexts.get(6).getTransition(), notNullValue());
-//
-//		assertThat(listener.contexts.get(7).getStage(), is(Stage.TRANSITION_START));
-//
-//		assertThat(listener.contexts.get(8).getStage(), is(Stage.TRANSITION));
-//
-//		assertThat(listener.contexts.get(9).getStage(), is(Stage.STATE_ENTRY));
-//		assertThat(listener.contexts.get(9).getTarget(), notNullValue());
-//		assertThat(listener.contexts.get(9).getTarget().getId(), is(States.S11));
-//		assertThat(listener.contexts.get(9).getTransition(), notNullValue());
-//
-//		assertThat(listener.contexts.get(10).getStage(), is(Stage.STATE_CHANGED));
-//
-//		assertThat(listener.contexts.get(11).getStage(), is(Stage.STATEMACHINE_START));
-//		assertThat(listener.contexts.get(11).getTransition(), notNullValue());
-//
-//		assertThat(listener.contexts.get(12).getStage(), is(Stage.TRANSITION_END));
-//
-//		assertThat(listener.contexts.get(13).getStage(), is(Stage.STATE_CHANGED));
-//
-//		assertThat(listener.contexts.get(14).getStage(), is(Stage.STATEMACHINE_START));
-//		assertThat(listener.contexts.get(14).getTransition(), notNullValue());
-//
-//		assertThat(listener.contexts.get(15).getStage(), is(Stage.TRANSITION_END));
-//
-//		assertThat(listener.contexts.get(16).getStage(), is(Stage.STATE_CHANGED));
-//
-//		assertThat(listener.contexts.get(17).getStage(), is(Stage.STATEMACHINE_START));
-//		assertThat(listener.contexts.get(17).getTransition(), notNullValue());
-//
-//		assertThat(listener.contexts.get(18).getStage(), is(Stage.TRANSITION_END));
-//		assertThat(listener.contexts.get(18).getTransition(), notNullValue());
+		assertThat(listener.contexts.get(1).getStage(), is(Stage.EXTENDED_STATE_CHANGED));
+
+		assertThat(listener.contexts.get(2).getStage(), is(Stage.TRANSITION));
+		assertThat(listener.contexts.get(2).getTransition(), notNullValue());
+		assertThat(listener.contexts.get(2).getTransition().getSource(), nullValue());
+		assertThat(listener.contexts.get(2).getTransition().getTarget(), notNullValue());
+		assertThat(listener.contexts.get(2).getTransition().getTarget().getId(), is(States.S0));
+		assertThat(listener.contexts.get(2).getSource(), nullValue());
+		assertThat(listener.contexts.get(2).getTarget(), notNullValue());
+
+
+		assertThat(listener.contexts.get(3).getStage(), is(Stage.STATE_ENTRY));
+		assertThat(listener.contexts.get(3).getTarget(), notNullValue());
+		assertThat(listener.contexts.get(3).getTarget().getId(), is(States.S0));
+		assertThat(listener.contexts.get(3).getTransition(), notNullValue());
+
+		assertThat(listener.contexts.get(4).getStage(), is(Stage.TRANSITION_START));
+
+		assertThat(listener.contexts.get(5).getStage(), is(Stage.TRANSITION));
+
+		assertThat(listener.contexts.get(6).getStage(), is(Stage.STATE_ENTRY));
+		assertThat(listener.contexts.get(6).getTarget(), notNullValue());
+		assertThat(listener.contexts.get(6).getTarget().getId(), is(States.S1));
+		assertThat(listener.contexts.get(6).getTransition(), notNullValue());
+
+		assertThat(listener.contexts.get(7).getStage(), is(Stage.TRANSITION_START));
+
+		assertThat(listener.contexts.get(8).getStage(), is(Stage.TRANSITION));
+
+		assertThat(listener.contexts.get(9).getStage(), is(Stage.STATE_ENTRY));
+		assertThat(listener.contexts.get(9).getTarget(), notNullValue());
+		assertThat(listener.contexts.get(9).getTarget().getId(), is(States.S11));
+		assertThat(listener.contexts.get(9).getTransition(), notNullValue());
+
+		assertThat(listener.contexts.get(10).getStage(), is(Stage.STATE_CHANGED));
+
+		assertThat(listener.contexts.get(11).getStage(), is(Stage.STATEMACHINE_START));
+		assertThat(listener.contexts.get(11).getTransition(), notNullValue());
+
+		assertThat(listener.contexts.get(12).getStage(), is(Stage.TRANSITION_END));
+
+		assertThat(listener.contexts.get(13).getStage(), is(Stage.STATE_CHANGED));
+
+		assertThat(listener.contexts.get(14).getStage(), is(Stage.STATEMACHINE_START));
+		assertThat(listener.contexts.get(14).getTransition(), notNullValue());
+
+		assertThat(listener.contexts.get(15).getStage(), is(Stage.TRANSITION_END));
+
+		assertThat(listener.contexts.get(16).getStage(), is(Stage.STATE_CHANGED));
+
+		assertThat(listener.contexts.get(17).getStage(), is(Stage.STATEMACHINE_START));
+		assertThat(listener.contexts.get(17).getTransition(), notNullValue());
+
+		assertThat(listener.contexts.get(18).getStage(), is(Stage.TRANSITION_END));
+		assertThat(listener.contexts.get(18).getTransition(), notNullValue());
 	}
 
 	@SuppressWarnings("unchecked")

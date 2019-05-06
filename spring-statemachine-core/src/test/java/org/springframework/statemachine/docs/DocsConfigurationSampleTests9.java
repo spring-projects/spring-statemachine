@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,12 @@
  */
 package org.springframework.statemachine.docs;
 
+import java.util.function.Function;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
@@ -27,6 +29,8 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 import org.springframework.statemachine.monitor.AbstractStateMachineMonitor;
 import org.springframework.statemachine.monitor.StateMachineMonitor;
 import org.springframework.statemachine.transition.Transition;
+
+import reactor.core.publisher.Mono;
 
 public class DocsConfigurationSampleTests9 {
 
@@ -71,11 +75,13 @@ public class DocsConfigurationSampleTests9 {
 	public class TestStateMachineMonitor extends AbstractStateMachineMonitor<String, String> {
 
 		@Override
-		public void transition(StateMachine<String, String> stateMachine, Transition<String, String> transition, long duration) {
+		public void transition(StateMachine<String, String> stateMachine, Transition<String, String> transition,
+				long duration) {
 		}
 
 		@Override
-		public void action(StateMachine<String, String> stateMachine, Action<String, String> action, long duration) {
+		public void action(StateMachine<String, String> stateMachine,
+				Function<StateContext<String, String>, Mono<Void>> action, long duration) {
 		}
 	}
 // end::snippetB[]

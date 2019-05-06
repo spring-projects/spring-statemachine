@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,12 @@
 
 package org.springframework.statemachine.action;
 
+import java.util.function.Function;
+
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.support.DefaultStateContext;
+
+import reactor.core.publisher.Mono;
 
 /**
  * Action Utilities.
@@ -76,5 +80,21 @@ public final class Actions {
 				}
 			}
 		};
+	}
+
+	/**
+	 * Builds a {@link Function} from an {@link Action}.
+	 *
+	 * @param <S> the type of state
+	 * @param <E> the type of event
+	 * @param action the action
+	 * @return the function
+	 */
+	public static <S, E> Function<StateContext<S, E>, Mono<Void>> from(Action<S, E> action) {
+		if (action != null) {
+			return context -> Mono.fromRunnable(() -> action.execute(context));
+		} else {
+			return null;
+		}
 	}
 }

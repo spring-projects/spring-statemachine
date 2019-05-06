@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.springframework.expression.spel.SpelCompilerMode;
 import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.action.Actions;
 import org.springframework.statemachine.action.SpelExpressionAction;
 import org.springframework.statemachine.config.model.AbstractStateMachineModelFactory;
 import org.springframework.statemachine.config.model.ChoiceData;
@@ -46,6 +49,8 @@ import org.springframework.statemachine.guard.SpelExpressionGuard;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.transition.TransitionKind;
 import org.springframework.util.StringUtils;
+
+import reactor.core.publisher.Mono;
 
 /**
  * A generic {@link StateMachineModelFactory} which is backed by a Spring Data
@@ -89,7 +94,7 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 				subStateMachineModel = build(submachineId);
 			}
 
-			Collection<Action<String, String>> stateActions = new ArrayList<Action<String, String>>();
+			Collection<Function<StateContext<String, String>, Mono<Void>>> stateActions = new ArrayList<>();
 			Set<? extends RepositoryAction> repositoryStateActions = s.getStateActions();
 			if (repositoryStateActions != null) {
 				for (RepositoryAction repositoryAction : repositoryStateActions) {
@@ -103,12 +108,12 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 						action = new SpelExpressionAction<String, String>(parser.parseExpression(repositoryAction.getSpel()));
 					}
 					if (action != null) {
-						stateActions.add(action);
+						stateActions.add(Actions.from(action));
 					}
 				}
 			}
 
-			Collection<Action<String, String>> entryActions = new ArrayList<Action<String, String>>();
+			Collection<Function<StateContext<String, String>, Mono<Void>>> entryActions = new ArrayList<>();
 			Set<? extends RepositoryAction> repositoryEntryActions = s.getEntryActions();
 			if (repositoryEntryActions != null) {
 				for (RepositoryAction repositoryAction : repositoryEntryActions) {
@@ -122,12 +127,12 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 						action = new SpelExpressionAction<String, String>(parser.parseExpression(repositoryAction.getSpel()));
 					}
 					if (action != null) {
-						stateActions.add(action);
+						stateActions.add(Actions.from(action));
 					}
 				}
 			}
 
-			Collection<Action<String, String>> exitActions = new ArrayList<Action<String, String>>();
+			Collection<Function<StateContext<String, String>, Mono<Void>>> exitActions = new ArrayList<>();
 			Set<? extends RepositoryAction> repositoryExitActions = s.getExitActions();
 			if (repositoryExitActions != null) {
 				for (RepositoryAction repositoryAction : repositoryExitActions) {
@@ -141,7 +146,7 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 						action = new SpelExpressionAction<String, String>(parser.parseExpression(repositoryAction.getSpel()));
 					}
 					if (action != null) {
-						stateActions.add(action);
+						stateActions.add(Actions.from(action));
 					}
 				}
 			}
@@ -198,7 +203,7 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 
 		for (RepositoryTransition t : transitionRepository.findByMachineId(machineId == null ? "" : machineId)) {
 
-			Collection<Action<String, String>> actions = new ArrayList<Action<String, String>>();
+			Collection<Function<StateContext<String, String>, Mono<Void>>> actions = new ArrayList<>();
 			Set<? extends RepositoryAction> repositoryActions = t.getActions();
 			if (repositoryActions != null) {
 				for (RepositoryAction repositoryAction : repositoryActions) {
@@ -212,7 +217,7 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 						action = new SpelExpressionAction<String, String>(parser.parseExpression(repositoryAction.getSpel()));
 					}
 					if (action != null) {
-						actions.add(action);
+						actions.add(Actions.from(action));
 					}
 				}
 			}

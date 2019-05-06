@@ -17,6 +17,7 @@ package org.springframework.statemachine.support;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,7 +26,6 @@ import org.springframework.core.OrderComparator;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.event.StateMachineEventPublisher;
 import org.springframework.statemachine.listener.CompositeStateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListener;
@@ -34,6 +34,8 @@ import org.springframework.statemachine.processor.StateMachineHandlerCallHelper;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.util.Assert;
+
+import reactor.core.publisher.Mono;
 
 /**
  * Support and helper class for base state machine implementation.
@@ -328,7 +330,8 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 		}
 	}
 
-	protected void notifyActionMonitor(StateMachine<S, E> stateMachine, Action<S, E> action, long duration) {
+	protected void notifyActionMonitor(StateMachine<S, E> stateMachine, Function<StateContext<S, E>, Mono<Void>> action,
+			long duration) {
 		try {
 			stateMachineMonitor.action(stateMachine, action, duration);
 		} catch (Exception e) {
