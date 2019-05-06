@@ -20,6 +20,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -45,10 +46,9 @@ import reactor.core.publisher.Mono;
  */
 public class ReactiveActionTests extends AbstractStateMachineTests {
 
-
 	@SuppressWarnings({ "unchecked" })
 	@Test
-	public void testSimpleReactiveAction() {
+	public void testSimpleReactiveActions() throws Exception {
 		context.register(Config1.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
@@ -57,8 +57,19 @@ public class ReactiveActionTests extends AbstractStateMachineTests {
 		machine.start();
 
 		TestCountAction testAction1 = context.getBean("testAction1", TestCountAction.class);
+		TestCountAction testAction2 = context.getBean("testAction2", TestCountAction.class);
+		TestCountAction testAction3 = context.getBean("testAction3", TestCountAction.class);
+		TestCountAction testAction4 = context.getBean("testAction4", TestCountAction.class);
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
+		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E2).build());
+		assertThat(testAction1.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(testAction2.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(testAction3.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(testAction4.latch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(testAction1.count, is(1));
+		assertThat(testAction2.count, is(1));
+		assertThat(testAction3.count, is(1));
+		assertThat(testAction4.count, is(1));
 	}
 
 	@Configuration
@@ -70,7 +81,9 @@ public class ReactiveActionTests extends AbstractStateMachineTests {
 			states
 				.withStates()
 					.initial(TestStates.S1)
-					.state(TestStates.S2);
+					.stateExitFunction(TestStates.S2, testAction2())
+					.stateDoFunction(TestStates.S3, testAction3())
+					.stateEntryFunction(TestStates.S3, testAction4());
 		}
 
 		@Override
@@ -80,11 +93,31 @@ public class ReactiveActionTests extends AbstractStateMachineTests {
 					.source(TestStates.S1)
 					.target(TestStates.S2)
 					.event(TestEvents.E1)
-					.actionFunction(testAction1());
+					.actionFunction(testAction1())
+					.and()
+				.withExternal()
+					.source(TestStates.S2)
+					.target(TestStates.S3)
+					.event(TestEvents.E2);
 		}
 
 		@Bean
 		public TestCountAction testAction1() {
+			return new TestCountAction();
+		}
+
+		@Bean
+		public TestCountAction testAction2() {
+			return new TestCountAction();
+		}
+
+		@Bean
+		public TestCountAction testAction3() {
+			return new TestCountAction();
+		}
+
+		@Bean
+		public TestCountAction testAction4() {
 			return new TestCountAction();
 		}
 	}

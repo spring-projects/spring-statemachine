@@ -162,7 +162,11 @@ public class DefaultStateConfigurer<S, E>
 
 	@Override
 	public StateConfigurer<S, E> state(S state, Collection<? extends Action<S, E>> stateActions) {
-		addIncomplete(null, state, null, null, null, stateActions);
+		Collection<Function<StateContext<S, E>, Mono<Void>>> rStateActions = new ArrayList<>();
+		if (stateActions != null) {
+			rStateActions.addAll(stateActions.stream().map(a -> Actions.from(a)).collect(Collectors.toList()));
+		}
+		addIncomplete(null, state, null, null, null, rStateActions);
 		return this;
 	}
 
@@ -182,6 +186,30 @@ public class DefaultStateConfigurer<S, E>
 	}
 
 	@Override
+	public StateConfigurer<S, E> stateDoFunction(S state, Function<StateContext<S, E>, Mono<Void>> stateAction) {
+		Collection<Function<StateContext<S, E>, Mono<Void>>> stateActions = new ArrayList<>();
+		stateActions.add(stateAction);
+		addIncomplete(null, state, null, null, null, stateActions);
+		return this;
+	}
+
+	@Override
+	public StateConfigurer<S, E> stateEntryFunction(S state, Function<StateContext<S, E>, Mono<Void>> action) {
+		Collection<Function<StateContext<S, E>, Mono<Void>>> entryActions = new ArrayList<>();
+		entryActions.add(action);
+		addIncomplete(null, state, null, entryActions, null, null);
+		return this;
+	}
+
+	@Override
+	public StateConfigurer<S, E> stateExitFunction(S state, Function<StateContext<S, E>, Mono<Void>> action) {
+		Collection<Function<StateContext<S, E>, Mono<Void>>> exitActions = new ArrayList<>();
+		exitActions.add(action);
+		addIncomplete(null, state, null, null, exitActions, null);
+		return this;
+	}
+
+	@Override
 	public StateConfigurer<S, E> stateDo(S state, Action<S, E> action, Action<S, E> error) {
 		Collection<Action<S, E>> stateActions = null;
 		if (action != null) {
@@ -194,7 +222,17 @@ public class DefaultStateConfigurer<S, E>
 	@Override
 	public StateConfigurer<S, E> state(S state, Collection<? extends Action<S, E>> entryActions,
 			Collection<? extends Action<S, E>> exitActions) {
-		addIncomplete(null, state, null, entryActions, exitActions, null);
+		Collection<Function<StateContext<S, E>, Mono<Void>>> rEntryActions = null;
+		Collection<Function<StateContext<S, E>, Mono<Void>>> rExitActions = null;
+		if (entryActions != null) {
+			rEntryActions = new ArrayList<>();
+			rEntryActions.addAll(entryActions.stream().map(a -> Actions.from(a)).collect(Collectors.toList()));
+		}
+		if (exitActions != null) {
+			rExitActions = new ArrayList<>();
+			rExitActions.addAll(exitActions.stream().map(a -> Actions.from(a)).collect(Collectors.toList()));
+		}
+		addIncomplete(null, state, null, rEntryActions, rExitActions, null);
 		return this;
 	}
 
@@ -313,26 +351,12 @@ public class DefaultStateConfigurer<S, E>
 	}
 
 	private void addIncomplete(Object parent, S state, Collection<E> deferred,
-			Collection<? extends Action<S, E>> entryActions, Collection<? extends Action<S, E>> exitActions,
-			Collection<? extends Action<S, E>> stateActions) {
-		Collection<Function<StateContext<S, E>, Mono<Void>>> rEntryActions = null;
-		Collection<Function<StateContext<S, E>, Mono<Void>>> rExitActions = null;
-		Collection<Function<StateContext<S, E>, Mono<Void>>> rStateActions = null;
-		if (entryActions != null) {
-			rEntryActions = new ArrayList<>();
-			rEntryActions.addAll(entryActions.stream().map(a -> Actions.from(a)).collect(Collectors.toList()));
-		}
-		if (exitActions != null) {
-			rExitActions = new ArrayList<>();
-			rExitActions.addAll(exitActions.stream().map(a -> Actions.from(a)).collect(Collectors.toList()));
-		}
-		if (stateActions != null) {
-			rStateActions = new ArrayList<>();
-			rStateActions.addAll(stateActions.stream().map(a -> Actions.from(a)).collect(Collectors.toList()));
-		}
+			Collection<Function<StateContext<S, E>, Mono<Void>>> entryActions,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> exitActions,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> stateActions) {
 		StateData<S, E> stateData = incomplete.get(state);
 		if (stateData == null) {
-			stateData = new StateData<S, E>(parent, region, state, deferred, rEntryActions, rExitActions);
+			stateData = new StateData<S, E>(parent, region, state, deferred, entryActions, exitActions);
 			incomplete.put(state, stateData);
 		}
 		if (stateData.getParent() == null) {
@@ -345,13 +369,13 @@ public class DefaultStateConfigurer<S, E>
 			stateData.setDeferred(deferred);
 		}
 		if (stateData.getEntryActions() == null) {
-			stateData.setEntryActions(rEntryActions);
+			stateData.setEntryActions(entryActions);
 		}
 		if (stateData.getExitActions() == null) {
-			stateData.setExitActions(rExitActions);
+			stateData.setExitActions(exitActions);
 		}
 		if (stateData.getStateActions() == null) {
-			stateData.setStateActions(rStateActions);
+			stateData.setStateActions(stateActions);
 		}
 	}
 
