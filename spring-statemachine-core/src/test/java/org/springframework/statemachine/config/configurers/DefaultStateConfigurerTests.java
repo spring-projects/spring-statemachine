@@ -34,6 +34,8 @@ import org.springframework.statemachine.config.builders.StateMachineStateBuilder
 import org.springframework.statemachine.config.model.StateData;
 import org.springframework.statemachine.state.PseudoStateKind;
 
+import reactor.core.publisher.Mono;
+
 public class DefaultStateConfigurerTests {
 
 	@Test
@@ -134,6 +136,26 @@ public class DefaultStateConfigurerTests {
 		assertThat(builder.data.iterator().next().getExitActions(), nullValue());
 		assertThat(builder.data.iterator().next().getStateActions(), notNullValue());
 		assertThat(builder.data.iterator().next().getEntryActions(), nullValue());
+	}
+
+	@Test
+	public void testStateActionFunctions() throws Exception {
+		DefaultStateConfigurer<TestStates, TestEvents> configurer = new DefaultStateConfigurer<TestStates, TestEvents>();
+		TestStateMachineStateBuilder builder = new TestStateMachineStateBuilder();
+		configurer.stateDoFunction(TestStates.S2, context -> Mono.empty());
+		configurer.stateEntryFunction(TestStates.S2, context -> Mono.empty());
+		configurer.stateExitFunction(TestStates.S2, context -> Mono.empty());
+		configurer.configure(builder);
+		assertThat(builder.data, notNullValue());
+		assertThat(builder.data.size(), is(1));
+
+		assertThat(builder.data.iterator().next().getState(), is(TestStates.S2));
+		assertThat(builder.data.iterator().next().getExitActions(), notNullValue());
+		assertThat(builder.data.iterator().next().getExitActions().size(), is(1));
+		assertThat(builder.data.iterator().next().getStateActions(), notNullValue());
+		assertThat(builder.data.iterator().next().getStateActions().size(), is(1));
+		assertThat(builder.data.iterator().next().getEntryActions(), notNullValue());
+		assertThat(builder.data.iterator().next().getEntryActions().size(), is(1));
 	}
 
 	@Test
