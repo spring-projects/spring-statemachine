@@ -365,6 +365,32 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), contains("SUB2"));
 	}
 
+	@Test
+	public void testDeferEventCleared() throws Exception {
+		context.register(Config5.class);
+		context.refresh();
+		@SuppressWarnings("unchecked")
+		StateMachine<String, String> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+
+		machine.start();
+		assertThat(machine.getState().getIds(), containsInAnyOrder("S1"));
+
+		machine.sendEvent("E2");
+		assertThat(machine.getState().getIds(), containsInAnyOrder("S1"));
+		Object executor = TestUtils.readField("stateMachineExecutor", machine);
+		Collection<?> readField = TestUtils.readField("deferList", executor);
+		assertThat(readField.size(), is(1));
+
+		machine.sendEvent("E1");
+		assertThat(machine.getState().getIds(), containsInAnyOrder("S1"));
+		readField = TestUtils.readField("deferList", executor);
+		assertThat(readField.size(), is(0));
+
+		// deferred event handled so should not get back to S1
+		machine.sendEvent("E1");
+		assertThat(machine.getState().getIds(), containsInAnyOrder("S2"));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	static class Config1 extends StateMachineConfigurerAdapter<String, String> {

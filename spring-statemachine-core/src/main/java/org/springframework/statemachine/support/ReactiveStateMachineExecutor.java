@@ -54,6 +54,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
 
+/**
+ * Default reactive implementation of a {@link StateMachineExecutor}.
+ * 
+ * @author Janne Valkealahti
+ *
+ * @param <S> the type of state
+ * @param <E> the type of event
+ */
 public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport implements StateMachineExecutor<S, E> {
 
 	private static final Log log = LogFactory.getLog(ReactiveStateMachineExecutor.class);
@@ -66,15 +74,12 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 	private final Message<E> initialEvent;
 	private final TransitionComparator<S, E> transitionComparator;
 	private final TransitionConflictPolicy transitionConflictPolicy;
-	// TODO deferList is never cleared
 	private final Queue<Message<E>> deferList = new ConcurrentLinkedQueue<Message<E>>();
 	private final AtomicBoolean initialHandled = new AtomicBoolean(false);
 	private final StateMachineInterceptorList<S, E> interceptors = new StateMachineInterceptorList<S, E>();
-
 	private volatile Message<E> forwardedInitialEvent;
 	private volatile Message<E> queuedMessage = null;
 	private StateMachineExecutorTransit<S, E> stateMachineExecutorTransit;
-
 	private EmitterProcessor<TriggerQueueItem> triggerProcessor = EmitterProcessor.create(false);
 	private FluxSink<TriggerQueueItem> triggerSink;
 	private Flux<Void> triggerFlux;
@@ -215,6 +220,7 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 
 				if (StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
 					if (trigger != null && trigger.evaluate(new DefaultTriggerContext<S, E>(queuedEvent.getPayload()))) {
+						deferList.remove(queuedEvent);
 						return Mono.just(new TriggerQueueItem(trigger, queuedEvent));
 					}
 				}
