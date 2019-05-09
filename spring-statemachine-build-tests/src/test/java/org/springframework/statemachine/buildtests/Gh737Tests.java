@@ -17,6 +17,9 @@ package org.springframework.statemachine.buildtests;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+import static org.springframework.statemachine.TestUtils.resolveMachine;
 
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -31,15 +34,14 @@ import org.springframework.statemachine.guard.Guard;
 public class Gh737Tests extends AbstractBuildTests {
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void test() throws Exception {
 		context.register(Config1.class);
 		context.refresh();
-		StateMachine<Status, Event> machine = context.getBean(StateMachine.class);
-		machine.start();
+		StateMachine<Status, Event> machine = resolveMachine(context);
+		doStartAndAssert(machine);
 
 		assertThat(machine.getState().getIds(), containsInAnyOrder(Status.ROOT, Status.S0));
-		machine.sendEvent(Event.NEW);
+		doSendEventAndConsumeAll(machine, Event.NEW);
 
 		assertThat(machine.getState().getIds(), containsInAnyOrder(Status.ROOT, Status.S2, Status.S21I, Status.S22I,
 				Status.S23_IN_PROGRESS, Status.S24E));

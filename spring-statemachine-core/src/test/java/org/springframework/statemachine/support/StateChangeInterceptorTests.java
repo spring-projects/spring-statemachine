@@ -18,6 +18,9 @@ package org.springframework.statemachine.support;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+import static org.springframework.statemachine.TestUtils.resolveMachine;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -33,7 +36,6 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.action.Action;
@@ -57,8 +59,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 	public void testIntercept() throws InterruptedException {
 		context.register(Config1.class);
 		context.refresh();
-		@SuppressWarnings("unchecked")
-		StateMachine<States, Events> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<States, Events> machine = resolveMachine(context);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 		TestStateChangeInterceptor interceptor = new TestStateChangeInterceptor();
@@ -72,7 +73,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		});
 
 
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(3));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S1, States.S11));
@@ -80,7 +81,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 
 		listener.reset(3);
 		interceptor.reset(1);
-		machine.sendEvent(Events.C);
+		doSendEventAndConsumeAll(machine, Events.C);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(3));
 		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
@@ -88,7 +89,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(interceptor.preStateChangeCount2, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S2, States.S21, States.S211));
-		machine.sendEvent(Events.H);
+		doSendEventAndConsumeAll(machine, Events.H);
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S2, States.S21, States.S211));
 		assertThat((Integer)machine.getExtendedState().getVariables().get("foo"), is(1));
 	}
@@ -97,8 +98,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 	public void testIntercept2() throws InterruptedException {
 		context.register(Config2.class);
 		context.refresh();
-		@SuppressWarnings("unchecked")
-		StateMachine<States, Events> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<States, Events> machine = resolveMachine(context);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 		TestStateChangeInterceptor interceptor = new TestStateChangeInterceptor();
@@ -111,14 +111,14 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 			}
 		});
 
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
 
 		interceptor.reset(1);
 		listener.reset(1);
-		machine.sendEvent(Events.A);
+		doSendEventAndConsumeAll(machine, Events.A);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S1));
@@ -129,7 +129,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 
 		interceptor.reset(1);
 		listener.reset(1);
-		machine.sendEvent(Events.B);
+		doSendEventAndConsumeAll(machine, Events.B);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S2));
@@ -140,7 +140,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 
 		interceptor.reset(1);
 		listener.reset(1);
-		machine.sendEvent(Events.C);
+		doSendEventAndConsumeAll(machine, Events.C);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
@@ -154,8 +154,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 	public void testIntercept3() throws InterruptedException {
 		context.register(Config3.class);
 		context.refresh();
-		@SuppressWarnings("unchecked")
-		StateMachine<States, Events> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<States, Events> machine = resolveMachine(context);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 		TestStateChangeInterceptor interceptor = new TestStateChangeInterceptor();
@@ -168,14 +167,14 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 			}
 		});
 
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
 
 		interceptor.reset(1);
 		listener.reset(1);
-		machine.sendEvent(Events.A);
+		doSendEventAndConsumeAll(machine, Events.A);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S2));
@@ -189,8 +188,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 	public void testIntercept4() throws InterruptedException {
 		context.register(Config4.class);
 		context.refresh();
-		@SuppressWarnings("unchecked")
-		StateMachine<States, Events> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<States, Events> machine = resolveMachine(context);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 		TestStateChangeInterceptor interceptor = new TestStateChangeInterceptor();
@@ -203,14 +201,14 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 			}
 		});
 
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
 
 		interceptor.reset(1);
 		listener.reset(1);
-		machine.sendEvent(Events.A);
+		doSendEventAndConsumeAll(machine, Events.A);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S2));
@@ -234,8 +232,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 	public void testIntercept5() throws InterruptedException {
 		context.register(Config4.class);
 		context.refresh();
-		@SuppressWarnings("unchecked")
-		StateMachine<States, Events> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<States, Events> machine = resolveMachine(context);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 		TestStateChangeInterceptor interceptor = new TestStateChangeInterceptor();
@@ -248,14 +245,14 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 			}
 		});
 
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
 
 		interceptor.reset(1);
 		listener.reset(1);
-		machine.sendEvent(MessageBuilder.withPayload(Events.A).setHeader("test", "exists").build());
+		doSendEventAndConsumeAll(machine, MessageBuilder.withPayload(Events.A).setHeader("test", "exists").build());
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S3));
@@ -279,8 +276,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 	public void testIntercept6() throws InterruptedException {
 		context.register(Config5.class);
 		context.refresh();
-		@SuppressWarnings("unchecked")
-		StateMachine<States, Events> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<States, Events> machine = resolveMachine(context);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 		TestStateChangeInterceptor interceptor = new TestStateChangeInterceptor();
@@ -293,14 +289,14 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 			}
 		});
 
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
 
 		interceptor.reset(1);
 		listener.reset(1);
-		machine.sendEvent(Events.A);
+		doSendEventAndConsumeAll(machine, Events.A);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S1));
@@ -311,7 +307,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 
 		interceptor.reset(1);
 		listener.reset(1);
-		machine.sendEvent(Events.E);
+		doSendEventAndConsumeAll(machine, Events.E);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S2));
@@ -325,8 +321,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 	public void testIntercept7() throws InterruptedException {
 		context.register(Config6.class);
 		context.refresh();
-		@SuppressWarnings("unchecked")
-		StateMachine<States, Events> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<States, Events> machine = resolveMachine(context);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 		TestStateChangeInterceptor interceptor = new TestStateChangeInterceptor();
@@ -339,14 +334,14 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 			}
 		});
 
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
 
 		interceptor.reset(2);
 		listener.reset(2);
-		machine.sendEvent(Events.A);
+		doSendEventAndConsumeAll(machine, Events.A);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(2));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S2));

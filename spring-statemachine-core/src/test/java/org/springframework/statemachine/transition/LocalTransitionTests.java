@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,10 @@ package org.springframework.statemachine.transition;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+import static org.springframework.statemachine.TestUtils.resolveMachine;
 
 import java.util.ArrayList;
 
@@ -28,7 +29,6 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
@@ -36,25 +36,21 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
 
-@SuppressWarnings("unchecked")
 public class LocalTransitionTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testExternalSuperDoesEntryExitToSub() {
 		context.register(Config1.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		StateMachine<String, String> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
-		assertThat(machine, notNullValue());
+		StateMachine<String, String> machine = resolveMachine(context);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
-		machine.start();
-		machine.sendEvent("E1");
+		doStartAndAssert(machine);
+		doSendEventAndConsumeAll(machine, "E1");
 		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 
 		listener.reset();
-		machine.sendEvent("E20");
+		doSendEventAndConsumeAll(machine, "E20");
 		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 		assertThat(listener.exited.size(), is(2));
 		assertThat(listener.entered.size(), is(2));
@@ -66,18 +62,15 @@ public class LocalTransitionTests extends AbstractStateMachineTests {
 	public void testLocalSuperDoesNotEntryExitToSub() {
 		context.register(Config1.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		StateMachine<String, String> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
-		assertThat(machine, notNullValue());
+		StateMachine<String, String> machine = resolveMachine(context);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
-		machine.start();
-		machine.sendEvent("E1");
+		doStartAndAssert(machine);
+		doSendEventAndConsumeAll(machine, "E1");
 		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 
 		listener.reset();
-		machine.sendEvent("E30");
+		doSendEventAndConsumeAll(machine, "E30");
 		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 		assertThat(listener.exited.size(), is(1));
 		assertThat(listener.entered.size(), is(1));
@@ -89,18 +82,15 @@ public class LocalTransitionTests extends AbstractStateMachineTests {
 	public void testExternalToNonInitialSuperDoesEntryExitToSub() {
 		context.register(Config1.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		StateMachine<String, String> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
-		assertThat(machine, notNullValue());
+		StateMachine<String, String> machine = resolveMachine(context);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
-		machine.start();
-		machine.sendEvent("E1");
+		doStartAndAssert(machine);
+		doSendEventAndConsumeAll(machine, "E1");
 		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 
 		listener.reset();
-		machine.sendEvent("E21");
+		doSendEventAndConsumeAll(machine, "E21");
 		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S22"));
 		assertThat(listener.exited.size(), is(2));
 		assertThat(listener.entered.size(), is(2));
@@ -112,18 +102,15 @@ public class LocalTransitionTests extends AbstractStateMachineTests {
 	public void testLocalToNonInitialSuperDoesNotEntryExitToSub() {
 		context.register(Config1.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		StateMachine<String, String> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
-		assertThat(machine, notNullValue());
+		StateMachine<String, String> machine = resolveMachine(context);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
-		machine.start();
-		machine.sendEvent("E1");
+		doStartAndAssert(machine);
+		doSendEventAndConsumeAll(machine, "E1");
 		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 
 		listener.reset();
-		machine.sendEvent("E31");
+		doSendEventAndConsumeAll(machine, "E31");
 		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S22"));
 		assertThat(listener.exited.size(), is(1));
 		assertThat(listener.entered.size(), is(1));
@@ -135,18 +122,15 @@ public class LocalTransitionTests extends AbstractStateMachineTests {
 	public void testExternalSuperDoesEntryExitToParent() {
 		context.register(Config1.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		StateMachine<String, String> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
-		assertThat(machine, notNullValue());
+		StateMachine<String, String> machine = resolveMachine(context);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
-		machine.start();
-		machine.sendEvent("E1");
+		doStartAndAssert(machine);
+		doSendEventAndConsumeAll(machine, "E1");
 		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 
 		listener.reset();
-		machine.sendEvent("E22");
+		doSendEventAndConsumeAll(machine, "E22");
 		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 		assertThat(listener.exited.size(), is(2));
 		assertThat(listener.entered.size(), is(2));
@@ -158,18 +142,15 @@ public class LocalTransitionTests extends AbstractStateMachineTests {
 	public void testLocalSuperDoesNotEntryExitToParent() {
 		context.register(Config1.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		StateMachine<String, String> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
-		assertThat(machine, notNullValue());
+		StateMachine<String, String> machine = resolveMachine(context);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
-		machine.start();
-		machine.sendEvent("E1");
+		doStartAndAssert(machine);
+		doSendEventAndConsumeAll(machine, "E1");
 		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 
 		listener.reset();
-		machine.sendEvent("E32");
+		doSendEventAndConsumeAll(machine, "E32");
 		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 		assertThat(listener.exited.size(), is(1));
 		assertThat(listener.entered.size(), is(1));
@@ -181,18 +162,15 @@ public class LocalTransitionTests extends AbstractStateMachineTests {
 	public void testExternalToNonInitialSuperDoesEntryExitToParent() {
 		context.register(Config1.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		StateMachine<String, String> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
-		assertThat(machine, notNullValue());
+		StateMachine<String, String> machine = resolveMachine(context);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
-		machine.start();
-		machine.sendEvent("E1");
+		doStartAndAssert(machine);
+		doSendEventAndConsumeAll(machine, "E1");
 		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 
 		listener.reset();
-		machine.sendEvent("E21");
+		doSendEventAndConsumeAll(machine, "E21");
 		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S22"));
 		assertThat(listener.exited.size(), is(2));
 		assertThat(listener.entered.size(), is(2));
@@ -200,7 +178,7 @@ public class LocalTransitionTests extends AbstractStateMachineTests {
 		assertThat(listener.entered, containsInAnyOrder("S2", "S22"));
 
 		listener.reset();
-		machine.sendEvent("E23");
+		doSendEventAndConsumeAll(machine, "E23");
 		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S22"));
 		assertThat(listener.exited.size(), is(2));
 		assertThat(listener.entered.size(), is(2));
@@ -212,18 +190,15 @@ public class LocalTransitionTests extends AbstractStateMachineTests {
 	public void testLocalToNonInitialSuperDoesNotEntryExitToParent() {
 		context.register(Config1.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		StateMachine<String, String> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
-		assertThat(machine, notNullValue());
+		StateMachine<String, String> machine = resolveMachine(context);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
-		machine.start();
-		machine.sendEvent("E1");
+		doStartAndAssert(machine);
+		doSendEventAndConsumeAll(machine, "E1");
 		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 
 		listener.reset();
-		machine.sendEvent("E31");
+		doSendEventAndConsumeAll(machine, "E31");
 		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S22"));
 		assertThat(listener.exited.size(), is(1));
 		assertThat(listener.entered.size(), is(1));
@@ -231,7 +206,7 @@ public class LocalTransitionTests extends AbstractStateMachineTests {
 		assertThat(listener.entered, containsInAnyOrder("S22"));
 
 		listener.reset();
-		machine.sendEvent("E33");
+		doSendEventAndConsumeAll(machine, "E33");
 		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S22"));
 		assertThat(listener.exited.size(), is(1));
 		assertThat(listener.entered.size(), is(1));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,9 @@ package org.springframework.statemachine.state;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+import static org.springframework.statemachine.TestUtils.resolveMachine;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +30,6 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
@@ -36,67 +38,60 @@ import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 
 public class ExitEntryStateTests extends AbstractStateMachineTests {
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testSimpleEntryExit() {
 		context.register(Config1.class);
 		context.refresh();
-		StateMachine<String, String> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<String, String> machine = resolveMachine(context);
 		assertThat(machine, notNullValue());
 		TestStateEntryExitListener listener = new TestStateEntryExitListener();
 		machine.addStateListener(listener);
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(machine.getState().getIds(), contains("S1"));
 		listener.reset();
-		machine.sendEvent("ENTRY1");
+		doSendEventAndConsumeAll(machine, "ENTRY1");
 		assertThat(machine.getState().getIds(), contains("S2", "S22"));
 		assertThat(listener.exited, contains("S1"));
 		assertThat(listener.entered, contains("S2", "S22"));
-		machine.sendEvent("EXIT1");
+		doSendEventAndConsumeAll(machine, "EXIT1");
 		assertThat(machine.getState().getIds(), contains("S4"));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testSimpleEntryToInitial() {
 		context.register(Config1.class);
 		context.refresh();
-		StateMachine<String, String> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<String, String> machine = resolveMachine(context);
 		assertThat(machine, notNullValue());
 		TestStateEntryExitListener listener = new TestStateEntryExitListener();
 		machine.addStateListener(listener);
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(machine.getState().getIds(), contains("S1"));
 		listener.reset();
-		machine.sendEvent("ENTRY3");
+		doSendEventAndConsumeAll(machine, "ENTRY3");
 		assertThat(machine.getState().getIds(), contains("S2", "S21"));
 		assertThat(listener.exited, contains("S1"));
 		assertThat(listener.entered, contains("S2", "S21"));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testMultipleExitsToSameState() {
 		context.register(Config2.class);
 		context.refresh();
-		StateMachine<String, String> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<String, String> machine = resolveMachine(context);
 		assertThat(machine, notNullValue());
-		machine.start();
+		doStartAndAssert(machine);
 
 		assertThat(machine.getState().getIds(), contains("S1"));
-		machine.sendEvent("E1");
+		doSendEventAndConsumeAll(machine, "E1");
 		assertThat(machine.getState().getIds(), contains("S2", "S22"));
-		machine.sendEvent("EXIT2");
+		doSendEventAndConsumeAll(machine, "EXIT2");
 		assertThat(machine.getState().getIds(), contains("S1"));
 
-		machine.sendEvent("E2");
+		doSendEventAndConsumeAll(machine, "E2");
 		assertThat(machine.getState().getIds(), contains("S3", "S32"));
-		machine.sendEvent("EXIT3");
+		doSendEventAndConsumeAll(machine, "EXIT3");
 		assertThat(machine.getState().getIds(), contains("S1"));
-
 	}
 
 	@Configuration

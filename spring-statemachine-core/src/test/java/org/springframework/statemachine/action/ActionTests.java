@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,9 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+import static org.springframework.statemachine.TestUtils.resolveMachine;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -30,11 +32,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
@@ -48,40 +48,34 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
  */
 public class ActionTests extends AbstractStateMachineTests {
 
-	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testTransitionActions() {
 		context.register(Config1.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		StateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
-		machine.start();
+		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
+		doStartAndAssert(machine);
 
 		TestCountAction testAction1 = context.getBean("testAction1", TestCountAction.class);
 		TestCountAction testAction2 = context.getBean("testAction2", TestCountAction.class);
 		TestCountAction testAction3 = context.getBean("testAction3", TestCountAction.class);
-		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
-		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E2).build());
-		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E3).build());
+		doSendEventAndConsumeAll(machine, TestEvents.E1);
+		doSendEventAndConsumeAll(machine, TestEvents.E2);
+		doSendEventAndConsumeAll(machine, TestEvents.E3);
 		assertThat(testAction1.count, is(1));
 		assertThat(testAction2.count, is(1));
 		assertThat(testAction3.count, is(1));
 	}
 
-	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testTransitionActionErrors() {
 		context.register(Config2.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		StateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
-		machine.start();
+		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
+		doStartAndAssert(machine);
 
 		TestCountAction testAction1 = context.getBean("testAction1", TestCountAction.class);
 		TestCountAction testErrorAction = context.getBean("testErrorAction", TestCountAction.class);
-		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
+		doSendEventAndConsumeAll(machine, TestEvents.E1);
 		assertThat(testAction1.count, is(1));
 		assertThat(testErrorAction.count, is(1));
 		assertThat(testErrorAction.context, notNullValue());
@@ -90,15 +84,12 @@ public class ActionTests extends AbstractStateMachineTests {
 		assertThat(testErrorAction.context.getException().getMessage(), is("Fake Error"));
 	}
 
-	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testStateActionErrors() throws Exception {
 		context.register(Config3.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		StateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
-		machine.start();
+		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
+		doStartAndAssert(machine);
 
 		TestCountAction testAction2 = context.getBean("testAction2", TestCountAction.class);
 		TestCountAction testAction3 = context.getBean("testAction3", TestCountAction.class);
@@ -107,12 +98,12 @@ public class ActionTests extends AbstractStateMachineTests {
 		TestCountAction testErrorAction3 = context.getBean("testErrorAction3", TestCountAction.class);
 		TestCountAction testErrorAction4 = context.getBean("testErrorAction4", TestCountAction.class);
 
-		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
+		doSendEventAndConsumeAll(machine, TestEvents.E1);
 		assertThat(machine.getState().getId(), is(TestStates.S2));
 		assertThat(testErrorAction3.latch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(testErrorAction2.latch.await(1, TimeUnit.SECONDS), is(true));
 
-		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E2).build());
+		doSendEventAndConsumeAll(machine, TestEvents.E2);
 		assertThat(testErrorAction4.latch.await(1, TimeUnit.SECONDS), is(true));
 
 		assertThat(testAction2.count, is(1));

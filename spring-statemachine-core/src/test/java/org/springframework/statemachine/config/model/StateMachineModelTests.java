@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,18 @@
  */
 package org.springframework.statemachine.config.model;
 
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Test;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.task.SyncTaskExecutor;
@@ -29,12 +41,6 @@ import org.springframework.statemachine.ensemble.StateMachineEnsemble;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.transition.TransitionKind;
-
-import java.util.*;
-
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
 
 public class StateMachineModelTests {
 
@@ -80,9 +86,9 @@ public class StateMachineModelTests {
 		ObjectStateMachineFactory<String, String> factory = new ObjectStateMachineFactory<>(stateMachineModel);
 
 		StateMachine<String,String> stateMachine = factory.getStateMachine();
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), contains("S1"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), contains("S2"));
 	}
 
@@ -103,9 +109,9 @@ public class StateMachineModelTests {
 		ObjectStateMachineFactory<String, String> factory = new ObjectStateMachineFactory<>(stateMachineModel);
 
 		StateMachine<String,String> stateMachine = factory.getStateMachine();
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), contains("S1"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), contains("S2"));
 	}
 
@@ -142,14 +148,14 @@ public class StateMachineModelTests {
 		ObjectStateMachineFactory<String, String> factory = new ObjectStateMachineFactory<>(stateMachineModel);
 
 		StateMachine<String,String> stateMachine = factory.getStateMachine();
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S20"));
-		stateMachine.sendEvent("E2");
+		doSendEventAndConsumeAll(stateMachine, "E2");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21", "S30"));
-		stateMachine.sendEvent("E3");
+		doSendEventAndConsumeAll(stateMachine, "E3");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21", "S31"));
 	}
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.assertj;
+package org.springframework.statemachine.test.assertj;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -39,4 +39,3 @@ public class StateMachineEventResultAssertTests {
 			.withMessageContaining("Expected result's type to be <DENIED> but was <ACCEPTED>");
 	}
 }
-

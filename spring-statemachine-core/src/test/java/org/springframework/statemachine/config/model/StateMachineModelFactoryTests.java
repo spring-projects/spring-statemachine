@@ -18,6 +18,11 @@ package org.springframework.statemachine.config.model;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+import static org.springframework.statemachine.TestUtils.doStopAndAssert;
+import static org.springframework.statemachine.TestUtils.resolveFactory;
+import static org.springframework.statemachine.TestUtils.resolveMachine;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -61,9 +66,9 @@ public class StateMachineModelFactoryTests extends AbstractStateMachineTests {
 		ObjectStateMachineFactory<String, String> factory = new ObjectStateMachineFactory<>(modelBuilder.build());
 
 		StateMachine<String,String> stateMachine = factory.getStateMachine();
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), contains("S1"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), contains("S2"));
 	}
 
@@ -71,12 +76,11 @@ public class StateMachineModelFactoryTests extends AbstractStateMachineTests {
 	public void testFromAnnotationConfig() {
 		context.register(Config2.class);
 		context.refresh();
-		@SuppressWarnings("unchecked")
-		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		StateMachine<String, String> stateMachine = resolveMachine(context);
 
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), contains("S1"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), contains("S2"));
 	}
 
@@ -84,35 +88,33 @@ public class StateMachineModelFactoryTests extends AbstractStateMachineTests {
 	public void testModelRecreates() {
 		context.register(Config3.class);
 		context.refresh();
-		@SuppressWarnings("unchecked")
-		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
+		StateMachineFactory<String, String> stateMachineFactory = resolveFactory(context);
 		StateMachine<String,String> stateMachine = stateMachineFactory.getStateMachine();
 		TestStateMachineModelFactory modelFactory = context.getBean(TestStateMachineModelFactory.class);
 
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), contains("S1"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), contains("S2"));
-		stateMachine.stop();
+		doStopAndAssert(stateMachine);
 
 		modelFactory.state1 = "SS1";
 		modelFactory.state2 = "SS2";
 		modelFactory.event1 = "EE1";
 
 		stateMachine = stateMachineFactory.getStateMachine();
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), contains("SS1"));
-		stateMachine.sendEvent("EE1");
+		doSendEventAndConsumeAll(stateMachine, "EE1");
 		assertThat(stateMachine.getState().getIds(), contains("SS2"));
-		stateMachine.stop();
+		doStopAndAssert(stateMachine);
 	}
 
 	@Test
 	public void testConfigAdapterConfigFromModel() throws Exception {
 		context.register(Config4.class);
 		context.refresh();
-		@SuppressWarnings("unchecked")
-		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		StateMachine<String, String> stateMachine = resolveMachine(context);
 
 		Object o1 = TestUtils.readField("stateListener", stateMachine);
 		Object o2 = TestUtils.readField("listeners", o1);
@@ -124,8 +126,7 @@ public class StateMachineModelFactoryTests extends AbstractStateMachineTests {
 	public void testConfigAdapterConfigFromAdapter() throws Exception {
 		context.register(Config5.class);
 		context.refresh();
-		@SuppressWarnings("unchecked")
-		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+		StateMachine<String, String> stateMachine = resolveMachine(context);
 
 		Object o1 = TestUtils.readField("stateListener", stateMachine);
 		Object o2 = TestUtils.readField("listeners", o1);

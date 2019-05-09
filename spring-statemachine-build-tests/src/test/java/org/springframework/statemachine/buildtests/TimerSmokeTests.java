@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 package org.springframework.statemachine.buildtests;
+
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+import static org.springframework.statemachine.TestUtils.doStopAndAssert;
 
 import org.junit.Test;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -30,7 +34,6 @@ public class TimerSmokeTests {
 	}
 
 	private StateMachine<String, String> buildMachine() throws Exception {
-
 		StateMachineBuilder.Builder<String, String> builder = StateMachineBuilder.builder();
 
 		builder.configureConfiguration()
@@ -56,7 +59,6 @@ public class TimerSmokeTests {
 	}
 
 	private StateMachine<String, String> buildMachine2() throws Exception {
-
 		StateMachineBuilder.Builder<String, String> builder = StateMachineBuilder.builder();
 
 		builder.configureConfiguration()
@@ -91,25 +93,23 @@ public class TimerSmokeTests {
 		StateMachine<String, String> stateMachine;
 		for (int i = 0; i < 20; i++) {
 			stateMachine = buildMachine();
-			stateMachine.start();
+			doStartAndAssert(stateMachine);
 			while (!stateMachine.isComplete()) {
-				stateMachine.sendEvent("repeate");
+				doSendEventAndConsumeAll(stateMachine, "repeate");
 			}
 		}
 	}
 
 	@Test
 	public void testNPE2() throws Exception {
-
 		StateMachine<String, String> stateMachine;
-
 		for (int i = 0; i < 20; i++) {
 			stateMachine = buildMachine2();
-			stateMachine.start();
+			doStartAndAssert(stateMachine);
 			while(!stateMachine.isComplete()) {
-				stateMachine.sendEvent("repeate");
+				doSendEventAndConsumeAll(stateMachine, "repeate");
 			}
-			stateMachine.stop();
+			doStopAndAssert(stateMachine);
 		}
 	}
 

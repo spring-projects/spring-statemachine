@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+import static org.springframework.statemachine.TestUtils.resolveMachine;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -41,19 +44,18 @@ import org.springframework.statemachine.state.State;
 
 public class ActionAndTimerTests extends AbstractStateMachineTests {
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testExitActionWithTimerOnce() throws Exception {
 		context.register(Config1.class);
 		context.refresh();
-		StateMachine<TestStates, TestEvents> machine = context.getBean(StateMachine.class);
+		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
 		TestTimerAction testTimerAction = context.getBean(TestTimerAction.class);
 		TestExitAction testExitAction = context.getBean(TestExitAction.class);
 		TestListener testListener = new TestListener();
 		machine.addStateListener(testListener);
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S1));
-		machine.sendEvent(TestEvents.E1);
+		doSendEventAndConsumeAll(machine, TestEvents.E1);
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2));
 
 		assertThat(testTimerAction.latch.await(4, TimeUnit.SECONDS), is(true));
@@ -64,26 +66,25 @@ public class ActionAndTimerTests extends AbstractStateMachineTests {
 		// causing interrupt
 		Thread.sleep(1000);
 
-		machine.sendEvent(TestEvents.E2);
+		doSendEventAndConsumeAll(machine, TestEvents.E2);
 		assertThat(testListener.s3EnteredLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S3));
 		assertThat(testExitAction.latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testExitAction.e, nullValue());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testExitActionWithTimerOnceThreadPoolTaskScheduler() throws Exception {
 		context.register(Config2.class);
 		context.refresh();
-		StateMachine<TestStates, TestEvents> machine = context.getBean(StateMachine.class);
+		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
 		TestTimerAction testTimerAction = context.getBean(TestTimerAction.class);
 		TestExitAction testExitAction = context.getBean(TestExitAction.class);
 		TestListener testListener = new TestListener();
 		machine.addStateListener(testListener);
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S1));
-		machine.sendEvent(TestEvents.E1);
+		doSendEventAndConsumeAll(machine, TestEvents.E1);
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2));
 
 		assertThat(testTimerAction.latch.await(4, TimeUnit.SECONDS), is(true));
@@ -94,7 +95,7 @@ public class ActionAndTimerTests extends AbstractStateMachineTests {
 		// causing interrupt
 		Thread.sleep(1000);
 
-		machine.sendEvent(TestEvents.E2);
+		doSendEventAndConsumeAll(machine, TestEvents.E2);
 		assertThat(testListener.s3EnteredLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S3));
 		assertThat(testExitAction.latch.await(2, TimeUnit.SECONDS), is(true));
