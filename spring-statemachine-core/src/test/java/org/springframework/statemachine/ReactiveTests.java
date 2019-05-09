@@ -18,7 +18,6 @@ package org.springframework.statemachine;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.springframework.statemachine.assertj.StateMachineAsserts.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +72,7 @@ public class ReactiveTests extends AbstractStateMachineTests {
 
 		StepVerifier.create(machine.sendEvent(asMono(TestEvents.E1)))
 			.assertNext(r -> {
-				assertThat(r).hasResultType(ResultType.ACCEPTED);
+				assertThat(r.getResultType()).isSameAs(ResultType.ACCEPTED);
 				assertThat(machine.getState().getIds()).containsExactlyInAnyOrder(TestStates.S2);
 			})
 			.expectComplete()
@@ -81,7 +80,7 @@ public class ReactiveTests extends AbstractStateMachineTests {
 
 		StepVerifier.create(machine.sendEvent(asMono(TestEvents.E2)))
 			.assertNext(r -> {
-				assertThat(r).hasResultType(ResultType.ACCEPTED);
+				assertThat(r.getResultType()).isSameAs(ResultType.ACCEPTED);
 				assertThat(machine.getState().getIds()).containsExactlyInAnyOrder(TestStates.S3);
 			})
 			.expectComplete()
@@ -182,7 +181,7 @@ public class ReactiveTests extends AbstractStateMachineTests {
 
 		StepVerifier.create(machine.sendEvent(asMono("E1")))
 			.assertNext(r -> {
-				assertThat(r).hasResultType(ResultType.ACCEPTED);
+				assertThat(r.getResultType()).isSameAs(ResultType.ACCEPTED);
 				assertThat(machine.getState().getIds()).containsExactlyInAnyOrder("S1");
 			})
 			.expectComplete()
@@ -190,7 +189,7 @@ public class ReactiveTests extends AbstractStateMachineTests {
 
 		StepVerifier.create(machine.sendEvent(asMono("E3")))
 			.assertNext(r -> {
-				assertThat(r).hasResultType(ResultType.DEFERRED);
+				assertThat(r.getResultType()).isSameAs(ResultType.DEFERRED);
 				assertThat(machine.getState().getIds()).containsExactlyInAnyOrder("S1");
 			})
 			.expectComplete()
@@ -198,7 +197,7 @@ public class ReactiveTests extends AbstractStateMachineTests {
 
 		StepVerifier.create(machine.sendEvent(asMono("E2")))
 			.assertNext(r -> {
-				assertThat(r).hasResultType(ResultType.ACCEPTED);
+				assertThat(r.getResultType()).isSameAs(ResultType.ACCEPTED);
 				assertThat(machine.getState().getIds()).containsExactlyInAnyOrder("S3");
 			})
 			.expectComplete()
@@ -226,8 +225,8 @@ public class ReactiveTests extends AbstractStateMachineTests {
 			.expectComplete()
 			.verify();
 
-		assertThat(ers).filteredOnAssertions(er -> assertThat(er).hasResultType(ResultType.ACCEPTED)).hasSize(1);
-		assertThat(ers).filteredOnAssertions(er -> assertThat(er).hasResultType(ResultType.DENIED)).hasSize(1);
+		assertThat(ers).filteredOnAssertions(er -> assertThat(er.getResultType()).isSameAs(ResultType.ACCEPTED)).hasSize(1);
+		assertThat(ers).filteredOnAssertions(er -> assertThat(er.getResultType()).isSameAs(ResultType.DENIED)).hasSize(1);
 		assertThat(machine.getState().getIds()).containsExactlyInAnyOrder(TestStates.S11, TestStates.S20);
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,9 @@ package org.springframework.statemachine;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+import static org.springframework.statemachine.TestUtils.resolveFactory;
 
 import java.util.EnumSet;
 import java.util.concurrent.CountDownLatch;
@@ -31,10 +34,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
-import org.springframework.statemachine.config.ObjectStateMachineFactory;
 import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
@@ -49,88 +50,75 @@ public class StateMachineFactoryTests extends AbstractStateMachineTests {
 		return new AnnotationConfigApplicationContext();
 	}
 
-	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testMachineFromFactory() {
 		context.register(Config1.class);
 		context.refresh();
 
-		ObjectStateMachineFactory<TestStates, TestEvents> stateMachineFactory =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINEFACTORY, ObjectStateMachineFactory.class);
+		StateMachineFactory<TestStates, TestEvents> stateMachineFactory = resolveFactory(context);
 		StateMachine<TestStates,TestEvents> machine = stateMachineFactory.getStateMachine();
-		machine.start();
+		doStartAndAssert(machine);
 
 		assertThat(machine.getState().getIds(), contains(TestStates.S1));
-		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
+		doSendEventAndConsumeAll(machine, TestEvents.E1);
 		assertThat(machine.getState().getIds(), contains(TestStates.S2));
 	}
 
-	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testAutoStartFlagOn() throws Exception {
 		context.register(Config2.class);
 		context.refresh();
-		StateMachineFactory<TestStates, TestEvents> stateMachineFactory =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINEFACTORY, StateMachineFactory.class);
+		StateMachineFactory<TestStates, TestEvents> stateMachineFactory = resolveFactory(context);
 		StateMachine<TestStates,TestEvents> machine = stateMachineFactory.getStateMachine();
 
 		assertThat(((SmartLifecycle)machine).isAutoStartup(), is(true));
 		assertThat(((SmartLifecycle)machine).isRunning(), is(true));
 	}
 
-	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testAutoStartFlagOff() throws Exception {
 		context.register(Config3.class);
 		context.refresh();
-		StateMachineFactory<TestStates, TestEvents> stateMachineFactory =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINEFACTORY, StateMachineFactory.class);
+		StateMachineFactory<TestStates, TestEvents> stateMachineFactory = resolveFactory(context);
 		StateMachine<TestStates,TestEvents> machine = stateMachineFactory.getStateMachine();
 
 		assertThat(((SmartLifecycle)machine).isAutoStartup(), is(false));
 		assertThat(((SmartLifecycle)machine).isRunning(), is(false));
 	}
 
-	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testCustomNamedFactory() {
 		context.register(Config4.class);
 		context.refresh();
-		StateMachineFactory<TestStates, TestEvents> stateMachineFactory =
-				context.getBean("factory1", ObjectStateMachineFactory.class);
+		StateMachineFactory<TestStates, TestEvents> stateMachineFactory = resolveFactory("factory1", context);
 		StateMachine<TestStates,TestEvents> machine = stateMachineFactory.getStateMachine();
-		machine.start();
+		doStartAndAssert(machine);
 
 		assertThat(machine.getState().getIds(), contains(TestStates.S1));
 	}
 
-	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testMultipleCustomNamedFactories() {
 		context.register(Config4.class, Config5.class);
 		context.refresh();
-		StateMachineFactory<TestStates, TestEvents> stateMachineFactory1 =
-				context.getBean("factory1", ObjectStateMachineFactory.class);
-		StateMachineFactory<TestStates, TestEvents> stateMachineFactory2 =
-				context.getBean("factory2", ObjectStateMachineFactory.class);
+		StateMachineFactory<TestStates, TestEvents> stateMachineFactory1 = resolveFactory("factory1", context);
+		StateMachineFactory<TestStates, TestEvents> stateMachineFactory2 = resolveFactory("factory2", context);
 		StateMachine<TestStates,TestEvents> machine1 = stateMachineFactory1.getStateMachine();
 		StateMachine<TestStates,TestEvents> machine2 = stateMachineFactory2.getStateMachine();
 
-		machine1.start();
-		machine2.start();
+		doStartAndAssert(machine1);
+		doStartAndAssert(machine2);
 
 		assertThat(machine1.getState().getIds(), contains(TestStates.S1));
 		assertThat(machine2.getState().getIds(), contains(TestStates.S1));
 	}
 
-	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testMachineFromFactoryWithAsyncExecutorAutoStart() throws Exception {
 		context.register(Config6.class);
 		context.refresh();
 
-		ObjectStateMachineFactory<TestStates, TestEvents> stateMachineFactory =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINEFACTORY, ObjectStateMachineFactory.class);
+		StateMachineFactory<TestStates, TestEvents> stateMachineFactory = resolveFactory(context);
 		StateMachine<TestStates,TestEvents> machine = stateMachineFactory.getStateMachine();
 
 		// factory waits machine to get started so we
@@ -141,7 +129,7 @@ public class StateMachineFactoryTests extends AbstractStateMachineTests {
 		// checking state as execution happens in a thread
 		TestStateMachineListener listener = new TestStateMachineListener();
 		machine.addStateListener(listener);
-		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
+		doSendEventAndConsumeAll(machine, TestEvents.E1);
 		assertThat(listener.latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), contains(TestStates.S2));
 	}

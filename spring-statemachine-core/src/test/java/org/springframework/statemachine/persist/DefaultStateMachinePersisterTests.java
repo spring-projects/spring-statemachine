@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 
 import java.util.HashMap;
 
@@ -41,7 +43,8 @@ public class DefaultStateMachinePersisterTests {
 	public void testSimpleFlat() throws Exception {
 		StateMachine<String, String> machine = buildSimpleFlat();
 
-		machine.start();
+		doStartAndAssert(machine);
+		doStartAndAssert(machine);
 		InMemoryStateMachinePersist1 persist = new InMemoryStateMachinePersist1();
 		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(persist);
 		persister.persist(machine, "xxx");
@@ -50,7 +53,8 @@ public class DefaultStateMachinePersisterTests {
 		assertThat(context.getId(), nullValue());
 		assertThat(context.getChilds().isEmpty(), is(true));
 
-		machine.sendEvent("E1");
+		doSendEventAndConsumeAll(machine, "E1");
+		doSendEventAndConsumeAll(machine, "E1");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
 		assertThat(context.getState(), is("S1"));
@@ -60,7 +64,7 @@ public class DefaultStateMachinePersisterTests {
 	public void testDeepNested() throws Exception {
 		StateMachine<String, String> machine = buildDeepNested();
 
-		machine.start();
+		doStartAndAssert(machine);
 		InMemoryStateMachinePersist1 persist = new InMemoryStateMachinePersist1();
 		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(persist);
 		persister.persist(machine, "xxx");
@@ -69,19 +73,19 @@ public class DefaultStateMachinePersisterTests {
 		assertThat(context.getId(), nullValue());
 		assertThat(context.getChilds().isEmpty(), is(true));
 
-		machine.sendEvent("E1");
+		doSendEventAndConsumeAll(machine, "E1");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
 		assertThat(context.getState(), is("S1I"));
 		assertThat(context.getChilds().size(), is(1));
 
-		machine.sendEvent("E2");
+		doSendEventAndConsumeAll(machine, "E2");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
 		assertThat(context.getState(), is("S11"));
 		assertThat(context.getChilds().size(), is(1));
 
-		machine.sendEvent("E3");
+		doSendEventAndConsumeAll(machine, "E3");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
 		assertThat(context.getState(), is("S11"));
@@ -92,7 +96,7 @@ public class DefaultStateMachinePersisterTests {
 	public void testDeepNestedRegions() throws Exception {
 		StateMachine<String, String> machine = buildDeepNestedRegions();
 
-		machine.start();
+		doStartAndAssert(machine);
 		InMemoryStateMachinePersist1 persist = new InMemoryStateMachinePersist1();
 		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(persist);
 		persister.persist(machine, "xxx");
@@ -103,21 +107,21 @@ public class DefaultStateMachinePersisterTests {
 		assertThat(context.getChilds().get(0).getState(), anyOf(is("S111"), is("S21")));
 		assertThat(context.getChilds().get(1).getState(), anyOf(is("S111"), is("S21")));
 
-		machine.sendEvent("E1");
+		doSendEventAndConsumeAll(machine, "E1");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
 		assertThat(context.getChilds().size(), is(2));
 		assertThat(context.getChilds().get(0).getState(), anyOf(is("S12"), is("S21")));
 		assertThat(context.getChilds().get(1).getState(), anyOf(is("S12"), is("S21")));
 
-		machine.sendEvent("E2");
+		doSendEventAndConsumeAll(machine, "E2");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
 		assertThat(context.getChilds().size(), is(2));
 		assertThat(context.getChilds().get(0).getState(), anyOf(is("S12"), is("S221")));
 		assertThat(context.getChilds().get(1).getState(), anyOf(is("S12"), is("S221")));
 
-		machine.sendEvent("E3");
+		doSendEventAndConsumeAll(machine, "E3");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
 		assertThat(context.getChilds().size(), is(2));
@@ -129,42 +133,42 @@ public class DefaultStateMachinePersisterTests {
 	public void testDeepNestedRegionsAndFork() throws Exception {
 		StateMachine<String, String> machine = buildDeepNestedRegionsAndFork();
 
-		machine.start();
+		doStartAndAssert(machine);
 		InMemoryStateMachinePersist1 persist = new InMemoryStateMachinePersist1();
 		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(persist);
 		persister.persist(machine, "xxx");
 		StateMachineContext<String, String> context = persist.contexts.get("xxx");
 		assertThat(context.getState(), is("S2"));
 
-		machine.sendEvent("E1");
+		doSendEventAndConsumeAll(machine, "E1");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
 		assertThat(context.getState(), is("S3"));
 		assertThat(context.getChilds().size(), is(1));
 		assertThat(context.getChilds().get(0).getChilds().size(), is(2));
 
-		machine.sendEvent("E2");
+		doSendEventAndConsumeAll(machine, "E2");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
 		assertThat(context.getState(), is("S3"));
 		assertThat(context.getChilds().size(), is(1));
 		assertThat(context.getChilds().get(0).getChilds().size(), is(2));
 
-		machine.sendEvent("E3");
+		doSendEventAndConsumeAll(machine, "E3");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
 		assertThat(context.getState(), is("S3"));
 		assertThat(context.getChilds().size(), is(1));
 		assertThat(context.getChilds().get(0).getChilds().size(), is(2));
 
-		machine.sendEvent("E4");
+		doSendEventAndConsumeAll(machine, "E4");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
 		assertThat(context.getState(), is("S3"));
 		assertThat(context.getChilds().size(), is(1));
 		assertThat(context.getChilds().get(0).getChilds().size(), is(2));
 
-		machine.sendEvent("E5");
+		doSendEventAndConsumeAll(machine, "E5");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
 		assertThat(context.getState(), is("END"));

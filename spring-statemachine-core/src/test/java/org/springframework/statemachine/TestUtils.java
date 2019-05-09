@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,24 @@
  */
 package org.springframework.statemachine;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.statemachine.StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE;
+import static org.springframework.statemachine.StateMachineSystemConstants.DEFAULT_ID_STATEMACHINEFACTORY;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.statemachine.action.Action;
+import org.springframework.statemachine.config.StateMachineFactory;
+import org.springframework.statemachine.persist.StateMachinePersister;
 import org.springframework.util.ReflectionUtils;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 /**
  * Utils for tests.
@@ -27,6 +41,71 @@ import org.springframework.util.ReflectionUtils;
  *
  */
 public class TestUtils {
+
+	@SuppressWarnings("unchecked")
+	public static <S, E> StateMachine<S, E> resolveMachine(BeanFactory beanFactory) {
+		assertThat(beanFactory.containsBean(DEFAULT_ID_STATEMACHINE)).isTrue();
+		return (StateMachine<S, E>) beanFactory.getBean(DEFAULT_ID_STATEMACHINE);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <S, E> StateMachine<S, E> resolveMachine(String id, BeanFactory beanFactory) {
+		return (StateMachine<S, E>) beanFactory.getBean(id, StateMachine.class);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <S, E> StateMachineFactory<S, E> resolveFactory(BeanFactory beanFactory) {
+		assertThat(beanFactory.containsBean(DEFAULT_ID_STATEMACHINEFACTORY)).isTrue();
+		return (StateMachineFactory<S, E>) beanFactory.getBean(DEFAULT_ID_STATEMACHINEFACTORY);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <S, E> StateMachineFactory<S, E> resolveFactory(String id, BeanFactory beanFactory) {
+		return (StateMachineFactory<S, E>) beanFactory.getBean(id, StateMachineFactory.class);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <S, E, T> StateMachinePersister<S, E, T> resolvePersister(BeanFactory beanFactory) {
+		return (StateMachinePersister<S, E, T>) beanFactory.getBean(StateMachinePersister.class);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <S, E> Action<S, E> resolveAction(String id, BeanFactory beanFactory) {
+		return (Action<S, E>) beanFactory.getBean(id, Action.class);
+	}
+
+	public static <S, E> void doStartAndAssert(StateMachine<S, E> stateMachine) {
+		StepVerifier.create(stateMachine.startReactively()).expectComplete().verify();
+	}
+
+	public static <S, E> void doStopAndAssert(StateMachine<S, E> stateMachine) {
+		StepVerifier.create(stateMachine.stopReactively()).expectComplete().verify();
+	}
+
+	public static <T> Mono<Message<T>> eventAsMono(T event) {
+		return Mono.just(MessageBuilder.withPayload(event).build());
+	}
+
+	public static <T> Mono<Message<T>> eventAsMono(Message<T> event) {
+		return Mono.just(event);
+	}
+
+	@SafeVarargs
+	public static <T> Flux<Message<T>> eventsAsFlux(T... events) {
+		return Flux.fromArray(events).map(e -> MessageBuilder.withPayload(e).build());
+	}
+
+	public static <S, E> void doSendEventAndConsumeAll(StateMachine<S, E> stateMachine, E event) {
+		StepVerifier.create(stateMachine.sendEvent(eventAsMono(event)))
+			.thenConsumeWhile(eventResult -> true)
+			.verifyComplete();
+	}
+
+	public static <S, E> void doSendEventAndConsumeAll(StateMachine<S, E> stateMachine, Message<E> event) {
+		StepVerifier.create(stateMachine.sendEvent(eventAsMono(event)))
+			.thenConsumeWhile(eventResult -> true)
+			.verifyComplete();
+	}
 
 	@SuppressWarnings("unchecked")
 	public static <T> T readField(String name, Object target) throws Exception {

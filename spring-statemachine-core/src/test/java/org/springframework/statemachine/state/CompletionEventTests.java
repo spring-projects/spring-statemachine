@@ -17,7 +17,9 @@ package org.springframework.statemachine.state;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+import static org.springframework.statemachine.TestUtils.resolveMachine;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -27,11 +29,9 @@ import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
@@ -45,19 +45,15 @@ public class CompletionEventTests extends AbstractStateMachineTests {
 		return new AnnotationConfigApplicationContext();
 	}
 
-	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testSimpleStateWithStateActionCompletes() throws Exception {
 		context.register(Config1.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		StateMachine<String,String> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<String,String> machine = resolveMachine(context);
 		TestCountAction testAction2 = context.getBean("testAction2", TestCountAction.class);
+		doStartAndAssert(machine);
 
-		machine.start();
-
-		machine.sendEvent(MessageBuilder.withPayload("E1").build());
+		doSendEventAndConsumeAll(machine, "E1");
 
 		assertThat(testAction2.latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testAction2.count, is(1));
@@ -65,20 +61,17 @@ public class CompletionEventTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getId(), is("S3"));
 	}
 
-	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testSimpleStateWithStateActionCompletesThreading() throws Exception {
 		context.register(Config1.class, BaseConfig2.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		StateMachine<String,String> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<String,String> machine = resolveMachine(context);
 		TestCountAction testAction2 = context.getBean("testAction2", TestCountAction.class);
 
-		machine.start();
+		doStartAndAssert(machine);
 		Thread.sleep(1000);
 
-		machine.sendEvent(MessageBuilder.withPayload("E1").build());
+		doSendEventAndConsumeAll(machine, "E1");
 
 		assertThat(testAction2.latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testAction2.count, is(1));
@@ -86,71 +79,59 @@ public class CompletionEventTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getId(), is("S3"));
 	}
 
-	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testSimpleStateWithoutStateActionCompletes() throws Exception {
 		context.register(Config2.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		StateMachine<String,String> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<String,String> machine = resolveMachine(context);
 
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(machine.getState().getId(), is("S1"));
 
-		machine.sendEvent(MessageBuilder.withPayload("E1").build());
+		doSendEventAndConsumeAll(machine, "E1");
 		assertThat(machine.getState().getId(), is("S3"));
 	}
 
 	public void testSubmachineWithStateActionCompletes() throws Exception {
 	}
 
-	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testSubmachineWithoutStateActionCompletes() throws Exception {
 		context.register(Config3.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		StateMachine<String,String> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<String,String> machine = resolveMachine(context);
 
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(machine.getState().getId(), is("S1"));
 
-		machine.sendEvent(MessageBuilder.withPayload("E1").build());
+		doSendEventAndConsumeAll(machine, "E1");
 		assertThat(machine.getState().getId(), is("S3"));
 	}
 
-	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testSubmachineWithoutStateActionCompletes2() throws Exception {
 		context.register(Config5.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		StateMachine<String,String> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<String,String> machine = resolveMachine(context);
 
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(machine.getState().getId(), is("S1"));
 
-		machine.sendEvent(MessageBuilder.withPayload("E1").build());
+		doSendEventAndConsumeAll(machine, "E1");
 		assertThat(machine.getState().getId(), is("S3"));
 	}
 
-	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testSubmachineWithoutStateActionCompletesThreading() throws Exception {
 		context.register(Config3.class, BaseConfig2.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		StateMachine<String,String> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<String,String> machine = resolveMachine(context);
 
-		machine.start();
+		doStartAndAssert(machine);
 		Thread.sleep(200);
 		assertThat(machine.getState().getId(), is("S1"));
 
-		machine.sendEvent(MessageBuilder.withPayload("E1").build());
+		doSendEventAndConsumeAll(machine, "E1");
 		Thread.sleep(200);
 		assertThat(machine.getState().getId(), is("S3"));
 	}
@@ -158,36 +139,30 @@ public class CompletionEventTests extends AbstractStateMachineTests {
 	public void testRegionWithStateActionCompletes() throws Exception {
 	}
 
-	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testRegionWithoutStateActionCompletes() throws Exception {
 		context.register(Config4.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		StateMachine<String,String> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<String,String> machine = resolveMachine(context);
 
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(machine.getState().getId(), is("S1"));
 
-		machine.sendEvent(MessageBuilder.withPayload("E1").build());
+		doSendEventAndConsumeAll(machine, "E1");
 		assertThat(machine.getState().getId(), is("S3"));
 	}
 
-	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testRegionWithoutStateActionCompletesWithMultipleEnds1() throws Exception {
 		context.register(Config6.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		StateMachine<String,String> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<String,String> machine = resolveMachine(context);
 
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(machine.getState().getId(), is("S1"));
 
-		machine.sendEvent(MessageBuilder.withPayload("E1").build());
-		machine.sendEvent(MessageBuilder.withPayload("E2").build());
+		doSendEventAndConsumeAll(machine, "E1");
+		doSendEventAndConsumeAll(machine, "E2");
 
 		// TODO: REACTOR think this change is because we do subcribe
 		//       with onComplete so things are not fully changed with sendEvent
@@ -195,20 +170,17 @@ public class CompletionEventTests extends AbstractStateMachineTests {
 		// assertThat(machine.getState().getId(), is("S3"));
 	}
 
-	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testRegionWithoutStateActionCompletesWithMultipleEnds2() throws Exception {
 		context.register(Config6.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		StateMachine<String,String> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<String,String> machine = resolveMachine(context);
 
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(machine.getState().getId(), is("S1"));
 
-		machine.sendEvent(MessageBuilder.withPayload("E1").build());
-		machine.sendEvent(MessageBuilder.withPayload("E3").build());
+		doSendEventAndConsumeAll(machine, "E1");
+		doSendEventAndConsumeAll(machine, "E3");
 
 		// TODO: REACTOR think this change is because we do subcribe
 		//       with onComplete so things are not fully changed with sendEvent

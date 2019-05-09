@@ -19,6 +19,8 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -65,7 +67,7 @@ public class ManualBuilderTests {
 		TestListener listener = new TestListener();
 		StateMachine<String,String> stateMachine = stateMachineFactory.getStateMachine();
 		stateMachine.addStateListener(listener);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
@@ -100,7 +102,7 @@ public class ManualBuilderTests {
 		assertThat(stateMachine, notNullValue());
 		TestListener listener = new TestListener();
 		stateMachine.addStateListener(listener);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
@@ -135,7 +137,7 @@ public class ManualBuilderTests {
 		assertThat(stateMachine, notNullValue());
 		TestListener2 listener = new TestListener2();
 		stateMachine.addStateListener(listener);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
@@ -143,7 +145,7 @@ public class ManualBuilderTests {
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(MyStates.S1));
 
 		listener.reset(1);
-		stateMachine.sendEvent(MyEvents.E1);
+		doSendEventAndConsumeAll(stateMachine, MyEvents.E1);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(stateMachine, notNullValue());
@@ -174,7 +176,7 @@ public class ManualBuilderTests {
 		assertThat(stateMachine, notNullValue());
 		TestListener listener = new TestListener();
 		stateMachine.addStateListener(listener);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
@@ -182,7 +184,7 @@ public class ManualBuilderTests {
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
 
 		listener.reset(1);
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(stateMachine, notNullValue());

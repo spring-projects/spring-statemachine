@@ -17,7 +17,9 @@ package org.springframework.statemachine.action;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+import static org.springframework.statemachine.TestUtils.resolveMachine;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -26,11 +28,9 @@ import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
@@ -46,22 +46,19 @@ import reactor.core.publisher.Mono;
  */
 public class ReactiveActionTests extends AbstractStateMachineTests {
 
-	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testSimpleReactiveActions() throws Exception {
 		context.register(Config1.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		StateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
-		machine.start();
+		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
+		doStartAndAssert(machine);
 
 		TestCountAction testAction1 = context.getBean("testAction1", TestCountAction.class);
 		TestCountAction testAction2 = context.getBean("testAction2", TestCountAction.class);
 		TestCountAction testAction3 = context.getBean("testAction3", TestCountAction.class);
 		TestCountAction testAction4 = context.getBean("testAction4", TestCountAction.class);
-		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
-		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E2).build());
+		doSendEventAndConsumeAll(machine, TestEvents.E1);
+		doSendEventAndConsumeAll(machine, TestEvents.E2);
 		assertThat(testAction1.latch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(testAction2.latch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(testAction3.latch.await(1, TimeUnit.SECONDS), is(true));

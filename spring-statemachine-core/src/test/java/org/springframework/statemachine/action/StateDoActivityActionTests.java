@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,10 @@ package org.springframework.statemachine.action;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+import static org.springframework.statemachine.TestUtils.resolveMachine;
 
 import java.util.concurrent.TimeUnit;
 
@@ -26,58 +28,51 @@ import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.AbstractStateMachineTests;
-import org.springframework.statemachine.StateMachineMessageHeaders;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.StateMachineSystemConstants;
+import org.springframework.statemachine.StateMachineMessageHeaders;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
-@SuppressWarnings("unchecked")
 public class StateDoActivityActionTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testSimpleStateActions() throws Exception {
 		context.register(Config1.class);
 		context.refresh();
-		StateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
 		TestAction testActionS1 = context.getBean("testActionS1", TestAction.class);
 		TestAction testActionS2 = context.getBean("testActionS2", TestAction.class);
-
-		assertThat(machine, notNullValue());
-		machine.start();
+		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
+		doStartAndAssert(machine);
 
 		assertThat(testActionS1.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
-		machine.sendEvent(TestEvents.E1);
+		doSendEventAndConsumeAll(machine, TestEvents.E1);
 
 		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
-		machine.sendEvent(TestEvents.E2);
+		doSendEventAndConsumeAll(machine, TestEvents.E2);
 	}
 
 	@Test
 	public void testExitAbortsAction() throws Exception {
 		context.register(Config2.class);
 		context.refresh();
-		StateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
 		TestSleepAction testActionS1 = context.getBean("testActionS1", TestSleepAction.class);
 		TestSleepAction testActionS2 = context.getBean("testActionS2", TestSleepAction.class);
-
-		assertThat(machine, notNullValue());
-		machine.start();
+		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
+		doStartAndAssert(machine);
 
 		assertThat(testActionS1.onExecuteStartLatch.await(2, TimeUnit.SECONDS), is(true));
-		machine.sendEvent(TestEvents.E1);
+		doSendEventAndConsumeAll(machine, TestEvents.E1);
 		assertThat(testActionS1.interruptedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testActionS1.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
 
 		assertThat(testActionS2.onExecuteStartLatch.await(2, TimeUnit.SECONDS), is(true));
-		machine.sendEvent(TestEvents.E2);
+		doSendEventAndConsumeAll(machine, TestEvents.E2);
 		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S3));
@@ -87,24 +82,21 @@ public class StateDoActivityActionTests extends AbstractStateMachineTests {
 	public void testInternalTransitionDoesNotAbort() throws Exception {
 		context.register(Config3.class);
 		context.refresh();
-		StateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
 		TestSleepAction testActionS1 = context.getBean("testActionS1", TestSleepAction.class);
 		TestSleepAction testActionS2 = context.getBean("testActionS2", TestSleepAction.class);
 		TestAction testActionS1I = context.getBean("testActionS1I", TestAction.class);
 		TestAction testActionS2I = context.getBean("testActionS2I", TestAction.class);
-
-		assertThat(machine, notNullValue());
-		machine.start();
-		machine.sendEvent(TestEvents.E3);
+		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
+		doStartAndAssert(machine);
+		doSendEventAndConsumeAll(machine, TestEvents.E3);
 		assertThat(testActionS1I.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testActionS1.interruptedLatch.await(2, TimeUnit.SECONDS), is(false));
-		machine.sendEvent(TestEvents.E1);
+		doSendEventAndConsumeAll(machine, TestEvents.E1);
 
-		machine.sendEvent(TestEvents.E4);
+		doSendEventAndConsumeAll(machine, TestEvents.E4);
 		assertThat(testActionS2I.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS), is(false));
-		machine.sendEvent(TestEvents.E2);
+		doSendEventAndConsumeAll(machine, TestEvents.E2);
 
 		assertThat(testActionS1.interruptedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS), is(true));
@@ -254,17 +246,15 @@ public class StateDoActivityActionTests extends AbstractStateMachineTests {
 	public void testStateDoActionNotCancelledWithEventTimeout() throws Exception {
 		context.register(Config4.class);
 		context.refresh();
-		StateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
 		TestSleepAction testActionS2 = context.getBean("testActionS2", TestSleepAction.class);
+		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
+		doStartAndAssert(machine);
 
-		assertThat(machine, notNullValue());
-		machine.start();
-
-		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1)
-				.setHeader(StateMachineMessageHeaders.HEADER_DO_ACTION_TIMEOUT, 4000).build());
+		Message<TestEvents> event = MessageBuilder.withPayload(TestEvents.E1)
+				.setHeader(StateMachineMessageHeaders.HEADER_DO_ACTION_TIMEOUT, 4000).build();
+		doSendEventAndConsumeAll(machine, event);
 		assertThat(testActionS2.onExecuteStartLatch.await(2, TimeUnit.SECONDS), is(true));
-		machine.sendEvent(TestEvents.E2);
+		doSendEventAndConsumeAll(machine, TestEvents.E2);
 		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS), is(false));
 	}
@@ -273,17 +263,15 @@ public class StateDoActivityActionTests extends AbstractStateMachineTests {
 	public void testStateDoActionCancelledWithEventTimeout() throws Exception {
 		context.register(Config4.class);
 		context.refresh();
-		StateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
 		TestSleepAction testActionS2 = context.getBean("testActionS2", TestSleepAction.class);
+		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
+		doStartAndAssert(machine);
 
-		assertThat(machine, notNullValue());
-		machine.start();
-
-		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1)
-				.setHeader(StateMachineMessageHeaders.HEADER_DO_ACTION_TIMEOUT, 100).build());
+		Message<TestEvents> event = MessageBuilder.withPayload(TestEvents.E1)
+				.setHeader(StateMachineMessageHeaders.HEADER_DO_ACTION_TIMEOUT, 100).build();
+		doSendEventAndConsumeAll(machine, event);
 		assertThat(testActionS2.onExecuteStartLatch.await(2, TimeUnit.SECONDS), is(true));
-		machine.sendEvent(TestEvents.E2);
+		doSendEventAndConsumeAll(machine, TestEvents.E2);
 		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS), is(true));
 	}
@@ -292,16 +280,13 @@ public class StateDoActivityActionTests extends AbstractStateMachineTests {
 	public void testStateDoActionCancelledWithConfigSetting() throws Exception {
 		context.register(Config5.class);
 		context.refresh();
-		StateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
 		TestSleepAction testActionS2 = context.getBean("testActionS2", TestSleepAction.class);
+		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
+		doStartAndAssert(machine);
 
-		assertThat(machine, notNullValue());
-		machine.start();
-
-		machine.sendEvent(TestEvents.E1);
+		doSendEventAndConsumeAll(machine, TestEvents.E1);
 		assertThat(testActionS2.onExecuteStartLatch.await(2, TimeUnit.SECONDS), is(true));
-		machine.sendEvent(TestEvents.E2);
+		doSendEventAndConsumeAll(machine, TestEvents.E2);
 		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS), is(true));
 	}
@@ -310,16 +295,13 @@ public class StateDoActivityActionTests extends AbstractStateMachineTests {
 	public void testStateDoActionNotCancelledWithConfigTimeout() throws Exception {
 		context.register(Config6.class);
 		context.refresh();
-		StateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
 		TestSleepAction testActionS2 = context.getBean("testActionS2", TestSleepAction.class);
+		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
+		doStartAndAssert(machine);
 
-		assertThat(machine, notNullValue());
-		machine.start();
-
-		machine.sendEvent(TestEvents.E1);
+		doSendEventAndConsumeAll(machine, TestEvents.E1);
 		assertThat(testActionS2.onExecuteStartLatch.await(2, TimeUnit.SECONDS), is(true));
-		machine.sendEvent(TestEvents.E2);
+		doSendEventAndConsumeAll(machine, TestEvents.E2);
 		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS), is(false));
 	}

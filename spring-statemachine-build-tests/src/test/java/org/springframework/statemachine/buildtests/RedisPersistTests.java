@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,10 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+import static org.springframework.statemachine.TestUtils.resolveFactory;
+import static org.springframework.statemachine.TestUtils.resolvePersister;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,28 +56,27 @@ public class RedisPersistTests extends AbstractBuildTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void testPersistRegions() throws Exception {
 		context.register(RedisConfig.class, Config1.class);
 		context.refresh();
 
-		StateMachineFactory<TestStates, TestEvents> stateMachineFactory = context.getBean(StateMachineFactory.class);
-		StateMachinePersister<TestStates, TestEvents, String> persister = context.getBean(StateMachinePersister.class);
-
+		StateMachineFactory<TestStates, TestEvents> stateMachineFactory = resolveFactory(context);
+		StateMachinePersister<TestStates, TestEvents, String> persister = resolvePersister(context);
 		StateMachine<TestStates, TestEvents> stateMachine = stateMachineFactory.getStateMachine("testid");
-		stateMachine.start();
+
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine, notNullValue());
 		assertThat(stateMachine.getId(), is("testid"));
 
-		stateMachine.sendEvent(TestEvents.E1);
+		doSendEventAndConsumeAll(stateMachine, TestEvents.E1);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
 		persister.persist(stateMachine, "xxx1");
 
-		stateMachine.sendEvent(TestEvents.E2);
+		doSendEventAndConsumeAll(stateMachine, TestEvents.E2);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
 		persister.persist(stateMachine, "xxx2");
 
-		stateMachine.sendEvent(TestEvents.E3);
+		doSendEventAndConsumeAll(stateMachine, TestEvents.E3);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S4));
 		persister.persist(stateMachine, "xxx3");
 
@@ -83,7 +86,7 @@ public class RedisPersistTests extends AbstractBuildTests {
 		stateMachine = persister.restore(stateMachine, "xxx1");
 		assertThat(stateMachine.getId(), is("testid"));
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
-		stateMachine.sendEvent(TestEvents.E2);
+		doSendEventAndConsumeAll(stateMachine, TestEvents.E2);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
 
 		stateMachine = stateMachineFactory.getStateMachine();
@@ -92,7 +95,7 @@ public class RedisPersistTests extends AbstractBuildTests {
 		stateMachine = persister.restore(stateMachine, "xxx2");
 		assertThat(stateMachine.getId(), is("testid"));
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
-		stateMachine.sendEvent(TestEvents.E3);
+		doSendEventAndConsumeAll(stateMachine, TestEvents.E4);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S4));
 
 		stateMachine = stateMachineFactory.getStateMachine();

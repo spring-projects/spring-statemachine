@@ -23,6 +23,9 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+import static org.springframework.statemachine.TestUtils.resolveMachine;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -49,17 +52,16 @@ public class StateContextTests extends AbstractStateMachineTests {
 		return new AnnotationConfigApplicationContext();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testStartCycles() throws Exception {
 		context.register(Config1.class);
 		context.refresh();
-		StateMachine<States, Events> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<States, Events> machine = resolveMachine(context);
 
 		TestStateMachineListener listener = new TestStateMachineListener();
 		machine.addStateListener(listener);
 
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S1, States.S11));
 		assertThat(listener.contexts, hasSize(19));
 
@@ -150,20 +152,19 @@ public class StateContextTests extends AbstractStateMachineTests {
 		assertThat(listener.contexts.get(18).getTransition(), notNullValue());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testEventNotAccepted() throws Exception {
 		context.register(Config1.class);
 		context.refresh();
-		StateMachine<States, Events> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<States, Events> machine = resolveMachine(context);
 
 		TestStateMachineListener listener = new TestStateMachineListener();
 		machine.addStateListener(listener);
 
-		machine.start();
+		doStartAndAssert(machine);
 		listener.contexts.clear();
 
-		machine.sendEvent(Events.J);
+		doSendEventAndConsumeAll(machine, Events.J);
 
 		// all nested machines sends these
 		assertThat(listener.contexts, contains(

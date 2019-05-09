@@ -18,6 +18,7 @@ package org.springframework.statemachine.security;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -81,7 +82,7 @@ public class ActionSecurityTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
 
 		listener.reset(1);
-		machine.sendEvent(Events.A);
+		doSendEventAndConsumeAll(machine, Events.A);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S1));
@@ -96,7 +97,7 @@ public class ActionSecurityTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
 
 		listener.reset(1);
-		machine.sendEvent(Events.A);
+		doSendEventAndConsumeAll(machine, Events.A);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S1));

@@ -170,6 +170,10 @@ configure(subprojects) { subproject ->
 project('spring-statemachine-core') {
 	description = "Spring State Machine Core"
 
+	configurations {
+		testArtifacts.extendsFrom testRuntime
+	}
+
 	dependencies {
 		compile "org.springframework:spring-tx"
 		compile "org.springframework:spring-messaging"
@@ -193,6 +197,15 @@ project('spring-statemachine-core') {
 		testCompile "javax.servlet:javax.servlet-api"
 		testCompile "org.awaitility:awaitility"
 		testRuntime "org.apache.logging.log4j:log4j-core"
+	}
+
+	task testJar(type: Jar) {
+		classifier = 'tests'
+		from sourceSets.test.output
+	}
+
+	artifacts {
+		testArtifacts testJar
 	}
 }
 
@@ -228,11 +241,14 @@ project('spring-statemachine-test') {
 	dependencies {
 		compile "org.springframework:spring-context"
 		compile project(":spring-statemachine-core")
-
 		compile "org.springframework:spring-test"
 		compile "org.hamcrest:hamcrest-core"
 		compile "org.hamcrest:hamcrest-library"
 		compile "junit:junit"
+		compile "org.assertj:assertj-core"
+		testCompile("org.mockito:mockito-core") { dep ->
+			exclude group: "org.hamcrest"
+		}
 	}
 }
 
@@ -362,10 +378,12 @@ project('spring-statemachine-build-tests') {
 		testCompile project(":spring-statemachine-data-common:spring-statemachine-data-jpa")
 		testCompile project(":spring-statemachine-data-common:spring-statemachine-data-redis")
 		testCompile project(":spring-statemachine-data-common:spring-statemachine-data-mongodb")
-        testCompile "org.apache.commons:commons-pool2"
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile "io.projectreactor:reactor-test"
+		testCompile "org.apache.commons:commons-pool2"
 		testRuntime "org.springframework.boot:spring-boot-starter-data-mongodb"
 		testRuntime "org.springframework.boot:spring-boot-starter-data-redis"
-        testRuntime "redis.clients:jedis"
+		testRuntime "redis.clients:jedis"
 		testCompile "org.springframework.boot:spring-boot-starter-data-jpa"
 		testCompile "com.h2database:h2"
 		testCompile "org.springframework.boot:spring-boot-starter"
