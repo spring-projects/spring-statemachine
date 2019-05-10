@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.statemachine.recipes;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +55,7 @@ public class TasksHandlerTests {
 		listener.reset(9, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
 
 		handler.runTasks();
@@ -78,7 +79,7 @@ public class TasksHandlerTests {
 		listener.reset(11, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
 
 		handler.runTasks();
@@ -102,7 +103,7 @@ public class TasksHandlerTests {
 		listener.reset(11, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
 
 		handler.runTasks();
@@ -138,7 +139,7 @@ public class TasksHandlerTests {
 		listener.reset(1, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
@@ -163,7 +164,7 @@ public class TasksHandlerTests {
 		listener.reset(9, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
 
 		handler.runTasks();
@@ -194,7 +195,7 @@ public class TasksHandlerTests {
 
 		machine.addStateListener(listener);
 		listener.reset(1, 0, 0);
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
@@ -223,7 +224,7 @@ public class TasksHandlerTests {
 		listener.reset(9, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
 
 		tasksListener.reset(1, 0, 3, 3, 0, 3, 1, 0);
@@ -260,7 +261,7 @@ public class TasksHandlerTests {
 		listener.reset(11, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
 
 		tasksListener.reset(1, 0, 0, 0, 1, 0, 0, 1);
@@ -294,7 +295,7 @@ public class TasksHandlerTests {
 		listener.reset(11, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
 
 		tasksListener.reset(0, 1, 0, 0, 0, 0, 0, 0);
@@ -329,7 +330,7 @@ public class TasksHandlerTests {
 		listener.reset(9, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
 
 		persist.reset(5);
@@ -368,7 +369,7 @@ public class TasksHandlerTests {
 		listener.reset(11, 0, 0);
 		StateMachine<String, String> machine = handler.getStateMachine();
 		machine.addStateListener(listener);
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateMachineStartedLatch.await(1, TimeUnit.SECONDS), is(true));
 
 		persist.reset(6);
