@@ -21,6 +21,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -238,9 +240,9 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
 		LatchAction action1 = context.getBean("action1", LatchAction.class);
 
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), contains("S1"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(action1.latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(stateMachine.getState().getIds(), contains("S2"));
 	}
@@ -252,11 +254,11 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
 
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), contains("S1", "S11"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), contains("S1", "S12"));
-		stateMachine.sendEvent("E2");
+		doSendEventAndConsumeAll(stateMachine, "E2");
 		assertThat(stateMachine.getState().getIds(), contains("S2"));
 	}
 
@@ -267,11 +269,11 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
 
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1", "S3"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S3"));
-		stateMachine.sendEvent("E2");
+		doSendEventAndConsumeAll(stateMachine, "E2");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S4"));
 	}
 
@@ -282,11 +284,11 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
 
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent("E3");
+		doSendEventAndConsumeAll(stateMachine, "E3");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
-		stateMachine.sendEvent("E4");
+		doSendEventAndConsumeAll(stateMachine, "E4");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S4"));
 	}
 
@@ -296,9 +298,9 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.register(Config6.class);
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent(MessageBuilder.withPayload("E1").setHeader("choice", "s2").build());
+		doSendEventAndConsumeAll(stateMachine, MessageBuilder.withPayload("E1").setHeader("choice", "s2").build());
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
 	}
 
@@ -308,9 +310,9 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.register(Config6.class);
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent(MessageBuilder.withPayload("E1").setHeader("choice", "s3").build());
+		doSendEventAndConsumeAll(stateMachine, MessageBuilder.withPayload("E1").setHeader("choice", "s3").build());
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S3"));
 	}
 
@@ -320,9 +322,9 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.register(Config6.class);
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S4"));
 	}
 
@@ -332,9 +334,9 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.register(Config6MissingName.class);
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent(MessageBuilder.withPayload("E1").setHeader("choice", "s2").build());
+		doSendEventAndConsumeAll(stateMachine, MessageBuilder.withPayload("E1").setHeader("choice", "s2").build());
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
 	}
 
@@ -344,13 +346,13 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.register(Config7.class);
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("SI"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S20", "S30"));
-		stateMachine.sendEvent("E2");
+		doSendEventAndConsumeAll(stateMachine, "E2");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21", "S30"));
-		stateMachine.sendEvent("E3");
+		doSendEventAndConsumeAll(stateMachine, "E3");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("SF"));
 	}
 
@@ -360,13 +362,13 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.register(Config20.class);
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("SI"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S20", "S30"));
-		stateMachine.sendEvent("E2");
+		doSendEventAndConsumeAll(stateMachine, "E2");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21", "S30"));
-		stateMachine.sendEvent("E3");
+		doSendEventAndConsumeAll(stateMachine, "E3");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S4"));
 	}
 
@@ -376,14 +378,14 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.register(Config20.class);
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		stateMachine.getExtendedState().getVariables().put("foo", "bar");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("SI"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S20", "S30"));
-		stateMachine.sendEvent("E2");
+		doSendEventAndConsumeAll(stateMachine, "E2");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21", "S30"));
-		stateMachine.sendEvent("E3");
+		doSendEventAndConsumeAll(stateMachine, "E3");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("SF"));
 	}
 
@@ -393,15 +395,15 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.register(Config8.class);
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S20"));
-		stateMachine.sendEvent("E2");
+		doSendEventAndConsumeAll(stateMachine, "E2");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
-		stateMachine.sendEvent("E3");
+		doSendEventAndConsumeAll(stateMachine, "E3");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent("E4");
+		doSendEventAndConsumeAll(stateMachine, "E4");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 	}
 
@@ -411,15 +413,15 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.register(Config9.class);
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21", "S211"));
-		stateMachine.sendEvent("E2");
+		doSendEventAndConsumeAll(stateMachine, "E2");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21", "S212"));
-		stateMachine.sendEvent("E3");
+		doSendEventAndConsumeAll(stateMachine, "E3");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent("E4");
+		doSendEventAndConsumeAll(stateMachine, "E4");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21", "S212"));
 	}
 
@@ -429,11 +431,11 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.register(Config10.class);
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
-		stateMachine.sendEvent(MessageBuilder.withPayload("E4").setHeader("junction", "s5").build());
+		doSendEventAndConsumeAll(stateMachine, MessageBuilder.withPayload("E4").setHeader("junction", "s5").build());
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S5"));
 	}
 
@@ -443,11 +445,11 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.register(Config10.class);
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent("E2");
+		doSendEventAndConsumeAll(stateMachine, "E2");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S3"));
-		stateMachine.sendEvent(MessageBuilder.withPayload("E4").setHeader("junction", "s6").build());
+		doSendEventAndConsumeAll(stateMachine, MessageBuilder.withPayload("E4").setHeader("junction", "s6").build());
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S6"));
 	}
 
@@ -457,11 +459,11 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.register(Config10.class);
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent("E3");
+		doSendEventAndConsumeAll(stateMachine, "E3");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S4"));
-		stateMachine.sendEvent("E4");
+		doSendEventAndConsumeAll(stateMachine, "E4");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S7"));
 	}
 
@@ -476,9 +478,9 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		LatchAction e1Action = context.getBean("e1Action", LatchAction.class);
 		LatchAction s1Exit = context.getBean("s1Exit", LatchAction.class);
 		LatchAction s2Entry = context.getBean("s2Entry", LatchAction.class);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
 		assertThat(e1Action.latch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(s1Exit.latch.await(1, TimeUnit.SECONDS), is(true));
@@ -547,9 +549,9 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.register(Config12.class);
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent("E4");
+		doSendEventAndConsumeAll(stateMachine, "E4");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
 	}
 
@@ -560,9 +562,9 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
 		LatchAction s3Entry = context.getBean("s3Entry", LatchAction.class);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(s3Entry.latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S3"));
 	}
@@ -574,9 +576,9 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
 		LatchAction s5Entry = context.getBean("s5Entry", LatchAction.class);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent("E2");
+		doSendEventAndConsumeAll(stateMachine, "E2");
 		assertThat(s5Entry.latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S5"));
 	}
@@ -587,9 +589,9 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.register(Config14.class);
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
 	}
 
@@ -599,9 +601,9 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.register(Config14.class);
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent("E2");
+		doSendEventAndConsumeAll(stateMachine, "E2");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S3"));
 	}
 
@@ -612,7 +614,7 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
 		LatchAction initialAction = context.getBean("initialAction", LatchAction.class);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
 		assertThat(initialAction.latch.await(1, TimeUnit.SECONDS), is(true));
 	}
@@ -624,9 +626,9 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
 
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent(MessageBuilder.withPayload("E1").setHeader("foo", "bar").build());
+		doSendEventAndConsumeAll(stateMachine, MessageBuilder.withPayload("E1").setHeader("foo", "bar").build());
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
 		assertThat(stateMachine.getExtendedState().get("myvar1", String.class), is("myvalue1"));
 		assertThat(stateMachine.getExtendedState().get("myvar2", String.class), is("myvalue2"));
@@ -639,9 +641,9 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
 
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
 	}
 
@@ -669,15 +671,15 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.register(Config21.class);
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S20"));
-		stateMachine.sendEvent("E2");
+		doSendEventAndConsumeAll(stateMachine, "E2");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21", "S30"));
-		stateMachine.sendEvent("E3");
+		doSendEventAndConsumeAll(stateMachine, "E3");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21", "S31"));
-		stateMachine.sendEvent("E4");
+		doSendEventAndConsumeAll(stateMachine, "E4");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S3"));
 	}
 
@@ -689,13 +691,13 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
 		LatchAction e1Action = context.getBean("e1Action", LatchAction.class);
 		LatchAction e2Action = context.getBean("e2Action", LatchAction.class);
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
 		assertThat(e1Action.latch.await(1, TimeUnit.SECONDS), is(true));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
 		assertThat(e2Action.latch.await(1, TimeUnit.SECONDS), is(true));
-		stateMachine.sendEvent("E2");
+		doSendEventAndConsumeAll(stateMachine, "E2");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S3"));
 	}
 
@@ -708,12 +710,12 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(stateMachine, notNullValue());
 		TestListener listener = new TestListener();
 		stateMachine.addStateListener(listener);
-		stateMachine.start();
-		stateMachine.sendEvent("E1");
+		doStartAndAssert(stateMachine);
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 
 		listener.reset();
-		stateMachine.sendEvent("E20");
+		doSendEventAndConsumeAll(stateMachine, "E20");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 		assertThat(listener.exited.size(), is(2));
 		assertThat(listener.entered.size(), is(2));
@@ -730,12 +732,12 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(stateMachine, notNullValue());
 		TestListener listener = new TestListener();
 		stateMachine.addStateListener(listener);
-		stateMachine.start();
-		stateMachine.sendEvent("E1");
+		doStartAndAssert(stateMachine);
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 
 		listener.reset();
-		stateMachine.sendEvent("E30");
+		doSendEventAndConsumeAll(stateMachine, "E30");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 		assertThat(listener.exited.size(), is(1));
 		assertThat(listener.entered.size(), is(1));
@@ -752,12 +754,12 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(stateMachine, notNullValue());
 		TestListener listener = new TestListener();
 		stateMachine.addStateListener(listener);
-		stateMachine.start();
-		stateMachine.sendEvent("E1");
+		doStartAndAssert(stateMachine);
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 
 		listener.reset();
-		stateMachine.sendEvent("E21");
+		doSendEventAndConsumeAll(stateMachine, "E21");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
 		assertThat(listener.exited.size(), is(2));
 		assertThat(listener.entered.size(), is(2));
@@ -774,12 +776,12 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(stateMachine, notNullValue());
 		TestListener listener = new TestListener();
 		stateMachine.addStateListener(listener);
-		stateMachine.start();
-		stateMachine.sendEvent("E1");
+		doStartAndAssert(stateMachine);
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 
 		listener.reset();
-		stateMachine.sendEvent("E31");
+		doSendEventAndConsumeAll(stateMachine, "E31");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
 		assertThat(listener.exited.size(), is(1));
 		assertThat(listener.entered.size(), is(1));
@@ -796,12 +798,12 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(stateMachine, notNullValue());
 		TestListener listener = new TestListener();
 		stateMachine.addStateListener(listener);
-		stateMachine.start();
-		stateMachine.sendEvent("E1");
+		doStartAndAssert(stateMachine);
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 
 		listener.reset();
-		stateMachine.sendEvent("E22");
+		doSendEventAndConsumeAll(stateMachine, "E22");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 		assertThat(listener.exited.size(), is(2));
 		assertThat(listener.entered.size(), is(2));
@@ -818,12 +820,12 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(stateMachine, notNullValue());
 		TestListener listener = new TestListener();
 		stateMachine.addStateListener(listener);
-		stateMachine.start();
-		stateMachine.sendEvent("E1");
+		doStartAndAssert(stateMachine);
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 
 		listener.reset();
-		stateMachine.sendEvent("E32");
+		doSendEventAndConsumeAll(stateMachine, "E32");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 		assertThat(listener.exited.size(), is(1));
 		assertThat(listener.entered.size(), is(1));
@@ -840,12 +842,12 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(stateMachine, notNullValue());
 		TestListener listener = new TestListener();
 		stateMachine.addStateListener(listener);
-		stateMachine.start();
-		stateMachine.sendEvent("E1");
+		doStartAndAssert(stateMachine);
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 
 		listener.reset();
-		stateMachine.sendEvent("E21");
+		doSendEventAndConsumeAll(stateMachine, "E21");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
 		assertThat(listener.exited.size(), is(2));
 		assertThat(listener.entered.size(), is(2));
@@ -853,7 +855,7 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(listener.entered, containsInAnyOrder("S2", "S22"));
 
 		listener.reset();
-		stateMachine.sendEvent("E23");
+		doSendEventAndConsumeAll(stateMachine, "E23");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
 		assertThat(listener.exited.size(), is(2));
 		assertThat(listener.entered.size(), is(2));
@@ -870,12 +872,12 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(stateMachine, notNullValue());
 		TestListener listener = new TestListener();
 		stateMachine.addStateListener(listener);
-		stateMachine.start();
-		stateMachine.sendEvent("E1");
+		doStartAndAssert(stateMachine);
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21"));
 
 		listener.reset();
-		stateMachine.sendEvent("E31");
+		doSendEventAndConsumeAll(stateMachine, "E31");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
 		assertThat(listener.exited.size(), is(1));
 		assertThat(listener.entered.size(), is(1));
@@ -883,7 +885,7 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(listener.entered, containsInAnyOrder("S22"));
 
 		listener.reset();
-		stateMachine.sendEvent("E33");
+		doSendEventAndConsumeAll(stateMachine, "E33");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
 		assertThat(listener.exited.size(), is(1));
 		assertThat(listener.entered.size(), is(1));
@@ -898,11 +900,11 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		context.refresh();
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
 
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent("E3");
+		doSendEventAndConsumeAll(stateMachine, "E3");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S22"));
-		stateMachine.sendEvent("E4");
+		doSendEventAndConsumeAll(stateMachine, "E4");
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S4"));
 	}
 
@@ -955,9 +957,9 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		LatchAction choiceToS2 = context.getBean("choiceToS2", LatchAction.class);
 		LatchAction choiceToS4 = context.getBean("choiceToS4", LatchAction.class);
 
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent(MessageBuilder.withPayload("E1").setHeader("choice", "s2").build());
+		doSendEventAndConsumeAll(stateMachine, MessageBuilder.withPayload("E1").setHeader("choice", "s2").build());
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
 
 		assertThat(s1ToChoice.latch.await(1, TimeUnit.SECONDS), is(true));
@@ -976,9 +978,9 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		LatchAction choiceToS2 = context.getBean("choiceToS2", LatchAction.class);
 		LatchAction choiceToS4 = context.getBean("choiceToS4", LatchAction.class);
 
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent(MessageBuilder.withPayload("E1").build());
+		doSendEventAndConsumeAll(stateMachine, MessageBuilder.withPayload("E1").build());
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S4"));
 
 		assertThat(s1ToChoice.latch.await(1, TimeUnit.SECONDS), is(true));
@@ -1000,9 +1002,9 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		LatchAction choiceToS5 = context.getBean("choiceToS5", LatchAction.class);
 		LatchAction choiceToS6 = context.getBean("choiceToS6", LatchAction.class);
 
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent(MessageBuilder.withPayload("E1").setHeader("choice", "choice2").build());
+		doSendEventAndConsumeAll(stateMachine, MessageBuilder.withPayload("E1").setHeader("choice", "choice2").build());
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S6"));
 
 		assertThat(s1ToChoice.latch.await(1, TimeUnit.SECONDS), is(true));
@@ -1024,9 +1026,9 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		LatchAction choiceToS2 = context.getBean("choiceToS2", LatchAction.class);
 		LatchAction choiceToS4 = context.getBean("choiceToS4", LatchAction.class);
 
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent(MessageBuilder.withPayload("E1").setHeader("choice", "s2").build());
+		doSendEventAndConsumeAll(stateMachine, MessageBuilder.withPayload("E1").setHeader("choice", "s2").build());
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
 
 		assertThat(s1ToChoice.latch.await(1, TimeUnit.SECONDS), is(true));
@@ -1045,9 +1047,9 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		LatchAction choiceToS2 = context.getBean("choiceToS2", LatchAction.class);
 		LatchAction choiceToS4 = context.getBean("choiceToS4", LatchAction.class);
 
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent(MessageBuilder.withPayload("E1").build());
+		doSendEventAndConsumeAll(stateMachine, MessageBuilder.withPayload("E1").build());
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S4"));
 
 		assertThat(s1ToChoice.latch.await(1, TimeUnit.SECONDS), is(true));
@@ -1069,9 +1071,9 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		LatchAction choiceToS5 = context.getBean("choiceToS5", LatchAction.class);
 		LatchAction choiceToS6 = context.getBean("choiceToS6", LatchAction.class);
 
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-		stateMachine.sendEvent(MessageBuilder.withPayload("E1").setHeader("choice", "choice2").build());
+		doSendEventAndConsumeAll(stateMachine, MessageBuilder.withPayload("E1").setHeader("choice", "choice2").build());
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S6"));
 
 		assertThat(s1ToChoice.latch.await(1, TimeUnit.SECONDS), is(true));

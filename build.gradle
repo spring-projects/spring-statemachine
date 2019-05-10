@@ -358,7 +358,7 @@ project('spring-statemachine-uml') {
 		compile "org.eclipse.emf:org.eclipse.emf.ecore.xmi"
 		compile "org.eclipse.emf:org.eclipse.emf.ecore"
 		compile "org.eclipse.emf:org.eclipse.emf.common"
-
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
 		testCompile "org.springframework:spring-test"
 		testCompile "org.hamcrest:hamcrest-core"
 		testCompile "org.hamcrest:hamcrest-library"
@@ -397,6 +397,7 @@ project('spring-statemachine-build-tests') {
 configure(recipeProjects()) {
 	dependencies {
 		compile project(":spring-statemachine-recipes-common")
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
 		testCompile "org.springframework:spring-test"
 		testCompile "org.hamcrest:hamcrest-core"
 		testCompile "org.hamcrest:hamcrest-library"
@@ -408,6 +409,7 @@ project('spring-statemachine-recipes-common') {
 	dependencies {
 		compile "org.springframework:spring-context"
 		compile project(":spring-statemachine-core")
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
 		testCompile "org.springframework:spring-test"
 		testCompile "org.hamcrest:hamcrest-core"
 		testCompile "org.hamcrest:hamcrest-library"
