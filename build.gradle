@@ -301,6 +301,7 @@ project('spring-statemachine-data-common') {
 		compile "com.fasterxml.jackson.core:jackson-core"
 		compile "com.fasterxml.jackson.core:jackson-databind"
 		testCompile project(":spring-statemachine-test")
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
 		testCompile "org.springframework.boot:spring-boot-starter-test"
 		testRuntime "org.springframework.boot:spring-boot-starter-web"
 	}

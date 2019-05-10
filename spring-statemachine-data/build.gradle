@@ -7,6 +7,7 @@ project('spring-statemachine-data-jpa') {
 		compile "org.springframework:spring-orm"
 		testCompile project(":spring-statemachine-test")
 		testCompile project(path:":spring-statemachine-data-common", configuration:"testArtifacts")
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
 		optional "org.eclipse.persistence:javax.persistence"
 		testCompile "org.hsqldb:hsqldb"
 		testCompile "org.springframework.boot:spring-boot-starter-test"
@@ -23,6 +24,7 @@ project('spring-statemachine-data-redis') {
 		testCompile project(":spring-statemachine-test")
 		optional "org.eclipse.persistence:javax.persistence"
 		testCompile project(path:":spring-statemachine-data-common", configuration:"testArtifacts")
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
 		testCompile "org.springframework.boot:spring-boot-starter-test"
 		testRuntime "org.apache.commons:commons-pool2"
 		testRuntime "redis.clients:jedis"
@@ -39,6 +41,7 @@ project('spring-statemachine-data-mongodb') {
 		testCompile project(":spring-statemachine-test")
 		optional "org.eclipse.persistence:javax.persistence"
 		testCompile project(path:":spring-statemachine-data-common", configuration:"testArtifacts")
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
 		testCompile "org.springframework.boot:spring-boot-starter-test"
 		testRuntime "org.springframework.boot:spring-boot-starter-data-mongodb"
 		testRuntime "org.springframework.boot:spring-boot-starter-web"

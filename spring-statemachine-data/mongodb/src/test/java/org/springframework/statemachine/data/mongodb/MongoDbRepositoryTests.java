@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,9 @@ package org.springframework.statemachine.data.mongodb;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+import static org.springframework.statemachine.TestUtils.resolveMachine;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -121,32 +124,30 @@ public class MongoDbRepositoryTests extends AbstractRepositoryTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void testStateMachinePersistWithStrings() {
 		context.register(TestConfig.class, ConfigWithStrings.class);
 		context.refresh();
 
-		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
-		stateMachine.start();
+		StateMachine<String, String> stateMachine = resolveMachine(context);
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getId(), is("S1"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getId(), is("S2"));
-		stateMachine.sendEvent("E2");
+		doSendEventAndConsumeAll(stateMachine, "E2");
 		assertThat(stateMachine.getState().getId(), is("S1"));
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void testStateMachinePersistWithEnums() {
 		context.register(TestConfig.class, ConfigWithEnums.class);
 		context.refresh();
 
-		StateMachine<PersistTestStates, PersistTestEvents> stateMachine = context.getBean(StateMachine.class);
-		stateMachine.start();
+		StateMachine<PersistTestStates, PersistTestEvents> stateMachine = resolveMachine(context);
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getId(), is(PersistTestStates.S1));
-		stateMachine.sendEvent(PersistTestEvents.E1);
+		doSendEventAndConsumeAll(stateMachine, PersistTestEvents.E1);
 		assertThat(stateMachine.getState().getId(), is(PersistTestStates.S2));
-		stateMachine.sendEvent(PersistTestEvents.E2);
+		doSendEventAndConsumeAll(stateMachine, PersistTestEvents.E2);
 		assertThat(stateMachine.getState().getId(), is(PersistTestStates.S1));
 	}
 
