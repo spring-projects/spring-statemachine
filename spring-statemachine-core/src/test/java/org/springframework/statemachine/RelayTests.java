@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+import static org.springframework.statemachine.TestUtils.resolveMachine;
 
 import java.util.concurrent.TimeUnit;
 
@@ -26,11 +29,14 @@ import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+
+import reactor.core.publisher.Mono;
 
 public class RelayTests extends AbstractStateMachineTests {
 
@@ -40,20 +46,17 @@ public class RelayTests extends AbstractStateMachineTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void testRelayFromSubmachine() throws Exception {
 		context.register(Config1.class);
 		context.refresh();
-		ObjectStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
 		assertThat(machine, notNullValue());
 		TestStateMachineListener listener = new TestStateMachineListener();
 		machine.addStateListener(listener);
-		machine.start();
+		doStartAndAssert(machine);
 		listener.reset(3, 0);
-		machine.sendEvent(TestEvents.E1);
+		doSendEventAndConsumeAll(machine, TestEvents.E1);
 		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS), is(true));
-
 		assertThat(machine.getState().getIds(), contains(TestStates.S2, TestStates.S21));
 	}
 
@@ -95,7 +98,10 @@ public class RelayTests extends AbstractStateMachineTests {
 
 				@Override
 				public void execute(StateContext<TestStates, TestEvents> context) {
-					context.getStateMachine().sendEvent(TestEvents.E2);
+					context.getStateMachine()
+						.sendEvent(Mono.just(MessageBuilder
+							.withPayload(TestEvents.E2).build()))
+						.subscribe();
 				}
 			};
 		}
