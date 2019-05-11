@@ -4,6 +4,8 @@ project('spring-statemachine-samples-turnstile') {
 	description = 'Spring State Machine Turnstile Sample'
 	dependencies {
 		compile project(":spring-statemachine-samples-common")
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile 'io.projectreactor:reactor-test'
 	}
 }
 
@@ -12,6 +14,7 @@ project('spring-statemachine-samples-turnstilereactive') {
 	dependencies {
 		compile project(":spring-statemachine-samples-common")
 		compile 'org.springframework.boot:spring-boot-starter-webflux'
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
 		testCompile 'io.projectreactor:reactor-test'
 		testCompile 'org.springframework.boot:spring-boot-starter-test'
 	}
@@ -20,6 +23,8 @@ project('spring-statemachine-samples-turnstilereactive') {
 project('spring-statemachine-samples-showcase') {
 	description = 'Spring State Machine Showcase Sample'
 	dependencies {
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile 'io.projectreactor:reactor-test'
 		compile project(":spring-statemachine-samples-common")
 	}
 }
@@ -28,6 +33,8 @@ project('spring-statemachine-samples-cdplayer') {
 	description = 'Spring State Machine CD Player Sample'
 	dependencies {
 		compile project(":spring-statemachine-samples-common")
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile 'io.projectreactor:reactor-test'
 	}
 }
 
@@ -35,6 +42,8 @@ project('spring-statemachine-samples-tasks') {
 	description = 'Spring State Machine Parallel Regions Sample'
 	dependencies {
 		compile project(":spring-statemachine-samples-common")
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile 'io.projectreactor:reactor-test'
 	}
 }
 
@@ -42,6 +51,8 @@ project('spring-statemachine-samples-washer') {
 	description = 'Spring State Machine History State Sample'
 	dependencies {
 		compile project(":spring-statemachine-samples-common")
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile 'io.projectreactor:reactor-test'
 	}
 }
 
@@ -50,6 +61,8 @@ project('spring-statemachine-samples-zookeeper') {
 	dependencies {
 		compile project(":spring-statemachine-samples-common")
 		compile project(":spring-statemachine-zookeeper")
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile 'io.projectreactor:reactor-test'
 	}
 }
 
@@ -60,6 +73,8 @@ project('spring-statemachine-samples-persist') {
 		compile project(":spring-statemachine-recipes-common")
 		compile ("org.hsqldb:hsqldb")
 		compile ("org.springframework:spring-jdbc")
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile 'io.projectreactor:reactor-test'
 	}
 }
 
@@ -74,6 +89,8 @@ project('spring-statemachine-samples-web') {
 		compile("org.springframework:spring-websocket")
 		compile("org.springframework.security:spring-security-messaging")
 		compile("org.springframework.session:spring-session-core")
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile 'io.projectreactor:reactor-test'
 	}
 }
 
@@ -82,6 +99,8 @@ project('spring-statemachine-samples-scope') {
 	dependencies {
 		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile 'io.projectreactor:reactor-test'
 	}
 }
 
@@ -93,6 +112,8 @@ project('spring-statemachine-samples-security') {
 		compile("org.springframework.boot:spring-boot-starter-security")
 		compile("org.springframework.security:spring-security-config")
 		compile("org.springframework.security:spring-security-web")
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile 'io.projectreactor:reactor-test'
 	}
 }
 
@@ -104,6 +125,8 @@ project('spring-statemachine-samples-eventservice') {
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
 		compile("org.apache.commons:commons-pool2")
         runtime("redis.clients:jedis")
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile 'io.projectreactor:reactor-test'
 	}
 }
 
@@ -113,6 +136,8 @@ project('spring-statemachine-samples-deploy') {
 		compile project(":spring-statemachine-uml")
 		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile 'io.projectreactor:reactor-test'
 	}
 }
 
@@ -122,6 +147,8 @@ project('spring-statemachine-samples-ordershipping') {
 		compile project(":spring-statemachine-uml")
 		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile 'io.projectreactor:reactor-test'
 	}
 }
 
@@ -135,6 +162,8 @@ project('spring-statemachine-samples-datajpa') {
 		compile("org.springframework.boot:spring-boot-starter-data-jpa")
 		compile("org.springframework.boot:spring-boot-devtools")
 		compile("com.h2database:h2")
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile 'io.projectreactor:reactor-test'
 	}
 }
 
@@ -148,6 +177,8 @@ project('spring-statemachine-samples-datajpamultipersist') {
 		compile("org.springframework.boot:spring-boot-starter-data-jpa")
 		compile("org.springframework.boot:spring-boot-devtools")
 		compile("com.h2database:h2")
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile 'io.projectreactor:reactor-test'
 	}
 }
 
@@ -165,6 +196,8 @@ project('spring-statemachine-samples-datapersist') {
 		compile("org.springframework.boot:spring-boot-starter-data-mongodb")
 		compile("org.springframework.boot:spring-boot-devtools")
 		compile("com.h2database:h2")
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile 'io.projectreactor:reactor-test'
 	}
 }
 
@@ -177,6 +210,8 @@ project('spring-statemachine-samples-monitoring') {
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf")
 		testCompile("com.jayway.jsonpath:json-path")
 		testCompile("com.jayway.jsonpath:json-path-assert")
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile 'io.projectreactor:reactor-test'
 	}
 }
 

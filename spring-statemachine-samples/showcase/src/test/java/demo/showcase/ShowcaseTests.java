@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,9 @@ package demo.showcase;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+import static org.springframework.statemachine.TestUtils.doStopAndAssert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +69,8 @@ public class ShowcaseTests {
 	public void testA() throws Exception {
 		testInitialState();
 		listener.reset(1, 2, 2);
-		machine.sendEvent(Events.A);
+		doSendEventAndConsumeAll(machine, Events.A);
+		// machine.sendEvent(Events.A);
 		// variable foo is 0, guard denies transition
 		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(false));
 		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS), is(false));
@@ -78,7 +82,7 @@ public class ShowcaseTests {
 	public void testB() throws Exception {
 		testInitialState();
 		listener.reset(1, 2, 2);
-		machine.sendEvent(Events.B);
+		doSendEventAndConsumeAll(machine, Events.B);
 		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateExitedLatch.await(1, TimeUnit.SECONDS), is(true));
@@ -91,13 +95,13 @@ public class ShowcaseTests {
 	public void testCHCA() throws Exception {
 		testInitialState();
 		listener.reset(3, 0, 0);
-		machine.sendEvent(Events.C);
-		machine.sendEvent(Events.H);
-		machine.sendEvent(Events.C);
+		doSendEventAndConsumeAll(machine, Events.C);
+		doSendEventAndConsumeAll(machine, Events.H);
+		doSendEventAndConsumeAll(machine, Events.C);
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
 
 		listener.reset(1, 2, 2, 1);
-		machine.sendEvent(Events.A);
+		doSendEventAndConsumeAll(machine, Events.A);
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
 		listener.stateEnteredLatch.await(1, TimeUnit.SECONDS);
 		listener.stateExitedLatch.await(1, TimeUnit.SECONDS);
@@ -116,7 +120,7 @@ public class ShowcaseTests {
 	public void testC() throws Exception {
 		testInitialState();
 		listener.reset(1, 3, 0);
-		machine.sendEvent(Events.C);
+		doSendEventAndConsumeAll(machine, Events.C);
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
 		listener.stateEnteredLatch.await(1, TimeUnit.SECONDS);
 		assertThat(machine.getState().getIds(), contains(States.S0, States.S2, States.S21, States.S211));
@@ -130,11 +134,11 @@ public class ShowcaseTests {
 	public void testCC() throws Exception {
 		testInitialState();
 		listener.reset(1, 3, 0);
-		machine.sendEvent(Events.C);
+		doSendEventAndConsumeAll(machine, Events.C);
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
 		assertThat(machine.getState().getIds(), contains(States.S0, States.S2, States.S21, States.S211));
 		listener.reset(1, 2, 0);
-		machine.sendEvent(Events.C);
+		doSendEventAndConsumeAll(machine, Events.C);
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
 		listener.stateEnteredLatch.await(1, TimeUnit.SECONDS);
 		assertThat(machine.getState().getIds(), contains(States.S0, States.S1, States.S11));
@@ -147,7 +151,7 @@ public class ShowcaseTests {
 	public void testD() throws Exception {
 		testInitialState();
 		listener.reset(3, 3, 0);
-		machine.sendEvent(Events.D);
+		doSendEventAndConsumeAll(machine, Events.D);
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
 		listener.stateEnteredLatch.await(1, TimeUnit.SECONDS);
 		assertThat(machine.getState().getIds(), contains(States.S0, States.S1, States.S11));
@@ -162,10 +166,10 @@ public class ShowcaseTests {
 	public void testCD() throws Exception {
 		testInitialState();
 		listener.reset(1, 3, 0);
-		machine.sendEvent(Events.C);
+		doSendEventAndConsumeAll(machine, Events.C);
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
 		listener.reset(1, 2, 0);
-		machine.sendEvent(Events.D);
+		doSendEventAndConsumeAll(machine, Events.D);
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
 		listener.stateEnteredLatch.await(1, TimeUnit.SECONDS);
 		assertThat(machine.getState().getIds(), contains(States.S0, States.S2, States.S21, States.S211));
@@ -178,7 +182,7 @@ public class ShowcaseTests {
 	public void testI() throws Exception {
 		testInitialState();
 		listener.reset(1, 1, 1);
-		machine.sendEvent(Events.I);
+		doSendEventAndConsumeAll(machine, Events.I);
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
 		listener.stateEnteredLatch.await(1, TimeUnit.SECONDS);
 		listener.stateExitedLatch.await(1, TimeUnit.SECONDS);
@@ -193,7 +197,7 @@ public class ShowcaseTests {
 	public void testII() throws Exception {
 		testInitialState();
 		listener.reset(1, 1, 1);
-		machine.sendEvent(Events.I);
+		doSendEventAndConsumeAll(machine, Events.I);
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
 		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS), is(true));
@@ -203,7 +207,7 @@ public class ShowcaseTests {
 		assertThat(machine.getState().getIds(), contains(States.S0, States.S1, States.S12));
 
 		listener.reset(1, 3, 2);
-		machine.sendEvent(Events.I);
+		doSendEventAndConsumeAll(machine, Events.I);
 		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateExitedLatch.await(1, TimeUnit.SECONDS), is(true));
@@ -216,7 +220,7 @@ public class ShowcaseTests {
 	public void testH() throws Exception {
 		testInitialState();
 		listener.reset(0, 0, 0, 1);
-		machine.sendEvent(Events.H);
+		doSendEventAndConsumeAll(machine, Events.H);
 		listener.transitionLatch.await(1, TimeUnit.SECONDS);
 		assertThat(listener.transitionCount, is(1));
 		assertThat(listener.transitions.get(0).getSource().getId(), is(States.S1));
@@ -225,9 +229,9 @@ public class ShowcaseTests {
 	@Test
 	public void testCH() throws Exception {
 		testInitialState();
-		machine.sendEvent(Events.C);
+		doSendEventAndConsumeAll(machine, Events.C);
 		listener.reset(0, 0, 0, 1);
-		machine.sendEvent(Events.H);
+		doSendEventAndConsumeAll(machine, Events.H);
 		listener.transitionLatch.await(1, TimeUnit.SECONDS);
 		assertThat(listener.transitionCount, is(1));
 		assertThat(listener.transitions.get(0).getSource().getId(), is(States.S0));
@@ -236,10 +240,11 @@ public class ShowcaseTests {
 	@Test
 	public void testACH() throws Exception {
 		testInitialState();
-		machine.sendEvent(Events.A);
-		machine.sendEvent(Events.C);
+		doSendEventAndConsumeAll(machine, Events.A);
+		doSendEventAndConsumeAll(machine, Events.C);
 		listener.reset(0, 0, 0, 1);
-		machine.sendEvent(Events.H);
+		doSendEventAndConsumeAll(machine, Events.H);
+		doSendEventAndConsumeAll(machine, Events.A);
 		listener.transitionLatch.await(1, TimeUnit.SECONDS);
 		assertThat(listener.transitionCount, is(1));
 		assertThat(listener.transitions.get(0).getSource().getId(), is(States.S0));
@@ -249,7 +254,7 @@ public class ShowcaseTests {
 	public void testE() throws Exception {
 		testInitialState();
 		listener.reset(1, 4, 3, 0);
-		machine.sendEvent(Events.E);
+		doSendEventAndConsumeAll(machine, Events.E);
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
 		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS), is(true));
@@ -263,7 +268,7 @@ public class ShowcaseTests {
 	public void testF() throws Exception {
 		testInitialState();
 		listener.reset(1, 3, 2, 0);
-		machine.sendEvent(Events.F);
+		doSendEventAndConsumeAll(machine, Events.F);
 		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateExitedLatch.await(1, TimeUnit.SECONDS), is(true));
@@ -276,7 +281,7 @@ public class ShowcaseTests {
 	public void testG() throws Exception {
 		testInitialState();
 		listener.reset(1, 3, 2, 0);
-		machine.sendEvent(Events.G);
+		doSendEventAndConsumeAll(machine, Events.G);
 		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateExitedLatch.await(1, TimeUnit.SECONDS), is(true));
@@ -358,12 +363,12 @@ public class ShowcaseTests {
 		context.refresh();
 		machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		listener = context.getBean(TestListener.class);
-		machine.start();
+		doStartAndAssert(machine);
 	}
 
 	@After
 	public void clean() {
-		machine.stop();
+		doStopAndAssert(machine);
 		context.close();
 		context = null;
 		machine = null;
