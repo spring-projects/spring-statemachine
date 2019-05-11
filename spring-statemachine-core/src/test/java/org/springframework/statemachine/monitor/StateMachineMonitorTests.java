@@ -18,6 +18,9 @@ package org.springframework.statemachine.monitor;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+import static org.springframework.statemachine.TestUtils.resolveMachine;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +35,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
@@ -45,23 +47,18 @@ import reactor.core.publisher.Mono;
 
 public class StateMachineMonitorTests extends AbstractStateMachineTests {
 
-	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testSimpleMonitor() throws Exception {
 		context.register(Config1.class);
 		context.refresh();
-		StateMachine<String, String> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<String, String> machine = resolveMachine(context);
 
 		TestStateMachineMonitor monitor = context.getBean(TestStateMachineMonitor.class);
-		Action<String, String> taction = context.getBean("taction", Action.class);
-		Action<String, String> enaction = context.getBean("enaction", Action.class);
-		Action<String, String> exaction = context.getBean("exaction", Action.class);
 		LatchAction saction = context.getBean("saction", LatchAction.class);
 
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(machine.getState().getIds(), contains("S1"));
-		machine.sendEvent("E1");
+		doSendEventAndConsumeAll(machine, "E1");
 		assertThat(machine.getState().getIds(), contains("S2"));
 		// there's also initial transition, thus 2 instead 1
 		assertThat(monitor.transitions.size(), is(2));
@@ -69,9 +66,12 @@ public class StateMachineMonitorTests extends AbstractStateMachineTests {
 		assertThat(monitor.latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(monitor.actions.size(), is(4));
 		// TODO: REACTOR yeah we wrap action internally so can't match like this anymore
+		// Action<String, String> taction = context.getBean("taction", Action.class);
+		// Action<String, String> enaction = context.getBean("enaction", Action.class);
+		// Action<String, String> exaction = context.getBean("exaction", Action.class);
 		// assertThat(monitor.actions.keySet(), containsInAnyOrder(taction, enaction, exaction, saction));
 		monitor.reset();
-		machine.sendEvent("E2");
+		doSendEventAndConsumeAll(machine, "E2");
 		assertThat(machine.getState().getIds(), contains("S1"));
 	}
 

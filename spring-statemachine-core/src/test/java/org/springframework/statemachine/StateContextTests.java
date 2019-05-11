@@ -28,6 +28,7 @@ import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveMachine;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.hamcrest.FeatureMatcher;
@@ -66,6 +67,7 @@ public class StateContextTests extends AbstractStateMachineTests {
 		assertThat(listener.contexts, hasSize(19));
 
 		assertThat(listener.contexts, contains(
+			Arrays.asList(
 				hasStage(Stage.TRANSITION_START),
 				hasStage(Stage.EXTENDED_STATE_CHANGED),
 				hasStage(Stage.TRANSITION),
@@ -84,7 +86,7 @@ public class StateContextTests extends AbstractStateMachineTests {
 				hasStage(Stage.TRANSITION_END),
 				hasStage(Stage.STATE_CHANGED),
 				hasStage(Stage.STATEMACHINE_START),
-				hasStage(Stage.TRANSITION_END)
+				hasStage(Stage.TRANSITION_END))
 		));
 
 		assertThat(listener.contexts.get(0).getStage(), is(Stage.TRANSITION_START));
@@ -168,9 +170,10 @@ public class StateContextTests extends AbstractStateMachineTests {
 
 		// all nested machines sends these
 		assertThat(listener.contexts, contains(
+			Arrays.asList(
 				hasStage(Stage.EVENT_NOT_ACCEPTED),
 				hasStage(Stage.EVENT_NOT_ACCEPTED),
-				hasStage(Stage.EVENT_NOT_ACCEPTED)
+				hasStage(Stage.EVENT_NOT_ACCEPTED))
 		));
 
 		assertThat(listener.contexts.get(0).getStage(), is(Stage.EVENT_NOT_ACCEPTED));

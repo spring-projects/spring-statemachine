@@ -35,6 +35,7 @@ import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.TestUtils;
@@ -52,6 +53,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.WebApplicationContext;
+
+import reactor.core.publisher.Mono;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
@@ -170,7 +173,10 @@ public class SessionScopedManualTests {
 
 		@RequestMapping(path="/state", method=RequestMethod.POST)
 		public HttpEntity<Void> setState(@RequestParam("event") String event) {
-			stateMachine.sendEvent(event);
+			stateMachine
+				.sendEvent(Mono.just(MessageBuilder
+					.withPayload(event).build()))
+				.subscribe();
 			return new ResponseEntity<Void>(HttpStatus.ACCEPTED);
 		}
 
