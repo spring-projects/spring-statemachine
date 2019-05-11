@@ -1,0 +1,30 @@
+[[sm-boot]]
+== Spring Boot Support
+
+The auto-configuration module (`spring-statemachine-autoconfigure`) contains all
+the logic for integrating with Spring Boot, which provides functionality for
+auto-configuration and actuators. All you need is to have this Spring Statemachine
+library as part of a boot application.
+
+[[sm-boot-monitoring]]
+=== Monitoring and Tracing
+
+`BootStateMachineMonitor` is created automatically and associated with
+a state machine. `BootStateMachineMonitor` is a custom `StateMachineMonitor`
+implementation that integrates with Spring Boot's `MeterRegistry` and endpoints
+through a custom `StateMachineTraceRepository`. Optionally, you can disable this auto-configuration
+by setting the `spring.statemachine.monitor.enabled` key to
+`false`. The
+<<statemachine-examples-monitoring>> sample shows how to use this auto-configuration.
+
+=== Repository Config
+
+If the required classes are found from the classpath, Spring Data Repositories
+ and entity class scanning is automatically auto-configured
+for <<sm-repository>>.
+
+The currently supported configurations are `JPA`, `Redis`, and
+`MongoDB`. You can disable repository auto-configuration by using the
+`spring.statemachine.data.jpa.repositories.enabled`,
+`spring.statemachine.data.redis.repositories.enabled` and
+`spring.statemachine.data.mongo.repositories.enabled` properties, respectively.

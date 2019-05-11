@@ -1,0 +1,289 @@
+[[sm-context]]
+== Context Integration
+
+It is a little limited to do interaction with a state machine by
+either listening to its events or using actions with states and
+transitions. From time to time, this approach is going be too limited and
+verbose to create interaction with the application with which a state machine
+works. For this specific use case, we have made a Spring-style
+context integration that easily inserts state machine functionality
+into your beans.
+
+The available annotations has been harmonized to enable access to the same
+state machine execution points that are available from
+<<sm-listeners>>.
+
+You can use the `@WithStateMachine` annotation to associate a state
+machine with an existing bean. Then you can start adding
+supported annotations to the methods of that bean.
+The following example shows how to do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetA]
+----
+====
+
+You can also attach any other state machine from an
+application context by using the annotation `name` field.
+The following example shows how to do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetAA]
+----
+====
+
+Sometimes, it is more convenient to use `machine id`, which is something
+you can set to better identify multiple instances. This ID maps to
+the `getId()` method in the `StateMachine` interface.
+The following example shows how to use it:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetAAAA]
+----
+====
+
+You can also use `@WithStateMachine` as a meta-annotation, as shown
+in the preceding example. In this case, you could annotate your bean with `WithMyBean`.
+The following example shows how to do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetAAA]
+----
+====
+
+NOTE: The return type of these methods does not matter and is effectively
+discarded.
+
+=== Enabling Integration
+
+You can enable all the features of `@WithStateMachine` by using
+the `@EnableWithStateMachine` annotation, which imports the needed
+configuration into the Spring Application Context. Both
+`@EnableStateMachine` and `@EnableStateMachineFactory` are already
+annotated with this annotation, so there is no need to add it again.
+However, if a machine is built and configured without
+configuration adapters, you must use `@EnableWithStateMachine`
+to use these features with `@WithStateMachine`.
+The following example shows how to do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetAAAAA]
+----
+====
+
+IMPORTANT: If a machine is not created as a bean, you need to set
+`BeanFactory` for a machine, as shown in the prededing example. Otherwise, tge machine is
+unaware of handlers that call your `@WithStateMachine` methods.
+
+=== Method Parameters
+
+Every annotation support exactly the same set of possible method
+parameters, but runtime behavior differs, depending on the
+annotation itself and the stage in which the annotated method is called. To
+better understand how context works, see
+<<sm-statecontext>>.
+
+NOTE: For differences between method parameters, see the sections that desdribe the
+individual annotation, later in this document.
+
+Effectively, all annotated methods are called by using Spring SPel
+expressions, which are built dynamically during the process. To make
+this work, these expressions needs to have a root object (against which they evaluate).
+This root object is a `StateContext`. We have also made some
+tweaks internally so that it is possible to  access `StateContext` methods
+directly without going through the context handle.
+
+The simplest method parameter is a `StateContext` itself.
+The following example shows how to use it:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetB]
+----
+====
+
+You can access the rest of the `StateContext` content.
+Tke number and order of the parameters does not matter.
+The following example shows how to access the various parts of the `StateContext` content:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetBB]
+----
+====
+
+NOTE: Instead of getting all event headers with `@EventHeaders`, you can use
+`@EventHeader`, which can bound to a single header.
+
+[[state-machine-transition-annotations]]
+=== Transition Annotations
+
+The annotations for transitions are `@OnTransition`, `@OnTransitionStart`,
+and `@OnTransitionEnd`.
+
+These annotations behave exactly the same. To show how they work, we show
+how `@OnTransition` is used. Within this annotation, a property's
+you can use `source` and `target` to qualify a transition. If
+`source` and `target` are left empty, any transition is matched.
+The following example shows how to use the `@OnTransition` annotation
+(remember that `@OnTransitionStart` and `@OnTransitionEnd` work the same way):
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetC]
+----
+====
+
+By default, you cannot use the `@OnTransition` annotation with a state and
+event enumerations that you have created, due to Java language limitations.
+For this reason, you need to use string representations.
+
+Additionally, you can access `Event Headers` and
+`ExtendedState` by adding the needed arguments to a method. The method
+is then called automatically with these arguments.
+The following example shows how to do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetD]
+----
+====
+
+However, if you want to have a type-safe annotation, you can
+create a new annotation and use `@OnTransition` as a meta-annotation.
+This user-level annotation can make references to actual states and
+events enumerations, and the framework tries to match these in the same way.
+The following example shows how to do so:
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetE]
+----
+====
+
+In the preceding example,  we created a `@StatesOnTransition` annotation that defines
+`source` and `target` in a type-safe manner.
+The following example uses that annotation in a bean:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetF]
+----
+====
+
+=== State Annotations
+
+The following annotations for states are available: `@OnStateChanged`, `@OnStateEntry`, and
+`@OnStateExit`. The following example shows how to use `OnStateChanged` annotation (the
+other two work the same way):
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetG]
+----
+====
+
+As you can with <<state-machine-transition-annotations>>, you can define
+target and source states. The following example shows how to do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetGG]
+----
+====
+
+For type safety, new annotations need to be created for enumerations by using
+`@OnStateChanged` as a meta-annotation. The following examples show how to do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetGGG]
+----
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetGGGG]
+----
+====
+
+The methods for state entry and exit behave in the same way, as the following example shows:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetGGGGG]
+----
+====
+
+=== Event Annotation
+
+There is one event-related annotation. It is named `@OnEventNotAccepted`.
+If you specify the `event` property, you can listen for a specific event not being
+accepted. If you do not specify an event, you can list for any event not being
+accepted. The following example shows both ways to use the `@OnEventNotAccepted`
+annotation:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetH]
+----
+====
+
+=== State Machine Annotations
+
+The following annotations are available for a state machine: `@OnStateMachineStart`,
+`@OnStateMachineStop`, and `@OnStateMachineError`.
+
+During a state machine's start and stop, lifecycle methods are called.
+The following example shows how to use `@OnStateMachineStart` and
+`@OnStateMachineStop` to listen to these events:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetI]
+----
+====
+
+If a state machine goes into an error with exception, `@OnStateMachineStop`
+annotation is called. The following example shows how to use it:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetII]
+----
+====
+
+=== Extended State Annotation
+
+There is one extended state-related annotation. It is named
+`@OnExtendedStateChanged`. You can also listen to changes only
+for specific `key` changes. The following example shows how to use the
+`@OnExtendedStateChanged`, both with and without a `key` property:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests4.java[tags=snippetJ]
+----
+====

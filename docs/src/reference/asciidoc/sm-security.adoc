@@ -1,0 +1,286 @@
+[[sm-security]]
+== State Machine Security
+
+Security features are built atop of functionality from
+{spring-security-site}[Spring Security]. Security features are
+handy when it is required to protect part of a state machine
+execution and interaction with it.
+
+IMPORTANT: We expect you to be fairly familiar with Spring Security, meaning
+that we do not go into details of how the overall security framework works. For
+this information, you should read the Spring Security reference documentation
+(available https://spring.io/projects/spring-security#learn[here]).
+
+The first level of defense with security is naturally protecting events,
+which really drive what is going to
+happen in a state machine. You can then define more fine-grained security settings
+for transitions and actions. This parallel to giving an employee access to a building
+and then giving access to specific rooms within the building and even the ability
+to turn on and off the lights in specific rooms. If you trust
+your users, event security may be all you need. If not,
+you need to apply more detailed security.
+
+You can find more detailed information in <<sm-security-details>>.
+
+TIP: For a complete example, see the <<statemachine-examples-security>> sample.
+
+=== Configuring Security
+
+All generic configurations for security are done in
+`SecurityConfigurer`, which is obtained from
+`StateMachineConfigurationConfigurer`. By default, security is disabled,
+even if Spring Security classes are
+present. The following example shows how to enable security:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests3.java[tags=snippetD]
+----
+====
+
+If you absolutely need to, you can customize `AccessDecisionManager` for both events and
+transitions. If you do not define decision managers or
+set them to `null`, default managers are created internally.
+
+=== Securing Events
+
+Event security is defined on a global level by a `SecurityConfigurer`.
+The following example shows how to enable event security:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests3.java[tags=snippetA]
+----
+====
+
+In the preceding configuration example, we use an expression of `true`, which always evaluates
+to `TRUE`. Using an expression that always evaluates to `TRUE`
+would not make sense in a real application but shows the point that
+expression needs to return either `TRUE` or `FALSE`. We also defined an
+attribute of `ROLE_ANONYMOUS` and a `ComparisonType` of `ANY`. For more about using attributes
+and expressions, see <<sm-security-attributes-expressions>>.
+
+=== Securing Transitions
+
+You can define transition security globally, as the following example shows.
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests3.java[tags=snippetF]
+----
+====
+
+If security is defined in a transition itself, it override any
+globally set security. The following example shows how to do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests3.java[tags=snippetB]
+----
+====
+
+For more about using attributes and expressions, see <<sm-security-attributes-expressions>>.
+
+=== Securing Actions
+
+There are no dedicated security definitions for actions in a state
+machine, but you can secure actions by using a global method security
+from Spring Security. This requires that an `Action` be
+defined as a proxied `@Bean` and its `execute` method be annotated with
+`@Secured`. The following example shows how to do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests3.java[tags=snippetC]
+----
+====
+
+Global method security needs to be enabled with Spring Security.
+The following example shows how to do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests3.java[tags=snippetE]
+----
+====
+
+See the Spring Security reference guide (available
+https://spring.io/projects/spring-security#learn[here]) for more detail.
+
+[[sm-security-attributes-expressions]]
+=== Using Security Attributes and Expressions
+
+Generally, you can define security properties in either of two ways: by
+using security attributes and by using security expressions.
+Attributes are easier to use but are relatively limited in terms of
+functionality. Expressions provide more features but are a little bit
+harder to use.
+
+==== Generic Attribute Usage
+
+By default, `AccessDecisionManager` instances for events and
+transitions both use a `RoleVoter`, meaning you can use role attributes
+from Spring Security.
+
+For attributes, we have three different comparison types: `ANY`, `ALL`, and
+`MAJORITY`. These comparison types map onto default access decision managers
+(`AffirmativeBased`, `UnanimousBased`, and `ConsensusBased`, respectively).
+If you have defined a custom `AccessDecisionManager`, the comparison type is
+effectively discarded, as it is used only to create a default manager.
+
+==== Generic Expression Usage
+
+Security expressions must return either `TRUE` or `FALSE`.
+
+The base class for the expression root objects is
+`SecurityExpressionRoot`. It provides some common expressions, which
+are available in both transition and event security. The following table
+describes the most often used built-in expressions:
+
+[[common-expressions]]
+.Common built-in expressions
+|===
+| Expression | Description
+
+| `hasRole([role])`
+| Returns `true` if the current principal has the specified role. By
+default, if the supplied role does not start with `ROLE_`, it is
+added. You can customize this by modifying the `defaultRolePrefix` on
+`DefaultWebSecurityExpressionHandler`.
+
+| `hasAnyRole([role1,role2])`
+| Returns `true` if the current principal has any of the supplied
+roles (given as a comma-separated list of strings). By default, if each
+supplied role does not start with `ROLE_`, it is added. You can customize this
+by modifying the `defaultRolePrefix` on
+`DefaultWebSecurityExpressionHandler`.
+
+| `hasAuthority([authority])`
+| Returns `true` if the current principal has the specified authority.
+
+| `hasAnyAuthority([authority1,authority2])`
+| Returns `true` if the current principal has any of the supplied
+roles (given as a comma-separated list of strings).
+
+| `principal`
+| Allows direct access to the principal object that represents the
+current user.
+
+| `authentication`
+| Allows direct access to the current `Authentication` object obtained
+from the `SecurityContext`.
+
+| `permitAll`
+| Always evaluates to `true`.
+
+| `denyAll`
+| Always evaluates to `false`.
+
+| `isAnonymous()`
+| Returns `true` if the current principal is an anonymous user.
+
+| `isRememberMe()`
+| Returns `true` if the current principal is a remember-me user.
+
+| `isAuthenticated()`
+| Returns `true` if the user is not anonymous.
+
+| `isFullyAuthenticated()`
+| Returns `true` if the user is not an anonymous or a remember-me user.
+
+| `hasPermission(Object target, Object permission)`
+| Returns `true` if the user has access to the provided target for the
+given permission -- for example, `hasPermission(domainObject, 'read')`.
+
+| `hasPermission(Object targetId, String targetType, Object
+permission)`
+| Returns `true` if the user has access to the provided target for the
+given permission -- for example, `hasPermission(1,
+'com.example.domain.Message', 'read')`.
+|===
+
+==== Event Attributes
+You can match an event ID by using a prefix of `EVENT_`. For example, matching
+event `A` would match an attribute of `EVENT_A`.
+
+==== Event Expressions
+
+The base class for the expression root object for events is
+`EventSecurityExpressionRoot`. It provides access to a `Message`
+object, which is passed around with eventing. `EventSecurityExpressionRoot`
+has only one method, which the following table describes:
+
+.Event expressions
+|===
+| Expression | Description
+
+| `hasEvent(Object event)`
+| Returns `true` if the event matches given event.
+
+|===
+
+==== Transition Attributes
+
+When matching transition sources and targets, you can use the
+`TRANSITION_SOURCE_` and  `TRANSITION_TARGET_` prefixes respectively.
+
+==== Transition Expressions
+
+The base class for the expression root object for transitions is
+`TransitionSecurityExpressionRoot`. It provides access to a
+`Transition`
+object, which is passed around for transition changes.
+`TransitionSecurityExpressionRoot` has two methods, which the following
+table describes:
+
+.Transition expressions
+|===
+| Expression | Description
+
+| `hasSource(Object source)`
+| Returns `true` if the transition source matches given source.
+
+| `hasTarget(Object target)`
+| Returns `true` if the transition target matches given target.
+
+|===
+
+[[sm-security-details]]
+=== Understanding Security
+
+This section provides more detailed information about how security works within a
+state machine. You may not really need to know, but it is
+always better to be transparent instead of hiding all the magic what
+happens behind the scenes.
+
+IMPORTANT: Security makes sense only if Spring Statemachine runs in a walled
+garden where user have no direct access to the application and could consequently
+modify Spring Security's `SecurityContext` hold in a local thread.
+If the user controls the JVM, then effectively there is no security
+at all.
+
+The integration point for security is created with a
+<<sm-interceptor,`StateMachineInterceptor`>>, which is then automatically added into a
+state machine if security is enabled. The specific class is
+`StateMachineSecurityInterceptor`, which intercepts events and
+transitions. This interceptor then consults Spring Security's
+`AccessDecisionManager` to determine whether an event can be sent or whether a transition can be
+executed. Effectively, if a decision or a vote with a `AccessDecisionManager`
+results in an exception, the event or transition is denied.
+
+Due to how `AccessDecisionManager` from Spring Security works, we
+need one instance of it per secured object. This is one reason why there
+are different managers for events and transitions. In this case, events
+and transitions are different class objects that we secure.
+
+By default, for events, voters (`EventExpressionVoter`, `EventVoter`, and
+`RoleVoter`) are added into an `AccessDecisionManager`.
+
+By default, for transitions, voters (`TransitionExpressionVoter`,
+`TransitionVoter`, and `RoleVoter`) are added into an `AccessDecisionManager`.

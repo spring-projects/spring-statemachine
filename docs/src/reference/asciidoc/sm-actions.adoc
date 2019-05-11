@@ -1,0 +1,40 @@
+[[sm-actions]]
+== Using Actions
+
+Actions are one of the most useful components that you can use to
+interact and collaborate with a state machine. You can run actions
+in various places in a state machine and its states lifecycle -- for example,
+entering or exiting states or during transitions.
+The following example shows how to use actions in a state machine:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetVA]
+----
+====
+
+In the preceding example, the `action1` and `action2` beans are attached to the `entry` and
+`exit` states, respectively. The following example defines those actions (and `action3`):
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetVD]
+----
+====
+
+You can directly implement `Action` as an anonymous function or create
+your own implementation and define the appropriate implementation as a
+bean.
+
+In the preceding example, `action3` uses a SpEL expression to send the `Events.E1` event into
+a state machine.
+
+NOTE: `StateContext` is described in <<sm-statecontext>>.
+
+=== SpEL Expressions with Actions
+
+You can also use a SpEL expression as a replacement for a
+full `Action` implementation.
+// TODO An example would help

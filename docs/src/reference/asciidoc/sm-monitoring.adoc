@@ -1,0 +1,25 @@
+[[sm-monitoring]]
+== Monitoring a State Machine
+
+You can use `StateMachineMonitor` to get more information about the
+durations of how long transitions and actions take to execute. The following listing
+shows how this interface is implemented.
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests9.java[tags=snippetB]
+----
+====
+
+Once you have a `StateMachineMonitor` implementation, you can add it to
+a state machine through configuration, as the following example shows:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests9.java[tags=snippetA]
+----
+====
+
+TIP: See the <<statemachine-examples-monitoring>> sample for detailed usage.

@@ -1,0 +1,40 @@
+[[sm-statecontext]]
+== Using `StateContext`
+
+{sm-statecontext}[`StateContext`] is one of the most important objects
+when working with a state machine, as it is passed into various methods
+and callbacks to give the current state of a state machine and
+where it is possibly going. You can think of it as a
+snapshot of the current state machine stage when
+is when `StateContext` is retreived.
+
+NOTE: In Spring Statemachine 1.0.x, `StateContext` usage was relatively naive
+in terms of how it was used to pass stuff around as a simple "`POJO`".
+Starting from Spring Statemachine 1.1.x, its role has been greatly
+improved by making it a first class citizen in a state machine.
+
+You can use `StateContext` to get access to the following:
+
+* The current `Message` or `Event` (or their `MessageHeaders`, if known).
+* The state machine's `Extended State`.
+* The `StateMachine` itself.
+* To possible state machine errors.
+* To the current `Transition`, if applicable.
+* The source state of the state machine.
+* The target state of the state machine.
+* The current `Stage`, as described in <<sm-statecontext-stage>>.
+
+`StateContext` is passed into various components, such as
+`Action` and `Guard`.
+
+[[sm-statecontext-stage]]
+=== Stages
+
+{sm-statecontext-stage}[`Stage`] is arepresentation of a `stage` on
+which a state machine is currently interacting with a user. The currently available
+stages are `EVENT_NOT_ACCEPTED`, `EXTENDED_STATE_CHANGED`,
+`STATE_CHANGED`, `STATE_ENTRY`, `STATE_EXIT`, `STATEMACHINE_ERROR`,
+`STATEMACHINE_START`, `STATEMACHINE_STOP`, `TRANSITION`,
+`TRANSITION_START`, and `TRANSITION_END`. These states may look familiar, as
+they match how you can interact with listeners (as described in
+<<sm-listeners>>).

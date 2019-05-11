@@ -1,0 +1,97 @@
+[[sm-factories]]
+== State Machine Factories
+
+There are use cases when a state machine needs to be created dynamically
+instead of by defining static configuration at compile time. For example,
+if there are custom components that use their own state machines
+and these components are created dynamically, it is impossible to have
+a static state machine that is built during the application start. Internally,
+state machines are always built through factory interfaces. This then
+gives you an option to use this feature programmatically.
+Configuration for a state machine factory is exactly the same as shown
+in various examples in this document where state machine configuration
+is hard coded.
+
+=== Factory through an Adapter
+
+Actually creating a state machine by using `@EnableStateMachine`
+works through a factory, so `@EnableStateMachineFactory` merely exposes
+that factory through its interface. The following example uses
+`@EnableStateMachineFactory`:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetFA]
+----
+====
+
+Now that you have used `@EnableStateMachineFactory` to create a factory
+instead of a state machine bean, you can inject it and use it (as is) to
+request new state machines. The following example shows how to do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetL]
+----
+====
+
+==== Adapter Factory Limitations
+
+The current limitation of factory is that all the actions and guard with which it
+associates a state machine share the same instance.
+This means that, from your actions and guard, you need to
+specifically handle the case in which the same bean is called by different
+state machines. This limitation is something that will be resolved in
+future releases.
+
+=== State Machine through a Builder
+
+Using adapters (as shown above) has a limitation imposed by its
+requirement to work through Spring `@Configuration` classes and the
+application context. While this is a very clear model to configure a
+state machine, it limits configuration at compile time,
+which is not always what a user wants to do. If there is a requirement
+to build more dynamic state machines, you can use a simple builder pattern
+to construct similar instances. By using strings as states and
+events, you can use this builder pattern to build fully dynamic state
+machines outside of a Spring application context. The following example
+shows how to do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetFB]
+----
+====
+
+The builder uses the same configuration interfaces behind the scenes that
+the `@Configuration` model uses for adapter classes. The same model goes to
+configuring transitions, states, and common configuration through a builder's
+methods. This means that whatever you can use with a normal
+`EnumStateMachineConfigurerAdapter` or `StateMachineConfigurerAdapter`
+you can use dynamically through a builder.
+
+NOTE: Currently, the `builder.configureStates()`, `builder.configureTransitions()`,
+and `builder.configureConfiguration()` interface methods cannot be
+chained together, meaning that builder methods need to be called individually.
+
+The following example sets a number of options with a builder:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetFC]
+----
+====
+
+You need to understand when common configuration needs
+to be used with machines instantiated from a builder. You can use a configurer
+returned from a `withConfiguration()` to setup `autoStart`,
+`TaskScheduler`, `TaskExecutor`, and `BeanFactory`. You can also use one to register
+a `StateMachineListener`. If a `StateMachine` instance returned from
+a builder is registered as a bean by using `@Bean`, `BeanFactory`
+is attached automatically and you can find the default `TaskExecutor`
+from there. If you use instances outside of a spring application context,
+you must use these methods to set up the needed facilities.

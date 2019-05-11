@@ -1,0 +1,48 @@
+[[sm-scopes]]
+== Using Scopes
+
+Support for scopes in a state machine is very limited, but you can
+enable `session` scope by using a normal Spring `@Scope` annotation in one of two ways:
+
+* If the state machine is built manually by using a builder and returned into the
+context as a `@Bean`.
+* Through a configuration adapter.
+
+Both of
+these need `@Scope` to be present, with `scopeName` set to
+`session` and `proxyMode` set to `ScopedProxyMode.TARGET_CLASS`. The following examples
+show both use cases:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests2.java[tags=snippetB]
+----
+
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests2.java[tags=snippetC]
+----
+====
+
+TIP:See <<statemachine-examples-scope>> for how to use session scoping.
+
+Once you have scoped a state machine into `session`, autowiring it into
+a `@Controller` gives a new state machine instance per session.
+Each state machine is then destroyed when `HttpSession` is invalidated.
+The following example shows how to use a state machine in a controller:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests2.java[tags=snippetD]
+----
+====
+
+NOTE: Using state machines in a `session` scopes needs careful planning,
+mostly because it is a relatively heavy component.
+
+NOTE: Spring Statemachine poms have no dependencies to Spring MVC
+classes, which you will need to work with session scope. However, if you are
+working with a web application, you have already pulled those dependencies
+directly from Spring MVC or Spring Boot.

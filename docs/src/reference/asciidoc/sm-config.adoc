@@ -1,0 +1,619 @@
+[[sm-config]]
+== Statemachine Configuration
+
+One of the common tasks when using a state machine is to design its
+runtime configuration. This chapter focuses on how Spring
+Statemachine is configured and how it leverages Spring's lightweight
+IoC containers to simplify the application internals to make it more
+manageable.
+
+NOTE: Configuration examples in this section are not feature complete. That is,
+you always need to have definitions of both states and transitions.
+Otherwise, state machine configuration would be ill-formed. We have
+simply made code snippets less verbose by leaving other needed parts
+out.
+
+[[statemachine-config-annotations]]
+=== Using `enable` Annotations
+
+We use two familiar Spring _enabler_ annotations to ease configuration:
+`@EnableStateMachine` and `@EnableStateMachineFactory`.
+These annotations, when placed in a `@Configuration` class, enable
+some basic functionality needed by a state machine.
+
+You can use `@EnableStateMachine` when you need a configuration to create an
+instance of `StateMachine`. Usually, a `@Configuration` class extends adapters
+(`EnumStateMachineConfigurerAdapter` or `StateMachineConfigurerAdapter`), which
+lets you override configuration callback methods. We automatically
+detect whether you use these adapter classes and modify the runtime configuration
+logic accordingly.
+
+You can use `@EnableStateMachineFactory` when you need a configuration to create an
+instance of a `StateMachineFactory`.
+
+NOTE: Usage examples of these are shown in below sections.
+
+[[statemachine-config-states]]
+=== Configuring States
+
+We get into more complex configuration examples a bit later in this guide, but
+we first start with something simple. For most simple state
+machine, you can use `EnumStateMachineConfigurerAdapter` and define
+possible states and choose the initial and optional end states.
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetAA]
+----
+====
+
+You can also use strings instead of enumerations as states and
+events by using `StateMachineConfigurerAdapter`, as shown in the next example. Most
+of the configuration examples ues enumerations, but, generally speaking,
+you can interchange strings and enumerations.
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetAB]
+----
+====
+
+NOTE: Using enumerations brings a safer set of states and event types but
+limits possible combinations to compile time. Strings do not have this
+limitation and let you use more dynamic ways to build state
+machine configurations but do not allow same level of safety.
+
+=== Configuring Hierarchical States
+
+You can define hierarchical states can by using multiple `withStates()`
+calls, where you can use `parent()` to indicate that these
+particular states are sub-states of some other state.
+The following example shows how to do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetB]
+----
+====
+
+=== Configuring Regions
+
+There are no special configuration methods to mark a collection of
+states to be part of an orthogonal state. To put it simply, orthogonal
+state is created when the same hierarchical state machine has multiple sets
+of states, each of which has an initial state. Because an individual state
+machine can only have one initial state, multiple initial states must
+mean that a specific state must have multiple independent regions.
+The following example shows how to define regions:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetP]
+----
+====
+
+When persisting machines with regions or generally
+relying on any functionalities to reset a machine, you may need
+to have a dedicated ID for a region. By default, this ID
+is a generated UUID. As the following example shows, `StateConfigurer` has
+a method called `region(String id)` that lets you set the ID for a region:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetPP]
+----
+====
+
+=== Configuring Transitions
+
+We support three different types of transitions: `external`,
+`internal`, and `local`. Transitions are triggered either by a signal
+(which is an event sent into a state machine) or by a timer.
+The following example shows how to define all three kinds of transitions:
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetC]
+----
+====
+
+=== Configuring Guards
+
+You can use guards to protect state transitions. You can use the `Guard` interface
+to do an evaluation where a method has access to a `StateContext`.
+The following example shows how to do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetD]
+----
+====
+
+In the preceding example, we used two different types of guard configurations. First, we
+created a simple `Guard` as a bean and attached it to the transition between
+states `S1` and `S2`.
+
+Second, we used a SPeL expression as a guard to dicate that the
+expression must return a `BOOLEAN` value. Behind the scenes, this
+expression-based guard is a `SpelExpressionGuard`. We attached it to
+the transition between states `S2` and `S3`. Both guards
+always evaluate to `true`.
+
+[[statemachine-config-actions]]
+=== Configuring Actions
+
+You can define actions to be executed with transitions and states.
+An action is always run as a result of a transition that
+originates from a trigger. The following example shows how to define an action:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetEA]
+----
+====
+
+In the preceding example, a single `Action` is defined as a bean named `action` and associated
+with a transition from `S1` to `S2`.
+The following example shows how to use an action multiple times:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetEB]
+----
+====
+
+NOTE: Usually, you would not define the same `Action` instance for different
+stages, but we did it here to not make too much noise in a code
+snippet.
+
+In the preceding example, a single `Action` is defined by the bean named `action` and associated
+with states `S1`, `S2`, and `S3`. We need to clarify what is going on here:
+
+* We defined an action for the initial state, `S1`.
+* We defined an entry action for state `S1` and left the exit action empty.
+* We defined an exit action for state `S2` and left the entry action empty.
+* We defined a single state action for state `S2`.
+* We defined both entry and exit actions for state `S3`.
+* Note that state `S1` is used twice with `initial()` and `state()`
+  functions. You need to do this only if you want to define entry or exit
+  actions with initial state.
+
+IMPORTANT: Defining action with `initial()` function only runs a particular
+action when a state machine or sub state is started. This action
+is an initializing action that is run only once. An action defined
+with `state()` is then run if the state machine transitions back
+and forward between initial and non-initial states.
+
+==== State Actions
+
+State actions are run differently compared to entry and exit
+actions, because execution happens after state has been entered
+and can be cancelled if state exit happens before a particular action
+has been completed.
+
+State actions are run by using a normal Spring `TaskScheduler`
+wrapped within a `Runnable` that can get cancelled through
+`ScheduledFuture`. This means that, whatever you do in your
+action, you need to be able to catch `InterruptedException` or, more generally,
+periodically check whether `Thread` is interrupted.
+
+The following example shows typical configuration that uses default the `IMMEDIATE_CANCEL`, which
+would immediately cancel a running task when its state is complete:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests11.java[tags=snippetA]
+----
+====
+
+You can set a policy to `TIMEOUT_CANCEL` together with a global timeout
+for each machine. This changes state behavior to await action completion
+before cancelation is requested. The following example shows how to do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests11.java[tags=snippetB]
+----
+====
+
+If `Event` directly takes a machine into a state so that event headers
+are available to a particular action, you can also use a dedicated
+event header to set a specific timeout (defined in `millis`).
+You can use the reserved header value `StateMachineMessageHeaders.HEADER_DO_ACTION_TIMEOUT`
+for this purpose. The following example shows how to do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests11.java[tags=snippetC]
+----
+====
+
+[[statemachine-config-transition-actions-errorhandling]]
+==== Transition Action Error Handling
+
+You can always catch exceptions manually. However, with actions defined for
+transitions, you can define an error action that is called if an
+exception is raised. The exception is then available from a `StateContext`
+passed to that action. The following example shows how to create a state
+that handles an exception:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetEC]
+----
+====
+
+If need be, you can manually create imilar logic for every action.
+The following example shows how to do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetED]
+----
+====
+
+[[statemachine-config-state-actions-errorhandling]]
+==== State Action Error Handling
+
+Logic similar to the logic that handles errors in state transitions is also available
+for entry to a state and exit from a state.
+
+For these situations, `StateConfigurer` has methods called `stateEntry`, `stateDo`, and
+`stateExit`. These methods define an `error` action together with a normal (non-error) `action`.
+The following example shows how to use all three methods:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetEE]
+----
+====
+
+=== Configuring Pseudo States
+
+_Pseudo state_ configuration is usually done by configuring states and
+transitions. Pseudo states are automatically added to state machine as
+states.
+
+==== Initial State
+
+You can mark a particular state as initial state by using the `initial()`
+method. This initial action is good, for example, to initialize
+extended state variables. The following example shows how to use the `initial()` method:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetQ]
+----
+====
+
+==== Terminate State
+
+You can mark a particular state as being an end state by using the `end()` method.
+You can do so at most once for each individual sub-machine or region.
+The following example shows how to use the `end()` method:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetAA]
+----
+====
+
+==== State History
+
+You can define state history once for each individual state machine.
+You need to choose its state identifier and set either `History.SHALLOW` or
+`History.DEEP`. The following example uses `History.SHALLOW`:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetR]
+----
+====
+
+Also, as the preceding example shows, you can optionally define a default
+transition from a history state into a state vertex in a same machine.
+This transition takes place as a default if, for example, the machine has
+never been entered -- thus, no history would be available. If a default
+state transition is not defined, then normal entry into a region is
+done. This default transition is also used if a machine's history is
+a final state.
+
+==== Choice State
+
+Choice needs to be defined in both states and transitions to work
+properly. You can mark a particular state as being a choice state by using the `choice()`
+method. This state needs to match source state when a transition is
+configured for this choice.
+
+You can configure a transition by using `withChoice()`, where you define source
+state and a `first/then/last` structure, which is equivalent to a normal
+`if/elseif/else`. With `first` and `then`, you can specify a guard just
+as you would use a condition with `if/elseif` clauses.
+
+A transition needs to be able to exist, so you must make sure to use `last`.
+Otherwise, the configuration is ill-formed. The following example shows how to define
+a choice state:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetS]
+----
+====
+
+Actions can be run with both incoming and outgoing transitions of
+a choice pseudostate. As the following example shows, one dummy lambda
+action is defined that leads into a choice state and one similar dummy
+lambda action is defined for one outgoing transition (where it also
+defines an error action):
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetSSS]
+----
+====
+
+NOTE: Junction have same api format meaning actions can be defined
+similarly.
+
+[[statemachine-config-states-junction]]
+==== Junction State
+
+You need to define a junction in both states and transitions for it to work
+properly. You can mark a particular state as being a choice state by using the `junction()`
+method. This state needs to match the source state when a transition is
+configured for this choice.
+
+You can configure the transition by using `withJunction()` where you define source
+state and a `first/then/last` structure (which is equivalent to a normal
+`if/elseif/else`). With `first` and `then`, you can specify a guard as
+you would use a condition with `if/elseif` clauses.
+
+A transition needs to be able to exist, so you must make sure to use `last`.
+Otherwise, the configuration is ill-formed.
+The following example uses a junction:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetSS]
+----
+====
+
+NOTE: The difference between choice and junction is purely academic, as both are
+implemented with `first/then/last` structures . However, in theory, based
+on UML modeling, `choice` allows only one incoming transition while
+`junction` allows multiple incoming transitions. At a code level, the
+functionality is pretty much identical.
+
+==== Fork State
+
+You must define a fork in both states and transitions for it to work
+properly. You can mark a particular state as being a choice state by using the `fork()`
+method. This state needs to match source state when a transition is
+configured for this fork.
+
+The target state needs to be a super state or an immediate state in a
+regions. Using a super state as a target takes all regions into
+initial states. Targeting individual state gives more controlled entry
+into regions. The following example uses a fork:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetT]
+----
+====
+
+==== Join State
+
+You must define a join in both states and transitions for it to work
+properly. You can mark aparticular state as being a choice state by using the `join()`
+method. This state does not need to match either source states or a
+target state in a transition configuration.
+
+You can select a target state where a transition goes when all source states
+have been joined. If you use state hosting regions as the source, the end
+states of a region are used as joins. Otherwise, you can pick any
+states from a region. The following exmaple uses a join:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetU]
+----
+====
+
+You can also have multiple transitions originate from a
+join state. It this case, we advise you to use guards and define your guards
+such that only one guard evaluates to `TRUE` at any given time. Otherwise,
+transition behavior is not predictable. This is shown in the following example, where the guard
+checks whwther the extended state has variables:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetUUU]
+----
+====
+
+[[statemachine-config-states-exitentry]]
+==== Exit and Entry Point States
+
+You can use exit and entry points to do more controlled exit and entry
+from and into a submachine.
+The following example uses the `withEntry` and `withExit` methods to define entry points:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetUU]
+----
+====
+
+As shown in the preceding, you need to mark particular states as being `exit` and
+`entry` states. Then you create a normal transitions into those states
+and also specify `withExit()` and `withEntry()`, where those states
+exit and entry respectively.
+
+[[statemachine-config-commonsettings]]
+=== Configuring Common Settings
+
+You can set part of a common state machine configuration by using
+`ConfigurationConfigurer`. This you set set `BeanFactory`,
+`TaskExecutor`, `TaskScheduler`, and an autostart flag for a state machine≥
+It also lets you register `StateMachineListener` instances.
+The following example shows how to use `ConfigurationConfigurer`:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetYA]
+----
+====
+
+By default, the state machine `autoStartup` flag is disabled, because all
+instances that handle sub-states are controlled by the state machine itself
+and cannot be automatically started. Also, it is much safer to leave
+whether a machine should be started
+automatically or not to the user. This flag controls only the autostart of a
+top-level state machine.
+
+Setting `machineId` within a configuration class is simply a convenience for those times when
+you want or need to do it there.
+
+Setting a `BeanFactory`, `TaskExecutor`, or `TaskScheduler` is another
+convenience for you, and those settings are also used within the framework itself.
+
+Registering `StateMachineListener` instances is also partly for
+convenience but is required if you want to catch a callback during a
+state machine lifecycle, such as getting notified of a state machine's
+start and stop events. Note that you cannot listen a state
+machine's start events if `autoStartup` is enabled, unless you register a listener
+during a configuration phase.
+
+You can use `transitionConflictPolicy` when multiple
+transition paths could be selected. One usual use case for this is when a
+machine contains anonymous transitions that lead out from a sub-state
+and a parent state and you want to define a policy in which one is
+selected. This is a global setting within a machine instance and
+defaults to `CHILD`.
+
+You can use `withDistributed()` to configure `DistributedStateMachine`. It
+lets you set a `StateMachineEnsemble`, which (if it exists) automatically
+wraps any created `StateMachine` with `DistributedStateMachine` and
+enables distributed mode. The following example shows how to use it:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetYB]
+----
+====
+
+For more about distributed states, see <<sm-distributed>>.
+
+The `StateMachineModelVerifier` interface is used internally to
+do some sanity checks for a state machine's structure. Its purpose is to
+fail fast early instead of letting common configuration errors into a
+state machine. By default, a verifier is automatically enabled and the
+`DefaultStateMachineModelVerifier` implementation is used.
+
+With `withVerifier()`, you can disable verifier or set a custom one if
+needed. The following example shows how to do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetYC]
+----
+====
+
+For more about config model, see <<devdocs-configmodel>>.
+
+NOTE: The `withSecurity`, `withMonitoring` and `withPersistence` configuration methods
+are documented in <<sm-security>>, <<sm-monitoring>>, and
+<<sm-persist-statemachineruntimepersister>>, respectively.
+
+=== Configuring Model
+
+`StateMachineModelFactory` is a hook that lets you configure a statemachine model
+without using a manual configuration. Essentially, it is a third-party
+integration to integrate into a configuration model.
+You can hook `StateMachineModelFactory` into a configuration model by
+using a `StateMachineModelConfigurer`. The following example shows how to do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests8.java[tags=snippetA]
+----
+====
+
+The follwoing example uses `CustomStateMachineModelFactory` to
+define two states (`S1` and `S2`) and an event (`E1`) between those
+states:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests8.java[tags=snippetB]
+----
+====
+
+NOTE: Defining a custom model is usually not what people are looking for,
+although it is possible. However, it is a central concept of allowing
+external access to this configuration model.
+
+You can find an example of using this model factory integration in
+<<sm-papyrus>>. You can find more generic info about custom model integration
+in <<devdocs>>.
+
+[[statemachine-config-thingstoremember]]
+=== Things to Remember
+
+When defining actions, guards, or any other references from a
+configuration, it pays to remember how Spring Framework works
+with beans. In the next example, we have defined a normal configuration with
+states `S1` and `S2` and four transitions between those. All transitions
+are guarded by either `guard1` or `guard2`. You must ensure that
+`guard1` is created as a real bean because it is annotated with
+`@Bean`, while `guard2` is not.
+
+This means that event `E3` would get the `guard2` condition as
+`TRUE`, and `E4` would get the `guard2` condition as `FALSE`, because those are
+coming from plain method calls to those functions.
+
+However, because `guard1` is defined as a `@Bean`, it is proxied by the
+Spring Framework. Thus, additional calls to its method result in
+only one instantiation of that instance. Event `E1` would first get the
+proxied instance with condition `TRUE`, while event `E2` would get the same
+instance with `TRUE` condition when the method call was defined with
+`FALSE`. This is not a Spring State Machine-specific behavior. Rather, it is
+how Spring Framework works with beans.
+The following example shows how this arrangement works:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests7.java[tags=snippetA]
+----
+====
