@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import org.springframework.statemachine.transition.Transition;
 public class PersistStateMachineHandlerTests {
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testAcceptedStateChangeViaPersist() throws Exception {
 		StateMachine<String,String> stateMachine = buildTestStateMachine();
 
@@ -56,6 +57,7 @@ public class PersistStateMachineHandlerTests {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testNotAcceptedStateChangeViaPersist() throws Exception {
 		StateMachine<String,String> stateMachine = buildTestStateMachine();
 
@@ -74,6 +76,7 @@ public class PersistStateMachineHandlerTests {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testChoice() throws Exception {
 		StateMachine<String,String> stateMachine = buildTestStateMachine2();
 
@@ -91,6 +94,24 @@ public class PersistStateMachineHandlerTests {
 		assertThat(listener.latch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(listener.states.size(), is(1));
 		assertThat(listener.states.get(0).getId(), is("S2"));
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
+	}
+
+	@Test
+	public void testAcceptedStateChangeViaPersistReactively() throws Exception {
+		StateMachine<String,String> stateMachine = buildTestStateMachine();
+
+		PersistStateMachineHandler handler = new PersistStateMachineHandler(stateMachine);
+		handler.afterPropertiesSet();
+		handler.start();
+
+		TestPersistStateChangeListener listener = new TestPersistStateChangeListener();
+		handler.addPersistStateChangeListener(listener);
+
+		Message<String> event = MessageBuilder.withPayload("E2").build();
+		handler.handleEventWithStateReactively(event, "S1").subscribe();
+
+		assertThat(listener.latch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
 	}
 
