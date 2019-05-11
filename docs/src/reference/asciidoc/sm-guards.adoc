@@ -1,0 +1,37 @@
+[[sm-guards]]
+== Using Guards
+
+As shown in <<statemachine\-config\-thingstoremember>>, the `guard1` and `guard2` beans are attached to the entry and
+exit states, respectively.
+The following example also uses guards on events:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetVB]
+----
+====
+
+You can directly implement `Guard` as an anonymous function or create
+your own implementation and define the appropriate implementation as a
+bean. In the preceding example, `guardExpression` checkS whether the extended
+state variable named `myvar` evaluates to `TRUE`.
+The following example implements some sample guards:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetVC]
+----
+====
+
+NOTE: `StateContext` is described in section <<sm-statecontext>>.
+
+=== SpEL Expressions with Guards
+
+You can also use a SpEL expression as a replacement for a
+full Guard implementation. The only requirement is that the expression needs
+to return a `Boolean` value to satisfy the `Guard` implementation. This can be
+demonstrated with a `guardExpression()` function that takes an
+expression as an argument.
+// TODO Good spot for an example

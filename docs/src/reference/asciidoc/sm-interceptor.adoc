@@ -1,0 +1,30 @@
+[[sm-interceptor]]
+== Using `StateMachineInterceptor`
+
+Instead of using a `StateMachineListener` interface, you can
+use a `StateMachineInterceptor`. One conceptual difference is that you can use an
+interceptor to intercept and stop a current state
+change or change its transition logic. Instead of implementing a full interface,
+you can use an adapter class called `StateMachineInterceptorAdapter` to override
+the default no-op methods.
+
+NOTE: One recipe (<<statemachine-recipes-persist>>) and one sample
+(<<statemachine-examples-persist>>) are related to using an
+interceptor.
+
+You can register an interceptor through `StateMachineAccessor`. The concept of
+an interceptor is a relatively deep internal feature and, thus, is not
+exposed directly through the `StateMachine` interface.
+
+The following example shows how to add a `StateMachineInterceptor` and override selected
+methods:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetZH]
+----
+====
+
+NOTE: For more about the error handling shown in preceding example, see
+<<sm-error-handling>>.

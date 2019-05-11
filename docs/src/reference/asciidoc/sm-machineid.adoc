@@ -1,0 +1,80 @@
+[[sm-machineid]]
+== State Machine ID
+
+Various classes and interfaces use `machineId` either as a variable or as a
+parameter in methods. This section takes a closer look at how
+`machineId` relates to normal machine operation and instantiation.
+
+During runtime, a `machineId` really does not have any big operational
+role except to distinguish machines from each other -- for example, when
+following logs or doing deeper debugging. Having a lot of different
+machine instances quickly gets developers lost in translation if there is
+no easy way to identify these instances. As a result, we added the option to set the
+`machineId`.
+
+=== Using `@EnableStateMachine`
+
+Setting `machineId` in Java configuration as `mymachine` then exposes that value
+for logs. This same `machineId` is also available from the
+`StateMachine.getId()` method. The following example uses the `machineId` method:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests10.java[tags=snippetA]
+----
+====
+
+The following example of log output shows the `mymachine` ID:
+
+====
+[source,text]
+----
+11:23:54,509  INFO main support.LifecycleObjectSupport [main] -
+started S2 S1  / S1 / uuid=8fe53d34-8c85-49fd-a6ba-773da15fcaf1 / id=mymachine
+----
+====
+
+NOTE: The manual builder (see <<state-machine-via-builder>>) uses the same configuration
+interface, meaning that the behavior is equivalent.
+
+=== Using `@EnableStateMachineFactory`
+
+You can see the same `machineId` getting configured if you use a
+`StateMachineFactory` and request a new machine by using that ID,
+as the following example shows:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests10.java[tags=snippetB]
+----
+====
+
+=== Using `StateMachineModelFactory`
+
+Behind the scenes, all machine configurations are first translated into a
+`StateMachineModel` so that `StateMachineFactory` need not know
+from where the configuration originated, as a machine can be built from
+Java configuration, UML, or a repository. If you want to go crazy, you can also use a custom
+`StateMachineModel`, which is the lowest possible
+level at which to define configuration.
+
+What do all of these have to do with a `machineId`?
+`StateMachineModelFactory` also has a method with the following signature:
+`StateMachineModel<S, E> build(String machineId)` which a `StateMachineModelFactory`
+implementation may choose to use.
+
+`RepositoryStateMachineModelFactory` (see <<sm-repository>>) uses
+`machineId` to support different configurations in a persistent
+store through Spring Data Repository interfaces. For example, both
+`StateRepository` and `TransitionRepository` have a method (`List<T>
+findByMachineId(String machineId)`), to build different states and
+transitions by a `machineId`. With
+`RepositoryStateMachineModelFactory`, if `machineId` is used as empty
+or NULL, it defaults to repository configuration (in a backing-persistent model)
+without a known machine id.
+
+NOTE: Currently, `UmlStateMachineModelFactory` does not distinguish between
+different machine IDs, as UML source is always coming from the same
+file. This may change in future releases.

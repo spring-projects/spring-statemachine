@@ -1,0 +1,81 @@
+[[sm-triggers]]
+== Triggering Transitions
+
+Driving a state machine is done by using transitions, which are triggered
+by triggers. The currently supported triggers are `EventTrigger` and
+`TimerTrigger`.
+
+=== Using `EventTrigger`
+
+`EventTrigger` is the most useful trigger, because it lets you
+directly interact with a state machine by sending events to it. These
+events are also called signals. You can add a trigger to a transition
+by associating a state with it during configuration.
+The following example shows how to do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetO]
+----
+====
+
+The preceding example sends an event two different ways. First, it
+sends a type-safe event by using the state machine API method called
+`sendEvent(E event)`. Second, it sends an event wrapped in a Spring
+messaging `Message` by using the API method called `sendEvent(Message<E> message)`
+with a custom event headers. This lets us add arbitrary extra
+information to an event, which is then visible to `StateContext` when
+(for example) you implement actions.
+
+NOTE: Message headers are generally passed on until machine runs to
+completion for a specific event. For example if an event is causing
+transition into a state `A` which have an anonymous transition into a
+state `B`, original event is available for actions or guards in state
+`B`.
+
+=== Using `TimerTrigger`
+
+`TimerTrigger` is useful when something needs to be triggered
+automatically without any user interaction. `Trigger` is added to a
+transition by associating a timer with it during a configuration.
+
+Currently, there are two types of supported timers, one that fires
+continuously and one that fires once a source state is entered.
+The following example shows how to use the triggers:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests2.java[tags=snippetA]
+----
+====
+
+The preceding example has three states: `S1`, `S2`, and `S3`. We have a normal
+external transition from `S1` to `S2` and from `S1` to `S3` with
+events `E1` and `E2`, respectively. The interesting parts
+for working with `TimerTrigger` are when we define
+internal transitions for source states `S2` and `S3`.
+
+For both transitions, we invoke the `Action` bean (`timerAction`), where
+source state `S2` uses `timer` and `S3` uses `timerOnce`.
+Values given are in milliseconds (`1000` milliseconds, or one second, in both cases).
+
+Once a state machine receives event `E1`, it does a transition
+from `S1` to `S2` and the timer kicks in. When the state is `S2`,
+`TimerTrigger` runs and causes a transition associated with that
+state -- in this case, the internal transition that has the
+`timerAction` defined.
+
+Once a state machine receives the `E2`, event it does a transition
+from `S1` to `S3` and the timer kicks in. This timer is executed only once
+after the state is entered (after a delay defined in a timer).
+
+NOTE: Behind the scenes, timers are simple triggers that may cause a
+transition to happen. Defining a transition with a `timer()` keeps
+firing triggers and causes transition only if the source state is active.
+Transition with `timerOnce()` is a little different, as it
+triggers only after a delay when a source state is actually entered.
+
+TIP: Use `timerOnce()` if you want something to happen after a delay
+exactly once when state is entered.

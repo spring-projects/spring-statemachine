@@ -1,0 +1,52 @@
+[[sm-error-handling]]
+== State Machine Error Handling
+
+If a state machine detects an internal error during a state transition
+logic, it may throw an exception. Before this exception is processed
+internally, you are given a chance to intercept.
+
+Normally, you can use `StateMachineInterceptor` to intercept errors and the
+following listing shows an example of it:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippet1]
+----
+====
+
+When errors are detected, the normal event notify mechanism is executed.
+This lets you use either a `StateMachineListener` or a Spring Application
+context event listener. For more about these, see
+<<sm-listeners>>.
+
+Having said that, the following example shows a simple listener:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippet2]
+----
+====
+
+The following example shows a generic `ApplicationListener` checking `StateMachineEvent`:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippet3]
+----
+====
+
+You can also directly define `ApplicationListener` to
+recognize only `StateMachineEvent` instances, as the following example shows:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippet4]
+----
+====
+
+TIP: Actions defined for transitions also have their own error handling
+logic. See <<statemachine-config-transition-actions-errorhandling>>.

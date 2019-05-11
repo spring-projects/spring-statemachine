@@ -1,0 +1,141 @@
+[[sm-persist]]
+== Persisting a State Machine
+
+Traditionally, an instance of a state machine is used as is within a
+running program. You can achieve more dynamic behavior by using
+dynamic builders and factories, which allows state machine
+instantiation on-demand. Building an instance of a state machine is a
+relatively heavy operation. Consequently, if you need to (for example) handle
+an arbitrary state change in a database by using a state machine, you need to
+find a better and faster way to do it.
+
+The persist feature lets you save a state of a state machine
+into an external repository and later reset a state machine based off the
+serialized state. For example, if you have a database table keeping
+orders, it would be way too expensive to update an order state with a state
+machine if a new instance would need to be built for every change.
+The persist feature lets you reset a state machine state without
+instantiating a new state machine instance.
+
+NOTE: There is one recipe (see <<statemachine-recipes-persist>>) and one sample
+(see <<statemachine-examples-persist>>) that provide more info about
+persisting states.
+
+While you can build a custom persistence feature by using a
+`StateMachineListener`, it has one conceptual problem. When a listener
+notifies about a change of state, the state change has already happened. If a
+custom persistent method within a listener fails to update the serialized
+state in an external repository, the state in a state machine and the state in
+an external repository are then in an inconsistent state.
+
+You can isntead use a state machine interceptor to try to save the
+serialized state into external storage during the state
+change within a state machine. If this interceptor callback fails,
+you can halt the state change attempt and, instead of ending in an
+inconsistent state, you can then handle this error manually. See
+<<sm-interceptor>> for how to use interceptors.
+
+[[sm-persist-statemachinecontext]]
+=== Using `StateMachineContext`
+
+You cannot persist a `StateMachine` by using normal java
+serialization, as the object graph is too rich and contains too many
+dependencies on other Spring context classes. `StateMachineContext`
+is a runtime representation of a state machine that you can use to
+restore an existing machine into a state represented by a particular
+`StateMachineContext` object.
+
+`StateMachineContext` contains two different ways to include information
+for a child context. These are generally used when a machine contains
+orthogonal regions. First, a context can have a list of child contexts
+that can be used as is if they exist. Second, you can
+include a list of references that are used if raw context children
+are not in place. These child references are really the only way to
+persist a machine where multiple parallel regions are running
+independently.
+
+TIP: The <<statemachine-examples-datajpamultipersist>> sample shows
+how you can persist parallel regions.
+
+[[sm-persist-statemachinepersister]]
+=== Using `StateMachinePersister`
+
+Building a `StateMachineContext` and then restoring a state machine
+from it has always been a little bit of "`black magic`" if done
+manually. The `StateMachinePersister` interface aims to ease these
+operations by providing `persist` and `restore` methods. The default
+implementation of this interface is `DefaultStateMachinePersister`.
+
+We can show how to use a `StateMachinePersister` by following
+a snippets from tests. We start by creating two similar configurations
+(`machine1` and `machine2`) for a state machine. Note that we could build different
+machines for this demonstration in other ways but this way
+works for this case. The following example configures the two state machines:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests5.java[tags=snippetA]
+----
+====
+
+As we are using a `StateMachinePersist` object, we can create an in-memory
+implementation.
+
+NOTE: This in-memory sample is only for demonstration purposes. For real
+applications, you should use a real persistent storage implementation.
+
+The following listing shows how to use the in-memory sample:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests5.java[tags=snippetB]
+----
+====
+
+After we have instantiated the two different machines, we can transfer
+`machine1` into state `S2` through event `E1`. Then we can persist it and restore
+`machine2`. The following example shows how to do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests5.java[tags=snippetC]
+----
+====
+
+[[sm-persist-redis]]
+=== Using Redis
+
+`RepositoryStateMachinePersist` (which implements
+`StateMachinePersist`) offers support for persisting a state machine into Redis.
+ The specific implementation is a
+`RedisStateMachineContextRepository`, which uses `kryo` serialization to
+persist a `StateMachineContext` into `Redis`.
+
+For `StateMachinePersister`, we have a Redis-related
+`RedisStateMachinePersister` implementation, which takes an instance of
+a `StateMachinePersist` and uses `String` as its context object.
+
+TIP: See the <<statemachine-examples-eventservice>> sample for detailed usage.
+
+`RedisStateMachineContextRepository` needs a
+`RedisConnectionFactory` for it to work. We recommend using a
+`JedisConnectionFactory` for it, as the preceding example shows.
+
+[[sm-persist-statemachineruntimepersister]]
+=== Using `StateMachineRuntimePersister`
+
+`StateMachineRuntimePersister` is a simple extension to
+`StateMachinePersist` that adds an interface-level method to get
+`StateMachineInterceptor` associated with it. This interceptor is then
+required to persist a machine during state changes without needing to
+stop and start a machine.
+
+Currently, there are implementations for this interface for the
+supported Spring Data Repositories. These implementations are
+`JpaPersistingStateMachineInterceptor`, `MongoDbPersistingStateMachineInterceptor`,
+and `RedisPersistingStateMachineInterceptor`.
+
+TIP: See the <<statemachine-examples-datapersist>> sample for detailed usage.

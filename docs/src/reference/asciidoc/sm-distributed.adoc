@@ -1,0 +1,61 @@
+[[sm-distributed]]
+== Using Distributed States
+
+Distributed state is probably one of a most complicated concepts of a
+Spring state machine. What exactly is a distributed state? A state
+within a single state machine is naturally really simple to understand,
+but, when there is a need to introduce a shared distributed state
+through a state machine, things get a little complicated.
+
+NOTE: Distributed state functionality is still a preview feature and is not
+yet considered to be stable in this particular release. We expect this
+feature to mature towards its first official release.
+
+For information about generic configuration support, see
+<<statemachine-config-commonsettings>>. For an actual usage example, see
+the <<statemachine-examples-zookeeper>> sample.
+
+A distributed state machine is implemented through a
+`DistributedStateMachine` class that wraps an actual instance
+of a `StateMachine`. `DistributedStateMachine` intercepts
+communication with a `StateMachine` instance and works with
+distributed state abstractions handled through the
+`StateMachineEnsemble` interface. Depending on the actual implementation,
+you can also use the `StateMachinePersist` interface to serialize a
+`StateMachineContext`, which contains enough information to reset a
+`StateMachine`.
+
+While a distributed state machine is implemented through an abstraction,
+only one implementation currently exists. It is based on Zookeeper.
+
+The following example shows how to configure a Zookeeper-based distributed state
+machine`:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsZookeeperSampleTests.java[tags=snippetA]
+----
+====
+
+You can find the current technical documentation for a Zookeeker-based distributed
+state machine <<appendices-zookeeper,in the appendix>>.
+
+=== Using `ZookeeperStateMachineEnsemble`
+
+`ZookeeperStateMachineEnsemble` itself needs two mandatory settings,
+an instance of `curatorClient` and a `basePath`. The client is a
+`CuratorFramework`, and the path is the root of a tree in a `Zookeeper` instance.
+
+Optionally, you can set `cleanState`, which defaults to `TRUE`
+and clears existing data if no members exists in an ensemble. You can set
+it to `FALSE` if you want to preserve distributed state within
+application restarts.
+
+Optionally, you can set the size of a `logSize` (defaults
+to `32`) to a keep history of state changes. The value of this
+setting must be a power of two. `32` is generally a good default
+value. If a particular state machine is left behind by more than the
+size of the log, it is put into an error state and disconnected from the
+ensemble, indicating it has lost its history and its ability to fully reconstruct the
+synchronized status.

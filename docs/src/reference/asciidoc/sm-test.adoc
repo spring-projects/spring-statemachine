@@ -1,0 +1,51 @@
+[[sm-test]]
+== Testing Support
+
+We have also added a set of utility classes to ease testing of state
+machine instances. These are used in the framework itself but are also
+very useful for end users.
+
+`StateMachineTestPlanBuilder` builds a `StateMachineTestPlan`,
+which has one method (called `test()`). That method runs a plan.
+`StateMachineTestPlanBuilder` contains a fluent builder API to let you add
+steps to a plan. During these steps, you can send events and check
+various conditions, such as state changes, transitions, and extended state
+variables.
+
+The following example uses `StateMachineBuilder` to build a state machine:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsTestSampleTests.java[tags=snippetB]
+----
+====
+
+In the following test plan, we have two steps. First, we check that the initial
+state (`SI`) is indeed set. Second, we send an event (`E1`) and expect
+one state change to happen and expect the machine to end up in a state of `S1`.
+The following listing shows the test plan:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsTestSampleTests.java[tags=snippetA]
+----
+====
+
+These utilities are also used within a framework to test distributed
+state machine features. Note that you can add multiple machines to a plan.
+If you add multiple machines, yuo can also choose to
+send an event a particular machine, a random machine, or all machines.
+
+The preceding testing example uses the following Hamcrest imports:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsTestSampleTests.java[tags=snippetC]
+----
+====
+
+TIP: All possible options for expected results are documented in the Javadoc for
+{sm-statemachinetestplanbuilder-statemachinetestplanstepbuilder}[`StateMachineTestPlanStepBuilder`].

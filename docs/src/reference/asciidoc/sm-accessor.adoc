@@ -1,0 +1,55 @@
+[[sm-accessor]]
+== Using `StateMachineAccessor`
+
+`StateMachine` is the main interface for communicating with a state machine.
+From time to time, you may need to get more dynamic and
+programmatic access to internal structures of a state machine and its
+nested machines and regions. For these use cases, `StateMachine`
+exposes a functional interface called `StateMachineAccessor`, which provides
+an interface to get access to individual `StateMachine` and
+`Region` instances.
+
+`StateMachineFunction` is a simple functional interface that lets
+you apply the `StateMachineAccess` interface to a state machine. With
+JDK 7, these create code that is a little verbose code. However, with JDK 8 lambdas,
+the doce is relatively non-verbose.
+
+The `doWithAllRegions` method gives access to all `Region` instances in
+a state machine. The following example shows how to use it:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetZA]
+----
+====
+
+The `doWithRegion` method gives access to single `Region` instance in a
+state machine. The following example shows how to use it:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetZB]
+----
+====
+
+The `withAllRegions` method gives access to all of the `Region` instances in
+a state machine. The following example shows how to use it:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetZC]
+----
+====
+
+The `withRegion` method gives access to single `Region` instance in a
+state machine. The following example shows how to use it:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetZD]
+----
+====

@@ -1,0 +1,101 @@
+[[sm-listeners]]
+== Listening to State Machine Events
+
+There are use cases where you want to know what is happening with
+a state machine, react to something, or get logging details for
+debugging purposes. Spring Statemachine provides interfaces for adding listeners. These listeners
+then give an option to get callbacks when various state changes,
+actions, and so on happen.
+
+You basically have two options: listen to Spring application
+context events or directly attach a listener to a state machine. Both of
+these basically provide the same information. One produces
+events as event classes, and the other produces callbacks via a listener
+interface. Both of these have pros and cons, which we discuss later.
+
+=== Application Context Events
+
+Application context events classes are `OnTransitionStartEvent`,
+`OnTransitionEvent`, `OnTransitionEndEvent`, `OnStateExitEvent`,
+`OnStateEntryEvent`, `OnStateChangedEvent`, `OnStateMachineStart`,
+`OnStateMachineStop`, and others that extend the base event class,
+`StateMachineEvent`. These can be used as is with a Spring
+`ApplicationListener`.
+
+`StateMachine` sends context events through `StateMachineEventPublisher`.
+The default implementation is automatically created if a `@Configuration`
+class is annotated with `@EnableStateMachine`.
+The following example gets a `StateMachineApplicationEventListener`
+from a bean defined in a `@Configuration` class:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetG]
+----
+====
+
+Context events are also automatically enabled by using `@EnableStateMachine`,
+with `StateMachine` used to build a machine and registered as a bean,
+as the following example shows:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetGG]
+----
+====
+
+=== Using `StateMachineListener`
+
+By using `StateMachineListener`, you can either extend it and
+implement all callback methods or use the `StateMachineListenerAdapter`
+class, which contains stub method implementations and choose which ones
+to override.
+The following example uses the latter approach:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetH]
+----
+====
+
+In the preceding example, we created our own listener class
+(`StateMachineEventListener`) that extends
+`StateMachineListenerAdapter`.
+
+The `stateContext` listener method gives access to various
+`StateContext` changes on a different stages. You can find more about about it in
+<<sm-statecontext>>.
+
+Once you have defined your own listener, you can registered it in a
+state machine by using the `addStateListener` method. It is a matter of
+flavor whether to hook it up within a spring configuration or do it
+manually at any time during the application life-cycle.
+The following example shows how to attach a listener:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetM]
+----
+====
+
+=== Limitations and Problems
+
+Spring application context is not the fastest event bus out there, so we
+advise giving some thought to the rate of events the state machine
+sends. For better performance, it may be better to use the
+`StateMachineListener` interface. For this specific reason,
+you can use the `contextEvents` flag with `@EnableStateMachine` and
+`@EnableStateMachineFactory` to disable Spring application context
+events, as shown in the preceding section.
+The following example shows how to disable Spring application context events:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetN]
+----
+====

@@ -1,0 +1,50 @@
+[[sm-extendedstate]]
+== Using Extended State
+
+Assume that you need to create a state machine that tracks how
+many times a user is pressing a key on a keyboard and then terminates
+when keys are pressed 1000 times. A possible but really naive solution
+would be to create a new state for each 1000 key presses.
+You might suddenly have an astronomical number of
+states, which, naturally, is not very practical.
+
+This is where extended state variables come to the rescue by not needing
+to add more states to drive state machine changes. Instead,
+you can do a simple variable change during a transition.
+
+`StateMachine` has a method called `getExtendedState()`. It returns an
+interface called `ExtendedState`, which gives access to extended state
+variables. You can access these variables directly through a state machine or through
+`StateContext` during a callback from actions or transitions.
+The following example shows how to do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippet7]
+----
+====
+
+If you need to get notified for extended state variable
+changes, you have two options: either use `StateMachineListener` or
+listen for `extendedStateChanged(key, value)` callbacks. The following example
+uses the `extendedStateChanged` method:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippet5]
+----
+====
+
+Alternatively, you can implement a Spring Application context listener for
+`OnExtendedStateChanged`. As mentioned in <<sm-listeners>>,
+you can also listen all `StateMachineEvent` events.
+The following example uses `onApplicationEvent` to listen for state changes:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippet6]
+----
+====

@@ -1,0 +1,62 @@
+[[sm-deferevents]]
+== Using Deferred Events
+
+When an event is sent, it may fire an `EventTrigger`, which may then cause
+a transition to happen, if a state machine is in a state where a trigger is
+evaluated successfully. Normally, this may lead to a situation where
+an event is not accepted and is dropped. However, you may wish
+postpone this event until a state machine enters another state. In that case,
+you can accept that event. In other words, an event
+arrives at an inconvenient time.
+
+Spring Statemachine provides a mechanism for deferring events for later
+processing. Every state can have a list of deferred events. If an event
+in the current state’s deferred event list occurs, the event is saved
+(deferred) for future processing until a state is entered that does not list
+the event in its deferred event list. When such a state is entered, the
+state machine automatically recalls any saved events that are no longer
+deferred and then either consumes or discards these events. It is possible
+for a superstate to have a transition defined on an event that is deferred
+by a substate. Following same hierarchical state machines concepts, the substate
+takes precedence over the superstate, the event is deferred, and the
+transition for the superstate is not run. With orthogonal regions,
+where one orthogonal region defers an event and another accepts the event, the
+accept takes precedence and the event is consumed and not deferred.
+
+The most obvious use case for event deferring is when an event causes
+a transition into a particular state and the state machine is then returned back
+to its original state where a second event should cause the same
+transition. The following example shows this situation:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests2.java[tags=snippetE]
+----
+====
+
+In the preceding example, the state machine has a state of `READY`, which indicates that the machine is
+ready to process events that would take it into a `DEPLOY` state, where the
+actual deployment would happen. After a deploy action has been run, the machine
+is returned back to the `READY` state. Sending multiple events in a
+`READY` state does not cause any trouble if the machine is using synchronous executors,
+because event sending would block between event calls. However, if the executor uses
+threads, other events may get lost, because the machine is no longer in a state where
+events can be processed. Thus, deferring some of these events lets the machine
+preserve them. The following example shows how to configure such an arrangement:
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests2.java[tags=snippetF]
+----
+====
+
+In the preceding example, the state machine uses nested states instead of a flat
+state model, so the `DEPLOY` event can be deferred directly in a substate.
+It also shows the concept of deferring the `DONE` event in a
+sub-state that would then override the anonymous transition between
+the `DEPLOY` and `DONE` states if the state machine happens to be in a
+`DEPLOYPREPARE` state when the `DONE` event is dispatched. In the
+`DEPLOYEXECUTE` state when the `DONE` event is not deferred, this event would
+be handled in a super state.
