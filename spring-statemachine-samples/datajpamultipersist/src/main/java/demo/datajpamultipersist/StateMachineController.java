@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.StateMachinePersist;
@@ -30,6 +31,8 @@ import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import reactor.core.publisher.Mono;
 
 @Controller
 public class StateMachineController {
@@ -67,7 +70,10 @@ public class StateMachineController {
 		StateMachine<String, String> stateMachine = getStateMachine(machine);
 		if (events != null) {
 			for (String event : events) {
-				stateMachine.sendEvent(event);
+				stateMachine
+					.sendEvent(Mono.just(MessageBuilder
+						.withPayload(event).build()))
+					.blockLast();
 			}
 		}
 
@@ -104,13 +110,13 @@ public class StateMachineController {
 		if (currentStateMachine == null) {
 			currentStateMachine = stateMachineService.acquireStateMachine(machineId, false);
 			currentStateMachine.addStateListener(listener);
-			currentStateMachine.start();
+			currentStateMachine.startReactively().block();
 		} else if (!ObjectUtils.nullSafeEquals(currentStateMachine.getId(), machineId)) {
 			stateMachineService.releaseStateMachine(currentStateMachine.getId());
-			currentStateMachine.stop();
+			currentStateMachine.stopReactively().block();
 			currentStateMachine = stateMachineService.acquireStateMachine(machineId, false);
 			currentStateMachine.addStateListener(listener);
-			currentStateMachine.start();
+			currentStateMachine.startReactively().block();
 		}
 		return currentStateMachine;
 	}

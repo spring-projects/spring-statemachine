@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import demo.security.StateMachineConfig.Events;
 import demo.security.StateMachineConfig.States;
+import reactor.core.publisher.Mono;
 
 @Controller
 public class StateMachineController {
@@ -49,7 +51,10 @@ public class StateMachineController {
 	public String getStates(@RequestParam(value = "event", required = false) Events event, Model model) {
 		if (event != null) {
 			try {
-				stateMachine.sendEvent(event);
+				stateMachine
+					.sendEvent(Mono.just(MessageBuilder
+						.withPayload(event).build()))
+					.blockLast();
 			} catch (Exception e) {
 				log.error("Error sendEvent", e);
 			}

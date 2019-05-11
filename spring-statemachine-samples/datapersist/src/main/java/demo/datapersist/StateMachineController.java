@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.StateMachinePersist;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import demo.datapersist.StateMachineConfig.Events;
 import demo.datapersist.StateMachineConfig.States;
+import reactor.core.publisher.Mono;
 
 @Controller
 public class StateMachineController {
@@ -61,7 +63,10 @@ public class StateMachineController {
 		StateMachine<States, Events> stateMachine = getStateMachine(machine);
 		if (events != null) {
 			for (Events event : events) {
-				stateMachine.sendEvent(event);
+				stateMachine
+					.sendEvent(Mono.just(MessageBuilder
+						.withPayload(event).build()))
+					.blockLast();
 			}
 		}
 		StateMachineContext<States, Events> stateMachineContext = stateMachinePersist.read(machine);
@@ -79,13 +84,13 @@ public class StateMachineController {
 		if (currentStateMachine == null) {
 			currentStateMachine = stateMachineService.acquireStateMachine(machineId);
 			currentStateMachine.addStateListener(listener);
-			currentStateMachine.start();
+			currentStateMachine.startReactively().block();
 		} else if (!ObjectUtils.nullSafeEquals(currentStateMachine.getId(), machineId)) {
 			stateMachineService.releaseStateMachine(currentStateMachine.getId());
-			currentStateMachine.stop();
+			currentStateMachine.stopReactively().block();
 			currentStateMachine = stateMachineService.acquireStateMachine(machineId);
 			currentStateMachine.addStateListener(listener);
-			currentStateMachine.start();
+			currentStateMachine.startReactively().block();
 		}
 		return currentStateMachine;
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.annotation.WithStateMachine;
@@ -28,6 +29,7 @@ import org.springframework.statemachine.annotation.WithStateMachine;
 import demo.tasks.Application.Events;
 import demo.tasks.Application.States;
 import demo.tasks.Application.StatesOnTransition;
+import reactor.core.publisher.Mono;
 
 @WithStateMachine
 public class Tasks {
@@ -46,14 +48,20 @@ public class Tasks {
 	}
 
 	public void run() {
-		stateMachine.sendEvent(Events.RUN);
+		stateMachine
+			.sendEvent(Mono.just(MessageBuilder
+				.withPayload(Events.RUN).build()))
+			.subscribe();
 	}
 
 	public void fix() {
 		tasks.put("T1", true);
 		tasks.put("T2", true);
 		tasks.put("T3", true);
-		stateMachine.sendEvent(Events.FIX);
+		stateMachine
+			.sendEvent(Mono.just(MessageBuilder
+				.withPayload(Events.FIX).build()))
+			.subscribe();
 	}
 
 	public void fail(String task) {

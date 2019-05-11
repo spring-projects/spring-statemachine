@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import demo.cdplayer.Application.Headers;
 import demo.cdplayer.Application.States;
 import demo.cdplayer.Application.StatesOnTransition;
 import demo.cdplayer.Application.Variables;
+import reactor.core.publisher.Mono;
 
 @WithStateMachine
 public class CdPlayer {
@@ -41,37 +42,54 @@ public class CdPlayer {
 	private String trackStatus = "";
 
 	public void load(Cd cd) {
-		stateMachine.sendEvent(MessageBuilder.withPayload(Events.LOAD).setHeader(Variables.CD.toString(), cd).build());
+		stateMachine
+			.sendEvent(Mono.just(MessageBuilder
+				.withPayload(Events.LOAD).setHeader(Variables.CD.toString(), cd).build()))
+			.subscribe();
 	}
 
 	public void play() {
-		stateMachine.sendEvent(Events.PLAY);
+		stateMachine
+			.sendEvent(Mono.just(MessageBuilder
+				.withPayload(Events.PLAY).build()))
+			.subscribe();
 	}
 
 	public void stop() {
-		stateMachine.sendEvent(Events.STOP);
+		stateMachine
+			.sendEvent(Mono.just(MessageBuilder
+				.withPayload(Events.STOP).build()))
+			.subscribe();
 	}
 
 	public void pause() {
-		stateMachine.sendEvent(Events.PAUSE);
+		stateMachine
+			.sendEvent(Mono.just(MessageBuilder
+				.withPayload(Events.PAUSE).build()))
+			.subscribe();
 	}
 
 	public void eject() {
-		stateMachine.sendEvent(Events.EJECT);
+		stateMachine
+			.sendEvent(Mono.just(MessageBuilder
+				.withPayload(Events.EJECT).build()))
+			.subscribe();
 	}
 
 	public void forward() {
 		stateMachine
-			.sendEvent(MessageBuilder
-					.withPayload(Events.FORWARD)
-					.setHeader(Headers.TRACKSHIFT.toString(), 1).build());
+			.sendEvent(Mono.just(MessageBuilder
+				.withPayload(Events.FORWARD)
+				.setHeader(Headers.TRACKSHIFT.toString(), 1).build()))
+			.subscribe();
 	}
 
 	public void back() {
 		stateMachine
-			.sendEvent(MessageBuilder
-					.withPayload(Events.BACK)
-					.setHeader(Headers.TRACKSHIFT.toString(), -1).build());
+			.sendEvent(Mono.just(MessageBuilder
+				.withPayload(Events.BACK)
+				.setHeader(Headers.TRACKSHIFT.toString(), -1).build()))
+			.subscribe();
 	}
 
 	public String getLdcStatus() {

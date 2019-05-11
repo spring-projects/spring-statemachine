@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.util.Map;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.shell.Bootstrap;
 import org.springframework.statemachine.StateContext;
@@ -36,6 +37,8 @@ import org.springframework.statemachine.config.builders.StateMachineStateConfigu
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.util.ObjectUtils;
+
+import reactor.core.publisher.Mono;
 
 @Configuration
 public class Application  {
@@ -155,9 +158,15 @@ public class Application  {
 					if (ObjectUtils.nullSafeEquals(variables.get("T1"), true)
 							&& ObjectUtils.nullSafeEquals(variables.get("T2"), true)
 							&& ObjectUtils.nullSafeEquals(variables.get("T3"), true)) {
-						context.getStateMachine().sendEvent(Events.CONTINUE);
+						context.getStateMachine()
+							.sendEvent(Mono.just(MessageBuilder
+								.withPayload(Events.CONTINUE).build()))
+							.subscribe();
 					} else {
-						context.getStateMachine().sendEvent(Events.FALLBACK);
+						context.getStateMachine()
+							.sendEvent(Mono.just(MessageBuilder
+								.withPayload(Events.FALLBACK).build()))
+							.subscribe();
 					}
 				}
 			};
@@ -173,7 +182,10 @@ public class Application  {
 					variables.put("T1", true);
 					variables.put("T2", true);
 					variables.put("T3", true);
-					context.getStateMachine().sendEvent(Events.CONTINUE);
+					context.getStateMachine()
+						.sendEvent(Mono.just(MessageBuilder
+							.withPayload(Events.CONTINUE).build()))
+						.subscribe();
 				}
 			};
 		}

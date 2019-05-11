@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package demo.eventservice;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.persist.StateMachinePersister;
 import org.springframework.stereotype.Controller;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import demo.eventservice.StateMachineConfig.Events;
 import demo.eventservice.StateMachineConfig.States;
+import reactor.core.publisher.Mono;
 
 @Controller
 public class StateMachineController {
@@ -85,7 +87,10 @@ public class StateMachineController {
 
 //tag::snippetD[]
 	private void feedMachine(String user, Events id) throws Exception {
-		stateMachine.sendEvent(id);
+		stateMachine
+			.sendEvent(Mono.just(MessageBuilder
+				.withPayload(id).build()))
+			.blockLast();
 		stateMachinePersister.persist(stateMachine, "testprefix:" + user);
 	}
 //end::snippetD[]

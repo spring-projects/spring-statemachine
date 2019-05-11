@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,8 @@ import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.guard.Guard;
+
+import reactor.core.publisher.Mono;
 
 @Configuration
 public class Application  {
@@ -214,7 +216,10 @@ public class Application  {
 					&& context.getEvent() == Events.PLAY
 					&& context.getTransition().getTarget().getId() == States.CLOSED
 					&& context.getExtendedState().getVariables().get(Variables.CD) != null) {
-				context.getStateMachine().sendEvent(Events.PLAY);
+				context.getStateMachine()
+					.sendEvent(Mono.just(MessageBuilder
+						.withPayload(Events.PLAY).build()))
+					.subscribe();
 			}
 		}
 	}
@@ -265,9 +270,11 @@ public class Application  {
 			if (elapsed instanceof Long) {
 				long e = ((Long)elapsed) + 1000l;
 				if (e > ((Cd) cd).getTracks()[((Integer) track)].getLength()*1000) {
-					context.getStateMachine().sendEvent(MessageBuilder
+					context.getStateMachine()
+						.sendEvent(Mono.just(MessageBuilder
 							.withPayload(Events.FORWARD)
-							.setHeader(Headers.TRACKSHIFT.toString(), 1).build());
+							.setHeader(Headers.TRACKSHIFT.toString(), 1).build()))
+						.subscribe();
 				} else {
 					variables.put(Variables.ELAPSEDTIME, e);
 				}
@@ -291,7 +298,10 @@ public class Application  {
 					variables.put(Variables.ELAPSEDTIME, 0l);
 					variables.put(Variables.TRACK, next);
 				} else if (((Cd)cd).getTracks().length <= next) {
-					context.getStateMachine().sendEvent(Events.STOP);
+					context.getStateMachine()
+						.sendEvent(Mono.just(MessageBuilder
+							.withPayload(Events.STOP).build()))
+						.subscribe();
 				}
 			}
 		}
