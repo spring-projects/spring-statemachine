@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
@@ -51,6 +52,8 @@ import org.springframework.statemachine.support.tree.Tree;
 import org.springframework.statemachine.support.tree.Tree.Node;
 import org.springframework.statemachine.support.tree.TreeTraverser;
 import org.springframework.statemachine.transition.Transition;
+
+import reactor.core.publisher.Mono;
 
 /**
  * {@code TasksHandler} is a recipe for executing arbitrary {@link Runnable} tasks
@@ -124,21 +127,30 @@ public class TasksHandler {
 	 * Request to execute current tasks logic.
 	 */
 	public void runTasks() {
-		stateMachine.sendEvent(EVENT_RUN);
+		stateMachine
+			.sendEvent(Mono.just(MessageBuilder
+				.withPayload(EVENT_RUN).build()))
+			.subscribe();
 	}
 
 	/**
 	 * Request to continue from an error.
 	 */
 	public void continueFromError() {
-		stateMachine.sendEvent(EVENT_CONTINUE);
+		stateMachine
+			.sendEvent(Mono.just(MessageBuilder
+				.withPayload(EVENT_CONTINUE).build()))
+			.subscribe();
 	}
 
 	/**
 	 * Request to fix current problems.
 	 */
 	public void fixCurrentProblems() {
-		stateMachine.sendEvent(EVENT_FIX);
+		stateMachine
+			.sendEvent(Mono.just(MessageBuilder
+				.withPayload(EVENT_FIX).build()))
+			.subscribe();
 	}
 
 	/**
@@ -160,7 +172,7 @@ public class TasksHandler {
 			throw new StateMachineException("Error reading state from persistent store", e);
 		}
 
-		stateMachine.stop();
+		stateMachine.stopReactively().block();
 		stateMachine.getStateMachineAccessor()
 			.doWithAllRegions(new StateMachineFunction<StateMachineAccess<String, String>>() {
 
@@ -169,7 +181,7 @@ public class TasksHandler {
 				function.resetStateMachine(context);
 			}
 		});
-		stateMachine.start();
+		stateMachine.startReactively().block();
 	}
 
 	/**
@@ -535,9 +547,15 @@ public class TasksHandler {
 					}
 				}
 				if (hasErrors) {
-					context.getStateMachine().sendEvent(EVENT_FALLBACK);
+					context.getStateMachine()
+						.sendEvent(Mono.just(MessageBuilder
+							.withPayload(EVENT_FALLBACK).build()))
+						.subscribe();
 				} else {
-					context.getStateMachine().sendEvent(EVENT_CONTINUE);
+					context.getStateMachine()
+						.sendEvent(Mono.just(MessageBuilder
+							.withPayload(EVENT_CONTINUE).build()))
+						.subscribe();
 				}
 			}
 		};

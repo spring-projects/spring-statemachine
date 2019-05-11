@@ -30,6 +30,8 @@ import org.springframework.statemachine.support.StateMachineInterceptorAdapter;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.util.Assert;
 
+import reactor.core.publisher.Mono;
+
 /**
  * {@code PersistStateMachineHandler} is a recipe which can be used to
  * handle a state change of an arbitrary entity in a persistent storage.
@@ -70,15 +72,38 @@ public class PersistStateMachineHandler extends LifecycleObjectSupport {
 	 * @param event the event
 	 * @param state the state
 	 * @return true if event was accepted
+	 * @see #handleEventWithStateReactively(Message, String)
 	 */
+	@Deprecated
 	public boolean handleEventWithState(Message<String> event, String state) {
-		stateMachine.stop();
+		stateMachine.stopReactively().block();
 		List<StateMachineAccess<String, String>> withAllRegions = stateMachine.getStateMachineAccessor().withAllRegions();
 		for (StateMachineAccess<String, String> a : withAllRegions) {
 			a.resetStateMachine(new DefaultStateMachineContext<String, String>(state, null, null, null));
 		}
-		stateMachine.start();
+		stateMachine.startReactively().block();
 		return stateMachine.sendEvent(event);
+	}
+
+	/**
+	 * Handle event with entity reactively.
+	 *
+	 * @param event the event
+	 * @param state the state
+	 * @return mono for completion
+	 */
+	public Mono<Void> handleEventWithStateReactively(Message<String> event, String state) {
+		// TODO: REACTOR add docs and revisit this function concept
+		return Mono.from(stateMachine.stopReactively())
+			.then(Mono.fromRunnable(() -> {
+				List<StateMachineAccess<String, String>> withAllRegions = stateMachine.getStateMachineAccessor().withAllRegions();
+				for (StateMachineAccess<String, String> a : withAllRegions) {
+					a.resetStateMachine(new DefaultStateMachineContext<String, String>(state, null, null, null));
+				}
+			}))
+			.then(stateMachine.startReactively())
+			.thenMany(stateMachine.sendEvent(Mono.just(event)))
+			.then();
 	}
 
 	/**
