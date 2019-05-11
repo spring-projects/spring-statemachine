@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@ package org.springframework.statemachine.docs;
 
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,9 +61,9 @@ public class DocsConfigurationSampleTests6 {
 		ObjectStateMachineFactory<String, String> factory = new ObjectStateMachineFactory<>(stateMachineModel);
 		StateMachine<String, String> stateMachine = factory.getStateMachine();
 // end::snippetA[]
-		stateMachine.start();
+		doStartAndAssert(stateMachine);
 		assertThat(stateMachine.getState().getIds(), contains("S1"));
-		stateMachine.sendEvent("E1");
+		doSendEventAndConsumeAll(stateMachine, "E1");
 		assertThat(stateMachine.getState().getIds(), contains("S2"));
 	}
 

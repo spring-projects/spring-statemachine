@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2018-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,8 @@ import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+
+import reactor.core.publisher.Mono;
 
 public class DocsConfigurationSampleTests11 extends AbstractStateMachineTests {
 
@@ -114,10 +116,12 @@ public class DocsConfigurationSampleTests11 extends AbstractStateMachineTests {
 		StateMachine<String, String> stateMachine;
 
 		void sendEventUsingTimeout() {
-			stateMachine.sendEvent(MessageBuilder
+			stateMachine
+				.sendEvent(Mono.just(MessageBuilder
 					.withPayload("E1")
 					.setHeader(StateMachineMessageHeaders.HEADER_DO_ACTION_TIMEOUT, 5000)
-					.build());
+					.build()))
+				.subscribe();
 
 		}
 // end::snippetC[]

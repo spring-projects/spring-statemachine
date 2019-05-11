@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,9 @@ package org.springframework.statemachine.docs;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+import static org.springframework.statemachine.TestUtils.resolveMachine;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -33,6 +36,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateContext;
@@ -53,6 +57,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import reactor.core.publisher.Mono;
 
 public class DocsConfigurationSampleTests2 extends AbstractStateMachineTests {
 
@@ -182,7 +188,10 @@ public class DocsConfigurationSampleTests2 extends AbstractStateMachineTests {
 
 		@RequestMapping(path="/state", method=RequestMethod.POST)
 		public HttpEntity<Void> setState(@RequestParam("event") String event) {
-			stateMachine.sendEvent(event);
+			stateMachine
+				.sendEvent(Mono.just(MessageBuilder
+					.withPayload(event).build()))
+				.subscribe();
 			return new ResponseEntity<Void>(HttpStatus.ACCEPTED);
 		}
 
@@ -198,17 +207,16 @@ public class DocsConfigurationSampleTests2 extends AbstractStateMachineTests {
 	public void testConfig51() throws Exception {
 		context.register(Config5.class, ExecutorConfig.class);
 		context.refresh();
-		@SuppressWarnings("unchecked")
-		StateMachine<String, String> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<String, String> machine = resolveMachine(context);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS), is(true));
 		assertThat(listener.readyStateEnteredLatch.await(3, TimeUnit.SECONDS), is(true));
 		assertThat(listener.readyStateEnteredCount, is(1));
 		listener.reset(0, 0, 2);
-		machine.sendEvent("DEPLOY");
-		machine.sendEvent("DEPLOY");
+		doSendEventAndConsumeAll(machine, "DEPLOY");
+		doSendEventAndConsumeAll(machine, "DEPLOY");
 		assertThat(listener.readyStateEnteredLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.readyStateEnteredCount, is(2));
 	}
@@ -217,17 +225,16 @@ public class DocsConfigurationSampleTests2 extends AbstractStateMachineTests {
 	public void testConfig52() throws Exception {
 		context.register(Config5.class);
 		context.refresh();
-		@SuppressWarnings("unchecked")
-		StateMachine<String, String> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<String, String> machine = resolveMachine(context);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS), is(true));
 		assertThat(listener.readyStateEnteredLatch.await(3, TimeUnit.SECONDS), is(true));
 		assertThat(listener.readyStateEnteredCount, is(1));
 		listener.reset(0, 0, 2);
-		machine.sendEvent("DEPLOY");
-		machine.sendEvent("DEPLOY");
+		doSendEventAndConsumeAll(machine, "DEPLOY");
+		doSendEventAndConsumeAll(machine, "DEPLOY");
 		assertThat(listener.readyStateEnteredLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.readyStateEnteredCount, is(2));
 	}
@@ -236,17 +243,16 @@ public class DocsConfigurationSampleTests2 extends AbstractStateMachineTests {
 	public void testConfig61() throws Exception {
 		context.register(Config6.class, ExecutorConfig.class);
 		context.refresh();
-		@SuppressWarnings("unchecked")
-		StateMachine<String, String> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<String, String> machine = resolveMachine(context);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS), is(true));
 		assertThat(listener.readyStateEnteredLatch.await(3, TimeUnit.SECONDS), is(true));
 		assertThat(listener.readyStateEnteredCount, is(1));
 		listener.reset(0, 0, 2);
-		machine.sendEvent("DEPLOY");
-		machine.sendEvent("DEPLOY");
+		doSendEventAndConsumeAll(machine, "DEPLOY");
+		doSendEventAndConsumeAll(machine, "DEPLOY");
 		assertThat(listener.readyStateEnteredLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.readyStateEnteredCount, is(2));
 	}
@@ -255,17 +261,16 @@ public class DocsConfigurationSampleTests2 extends AbstractStateMachineTests {
 	public void testConfig62() throws Exception {
 		context.register(Config6.class);
 		context.refresh();
-		@SuppressWarnings("unchecked")
-		StateMachine<String, String> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		StateMachine<String, String> machine = resolveMachine(context);
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS), is(true));
 		assertThat(listener.readyStateEnteredLatch.await(3, TimeUnit.SECONDS), is(true));
 		assertThat(listener.readyStateEnteredCount, is(1));
 		listener.reset(0, 0, 2);
-		machine.sendEvent("DEPLOY");
-		machine.sendEvent("DEPLOY");
+		doSendEventAndConsumeAll(machine, "DEPLOY");
+		doSendEventAndConsumeAll(machine, "DEPLOY");
 		assertThat(listener.readyStateEnteredLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.readyStateEnteredCount, is(2));
 	}
