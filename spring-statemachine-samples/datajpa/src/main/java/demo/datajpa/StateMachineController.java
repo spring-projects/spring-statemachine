@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.data.RepositoryTransition;
@@ -27,6 +28,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import reactor.core.publisher.Mono;
 
 @Controller
 public class StateMachineController {
@@ -48,13 +51,16 @@ public class StateMachineController {
 		StateMachine<String, String> stateMachine = stateMachineFactory.getStateMachine();
 		StateMachineLogListener listener = new StateMachineLogListener();
 		stateMachine.addStateListener(listener);
-		stateMachine.start();
+		stateMachine.startReactively().block();
 		if (events != null) {
 			for (String event : events) {
-				stateMachine.sendEvent(event);
+				stateMachine
+					.sendEvent(Mono.just(MessageBuilder
+						.withPayload(event).build()))
+					.blockLast();
 			}
 		}
-		stateMachine.stop();
+		stateMachine.stopReactively().block();
 		model.addAttribute("allEvents", getEvents());
 		model.addAttribute("messages", createMessages(listener.getMessages()));
 		return "states";
