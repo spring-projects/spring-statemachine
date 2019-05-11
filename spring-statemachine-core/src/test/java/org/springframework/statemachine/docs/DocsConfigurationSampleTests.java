@@ -64,6 +64,8 @@ import org.springframework.statemachine.support.StateMachineInterceptorAdapter;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionConflictPolicy;
 
+import reactor.core.publisher.Mono;
+
 /**
  * Tests for state machine configuration.
  *
@@ -547,7 +549,7 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 
 		void method() {
 			StateMachine<States,Events> stateMachine = factory.getStateMachine();
-			stateMachine.start();
+			stateMachine.startReactively().subscribe();
 		}
 	}
 // end::snippetL[]
@@ -589,13 +591,16 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 		StateMachine<States, Events> stateMachine;
 
 		void signalMachine() {
-			stateMachine.sendEvent(Events.E1);
+			stateMachine
+				.sendEvent(Mono.just(MessageBuilder
+					.withPayload(Events.E1).build()))
+				.subscribe();
 
 			Message<Events> message = MessageBuilder
 					.withPayload(Events.E2)
 					.setHeader("foo", "bar")
 					.build();
-			stateMachine.sendEvent(message);
+			stateMachine.sendEvent(Mono.just(message)).subscribe();
 		}
 // end::snippetO[]
 
