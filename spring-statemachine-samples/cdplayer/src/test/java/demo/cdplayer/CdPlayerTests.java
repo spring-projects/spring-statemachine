@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+import static org.springframework.statemachine.TestUtils.doStopAndAssert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -276,13 +278,13 @@ public class CdPlayerTests {
 		player = context.getBean(CdPlayer.class);
 		library = context.getBean(Library.class);
 		listener = context.getBean(TestListener.class);
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
 	}
 
 	@After
 	public void clean() {
-		machine.stop();
+		doStopAndAssert(machine);
 		context.close();
 		context = null;
 		machine = null;

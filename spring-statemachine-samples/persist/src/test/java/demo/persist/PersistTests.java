@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +63,7 @@ public class PersistTests {
 	public void testInitialState() throws Exception {
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateChangedLatch.await(3, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateEnteredLatch.await(3, TimeUnit.SECONDS), is(true));
 		assertThat(machine.getState().getIds(), contains("PLACED"));

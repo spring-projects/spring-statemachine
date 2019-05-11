@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package demo.turnstile;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+import static org.springframework.statemachine.TestUtils.doStopAndAssert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +61,7 @@ public class TurnstileTests {
 
 	@Test
 	public void testInitialState() throws Exception {
-		machine.start();
+		doStartAndAssert(machine);
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
 		listener.stateEnteredLatch.await(1, TimeUnit.SECONDS);
 		assertThat(machine.getState().getIds(), contains(States.LOCKED));
@@ -146,7 +148,7 @@ public class TurnstileTests {
 
 	@After
 	public void clean() {
-		machine.stop();
+		doStopAndAssert(machine);
 		context.close();
 		context = null;
 		machine = null;

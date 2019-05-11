@@ -171,7 +171,7 @@ project('spring-statemachine-core') {
 	description = "Spring State Machine Core"
 
 	configurations {
-		testArtifacts.extendsFrom testRuntime
+		testArtifacts
 	}
 
 	dependencies {
@@ -302,6 +302,7 @@ project('spring-statemachine-data-common') {
 		compile "com.fasterxml.jackson.core:jackson-databind"
 		testCompile project(":spring-statemachine-test")
 		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile "io.projectreactor:reactor-test"
 		testCompile "org.springframework.boot:spring-boot-starter-test"
 		testRuntime "org.springframework.boot:spring-boot-starter-web"
 	}
@@ -360,6 +361,7 @@ project('spring-statemachine-uml') {
 		compile "org.eclipse.emf:org.eclipse.emf.ecore"
 		compile "org.eclipse.emf:org.eclipse.emf.common"
 		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile "io.projectreactor:reactor-test"
 		testCompile "org.springframework:spring-test"
 		testCompile "org.hamcrest:hamcrest-core"
 		testCompile "org.hamcrest:hamcrest-library"
@@ -399,6 +401,7 @@ configure(recipeProjects()) {
 	dependencies {
 		compile project(":spring-statemachine-recipes-common")
 		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile "io.projectreactor:reactor-test"
 		testCompile "org.springframework:spring-test"
 		testCompile "org.hamcrest:hamcrest-core"
 		testCompile "org.hamcrest:hamcrest-library"
@@ -411,6 +414,7 @@ project('spring-statemachine-recipes-common') {
 		compile "org.springframework:spring-context"
 		compile project(":spring-statemachine-core")
 		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile "io.projectreactor:reactor-test"
 		testCompile "org.springframework:spring-test"
 		testCompile "org.hamcrest:hamcrest-core"
 		testCompile "org.hamcrest:hamcrest-library"
@@ -521,6 +525,7 @@ project('spring-statemachine-samples-common') {
 		compile project(":spring-statemachine-core")
 		compile "org.springframework.shell:spring-shell"
 		compile "org.springframework.boot:spring-boot-starter"
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
 	}
 }
 

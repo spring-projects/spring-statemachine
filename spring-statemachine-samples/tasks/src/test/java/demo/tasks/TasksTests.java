@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package demo.tasks;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doStartAndAssert;
+import static org.springframework.statemachine.TestUtils.doStopAndAssert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -144,7 +146,7 @@ public class TasksTests {
 		machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		tasks = context.getBean(Tasks.class);
 		listener = context.getBean(TestListener.class);
-		machine.start();
+		doStartAndAssert(machine);
 		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
 		assertThat(listener.stateChangedCount, is(1));
 		assertThat(machine.getState().getIds(), contains(States.READY));
@@ -152,7 +154,7 @@ public class TasksTests {
 
 	@After
 	public void clean() {
-		machine.stop();
+		doStopAndAssert(machine);
 		context.close();
 		context = null;
 		machine = null;
