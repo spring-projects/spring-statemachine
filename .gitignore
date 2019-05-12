@@ -12,6 +12,7 @@ build
 metastore_db
 /src/test/resources/s3.properties
 /.idea/
+/.vscode/
 .DS_Store
 /out/
 target
