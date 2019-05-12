@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,9 @@ public class Persist {
 						return new Order(rs.getInt("id"), rs.getString("state"));
 					}
 				});
-		handler.handleEventWithState(MessageBuilder.withPayload(event).setHeader("order", order).build(), o.state);
+		handler.handleEventWithStateReactively(MessageBuilder
+				.withPayload(event).setHeader("order", order).build(), o.state)
+			.subscribe();
 	}
 
 	//end::snippetB[]
