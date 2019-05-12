@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.springframework.statemachine.test;
 
 import static org.hamcrest.CoreMatchers.not;
+import static org.springframework.statemachine.TestUtils.resolveMachine;
 
 import org.hamcrest.collection.IsMapContaining;
 import org.junit.Test;
@@ -33,11 +34,10 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 
 public class StateMachineTestingTests extends AbstractStateMachineTests {
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testSimpleTestingConcept() throws Exception {
 		registerAndRefresh(Config1.class);
-		StateMachine<String, String> machine =	context.getBean(StateMachine.class);
+		StateMachine<String, String> machine =	resolveMachine(context);
 
 		StateMachineTestPlan<String, String> plan =
 				StateMachineTestPlanBuilder.<String, String>builder()
@@ -50,11 +50,10 @@ public class StateMachineTestingTests extends AbstractStateMachineTests {
 		plan.test();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testStarted() throws Exception {
 		registerAndRefresh(Config2.class);
-		StateMachine<String, String> machine =	context.getBean(StateMachine.class);
+		StateMachine<String, String> machine =	resolveMachine(context);
 
 		StateMachineTestPlan<String, String> plan =
 				StateMachineTestPlanBuilder.<String, String>builder()
@@ -68,11 +67,10 @@ public class StateMachineTestingTests extends AbstractStateMachineTests {
 		plan.test();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testMultipleEvents() throws Exception {
 		registerAndRefresh(Config3.class);
-		StateMachine<String, String> machine =	context.getBean(StateMachine.class);
+		StateMachine<String, String> machine =	resolveMachine(context);
 
 		StateMachineTestPlan<String, String> plan =
 				StateMachineTestPlanBuilder.<String, String>builder()
@@ -90,11 +88,10 @@ public class StateMachineTestingTests extends AbstractStateMachineTests {
 		plan.test();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testIntermediate() throws Exception {
 		registerAndRefresh(Config4.class);
-		StateMachine<String, String> machine =	context.getBean(StateMachine.class);
+		StateMachine<String, String> machine =	resolveMachine(context);
 
 		StateMachineTestPlan<String, String> plan =
 				StateMachineTestPlanBuilder.<String, String>builder()
@@ -108,11 +105,10 @@ public class StateMachineTestingTests extends AbstractStateMachineTests {
 		plan.test();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testVariables() throws Exception {
 		registerAndRefresh(Config5.class);
-		StateMachine<String, String> machine =	context.getBean(StateMachine.class);
+		StateMachine<String, String> machine =	resolveMachine(context);
 
 		StateMachineTestPlan<String, String> plan =
 				StateMachineTestPlanBuilder.<String, String>builder()

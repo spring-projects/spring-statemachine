@@ -249,6 +249,8 @@ project('spring-statemachine-test') {
 		testCompile("org.mockito:mockito-core") { dep ->
 			exclude group: "org.hamcrest"
 		}
+		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		testCompile "io.projectreactor:reactor-test"
 	}
 }
 
