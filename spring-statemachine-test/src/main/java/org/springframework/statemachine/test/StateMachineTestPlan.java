@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,11 +37,14 @@ import org.apache.commons.logging.LogFactory;
 import org.hamcrest.Matcher;
 import org.hamcrest.collection.IsMapContaining;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.test.StateMachineTestPlanBuilder.StateMachineTestPlanStep;
 import org.springframework.statemachine.test.support.LatchStateMachineListener;
 import org.springframework.util.StringUtils;
+
+import reactor.core.publisher.Mono;
 
 /**
  * {@code StateMachineTestPlan} is fully constructed plan how
@@ -111,7 +114,7 @@ public class StateMachineTestPlan<S, E> {
 
 			// need to call start here, ok to call from all steps
 			for (StateMachine<S, E> stateMachine : stateMachines.values()) {
-				stateMachine.start();
+				stateMachine.startReactively().block();
 			}
 
 			if (step.expectStateMachineStarted != null) {
@@ -137,7 +140,7 @@ public class StateMachineTestPlan<S, E> {
 					for (StateMachine<S, E> machine : sendVia) {
 						for (E event : step.sendEvent) {
 							log.info("Sending test event " + event + " via machine " + machine);
-							machine.sendEvent(event);
+							machine.sendEvent(Mono.just(MessageBuilder.withPayload(event).build())).blockLast();
 						}
 					}
 				} else {
@@ -158,7 +161,7 @@ public class StateMachineTestPlan<S, E> {
 				for (StateMachine<S, E> machine : sendVia) {
 					for (Message<E> event : step.sendMessage) {
 						log.info("Sending test event " + event + " via machine " + machine);
-						machine.sendEvent(event);
+						machine.sendEvent(Mono.just(event)).blockLast();
 					}
 				}
 			}
@@ -311,7 +314,7 @@ public class StateMachineTestPlan<S, E> {
 				public void run() {
 					try {
 						latch.await();
-						machine.sendEvent(event);
+						machine.sendEvent(Mono.just(MessageBuilder.withPayload(event).build())).blockLast();
 					} catch (InterruptedException e) {
 					}
 				}

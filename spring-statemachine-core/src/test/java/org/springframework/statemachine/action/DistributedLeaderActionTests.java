@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@ package org.springframework.statemachine.action;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
+import static org.springframework.statemachine.TestUtils.resolveFactory;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -51,17 +53,17 @@ public class DistributedLeaderActionTests extends AbstractStateMachineTests {
 
 		TestLeaderAction action = context.getBean("testLeaderAction", TestLeaderAction.class);
 
-		@SuppressWarnings("unchecked")
-		StateMachineFactory<String, String> factory = context.getBean(StateMachineFactory.class);
+		StateMachineFactory<String, String> factory = resolveFactory(context);
 
 		StateMachine<String, String> machine1 = factory.getStateMachine();
 		StateMachine<String, String> machine2 = factory.getStateMachine();
-		machine1.sendEvent("E1");
+
+		doSendEventAndConsumeAll(machine1, "E1");
 		assertThat(action.latch.await(1, TimeUnit.SECONDS), is(false));
 		assertThat(action.count, is(1));
 		action.reset(2);
 
-		machine2.sendEvent("E2");
+		doSendEventAndConsumeAll(machine2, "E2");
 		assertThat(action.latch.await(1, TimeUnit.SECONDS), is(false));
 		assertThat(action.count, is(1));
 	}
@@ -129,6 +131,7 @@ public class DistributedLeaderActionTests extends AbstractStateMachineTests {
 
 		@Override
 		public void execute(StateContext<String, String> context) {
+			System.out.println("XXX " + context);
 			count++;
 			latch.countDown();
 		}

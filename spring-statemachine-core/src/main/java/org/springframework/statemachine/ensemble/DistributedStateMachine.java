@@ -17,6 +17,7 @@ package org.springframework.statemachine.ensemble;
 
 import java.util.Collection;
 import java.util.UUID;
+import java.util.function.Function;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -110,11 +111,11 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public boolean sendEvent(Message<E> event) {
 		// adding state machine id to the message so that
 		// listeners can know from where a state change originates
-		return delegate.sendEvent(MessageBuilder.fromMessage(event)
-				.setHeader(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER, delegate.getUuid()).build());
+		return delegate.sendEvent(addMachineIdentifier().apply(event));
 	}
 
 	@Override
@@ -124,12 +125,18 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 
 	@Override
 	public Flux<StateMachineEventResult<S, E>> sendEvent(Mono<Message<E>> event) {
-		return delegate.sendEvent(event);
+		return delegate.sendEvent(event.map(addMachineIdentifier()));
 	}
 
 	@Override
 	public Flux<StateMachineEventResult<S, E>> sendEvents(Flux<Message<E>> events) {
-		return delegate.sendEvents(events);
+		return delegate.sendEvents(events.map(addMachineIdentifier()));
+	}
+
+	private Function<Message<E>, Message<E>> addMachineIdentifier() {
+		return e -> MessageBuilder.fromMessage(e)
+			.setHeader(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER, delegate.getUuid())
+			.build();
 	}
 
 	@Override
@@ -290,7 +297,7 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 				log.debug("Event stateMachineJoined stateMachine=[" + stateMachine + "] context=[" + context + "]");
 			}
 			if (stateMachine != null && stateMachine == DistributedStateMachine.this) {
-				delegate.stop();
+				delegate.stopReactively().block();
 				setStateMachineError(null);
 				if (context != null) {
 					// I'm now successfully joined, so set delegating
@@ -311,7 +318,7 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 				}
 				log.info("Requesting to start delegating state machine " + delegate);
 				log.info("Delegating machine id " + delegate.getUuid());
-				delegate.start();
+				delegate.startReactively().block();
 			}
 		}
 
@@ -319,7 +326,7 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 		public void stateMachineLeft(StateMachine<S, E> stateMachine, StateMachineContext<S, E> context) {
 			if (stateMachine != null && stateMachine == DistributedStateMachine.this) {
 				log.info("Requesting to stop delegating state machine " + delegate);
-				delegate.stop();
+				delegate.stopReactively().block();
 			}
 		}
 
@@ -327,9 +334,11 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 		public void stateChanged(StateMachineContext<S, E> context) {
 			// do not pass if state change was originated from this dist machine
 			if (!ObjectUtils.nullSafeEquals(delegate.getUuid(),
-					context.getEventHeaders().get(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER))) {
-				delegate.sendEvent(MessageBuilder.withPayload(context.getEvent())
-						.copyHeaders(context.getEventHeaders()).build());
+					context.getEventHeaders().get(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER))) {				
+				Message<E> m = MessageBuilder.withPayload(context.getEvent())
+						.copyHeaders(context.getEventHeaders())
+						.build();
+				delegate.sendEvent(Mono.just(m)).subscribe();
 			}
 		}
 
