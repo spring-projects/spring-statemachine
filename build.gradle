@@ -22,7 +22,7 @@ buildscript {
 		maven { url 'https://repo.springsource.org/plugins-snapshot' }
 	}
 	dependencies {
-		classpath("io.spring.gradle:propdeps-plugin:0.0.8")
+		classpath('io.spring.gradle:propdeps-plugin:0.0.8')
 		classpath('org.asciidoctor:asciidoctor-gradle-plugin:1.5.6')
 		classpath 'org.asciidoctor:asciidoctorj-pdf:1.5.0-alpha.16'
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
@@ -80,9 +80,9 @@ configure(allprojects) {
 
 	repositories {
 		mavenCentral()
-		maven { url "https://repo.springsource.org/libs-snapshot" }
-		maven { url "https://repo.springsource.org/libs-release" }
-		maven { url "https://repo.springsource.org/libs-milestone" }
+		maven { url 'https://repo.springsource.org/libs-snapshot' }
+		maven { url 'https://repo.springsource.org/libs-release' }
+		maven { url 'https://repo.springsource.org/libs-milestone' }
 	}
 
 	dependencyManagement {
@@ -168,35 +168,35 @@ configure(subprojects) { subproject ->
 }
 
 project('spring-statemachine-core') {
-	description = "Spring State Machine Core"
+	description = 'Spring State Machine Core'
 
 	configurations {
 		testArtifacts
 	}
 
 	dependencies {
-		compile "org.springframework:spring-tx"
-		compile "org.springframework:spring-messaging"
-		compile "io.projectreactor:reactor-core"
-		optional "org.springframework.security:spring-security-core"
+		compile 'org.springframework:spring-tx'
+		compile 'org.springframework:spring-messaging'
+		compile 'io.projectreactor:reactor-core'
+		optional 'org.springframework.security:spring-security-core'
 
-		testCompile "org.springframework:spring-test"
-		testCompile "org.springframework:spring-web"
-		testCompile "org.springframework:spring-webmvc"
-		testCompile "io.projectreactor:reactor-test"
-		testCompile "org.apache.tomcat.embed:tomcat-embed-core"
-		testCompile "org.hamcrest:hamcrest-core"
-		testCompile "org.hamcrest:hamcrest-library"
-		testCompile("org.mockito:mockito-core") { dep ->
-			exclude group: "org.hamcrest"
+		testCompile 'org.springframework:spring-test'
+		testCompile 'org.springframework:spring-web'
+		testCompile 'org.springframework:spring-webmvc'
+		testCompile 'io.projectreactor:reactor-test'
+		testCompile 'org.apache.tomcat.embed:tomcat-embed-core'
+		testCompile 'org.hamcrest:hamcrest-core'
+		testCompile 'org.hamcrest:hamcrest-library'
+		testCompile('org.mockito:mockito-core') { dep ->
+			exclude group: 'org.hamcrest'
 		}
-		testCompile "junit:junit"
-		testCompile "org.assertj:assertj-core"
-		testCompile "org.springframework.security:spring-security-config"
-		testCompile "org.springframework.security:spring-security-test"
-		testCompile "javax.servlet:javax.servlet-api"
-		testCompile "org.awaitility:awaitility"
-		testRuntime "org.apache.logging.log4j:log4j-core"
+		testCompile 'junit:junit'
+		testCompile 'org.assertj:assertj-core'
+		testCompile 'org.springframework.security:spring-security-config'
+		testCompile 'org.springframework.security:spring-security-test'
+		testCompile 'javax.servlet:javax.servlet-api'
+		testCompile 'org.awaitility:awaitility'
+		testRuntime 'org.apache.logging.log4j:log4j-core'
 	}
 
 	task testJar(type: Jar) {
@@ -210,28 +210,28 @@ project('spring-statemachine-core') {
 }
 
 project('spring-statemachine-autoconfigure') {
-	description = "Spring State Machine Boot Autoconfigure"
+	description = 'Spring State Machine Boot Autoconfigure'
 
 	dependencies {
-		compile project(":spring-statemachine-core")
-		compile "org.springframework.boot:spring-boot-autoconfigure"
-		compile "org.springframework.boot:spring-boot-actuator-autoconfigure"
-		compile "org.springframework.boot:spring-boot-actuator"
-		optional project(":spring-statemachine-data-common:spring-statemachine-data-jpa")
-		optional project(":spring-statemachine-data-common:spring-statemachine-data-redis")
-		optional project(":spring-statemachine-data-common:spring-statemachine-data-mongodb")
-		optional "org.springframework.boot:spring-boot-autoconfigure-processor"
-		optional "io.micrometer:micrometer-core"
-		optional "org.eclipse.persistence:javax.persistence"
-		optional "org.springframework.boot:spring-boot-starter-data-jpa"
-		optional "org.springframework.boot:spring-boot-starter-data-redis"
-		optional "org.springframework.boot:spring-boot-starter-data-mongodb"
-		testRuntime "com.h2database:h2"
-		testCompile "org.springframework.boot:spring-boot-test"
-		testCompile "org.springframework:spring-test"
-		testCompile "org.hamcrest:hamcrest-core"
-		testCompile "org.hamcrest:hamcrest-library"
-		testCompile "junit:junit"
+		compile project(':spring-statemachine-core')
+		compile 'org.springframework.boot:spring-boot-autoconfigure'
+		compile 'org.springframework.boot:spring-boot-actuator-autoconfigure'
+		compile 'org.springframework.boot:spring-boot-actuator'
+		optional project(':spring-statemachine-data-common:spring-statemachine-data-jpa')
+		optional project(':spring-statemachine-data-common:spring-statemachine-data-redis')
+		optional project(':spring-statemachine-data-common:spring-statemachine-data-mongodb')
+		optional 'org.springframework.boot:spring-boot-autoconfigure-processor'
+		optional 'io.micrometer:micrometer-core'
+		optional 'org.eclipse.persistence:javax.persistence'
+		optional 'org.springframework.boot:spring-boot-starter-data-jpa'
+		optional 'org.springframework.boot:spring-boot-starter-data-redis'
+		optional 'org.springframework.boot:spring-boot-starter-data-mongodb'
+		testRuntime 'com.h2database:h2'
+		testCompile 'org.springframework.boot:spring-boot-test'
+		testCompile 'org.springframework:spring-test'
+		testCompile 'org.hamcrest:hamcrest-core'
+		testCompile 'org.hamcrest:hamcrest-library'
+		testCompile 'junit:junit'
 	}
 }
 
@@ -239,55 +239,55 @@ project('spring-statemachine-test') {
 	description = "Spring State Machine Test"
 
 	dependencies {
-		compile "org.springframework:spring-context"
-		compile project(":spring-statemachine-core")
-		compile "org.springframework:spring-test"
-		compile "org.hamcrest:hamcrest-core"
-		compile "org.hamcrest:hamcrest-library"
-		compile "junit:junit"
-		compile "org.assertj:assertj-core"
-		testCompile("org.mockito:mockito-core") { dep ->
-			exclude group: "org.hamcrest"
+		compile 'org.springframework:spring-context'
+		compile project(':spring-statemachine-core')
+		compile 'org.springframework:spring-test'
+		compile 'org.hamcrest:hamcrest-core'
+		compile 'org.hamcrest:hamcrest-library'
+		compile 'junit:junit'
+		compile 'org.assertj:assertj-core'
+		testCompile('org.mockito:mockito-core') { dep ->
+			exclude group: 'org.hamcrest'
 		}
-		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
-		testCompile "io.projectreactor:reactor-test"
+		testCompile project(path:':spring-statemachine-core', configuration:'testArtifacts')
+		testCompile 'io.projectreactor:reactor-test'
 	}
 }
 
 project('spring-statemachine-kryo') {
-	description = "Spring State Machine Kryo"
+	description = 'Spring State Machine Kryo'
 
 	dependencies {
-		compile project(":spring-statemachine-core")
-		compile "com.esotericsoftware:kryo-shaded"
+		compile project(':spring-statemachine-core')
+		compile 'com.esotericsoftware:kryo-shaded'
 
-		testCompile project(":spring-statemachine-test")
-		testCompile "org.springframework:spring-test"
-		testCompile "org.hamcrest:hamcrest-core"
-		testCompile "org.hamcrest:hamcrest-library"
-		testCompile "junit:junit"
-		testRuntime "org.apache.logging.log4j:log4j-core"
+		testCompile project(':spring-statemachine-test')
+		testCompile 'org.springframework:spring-test'
+		testCompile 'org.hamcrest:hamcrest-core'
+		testCompile 'org.hamcrest:hamcrest-library'
+		testCompile 'junit:junit'
+		testRuntime 'org.apache.logging.log4j:log4j-core'
 	}
 }
 
 project('spring-statemachine-zookeeper') {
-	description = "Spring State Machine Zookeeper"
+	description = 'Spring State Machine Zookeeper'
 
 	dependencies {
-		compile "org.springframework:spring-context"
-		compile project(":spring-statemachine-core")
-		compile project(":spring-statemachine-kryo")
-		compile "org.apache.curator:curator-recipes"
+		compile 'org.springframework:spring-context'
+		compile project(':spring-statemachine-core')
+		compile project(':spring-statemachine-kryo')
+		compile 'org.apache.curator:curator-recipes'
 		// github.com/spring-gradle-plugins/dependency-management-plugin/issues/136
-		runtime "log4j:log4j"
+		runtime 'log4j:log4j'
 
-		testCompile project(":spring-statemachine-test")
-		testCompile "org.apache.curator:curator-test"
-		testCompile "org.springframework:spring-test"
-		testCompile "org.hamcrest:hamcrest-core"
-		testCompile "org.hamcrest:hamcrest-library"
-		testCompile "junit:junit"
-		testRuntime "org.apache.logging.log4j:log4j-core"
+		testCompile project(':spring-statemachine-test')
+		testCompile 'org.apache.curator:curator-test'
+		testCompile 'org.springframework:spring-test'
+		testCompile 'org.hamcrest:hamcrest-core'
+		testCompile 'org.hamcrest:hamcrest-library'
+		testCompile 'junit:junit'
+		testRuntime 'org.apache.logging.log4j:log4j-core'
 	}
 }
 
@@ -296,17 +296,17 @@ project('spring-statemachine-data-common') {
 		testArtifacts.extendsFrom testRuntime
 	}
 	dependencies {
-		compile project(":spring-statemachine-core")
-		compile project(":spring-statemachine-kryo")
-		compile "org.springframework.data:spring-data-commons"
-		optional "org.springframework.security:spring-security-core"
-		compile "com.fasterxml.jackson.core:jackson-core"
-		compile "com.fasterxml.jackson.core:jackson-databind"
-		testCompile project(":spring-statemachine-test")
-		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
-		testCompile "io.projectreactor:reactor-test"
-		testCompile "org.springframework.boot:spring-boot-starter-test"
-		testRuntime "org.springframework.boot:spring-boot-starter-web"
+		compile project(':spring-statemachine-core')
+		compile project(':spring-statemachine-kryo')
+		compile 'org.springframework.data:spring-data-commons'
+		optional 'org.springframework.security:spring-security-core'
+		compile 'com.fasterxml.jackson.core:jackson-core'
+		compile 'com.fasterxml.jackson.core:jackson-databind'
+		testCompile project(':spring-statemachine-test')
+		testCompile project(path:':spring-statemachine-core', configuration:'testArtifacts')
+		testCompile 'io.projectreactor:reactor-test'
+		testCompile 'org.springframework.boot:spring-boot-starter-test'
+		testRuntime 'org.springframework.boot:spring-boot-starter-web'
 	}
 	task testJar(type: Jar) {
 		classifier = 'tests'
@@ -318,114 +318,114 @@ project('spring-statemachine-data-common') {
 }
 
 project('spring-statemachine-cluster') {
-	description = "Spring State Machine Cluster"
+	description = 'Spring State Machine Cluster'
 
 	dependencies {
-		compile project(":spring-statemachine-zookeeper")
-		compile "org.springframework.integration:spring-integration-zookeeper"
+		compile project(':spring-statemachine-zookeeper')
+		compile 'org.springframework.integration:spring-integration-zookeeper'
 
-		testCompile project(":spring-statemachine-test")
-		testCompile "org.apache.curator:curator-test"
-		testCompile "org.springframework:spring-test"
-		testCompile "org.hamcrest:hamcrest-core"
-		testCompile "org.hamcrest:hamcrest-library"
-		testCompile "junit:junit"
-		testRuntime "org.apache.logging.log4j:log4j-core"
+		testCompile project(':spring-statemachine-test')
+		testCompile 'org.apache.curator:curator-test'
+		testCompile 'org.springframework:spring-test'
+		testCompile 'org.hamcrest:hamcrest-core'
+		testCompile 'org.hamcrest:hamcrest-library'
+		testCompile 'junit:junit'
+		testRuntime 'org.apache.logging.log4j:log4j-core'
 	}
 }
 
 project('spring-statemachine-uml') {
-	description = "Spring State Machine Uml"
+	description = 'Spring State Machine Uml'
 
 	dependencies {
-		compile project(":spring-statemachine-core")
-		optional "org.springframework.security:spring-security-core"
+		compile project(':spring-statemachine-core')
+		optional 'org.springframework.security:spring-security-core'
 
 		// these eclipse maven deps are simply broken
-		compile("org.eclipse.uml2:uml") { dep ->
-			exclude group: "org.eclipse.core", module: "runtime"
-			exclude group: "org.eclipse.emf", module: "ecore"
-			exclude group: "org.eclipse.emf.ecore", module: "xmi"
-			exclude group: "org.eclipse.emf.mapping", module: "ecore2xml"
-			exclude group: "org.eclipse.uml2", module: "common"
-			exclude group: "org.eclipse.uml2", module: "types"
+		compile('org.eclipse.uml2:uml') { dep ->
+			exclude group: 'org.eclipse.core', module: 'runtime'
+			exclude group: 'org.eclipse.emf', module: 'ecore'
+			exclude group: 'org.eclipse.emf.ecore', module: 'xmi'
+			exclude group: 'org.eclipse.emf.mapping', module: 'ecore2xml'
+			exclude group: 'org.eclipse.uml2', module: 'common'
+			exclude group: 'org.eclipse.uml2', module: 'types'
 		}
-		compile("org.eclipse.uml2:types") { dep ->
-			exclude group: "org.eclipse.core", module: "runtime"
-			exclude group: "org.eclipse.emf", module: "ecore"
-			exclude group: "org.eclipse.uml2", module: "common"
+		compile('org.eclipse.uml2:types') { dep ->
+			exclude group: 'org.eclipse.core', module: 'runtime'
+			exclude group: 'org.eclipse.emf', module: 'ecore'
+			exclude group: 'org.eclipse.uml2', module: 'common'
 		}
-		compile("org.eclipse.uml2:common") { dep ->
-			exclude group: "org.eclipse.core", module: "runtime"
-			exclude group: "org.eclipse.emf", module: "ecore"
+		compile('org.eclipse.uml2:common') { dep ->
+			exclude group: 'org.eclipse.core', module: 'runtime'
+			exclude group: 'org.eclipse.emf', module: 'ecore'
 		}
-		compile "org.eclipse.emf:org.eclipse.emf.ecore.xmi"
-		compile "org.eclipse.emf:org.eclipse.emf.ecore"
-		compile "org.eclipse.emf:org.eclipse.emf.common"
-		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
-		testCompile "io.projectreactor:reactor-test"
-		testCompile "org.springframework:spring-test"
-		testCompile "org.hamcrest:hamcrest-core"
-		testCompile "org.hamcrest:hamcrest-library"
-		testCompile "junit:junit"
-		testRuntime "org.apache.logging.log4j:log4j-core"
+		compile 'org.eclipse.emf:org.eclipse.emf.ecore.xmi'
+		compile 'org.eclipse.emf:org.eclipse.emf.ecore'
+		compile 'org.eclipse.emf:org.eclipse.emf.common'
+		testCompile project(path:':spring-statemachine-core', configuration:'testArtifacts')
+		testCompile 'io.projectreactor:reactor-test'
+		testCompile 'org.springframework:spring-test'
+		testCompile 'org.hamcrest:hamcrest-core'
+		testCompile 'org.hamcrest:hamcrest-library'
+		testCompile 'junit:junit'
+		testRuntime 'org.apache.logging.log4j:log4j-core'
 	}
 }
 
 project('spring-statemachine-build-tests') {
-	description = "Spring State Machine Build Tests"
+	description = 'Spring State Machine Build Tests'
 	configurations.archives.artifacts.removeAll { it.archiveTask.is jar }
-	tasks.findByPath("artifactoryPublish")?.enabled = false
+	tasks.findByPath('artifactoryPublish')?.enabled = false
 
 	dependencies {
-		testCompile project(":spring-statemachine-uml")
-		testCompile project(":spring-statemachine-test")
-		testCompile project(":spring-statemachine-data-common:spring-statemachine-data-jpa")
-		testCompile project(":spring-statemachine-data-common:spring-statemachine-data-redis")
-		testCompile project(":spring-statemachine-data-common:spring-statemachine-data-mongodb")
-		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
-		testCompile "io.projectreactor:reactor-test"
-		testCompile "org.apache.commons:commons-pool2"
-		testRuntime "org.springframework.boot:spring-boot-starter-data-mongodb"
-		testRuntime "org.springframework.boot:spring-boot-starter-data-redis"
-		testRuntime "redis.clients:jedis"
-		testCompile "org.springframework.boot:spring-boot-starter-data-jpa"
-		testCompile "com.h2database:h2"
-		testCompile "org.springframework.boot:spring-boot-starter"
-		testCompile "org.springframework:spring-test"
-		testCompile "org.hamcrest:hamcrest-core"
-		testCompile "org.hamcrest:hamcrest-library"
-		testCompile "junit:junit"
+		testCompile project(':spring-statemachine-uml')
+		testCompile project(':spring-statemachine-test')
+		testCompile project(':spring-statemachine-data-common:spring-statemachine-data-jpa')
+		testCompile project(':spring-statemachine-data-common:spring-statemachine-data-redis')
+		testCompile project(':spring-statemachine-data-common:spring-statemachine-data-mongodb')
+		testCompile project(path:':spring-statemachine-core', configuration:'testArtifacts')
+		testCompile 'io.projectreactor:reactor-test'
+		testCompile 'org.apache.commons:commons-pool2'
+		testRuntime 'org.springframework.boot:spring-boot-starter-data-mongodb'
+		testRuntime 'org.springframework.boot:spring-boot-starter-data-redis'
+		testRuntime 'redis.clients:jedis'
+		testCompile 'org.springframework.boot:spring-boot-starter-data-jpa'
+		testCompile 'com.h2database:h2'
+		testCompile 'org.springframework.boot:spring-boot-starter'
+		testCompile 'org.springframework:spring-test'
+		testCompile 'org.hamcrest:hamcrest-core'
+		testCompile 'org.hamcrest:hamcrest-library'
+		testCompile 'junit:junit'
 	}
 }
 
 configure(recipeProjects()) {
 	dependencies {
-		compile project(":spring-statemachine-recipes-common")
-		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
-		testCompile "io.projectreactor:reactor-test"
-		testCompile "org.springframework:spring-test"
-		testCompile "org.hamcrest:hamcrest-core"
-		testCompile "org.hamcrest:hamcrest-library"
-		testCompile "junit:junit"
+		compile project(':spring-statemachine-recipes-common')
+		testCompile project(path:':spring-statemachine-core', configuration:'testArtifacts')
+		testCompile 'io.projectreactor:reactor-test'
+		testCompile 'org.springframework:spring-test'
+		testCompile 'org.hamcrest:hamcrest-core'
+		testCompile 'org.hamcrest:hamcrest-library'
+		testCompile 'junit:junit'
 	}
 }
 
 project('spring-statemachine-recipes-common') {
 	dependencies {
-		compile "org.springframework:spring-context"
-		compile project(":spring-statemachine-core")
-		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
-		testCompile "io.projectreactor:reactor-test"
-		testCompile "org.springframework:spring-test"
-		testCompile "org.hamcrest:hamcrest-core"
-		testCompile "org.hamcrest:hamcrest-library"
-		testCompile "junit:junit"
+		compile 'org.springframework:spring-context'
+		compile project(':spring-statemachine-core')
+		testCompile project(path:':spring-statemachine-core', configuration:'testArtifacts')
+		testCompile 'io.projectreactor:reactor-test'
+		testCompile 'org.springframework:spring-test'
+		testCompile 'org.hamcrest:hamcrest-core'
+		testCompile 'org.hamcrest:hamcrest-library'
+		testCompile 'junit:junit'
 	}
 }
 
 project('spring-statemachine-bom') {
-	description = "Spring Statemachine (Bill of Materials)"
+	description = 'Spring Statemachine (Bill of Materials)'
 
 	dependencyManagement {
 		generatedPomCustomization {
@@ -436,13 +436,13 @@ project('spring-statemachine-bom') {
 	configurations.archives.artifacts.clear()
 	artifacts {
 		// work around GRADLE-2406 by attaching text artifact
-		archives(file("spring-statemachine-bom.txt"))
+		archives(file('spring-statemachine-bom.txt'))
 	}
 
 	install {
 		repositories.mavenInstaller {
 			pom.whenConfigured {
-				packaging = "pom"
+				packaging = 'pom'
 				withXml {
 					asNode().children().last() + {
 						delegate.dependencyManagement {
@@ -469,10 +469,10 @@ project('spring-statemachine-bom') {
 }
 
 project('spring-statemachine-starter') {
-	description = "Spring Statemachine Starter"
+	description = 'Spring Statemachine Starter'
 	dependencies {
-		compile project(":spring-statemachine-autoconfigure")
-		compile "org.springframework.boot:spring-boot-starter"
+		compile project(':spring-statemachine-autoconfigure')
+		compile 'org.springframework.boot:spring-boot-starter'
 	}
 
 	install {
@@ -495,24 +495,24 @@ project('spring-statemachine-starter') {
 configure(sampleProjects()) {
 	apply plugin: 'org.springframework.boot'
 	configurations.archives.artifacts.removeAll { it.archiveTask.is jar }
-	tasks.findByPath("artifactoryPublish")?.enabled = false
+	tasks.findByPath('artifactoryPublish')?.enabled = false
 	// as samples are not published, we can use jdk8
 	compileJava {
 		sourceCompatibility = 1.8
 		targetCompatibility = 1.8
 	}
 	dependencies {
-		compile project(":spring-statemachine-core")
-		compile "org.springframework:spring-context-support"
-		testCompile("org.mockito:mockito-core") { dep ->
-			exclude group: "org.hamcrest"
+		compile project(':spring-statemachine-core')
+		compile 'org.springframework:spring-context-support'
+		testCompile('org.mockito:mockito-core') { dep ->
+			exclude group: 'org.hamcrest'
 		}
-		testCompile project(":spring-statemachine-test")
-		testCompile "org.springframework.boot:spring-boot-test"
-		testCompile "org.springframework:spring-test"
-		testCompile "org.hamcrest:hamcrest-core"
-		testCompile "org.hamcrest:hamcrest-library"
-		testCompile "junit:junit"
+		testCompile project(':spring-statemachine-test')
+		testCompile 'org.springframework.boot:spring-boot-test'
+		testCompile 'org.springframework:spring-test'
+		testCompile 'org.hamcrest:hamcrest-core'
+		testCompile 'org.hamcrest:hamcrest-library'
+		testCompile 'junit:junit'
 	}
 	bootJar {
 		excludeDevtools = false
@@ -522,12 +522,12 @@ configure(sampleProjects()) {
 
 project('spring-statemachine-samples-common') {
 	configurations.archives.artifacts.removeAll { it.archiveTask.is jar }
-	tasks.findByPath("artifactoryPublish")?.enabled = false
+	tasks.findByPath('artifactoryPublish')?.enabled = false
 	dependencies {
-		compile project(":spring-statemachine-core")
-		compile "org.springframework.shell:spring-shell"
-		compile "org.springframework.boot:spring-boot-starter"
-		testCompile project(path:":spring-statemachine-core", configuration:"testArtifacts")
+		compile project(':spring-statemachine-core')
+		compile 'org.springframework.shell:spring-shell'
+		compile 'org.springframework.boot:spring-boot-starter'
+		testCompile project(path:':spring-statemachine-core', configuration:'testArtifacts')
 	}
 }
 
@@ -538,15 +538,15 @@ configure(rootProject) {
 
 	dependencies {
 		// just used to get version into docs
-		compile "org.springframework:spring-core"
-		compile "org.springframework.boot:spring-boot"
+		compile 'org.springframework:spring-core'
+		compile 'org.springframework.boot:spring-boot'
 	}
 
 	// don't publish the default jar for the root project
 	configurations.archives.artifacts.clear()
 
 	afterEvaluate {
-		tasks.findAll { it.name.startsWith("reference") }.each{ it.dependsOn.add("asciidoctor") }
+		tasks.findAll { it.name.startsWith('reference') }.each{ it.dependsOn.add('asciidoctor') }
 	}
 
 	asciidoctorj {
@@ -564,7 +564,7 @@ configure(rootProject) {
 			configurations.docs.collect { zipTree(it) }
 		}
 		// and doc sources
-		from "docs/src/reference/asciidoc/"
+		from 'docs/src/reference/asciidoc/'
 		// to a build directory of your choice
 		into "$buildDir/asciidoc/assemble"
 	}
