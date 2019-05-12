@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,8 @@ import org.springframework.context.Lifecycle;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.annotation.MergedAnnotation;
+import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.statemachine.annotation.OnEventNotAccepted;
 import org.springframework.statemachine.annotation.OnExtendedStateChanged;
 import org.springframework.statemachine.annotation.OnStateChanged;
@@ -273,13 +275,11 @@ public class StateMachineAnnotationPostProcessor implements BeanPostProcessor, B
 		return name;
 	}
 
-
 	private List<Annotation> getAnnotationChain(Method method, Class<? extends Annotation> annotationType) {
-		Annotation[] annotations = AnnotationUtils.getAnnotations(method);
 		List<Annotation> annotationChain = new LinkedList<Annotation>();
-		Set<Annotation> visited = new HashSet<Annotation>();
-		for (Annotation ann : annotations) {
-			this.recursiveFindAnnotation(annotationType, ann, annotationChain, visited);
+		Set<Annotation> visited = new HashSet<>();
+		for (MergedAnnotation<Annotation> mergedAnnotation : MergedAnnotations.from(method)) {
+			recursiveFindAnnotation(annotationType, mergedAnnotation.synthesize(), annotationChain, visited);
 			if (annotationChain.size() > 0) {
 				Collections.reverse(annotationChain);
 				return annotationChain;
