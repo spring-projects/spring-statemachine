@@ -95,7 +95,7 @@ public class RedisPersistTests extends AbstractBuildTests {
 		stateMachine = persister.restore(stateMachine, "xxx2");
 		assertThat(stateMachine.getId(), is("testid"));
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
-		doSendEventAndConsumeAll(stateMachine, TestEvents.E4);
+		doSendEventAndConsumeAll(stateMachine, TestEvents.E3);
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S4));
 
 		stateMachine = stateMachineFactory.getStateMachine();
