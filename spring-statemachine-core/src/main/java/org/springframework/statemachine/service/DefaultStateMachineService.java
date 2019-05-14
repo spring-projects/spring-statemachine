@@ -111,7 +111,7 @@ public class DefaultStateMachineService<S, E> implements StateMachineService<S, 
 			StateMachine<S, E> stateMachine = machines.remove(machineId);
 			if (stateMachine != null) {
 				log.info("Found machine with id " + machineId);
-				stateMachine.stop();
+				stateMachine.stopReactively().block();
 			}
 		}
 	}
@@ -163,7 +163,7 @@ public class DefaultStateMachineService<S, E> implements StateMachineService<S, 
 		if (stateMachineContext == null) {
 			return stateMachine;
 		}
-		stateMachine.stop();
+		stateMachine.stopReactively().block();
 		// only go via top region
 		stateMachine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S, E>>() {
 
@@ -180,7 +180,7 @@ public class DefaultStateMachineService<S, E> implements StateMachineService<S, 
 			if (!((Lifecycle) stateMachine).isRunning()) {
 				StartListener<S, E> listener = new StartListener<>(stateMachine);
 				stateMachine.addStateListener(listener);
-				stateMachine.start();
+				stateMachine.startReactively().block();
 				try {
 					listener.latch.await();
 				} catch (InterruptedException e) {
@@ -195,7 +195,7 @@ public class DefaultStateMachineService<S, E> implements StateMachineService<S, 
 			if (((Lifecycle) stateMachine).isRunning()) {
 				StopListener<S, E> listener = new StopListener<>(stateMachine);
 				stateMachine.addStateListener(listener);
-				stateMachine.stop();
+				stateMachine.stopReactively().block();
 				try {
 					listener.latch.await();
 				} catch (InterruptedException e) {
