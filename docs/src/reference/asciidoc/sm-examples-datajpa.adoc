@@ -1,0 +1,80 @@
+[[statemachine-examples-datajpa]]
+== JPA Configuration
+
+The JPA configuration example shows how you can use state machine concepts
+with a machine configuration kept in a database. This sample uses
+an embedded H2 database with an H2 Console (to ease playing with the
+database).
+
+This sample uses `spring-statemachine-autoconfigure` (which, by default,
+auto-configures the repositories and entity classes needed for JPA).
+Thus, you need only `@SpringBootApplication`.
+The following example shows the `Application` class with the `@SpringBootApplication` annotation:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/datajpa/Application.java[tags=snippetA]
+----
+====
+
+The following example shows how to create a `RepositoryStateMachineModelFactory`:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/datajpa/StateMachineConfig.java[tags=snippetB]
+----
+====
+
+You can use the following command to run the sample:
+
+====
+[source,text,subs="attributes"]
+----
+# java -jar spring-statemachine-samples-datajpa-{revnumber}.jar
+----
+====
+
+Accessing the application at `http://localhost:8080` brings up a newly
+constructed machine for each request. You can then choose to send
+events to a machine. The possible events and machine configuration are
+updated from a database with every request.
+The following image shows the UI and the initial events that are created when
+this state machine starts:
+
+image::images/sm-datajpa-1.png[scaledwidth="100%"]
+
+To access the embedded console, you can use the JDBC URL (which is `jdbc:h2:mem:testdb`, if it is
+not already set).
+The following image shows the H2 console:
+
+image::images/sm-datajpa-2.png[scaledwidth="100%"]
+
+From the console, you can see the database tables and modify
+them as you wish.
+The following image shows the result of a simple query in the UI:
+
+image::images/sm-datajpa-3.png[scaledwidth="100%"]
+
+Now that you have gotten this far, you have probably wondered how those default
+states and transitions got populated into the database. Spring Data
+has a nice trick to auto-populate repositories, and we
+used this feature through `Jackson2RepositoryPopulatorFactoryBean`.
+The following example shows how we create such a bean:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/datajpa/StateMachineConfig.java[tags=snippetA]
+----
+====
+
+The following listing shows the source of the data with which we populate the database:
+
+====
+[source,json,indent=0]
+----
+include::samples/data.json[]
+----
+====

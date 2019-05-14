@@ -1,0 +1,137 @@
+[[statemachine-examples-monitoring]]
+== Monitoring
+
+The monitoring sample shows how you can use state machine concepts to
+monitor state machine transitions and actions.
+The following listing configures the state machine that we use for this sample:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/monitoring/StateMachineConfig.java[tags=snippetA]
+----
+====
+
+You can use the following command to run the sample:
+
+====
+[source,text,subs="attributes"]
+----
+# java -jar spring-statemachine-samples-monitoring-{revnumber}.jar
+----
+====
+
+The following image shows the state machine's initial state:
+
+image::images/sm-monitoring-1.png[scaledwidth="100%"]
+
+The following image shows the state of the state machine after we have
+performed some actions:
+
+image::images/sm-monitoring-2.png[scaledwidth="100%"]
+
+You can view metrics from Spring Boot by running the following two `curl`
+commands (shown with their output):
+
+====
+[source,json]
+----
+# curl http://localhost:8080/actuator/metrics/ssm.transition.duration
+
+{
+  "name":"ssm.transition.duration",
+  "measurements":[
+    {
+      "statistic":"COUNT",
+      "value":3.0
+    },
+    {
+      "statistic":"TOTAL_TIME",
+      "value":0.007
+    },
+    {
+      "statistic":"MAX",
+      "value":0.004
+    }
+  ],
+  "availableTags":[
+    {
+      "tag":"transitionName",
+      "values":[
+        "INITIAL_S1",
+        "EXTERNAL_S1_S2"
+      ]
+    }
+  ]
+}
+----
+
+[source,json]
+----
+# curl http://localhost:8080/actuator/metrics/ssm.transition.transit
+
+{
+  "name":"ssm.transition.transit",
+  "measurements":[
+    {
+      "statistic":"COUNT",
+      "value":3.0
+    }
+  ],
+  "availableTags":[
+    {
+      "tag":"transitionName",
+      "values":[
+        "EXTERNAL_S1_S2",
+        "INITIAL_S1"
+      ]
+    }
+  ]
+}
+----
+====
+
+You can also view tracing from Spring Boot by running the following `curl`
+command (shown with its output):
+
+====
+[source,json]
+----
+# curl http://localhost:8080/actuator/statemachinetrace
+
+[
+  {
+    "timestamp":"2018-02-11T06:44:12.723+0000",
+    "info":{
+      "duration":2,
+      "machine":null,
+      "transition":"EXTERNAL_S1_S2"
+    }
+  },
+  {
+    "timestamp":"2018-02-11T06:44:12.720+0000",
+    "info":{
+      "duration":0,
+      "machine":null,
+      "action":"demo.monitoring.StateMachineConfig$Config$$Lambda$576/1499688007@22b47b2f"
+    }
+  },
+  {
+    "timestamp":"2018-02-11T06:44:12.714+0000",
+    "info":{
+      "duration":1,
+      "machine":null,
+      "transition":"INITIAL_S1"
+    }
+  },
+  {
+    "timestamp":"2018-02-11T06:44:09.689+0000",
+    "info":{
+      "duration":4,
+      "machine":null,
+      "transition":"INITIAL_S1"
+    }
+  }
+]
+----
+====

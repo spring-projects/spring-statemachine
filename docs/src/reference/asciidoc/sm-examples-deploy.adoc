@@ -1,0 +1,55 @@
+[[statemachine-examples-deploy]]
+== Deploy
+
+The deploy example shows how you can use state machine concepts with
+UML modeling to provide a generic error handling state. This state
+machine is a relatively complex example of how you can use various features
+to provide a centralized error handling concept.
+The following image shows the deploy state machine:
+
+image::images/model-deployer.png[width=500]
+
+NOTE: The preceding state chart was designed by using the Eclipse Papyrus Plugin
+(see<<sm-papyrus>>) and imported into Spring StateMachine through the resulting UML
+model file. Actions and guards defined in a model are resolved
+from a Spring Application Context.
+
+In this state machine scenario, we have two different behaviors
+(`DEPLOY` and `UNDEPLOY`) that user tries to execute.
+
+In the preceding state chart:
+
+* In the `DEPLOY` state, the `INSTALL` and `START` states are entered
+  conditionally. We enter `START` directly if a product is already
+  installed and have no need to try to `START` if install fails.
+* In the `UNDEPLOY` state, we enter `STOP` conditionally if the application is
+  already running.
+* Conditional choices for `DEPLOY` and `UNDEPLOY` are done through a
+  choice pseudostate within those states, and the choices are selected
+  by guards.
+* We use exit point pseudostates to have a more controlled exit from the
+  `DEPLOY` and `UNDEPLOY` states.
+* After exiting from `DEPLOY` and `UNDEPLOY`, we go through a junction
+  pseudostate to choose whether to go through an `ERROR` state
+  (if an error was added into an extended state).
+* Finally, we go back to the `READY` state to process new requests.
+
+Now we can get to the actual demo. Run the boot based sample application
+by running the following command:
+
+====
+[source,text,subs="attributes"]
+----
+# java -jar spring-statemachine-samples-deploy-{revnumber}.jar
+----
+====
+
+In a browser, you can see something like the following image:
+
+image::images/sm-deploy-1.png[width=500]
+
+IMPORTANT: As we do not have real install, start, or stop functionality, we
+simulate failures by checking the existence of particular message headers.
+
+Now you can start to send events to a machine and choose various
+message headers to drive functionality.

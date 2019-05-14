@@ -1,0 +1,214 @@
+[[statemachine-examples-tasks]]
+== Tasks
+
+The Tasks sample demonstrates parallel task handling within
+regions and adds error handling to either
+automatically or manually fix task problems before continuing back
+to a state where the tasks can be run again.
+The following image shows the Tasks state machine:
+
+image::images/statechart5.png[width=500]
+
+On a high level, in this state machine:
+
+* We always try to get into the `READY` state so that we can use the
+  RUN event to execute tasks.
+* Tkhe `TASKS` state, which is composed of three independent regions, has been
+  put in the middle of `FORK` and `JOIN` states, which will cause the regions to
+  go into their initial states and to be joined by their end states.
+* From the `JOIN` state, we automatically go into a `CHOICE` state, which checks
+  for the existence of error flags in extended state variables. Tasks can set
+  these flags, and doing so gives the `CHOICE` state the ability to go into the `ERROR`
+  state, where errors can be handled either automatically or manually.
+* The `AUTOMATIC` state in `ERROR` can try to automatically fix an error and goes
+  back to `READY` if it succeeds. If the error is something what
+  cannot be handled automatically, user intervention is needed and the
+  machine is put into the `MANUAL` state by the `FALLBACK` event.
+
+The following listing shows the enumeration that defines the possible states:
+
+====
+.States
+[source,java,indent=0]
+----
+include::samples/demo/tasks/Application.java[tags=snippetB]
+----
+====
+
+The following listing shows the enumeration that defines the events:
+
+====
+.Events
+[source,java,indent=0]
+----
+include::samples/demo/tasks/Application.java[tags=snippetC]
+----
+====
+
+The following listing configures the possible states:
+
+====
+.Configuration - states
+[source,java,indent=0]
+----
+include::samples/demo/tasks/Application.java[tags=snippetAA]
+----
+====
+
+The following listing configures the possible transitions:
+
+====
+.Configuration - transitions
+[source,java,indent=0]
+----
+include::samples/demo/tasks/Application.java[tags=snippetAB]
+----
+====
+
+The following guard sends a choice entry into the `ERROR` state and needs to
+return `TRUE` if an error has happened. This guard checks that
+all extended state variables(`T1`, `T2`, and `T3`) are `TRUE`.
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/tasks/Application.java[tags=snippetAC]
+----
+====
+
+The following actions below send events to the state machine to request
+the next step, which is either to fall back or to continue back to ready.
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/tasks/Application.java[tags=snippetAD]
+----
+====
+
+Currently, the default region execution is synchronous, but you can change
+it to be asynchronous by changing `TaskExecutor`. Task simulates
+work by sleeping two seconds so that you can see how actions in
+regions are executed inparallel.
+The following listing shows the `TaskExecutor` bean definition:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/tasks/Application.java[tags=snippetAE]
+----
+====
+
+The following example shows how this state machine actually works:
+
+====
+[source,text]
+----
+sm>sm start
+State machine started
+Entry state READY
+
+sm>tasks run
+Entry state TASKS
+run task on T3
+run task on T2
+run task on T1
+run task on T2 done
+run task on T1 done
+run task on T3 done
+Entry state T2
+Entry state T3
+Entry state T1
+Entry state T1E
+Entry state T2E
+Entry state T3E
+Exit state TASKS
+Entry state JOIN
+Exit state JOIN
+Entry state READY
+----
+====
+
+In the preceding listing, we can see that tasks run multiple times.
+In the next listing, we introduce errors:
+
+====
+[source,text]
+----
+sm>tasks list
+Tasks {T1=true, T3=true, T2=true}
+
+sm>tasks fail T1
+
+sm>tasks list
+Tasks {T1=false, T3=true, T2=true}
+
+sm>tasks run
+Entry state TASKS
+run task on T1
+run task on T3
+run task on T2
+run task on T1 done
+run task on T3 done
+run task on T2 done
+Entry state T1
+Entry state T3
+Entry state T2
+Entry state T1E
+Entry state T2E
+Entry state T3E
+Exit state TASKS
+Entry state JOIN
+Exit state JOIN
+Entry state ERROR
+Entry state AUTOMATIC
+Exit state AUTOMATIC
+Exit state ERROR
+Entry state READY
+----
+====
+
+In the preceding listing, if we simulate a failure for task T1, it is fixed
+automatically.
+In the next listing, we introduce more errors:
+
+====
+[source,text]
+----
+sm>tasks list
+Tasks {T1=true, T3=true, T2=true}
+
+sm>tasks fail T2
+
+sm>tasks run
+Entry state TASKS
+run task on T2
+run task on T1
+run task on T3
+run task on T2 done
+run task on T1 done
+run task on T3 done
+Entry state T2
+Entry state T1
+Entry state T3
+Entry state T1E
+Entry state T2E
+Entry state T3E
+Exit state TASKS
+Entry state JOIN
+Exit state JOIN
+Entry state ERROR
+Entry state AUTOMATIC
+Exit state AUTOMATIC
+Entry state MANUAL
+
+sm>tasks fix
+Exit state MANUAL
+Exit state ERROR
+Entry state READY
+----
+====
+
+In the precding example, if we simulate failure for either task `T2` or `T3`, the state
+machine goes to the `MANUAL` state, where problem needs to be fixed manually
+before it can go back to the `READY` state.

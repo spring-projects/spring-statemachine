@@ -1,0 +1,295 @@
+[[statemachine-examples-cdplayer]]
+== CD Player
+
+CD Player is a sample which resembles a use case that many people have
+used in the real world. CD Player itself is a really simple entity that allows a
+user to open a deck, insert or change a disk, and then drive the player's
+functionality by pressing various buttons (`eject`, `play`,
+`stop`, `pause`, `rewind`, and `backward`).
+
+How many of us have really given thought to what it will take to
+make code that interacts with hardware to drive a CD Player. Yes, the
+concept of a player is simple, but, if you look behind the scenes,
+things actually get a bit convoluted.
+
+You have probably noticed that, if your deck is open and you press play, the
+deck closes and a song starts to play (if a CD was inserted).
+In a sense, when the deck is open, you first need to close
+it and then try to start playing (again, if a CD is actually inserted). Hopefully,
+you have now realized that a simple CD Player is so simple.
+Sure, you can wrap all this with a simple class that has a few boolean variables
+and probably a few nested if-else clauses. That will do the job, but what
+about if you need to make all this behavior much more complex? Do you
+really want to keep adding more flags and if-else clauses?
+
+The following image shows the state machine for our simple CD player:
+
+image::images/statechart3.png[width=500]
+
+The rest of this section goes through how this sample and its state machine is designed and
+how those two interacts with each other. The following three configuration sections
+are used within an `EnumStateMachineConfigurerAdapter`.
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetAA]
+----
+
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetAB]
+----
+
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetAC]
+----
+====
+
+In the preceding configuration:
+
+* We used `EnumStateMachineConfigurerAdapter` to configure states and
+  transitions.
+* The `CLOSED` and `OPEN` states are defined as substates of `IDLE`, and
+  the `PLAYING` and `PAUSED` states are defined as substates of `BUSY`.
+* With the `CLOSED` state, we added an entry action as a bean called
+  `closedEntryAction`.
+* In the transitions we mostly map events to expected state
+  transitions, such as `EJECT` closing and opening a deck and `PLAY`, `STOP`,
+  and `PAUSE` doing their natural transitions. For other transitions, we did the following:
+** For source state `PLAYING`, we added a timer trigger, which is
+needed to automatically track elapsed time within a playing track and
+to have a facility for making the decision about when to switch the to next track.
+** For the `PLAY` event, if the source state is `IDLE` and the target state is
+  `BUSY`, we defined an action called `playAction` and a guard called `playGuard`.
+** For the `LOAD` event and the `OPEN` state, we defined an internal
+transition with an action called `loadAction`, which tracks inserting a disc with
+extended-state variables.
+** The `PLAYING` state defines three internal transitions. One is
+triggered by a timer that runs an action called `playingAction`, which updates
+the extended state variables. The other two transitions use `trackAction`
+with different events (`BACK` and `FORWARD`, respectively) to handle
+when the user wants to go back or forward in tracks.
+
+This machine has only have six states, which are defined by the following enumeration:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetB]
+----
+====
+
+Events represent the buttons the user can
+press and whether the user loads a disc into the player.
+The following enumeration defines the events:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetC]
+----
+====
+
+The `cdPlayer` and `library` beans are used to drive the application.
+The following listing shows the definition of these two beans:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetD]
+----
+====
+
+
+We define extended state variable keys as simple enumerations,
+as the following listing shows:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetE]
+----
+====
+
+We wanted to make this sample type safe, so we define our own
+annotation (`@StatesOnTransition`), which has a mandatory meta
+annotation (`@OnTransition`).
+The following listing defines the `@StatesOnTransition` annotation:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetF]
+----
+====
+
+`ClosedEntryAction` is an entry action for the `CLOSED` state, to
+send a `PLAY` event to the state machine if a disc is present.
+The following listing defines `ClosedEntryAction`:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetG]
+----
+====
+
+`LoadAction` update an extended state variable if event
+headers contain information about a disc to load.
+The following listing defines `LoadAction`:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetH]
+----
+====
+
+`PlayAction` resets the player's elapsed time, which is kept as
+an extended state variable.
+The following listing defines `PlayAction`:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetI]
+----
+====
+
+`PlayGuard` guards the transition from `IDLE` to `BUSY` with the
+`PLAY` event if the `CD` extended state variable does not indicate that a
+disc has been loaded.
+The following listing defines `PlayGuard`:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetJ]
+----
+====
+
+`PlayingAction` updates an extended state variable called `ELAPSEDTIME`, which
+the player can use to read and update its LCD status display. `PlayingAction` also handles
+track shifting when the user goe back or forward in tracks.
+The following example defines `PlayingAction`:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetK]
+----
+====
+
+`TrackAction` handles track shift actions when the user goes back or forward
+in tracks. If a track is the last on a disc, playing is stopped and the `STOP`
+event is sent to a state machine.
+The following example defines `TrackAction`:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/Application.java[tags=snippetL]
+----
+====
+
+One other important aspect of state machines is that they have their
+own responsibilities (mostly around handling states) and that all application
+level logic should be kept outside. This means that applications need
+to have a ways to interact with a state machine. Also, note
+that we annotated `CdPlayer` with `@WithStateMachine`, which instructs a
+state machine to find methods from your POJO, which are then called
+with various transitions.
+The following example shows how it updates its LCD status display:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/CdPlayer.java[tags=snippetA]
+----
+====
+
+In the preceding example, we use the `@OnTransition` annotation to hook a callback
+when a transition happens with a target state of `BUSY`.
+
+The following listing shows how our state machine handles whether the player is closed:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/cdplayer/CdPlayer.java[tags=snippetB]
+----
+====
+
+`@OnTransition` (which we used in the preceding examples) can only be
+used with strings that are matched from enumerations. `@StatesOnTransition`
+lets you create your own type-safe annotations that use real enumerations.
+
+The following example shows how this state machine actually works.
+
+====
+[source,text]
+----
+sm>sm start
+Entry state IDLE
+Entry state CLOSED
+State machine started
+
+sm>cd lcd
+No CD
+
+sm>cd library
+0: Greatest Hits
+  0: Bohemian Rhapsody  05:56
+  1: Another One Bites the Dust  03:36
+1: Greatest Hits II
+  0: A Kind of Magic  04:22
+  1: Under Pressure  04:08
+
+sm>cd eject
+Exit state CLOSED
+Entry state OPEN
+
+sm>cd load 0
+Loading cd Greatest Hits
+
+sm>cd play
+Exit state OPEN
+Entry state CLOSED
+Exit state CLOSED
+Exit state IDLE
+Entry state BUSY
+Entry state PLAYING
+
+sm>cd lcd
+Greatest Hits Bohemian Rhapsody 00:03
+
+sm>cd forward
+
+sm>cd lcd
+Greatest Hits Another One Bites the Dust 00:04
+
+sm>cd stop
+Exit state PLAYING
+Exit state BUSY
+Entry state IDLE
+Entry state CLOSED
+
+sm>cd lcd
+Greatest Hits
+----
+====
+
+In the preceding run:
+
+* The state machine is started, which causes the machine to be initialized.
+* The CD player's LCD screen status is printed.
+* The CD library is printed.
+* The CD player's deck is opened.
+* The CD with index 0 is loaded into a deck.
+* Play causes the deck to get closed and immediate play, because a disc
+  was inserted.
+* We print the LCD status and request the next track.
+* We stop playing.
+

@@ -1,0 +1,111 @@
+[[statemachine-examples-zookeeper]]
+== Zookeeper
+
+Zookeeper is a distributed version from the
+<<statemachine-examples-turnstile>> sample.
+
+NOTE: This sample needs an external `Zookeeper` instance that is accessible from
+`localhost` and has the default port and settings.
+
+Configuration of this sample is almost the same as the `turnstile` sample. We
+add only the configuration for the distributed state machine where we
+configure `StateMachineEnsemble`, as the following listing shows:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/zookeeper/Application.java[tags=snippetA]
+----
+====
+
+The actual `StateMachineEnsemble` needs to be created as a bean, together
+with the `CuratorFramework` client, as the following example shows:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/zookeeper/Application.java[tags=snippetB]
+----
+====
+
+For the next example, we need to create two different shell instances.
+We need to create one instance, see what happens, and then create the second instance.
+The following command starts the shell instances (remember to start only one instance for now):
+
+====
+[source,text,subs="attributes"]
+----
+@n1:~# java -jar spring-statemachine-samples-zookeeper-{revnumber}.jar
+----
+====
+
+
+When state machine is started, its initial state is
+`LOCKED`. Then it sends a `COIN` event to transition into `UNLOCKED` state.
+The following example shows what happens:
+
+====
+.Shell1
+[source,text]
+----
+sm>sm start
+Entry state LOCKED
+State machine started
+
+sm>sm event COIN
+Exit state LOCKED
+Entry state UNLOCKED
+Event COIN send
+
+sm>sm state
+UNLOCKED
+----
+====
+
+Now you can open a second shell instance and start a state machine,
+by using the same command that you used to start the first state machine. You should see
+that the distributed state (`UNLOCKED`) is entered instead of the default
+initial state (`LOCKED`).
+
+The following example shows the state machine and its output:
+
+====
+.Shell2
+[source,text]
+----
+sm>sm start
+State machine started
+
+sm>sm state
+UNLOCKED
+----
+====
+
+Then from either shell (we use second instance in the next example), send a
+`PUSH` event to transit from the `UNLOCKED` into the `LOCKED` state.
+The following example shows the state machine command and its output:
+
+====
+.Shell2
+[source,text]
+----
+sm>sm event PUSH
+Exit state UNLOCKED
+Entry state LOCKED
+Event PUSH send
+----
+====
+
+In the other shell (the first shell if you ran the preceding command in the second shell),
+you should see the state be changed automatically,
+based on distributed state kept in Zookeeper.
+The following example shows the state machine command and its output:
+
+====
+.Shell1
+[source,text]
+----
+sm>Exit state UNLOCKED
+Entry state LOCKED
+----
+====

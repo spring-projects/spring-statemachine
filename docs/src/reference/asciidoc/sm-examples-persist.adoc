@@ -1,0 +1,120 @@
+[[statemachine-examples-persist]]
+== Persist
+
+Persist is a sample that uses the <<statemachine-recipes-persist>> recipe to
+demonstrate how database entry update logic can be controlled by a
+state machine.
+
+The following image shows the state machine logic and configuration:
+
+image::images/statechart10.png[width=500]
+
+The following listing shows the state machine configuration:
+
+====
+.StateMachine Config
+[source,java,indent=0]
+----
+include::samples/demo/persist/Application.java[tags=snippetA]
+----
+====
+
+The following configuration creates `PersistStateMachineHandler`:
+
+====
+.Handler Config
+[source,java,indent=0]
+----
+include::samples/demo/persist/Application.java[tags=snippetB]
+----
+====
+
+The following listing shows the `Order` class used with this sample:
+
+====
+.Order Class
+[source,java,indent=0]
+----
+include::samples/demo/persist/Application.java[tags=snippetC]
+----
+====
+
+The following example shows the state machine's output:
+
+====
+[source,text]
+----
+sm>persist db
+Order [id=1, state=PLACED]
+Order [id=2, state=PROCESSING]
+Order [id=3, state=SENT]
+Order [id=4, state=DELIVERED]
+
+sm>persist process 1
+Exit state PLACED
+Entry state PROCESSING
+
+sm>persist db
+Order [id=2, state=PROCESSING]
+Order [id=3, state=SENT]
+Order [id=4, state=DELIVERED]
+Order [id=1, state=PROCESSING]
+
+sm>persist deliver 3
+Exit state SENT
+Entry state DELIVERED
+
+sm>persist db
+Order [id=2, state=PROCESSING]
+Order [id=4, state=DELIVERED]
+Order [id=1, state=PROCESSING]
+Order [id=3, state=DELIVERED]
+----
+====
+
+In the preceding run, the state machine:
+
+* Listed rows from an existing embedded database, which is already
+  populated with sample data.
+* Requested to update order `1` into the `PROCESSING` state.
+* List database entries again and see that the state has been changed from
+  `PLACED` to `PROCESSING`.
+* Update order `3` to update its state from `SENT` to
+  `DELIVERED`.
+
+[NOTE]
+====
+You may wonder where the database is, because there are literally no
+signs of it in the sample code. The sample is based on Spring Boot and,
+because the necessary classes are in a classpath, an embedded `HSQL` instance
+is created automatically.
+
+Spring Boot even creates an instance of `JdbcTemplate`, which you
+can autowire, as we did in `Persist.java`, shown in the following listing:
+
+=====
+[source,java,indent=0]
+----
+include::samples/demo/persist/Persist.java[tags=snippetA]
+----
+=====
+====
+
+Next, we need to handle state changes. The following listing shows how we do so:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/persist/Persist.java[tags=snippetB]
+----
+====
+
+Finally, we use a `PersistStateChangeListener` to update the database, as the
+following listing shows:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/persist/Persist.java[tags=snippetC]
+----
+====

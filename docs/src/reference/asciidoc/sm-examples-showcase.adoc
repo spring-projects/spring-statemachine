@@ -1,0 +1,209 @@
+[[statemachine-examples-showcase]]
+== Showcase
+
+Showcase is a complex state machine that shows all possible transition
+topologies up to four levels of state nesting.
+The following image shows the state machine:
+
+image::images/statechart2.png[width=500]
+
+The following listing shows the enumeration that defines the possible states:
+
+====
+.States
+[source,java,indent=0]
+----
+include::samples/demo/showcase/Application.java[tags=snippetB]
+----
+====
+
+The following listing shows the enumeration that defines the events:
+
+====
+.Events
+[source,java,indent=0]
+----
+include::samples/demo/showcase/Application.java[tags=snippetC]
+----
+====
+
+The following listing shows the code that configures the state machine:
+
+====
+.Configuration - states
+[source,java,indent=0]
+----
+include::samples/demo/showcase/Application.java[tags=snippetAA]
+----
+====
+
+The following listing shows the code that configures the state machine's transitions:
+
+====
+.Configuration - transitions
+[source,java,indent=0]
+----
+include::samples/demo/showcase/Application.java[tags=snippetAB]
+----
+====
+
+The following listing shows the code that configures the state machine's actions and guards:
+
+====
+.Configuration - actions and guards
+[source,java,indent=0]
+----
+include::samples/demo/showcase/Application.java[tags=snippetAC]
+----
+====
+
+The following listing shows how the single action is defined:
+
+====
+.Action
+[source,java,indent=0]
+----
+include::samples/demo/showcase/Application.java[tags=snippetD]
+----
+====
+
+The following listing shows how the single guard is defined:
+
+====
+.Guard
+[source,java,indent=0]
+----
+include::samples/demo/showcase/Application.java[tags=snippetE]
+----
+====
+
+The following listing shows the output that this state machine produces when it runs and
+various events are sent to it:
+
+====
+[source,text]
+----
+sm>sm start
+Init foo to 0
+Entry state S0
+Entry state S1
+Entry state S11
+State machine started
+
+sm>sm event A
+Event A send
+
+sm>sm event C
+Exit state S11
+Exit state S1
+Entry state S2
+Entry state S21
+Entry state S211
+Event C send
+
+sm>sm event H
+Switch foo to 1
+Internal transition source=S0
+Event H send
+
+sm>sm event C
+Exit state S211
+Exit state S21
+Exit state S2
+Entry state S1
+Entry state S11
+Event C send
+
+sm>sm event A
+Exit state S11
+Exit state S1
+Entry state S1
+Entry state S11
+Event A send
+----
+====
+
+In the preceding output, we can see that:
+
+* The state machine is started, which takes it to its initial state (`S11`)
+  through superstates (`S1`) and (`S0`). Also, the extended state variable, `foo`, is
+  initialized to `0`.
+* We try to execute a self transition in state `S1` with event `A`, but
+  nothing happens because the transition is guarded by variable `foo` to
+  be `1`.
+* We send event `C`, which takes us to the other state machine, where
+  the initial state (`S211`) and its superstates are entered. In there, we
+  can use event `H`, which does a simple internal transition to flip the
+  `foo` variable. Then we go back by using event `C`.
+* Event `A` is sent again, and now `S1` does a self transition because the
+  guard evaluates to `true`.
+
+The following example offers a closer look at how hierarchical states and their event
+handling works:
+
+====
+[source,text]
+----
+sm>sm variables
+No variables
+
+sm>sm start
+Init foo to 0
+Entry state S0
+Entry state S1
+Entry state S11
+State machine started
+
+sm>sm variables
+foo=0
+
+sm>sm event H
+Internal transition source=S1
+Event H send
+
+sm>sm variables
+foo=0
+
+sm>sm event C
+Exit state S11
+Exit state S1
+Entry state S2
+Entry state S21
+Entry state S211
+Event C send
+
+sm>sm variables
+foo=0
+
+sm>sm event H
+Switch foo to 1
+Internal transition source=S0
+Event H send
+
+sm>sm variables
+foo=1
+
+sm>sm event H
+Switch foo to 0
+Internal transition source=S2
+Event H send
+
+sm>sm variables
+foo=0
+----
+====
+
+In the preceding sample:
+
+* We print extended state variables in various stages.
+* With event `H`, we end up running an internal transition,
+  which is logged with its source state.
+* Note how event `H` is handled in
+  different states (`S0`, `S1`, and `S2`). This is a good example of how
+  hierarchical states and their event handling works. If state `S2` is
+  unable to handle event `H` due to a guard condition, its parent is
+  checked next. This guarantees that, while the machine is on state `S2`, the `foo` flag
+  is always flipped around. However, in state `S1`, event `H` always
+  matches to its dummy transition without guard or action, so it never
+  happens.
+

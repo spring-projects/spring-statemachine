@@ -1,0 +1,217 @@
+[[statemachine-examples-eventservice]]
+== Event Service
+
+The event service example shows how you can use state machine concepts as
+a processing engine for events. This sample evolved from a question:
+
+Can I use Spring Statemachine as a microservice to feed events to
+different state machine instances? In fact, Spring Statemachine can feed
+events to potentially millions of different state machine instances.
+
+This example uses a `Redis` instance to persist state machine
+instances.
+
+Obviously, a million state machine instances in a JVM would be
+a bad idea, due to memory constraints. This leads to
+other features of Spring Statemachine that let you persist a
+`StateMachineContext` and re-use existing instances.
+
+For this example, we assume that a shopping application
+sends different types of `PageView` events to a separate
+microservice which then tracks user behavior by using a state
+machine. The following image shows the state model, which has a few states
+that represent a user navigating a product items list, adding and removing
+items from a cart, going to a payment page, and initiating a payment
+operation:
+
+image::images/statechart14.png[width=500]
+
+An actual shopping application would send these events into
+this service by (for example) using a rest call. More about this
+later.
+
+NOTE: Remember that the focus here is to have an application that exposes a
+`REST` API that the user can use to send events that can be processed by a
+state machine for each request.
+
+The following state machine configuration models what we have in a
+state chart. Various actions update the state machine's `Extended
+State` to track the number of entries into various states and also how
+many times the internal transitions for `ADD` and `DEL` are called and whether
+`PAY` has been executed:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/eventservice/StateMachineConfig.java[tags=snippetC]
+----
+====
+
+Do not focus on `stateMachineTarget` or
+`@Scope` for now, as we explain those later in this section.
+
+We set up a `RedisConnectionFactory` that defaults to
+localhost and default port. We use `StateMachinePersist` with a
+`RepositoryStateMachinePersist` implementation. Finally, we create a
+`RedisStateMachinePersister` that uses a previously
+created `StateMachinePersist` bean.
+
+These are then used in a `Controller` that handles `REST` calls,
+as the following listing shows:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/eventservice/StateMachineConfig.java[tags=snippetD]
+----
+====
+
+We create a bean named `stateMachineTarget`.
+State machine instantiation is a relatively
+expensive operation, so it is better to try to pool instances instead
+of instantiating a new instance for every request. To do so, we first
+create a `poolTargetSource` that wraps `stateMachineTarget` and pools
+it with a max size of three. When then proxy this  `poolTargetSource` with
+`ProxyFactoryBean` by using a `request` scope. Effectively, this means
+that every `REST` request gets a pooled state machine instance from
+a bean factory. Later, we show how these instances are used.
+The following listing shows how we create the `ProxyFactoryBean`
+and set the target source:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/eventservice/StateMachineConfig.java[tags=snippetA]
+----
+====
+
+The following listing shows we set the maximum size and set the target bean name:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/eventservice/StateMachineConfig.java[tags=snippetB]
+----
+====
+
+Now we can get into actual demo. You need to have a Redis server running on
+localhost with default settings. Then you need to run the Boot-based sample
+application by running the following command:
+
+====
+[source,text,subs="attributes"]
+----
+# java -jar spring-statemachine-samples-eventservice-{revnumber}.jar
+----
+====
+
+In a browser, you see something like the following:
+
+image::images/sm-eventservice-1.png[width=500]
+
+In this UI, you can use three users: `joe`, `bob`, and `dave`.
+Clicking a button shows the current state and the extended state. Enabling a
+radio button before clicking a button sends a particular event for that
+user. This arrangement lets you play with the UI.
+
+In our `StateMachineController`, we autowire `StateMachine` and
+`StateMachinePersister`. `StateMachine` is `request` scoped, so you
+get a new instance for each request, while `StateMachinePersist` is a normal
+singleton bean.
+The following listing autowires `StateMachine` and
+`StateMachinePersist`:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/eventservice/StateMachineController.java[tags=snippetA]
+----
+====
+
+In the following listing, `feedAndGetState` is used with a UI to do same things that an
+actual `REST` api might do:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/eventservice/StateMachineController.java[tags=snippetB]
+----
+====
+
+In the following listing, `feedPageview` is a `REST` method that accepts a post with
+JSON content.
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/eventservice/StateMachineController.java[tags=snippetC]
+----
+====
+
+In the following listing, `feedMachine` sends an event into a `StateMachine` and persists
+its state by using a `StateMachinePersister`:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/eventservice/StateMachineController.java[tags=snippetD]
+----
+====
+
+The following listing shows a `resetStateMachineFromStore` that is used to restore a state machine
+for a particular user:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/eventservice/StateMachineController.java[tags=snippetE]
+----
+====
+
+As you would usually send an event by using a UI, you can do the same by using `REST` calls,
+as the following curl command shows:
+
+====
+[source,text]
+----
+# curl http://localhost:8080/feed -H "Content-Type: application/json" --data '{"user":"joe","id":"VIEW_I"}'
+----
+====
+
+At this point, you should have content in Redis with a key of
+`testprefix:joe`, as the following example shows:
+
+====
+[source,text]
+----
+$ ./redis-cli
+127.0.0.1:6379> KEYS *
+1) "testprefix:joe"
+----
+====
+
+The next three images show when state for `joe` has been changed from
+`HOME` to `ITEMS` and when the `ADD` action has been executed.
+
+The following image the `ADD` event being sent:
+
+image::images/sm-eventservice-2.png[width=500]
+
+Now your are still on the `ITEMS` state, and the internal transition caused
+the `COUNT` extended state variable to increase to `1`, as the following image shows:
+
+image::images/sm-eventservice-3.png[width=500]
+
+Now you can run the following `curl` rest call a few times (or do it through the UI) and
+see the `COUNT` variable increase with every call:
+
+====
+[source,text]
+----
+# curl http://localhost:8080/feed -H "Content-Type: application/json" # --data '{"user":"joe","id":"ADD"}'
+----
+====
+
+The following image shows the result of these operations:
+
+image::images/sm-eventservice-4.png[width=500]

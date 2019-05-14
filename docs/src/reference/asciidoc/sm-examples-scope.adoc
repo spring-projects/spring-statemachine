@@ -1,0 +1,29 @@
+[[statemachine-examples-scope]]
+
+== Scope
+
+Scope is a state machine example that uses session scope to provide an
+individual instance for every user.
+The following image shows the states and events within the Scope state machine:
+
+image::images/statechart12.png[width=500]
+
+This simple state machine has three states: `S0`, `S1`, and `S2`.
+Transitions between those are controlled by three events: `A`, `B`, and `C`.
+
+To start the state machine, run the following command in a terminal:
+
+====
+[source,text,subs="attributes"]
+----
+# java -jar spring-statemachine-samples-scope-{revnumber}.jar
+----
+====
+
+When the instance is running, you can open a browser and play with the state
+machine. If you open the same page in a different browser, (for example, one in
+Chrome and one in Firefox), you should get a new state machine
+instance for each user session.
+The following image shows the state machine in a browser:
+
+image::images/sm-scope-1.png[width=500]

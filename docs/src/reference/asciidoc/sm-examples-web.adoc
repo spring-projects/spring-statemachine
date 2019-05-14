@@ -1,0 +1,64 @@
+[[statemachine-examples-web]]
+== Web
+
+Web is a distributed state machine example that uses a zookeeper state machine to handle
+distributed state. See <<statemachine-examples-zookeeper>>.
+
+NOTE: This example is meant to be run on multiple
+browser sessions against multiple different hosts.
+
+This sample uses a modified state machine structure from
+<<statemachine-examples-showcase>> to work with a distributed state
+machine. The following image shows the state machine logic:
+
+image::images/statechart11.png[width=500]
+
+NOTE: Due to the nature of this sample, an instance of a `Zookeeper` state machine is expected to
+be available from a localhost for every individual sample instance.
+
+This demonstration uses an example that starts three different sample instances.
+If you run different instances on the same host, you need to
+distinguish the port each one uses by adding `--server.port=<myport>` to the command.
+Otherwise the default port for each host is `8080`.
+
+In this sample run, we have three hosts: `n1`, `n2`, and `n3`. Each one
+has a local zookeeper instance running and a state machine sample running
+on a port `8080`.
+
+In there different terminals, start the three different state machines by running
+the following command:
+
+====
+[source,text,subs="attributes"]
+----
+# java -jar spring-statemachine-samples-web-{revnumber}.jar
+----
+====
+
+When all instances are running, you should see that all show similar
+information when you access them with a browser. The states should be `S0`, `S1`, and `S11`.
+The extended state variable named `foo` should have a value of `0`. The main state is `S11`.
+
+image::images/sm-dist-n1-1.png[width=500]
+
+When you press the `Event C` button in any of the browser windows, the
+distributed state is changed to `S211,` which is the target state
+denoted by the transition associated with an event of type `C`.
+The following image shows the change:
+
+image::images/sm-dist-n2-2.png[width=500]
+
+Now we can press the `Event H` button and see that the
+internal transition runs on all state machines to change the
+the value of the extended state variable named `foo` from `0` to `1`. This change is
+first done on the state machine that receives the event and is then propagated
+to the other state machines. You should see only the variable named `foo` change
+from `0` to `1`.
+
+image::images/sm-dist-n3-3.png[width=500]
+
+Finally, we can send `Event K`, which takes the state
+machine state back to state `S11`. You should see this happen in
+all of the browsers. The following image shows the result in one browser:
+
+image::images/sm-dist-n1-4.png[width=500]

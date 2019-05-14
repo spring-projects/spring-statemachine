@@ -1,0 +1,52 @@
+[[statemachine-examples-ordershipping]]
+== Order Shipping
+
+The order shipping example shows how you can use state machine concepts
+to build a simple order processing system.
+
+The following image shows a state chart that drives this order shipping sample.
+
+image::images/sm-ordershipping-1.png[scaledwidth="100%"]
+
+In the preceding state chart:
+
+* The state machine enters the `WAIT_NEW_ORDER` (default) state.
+* The event `PLACE_ORDER` transitions into the `RECEIVE_ORDER` state and the entry
+  action (`entryReceiveOrder`) is executed.
+* If the order is `OK`, the state machine goes into two regions, one handling order
+  production and one handling user-level payment. Otherwise, the state machine goes
+  into `CUSTOMER_ERROR`, which is a final state.
+* The state machine loops in a lower region to remind the user to pay
+  until `RECEIVE_PAYMENT` is sent successfully to indicate correct
+  payment.
+* Both regions go into waiting states (`WAIT_PRODUCT` and
+  `WAIT_ORDER`), where they are joined before the parent orthogonal state
+  (`HANDLE_ORDER`) is exited.
+* Finally, the state machine goes through `SHIP_ORDER` to its final state
+  (`ORDER_SHIPPED`).
+
+The following command runs the sample:
+
+====
+[source,text,subs="attributes"]
+----
+# java -jar spring-statemachine-samples-ordershipping-{revnumber}.jar
+----
+====
+
+In a browser, you can see something similar to the following image. You can start by choosing
+a customer and an order to create a state machine.
+
+image::images/sm-ordershipping-2.png[scaledwidth="100%"]
+
+The state machine for a particular order is now created and you can start to play
+with placing an order and sending a payment. Other settings (such as
+`makeProdPlan`, `produce`, and `payment`) let you control how the state
+machine works.
+The following image shows the state machine waiting for an order:
+
+image::images/sm-ordershipping-3.png[scaledwidth="100%"]
+
+Finally, you can see what machine does by refreshing a page, as the following image shows:
+
+image::images/sm-ordershipping-4.png[scaledwidth="100%"]

@@ -1,0 +1,98 @@
+[[statemachine-examples-washer]]
+== Washer
+
+The washer sample demonstrates how to use a history state to recover a
+running state configuration with a simulated power-off situation.
+
+Anyone who has ever used a washing machine knows that if you somehow pause
+the program, it continue from the same state when unpaused.
+You can implement this kind of behavior in a state machine by using
+a history pseudo state.
+The following image shows our state machine for a washer:
+
+image::images/statechart6.png[width=500]
+
+The following listing shows the enumeration that defines the possible states:
+
+====
+.States
+[source,java,indent=0]
+----
+include::samples/demo/washer/Application.java[tags=snippetB]
+----
+====
+
+The following listing shows the enumeration that defines the events:
+
+====
+.Events
+[source,java,indent=0]
+----
+include::samples/demo/washer/Application.java[tags=snippetC]
+----
+====
+
+The following listing configures the possible states:
+
+====
+.Configuration - states
+[source,java,indent=0]
+----
+include::samples/demo/washer/Application.java[tags=snippetAA]
+----
+====
+
+The following listing configures the possible transitions:
+
+====
+.Configuration - transitions
+[source,java,indent=0]
+----
+include::samples/demo/washer/Application.java[tags=snippetAB]
+----
+====
+
+The following example shows how this state machine actually works:
+
+====
+[source,text]
+----
+sm>sm start
+Entry state RUNNING
+Entry state WASHING
+State machine started
+
+sm>sm event RINSE
+Exit state WASHING
+Entry state RINSING
+Event RINSE send
+
+sm>sm event DRY
+Exit state RINSING
+Entry state DRYING
+Event DRY send
+
+sm>sm event CUTPOWER
+Exit state DRYING
+Exit state RUNNING
+Entry state POWEROFF
+Event CUTPOWER send
+
+sm>sm event RESTOREPOWER
+Exit state POWEROFF
+Entry state RUNNING
+Entry state WASHING
+Entry state DRYING
+Event RESTOREPOWER send
+----
+====
+
+In the preceding run:
+
+* The state machine is started, which causes machine to get initialized.
+* The state machine goes to RINSING state.
+* The state machine goes to DRYING state.
+* The state machine cuts power and goes to POWEROFF state.
+* The state is restored from the HISTORY state, which takes state machine back
+  to its previous known state.
+

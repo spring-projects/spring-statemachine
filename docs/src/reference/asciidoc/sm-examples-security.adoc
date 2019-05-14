@@ -1,0 +1,81 @@
+[[statemachine-examples-security]]
+== Security
+
+Security is a state machine example that uses most of the possible combinations of
+securing a state machine. It secures sending events, transitions,
+and actions.
+The following image shows the state machine's states and events:
+
+image::images/statechart13.png[width=500]
+
+To start the state machine, run the following command:
+
+====
+[source,text,subs="attributes"]
+----
+# java -jar spring-statemachine-samples-secure-{revnumber}.jar
+----
+====
+
+We secure event sending by requiring that users have a role of `USER`.
+Spring Security ensures that no other users can send events to this
+state machine.
+The following listing secures event sending:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/security/StateMachineConfig.java[tags=snippetA]
+----
+====
+
+In this sample we define two users:
+
+* A user named `user` who has a role of `USER`
+* A user named `admin` who has two roles: `USER` and `ADMIN`
+
+The password for both users is `password`.
+The following listing configures the two users:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/security/StateMachineConfig.java[tags=snippetE]
+----
+====
+
+We define various transitions between states according to the state chart
+shown at the beginning of the example. Only a user with an active `ADMIN` role can run
+the external transitions between `S2` and `S3`. Similarly only an `ADMIN` can
+run the internal transition the `S1` state.
+The following listing defines the transitions, including their security:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/security/StateMachineConfig.java[tags=snippetB]
+----
+====
+
+The following listing uses a method called `adminAction` whose return type is `Action` to
+specify that the action is secured with a role of `ADMIN`:
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/security/StateMachineConfig.java[tags=snippetC]
+----
+====
+
+The following `Action` runs an internal transition in state `S` when event `F` is sent.
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/security/StateMachineConfig.java[tags=snippetD]
+----
+====
+
+The transition itself is secured with a
+role of `ADMIN`, so this transition does not run if the current user
+does not hate that role.
