@@ -357,7 +357,7 @@ public class StateMachineMethodInvokerHelper<T, S, E> extends AbstractExpression
 				}
 			}
 		}
-		else if (org.springframework.util.ClassUtils.isCglibProxyClass(targetClass)) {
+		else if (AopUtils.isCglibProxy(targetClass)) {
 			Class<?> superClass = targetObject.getClass().getSuperclass();
 			if (!Object.class.equals(superClass)) {
 				targetClass = superClass;
