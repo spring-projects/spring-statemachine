@@ -24,8 +24,6 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineEventResult;
-import org.springframework.statemachine.access.StateMachineAccess;
-import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.support.StateMachineUtils;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionKind;
@@ -181,69 +179,33 @@ public class StateMachineState<S, E> extends AbstractState<S, E> {
 
 				if (context.getEvent() != null) {
 					getSubmachine().getStateMachineAccessor()
-							.doWithRegion(new StateMachineFunction<StateMachineAccess<S, E>>() {
-
-								@Override
-								public void apply(StateMachineAccess<S, E> function) {
-									function.setForwardedInitialEvent(MessageBuilder.withPayload(context.getEvent())
-											.copyHeaders(context.getMessageHeaders()).build());
-								}
-							});
+							.doWithRegion(function -> function.setForwardedInitialEvent(MessageBuilder.withPayload(context.getEvent())
+									.copyHeaders(context.getMessageHeaders()).build()));
 				}
 
 				// disable initial state where needed
 				if (immediateDeepParent != null && immediateDeepParent.isSubmachineState() && (!isInitial(target))) {
 
 					((StateMachineState<S, E>) immediateDeepParent).getSubmachine().getStateMachineAccessor()
-							.doWithRegion(new StateMachineFunction<StateMachineAccess<S, E>>() {
-
-								@Override
-								public void apply(StateMachineAccess<S, E> function) {
-									function.setInitialEnabled(false);
-								}
-							});
+							.doWithRegion(function -> function.setInitialEnabled(false));
 
 				}
 				if (immediateDeepParent != null && !isInitial(immediateDeepParent)) {
 					getSubmachine().getStateMachineAccessor()
-							.doWithRegion(new StateMachineFunction<StateMachineAccess<S, E>>() {
-
-								@Override
-								public void apply(StateMachineAccess<S, E> function) {
-									function.setInitialEnabled(false);
-								}
-							});
+							.doWithRegion(function -> function.setInitialEnabled(false));
 				} else if (immediateDeepParent != null && isInitial(immediateDeepParent) && isInitial(target)) {
 					((StateMachineState<S, E>) immediateDeepParent).getSubmachine().getStateMachineAccessor()
-							.doWithRegion(new StateMachineFunction<StateMachineAccess<S, E>>() {
-
-								@Override
-								public void apply(StateMachineAccess<S, E> function) {
-									function.setInitialEnabled(false);
-								}
-							});
+							.doWithRegion(function -> function.setInitialEnabled(false));
 				}
 				if (immediateDeepParent == null && getSubmachine().getStates().contains(target) && !isInitial(target)
 						&& StateMachineUtils.isSubstate(context.getTransition().getSource(),
 								context.getTransition().getTarget())) {
 					getSubmachine().getStateMachineAccessor()
-							.doWithRegion(new StateMachineFunction<StateMachineAccess<S, E>>() {
-
-								@Override
-								public void apply(StateMachineAccess<S, E> function) {
-									function.setInitialEnabled(false);
-								}
-							});
+							.doWithRegion(function -> function.setInitialEnabled(false));
 				}
 				if (immediateDeepParent == null && getSubmachine().getStates().contains(target) && isEntry(target)) {
 					getSubmachine().getStateMachineAccessor()
-							.doWithRegion(new StateMachineFunction<StateMachineAccess<S, E>>() {
-
-								@Override
-								public void apply(StateMachineAccess<S, E> function) {
-									function.setInitialEnabled(false);
-								}
-							});
+							.doWithRegion(function -> function.setInitialEnabled(false));
 				}
 			}
 		}));

@@ -40,8 +40,6 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.access.StateMachineAccess;
-import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.action.Actions;
 import org.springframework.statemachine.config.model.ChoiceData;
@@ -284,27 +282,17 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 		// set top-level machine as relay
 		final StateMachine<S, E> fmachine = machine;
-		fmachine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<S, E>>() {
-
-			@Override
-			public void apply(StateMachineAccess<S, E> function) {
-				function.setRelay(fmachine);
-			}
-		});
+		fmachine.getStateMachineAccessor().doWithAllRegions(function -> function.setRelay(fmachine));
 
 		// add monitoring hooks
 		final StateMachineMonitor<S, E> stateMachineMonitor = stateMachineModel.getConfigurationData().getStateMachineMonitor();
 		if (stateMachineMonitor != null || defaultStateMachineMonitor != null) {
-			fmachine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S ,E>>() {
-
-				@Override
-				public void apply(StateMachineAccess<S, E> function) {
-					if (defaultStateMachineMonitor != null) {
-						function.addStateMachineMonitor(defaultStateMachineMonitor);
-					}
-					if (stateMachineMonitor != null) {
-						function.addStateMachineMonitor(stateMachineMonitor);
-					}
+			fmachine.getStateMachineAccessor().doWithRegion(function -> {
+				if (defaultStateMachineMonitor != null) {
+					function.addStateMachineMonitor(defaultStateMachineMonitor);
+				}
+				if (stateMachineMonitor != null) {
+					function.addStateMachineMonitor(stateMachineMonitor);
 				}
 			});
 		}
@@ -323,13 +311,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 				m = machineMap.get(sParent);
 			}
 			final StateMachine<S, E> mm = m;
-			mme.getValue().getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S ,E>>(){
-
-				@Override
-				public void apply(StateMachineAccess<S, E> function) {
-					function.setParentMachine(mm);
-				}
-			});
+			mme.getValue().getStateMachineAccessor().doWithRegion(function -> function.setParentMachine(mm));
 		}
 
 		// init built machines
@@ -345,13 +327,8 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 					stateMachineModel.getConfigurationData().getEventSecurityAccessDecisionManager(),
 					stateMachineModel.getConfigurationData().getEventSecurityRule());
 			log.info("Adding security interceptor " + securityInterceptor);
-			fmachine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<S, E>>() {
-
-				@Override
-				public void apply(StateMachineAccess<S, E> function) {
-					function.addStateMachineInterceptor(securityInterceptor);
-				}
-			});
+			fmachine.getStateMachineAccessor()
+					.doWithAllRegions(function -> function.addStateMachineInterceptor(securityInterceptor));
 		}
 
 		// setup distributed state machine if needed.
@@ -371,15 +348,11 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 		List<StateMachineInterceptor<S,E>> interceptors = stateMachineModel.getConfigurationData().getStateMachineInterceptors();
 		if (interceptors != null) {
+
 			for (final StateMachineInterceptor<S, E> interceptor : interceptors) {
 				// add persisting interceptor hooks to all regions
 				RegionPersistingInterceptorAdapter<S, E> adapter = new RegionPersistingInterceptorAdapter<>(interceptor, machine);
-				machine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<S,E>>() {
-					@Override
-					public void apply(StateMachineAccess<S, E> function) {
-						function.addStateMachineInterceptor(adapter);
-					}
-				});
+				machine.getStateMachineAccessor().doWithAllRegions(function -> function.addStateMachineInterceptor(adapter));
 			}
 		}
 

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import org.junit.Test;
 import org.springframework.messaging.Message;
@@ -44,14 +45,7 @@ public class StateMachineAccessTests {
 	public void testDoWithAllRegionsSetRelay() {
 		MockStateMachine mock = new MockStateMachine();
 		final StateMachine<String, String> stateMachine = mock;
-		stateMachine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<String, String>>() {
-
-			@Override
-			public void apply(StateMachineAccess<String, String> function) {
-				function.setRelay(stateMachine);
-			}
-
-		});
+		stateMachine.getStateMachineAccessor().doWithAllRegions(function -> function.setRelay(stateMachine));
 
 		assertThat(mock.relay, sameInstance(stateMachine));
 	}
@@ -60,8 +54,7 @@ public class StateMachineAccessTests {
 	public void testGetAllRegionsSetRelay() {
 		MockStateMachine mock = new MockStateMachine();
 		final StateMachine<String, String> stateMachine = mock;
-		stateMachine.getStateMachineAccessor().withAllRegions().stream()
-				.forEach(access -> access.setRelay(stateMachine));
+		stateMachine.getStateMachineAccessor().withAllRegions().forEach(access -> access.setRelay(stateMachine));
 
 		assertThat(mock.relay, sameInstance(stateMachine));
 	}
@@ -75,8 +68,8 @@ public class StateMachineAccessTests {
 			return new StateMachineAccessor<String, String>() {
 
 				@Override
-				public void doWithAllRegions(StateMachineFunction<StateMachineAccess<String, String>> stateMachineAccess) {
-					stateMachineAccess.apply(MockStateMachine.this);
+				public void doWithAllRegions(Consumer<StateMachineAccess<String, String>> stateMachineAccess) {
+					stateMachineAccess.accept(MockStateMachine.this);
 				}
 
 				@Override
@@ -87,7 +80,7 @@ public class StateMachineAccessTests {
 				}
 
 				@Override
-				public void doWithRegion(StateMachineFunction<StateMachineAccess<String, String>> stateMachineAccess) {
+				public void doWithRegion(Consumer<StateMachineAccess<String, String>> stateMachineAccess) {
 				}
 
 				@Override

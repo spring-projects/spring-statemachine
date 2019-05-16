@@ -16,14 +16,15 @@
 package org.springframework.statemachine.access;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.springframework.statemachine.StateMachine;
 
 /**
  * Functional interface for {@link StateMachine} to allow more programmatic
  * access to underlying functionality. Functions prefixed "doWith" will expose
- * {@link StateMachineAccess} via {@link StateMachineFunction} for better functional
- * access with jdk7. Functions prefixed "with" is better suitable for lambdas.
+ * {@link StateMachineAccess} via {@link Consumer} for better functional
+ * access with jdk8. Functions prefixed "with" is better suitable for lambdas.
  *
  * @author Janne Valkealahti
  *
@@ -33,11 +34,11 @@ import org.springframework.statemachine.StateMachine;
 public interface StateMachineAccessor<S, E> {
 
 	/**
-	 * Execute given {@link StateMachineFunction} with all recursive regions.
+	 * Execute given function with all recursive regions.
 	 *
 	 * @param stateMachineAccess the state machine access
 	 */
-	void doWithAllRegions(StateMachineFunction<StateMachineAccess<S, E>> stateMachineAccess);
+	void doWithAllRegions(Consumer<StateMachineAccess<S, E>> stateMachineAccess);
 
 	/**
 	 * Gets all regions.
@@ -47,11 +48,11 @@ public interface StateMachineAccessor<S, E> {
 	List<StateMachineAccess<S, E>> withAllRegions();
 
 	/**
-	 * Execute given {@link StateMachineFunction} with a region.
+	 * Execute given function with a region.
 	 *
 	 * @param stateMachineAccess the state machine access
 	 */
-	void doWithRegion(StateMachineFunction<StateMachineAccess<S, E>> stateMachineAccess);
+	void doWithRegion(Consumer<StateMachineAccess<S, E>> stateMachineAccess);
 
 	/**
 	 * Get a region.
