@@ -7,11 +7,11 @@ AngularJS-Toaster
 ### Current Version 0.4.15
 
 ## Demo
-- Simple demo is at http://plnkr.co/edit/HKTC1a
-- Older versions are http://plnkr.co/edit/1poa9A or http://plnkr.co/edit/4qpHwp or http://plnkr.co/edit/lzYaZt (with version 0.4.5)
-- Older version with Angular 1.2.0 is placed at http://plnkr.co/edit/mejR4h
-- Older version with Angular 1.2.0-rc.2 is placed at http://plnkr.co/edit/iaC2NY
-- Older version with Angular 1.1.5 is placed at http://plnkr.co/mVR4P4
+- Simple demo is at https://plnkr.co/edit/HKTC1a
+- Older versions are https://plnkr.co/edit/1poa9A or https://plnkr.co/edit/4qpHwp or https://plnkr.co/edit/lzYaZt (with version 0.4.5)
+- Older version with Angular 1.2.0 is placed at https://plnkr.co/edit/mejR4h
+- Older version with Angular 1.2.0-rc.2 is placed at https://plnkr.co/edit/iaC2NY
+- Older version with Angular 1.1.5 is placed at https://plnkr.co/mVR4P4
 
 ## Getting started
 
@@ -157,13 +157,13 @@ If you do not want to use animations, you can safely remove the angular-animate.
 **Jiri Kavulak**
 
 ## Credits
-Inspired by http://codeseven.github.io/toastr/demo.html.
+Inspired by https://codeseven.github.io/toastr/demo.html.
 
 ## Copyright
 Copyright © 2013 [Jiri Kavulak](https://twitter.com/jirikavi).
 
 ## License 
-AngularJS-Toaster is under MIT license - http://www.opensource.org/licenses/mit-license.php
+AngularJS-Toaster is under MIT license - https://www.opensource.org/licenses/mit-license.php
 
 ##Changes Log
 ## v0.4.13

@@ -5,7 +5,7 @@ to work with state machine concepts in Spring applications.
 
 It is advised to check the actual state of this project by referring to 
 the latest releases found on
-http://projects.spring.io/spring-statemachine/[Spring
+https://projects.spring.io/spring-statemachine/[Spring
 Statemachine Project Page].
 The git repo master branch may be relatively unstable when new features are
 added into the source code.
@@ -22,7 +22,7 @@ https://github.com/spring-projects/spring-framework/wiki/Downloading-Spring-arti
 Spring artifacts] for Maven repository information.
 
 == Documentation
-http://projects.spring.io/spring-statemachine/[The Spring
+https://projects.spring.io/spring-statemachine/[The Spring
 Statemachine Project Page] contains links to currently available
 JavaDoc and Reference Documentation for particular releases and
 versions.
@@ -32,15 +32,15 @@ Samples can be found under `spring-statemachine-samples`. Check
 the reference documentation more about what those do.
 
 == Building from Source
-Spring Statemachine uses a http://gradle.org[Gradle]-based build
+Spring Statemachine uses a https://gradle.org[Gradle]-based build
 system.
-In the instructions below, http://vimeo.com/34436402[`./gradlew`] is
+In the instructions below, https://vimeo.com/34436402[`./gradlew`] is
 invoked from the root of the source tree and serves as
 a cross-platform, self-contained bootstrap mechanism for the build.
 
 === Prerequisites
-http://help.github.com/set-up-git-redirect[Git] and the
-http://www.oracle.com/technetwork/java/javase/downloads[JDK8 build].
+https://help.github.com/set-up-git-redirect[Git] and the
+https://www.oracle.com/technetwork/java/javase/downloads[JDK8 build].
 
 Be sure that your `JAVA_HOME` environment variable points to the
 `jdk` folder extracted from the JDK download. While build requires
@@ -70,7 +70,7 @@ https://github.com/spring-projects/spring-framework/wiki/Gradle-build-and-releas
 build and release FAQ].
 
 == Contributing
-http://help.github.com/send-pull-requests[Pull requests] are welcome;
+https://help.github.com/send-pull-requests[Pull requests] are welcome;
 see the
 https://github.com/spring-projects/spring-statemachine/blob/master/CONTRIBUTING.md[contributor
 guidelines] for details.
@@ -82,5 +82,5 @@ wants to see the same work done twice!
 
 == License
 Spring Statemachine is Open Source software released under the
-http://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
+https://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
 

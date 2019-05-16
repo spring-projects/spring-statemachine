@@ -1,6 +1,6 @@
 // Copyright (C) 2013 [Jeff Mesnil](http://jmesnil.net/)
 //
-//   Stomp Over WebSocket http://www.jmesnil.net/stomp-websocket/doc/ | Apache License V2.0
+//   Stomp Over WebSocket http://jmesnil.net/stomp-websocket/doc/ | Apache License V2.0
 //
 // The library can be used in node.js app to connect to STOMP brokers over TCP 
 // or Web sockets.

@@ -41,13 +41,13 @@ angular.module('myApp', ['ngAnimate']);
 ## Documentation
 
 Documentation is available on the
-[AngularJS docs site](http://docs.angularjs.org/api/ngAnimate).
+[AngularJS docs site](https://docs.angularjs.org/api/ngAnimate).
 
 ## License
 
 The MIT License
 
-Copyright (c) 2010-2015 Google, Inc. http://angularjs.org
+Copyright (c) 2010-2015 Google, Inc. https://angularjs.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

@@ -775,7 +775,7 @@ _inherited from_: [src/js/component.js#L120](https://github.com/videojs/video.js
 >     var currentPoster = myPlayer.poster();
 > 
 >     // setting
->     myPlayer.poster('http://example.com/myImage.jpg');
+>     myPlayer.poster('https://example.com/myImage.jpg');
 
 ##### PARAMETERS: 
 * __src__ `String` _(OPTIONAL)_ Poster image source URL
@@ -874,13 +874,13 @@ _inherited from_: [src/js/component.js#L693](https://github.com/videojs/video.js
 > the current playback technology (HTML5/Flash) can support the source you
 > provide. Currently only MP4 files can be used in both HTML5 and Flash.
 > 
->     myPlayer.src("http://www.example.com/path/to/video.mp4");
+>     myPlayer.src("https://www.example.com/path/to/video.mp4");
 > 
 > **Source Object (or element):** A javascript object containing information
 > about the source file. Use this method if you want the player to determine if
 > it can support the file using the type information.
 > 
->     myPlayer.src({ type: "video/mp4", src: "http://www.example.com/path/to/video.mp4" });
+>     myPlayer.src({ type: "video/mp4", src: "https://www.example.com/path/to/video.mp4" });
 > 
 > **Array of Source Objects:** To provide multiple versions of the source so
 > that it can be played using HTML5 across browsers you can use an array of
@@ -888,9 +888,9 @@ _inherited from_: [src/js/component.js#L693](https://github.com/videojs/video.js
 > file.
 > 
 >     myPlayer.src([
->       { type: "video/mp4", src: "http://www.example.com/path/to/video.mp4" },
->       { type: "video/webm", src: "http://www.example.com/path/to/video.webm" },
->       { type: "video/ogg", src: "http://www.example.com/path/to/video.ogv" }
+>       { type: "video/mp4", src: "https://www.example.com/path/to/video.mp4" },
+>       { type: "video/webm", src: "https://www.example.com/path/to/video.webm" },
+>       { type: "video/ogg", src: "https://www.example.com/path/to/video.ogv" }
 >     ]);
 
 ##### PARAMETERS: 
