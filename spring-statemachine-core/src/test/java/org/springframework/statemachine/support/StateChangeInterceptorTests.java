@@ -36,8 +36,6 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.access.StateMachineAccess;
-import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
@@ -64,13 +62,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		TestStateChangeInterceptor interceptor = new TestStateChangeInterceptor();
 
-		machine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<States, Events>>() {
-
-			@Override
-			public void apply(StateMachineAccess<States, Events> function) {
-				function.addStateMachineInterceptor(interceptor);
-			}
-		});
+		machine.getStateMachineAccessor().doWithRegion(function -> function.addStateMachineInterceptor(interceptor));
 
 
 		doStartAndAssert(machine);
@@ -103,13 +95,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		TestStateChangeInterceptor interceptor = new TestStateChangeInterceptor();
 
-		machine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<States, Events>>() {
-
-			@Override
-			public void apply(StateMachineAccess<States, Events> function) {
-				function.addStateMachineInterceptor(interceptor);
-			}
-		});
+		machine.getStateMachineAccessor().doWithRegion(function -> function.addStateMachineInterceptor(interceptor));
 
 		doStartAndAssert(machine);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
@@ -159,13 +145,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		TestStateChangeInterceptor interceptor = new TestStateChangeInterceptor();
 
-		machine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<States, Events>>() {
-
-			@Override
-			public void apply(StateMachineAccess<States, Events> function) {
-				function.addStateMachineInterceptor(interceptor);
-			}
-		});
+		machine.getStateMachineAccessor().doWithRegion(function -> function.addStateMachineInterceptor(interceptor));
 
 		doStartAndAssert(machine);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
@@ -193,13 +173,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		TestStateChangeInterceptor interceptor = new TestStateChangeInterceptor();
 
-		machine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<States, Events>>() {
-
-			@Override
-			public void apply(StateMachineAccess<States, Events> function) {
-				function.addStateMachineInterceptor(interceptor);
-			}
-		});
+		machine.getStateMachineAccessor().doWithRegion(function -> function.addStateMachineInterceptor(interceptor));
 
 		doStartAndAssert(machine);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
@@ -237,13 +211,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		TestStateChangeInterceptor interceptor = new TestStateChangeInterceptor();
 
-		machine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<States, Events>>() {
-
-			@Override
-			public void apply(StateMachineAccess<States, Events> function) {
-				function.addStateMachineInterceptor(interceptor);
-			}
-		});
+		machine.getStateMachineAccessor().doWithRegion(function -> function.addStateMachineInterceptor(interceptor));
 
 		doStartAndAssert(machine);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
@@ -281,13 +249,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		TestStateChangeInterceptor interceptor = new TestStateChangeInterceptor();
 
-		machine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<States, Events>>() {
-
-			@Override
-			public void apply(StateMachineAccess<States, Events> function) {
-				function.addStateMachineInterceptor(interceptor);
-			}
-		});
+		machine.getStateMachineAccessor().doWithRegion(function -> function.addStateMachineInterceptor(interceptor));
 
 		doStartAndAssert(machine);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
@@ -326,13 +288,7 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		TestStateChangeInterceptor interceptor = new TestStateChangeInterceptor();
 
-		machine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<States, Events>>() {
-
-			@Override
-			public void apply(StateMachineAccess<States, Events> function) {
-				function.addStateMachineInterceptor(interceptor);
-			}
-		});
+		machine.getStateMachineAccessor().doWithRegion(function -> function.addStateMachineInterceptor(interceptor));
 
 		doStartAndAssert(machine);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));

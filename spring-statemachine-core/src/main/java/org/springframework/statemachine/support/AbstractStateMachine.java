@@ -45,7 +45,6 @@ import org.springframework.statemachine.StateMachineEventResult;
 import org.springframework.statemachine.StateMachineEventResult.ResultType;
 import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineAccessor;
-import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.action.ActionListener;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.monitor.StateMachineMonitor;
@@ -551,8 +550,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		return new StateMachineAccessor<S, E>() {
 
 			@Override
-			public void doWithAllRegions(StateMachineFunction<StateMachineAccess<S, E>> stateMachineAccess) {
-				stateMachineAccess.apply(AbstractStateMachine.this);
+			public void doWithAllRegions(Consumer<StateMachineAccess<S, E>> stateMachineAccess) {
+				stateMachineAccess.accept(AbstractStateMachine.this);
 				for (State<S, E> state : states) {
 					if (state.isSubmachineState()) {
 						StateMachine<S, E> submachine = ((AbstractState<S, E>) state).getSubmachine();
@@ -587,8 +586,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			}
 
 			@Override
-			public void doWithRegion(StateMachineFunction<StateMachineAccess<S, E>> stateMachineAccess) {
-				stateMachineAccess.apply(AbstractStateMachine.this);
+			public void doWithRegion(Consumer<StateMachineAccess<S, E>> stateMachineAccess) {
+				stateMachineAccess.accept(AbstractStateMachine.this);
 			}
 
 			@Override
@@ -733,26 +732,17 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 					//       needed if we only transit to super state or reset regions
 					if (s.isSubmachineState()) {
 						StateMachine<S, E> submachine = ((AbstractState<S, E>)s).getSubmachine();
-						for (final StateMachineContext<S, E> child : stateMachineContext.getChilds()) {
-							submachine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S,E>>() {
 
-								@Override
-								public void apply(StateMachineAccess<S, E> function) {
-									function.resetStateMachine(child);
-								}
-							});
-						}
+						stateMachineContext.getChilds()
+								.forEach(child -> submachine.getStateMachineAccessor()
+										.doWithRegion(function -> function.resetStateMachine(child)));
+
 					} else if (s.isOrthogonal() && stateMachineContext.getChilds() != null) {
 						Collection<Region<S, E>> regions = ((AbstractState<S, E>)s).getRegions();
 						for (Region<S, E> region : regions) {
 							for (final StateMachineContext<S, E> child : stateMachineContext.getChilds()) {
-								((StateMachine<S, E>)region).getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S,E>>() {
-
-									@Override
-									public void apply(StateMachineAccess<S, E> function) {
-										function.resetStateMachine(child);
-									}
-								});
+								((StateMachine<S, E>)region).getStateMachineAccessor()
+										.doWithRegion(function -> function.resetStateMachine(child));
 							}
 						}
 					}
@@ -771,13 +761,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 							for (final StateMachineContext<S, E> child : stateMachineContext.getChilds()) {
 								// only call if reqion id matches with context id
 								if (ObjectUtils.nullSafeEquals(region.getId(), child.getId())) {
-									((StateMachine<S, E>)region).getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S,E>>() {
-
-										@Override
-										public void apply(StateMachineAccess<S, E> function) {
-											function.resetStateMachine(child);
-										}
-									});
+									((StateMachine<S, E>)region).getStateMachineAccessor()
+											.doWithRegion(function -> function.resetStateMachine(child));
 								}
 							}
 						}

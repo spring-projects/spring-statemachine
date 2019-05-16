@@ -28,8 +28,6 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.StateMachineException;
 import org.springframework.statemachine.StateMachinePersist;
-import org.springframework.statemachine.access.StateMachineAccess;
-import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.util.Assert;
@@ -165,13 +163,7 @@ public class DefaultStateMachineService<S, E> implements StateMachineService<S, 
 		}
 		stateMachine.stopReactively().block();
 		// only go via top region
-		stateMachine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S, E>>() {
-
-			@Override
-			public void apply(StateMachineAccess<S, E> function) {
-				function.resetStateMachine(stateMachineContext);
-			}
-		});
+		stateMachine.getStateMachineAccessor().doWithRegion(function -> function.resetStateMachine(stateMachineContext));
 		return stateMachine;
 	}
 

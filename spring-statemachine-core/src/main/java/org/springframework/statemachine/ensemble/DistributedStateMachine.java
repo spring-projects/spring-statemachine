@@ -29,9 +29,7 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.StateMachineEventResult;
 import org.springframework.statemachine.StateMachineSystemConstants;
-import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.access.StateMachineAccessor;
-import org.springframework.statemachine.access.StateMachineFunction;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
@@ -82,13 +80,7 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 	@Override
 	protected void onInit() throws Exception {
 		// TODO: should we register with all, not just top one?
-		delegate.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S, E>>() {
-
-			@Override
-			public void apply(StateMachineAccess<S, E> function) {
-				function.addStateMachineInterceptor(interceptor);
-			}
-		});
+		delegate.getStateMachineAccessor().doWithRegion(function -> function.addStateMachineInterceptor(interceptor));
 
 	}
 
@@ -307,14 +299,7 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 						log.debug("Joining with context " + context);
 					}
 
-					delegate.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<S, E>>() {
-
-						@Override
-						public void apply(StateMachineAccess<S, E> function) {
-							function.resetStateMachine(context);
-						}
-
-					});
+					delegate.getStateMachineAccessor().doWithAllRegions(function -> function.resetStateMachine(context));
 				}
 				log.info("Requesting to start delegating state machine " + delegate);
 				log.info("Delegating machine id " + delegate.getUuid());
