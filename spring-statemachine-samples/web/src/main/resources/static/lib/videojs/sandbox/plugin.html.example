@@ -13,10 +13,10 @@
 <body>
   <p style="background-color:#eee; border: 1px solid #777; padding: 10px; font-size: .8em; line-height: 1.5em; font-family: Verdana, sans-serif;">This page shows you how to create, register and initialize a Video.js plugin.</p>
 
-  <video id="vid1" class="video-js vjs-default-skin" controls preload="auto" width="640" height="264" poster="http://video-js.zencoder.com/oceans-clip.png">
-    <source src="http://video-js.zencoder.com/oceans-clip.mp4" type='video/mp4'>
-    <source src="http://video-js.zencoder.com/oceans-clip.webm" type='video/webm'>
-    <source src="http://video-js.zencoder.com/oceans-clip.ogv" type='video/ogg'>
+  <video id="vid1" class="video-js vjs-default-skin" controls preload="auto" width="640" height="264" poster="https://vjs.zencdn.net/oceans-clip.png">
+    <source src="https://vjs.zencdn.net/oceans-clip.mp4" type='video/mp4'>
+    <source src="https://vjs.zencdn.net/oceans-clip.webm" type='video/webm'>
+    <source src="https://vjs.zencdn.net/oceans-clip.ogv" type='video/ogg'>
     <p>Video Playback Not Supported</p>
   </video>
 

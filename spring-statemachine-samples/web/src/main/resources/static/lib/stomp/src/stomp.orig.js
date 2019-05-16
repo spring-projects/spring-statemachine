@@ -1,5 +1,5 @@
 // (c) 2010 Jeff Mesnil -- http://jmesnil.net/
-// Copyright (C) FuseSource, Inc. --  http://fusesource.com
+// Copyright (C) FuseSource, Inc. --  https://www.jboss.org/
 
 (function(window) {
   
