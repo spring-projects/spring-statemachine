@@ -10,7 +10,7 @@
     "video",
     "player"
   ],
-  "homepage": "http://videojs.com",
+  "homepage": "https://videojs.com",
   "author": "Steve Heffernan",
   "scripts": {
     "test": "grunt test"

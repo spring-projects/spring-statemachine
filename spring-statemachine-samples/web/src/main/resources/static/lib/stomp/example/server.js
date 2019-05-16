@@ -5,4 +5,4 @@ connect()
   .use(connect.static(__dirname))
   .use(connect.static(__dirname + '/../lib/'))
   .listen(8080);
-console.log('Server running at http://0.0.0.0:8080/');
+console.log('Server running at https://0.0.0.0:8080/');

@@ -87,11 +87,11 @@ Additional language support can be added to Video.js in multiple ways.
 <video id="example_video_1" class="video-js vjs-default-skin"  
   controls preload="auto" width="640" height="264"  
   data-setup='{"languages":{"es":{"Play":"Juego"}}}'>  
- <source src="http://video-js.zencoder.com/oceans-clip.mp4" type='video/mp4' />  
- <source src="http://video-js.zencoder.com/oceans-clip.webm" type='video/webm' />  
- <source src="http://video-js.zencoder.com/oceans-clip.ogv" type='video/ogg' />  
+ <source src="https://vjs.zencdn.net/oceans-clip.mp4" type='video/mp4' />  
+ <source src="https://vjs.zencdn.net/oceans-clip.webm" type='video/webm' />  
+ <source src="https://vjs.zencdn.net/oceans-clip.ogv" type='video/ogg' />  
 
- <track kind="captions" src="http://example.com/path/to/captions.vtt" srclang="en" label="English" default>
+ <track kind="captions" src="https://example.com/path/to/captions.vtt" srclang="en" label="English" default>
 
 </video>
 ```
@@ -108,11 +108,11 @@ During a Video.js player instantiation you can force it to localize to a specifi
 <video id="example_video_1" class="video-js vjs-default-skin"  
   controls preload="auto" width="640" height="264"  
   data-setup='{"language":"es"}'>  
- <source src="http://video-js.zencoder.com/oceans-clip.mp4" type='video/mp4' />  
- <source src="http://video-js.zencoder.com/oceans-clip.webm" type='video/webm' />  
- <source src="http://video-js.zencoder.com/oceans-clip.ogv" type='video/ogg' />  
+ <source src="https://vjs.zencdn.net/oceans-clip.mp4" type='video/mp4' />  
+ <source src="https://vjs.zencdn.net/oceans-clip.webm" type='video/webm' />  
+ <source src="https://vjs.zencdn.net/oceans-clip.ogv" type='video/ogg' />  
 
- <track kind="captions" src="http://example.com/path/to/captions.vtt" srclang="en" label="English" default>
+ <track kind="captions" src="https://example.com/path/to/captions.vtt" srclang="en" label="English" default>
 
 </video>
 ```

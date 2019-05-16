@@ -9,7 +9,7 @@
      * Copyright 2013-2015 Jiri Kavulak.
      * All Rights Reserved.
      * Use, reproduction, distribution, and modification of this code is subject to the terms and
-     * conditions of the MIT license, available at http://www.opensource.org/licenses/mit-license.php
+     * conditions of the MIT license, available at https://www.opensource.org/licenses/mit-license.php
      *
      * Author: Jiri Kavulak
      * Related to project of John Papa, Hans Fjällemark and Nguyễn Thiện Hùng (thienhung1989)
