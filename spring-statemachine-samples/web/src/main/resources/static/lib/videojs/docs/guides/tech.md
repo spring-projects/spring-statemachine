@@ -58,8 +58,8 @@ Enabling Streaming Playback
 In order to force the Flash tech to choose streaming playback, you need to provide a valid streaming source **before other valid Flash video sources**. This is necessary because of the source selection algorithm, where playback tech chooses the first possible source object with a valid type. Valid streaming `type` values include `rtmp/mp4` and `rtmp/flv`. The streaming `src` value requires valid connection and stream strings, separated by an `&`. An example of supplying a streaming source through your HTML markup might look like:
 
     <source src="rtmp://your.streaming.provider.net/cfx/st/&mp4:path/to/video.mp4" type="rtmp/mp4">
-    <source src="http://your.static.provider.net/path/to/video.mp4" type="video/mp4">
-    <source src="http://your.static.provider.net/path/to/video.webm" type="video/webm">
+    <source src="https://your.static.provider.net/path/to/video.mp4" type="video/mp4">
+    <source src="https://your.static.provider.net/path/to/video.webm" type="video/webm">
 
 You may optionally use the last `/` as the separator between connection and stream strings, for example:
 

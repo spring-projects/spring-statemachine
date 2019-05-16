@@ -1,6 +1,6 @@
 SPRING STATEMACHINE CHANGELOG
 =============================
-http://projects.spring.io/spring-statemachine/
+https://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 

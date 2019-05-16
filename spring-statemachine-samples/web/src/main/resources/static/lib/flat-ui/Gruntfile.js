@@ -1,6 +1,6 @@
 /*!
  * Flat UI's Gruntfile
- * http://designmodo.com/flat-free/
+ * https://designmodo.com/flat-free/
  * Copyright 2013-2014 Designmodo, Inc.
  */
 
