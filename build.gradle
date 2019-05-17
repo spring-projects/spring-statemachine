@@ -608,7 +608,7 @@ configure(rootProject) {
 			stylesheet: 'spring.css',
 			'linkcss': true,
 			'icons': 'font',
-	    'sectanchors': '',
+			'sectanchors': '',
 			// use provided highlighter
 			'source-highlighter=highlight.js',
 			'highlightjsdir=js/highlight',
@@ -635,6 +635,7 @@ configure(rootProject) {
 		from 'spring-statemachine-samples/washer/src/main/java/'
 		from 'spring-statemachine-samples/tasks/src/main/java/'
 		from 'spring-statemachine-samples/turnstile/src/main/java/'
+		from 'spring-statemachine-samples/turnstilereactive/src/main/java/'
 		from 'spring-statemachine-samples/showcase/src/main/java/'
 		from 'spring-statemachine-samples/cdplayer/src/main/java/'
 		from 'spring-statemachine-samples/persist/src/main/java/'

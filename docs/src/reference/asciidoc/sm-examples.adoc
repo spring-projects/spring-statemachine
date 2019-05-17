@@ -12,6 +12,8 @@ normal build cycle. This chapter includes the following samples:
 
 <<statemachine-examples-turnstile>>
 
+<<statemachine-examples-turnstilereactive>>
+
 <<statemachine-examples-showcase>>
 
 <<statemachine-examples-cdplayer>>
@@ -63,6 +65,7 @@ build of this document, meaning that, if you build samples from
 master, you have files with a `BUILD-SNAPSHOT` postfix.
 
 include::sm-examples-turnstile.adoc[]
+include::sm-examples-turnstilereactive.adoc[]
 include::sm-examples-showcase.adoc[]
 include::sm-examples-cdplayer.adoc[]
 include::sm-examples-tasks.adoc[]

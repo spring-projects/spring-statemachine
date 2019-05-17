@@ -1,0 +1,35 @@
+### to ease using vscode rest-client extension
+GET http://localhost:8080/state
+###
+POST http://localhost:8080/events
+content-type: application/json
+
+{
+    "event": "PUSH"
+}
+###
+POST http://localhost:8080/events
+content-type: application/json
+
+{
+    "event": "COIN"
+}
+###
+POST http://localhost:8080/events
+content-type: application/json
+
+{
+    "event": "PUSH"
+}
+###
+POST http://localhost:8080/events
+
+content-type: application/json
+[
+    {
+        "event": "COIN"
+    },
+    {
+        "event": "PUSH"
+    }
+]

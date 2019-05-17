@@ -45,17 +45,50 @@ public class TurnstileReactiveTests {
 	}
 
 	@Test
-	public void testEvent() {
-		webClient.post().uri("/event").contentType(MediaType.APPLICATION_JSON)
-			.body(Mono.just("{\"event\":\"PUSH\"}"), String.class).exchange()
-			.expectBody(String.class).value(containsString("DENIED"));
-		webClient.post().uri("/event").contentType(MediaType.APPLICATION_JSON)
-			.body(Mono.just("{\"event\":\"COIN\"}"), String.class).exchange()
-			.expectBody(String.class).value(containsString("ACCEPTED"));
-		webClient.get().uri("/state").exchange()
-			.expectBody(String.class).value(containsString("UNLOCKED"));
-		webClient.post().uri("/event").contentType(MediaType.APPLICATION_JSON)
-			.body(Mono.just("{\"event\":null}"), String.class).exchange()
-			.expectBody(String.class).value(containsString("[]"));
+	public void testPushDenied() {
+		webClient.post().uri("/events")
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(Mono.just("{\"event\":\"PUSH\"}"), String.class)
+			.exchange()
+			.expectBody()
+			.jsonPath("$.length()").isEqualTo(1)
+			.jsonPath("$[0].event").isEqualTo("PUSH")
+			.jsonPath("$[0].resultType").isEqualTo("DENIED");
+	}
+
+	@Test
+	public void testCoinAccepted() {
+		webClient.post().uri("/events")
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(Mono.just("{\"event\":\"COIN\"}"), String.class)
+			.exchange()
+			.expectBody()
+			.jsonPath("$.length()").isEqualTo(1)
+			.jsonPath("$[0].event").isEqualTo("COIN")
+			.jsonPath("$[0].resultType").isEqualTo("ACCEPTED");
+	}
+
+	@Test
+	public void testNullEvent() {
+		webClient.post().uri("/events")
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(Mono.just("{\"event\":null}"), String.class)
+			.exchange()
+			.expectBody()
+			.jsonPath("$.length()").isEqualTo(0);
+	}
+
+	@Test
+	public void testCoinPushAccepted() {
+		webClient.post().uri("/events")
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(Mono.just("[{\"event\":\"COIN\"},{\"event\":\"PUSH\"}]"), String.class)
+			.exchange()
+			.expectBody()
+			.jsonPath("$.length()").isEqualTo(2)
+			.jsonPath("$[0].event").isEqualTo("COIN")
+			.jsonPath("$[0].resultType").isEqualTo("ACCEPTED")
+			.jsonPath("$[1].event").isEqualTo("PUSH")
+			.jsonPath("$[1].resultType").isEqualTo("ACCEPTED");
 	}
 }

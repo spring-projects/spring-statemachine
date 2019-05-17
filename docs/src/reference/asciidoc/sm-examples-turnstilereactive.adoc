@@ -1,0 +1,123 @@
+[[statemachine-examples-turnstilereactive]]
+== Turnstile Reactive
+
+Turnstile reactive is an enhacement to <<statemachine-examples-turnstile>> sample using
+same _StateMachine_ concept and adding a reactive web layer communicating reactively with
+a _StateMachine_ reactive interfaces.
+
+`StateMachineController` is a simple `@RestController` where we autowire our `StateMachine`.
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/turnstilereactive/StateMachineController.java[tags=snippetA]
+----
+====
+
+We create first mapping to return a machine state. As state doesn't come out from
+a machine reactively, we can _defer_ it so that when a returned `Mono` is subscribed,
+actual state is requested.
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/turnstilereactive/StateMachineController.java[tags=snippetB]
+----
+====
+
+To send a single event or multiple events to a machine we can use a `Flux` in both
+incoming and outgoing layers. `EventResult` here is just for this sample and simply
+wraps `ResultType` and event.
+
+====
+[source,java,indent=0]
+----
+include::samples/demo/turnstilereactive/StateMachineController.java[tags=snippetC]
+----
+====
+
+You can use the following command to run the sample:
+
+====
+[source,text,subs="verbatim,attributes"]
+----
+$ java -jar spring-statemachine-samples-turnstilereactive-{revnumber}.jar
+----
+====
+
+Example of getting a state:
+====
+[source,bash]
+----
+GET http://localhost:8080/state
+----
+====
+
+Would then response:
+====
+[source,text]
+----
+"LOCKED"
+----
+====
+
+Example of sending an event:
+====
+[source,bash]
+----
+POST http://localhost:8080/events
+content-type: application/json
+
+{
+    "event": "COIN"
+}
+----
+====
+
+Would then response:
+====
+[source,json]
+----
+[
+  {
+    "event": "COIN",
+    "resultType": "ACCEPTED"
+  }
+]
+----
+====
+
+You can post multiple events:
+====
+[source,bash]
+----
+POST http://localhost:8080/events
+content-type: application/json
+
+[
+    {
+        "event": "COIN"
+    },
+    {
+        "event": "PUSH"
+    }
+]
+----
+====
+
+Response then contains results for both events:
+====
+[source,json]
+----
+[
+  {
+    "event": "COIN",
+    "resultType": "ACCEPTED"
+  },
+  {
+    "event": "PUSH",
+    "resultType": "ACCEPTED"
+  }
+]
+----
+====
