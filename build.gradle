@@ -374,7 +374,6 @@ project('spring-statemachine-uml') {
 
 project('spring-statemachine-build-tests') {
 	description = 'Spring State Machine Build Tests'
-	configurations.archives.artifacts.removeAll { it.archiveTask.is jar }
 	tasks.findByPath('artifactoryPublish')?.enabled = false
 
 	dependencies {
@@ -494,7 +493,6 @@ project('spring-statemachine-starter') {
 
 configure(sampleProjects()) {
 	apply plugin: 'org.springframework.boot'
-	configurations.archives.artifacts.removeAll { it.archiveTask.is jar }
 	tasks.findByPath('artifactoryPublish')?.enabled = false
 	// as samples are not published, we can use jdk8
 	compileJava {
@@ -521,7 +519,6 @@ configure(sampleProjects()) {
 }
 
 project('spring-statemachine-samples-common') {
-	configurations.archives.artifacts.removeAll { it.archiveTask.is jar }
 	tasks.findByPath('artifactoryPublish')?.enabled = false
 	dependencies {
 		compile project(':spring-statemachine-core')
@@ -742,11 +739,4 @@ configure(rootProject) {
 		archives docsZip
 		archives distZip
 	}
-
-
-	task wrapper(type: Wrapper) {
-		description = 'Generates gradlew[.bat] scripts'
-		gradleVersion = '4.4.1'
-	}
-
 }
