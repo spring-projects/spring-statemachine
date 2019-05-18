@@ -111,12 +111,19 @@ configure(allprojects) {
 	}
 
 	test {
+		useJUnitPlatform()
 		exclude '**/*IntegrationTests.*'
 	}
 }
 
 configure(subprojects) { subproject ->
 	apply from: "${rootProject.projectDir}/publish-maven.gradle"
+
+	dependencies {
+		testCompile("org.junit.jupiter:junit-jupiter-api")
+		testRuntime("org.junit.jupiter:junit-jupiter-engine")
+		testRuntime("org.junit.vintage:junit-vintage-engine")
+	}
 
 	jar {
 		manifest.attributes['Implementation-Title'] = subproject.name
