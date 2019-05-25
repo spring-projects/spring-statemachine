@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2018-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 package org.springframework.statemachine.state;
 
 import org.springframework.statemachine.StateContext;
+
+import reactor.core.publisher.Mono;
 
 /**
  * Adapter implementation of {@link StateListener} implementing all
@@ -38,5 +40,10 @@ public class StateListenerAdapter<S, E> implements StateListener<S, E> {
 
 	@Override
 	public void onComplete(StateContext<S, E> context) {
+	}
+
+	@Override
+	public Mono<Void> doOnComplete(StateContext<S, E> context) {
+		return Mono.empty();
 	}
 }

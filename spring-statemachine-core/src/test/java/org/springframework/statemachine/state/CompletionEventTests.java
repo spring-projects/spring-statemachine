@@ -15,6 +15,8 @@
  */
 package org.springframework.statemachine.state;
 
+import static org.awaitility.Awaitility.await;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
@@ -57,7 +59,7 @@ public class CompletionEventTests extends AbstractStateMachineTests {
 
 		assertThat(testAction2.latch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(testAction2.count, is(1));
-		Thread.sleep(1000);
+		await().until(() -> machine.getState().getIds(), containsInAnyOrder("S3"));
 		assertThat(machine.getState().getId(), is("S3"));
 	}
 

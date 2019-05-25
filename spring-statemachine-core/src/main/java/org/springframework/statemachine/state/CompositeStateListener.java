@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,14 @@
 package org.springframework.statemachine.state;
 
 import java.util.Iterator;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.listener.AbstractCompositeListener;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * Composite state listener.
@@ -50,5 +55,17 @@ public class CompositeStateListener<S, E> extends AbstractCompositeListener<Stat
 		for (Iterator<StateListener<S, E>> iterator = getListeners().reverse(); iterator.hasNext();) {
 			iterator.next().onComplete(context);
 		}
+	}
+
+	@Override
+	public Mono<Void> doOnComplete(StateContext<S, E> context) {
+		return Mono.defer(() -> {
+			Iterator<StateListener<S, E>> iterator = getListeners().reverse();
+			Iterable<StateListener<S, E>> iterable = () -> iterator;
+			Stream<StateListener<S, E>> stream = StreamSupport.stream(iterable.spliterator(), false);
+			return Flux.fromStream(stream)
+				.flatMap(listener -> listener.doOnComplete(context))
+				.then();
+		});
 	}
 }

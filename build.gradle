@@ -15,6 +15,7 @@ buildscript {
 		curatorVersion = '2.11.1'
 		docResourcesVersion = '0.1.1.RELEASE'
 		awaitilityVersion = '3.1.6'
+		reactorBlockHoundVersion = '1.0.0.M3'
 	}
 	repositories {
 		maven { url 'https://repo.springsource.org/libs-release'}
@@ -103,6 +104,7 @@ configure(allprojects) {
 			dependency "org.apache.curator:curator-recipes:$curatorVersion"
 			dependency "org.apache.curator:curator-test:$curatorVersion"
 			dependency "org.awaitility:awaitility:$awaitilityVersion"
+			dependency "io.projectreactor.tools:blockhound-junit-platform:$reactorBlockHoundVersion"
 		}
 	}
 
@@ -111,7 +113,14 @@ configure(allprojects) {
 	}
 
 	test {
-		useJUnitPlatform()
+		useJUnitPlatform {
+			if (project.hasProperty('statemachineIncludeTags') && statemachineIncludeTags.size() > 0) {
+					includeTags = statemachineIncludeTags.split(',')
+			}
+			if (project.hasProperty('statemachineExcludeTags') && statemachineExcludeTags.size() > 0) {
+					excludeTags = statemachineExcludeTags.split(',')
+			}
+		}
 		exclude '**/*IntegrationTests.*'
 	}
 }
@@ -123,6 +132,10 @@ configure(subprojects) { subproject ->
 		testCompile("org.junit.jupiter:junit-jupiter-api")
 		testRuntime("org.junit.jupiter:junit-jupiter-engine")
 		testRuntime("org.junit.vintage:junit-vintage-engine")
+		if (project.hasProperty('statemachineBlockHound') && statemachineBlockHound.toBoolean()) {
+			testRuntime("org.junit.platform:junit-platform-launcher")
+			testRuntime("io.projectreactor.tools:blockhound-junit-platform")
+		}
 	}
 
 	jar {
@@ -375,6 +388,7 @@ project('spring-statemachine-uml') {
 		testCompile 'org.hamcrest:hamcrest-core'
 		testCompile 'org.hamcrest:hamcrest-library'
 		testCompile 'junit:junit'
+		testCompile 'org.awaitility:awaitility'
 		testRuntime 'org.apache.logging.log4j:log4j-core'
 	}
 }

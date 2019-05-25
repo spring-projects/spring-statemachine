@@ -56,7 +56,7 @@ import reactor.core.publisher.Mono;
 
 /**
  * Default reactive implementation of a {@link StateMachineExecutor}.
- * 
+ *
  * @author Janne Valkealahti
  *
  * @param <S> the type of state
@@ -168,6 +168,9 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 	@Override
 	public Mono<Void> executeTriggerlessTransitions(StateContext<S, E> context, State<S, E> state) {
 		if (stateMachine.getState() != null) {
+			if (log.isDebugEnabled()) {
+				log.debug("About to handleTriggerlessTransitions");
+			}
 			return handleTriggerlessTransitions(context, state);
 		}
 		return Mono.empty();

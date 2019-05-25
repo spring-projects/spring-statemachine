@@ -195,7 +195,6 @@ public class StateMachineMonitorTests extends AbstractStateMachineTests {
 		@Override
 		public void action(StateMachine<String, String> stateMachine,
 				Function<StateContext<String, String>, Mono<Void>> action, long duration) {
-			System.out.println("XXX HI");
 			actions.put(action, new Actions(action, duration));
 			latch.countDown();
 		}

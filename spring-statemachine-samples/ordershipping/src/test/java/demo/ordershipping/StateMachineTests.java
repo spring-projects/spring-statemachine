@@ -106,7 +106,7 @@ public class StateMachineTests {
 								.setHeader("payment", "1000").build())
 						.expectStates("ORDER_SHIPPED")
 //						.expectStateChanged(4)
-						.expectStateChanged(3)
+						.expectStateChanged(2)
 						.expectStateMachineStopped(3)
 						.and()
 					.build();
