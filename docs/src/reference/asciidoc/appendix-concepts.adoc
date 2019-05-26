@@ -1,0 +1,353 @@
+[appendix]
+== State Machine Concepts
+
+This appendix provides generial information about state machines.
+
+=== Quick Example
+
+Assuming we have states named `STATE1` and `STATE2` and events named `EVENT1` and
+`EVENT2`, you can define the logic of the state machine as the following image shows:
+
+image::images/statechart0.png[width=500]
+
+The following listings define the state machine in the preceding image:
+
+====
+[source,java,indent=0]
+----
+include::samples/IntroSample.java[tags=snippetA]
+----
+
+[source,java,indent=0]
+----
+include::samples/IntroSample.java[tags=snippetB]
+----
+
+[source,java,indent=0]
+----
+include::samples/IntroSample.java[tags=snippetC]
+----
+
+[source,java,indent=0]
+----
+include::samples/IntroSample.java[tags=snippetD]
+----
+====
+
+[glossary]
+=== Glossary
+
+*State Machine*::
+The main entity that drives a collection of states, together with regions,
+transitions, and events.
+
+*State*::
+A state models a situation during which some invariant condition
+holds. The state is the main entity of a state machine where state changes
+are driven by events.
+
+*Extended State*::
+An extended state is a special set of variables kept in a state
+machine to reduce the number of needed states.
+
+*Transition*::
+A transition is a relationship between a source state and a target
+state. It may be part of a compound transition, which takes the state
+machine from one state configuration to another, representing the complete
+response of the state machine to an occurrence of an event of a
+particular type.
+
+*Event*::
+An entity that is sent to a state machine and then drives a various
+state changes.
+
+*Initial State*::
+A special state in which the state machine starts. The initial state is
+always bound to a particular state machine or a region. A state
+machine with multiple regions may have a multiple initial states.
+
+*End State*::
+(Also called as a final state.) A special kind of state signifying
+that the enclosing region is completed. If the enclosing region is
+directly contained in a state machine and all other regions in the
+state machine are also completed, the entire state
+machine is completed.
+
+*History State*::
+A pseudo state that lets a state machine remember its last
+active state. Two types of history state exists: _shallow_ (which
+remembers only top level state) and _deep_ (which remembers active states in
+sub-machines).
+
+*Choice State*::
+A pseudo state that allows for making a transition choice based on (for example)
+event headers or extended state variables.
+
+*Junction State*::
+A pseudo state that is relatively similar to choice state but allows
+multiple incoming transitions, while choice allows only one incoming
+transition.
+
+*Fork State*::
+A pseudo state that gives controlled entry into a region.
+
+*Join State*::
+A pseudo state that gives controlled exit from a region.
+
+*Entry Point*::
+A pseudo state that allows controlled entry into a submachine.
+
+*Exit Point*::
+A pseudo state that allows controlled exit from a submachine.
+
+*Region*::
+A region is an orthogonal part of either a composite state or a state
+machine. It contains states and transitions.
+
+*Guard*::
+A boolean expression evaluated dynamically based on the value of
+extended state variables and event parameters. Guard conditions affect
+the behavior of a state machine by enabling actions or transitions
+only when they evaluate to `TRUE` and disabling them when they evaluate
+to `FALSE`.
+
+*Action*::
+A action is a behavior run during the triggering of the
+transition.
+
+[[crashcourse]]
+=== A State Machine Crash Course
+
+This appendix provides a generic crash course to state machine
+concepts.
+
+==== States
+
+A state is a model in which a state machine can be. It is always
+easier to describe state as a real world example rather than trying to use
+abstract concepts ingeneric documentation. To that end, consider
+a simple example of a keyboard -- most of us use one every single day.
+If you have a full keyboard that has normal keys on the left side and
+the numeric keypad on the right side, you may have noticed that the
+numeric keypad may be in a two different states, depending on whether
+numlock is activated. If it is not active, pressing the number pad keys
+result in navigation by using arrows and so on. If the number pad is active, pressing
+those keys results in numbers being typed. Essentially, the number pad part of a keyboard
+can be in two different states.
+
+To relate state concept to programming, it means that instead of using
+flags, nested if/else/break clauses, or other impractical (and sometimes tortuous) logic, you can
+rely on state, state variables, or another interaction with a
+state machine.
+
+==== Pseudo States
+
+Pseudostate is a special type of state that usually introduces more
+higher-level logic into a state machine by either giving a state a
+special meaning (such as initial state). A state machine can then internally
+react to these states by doing various actions that are available in UML state
+machine concepts.
+
+===== Initial
+
+The *Initial pseudostate* state is always needed for every single state
+machine, whether you have a simple one-level state machine or a more
+complex state machine composed of submachines or regions. The initial
+state defines where a state machine should go when it starts.
+Without it, a state machine is ill-formed.
+
+===== End
+
+The *Terminate pseudostate* (which is also called "`end state`") indicates
+that a particular state machine has reached its final state. Effectively,
+this mean that a state machine no longer processes any events and does
+not transit to any other state. However, in the case where submachines are
+regions, a state machine can restart from its terminal state.
+
+===== Choice
+
+You can use the *Choice pseudostate* choose a dynamic conditional branch of
+a transition from this state. The dynamic condition is evaluated by guards
+so that one branch is selected. Usually a
+simple if/elseif/else structure is used to make sure that one
+branch is selected. Otherwise, the state machine might end up in a deadlock,
+and the configuration is ill-formed.
+
+===== Junction
+
+The *Junction pseudostate* is functionally similar to choice, as both are
+implemented with if/elseif/else structures. The only real difference is
+that junction allows multiple incoming transitions, while choice
+allows only one. Thus difference is largely academic but does have some
+differences, such as when a state machine is designed is used with a real UI modeling
+framework.
+
+===== History
+
+You can use the *History pseudostate* to remember the last active state
+configuration. After a state machine has exited, you can use a history state
+to restore a previously known configuration. There are two types
+of history states available: `SHALLOW` (which remembers only the active state of a
+state machine itself) and `DEEP` (which also remembers nested states).
+
+A history state could be implemented externally by listening state
+machine events, but this would soon make for very difficult logic,
+especially if a state machine contains complex nested structures.
+Letting the state machine itself handle the recording of history states
+makes things much simpler. The user need only create a
+transition into a history state, and the state machine handles the needed
+logic to go back to its last known recorded state.
+
+In cases where a Transition terminates on a history state when the state
+has not been previously entered (in other words, no prior history exists) or it had reached its
+end state, a transition can force the state machine to a specific substate, by
+using the default history mechanism. This transition originates
+in the history state and terminates on a specific vertex (the default history
+state) of the region that contains the history state. This transition is
+taken only if its execution leads to the history state and the state had never before been
+active. Otherwise, the normal history entry into the region is executed.
+If no default history transition is defined, the standard default entry of
+the region is performed.
+
+===== Fork
+
+You can use the *Fork pseudostate* to do an explicit entry into one or more regions.
+The following image shows how a fork works:
+
+image::images/statechart7.png[width=500]
+
+The target state can be a parent state that hosts regions, which simply
+means that regions are activated by entering their initial states. You
+can also add targets directly to any state in a region, which
+allows more controlled entry into a state.
+
+===== Join
+
+The *Join pseudostate* merges together several transitions that
+originate from different regions. It is generally used to wait
+and block for participating regions to get into its join target states.
+The following image shows how a join works:
+
+image::images/statechart8.png[width=500]
+
+The source state can be a parent state that hosts regions, which means that
+join states are the terminal states of the participating regions.
+You can also define source states to be any state in a
+region, which allows controlled exit from regions.
+
+===== Entry Point
+
+An *Entry Point pseudostate* represents an entry point for a state
+machine or a composite state that provides encapsulation of the insides
+of the state or state machine. In each region of the state machine or
+composite state that owns the entry point, there is at most a single
+transition from the entry point to a vertex within that region.
+
+===== Exit Point
+
+An *Exit Point pseudostate* is an exit point of a state machine or
+composite state that provides encapsulation of the insides of the state
+or state machine. Transitions that terminate on an exit point within any
+region of the composite state (or a state machine referenced by a
+submachine state) imply exiting of this composite state or submachine
+state (with execution of its associated exit behavior).
+
+==== Guard Conditions
+
+Guard conditions are expressions which evaluates to either `TRUE` or
+`FALSE`, based on extended state variables and event parameters. Guards
+are used with actions and transitions to dynamically choose whether a
+particular action or transition should be run. The various spects of guards,
+event parameters, and extended state variables exist to make state
+machine design much more simple.
+
+==== Events
+
+Event is the most-used trigger behavior to drive a state machine.
+There are other ways to trigger behavior in a state machine
+(such as a timer), but events are the ones that really let users
+interact with a state machine. Events are also called "`signals`".
+They basically indicate something that can possibly alter a state machine state.
+
+==== Transitions
+
+A transition is a relationship between a source state and a target
+state. A switch from one state to another is a state transition caused
+by a trigger.
+
+===== Internal Transition
+
+Internal transition is used when an action needs to be run without
+causing a state transition. In an internal transition, the source state and the target
+state is always the same, and it is identical with a self-transition in the
+absence of state entry and exit actions.
+
+===== External versus Local Transitions
+
+In most cases, external and local transitions are functionally
+equivalent, except in cases where the transition happens between super
+and sub states. Local transitions do not cause exit and entry to a
+source state if the target state is a substate of a source state.
+Conversely, local transitions do not cause exit and entry to a target
+state if the target is a superstate of a source state.
+The following image shows the difference between local and external transitions
+with very simplistic super and sub states:
+
+image::images/statechart4.png[width=500]
+
+==== Triggers
+
+A trigger begins a transition. Triggers can be driven by either events or timers.
+
+==== Actions
+
+Actions really glue state machine state changes
+to a user's own code. A state machine can run an action on various
+changes and on the steps in a state machine (such as entering or exiting a state)
+or doing a state transition.
+
+Actions usually have access to a state context, which gives running
+code a choice to interact with a state machine in various ways.
+State context exposes a whole state machine so that a user can
+access extended state variables, event headers (if a transition is based
+on an event), or an actual transition (where it is possible to see more
+detailed about where this state change is coming from and where it is going).
+
+==== Hierarchical State Machines
+
+The concept of a hierarchical state machine is used to simplify state
+design when particular states must exist together.
+
+Hierarchical states are really an innovation in UML state machines over
+traditional state machines, such as Mealy or Moore machines.
+Hierarchical states lets you define some level of abstraction (parallel
+to how a Java developer might define a class structure with abstract
+classes). For example, with a nested state machine, you can
+define  transition on a multiple level of states (possibly with
+different conditions). A state machine always tries to see if the current
+state is able to handle an event, together with  transition guard
+conditions. If these conditions do not evaluate to `TRUE`, the state
+machine merely see what the super state can handle.
+
+==== Regions
+
+Regions (which are also called as orthogonal regions) are usually viewed
+as exclusive OR (XOR) operations applied to states. The concept of a region in
+terms of a state machine is usually a little difficult to understand,
+but things gets a little simpler with a simple example.
+
+Some of us have a full size keyboard with the main keys on the left side and numeric
+keys on the right side. You have probably noticed that both sides really
+have their own state, which you see if you press a "`numlock`" key (which
+alters only the behaviour of the number pad itself). If you do not have a full-size
+keyboard, you can buy an external USB number pad.
+Given that the left and right side of a keyboard can each exist without the
+other, they must have totally different states, which means they are
+operating on different state machines. In state machine terms, the main part of a
+keyboard is one region and the number pad is another region.
+
+It would be a little inconvenient to handle two different
+state machines as totally separate entities, because they
+still work together in some fashion. This independence lets orthogonal regions
+combine together in multiple simultaneous states within a single state
+in a state machine.
