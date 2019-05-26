@@ -1,0 +1,31 @@
+[appendix]
+== Support Content
+
+This appendix provides generic information about the classes and
+material that are used in this reference documentation.
+
+=== Classes Used in This Document
+
+The following listings show the classes used throughout this reference guide:
+
+====
+[source,java,indent=0]
+----
+include::samples/States.java[tags=snippetA]
+----
+
+[source,java,indent=0]
+----
+include::samples/States2.java[tags=snippetA]
+----
+
+[source,java,indent=0]
+----
+include::samples/States3.java[tags=snippetA]
+----
+
+[source,java,indent=0]
+----
+include::samples/Events.java[tags=snippetA]
+----
+====
