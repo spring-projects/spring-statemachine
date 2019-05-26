@@ -18,3 +18,4 @@ out
 target
 classes
 .sts4-cache
+.attach_pid*
