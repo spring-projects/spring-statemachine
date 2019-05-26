@@ -118,7 +118,7 @@ public class TimerSmokeTests {
 		StateMachineTestPlan<String, String> plan;
 		for (int i = 0; i < 20; i++) {
 			plan = StateMachineTestPlanBuilder.<String, String> builder()
-					.defaultAwaitTime(1)
+					.defaultAwaitTime(5)
 					.stateMachine(buildMachine())
 					.step()
 						.expectStateMachineStarted(1)
