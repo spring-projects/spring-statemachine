@@ -252,26 +252,7 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 		return Mono.defer(() -> {
 			if (submachine != null) {
 				Disposable disposable = Mono.just(submachine)
-					.flatMap(submachine -> {
-						return Mono.<Void>create(sink -> {
-							final StateMachineListener<S, E> l = new StateMachineListenerAdapter<S, E>() {
-
-								@Override
-								public void stateContext(StateContext<S, E> stateContext) {
-									if (stateContext.getStage() == Stage.STATEMACHINE_STOP) {
-										if (stateContext.getStateMachine() == submachine && submachine.isComplete()) {
-											completionListeners.remove(this);
-											submachine.removeStateListener(this);
-											if (completionListeners.isEmpty()) {
-												sink.success();
-											}
-										}
-									}
-								}
-							};
-							submachine.addStateListener(l);
-						});
-					})
+					.flatMap(submachine -> completionStateListenerSink(submachine))
 					// TODO: REACTOR this is causing cancel which breaks some things
 					// .then(handleStateDoOnComplete(context))
 					.then(Mono.fromRunnable(() -> notifyStateOnComplete(context)))
@@ -280,25 +261,7 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 			} else if (!regions.isEmpty()) {
 				// TODO: REACTOR we should handle disposable
 				Flux.fromIterable(regions)
-					.flatMap(region -> {
-						return Mono.<Void>create(sink -> {
-							final StateMachineListener<S, E> l = new StateMachineListenerAdapter<S, E>() {
-
-								@Override
-								public void stateContext(StateContext<S, E> stateContext) {
-									if (stateContext.getStage() == Stage.STATEMACHINE_STOP) {
-										if (stateContext.getStateMachine() == region && region.isComplete()) {
-											completionListeners.remove(this);
-											region.removeStateListener(this);
-											sink.success();
-										}
-									}
-								}
-							};
-							completionListeners.add(l);
-							region.addStateListener(l);
-							});
-					})
+					.flatMap(region -> completionStateListenerSink(region))
 					.then(handleStateDoOnComplete(context))
 					.then(Mono.fromRunnable(() -> notifyStateOnComplete(context)))
 					.subscribe();
@@ -469,6 +432,26 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 		for (Trigger<S, E> trigger : triggers) {
 			trigger.disarm();
 		}
+	}
+
+	private Mono<Void> completionStateListenerSink(Region<S, E> region) {
+		return Mono.create(sink -> {
+			final StateMachineListener<S, E> listener = new StateMachineListenerAdapter<S, E>() {
+
+				@Override
+				public void stateContext(StateContext<S, E> stateContext) {
+					if (stateContext.getStage() == Stage.STATEMACHINE_STOP) {
+						if (stateContext.getStateMachine() == region && region.isComplete()) {
+							completionListeners.remove(this);
+							region.removeStateListener(this);
+							sink.success();
+						}
+					}
+				}
+			};
+			completionListeners.add(listener);
+			region.addStateListener(listener);
+			});
 	}
 
 	private void disposeDisposables() {
