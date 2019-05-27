@@ -15,9 +15,9 @@
  */
 package org.springframework.statemachine.state;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveMachine;
@@ -25,7 +25,7 @@ import static org.springframework.statemachine.TestUtils.resolveMachine;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.AbstractStateMachineTests;

@@ -18,13 +18,13 @@ package org.springframework.statemachine.persist;
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 
 import java.util.HashMap;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.StateMachinePersist;

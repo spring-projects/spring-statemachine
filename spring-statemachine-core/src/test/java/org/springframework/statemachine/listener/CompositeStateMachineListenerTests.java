@@ -15,35 +15,35 @@
  */
 package org.springframework.statemachine.listener;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import org.junit.jupiter.api.Test;
+import org.springframework.statemachine.TestUtils;
 
 import java.util.List;
 
-import org.junit.Test;
-import org.springframework.statemachine.TestUtils;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class CompositeStateMachineListenerTests {
 
-	@Test
-	public void testRegister() throws Exception {
-		CompositeStateMachineListener<String, String> listener = new CompositeStateMachineListener<String, String>();
-		StateMachineListenerAdapter<String, String> adapter1 = new StateMachineListenerAdapter<String, String>();
-		listener.register(adapter1);
-		OrderedComposite<StateMachineListener<String, String>> listeners = listener.getListeners();
-		List<Object> list = TestUtils.readField("list", listeners);
-		assertThat(list.size(), is(1));
-	}
+    @Test
+    public void testRegister() throws Exception {
+        CompositeStateMachineListener<String, String> listener = new CompositeStateMachineListener<String, String>();
+        StateMachineListenerAdapter<String, String> adapter1 = new StateMachineListenerAdapter<String, String>();
+        listener.register(adapter1);
+        OrderedComposite<StateMachineListener<String, String>> listeners = listener.getListeners();
+        List<Object> list = TestUtils.readField("list", listeners);
+        assertThat(list.size(), is(1));
+    }
 
-	@Test
-	public void testUnregister() throws Exception {
-		CompositeStateMachineListener<String, String> listener = new CompositeStateMachineListener<String, String>();
-		StateMachineListenerAdapter<String, String> adapter1 = new StateMachineListenerAdapter<String, String>();
-		listener.register(adapter1);
-		listener.unregister(adapter1);
-		OrderedComposite<StateMachineListener<String, String>> listeners = listener.getListeners();
-		List<Object> list = TestUtils.readField("list", listeners);
-		assertThat(list.size(), is(0));
-	}
+    @Test
+    public void testUnregister() throws Exception {
+        CompositeStateMachineListener<String, String> listener = new CompositeStateMachineListener<String, String>();
+        StateMachineListenerAdapter<String, String> adapter1 = new StateMachineListenerAdapter<String, String>();
+        listener.register(adapter1);
+        listener.unregister(adapter1);
+        OrderedComposite<StateMachineListener<String, String>> listeners = listener.getListeners();
+        List<Object> list = TestUtils.readField("list", listeners);
+        assertThat(list.size(), is(0));
+    }
 
 }

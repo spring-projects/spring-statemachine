@@ -15,13 +15,14 @@
  */
 package org.springframework.statemachine.state;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.EnumSet;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.AbstractStateMachineTests;
@@ -52,10 +53,13 @@ public class InitialStateTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds(), contains(TestStates.S1));
 	}
 
-	@Test(expected = Exception.class)
+	@Test
 	public void testInitialStateMissingFailure() throws Exception {
-		context.register(BaseConfig.class, Config2.class);
-		context.refresh();
+		assertThrows(Exception.class, () -> {
+			context.register(BaseConfig.class, Config2.class);
+			context.refresh();
+		});
+
 	}
 
 	@SuppressWarnings({ "unchecked" })

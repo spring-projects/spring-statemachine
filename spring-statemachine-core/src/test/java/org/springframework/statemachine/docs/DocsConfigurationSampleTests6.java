@@ -15,15 +15,15 @@
  */
 package org.springframework.statemachine.docs;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.ObjectStateMachineFactory;
 import org.springframework.statemachine.config.model.ConfigurationData;

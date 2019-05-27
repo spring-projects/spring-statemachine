@@ -15,9 +15,9 @@
  */
 package org.springframework.statemachine.config;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveMachine;
@@ -25,7 +25,7 @@ import static org.springframework.statemachine.TestUtils.resolveMachine;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

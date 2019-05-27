@@ -15,15 +15,15 @@
  */
 package org.springframework.statemachine.config.configurers;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.statemachine.AbstractStateMachineTests.TestEntryAction;
 import org.springframework.statemachine.AbstractStateMachineTests.TestEvents;
 import org.springframework.statemachine.AbstractStateMachineTests.TestExitAction;

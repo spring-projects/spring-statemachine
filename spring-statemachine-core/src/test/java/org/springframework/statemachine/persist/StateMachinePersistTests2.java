@@ -24,7 +24,7 @@ import static org.springframework.statemachine.TestUtils.resolveFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.AbstractStateMachineTests;

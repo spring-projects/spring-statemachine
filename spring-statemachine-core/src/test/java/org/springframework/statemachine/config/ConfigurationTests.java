@@ -15,12 +15,13 @@
  */
 package org.springframework.statemachine.config;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +29,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -167,10 +168,12 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		context.refresh();
 	}
 
-	@Test(expected = BeanCreationException.class)
+	@Test
 	public void testEnableStateMachineFactoryNoAdapter() {
-		context.register(Config13.class);
-		context.refresh();
+		assertThrows(BeanCreationException.class, () -> {
+			context.register(Config13.class);
+			context.refresh();
+		});
 	}
 
 	@Test
@@ -955,7 +958,8 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 					.event("E1");
 		}
 	}
-	
+
+
 	@Configuration
 	@EnableStateMachineFactory(name="stateMachineConfig22")
 	public static class Config22 extends StateMachineConfigurerAdapter<String, String> {

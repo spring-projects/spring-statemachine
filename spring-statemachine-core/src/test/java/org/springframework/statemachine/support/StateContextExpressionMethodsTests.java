@@ -15,8 +15,8 @@
  */
 package org.springframework.statemachine.support;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;

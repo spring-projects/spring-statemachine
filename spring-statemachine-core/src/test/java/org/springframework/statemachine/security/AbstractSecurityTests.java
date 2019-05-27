@@ -15,9 +15,9 @@
  */
 package org.springframework.statemachine.security;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 
 import java.util.concurrent.CountDownLatch;

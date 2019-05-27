@@ -15,8 +15,8 @@
  */
 package org.springframework.statemachine.zookeeper;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.data.Stat;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.statemachine.StateMachineContext;

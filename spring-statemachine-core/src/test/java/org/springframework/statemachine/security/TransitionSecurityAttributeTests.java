@@ -15,8 +15,8 @@
  */
 package org.springframework.statemachine.security;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.statemachine.StateMachine;
@@ -24,55 +24,55 @@ import org.springframework.statemachine.security.SecurityRule.ComparisonType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 public class TransitionSecurityAttributeTests extends AbstractSecurityTests {
 
-	@Test
-	@WithMockUser
-	public void testAnonymousRole() throws Exception {
-		TestListener listener = new TestListener();
-		StateMachine<States,Events> machine = buildMachine(listener, "ROLE_ANONYMOUS", ComparisonType.ANY, null);
-		assertTransitionDenied(machine, listener);
-	}
+    @Test
+    @WithMockUser
+    public void testAnonymousRole() throws Exception {
+        TestListener listener = new TestListener();
+        StateMachine<States, Events> machine = buildMachine(listener, "ROLE_ANONYMOUS", ComparisonType.ANY, null);
+        assertTransitionDenied(machine, listener);
+    }
 
-	@Test
-	@WithMockUser
-	public void testTransitionSource() throws Exception {
-		TestListener listener = new TestListener();
-		StateMachine<States,Events> machine = buildMachine(listener, "TRANSITION_SOURCE_S0", ComparisonType.ANY, null);
-		assertTransitionAllowed(machine, listener);
-	}
+    @Test
+    @WithMockUser
+    public void testTransitionSource() throws Exception {
+        TestListener listener = new TestListener();
+        StateMachine<States, Events> machine = buildMachine(listener, "TRANSITION_SOURCE_S0", ComparisonType.ANY, null);
+        assertTransitionAllowed(machine, listener);
+    }
 
-	@Test
-	@WithMockUser
-	public void testTransitionTarget() throws Exception {
-		TestListener listener = new TestListener();
-		StateMachine<States,Events> machine = buildMachine(listener, "TRANSITION_TARGET_S1", ComparisonType.ANY, null);
-		assertTransitionAllowed(machine, listener);
-	}
+    @Test
+    @WithMockUser
+    public void testTransitionTarget() throws Exception {
+        TestListener listener = new TestListener();
+        StateMachine<States, Events> machine = buildMachine(listener, "TRANSITION_TARGET_S1", ComparisonType.ANY, null);
+        assertTransitionAllowed(machine, listener);
+    }
 
-	@Test
-	@WithMockUser
-	public void testTransitionSourceAndTargetAll() throws Exception {
-		TestListener listener = new TestListener();
-		StateMachine<States,Events> machine = buildMachine(listener, "TRANSITION_SOURCE_S0,TRANSITION_TARGET_S1", ComparisonType.ALL, null);
-		assertTransitionAllowed(machine, listener);
-	}
+    @Test
+    @WithMockUser
+    public void testTransitionSourceAndTargetAll() throws Exception {
+        TestListener listener = new TestListener();
+        StateMachine<States, Events> machine = buildMachine(listener, "TRANSITION_SOURCE_S0,TRANSITION_TARGET_S1", ComparisonType.ALL, null);
+        assertTransitionAllowed(machine, listener);
+    }
 
-	@Test
-	@WithMockUser
-	public void testTransitionSourceAndTargetAny() throws Exception {
-		TestListener listener = new TestListener();
-		StateMachine<States,Events> machine = buildMachine(listener, "TRANSITION_SOURCE_S0,TRANSITION_TARGET_S1", ComparisonType.ANY, null);
-		assertTransitionAllowed(machine, listener);
-	}
+    @Test
+    @WithMockUser
+    public void testTransitionSourceAndTargetAny() throws Exception {
+        TestListener listener = new TestListener();
+        StateMachine<States, Events> machine = buildMachine(listener, "TRANSITION_SOURCE_S0,TRANSITION_TARGET_S1", ComparisonType.ANY, null);
+        assertTransitionAllowed(machine, listener);
+    }
 
-	@Configuration
-	public static class Config {
-	}
+    @Configuration
+    public static class Config {
+    }
 
 }

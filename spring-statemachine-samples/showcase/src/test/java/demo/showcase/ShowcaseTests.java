@@ -15,9 +15,9 @@
  */
 package demo.showcase;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.doStopAndAssert;
@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -356,7 +356,7 @@ public class ShowcaseTests {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Before
+	@BeforeEach
 	public void setup() {
 		context = new AnnotationConfigApplicationContext();
 		context.register(CommonConfiguration.class, Application.class, Config.class);
@@ -366,7 +366,7 @@ public class ShowcaseTests {
 		doStartAndAssert(machine);
 	}
 
-	@After
+	@AfterEach
 	public void clean() {
 		doStopAndAssert(machine);
 		context.close();
