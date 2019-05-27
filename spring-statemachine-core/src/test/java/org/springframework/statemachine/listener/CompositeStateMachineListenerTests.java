@@ -15,13 +15,13 @@
  */
 package org.springframework.statemachine.listener;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import org.junit.jupiter.api.Test;
+import org.springframework.statemachine.TestUtils;
 
 import java.util.List;
 
-import org.junit.Test;
-import org.springframework.statemachine.TestUtils;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class CompositeStateMachineListenerTests {
 

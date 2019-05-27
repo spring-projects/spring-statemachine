@@ -15,7 +15,7 @@
  */
 package org.springframework.statemachine.support.tree;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.statemachine.support.tree.Tree.Node;
 
 public class TreeTests {

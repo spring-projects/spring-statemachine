@@ -15,13 +15,13 @@
  */
 package org.springframework.statemachine.test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -266,7 +266,7 @@ public class StateMachineTestPlan<S, E> {
 				for (StateMachine<S, E> stateMachine : stateMachines.values()) {
 					Map<Object, Object> variables = stateMachine.getExtendedState().getVariables();
 					for (Object key : step.expectVariableKeys) {
-						org.hamcrest.MatcherAssert.assertThat(
+						assertThat(
 								"Key [" + key + "] doesn't exist in extended state variables", variables,
 								IsMapContaining.hasKey(key));
 					}
@@ -277,7 +277,7 @@ public class StateMachineTestPlan<S, E> {
 				for (StateMachine<S, E> stateMachine : stateMachines.values()) {
 					Map<Object, Object> variables = stateMachine.getExtendedState().getVariables();
 					for (Matcher<Map<? extends Object, ?>> matcher : step.expectVariableMatchers) {
-						org.hamcrest.MatcherAssert.assertThat(variables, matcher);
+						assertThat(variables, matcher);
 					}
 				}
 			}
@@ -286,7 +286,7 @@ public class StateMachineTestPlan<S, E> {
 				for (StateMachine<S, E> stateMachine : stateMachines.values()) {
 					Map<Object, Object> variables = stateMachine.getExtendedState().getVariables();
 					for (Entry<Object, Object> entry : step.expectVariables.entrySet()) {
-						org.hamcrest.MatcherAssert.assertThat(
+						assertThat(
 								"Entry with key=[" + entry.getKey() + "] value=[" + entry.getValue()
 										+ "] doesn't exist in extended state variables",
 								variables, IsMapContaining.hasEntry(entry.getKey(), entry.getValue()));

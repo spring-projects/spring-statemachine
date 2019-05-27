@@ -15,8 +15,8 @@
  */
 package org.springframework.statemachine.security;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.statemachine.StateMachine;
@@ -24,9 +24,9 @@ import org.springframework.statemachine.security.SecurityRule.ComparisonType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 public class EventSecurityTests extends AbstractSecurityTests {
@@ -34,31 +34,31 @@ public class EventSecurityTests extends AbstractSecurityTests {
 	@Test
 	public void testNoSecurityContext() throws Exception {
 		TestListener listener = new TestListener();
-		StateMachine<States,Events> machine = buildMachine(listener, "ROLE_ANONYMOUS", ComparisonType.ANY, null);
+		StateMachine<States, Events> machine = buildMachine(listener, "ROLE_ANONYMOUS", ComparisonType.ANY, null);
 		assertTransitionDenied(machine, listener);
 	}
 
 	@Test
-	@WithMockUser(roles = { "ANONYMOUS" })
+	@WithMockUser(roles = {"ANONYMOUS"})
 	public void testEventDeniedViaExpression() throws Exception {
 		TestListener listener = new TestListener();
-		StateMachine<States,Events> machine = buildMachine(listener, null, null, null, null, null, "false");
+		StateMachine<States, Events> machine = buildMachine(listener, null, null, null, null, null, "false");
 		assertTransitionDenied(machine, listener);
 	}
 
 	@Test
-	@WithMockUser(roles = { "ANONYMOUS" })
+	@WithMockUser(roles = {"ANONYMOUS"})
 	public void testEventDeniedViaAttributes() throws Exception {
 		TestListener listener = new TestListener();
-		StateMachine<States,Events> machine = buildMachine(listener, null, null, null, "EVENT_B", ComparisonType.ALL, null);
+		StateMachine<States, Events> machine = buildMachine(listener, null, null, null, "EVENT_B", ComparisonType.ALL, null);
 		assertTransitionDenied(machine, listener);
 	}
 
 	@Test
-	@WithMockUser(roles = { "ANONYMOUS" })
+	@WithMockUser(roles = {"ANONYMOUS"})
 	public void testEventAllowedViaAttributes() throws Exception {
 		TestListener listener = new TestListener();
-		StateMachine<States,Events> machine = buildMachine(listener, null, null, null, "EVENT_A", ComparisonType.ALL, null);
+		StateMachine<States, Events> machine = buildMachine(listener, null, null, null, "EVENT_A", ComparisonType.ALL, null);
 		assertTransitionAllowed(machine, listener);
 	}
 

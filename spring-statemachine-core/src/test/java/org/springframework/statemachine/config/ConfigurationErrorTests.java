@@ -15,16 +15,17 @@
  */
 package org.springframework.statemachine.config;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.hamcrest.Matcher;
+import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.AbstractStateMachineTests;
@@ -37,9 +38,6 @@ import org.springframework.statemachine.config.model.verifier.StateMachineModelV
 
 public class ConfigurationErrorTests extends AbstractStateMachineTests {
 
-	@Rule
-	public ExpectedException expectedException = ExpectedException.none();
-
 	@Override
 	protected AnnotationConfigApplicationContext buildContext() {
 		return new AnnotationConfigApplicationContext();
@@ -47,41 +45,47 @@ public class ConfigurationErrorTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testInitialStateNotSet1() {
-		expectedException.expectCause(isA(MalformedConfigurationException.class));
-		context.register(Config1.class);
-		context.refresh();
+		Exception exception = assertThrows(Exception.class, ()-> {
+			context.register(Config1.class);
+			context.refresh();
+		});
+		assertTrue(exception.getCause() instanceof MalformedConfigurationException);
 	}
 
 	@Test
 	public void testInitialStateNotSet2() throws Exception {
-		expectedException.expectCause(isA(MalformedConfigurationException.class));
-		Builder<String, String> builder = StateMachineBuilder.builder();
-		builder
-			.configureStates()
+		Exception exception = assertThrows(Exception.class, ()-> {
+			Builder<String, String> builder = StateMachineBuilder.builder();
+			builder
+				.configureStates()
 				.withStates()
-					.state("S1")
-					.state("S2");
-		builder
-			.configureTransitions()
+				.state("S1")
+				.state("S2");
+			builder
+				.configureTransitions()
 				.withExternal()
-					.source("S1")
-					.target("S2")
-					.event("E1");
+				.source("S1")
+				.target("S2")
+				.event("E1");
 
-		builder.build();
+			builder.build();
+		});
+		assertTrue(exception.getCause() instanceof MalformedConfigurationException);
 	}
 
 	@Test
 	public void testNoTransitions() throws Exception {
-		expectedException.expectCause(isA(MalformedConfigurationException.class));
-		Builder<String, String> builder = StateMachineBuilder.builder();
-		builder
-			.configureStates()
+		Exception exception = assertThrows(Exception.class, ()-> {
+			Builder<String, String> builder = StateMachineBuilder.builder();
+			builder
+				.configureStates()
 				.withStates()
-					.initial("S1")
-					.state("S1")
-					.state("S2");
-		builder.build();
+				.initial("S1")
+				.state("S1")
+				.state("S2");
+			builder.build();
+		});
+		assertTrue(exception.getCause() instanceof MalformedConfigurationException);
 	}
 
 	@Test

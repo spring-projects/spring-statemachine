@@ -15,15 +15,15 @@
  */
 package org.springframework.statemachine.security;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -43,7 +43,7 @@ public class TransitionSecurityExpressionRootTests {
 	private Authentication user;
 	private Transition<?, ?> transition;
 
-	@Before
+	@BeforeEach
 	public void createContext() {
 		user = mock(Authentication.class);
 		transition = mock(Transition.class);

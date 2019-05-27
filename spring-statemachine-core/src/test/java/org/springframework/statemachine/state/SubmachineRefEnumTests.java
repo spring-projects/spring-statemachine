@@ -15,14 +15,14 @@
  */
 package org.springframework.statemachine.state;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveMachine;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -39,7 +39,6 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
  * Tests for submachine references.
  *
  * @author Janne Valkealahti
- *
  */
 public class SubmachineRefEnumTests extends AbstractStateMachineTests {
 

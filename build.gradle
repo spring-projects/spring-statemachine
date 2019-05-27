@@ -131,7 +131,6 @@ configure(subprojects) { subproject ->
 	dependencies {
 		testCompile("org.junit.jupiter:junit-jupiter-api")
 		testRuntime("org.junit.jupiter:junit-jupiter-engine")
-		testRuntime("org.junit.vintage:junit-vintage-engine")
 		if (project.hasProperty('statemachineBlockHound') && statemachineBlockHound.toBoolean()) {
 			testRuntime("org.junit.platform:junit-platform-launcher")
 			testRuntime("io.projectreactor.tools:blockhound-junit-platform")
@@ -210,7 +209,8 @@ project('spring-statemachine-core') {
 		testCompile('org.mockito:mockito-core') { dep ->
 			exclude group: 'org.hamcrest'
 		}
-		testCompile 'junit:junit'
+		testCompile("org.junit.jupiter:junit-jupiter-api")
+		testCompile("org.junit.jupiter:junit-jupiter-engine")
 		testCompile 'org.assertj:assertj-core'
 		testCompile 'org.springframework.security:spring-security-config'
 		testCompile 'org.springframework.security:spring-security-test'
@@ -251,7 +251,8 @@ project('spring-statemachine-autoconfigure') {
 		testCompile 'org.springframework:spring-test'
 		testCompile 'org.hamcrest:hamcrest-core'
 		testCompile 'org.hamcrest:hamcrest-library'
-		testCompile 'junit:junit'
+		testCompile("org.junit.jupiter:junit-jupiter-api")
+		testCompile("org.junit.jupiter:junit-jupiter-engine")
 	}
 }
 
@@ -265,6 +266,8 @@ project('spring-statemachine-test') {
 		compile 'org.hamcrest:hamcrest-core'
 		compile 'org.hamcrest:hamcrest-library'
 		compile 'junit:junit'
+		compile 'org.junit.jupiter:junit-jupiter-api'
+		compile 'org.junit.vintage:junit-vintage-engine'
 		compile 'org.assertj:assertj-core'
 		testCompile('org.mockito:mockito-core') { dep ->
 			exclude group: 'org.hamcrest'
@@ -281,11 +284,15 @@ project('spring-statemachine-kryo') {
 		compile project(':spring-statemachine-core')
 		compile 'com.esotericsoftware:kryo-shaded'
 
-		testCompile project(':spring-statemachine-test')
+		testCompile (project(':spring-statemachine-test')) { dep ->
+			exclude group: 'junit', module: 'junit'
+			exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+		}
 		testCompile 'org.springframework:spring-test'
 		testCompile 'org.hamcrest:hamcrest-core'
 		testCompile 'org.hamcrest:hamcrest-library'
-		testCompile 'junit:junit'
+		testCompile("org.junit.jupiter:junit-jupiter-api")
+		testCompile("org.junit.jupiter:junit-jupiter-engine")
 		testRuntime 'org.apache.logging.log4j:log4j-core'
 	}
 }
@@ -301,12 +308,16 @@ project('spring-statemachine-zookeeper') {
 		// github.com/spring-gradle-plugins/dependency-management-plugin/issues/136
 		runtime 'log4j:log4j'
 
-		testCompile project(':spring-statemachine-test')
+		testCompile (project(':spring-statemachine-test')) { dep ->
+			exclude group: 'junit', module: 'junit'
+			exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+		}
 		testCompile 'org.apache.curator:curator-test'
 		testCompile 'org.springframework:spring-test'
 		testCompile 'org.hamcrest:hamcrest-core'
 		testCompile 'org.hamcrest:hamcrest-library'
-		testCompile 'junit:junit'
+		testCompile("org.junit.jupiter:junit-jupiter-api")
+		testCompile("org.junit.jupiter:junit-jupiter-engine")
 		testRuntime 'org.apache.logging.log4j:log4j-core'
 	}
 }
@@ -322,7 +333,10 @@ project('spring-statemachine-data-common') {
 		optional 'org.springframework.security:spring-security-core'
 		compile 'com.fasterxml.jackson.core:jackson-core'
 		compile 'com.fasterxml.jackson.core:jackson-databind'
-		testCompile project(':spring-statemachine-test')
+		testCompile (project(':spring-statemachine-test')) { dep ->
+			exclude group: 'junit', module: 'junit'
+			exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+		}
 		testCompile project(path:':spring-statemachine-core', configuration:'testArtifacts')
 		testCompile 'io.projectreactor:reactor-test'
 		testCompile 'org.springframework.boot:spring-boot-starter-test'
@@ -344,12 +358,16 @@ project('spring-statemachine-cluster') {
 		compile project(':spring-statemachine-zookeeper')
 		compile 'org.springframework.integration:spring-integration-zookeeper'
 
-		testCompile project(':spring-statemachine-test')
+		testCompile (project(':spring-statemachine-test')) { dep ->
+			exclude group: 'junit', module: 'junit'
+			exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+		}
 		testCompile 'org.apache.curator:curator-test'
 		testCompile 'org.springframework:spring-test'
 		testCompile 'org.hamcrest:hamcrest-core'
 		testCompile 'org.hamcrest:hamcrest-library'
-		testCompile 'junit:junit'
+		testCompile("org.junit.jupiter:junit-jupiter-api")
+		testCompile("org.junit.jupiter:junit-jupiter-engine")
 		testRuntime 'org.apache.logging.log4j:log4j-core'
 	}
 }
@@ -387,7 +405,8 @@ project('spring-statemachine-uml') {
 		testCompile 'org.springframework:spring-test'
 		testCompile 'org.hamcrest:hamcrest-core'
 		testCompile 'org.hamcrest:hamcrest-library'
-		testCompile 'junit:junit'
+		testCompile("org.junit.jupiter:junit-jupiter-api")
+		testCompile("org.junit.jupiter:junit-jupiter-engine")
 		testCompile 'org.awaitility:awaitility'
 		testRuntime 'org.apache.logging.log4j:log4j-core'
 	}
@@ -415,7 +434,6 @@ project('spring-statemachine-build-tests') {
 		testCompile 'org.springframework:spring-test'
 		testCompile 'org.hamcrest:hamcrest-core'
 		testCompile 'org.hamcrest:hamcrest-library'
-		testCompile 'junit:junit'
 	}
 }
 
@@ -427,7 +445,8 @@ configure(recipeProjects()) {
 		testCompile 'org.springframework:spring-test'
 		testCompile 'org.hamcrest:hamcrest-core'
 		testCompile 'org.hamcrest:hamcrest-library'
-		testCompile 'junit:junit'
+		testCompile("org.junit.jupiter:junit-jupiter-api")
+		testCompile("org.junit.jupiter:junit-jupiter-engine")
 	}
 }
 
@@ -440,7 +459,8 @@ project('spring-statemachine-recipes-common') {
 		testCompile 'org.springframework:spring-test'
 		testCompile 'org.hamcrest:hamcrest-core'
 		testCompile 'org.hamcrest:hamcrest-library'
-		testCompile 'junit:junit'
+		testCompile("org.junit.jupiter:junit-jupiter-api")
+		testCompile("org.junit.jupiter:junit-jupiter-engine")
 	}
 }
 
@@ -526,12 +546,16 @@ configure(sampleProjects()) {
 		testCompile('org.mockito:mockito-core') { dep ->
 			exclude group: 'org.hamcrest'
 		}
-		testCompile project(':spring-statemachine-test')
+		testCompile (project(':spring-statemachine-test')) { dep ->
+			exclude group: 'junit', module: 'junit'
+			exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+		}
 		testCompile 'org.springframework.boot:spring-boot-test'
 		testCompile 'org.springframework:spring-test'
 		testCompile 'org.hamcrest:hamcrest-core'
 		testCompile 'org.hamcrest:hamcrest-library'
-		testCompile 'junit:junit'
+		testCompile("org.junit.jupiter:junit-jupiter-api")
+		testCompile("org.junit.jupiter:junit-jupiter-engine")
 	}
 	bootJar {
 		excludeDevtools = false

@@ -15,20 +15,20 @@
  */
 package org.springframework.statemachine.uml;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public abstract class AbstractUmlTests {
 
 	protected AnnotationConfigApplicationContext context;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		context = buildContext();
 	}
 
-	@After
+	@AfterEach
 	public void clean() {
 		if (context != null) {
 			context.close();

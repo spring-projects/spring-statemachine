@@ -15,12 +15,13 @@
  */
 package org.springframework.statemachine.zookeeper;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.KeeperException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.ExtendedState;
@@ -231,9 +232,10 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 		assertThat(curatorClient.getData().forPath("/foo/data/log/3").length, greaterThan(0));
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void testIllegalLogSize() throws Exception {
-				new ZookeeperStateMachineEnsemble<String, String>(null, "/foo", true, 3);
+		assertThrows(IllegalStateException.class,
+			() -> new ZookeeperStateMachineEnsemble<String, String>(null, "/foo", true, 3));
 	}
 
 	@Test
