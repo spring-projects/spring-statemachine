@@ -1,0 +1,9 @@
+[appendix]
+[[appendix-reactormigrationguide]]
+== Reactor Migration Guide
+
+Main task for a work for `3.x` has been to both internally and externally to move and change
+as much as we can from imperative code into a reactive world. This means that some
+of a main interfaces has added a new reative methods and most of a internal execution locig
+has been moved over to handled by a reactor. Essentially what this means is that thread handling
+is considerably different compared to `2.x`. Following chapters go throught all these changes.

@@ -64,4 +64,17 @@ Spring Statemachine 2.0.0 includes the following:
 
 == In 3.0
 
-Spring Statemachine 3.0 focuses on a Reactive support.
+Spring Statemachine 3.0.0 focuses on adding a Reactive support. Moving from `2.x` to `3.x` is
+introducing some breaking changes which are detailed in <<appendix-reactormigrationguide>>.
+
+With `3.0.x` we have deprecated all blocking methods which will get removed at some point
+in a future releases.
+
+[IMPORTANT]
+====
+Please read an appendix <<appendix-reactormigrationguide>> carefully as it will steer you
+through a process of migrating into `3.x` for cases we're not handling internallyl.
+====
+
+At this point most of a documentation has been changed to showcase reactive interfaces
+while we still keep some notes around to users still using old blocking methods.
