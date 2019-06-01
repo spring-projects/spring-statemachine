@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,17 @@
  */
 package org.springframework.statemachine;
 
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -56,7 +59,7 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		machine.sendEvent("E3");
 		machine.sendEvent("E1");
 		Object executor = TestUtils.readField("stateMachineExecutor", machine);
-		List<?> readField = TestUtils.readField("deferList", executor);
+		Collection<?> readField = TestUtils.readField("deferList", executor);
 		assertThat(readField.size(), is(1));
 		machine.sendEvent("E2");
 		assertThat(readField.size(), is(2));
@@ -81,10 +84,58 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		machine.sendEvent("E1");
 		machine.sendEvent("E1");
 		Object executor = TestUtils.readField("stateMachineExecutor", machine);
-		List<?> readField = TestUtils.readField("deferList", executor);
+		Collection<?> readField = TestUtils.readField("deferList", executor);
 		assertThat(readField.size(), is(2));
 		machine.sendEvent("E2");
 		assertThat(readField.size(), is(3));
+	}
+
+	@Test
+	public void testDeferSmokeExecutorConcurrentModification() throws Exception {
+		context.register(Config5.class);
+		context.refresh();
+
+		@SuppressWarnings("unchecked")
+		StateMachine<String, String> machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		machine.start();
+		assertThat(machine.getState().getIds(), contains("S1"));
+
+		machine.sendEvent("E2");
+
+		Object executor = TestUtils.readField("stateMachineExecutor", machine);
+		Collection<?> readField = TestUtils.readField("deferList", executor);
+		assertThat(readField.size(), is(1));
+
+		AtomicReference<Exception> error = new AtomicReference<>();
+		AtomicInteger i1 = new AtomicInteger();
+		Thread t1 = new Thread(() -> {
+			while(i1.incrementAndGet() < 1000) {
+				try {
+					machine.sendEvent("E1");
+					machine.sendEvent("E2");
+				} catch (Exception e) {
+					error.set(e);
+					break;
+				}
+			}
+		});
+		AtomicInteger i2 = new AtomicInteger();
+		Thread t2 = new Thread(() -> {
+			while(i2.incrementAndGet() < 1000) {
+				try {
+					machine.sendEvent("E1");
+					machine.sendEvent("E2");
+				} catch (Exception e) {
+					error.set(e);
+					break;
+				}
+			}
+		});
+		t1.start();
+		t2.start();
+		t1.join();
+		t2.join();
+		assertThat(error.get(), nullValue());
 	}
 
 	@Test
@@ -108,7 +159,7 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		machine.sendEvent("E1");
 
 		Object executor = TestUtils.readField("stateMachineExecutor", machine);
-		List<?> readField = TestUtils.readField("deferList", executor);
+		Collection<?> readField = TestUtils.readField("deferList", executor);
 		assertThat(readField.size(), is(1));
 
 		listener.reset(0, 0, 2, 0);
@@ -142,7 +193,7 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		machine.sendEvent("E1");
 
 		Object executor = TestUtils.readField("stateMachineExecutor", machine);
-		List<?> readField = TestUtils.readField("deferList", executor);
+		Collection<?> readField = TestUtils.readField("deferList", executor);
 		assertThat(readField.size(), is(2));
 
 		listener.reset(0, 0, 3, 0);
@@ -203,7 +254,7 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		// sub doesn't defer
 		machine.sendEvent("E15");
 		Object executor = TestUtils.readField("stateMachineExecutor", machine);
-		List<?> readField = TestUtils.readField("deferList", executor);
+		Collection<?> readField = TestUtils.readField("deferList", executor);
 		assertThat(readField.size(), is(0));
 
 		assertThat(machine.getState().getIds(), contains("SUB5"));
@@ -229,7 +280,7 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		// sub defers
 		machine.sendEvent("E15");
 		Object executor = TestUtils.readField("stateMachineExecutor", machine);
-		List<?> readField = TestUtils.readField("deferList", executor);
+		Collection<?> readField = TestUtils.readField("deferList", executor);
 		assertThat(readField.size(), is(1));
 
 		assertThat(machine.getState().getIds(), contains("SUB1", "SUB12"));
@@ -260,7 +311,7 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		// regions defers
 		machine.sendEvent("E3");
 		Object executor = TestUtils.readField("stateMachineExecutor", machine);
-		List<?> readField = TestUtils.readField("deferList", executor);
+		Collection<?> readField = TestUtils.readField("deferList", executor);
 		assertThat(readField.size(), is(0));
 	}
 
@@ -287,7 +338,7 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		// regions defers
 		machine.sendEvent("E3");
 		Object executor = TestUtils.readField("stateMachineExecutor", machine);
-		List<?> readField = TestUtils.readField("deferList", executor);
+		Collection<?> readField = TestUtils.readField("deferList", executor);
 		assertThat(readField.size(), is(1));
 	}
 
@@ -308,7 +359,7 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		// regions doesn't defer
 		machine.sendEvent("E3");
 		Object executor = TestUtils.readField("stateMachineExecutor", machine);
-		List<?> readField = TestUtils.readField("deferList", executor);
+		Collection<?> readField = TestUtils.readField("deferList", executor);
 		assertThat(readField.size(), is(0));
 
 		assertThat(machine.getState().getIds(), contains("SUB2"));
@@ -540,6 +591,32 @@ public class EventDeferTests extends AbstractStateMachineTests {
 					.event("E8");
 		}
 
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config5 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("S1")
+					.state("S1", "E2")
+					.state("S2");
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("S1").target("S2")
+					.event("E1")
+					.and()
+				.withExternal()
+					.source("S2").target("S1")
+					.event("E2");
+		}
 	}
 
 	@Configuration

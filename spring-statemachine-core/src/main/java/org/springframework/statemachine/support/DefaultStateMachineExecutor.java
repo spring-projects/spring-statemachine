@@ -20,9 +20,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
@@ -72,7 +71,7 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 
 	private final Queue<Message<E>> eventQueue = new ConcurrentLinkedQueue<Message<E>>();
 
-	private final LinkedList<Message<E>> deferList = new LinkedList<Message<E>>();
+	private final Queue<Message<E>> deferList = new ConcurrentLinkedQueue<Message<E>>();
 
 	private final Queue<TriggerQueueItem> triggerQueue = new ConcurrentLinkedQueue<TriggerQueueItem>();
 
@@ -155,7 +154,7 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 		if (log.isDebugEnabled()) {
 			log.debug("Deferring message " + message);
 		}
-		deferList.addLast(message);
+		deferList.add(message);
 	}
 
 	@Override
@@ -478,7 +477,7 @@ public class DefaultStateMachineExecutor<S, E> extends LifecycleObjectSupport im
 		if (log.isDebugEnabled()) {
 			log.debug("Process defer list, size=" + deferList.size());
 		}
-		ListIterator<Message<E>> iterator = deferList.listIterator();
+		Iterator<Message<E>> iterator = deferList.iterator();
 		State<S,E> currentState = stateMachine.getState();
 		while (iterator.hasNext()) {
 			Message<E> event = iterator.next();
