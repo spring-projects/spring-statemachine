@@ -4,6 +4,15 @@ https://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 2.1.3.RELEASE (2019-06-03)
+---------------------------------------------
+* URL Cleanup [#686]
+* URL Cleanup [#688]
+* URL Cleanup [#694]
+* ConcurrentModificationException in DefaultStateMachineExecutor [#736]
+* Machine stopped unexpectedly inside fork/join [#737]
+* Deadlock in DefaultStateMachineService [#770]
+
 Changes in version 2.1.2.RELEASE (2019-04-29)
 ---------------------------------------------
 * Polish docs [#687]
