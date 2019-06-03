@@ -4,6 +4,13 @@ https://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 2.0.4.RELEASE (2019-06-03)
+---------------------------------------------
+* URL Cleanup [#692]
+* URL Cleanup [#708]
+* URL Cleanup [#714]
+* Backport 2.1.x changes [#739]
+
 Changes in version 2.0.3.RELEASE (2018-11-10)
 ---------------------------------------------
 * Initial state wrongly entered with entry point [#577]
