@@ -38,7 +38,6 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineEventResult;
 import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.action.ActionListener;
-import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.EnumState;

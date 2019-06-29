@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ import org.springframework.statemachine.config.common.annotation.simple.SimpleTe
 import org.springframework.statemachine.config.common.annotation.simple.SimpleTestConfigurerAdapter;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 /**
@@ -87,7 +86,7 @@ public class SimpleAnnotationConfigurationTests {
 		assertThat(beanB.dataB, is("simpleDataB"));
 		assertThat(beanB.dataBB, is("simpleDataBB"));
 	}
-	
+
 	@Configuration
 	@EnableSimpleTest
 	static class Config extends SimpleTestConfigurerAdapter {
@@ -118,5 +117,5 @@ public class SimpleAnnotationConfigurationTests {
 		}
 
 	}
-	
+
 }

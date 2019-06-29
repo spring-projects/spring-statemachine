@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.function.Function;
 
 import org.springframework.statemachine.StateContext;
-import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.trigger.Trigger;
