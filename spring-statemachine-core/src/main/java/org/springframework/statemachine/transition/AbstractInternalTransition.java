@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.function.Function;
 
 import org.springframework.statemachine.StateContext;
-import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.trigger.Trigger;
@@ -38,7 +37,7 @@ public class AbstractInternalTransition<S, E> extends AbstractTransition<S, E> i
 	 * @param trigger the trigger
 	 */
 	public AbstractInternalTransition(State<S, E> source, Collection<Function<StateContext<S, E>, Mono<Void>>> actions,
-			E event, Guard<S, E> guard, Trigger<S, E> trigger) {
+			E event, Function<StateContext<S, E>, Mono<Boolean>> guard, Trigger<S, E> trigger) {
 		super(source, source, actions, event, TransitionKind.INTERNAL, guard, trigger);
 	}
 
@@ -53,7 +52,8 @@ public class AbstractInternalTransition<S, E> extends AbstractTransition<S, E> i
 	 * @param securityRule the security rule
 	 */
 	public AbstractInternalTransition(State<S, E> source, Collection<Function<StateContext<S, E>, Mono<Void>>> actions,
-			E event, Guard<S, E> guard, Trigger<S, E> trigger, SecurityRule securityRule) {
+			E event, Function<StateContext<S, E>, Mono<Boolean>> guard, Trigger<S, E> trigger,
+			SecurityRule securityRule) {
 		super(source, source, actions, event, TransitionKind.INTERNAL, guard, trigger, securityRule);
 	}
 }

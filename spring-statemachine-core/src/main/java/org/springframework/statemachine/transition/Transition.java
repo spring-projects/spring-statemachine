@@ -20,7 +20,6 @@ import java.util.function.Function;
 
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.ActionListener;
-import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.trigger.Trigger;
@@ -73,7 +72,7 @@ public interface Transition<S, E> {
 	 *
 	 * @return the guard
 	 */
-	Guard<S, E> getGuard();
+	Function<StateContext<S, E>, Mono<Boolean>> getGuard();
 
 	/**
 	 * Gets the transition actions.

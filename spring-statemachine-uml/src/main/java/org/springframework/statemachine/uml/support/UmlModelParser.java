@@ -65,6 +65,7 @@ import org.springframework.statemachine.config.model.StatesData;
 import org.springframework.statemachine.config.model.TransitionData;
 import org.springframework.statemachine.config.model.TransitionsData;
 import org.springframework.statemachine.guard.Guard;
+import org.springframework.statemachine.guard.Guards;
 import org.springframework.statemachine.guard.SpelExpressionGuard;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.util.Assert;
@@ -381,13 +382,13 @@ public class UmlModelParser {
 								transitionDatas
 										.add(new TransitionData<String, String>(resolveName(transition.getSource()),
 												cprentries.get(0).getName(), signal.getName(),
-												UmlUtils.resolveTransitionActionFunctions(transition, resolver), guard,
-												UmlUtils.mapUmlTransitionType(transition)));
+												UmlUtils.resolveTransitionActionFunctions(transition, resolver),
+												Guards.from(guard), UmlUtils.mapUmlTransitionType(transition)));
 							}
 						} else {
 							transitionDatas.add(new TransitionData<String, String>(resolveName(transition.getSource()),
 									resolveName(transition.getTarget()), signal.getName(),
-									UmlUtils.resolveTransitionActionFunctions(transition, resolver), guard,
+									UmlUtils.resolveTransitionActionFunctions(transition, resolver), Guards.from(guard),
 									UmlUtils.mapUmlTransitionType(transition)));
 						}
 					}
@@ -401,7 +402,7 @@ public class UmlModelParser {
 						}
 						transitionDatas.add(new TransitionData<String, String>(resolveName(transition.getSource()),
 								resolveName(transition.getTarget()), period, count,
-								UmlUtils.resolveTransitionActionFunctions(transition, resolver), guard,
+								UmlUtils.resolveTransitionActionFunctions(transition, resolver), Guards.from(guard),
 								UmlUtils.mapUmlTransitionType(transition)));
 					}
 				}
@@ -411,8 +412,8 @@ public class UmlModelParser {
 			if (shouldCreateAnonymousTransition(transition)) {
 				transitionDatas.add(new TransitionData<String, String>(resolveName(transition.getSource()),
 						resolveName(transition.getTarget()), null,
-						UmlUtils.resolveTransitionActionFunctions(transition, resolver), resolveGuard(transition),
-						UmlUtils.mapUmlTransitionType(transition)));
+						UmlUtils.resolveTransitionActionFunctions(transition, resolver),
+						Guards.from(resolveGuard(transition)), UmlUtils.mapUmlTransitionType(transition)));
 			}
 		}
 	}

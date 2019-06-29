@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,6 +27,8 @@ import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.state.PseudoStateContext.PseudoAction;
 import org.springframework.util.Assert;
+
+import reactor.core.publisher.Mono;
 
 /**
  * Join implementation of a {@link PseudoState}.
@@ -94,9 +97,13 @@ public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 		tracker.reset(ids);
 	}
 
-	private boolean evaluateInternal(Guard<S, E> guard, StateContext<S, E> context) {
+	private boolean evaluateInternal(Function<StateContext<S, E>, Mono<Boolean>> guard, StateContext<S, E> context) {
 		try {
-			return guard.evaluate(context);
+			// Function<StateContext<S, E>, Mono<Boolean>>
+			// TODO: REACTOR no blocking!
+			// return guard.evaluate(context);
+			return guard.apply(context).block();
+
 		} catch (Throwable t) {
 			log.warn("Deny guard due to throw as GUARD should not error", t);
 			return false;
@@ -179,7 +186,7 @@ public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 	 */
 	public static class JoinStateData<S, E> {
 		private final StateHolder<S, E> state;
-		private final Guard<S, E> guard;
+		private final Function<StateContext<S, E>, Mono<Boolean>> guard;
 
 		/**
 		 * Instantiates a new join state data.
@@ -187,7 +194,7 @@ public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 		 * @param state the state holder
 		 * @param guard the guard
 		 */
-		public JoinStateData(StateHolder<S, E> state, Guard<S, E> guard) {
+		public JoinStateData(StateHolder<S, E> state, Function<StateContext<S, E>, Mono<Boolean>> guard) {
 			Assert.notNull(state, "Holder must be set");
 			this.state = state;
 			this.guard = guard;
@@ -216,7 +223,7 @@ public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 		 *
 		 * @return the guard
 		 */
-		public Guard<S, E> getGuard() {
+		public Function<StateContext<S, E>, Mono<Boolean>> getGuard() {
 			return guard;
 		}
 	}

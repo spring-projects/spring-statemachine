@@ -54,7 +54,6 @@ import org.springframework.statemachine.config.model.HistoryData;
 import org.springframework.statemachine.config.model.JunctionData;
 import org.springframework.statemachine.config.model.TransitionData;
 import org.springframework.statemachine.config.model.TransitionsData;
-import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.transition.TransitionKind;
 
@@ -179,8 +178,8 @@ public class StateMachineTransitionBuilder<S, E>
 	 * @param securityRule the security rule
 	 */
 	public void addTransition(S source, S target, S state, E event, Long period, Integer count,
-			Collection<Function<StateContext<S, E>, Mono<Void>>> actions, Guard<S, E> guard, TransitionKind kind,
-			SecurityRule securityRule) {
+			Collection<Function<StateContext<S, E>, Mono<Void>>> actions,
+			Function<StateContext<S, E>, Mono<Boolean>> guard, TransitionKind kind, SecurityRule securityRule) {
 		// if rule not given, get it from global
 		if (securityRule == null) {
 			@SuppressWarnings("unchecked")

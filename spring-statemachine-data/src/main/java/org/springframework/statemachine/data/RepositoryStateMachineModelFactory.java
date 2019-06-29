@@ -45,6 +45,7 @@ import org.springframework.statemachine.config.model.StatesData;
 import org.springframework.statemachine.config.model.TransitionData;
 import org.springframework.statemachine.config.model.TransitionsData;
 import org.springframework.statemachine.guard.Guard;
+import org.springframework.statemachine.guard.Guards;
 import org.springframework.statemachine.guard.SpelExpressionGuard;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.transition.TransitionKind;
@@ -225,7 +226,8 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 			TransitionKind kind = t.getKind();
 
 			Guard<String, String> guard = resolveGuard(t);
-			transitionData.add(new TransitionData<>(t.getSource().getState(), t.getTarget().getState(), t.getEvent(), actions, guard, kind != null ? kind : TransitionKind.EXTERNAL));
+			transitionData.add(new TransitionData<>(t.getSource().getState(), t.getTarget().getState(), t.getEvent(),
+					actions, Guards.from(guard), kind != null ? kind : TransitionKind.EXTERNAL));
 
 			if (t.getSource().getKind() == PseudoStateKind.ENTRY) {
 				entrys.add(new EntryData<String, String>(t.getSource().getState(), t.getTarget().getState()));
