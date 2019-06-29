@@ -125,7 +125,7 @@ public class StateContextExpressionMethodsTests {
 		}
 
 		@Override
-		public Guard<SpelStates, SpelEvents> getGuard() {
+		public Function<StateContext<SpelStates, SpelEvents>, Mono<Boolean>> getGuard() {
 			return null;
 		}
 

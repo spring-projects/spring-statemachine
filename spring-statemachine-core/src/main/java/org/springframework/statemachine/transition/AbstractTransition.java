@@ -23,7 +23,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.ActionListener;
 import org.springframework.statemachine.action.CompositeActionListener;
-import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.trigger.Trigger;
@@ -47,7 +46,7 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 	protected final Collection<Function<StateContext<S, E>, Mono<Void>>> actions;
 	private final State<S, E> source;
 	private final TransitionKind kind;
-	private final Guard<S, E> guard;
+	private final Function<StateContext<S, E>, Mono<Boolean>> guard;
 	private final Trigger<S, E> trigger;
 	private final SecurityRule securityRule;
 	private CompositeActionListener<S, E> actionListener;
@@ -65,7 +64,7 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 	 */
 	public AbstractTransition(State<S, E> source, State<S, E> target,
 			Collection<Function<StateContext<S, E>, Mono<Void>>> actions, E event, TransitionKind kind,
-			Guard<S, E> guard, Trigger<S, E> trigger) {
+			Function<StateContext<S, E>, Mono<Boolean>> guard, Trigger<S, E> trigger) {
 		this(source, target, actions, event, kind, guard, trigger, null);
 	}
 
@@ -83,7 +82,7 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 	 */
 	public AbstractTransition(State<S, E> source, State<S, E> target,
 			Collection<Function<StateContext<S, E>, Mono<Void>>> actions, E event, TransitionKind kind,
-			Guard<S, E> guard, Trigger<S, E> trigger, SecurityRule securityRule) {
+			Function<StateContext<S, E>, Mono<Boolean>> guard, Trigger<S, E> trigger, SecurityRule securityRule) {
 		Assert.notNull(kind, "Transition type must be set");
 		this.source = source;
 		this.target = target;
@@ -108,7 +107,8 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 	public boolean transit(StateContext<S, E> context) {
 		if (guard != null) {
 			try {
-				if (!guard.evaluate(context)) {
+				// TODO: REACTOR change not to block
+				if (!guard.apply(context).block()) {
 					return false;
 				}
 			}
@@ -121,7 +121,7 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 	}
 
 	@Override
-	public Guard<S, E> getGuard() {
+	public Function<StateContext<S, E>, Mono<Boolean>> getGuard() {
 		return guard;
 	}
 

@@ -27,6 +27,7 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurerAdapter;
 import org.springframework.statemachine.config.model.TransitionsData;
 import org.springframework.statemachine.guard.Guard;
+import org.springframework.statemachine.guard.Guards;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.security.SecurityRule.ComparisonType;
 
@@ -50,7 +51,7 @@ public abstract class AbstractTransitionConfigurer<S, E> extends
 	private Long period;
 	private Integer count;
 	private final Collection<Function<StateContext<S, E>, Mono<Void>>> actions = new ArrayList<>();
-	private Guard<S, E> guard;
+	private Function<StateContext<S, E>, Mono<Boolean>> guard;
 	private SecurityRule securityRule;
 
 	protected S getSource() {
@@ -85,7 +86,7 @@ public abstract class AbstractTransitionConfigurer<S, E> extends
 		return actions;
 	}
 
-	protected Guard<S, E> getGuard() {
+	protected Function<StateContext<S, E>, Mono<Boolean>> getGuard() {
 		return guard;
 	}
 
@@ -134,6 +135,10 @@ public abstract class AbstractTransitionConfigurer<S, E> extends
 	}
 
 	protected void setGuard(Guard<S, E> guard) {
+		this.guard = Guards.from(guard);
+	}
+
+	protected void setGuardFunction(Function<StateContext<S, E>, Mono<Boolean>> guard) {
 		this.guard = guard;
 	}
 

@@ -39,8 +39,8 @@ public class DefaultLocalTransition<S, E> extends AbstractLocalTransition<S, E> 
 	 * @param trigger the trigger
 	 */
 	public DefaultLocalTransition(State<S, E> source, State<S, E> target,
-			Collection<Function<StateContext<S, E>, Mono<Void>>> actions, E event, Guard<S, E> guard,
-			Trigger<S, E> trigger) {
+			Collection<Function<StateContext<S, E>, Mono<Void>>> actions, E event,
+			Function<StateContext<S, E>, Mono<Boolean>> guard, Trigger<S, E> trigger) {
 		super(source, target, actions, event, guard, trigger);
 	}
 
@@ -56,8 +56,8 @@ public class DefaultLocalTransition<S, E> extends AbstractLocalTransition<S, E> 
 	 * @param securityRule the security rule
 	 */
 	public DefaultLocalTransition(State<S, E> source, State<S, E> target,
-			Collection<Function<StateContext<S, E>, Mono<Void>>> actions, E event, Guard<S, E> guard,
-			Trigger<S, E> trigger, SecurityRule securityRule) {
+			Collection<Function<StateContext<S, E>, Mono<Void>>> actions, E event,
+			Function<StateContext<S, E>, Mono<Boolean>> guard, Trigger<S, E> trigger, SecurityRule securityRule) {
 		super(source, target, actions, event, guard, trigger, securityRule);
 	}
 

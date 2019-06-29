@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.function.Function;
 
 import org.springframework.statemachine.StateContext;
-import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.transition.TransitionKind;
 
@@ -39,7 +38,7 @@ public class TransitionData<S, E> {
 	private final Long period;
 	private final Integer count;
 	private final Collection<Function<StateContext<S, E>, Mono<Void>>> actions;
-	private final Guard<S, E> guard;
+	private final Function<StateContext<S, E>, Mono<Boolean>> guard;
 	private final TransitionKind kind;
 	private final SecurityRule securityRule;
 
@@ -65,7 +64,7 @@ public class TransitionData<S, E> {
 	 * @param kind the kind
 	 */
 	public TransitionData(S source, S target, E event, Collection<Function<StateContext<S, E>, Mono<Void>>> actions,
-			Guard<S, E> guard, TransitionKind kind) {
+			Function<StateContext<S, E>, Mono<Boolean>> guard, TransitionKind kind) {
 		this(source, target, null, event, null, null, actions, guard, kind, null);
 	}
 
@@ -81,7 +80,8 @@ public class TransitionData<S, E> {
 	 * @param kind the kind
 	 */
 	public TransitionData(S source, S target, Long period, Integer count,
-			Collection<Function<StateContext<S, E>, Mono<Void>>> actions, Guard<S, E> guard, TransitionKind kind) {
+			Collection<Function<StateContext<S, E>, Mono<Void>>> actions,
+			Function<StateContext<S, E>, Mono<Boolean>> guard, TransitionKind kind) {
 		this(source, target, null, null, period, count, actions, guard, kind, null);
 	}
 
@@ -100,8 +100,8 @@ public class TransitionData<S, E> {
 	 * @param securityRule the security rule
 	 */
 	public TransitionData(S source, S target, S state, E event, Long period, Integer count,
-			Collection<Function<StateContext<S, E>, Mono<Void>>> actions, Guard<S, E> guard, TransitionKind kind,
-			SecurityRule securityRule) {
+			Collection<Function<StateContext<S, E>, Mono<Void>>> actions,
+			Function<StateContext<S, E>, Mono<Boolean>> guard, TransitionKind kind, SecurityRule securityRule) {
 		this.source = source;
 		this.target = target;
 		this.state = state;
@@ -182,7 +182,7 @@ public class TransitionData<S, E> {
 	 *
 	 * @return the guard
 	 */
-	public Guard<S, E> getGuard() {
+	public Function<StateContext<S, E>, Mono<Boolean>> getGuard() {
 		return guard;
 	}
 

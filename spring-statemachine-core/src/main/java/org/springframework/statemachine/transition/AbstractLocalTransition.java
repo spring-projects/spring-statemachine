@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.function.Function;
 
 import org.springframework.statemachine.StateContext;
-import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.trigger.Trigger;
@@ -39,8 +38,8 @@ public class AbstractLocalTransition<S, E> extends AbstractTransition<S, E> impl
 	 * @param trigger the trigger
 	 */
 	public AbstractLocalTransition(State<S, E> source, State<S, E> target,
-			Collection<Function<StateContext<S, E>, Mono<Void>>> actions, E event, Guard<S, E> guard,
-			Trigger<S, E> trigger) {
+			Collection<Function<StateContext<S, E>, Mono<Void>>> actions, E event,
+			Function<StateContext<S, E>, Mono<Boolean>> guard, Trigger<S, E> trigger) {
 		super(source, target, actions, event, TransitionKind.LOCAL, guard, trigger);
 	}
 
@@ -56,8 +55,8 @@ public class AbstractLocalTransition<S, E> extends AbstractTransition<S, E> impl
 	 * @param securityRule the security rule
 	 */
 	public AbstractLocalTransition(State<S, E> source, State<S, E> target,
-			Collection<Function<StateContext<S, E>, Mono<Void>>> actions, E event, Guard<S, E> guard,
-			Trigger<S, E> trigger, SecurityRule securityRule) {
+			Collection<Function<StateContext<S, E>, Mono<Void>>> actions, E event,
+			Function<StateContext<S, E>, Mono<Boolean>> guard, Trigger<S, E> trigger, SecurityRule securityRule) {
 		super(source, target, actions, event, TransitionKind.LOCAL, guard, trigger, securityRule);
 	}
 }
