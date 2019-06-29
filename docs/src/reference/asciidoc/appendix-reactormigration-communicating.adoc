@@ -1,0 +1,40 @@
+=== Communicating with a Machine
+We've added new reactive methods to `StateMachine` while still keeping old blocking event
+methods in place.
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsMigrationTests.java[tags=snippetA]
+----
+====
+
+We're now solely working on a spring `Message` and reactor `Mono` and `Flux` classes.
+You can send a `Mono` of a `Message` and receive back a `Flux` of `StateMachineEventResult`.
+Remember that nothing happens until you subscribe to this `Flux`.
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsMigrationTests.java[tags=snippetB1]
+----
+====
+
+You can also send a `Flux` of messages instead of a single `Mono` message.
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsMigrationTests.java[tags=snippetB2]
+----
+====
+
+All of the reactor methods are on your disposal and for example not to block and
+do something when event handling is completed, you could do something like.
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsMigrationTests.java[tags=snippetB3]
+----
+====
