@@ -104,20 +104,15 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 	}
 
 	@Override
-	public boolean transit(StateContext<S, E> context) {
+	public Mono<Boolean> transit(StateContext<S, E> context) {
 		if (guard != null) {
-			try {
-				// TODO: REACTOR change not to block
-				if (!guard.apply(context).block()) {
-					return false;
-				}
-			}
-			catch (Throwable t) {
-				log.warn("Deny guard due to throw as GUARD should not error", t);
-				return false;
-			}
+			return guard.apply(context)
+				.doOnError(e -> {
+					log.warn("Deny guard due to throw as GUARD should not error", e);
+				})
+				.onErrorReturn(false);
 		}
-		return true;
+		return Mono.just(true);
 	}
 
 	@Override

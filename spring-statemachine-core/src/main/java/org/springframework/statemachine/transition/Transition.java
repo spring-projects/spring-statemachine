@@ -41,9 +41,9 @@ public interface Transition<S, E> {
 	 * Transit this transition with a give state context.
 	 *
 	 * @param context the state context
-	 * @return true, if transition happened, false otherwise
+	 * @return Mono for completion with true, if transition happened, false otherwise
 	 */
-	boolean transit(StateContext<S, E> context);
+	Mono<Boolean> transit(StateContext<S, E> context);
 
 	/**
 	 * Execute transition actions.

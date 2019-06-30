@@ -104,8 +104,8 @@ public class StateContextExpressionMethodsTests {
 	private static class MockTransition implements Transition<SpelStates, SpelEvents> {
 
 		@Override
-		public boolean transit(StateContext<SpelStates, SpelEvents> context) {
-			return false;
+		public Mono<Boolean> transit(StateContext<SpelStates, SpelEvents> context) {
+			return Mono.just(false);
 		}
 
 		@Override

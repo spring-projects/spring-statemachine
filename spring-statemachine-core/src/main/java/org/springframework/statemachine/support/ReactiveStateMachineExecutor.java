@@ -67,9 +67,9 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 	private static final Log log = LogFactory.getLog(ReactiveStateMachineExecutor.class);
 	private final StateMachine<S, E> stateMachine;
 	private final StateMachine<S, E> relayStateMachine;
-	private final Map<Trigger<S, E>, Transition<S,E>> triggerToTransitionMap;
+	private final Map<Trigger<S, E>, Transition<S, E>> triggerToTransitionMap;
 	private final List<Transition<S, E>> triggerlessTransitions;
-	private final Collection<Transition<S,E>> transitions;
+	private final Collection<Transition<S, E>> transitions;
 	private final Transition<S, E> initialTransition;
 	private final Message<E> initialEvent;
 	private final TransitionComparator<S, E> transitionComparator;
@@ -106,8 +106,7 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 	@Override
 	protected void onInit() throws Exception {
 		triggerSink = triggerProcessor.sink();
-		triggerFlux = Flux.from(triggerProcessor)
-			.flatMap(trigger -> handleTrigger(trigger));
+		triggerFlux = Flux.from(triggerProcessor).flatMap(trigger -> handleTrigger(trigger));
 	}
 
 	@Override
@@ -144,8 +143,7 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 				triggerDisposable = null;
 			}
 			initialHandled.set(false);
-		})
-		;
+		});
 	}
 
 	@Override
@@ -158,7 +156,6 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 
 	@Override
 	public void queueDeferredEvent(Message<E> message) {
-		// TODO Auto-generated method stub
 		if (log.isDebugEnabled()) {
 			log.debug("Deferring message " + message);
 		}
@@ -296,9 +293,10 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 
 
 	private Mono<Void> handleInitialTrans(Transition<S, E> tran, Message<E> queuedMessage) {
-		StateContext<S, E> stateContext = buildStateContext(queuedMessage, tran, relayStateMachine);
-		tran.transit(stateContext);
-		return stateMachineExecutorTransit.transit(tran, stateContext, queuedMessage);
+		return Mono.defer(() -> {
+			StateContext<S, E> stateContext = buildStateContext(queuedMessage, tran, relayStateMachine);
+			return tran.transit(stateContext).then(stateMachineExecutorTransit.transit(tran, stateContext, queuedMessage));
+		});
 	}
 
 	private Mono<Void> handleTriggerlessTransitions(StateContext<S, E> context, State<S, E> state) {
@@ -317,36 +315,30 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 	}
 
 	private Mono<Boolean> handleTriggerTrans(List<Transition<S, E>> trans, Message<E> queuedMessage, State<S, E> completion) {
-		return Mono.defer(() -> {
-			Mono<Boolean> mono = Mono.just(false);
-			boolean transit = false;
-			for (Transition<S, E> t : trans) {
-				if (t == null) {
-					continue;
-				}
+			return Flux.fromIterable(trans)
+				.filter(t -> {
 				State<S,E> source = t.getSource();
 				if (source == null) {
-					continue;
+					return false;
 				}
 				State<S,E> currentState = stateMachine.getState();
 				if (currentState == null) {
-					continue;
+					return false;
 				}
 				if (!StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
-					continue;
+					return false;
 				}
-
-				if (transitionConflictPolicy != TransitionConflictPolicy.PARENT && completion != null && !source.getId().equals(completion.getId())) {
+				if (transitionConflictPolicy != TransitionConflictPolicy.PARENT && completion != null
+							&& !source.getId().equals(completion.getId())) {
 					if (source.isOrthogonal()) {
-						continue;
-					}
-					else if (!StateMachineUtils.isSubstate(source, completion)) {
-						continue;
-
+						return false;
+					} else if (!StateMachineUtils.isSubstate(source, completion)) {
+						return false;
 					}
 				}
-
-				// special handling of join
+				return true;
+			})
+			.flatMap(t -> {
 				if (StateMachineUtils.isPseudoState(t.getTarget(), PseudoStateKind.JOIN)) {
 					if (joinSyncStates.isEmpty()) {
 						List<List<State<S,E>>> joins = ((JoinPseudoState<S, E>)t.getTarget().getPseudoState()).getJoins();
@@ -358,55 +350,45 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 					boolean removed = joinSyncStates.remove(t.getSource());
 					boolean joincomplete = removed & joinSyncStates.isEmpty();
 					if (joincomplete) {
-						for (Transition<S, E> tt : joinSyncTransitions) {
-							StateContext<S, E> stateContext = buildStateContext(queuedMessage, tt, relayStateMachine);
-							tt.transit(stateContext);
-							// TODO: REACTOR damn, this is not chained! we tests didn't fail?
-							stateMachineExecutorTransit.transit(tt, stateContext, queuedMessage).block();
-						}
-						joinSyncTransitions.clear();
-						break;
+						return Flux.fromIterable(joinSyncTransitions)
+							.flatMap(tt -> {
+								StateContext<S, E> stateContext = buildStateContext(queuedMessage, tt, relayStateMachine);
+								return tt.transit(stateContext).then(stateMachineExecutorTransit.transit(t, stateContext, queuedMessage));
+							})
+							.doFinally(s -> {
+								joinSyncTransitions.clear();
+							})
+							.then(Mono.just(true))
+							;
 					} else {
-						continue;
+						return Mono.just(false);
 					}
+				} else {
+					StateContext<S, E> stateContext = buildStateContext(queuedMessage, t, relayStateMachine);
+					return Mono.just(stateContext)
+						.map(context -> interceptors.preTransition(stateContext))
+						.then(t.transit(stateContext)
+							.flatMap(at -> {
+								if (at) {
+									return stateMachineExecutorTransit.transit(t, stateContext, queuedMessage)
+									.thenReturn(true)
+									.doOnNext(a -> {
+										interceptors.postTransition(stateContext);
+									})
+									.onErrorResume(e -> {
+										interceptors.postTransition(stateContext);
+										return Mono.just(false);
+									});
+								} else {
+									return Mono.just(false);
+								}
+							})
+						)
+						.onErrorResume(e -> Mono.just(false));
 				}
-
-				StateContext<S, E> stateContext = buildStateContext(queuedMessage, t, relayStateMachine);
-				try {
-					stateContext = interceptors.preTransition(stateContext);
-				} catch (Exception e) {
-					// currently expect that if exception is
-					// thrown, this transition will not match.
-					// i.e. security may throw AccessDeniedException
-					log.info("Interceptors threw exception", e);
-					stateContext = null;
-				}
-				if (stateContext == null) {
-					break;
-				}
-
-				try {
-					transit = t.transit(stateContext);
-				} catch (Exception e) {
-					log.warn("Aborting as transition " + t, e);
-				}
-				if (transit) {
-					// if executor transit is raising exception, stop here
-					final StateContext<S, E> st = stateContext;
-					mono = stateMachineExecutorTransit.transit(t, stateContext, queuedMessage)
-						.thenReturn(true)
-						.doOnNext(a -> {
-							interceptors.postTransition(st);
-						})
-						.onErrorResume(e -> {
-							interceptors.postTransition(st);
-							return Mono.just(false);
-						});
-					break;
-				}
-			}
-			return mono;
-		});
+			})
+			.takeUntil(x -> x)
+			.last(false);
 	}
 
 	private StateContext<S, E> buildStateContext(Message<E> message, Transition<S,E> transition, StateMachine<S, E> stateMachine) {
