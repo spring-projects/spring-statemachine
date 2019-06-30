@@ -66,9 +66,9 @@ public class InitialTransition<S, E> extends AbstractTransition<S, E>
 	}
 
 	@Override
-	public boolean transit(StateContext<S, E> context) {
+	public Mono<Boolean> transit(StateContext<S, E> context) {
 		// initial itself doesn't cause further changes what
 		// returned true might cause.
-		return false;
+		return Mono.just(false);
 	}
 }
