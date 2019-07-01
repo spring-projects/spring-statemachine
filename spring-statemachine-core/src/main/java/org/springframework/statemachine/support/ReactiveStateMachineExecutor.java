@@ -269,7 +269,10 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 
 				// most likely timer
 				if (trans.isEmpty()) {
-					trans.add(triggerToTransitionMap.get(queueItem.trigger));
+					Transition<S, E> t = triggerToTransitionMap.get(queueItem.trigger);
+					if (t != null) {
+						trans.add(t);
+					}
 				}
 
 				// go through candidates and transit max one, sort before handling
