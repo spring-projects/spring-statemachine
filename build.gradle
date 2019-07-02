@@ -656,7 +656,11 @@ configure(rootProject) {
 			'highlightjsdir=js/highlight',
 			'highlightjs-theme=atom-one-dark-reasonable',
 			'idprefix': '',
-			'idseparator': '-'
+			'idseparator': '-',
+			'spring-statemachine-version' : project.version,
+			'spring-version' : getResolvedVersionOf("spring-core"),
+			'spring-boot-version' : getResolvedVersionOf("spring-boot"),
+			revnumber : project.version
 	}
 
 	dependencies { // for integration tests
