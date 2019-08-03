@@ -19,7 +19,8 @@ import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAl
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.doStopAndAssert;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineBuilder;
@@ -106,6 +107,7 @@ public class TimerSmokeTests {
 	}
 
 	@Test
+	@Tag("smoke")
 	public void testDeadlock() throws Exception {
 		StateMachineTestPlan<String, String> plan;
 		for (int i = 0; i < 20; i++) {
