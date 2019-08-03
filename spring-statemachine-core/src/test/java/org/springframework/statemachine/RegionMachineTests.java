@@ -35,7 +35,6 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.statemachine.action.Actions;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
@@ -108,11 +107,9 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 		transitions.add(transitionFromS1ToS2);
 		transitions.add(transitionFromS2ToS3);
 
-		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
 		BeanFactory beanFactory = new DefaultListableBeanFactory();
 		Transition<TestStates,TestEvents> initialTransition = new InitialTransition<TestStates,TestEvents>(stateSI);
 		ObjectStateMachine<TestStates, TestEvents> machine = new ObjectStateMachine<TestStates, TestEvents>(states, transitions, stateSI, initialTransition, null, null, null);
-		machine.setTaskExecutor(taskExecutor);
 		machine.setBeanFactory(beanFactory);
 		machine.afterPropertiesSet();
 		machine.start();
@@ -139,7 +136,6 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testMultiRegionBuildRaw() throws Exception {
-		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
 		BeanFactory beanFactory = new DefaultListableBeanFactory();
 		PseudoState<TestStates,TestEvents> pseudoState = new DefaultPseudoState<TestStates,TestEvents>(PseudoStateKind.INITIAL);
 		State<TestStates,TestEvents> stateSI = new EnumState<TestStates,TestEvents>(TestStates.SI, pseudoState);
@@ -178,7 +174,6 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 		transitions11.add(transitionFromS111ToS112);
 		Transition<TestStates,TestEvents> initialTransition11 = new InitialTransition<TestStates,TestEvents>(stateS111);
 		ObjectStateMachine<TestStates, TestEvents> machine11 = new ObjectStateMachine<TestStates, TestEvents>(states11, transitions11, stateS111, initialTransition11, null, null, null);
-		machine11.setTaskExecutor(taskExecutor);
 		machine11.setBeanFactory(beanFactory);
 		machine11.afterPropertiesSet();
 
@@ -191,7 +186,6 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 		transitions12.add(transitionFromSIToS121);
 		Transition<TestStates,TestEvents> initialTransition12 = new InitialTransition<TestStates,TestEvents>(stateS121);
 		ObjectStateMachine<TestStates, TestEvents> machine12 = new ObjectStateMachine<TestStates, TestEvents>(states12, transitions12, stateS121, initialTransition12, null, null, null);
-		machine12.setTaskExecutor(taskExecutor);
 		machine12.setBeanFactory(beanFactory);
 		machine12.afterPropertiesSet();
 
@@ -209,7 +203,6 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 		Transition<TestStates,TestEvents> initialTransition = new InitialTransition<TestStates,TestEvents>(stateR);
 		ObjectStateMachine<TestStates, TestEvents> machine = new ObjectStateMachine<TestStates, TestEvents>(states, transitions, stateR, initialTransition, null, null, null);
 
-		machine.setTaskExecutor(taskExecutor);
 		machine.setBeanFactory(beanFactory);
 		machine.afterPropertiesSet();
 		machine.start();
@@ -291,7 +284,7 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testParallelRegionExecution() throws Exception {
-		context.register(Config3.class, BaseConfig2.class);
+		context.register(Config3.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
@@ -331,7 +324,7 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testParallelRegionExecutionInInitialState() throws Exception {
-		context.register(Config4.class, BaseConfig2.class);
+		context.register(Config4.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")

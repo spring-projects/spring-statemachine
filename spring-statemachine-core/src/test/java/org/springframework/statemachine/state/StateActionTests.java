@@ -28,8 +28,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
@@ -120,12 +118,6 @@ public class StateActionTests extends AbstractStateMachineTests {
 		public Action<TestStates, TestEvents> testExitAction() {
 			return new TestExitAction();
 		}
-
-		@Bean
-		public TaskExecutor taskExecutor() {
-			return new SyncTaskExecutor();
-		}
-
 	}
 
 	@Configuration

@@ -36,10 +36,6 @@ public class TimerSmokeTests {
 	private StateMachine<String, String> buildMachine() throws Exception {
 		StateMachineBuilder.Builder<String, String> builder = StateMachineBuilder.builder();
 
-		builder.configureConfiguration()
-			.withConfiguration()
-				.taskExecutor(taskExecutor);
-
 		builder.configureStates()
 			.withStates()
 				.initial("initial")
@@ -60,10 +56,6 @@ public class TimerSmokeTests {
 
 	private StateMachine<String, String> buildMachine2() throws Exception {
 		StateMachineBuilder.Builder<String, String> builder = StateMachineBuilder.builder();
-
-		builder.configureConfiguration()
-			.withConfiguration()
-				.taskExecutor(taskExecutor);
 
 		builder.configureStates()
 			.withStates()

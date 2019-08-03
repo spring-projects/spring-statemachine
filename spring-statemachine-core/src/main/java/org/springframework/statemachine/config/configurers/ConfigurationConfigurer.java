@@ -18,8 +18,6 @@ package org.springframework.statemachine.config.configurers;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.StateDoActionPolicy;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
@@ -55,22 +53,6 @@ public interface ConfigurationConfigurer<S, E> extends
 	 * @return configurer for chaining
 	 */
 	ConfigurationConfigurer<S, E> beanFactory(BeanFactory beanFactory);
-
-	/**
-	 * Specify a {@link TaskExecutor}.
-	 *
-	 * @param taskExecutor the task executor
-	 * @return configurer for chaining
-	 */
-	ConfigurationConfigurer<S, E> taskExecutor(TaskExecutor taskExecutor);
-
-	/**
-	 * Specify a {@link TaskScheduler}.
-	 *
-	 * @param taskScheduler the task scheduler
-	 * @return configurer for chaining
-	 */
-	ConfigurationConfigurer<S, E> taskScheduler(TaskScheduler taskScheduler);
 
 	/**
 	 * Specify if state machine should be started automatically.

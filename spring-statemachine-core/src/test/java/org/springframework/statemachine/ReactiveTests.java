@@ -140,7 +140,7 @@ public class ReactiveTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testJoin() throws Exception {
-		context.register(BaseConfig.class, Config2.class);
+		context.register(Config2.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);

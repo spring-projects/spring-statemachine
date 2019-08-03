@@ -34,9 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.context.SmartLifecycle;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.Message;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
@@ -229,9 +227,9 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 					String mId = machineId != null ? machineId : stateMachineModel.getConfigurationData().getMachineId();
 					mId = mId + "#" + (rId != null ? rId.toString() : "");
 
-					machine = buildMachine(machineMap, stateMap, holderList, regionStateDatas, transitionsData, resolveBeanFactory(stateMachineModel),
-							contextEvents, defaultExtendedState, stateMachineModel.getTransitionsData(), resolveTaskExecutor(stateMachineModel),
-							resolveTaskScheduler(stateMachineModel), mId, null, stateMachineModel);
+					machine = buildMachine(machineMap, stateMap, holderList, regionStateDatas, transitionsData,
+							resolveBeanFactory(stateMachineModel), contextEvents, defaultExtendedState,
+							stateMachineModel.getTransitionsData(), mId, null, stateMachineModel);
 					regionStack.push(new MachineStackItem<S, E>(machine));
 					machines.add(machine);
 				}
@@ -255,17 +253,16 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 					states.add(rstate);
 					Transition<S, E> initialTransition = new InitialTransition<S, E>(rstate);
 					StateMachine<S, E> m = buildStateMachineInternal(states, new ArrayList<Transition<S, E>>(), rstate, initialTransition,
-							null, defaultExtendedState, null, contextEvents, resolveBeanFactory(stateMachineModel), resolveTaskExecutor(stateMachineModel),
-							resolveTaskScheduler(stateMachineModel), beanName,
+							null, defaultExtendedState, null, contextEvents, resolveBeanFactory(stateMachineModel), beanName,
 							machineId != null ? machineId : stateMachineModel.getConfigurationData().getMachineId(),
 							uuid, stateMachineModel);
 					machine = m;
 					machines.add(m);
 				}
 			} else {
-				machine = buildMachine(machineMap, stateMap, holderList, stateDatas, transitionsData, resolveBeanFactory(stateMachineModel), contextEvents,
-						defaultExtendedState, stateMachineModel.getTransitionsData(), resolveTaskExecutor(stateMachineModel), resolveTaskScheduler(stateMachineModel),
-						machineId, uuid, stateMachineModel);
+				machine = buildMachine(machineMap, stateMap, holderList, stateDatas, transitionsData,
+						resolveBeanFactory(stateMachineModel), contextEvents, defaultExtendedState,
+						stateMachineModel.getTransitionsData(), machineId, uuid, stateMachineModel);
 				machines.add(machine);
 				if (peek.isInitial() || (!peek.isInitial() && !machineMap.containsKey(peek.getParent()))) {
 					machineMap.put(peek.getParent(), machine);
@@ -473,22 +470,6 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		}
 	}
 
-	protected TaskExecutor resolveTaskExecutor(StateMachineModel<S, E> stateMachineModel) {
-		if (stateMachineModel.getConfigurationData().getTaskExecutor() != null) {
-			return stateMachineModel.getConfigurationData().getTaskExecutor();
-		} else {
-			return getTaskExecutor();
-		}
-	}
-
-	protected TaskScheduler resolveTaskScheduler(StateMachineModel<S, E> stateMachineModel) {
-		if (stateMachineModel.getConfigurationData().getTaskScheduler() != null) {
-			return stateMachineModel.getConfigurationData().getTaskScheduler();
-		} else {
-			return getTaskScheduler();
-		}
-	}
-
 	protected StateMachineModel<S, E> resolveStateMachineModel(String machineId) {
 		if (stateMachineModelFactory == null) {
 			return defaultStateMachineModel;
@@ -590,9 +571,9 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 	@SuppressWarnings("unchecked")
 	private StateMachine<S, E> buildMachine(Map<Object, StateMachine<S, E>> machineMap, Map<S, State<S, E>> stateMap,
-			List<HolderListItem<S, E>> holderList, Collection<StateData<S, E>> stateDatas, Collection<TransitionData<S, E>> transitionsData,
-			BeanFactory beanFactory, Boolean contextEvents, DefaultExtendedState defaultExtendedState,
-			TransitionsData<S, E> stateMachineTransitions, TaskExecutor taskExecutor, TaskScheduler taskScheduler, String machineId,
+			List<HolderListItem<S, E>> holderList, Collection<StateData<S, E>> stateDatas,
+			Collection<TransitionData<S, E>> transitionsData, BeanFactory beanFactory, Boolean contextEvents,
+			DefaultExtendedState defaultExtendedState, TransitionsData<S, E> stateMachineTransitions, String machineId,
 			UUID uuid, StateMachineModel<S, E> stateMachineModel) {
 		State<S, E> state = null;
 		State<S, E> initialState = null;
@@ -861,12 +842,6 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 				if (beanFactory != null) {
 					t.setBeanFactory(beanFactory);
 				}
-				if (taskExecutor != null) {
-					t.setTaskExecutor(taskExecutor);
-				}
-				if (taskScheduler != null) {
-					t.setTaskScheduler(taskScheduler);
-				}
 				trigger = t;
 				((AbstractState<S, E>)stateMap.get(source)).getTriggers().add(trigger);
 			}
@@ -917,15 +892,15 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 		Transition<S, E> initialTransition = new InitialTransition<S, E>(initialState, Actions.from(initialAction));
 		StateMachine<S, E> machine = buildStateMachineInternal(states, transitions, initialState, initialTransition,
-				null, defaultExtendedState, historyState, contextEvents, beanFactory, taskExecutor, taskScheduler,
+				null, defaultExtendedState, historyState, contextEvents, beanFactory,
 				beanName, machineId != null ? machineId : stateMachineModel.getConfigurationData().getMachineId(), uuid, stateMachineModel);
 		return machine;
 	}
 
 	protected abstract StateMachine<S, E> buildStateMachineInternal(Collection<State<S, E>> states,
-			Collection<Transition<S, E>> transitions, State<S, E> initialState, Transition<S, E> initialTransition, Message<E> initialEvent,
-			ExtendedState extendedState, PseudoState<S, E> historyState, Boolean contextEventsEnabled, BeanFactory beanFactory,
-			TaskExecutor taskExecutor, TaskScheduler taskScheduler, String beanName, String machineId, UUID uuid,
+			Collection<Transition<S, E>> transitions, State<S, E> initialState, Transition<S, E> initialTransition,
+			Message<E> initialEvent, ExtendedState extendedState, PseudoState<S, E> historyState,
+			Boolean contextEventsEnabled, BeanFactory beanFactory, String beanName, String machineId, UUID uuid,
 			StateMachineModel<S, E> stateMachineModel);
 
 	protected abstract State<S, E> buildStateInternal(S id, Collection<E> deferred,

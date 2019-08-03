@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.statemachine.AbstractStateMachineTests.TestAction;
 import org.springframework.statemachine.AbstractStateMachineTests.TestEvents;
 import org.springframework.statemachine.AbstractStateMachineTests.TestGuard;
@@ -139,12 +137,6 @@ public class GuardTests {
 		public TestGuard testGuard() {
 			return new TestGuard(true);
 		}
-
-		@Bean
-		public TaskExecutor taskExecutor() {
-			return new SyncTaskExecutor();
-		}
-
 	}
 
 	@Configuration
@@ -180,12 +172,6 @@ public class GuardTests {
 		public TestAction testAction() {
 			return new TestAction();
 		}
-
-		@Bean
-		public TaskExecutor taskExecutor() {
-			return new SyncTaskExecutor();
-		}
-
 	}
 
 	@Configuration

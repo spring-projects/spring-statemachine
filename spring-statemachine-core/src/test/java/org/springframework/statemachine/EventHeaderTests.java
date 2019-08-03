@@ -29,9 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
@@ -505,13 +503,6 @@ public class EventHeaderTests extends AbstractStateMachineTests {
 		public HeaderTestAction headerTestAction112() {
 			return new HeaderTestAction();
 		}
-
-		@Bean(name = StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME)
-		public TaskExecutor taskExecutor() {
-			ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-			executor.setCorePoolSize(1);
-			return executor;
-		}
 	}
 
 	@Configuration
@@ -605,13 +596,6 @@ public class EventHeaderTests extends AbstractStateMachineTests {
 		@Bean
 		public HeaderTestAction headerTestAction3() {
 			return new HeaderTestAction();
-		}
-
-		@Bean(name = StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME)
-		public TaskExecutor taskExecutor() {
-			ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-			executor.setCorePoolSize(3);
-			return executor;
 		}
 	}
 

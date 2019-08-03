@@ -37,8 +37,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -72,7 +70,7 @@ public class StateMachineTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testTimerTransition() throws Exception {
-		context.register(BaseConfig.class, Config2.class);
+		context.register(Config2.class);
 		context.refresh();
 
 		TestAction testAction1 = context.getBean("testAction1", TestAction.class);
@@ -120,7 +118,7 @@ public class StateMachineTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testForkJoin() throws Exception {
-		context.register(BaseConfig.class, Config3.class);
+		context.register(Config3.class);
 		context.refresh();
 		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
 		TestListener listener = new TestListener();
@@ -174,7 +172,7 @@ public class StateMachineTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testBackToItself() {
-		context.register(BaseConfig.class, Config5.class);
+		context.register(Config5.class);
 		context.refresh();
 		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
 		assertThat(machine, notNullValue());
@@ -254,12 +252,6 @@ public class StateMachineTests extends AbstractStateMachineTests {
 		public LoggingAction loggingAction() {
 			return new LoggingAction("as bean");
 		}
-
-		@Bean
-		public TaskExecutor taskExecutor() {
-			return new SyncTaskExecutor();
-		}
-
 	}
 
 	@Configuration

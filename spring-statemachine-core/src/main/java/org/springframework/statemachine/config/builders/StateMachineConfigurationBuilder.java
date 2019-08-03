@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.statemachine.action.StateDoActionPolicy;
 import org.springframework.statemachine.config.common.annotation.AbstractConfiguredAnnotationBuilder;
@@ -64,8 +62,6 @@ public class StateMachineConfigurationBuilder<S, E>
 
 	private String machineId;
 	private BeanFactory beanFactory;
-	private TaskExecutor taskExecutor;
-	private TaskScheduler taskScheculer;
 	private boolean autoStart = false;
 	private TransitionConflictPolicy transitionConflictPolicy;
 	private StateDoActionPolicy stateDoActionPolicy;
@@ -150,11 +146,10 @@ public class StateMachineConfigurationBuilder<S, E>
 				interceptorsCopy.add(interceptor);
 			}
 		}
-		return new ConfigurationData<S, E>(beanFactory, taskExecutor, taskScheculer, autoStart, ensemble, listeners,
-				securityEnabled, transitionSecurityAccessDecisionManager, eventSecurityAccessDecisionManager,
-				eventSecurityRule, transitionSecurityRule, verifierEnabled, verifier, machineId, stateMachineMonitor,
-				interceptorsCopy, transitionConflictPolicy, stateDoActionPolicy, stateDoActionPolicyTimeout,
-				regionExecutionPolicy);
+		return new ConfigurationData<S, E>(beanFactory, autoStart, ensemble, listeners, securityEnabled,
+				transitionSecurityAccessDecisionManager, eventSecurityAccessDecisionManager, eventSecurityRule,
+				transitionSecurityRule, verifierEnabled, verifier, machineId, stateMachineMonitor, interceptorsCopy,
+				transitionConflictPolicy, stateDoActionPolicy, stateDoActionPolicyTimeout, regionExecutionPolicy);
 	}
 
 	/**
@@ -173,24 +168,6 @@ public class StateMachineConfigurationBuilder<S, E>
 	 */
 	public void setBeanFactory(BeanFactory beanFactory) {
 		this.beanFactory = beanFactory;
-	}
-
-	/**
-	 * Sets the task executor.
-	 *
-	 * @param taskExecutor the new task executor
-	 */
-	public void setTaskExecutor(TaskExecutor taskExecutor) {
-		this.taskExecutor = taskExecutor;
-	}
-
-	/**
-	 * Sets the task scheculer.
-	 *
-	 * @param taskScheculer the new task scheculer
-	 */
-	public void setTaskScheculer(TaskScheduler taskScheculer) {
-		this.taskScheculer = taskScheculer;
 	}
 
 	/**

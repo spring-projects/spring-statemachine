@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateMachine;
@@ -128,7 +127,6 @@ public class TransitionSecurityExpressionTests extends AbstractStateMachineTests
 			.withConfiguration()
 				.listener(listener)
 				.autoStartup(true)
-				.taskExecutor(new SyncTaskExecutor())
 				.and()
 			.withSecurity()
 				.enabled(true);

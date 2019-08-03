@@ -25,7 +25,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
@@ -135,7 +134,6 @@ public class PersistStateMachineHandlerTests {
 
 		builder.configureConfiguration()
 			.withConfiguration()
-				.taskExecutor(new SyncTaskExecutor())
 				.autoStartup(true);
 
 		builder.configureStates()
@@ -160,7 +158,6 @@ public class PersistStateMachineHandlerTests {
 
 		builder.configureConfiguration()
 			.withConfiguration()
-				.taskExecutor(new SyncTaskExecutor())
 				.autoStartup(true);
 
 		builder.configureStates()

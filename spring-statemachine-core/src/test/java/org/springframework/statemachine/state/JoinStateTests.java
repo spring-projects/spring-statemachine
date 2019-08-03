@@ -53,7 +53,7 @@ public class JoinStateTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testJoin() throws Exception {
-		context.register(BaseConfig.class, Config1.class);
+		context.register(Config1.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -86,7 +86,7 @@ public class JoinStateTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testJoinLoopTwice() throws Exception {
-		context.register(BaseConfig.class, Config1.class);
+		context.register(Config1.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -128,7 +128,7 @@ public class JoinStateTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testJoinSuper() throws Exception {
-		context.register(BaseConfig.class, Config2.class);
+		context.register(Config2.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -161,7 +161,7 @@ public class JoinStateTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testJoinSuperLoopTwice() throws Exception {
-		context.register(BaseConfig.class, Config2.class);
+		context.register(Config2.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -202,7 +202,7 @@ public class JoinStateTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testMultiJoin1() throws Exception {
-		context.register(BaseConfig.class, Config3.class);
+		context.register(Config3.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -235,7 +235,7 @@ public class JoinStateTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testMultiJoin2() throws Exception {
-		context.register(BaseConfig.class, Config3.class);
+		context.register(Config3.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -269,7 +269,7 @@ public class JoinStateTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testInterceptorPostStateChangeTransitionNotNull() throws Exception {
-		context.register(BaseConfig.class, Config1.class);
+		context.register(Config1.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -316,7 +316,7 @@ public class JoinStateTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testJoinSuperMultipleEnds1() throws Exception {
-		context.register(BaseConfig.class, Config4.class);
+		context.register(Config4.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -349,7 +349,7 @@ public class JoinStateTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testJoinSuperMultipleEnds2() throws Exception {
-		context.register(BaseConfig.class, Config4.class);
+		context.register(Config4.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);

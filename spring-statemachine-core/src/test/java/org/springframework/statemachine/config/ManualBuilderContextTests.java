@@ -29,7 +29,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineBuilder.Builder;
@@ -83,8 +82,7 @@ public class ManualBuilderContextTests extends AbstractStateMachineTests {
 			builder.configureConfiguration()
 				.withConfiguration()
 					.autoStartup(true)
-					.listener(testListener())
-					.taskExecutor(new SyncTaskExecutor());
+					.listener(testListener());
 			builder.configureStates()
 				.withStates()
 					.initial("S1").state("S2");
@@ -114,8 +112,7 @@ public class ManualBuilderContextTests extends AbstractStateMachineTests {
 			builder.configureConfiguration()
 				.withConfiguration()
 					.autoStartup(false)
-					.listener(testListener())
-					.taskExecutor(new SyncTaskExecutor());
+					.listener(testListener());
 			builder.configureStates()
 				.withStates()
 					.initial("S1").state("S2");

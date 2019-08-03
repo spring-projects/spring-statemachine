@@ -68,7 +68,7 @@ public class TimerTriggerTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testListenerEvents() throws Exception {
-		context.register(BaseConfig.class, Config1.class);
+		context.register(Config1.class);
 		context.refresh();
 
 		final CountDownLatch latch = new CountDownLatch(2);
@@ -89,7 +89,7 @@ public class TimerTriggerTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testTimerTransitions() throws Exception {
-		context.register(BaseConfig.class, Config2.class);
+		context.register(Config2.class);
 		context.refresh();
 		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
 		TestTimerAction action = context.getBean("testTimerAction", TestTimerAction.class);
@@ -150,7 +150,7 @@ public class TimerTriggerTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testTimerDelayFireOnlyOnState() throws Exception {
-		context.register(BaseConfig.class, Config4.class);
+		context.register(Config4.class);
 		context.refresh();
 		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
 		TestTimerAction action = context.getBean("testTimerAction", TestTimerAction.class);

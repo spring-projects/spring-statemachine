@@ -27,10 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
@@ -169,7 +166,7 @@ public class EndStateTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testEndStatesWithRegionsCompletionCompletes() throws InterruptedException {
-		context.register(Config8.class, BaseConfig2.class);
+		context.register(Config8.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
@@ -186,7 +183,7 @@ public class EndStateTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testEndStatesWithSubmachineCompletionCompletes() throws InterruptedException {
-		context.register(Config9.class, BaseConfig2.class);
+		context.register(Config9.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
@@ -204,7 +201,7 @@ public class EndStateTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testEndStatesWithRegionsCompletionCompletes2() throws InterruptedException {
-		context.register(Config10.class, BaseConfig2.class);
+		context.register(Config10.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
@@ -276,12 +273,6 @@ public class EndStateTests extends AbstractStateMachineTests {
 					.target(TestStates.SF)
 					.event(TestEvents.EF);
 		}
-
-		@Bean
-		public TaskExecutor taskExecutor() {
-			return new SyncTaskExecutor();
-		}
-
 	}
 
 	@Configuration
@@ -455,11 +446,6 @@ public class EndStateTests extends AbstractStateMachineTests {
 					.source(TestStates.S12)
 					.target(TestStates.SF)
 					.event(TestEvents.E3);
-		}
-
-		@Bean
-		public TaskExecutor taskExecutor() {
-			return new SyncTaskExecutor();
 		}
 	}
 

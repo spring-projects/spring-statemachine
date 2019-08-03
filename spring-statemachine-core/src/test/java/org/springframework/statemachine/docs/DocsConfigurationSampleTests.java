@@ -24,13 +24,11 @@ import org.springframework.beans.factory.support.StaticListableBeanFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
@@ -437,8 +435,6 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 			.withConfiguration()
 				.autoStartup(false)
 				.beanFactory(null)
-				.taskExecutor(null)
-				.taskScheduler(null)
 				.listener(null);
 		return builder.build();
 	}
@@ -1193,8 +1189,6 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 						.autoStartup(true)
 						.machineId("myMachineId")
 						.beanFactory(new StaticListableBeanFactory())
-						.taskExecutor(new SyncTaskExecutor())
-						.taskScheduler(new ConcurrentTaskScheduler())
 						.listener(new StateMachineListenerAdapter<States, Events>())
 						.transitionConflictPolicy(TransitionConflictPolicy.CHILD);
 			}

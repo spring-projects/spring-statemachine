@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,7 @@ package org.springframework.statemachine.support;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.event.StateMachineEventPublisher;
 import org.springframework.util.Assert;
@@ -32,39 +30,11 @@ import org.springframework.util.Assert;
  */
 public class StateMachineContextUtils {
 
-	/* Default task scheduler bean name */
-	public static final String TASK_SCHEDULER_BEAN_NAME = "taskScheduler";
-
-	/* Default task executor bean name */
-	public static final String TASK_EXECUTOR_BEAN_NAME = StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME;
-
 	/* Default conversion service bean name */
 	public static final String CONVERSION_SERVICE_BEAN_NAME = "cloudClusterConversionService";
 
 	/* Default evaluation context bean name */
 	public static final String EVALUATION_CONTEXT_BEAN_NAME = "cloudClusterEvaluationContext";
-
-	/**
-	 * Return the {@link TaskScheduler} bean whose name is "taskScheduler" if
-	 * available.
-	 *
-	 * @param beanFactory BeanFactory for lookup, must not be null.
-	 * @return task scheduler
-	 */
-	public static TaskScheduler getTaskScheduler(BeanFactory beanFactory) {
-		return getBeanOfType(beanFactory, TASK_SCHEDULER_BEAN_NAME, TaskScheduler.class);
-	}
-
-	/**
-	 * Return the {@link TaskScheduler} bean whose name is "taskExecutor" if
-	 * available.
-	 *
-	 * @param beanFactory BeanFactory for lookup, must not be null.
-	 * @return task executor
-	 */
-	public static TaskExecutor getTaskExecutor(BeanFactory beanFactory) {
-		return getBeanOfType(beanFactory, TASK_EXECUTOR_BEAN_NAME, TaskExecutor.class);
-	}
 
 	/**
 	 * Return the {@link ConversionService} bean whose name is

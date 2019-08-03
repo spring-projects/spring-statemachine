@@ -31,17 +31,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.StateMachineBuilder;
@@ -128,8 +124,7 @@ public class DocsConfigurationSampleTests2 extends AbstractStateMachineTests {
 			Builder<String, String> builder = StateMachineBuilder.builder();
 			builder.configureConfiguration()
 				.withConfiguration()
-					.autoStartup(true)
-					.taskExecutor(new SyncTaskExecutor());
+					.autoStartup(true);
 			builder.configureStates()
 				.withStates()
 					.initial("S1")
@@ -205,7 +200,7 @@ public class DocsConfigurationSampleTests2 extends AbstractStateMachineTests {
 
 	@Test
 	public void testConfig51() throws Exception {
-		context.register(Config5.class, ExecutorConfig.class);
+		context.register(Config5.class);
 		context.refresh();
 		StateMachine<String, String> machine = resolveMachine(context);
 		TestListener listener = new TestListener();
@@ -241,7 +236,7 @@ public class DocsConfigurationSampleTests2 extends AbstractStateMachineTests {
 
 	@Test
 	public void testConfig61() throws Exception {
-		context.register(Config6.class, ExecutorConfig.class);
+		context.register(Config6.class);
 		context.refresh();
 		StateMachine<String, String> machine = resolveMachine(context);
 		TestListener listener = new TestListener();
@@ -273,17 +268,6 @@ public class DocsConfigurationSampleTests2 extends AbstractStateMachineTests {
 		doSendEventAndConsumeAll(machine, "DEPLOY");
 		assertThat(listener.readyStateEnteredLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(listener.readyStateEnteredCount, is(2));
-	}
-
-	@Configuration
-	static class ExecutorConfig {
-
-		@Bean(name=StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME)
-		public TaskExecutor taskExecutor() {
-			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-			taskExecutor.setCorePoolSize(1);
-			return taskExecutor;
-		}
 	}
 
 // tag::snippetE[]

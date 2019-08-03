@@ -29,11 +29,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
-import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.StateMachineFactory;
@@ -155,12 +151,6 @@ public class StateMachineFactoryTests extends AbstractStateMachineTests {
 					.target(TestStates.S2)
 					.event(TestEvents.E1);
 		}
-
-		@Bean
-		public TaskExecutor taskExecutor() {
-			return new SyncTaskExecutor();
-		}
-
 	}
 
 	@Configuration
@@ -279,8 +269,7 @@ public class StateMachineFactoryTests extends AbstractStateMachineTests {
 		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
 			config
 				.withConfiguration()
-					.autoStartup(true)
-					.taskExecutor(new SimpleAsyncTaskExecutor());
+					.autoStartup(true);
 		}
 
 		@Override

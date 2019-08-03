@@ -55,7 +55,7 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testOnTransition() throws Exception {
-		context.register(BaseConfig.class, BeanConfig1.class, Config1.class);
+		context.register(BeanConfig1.class, Config1.class);
 		context.refresh();
 
 		ObjectStateMachine<TestStates,TestEvents> machine =
@@ -84,7 +84,7 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testOnStateChanged() throws Exception {
-		context.register(BaseConfig.class, BeanConfig1.class, Config1.class);
+		context.register(BeanConfig1.class, Config1.class);
 		context.refresh();
 
 		ObjectStateMachine<TestStates,TestEvents> machine =
@@ -113,7 +113,7 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testOnStateMachineStartStop() throws Exception {
-		context.register(BaseConfig.class, BeanConfig1.class, Config1.class);
+		context.register(BeanConfig1.class, Config1.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -139,7 +139,7 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testOnExtendedStateChanged() throws Exception {
-		context.register(BaseConfig.class, BeanConfig5.class, Config1.class);
+		context.register(BeanConfig5.class, Config1.class);
 		context.refresh();
 
 		ObjectStateMachine<TestStates,TestEvents> machine =
@@ -166,7 +166,7 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testMethodAnnotations2() throws Exception {
-		context.register(BaseConfig.class, BeanConfig2.class, Config1.class);
+		context.register(BeanConfig2.class, Config1.class);
 		context.refresh();
 
 		ObjectStateMachine<TestStates,TestEvents> machine =
@@ -203,7 +203,7 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testMethodAnnotations3() throws Exception {
-		context.register(BaseConfig.class, BeanConfig3.class, Config1.class);
+		context.register(BeanConfig3.class, Config1.class);
 		context.refresh();
 
 		ObjectStateMachine<TestStates,TestEvents> machine =
@@ -222,7 +222,7 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testMethodAnnotations4() throws Exception {
-		context.register(BaseConfig.class, BeanConfig4.class, Config1.class);
+		context.register(BeanConfig4.class, Config1.class);
 		context.refresh();
 
 		ObjectStateMachine<TestStates,TestEvents> machine =
@@ -249,7 +249,7 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testMethodAnnotations5() throws Exception {
-		context.register(BaseConfig.class, BeanConfig6.class, Config1.class);
+		context.register(BeanConfig6.class, Config1.class);
 		context.refresh();
 
 		ObjectStateMachine<TestStates,TestEvents> machine =
@@ -270,7 +270,7 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testMethodAnnotations6() throws Exception {
-		context.register(BaseConfig.class, BeanConfig7.class, Config1.class);
+		context.register(BeanConfig7.class, Config1.class);
 		context.refresh();
 
 		ObjectStateMachine<TestStates,TestEvents> machine =
@@ -290,7 +290,7 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testMethodAnnotations7() throws Exception {
-		context.register(BaseConfig.class, BeanConfig8.class, Config1.class);
+		context.register(BeanConfig8.class, Config1.class);
 		context.refresh();
 
 		ObjectStateMachine<TestStates,TestEvents> machine =
@@ -307,7 +307,7 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testMethodAnnotations8() throws Exception {
-		context.register(BaseConfig.class, BeanConfig9.class, Config2.class);
+		context.register(BeanConfig9.class, Config2.class);
 		context.refresh();
 
 		ObjectStateMachine<TestStates,TestEvents> machine =
@@ -328,7 +328,7 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testMethodAnnotations9() throws Exception {
-		context.register(BaseConfig.class, BeanConfig10.class, Config3.class);
+		context.register(BeanConfig10.class, Config3.class);
 		context.refresh();
 
 		ObjectStateMachine<TestStates,TestEvents> machine =

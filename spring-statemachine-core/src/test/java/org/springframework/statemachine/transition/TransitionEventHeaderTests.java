@@ -28,9 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateContext;
@@ -39,7 +37,6 @@ import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
-import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.guard.Guard;
@@ -387,11 +384,6 @@ public class TransitionEventHeaderTests extends AbstractStateMachineTests {
 	public static class Config5 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
 
 		@Override
-		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
-			config.withConfiguration().taskExecutor(customTaskExecutor());
-		}
-
-		@Override
 		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
 			states
 				.withStates()
@@ -443,14 +435,6 @@ public class TransitionEventHeaderTests extends AbstractStateMachineTests {
 		public EventCheckGuard eventCheckGuard() {
 			return new EventCheckGuard(true);
 		}
-
-		@Bean(name = StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME)
-		public TaskExecutor customTaskExecutor() {
-			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-			taskExecutor.setCorePoolSize(1);
-			return taskExecutor;
-		}
-
 	}
 
 	private static class EventCheckGuard implements Guard<TestStates, TestEvents> {

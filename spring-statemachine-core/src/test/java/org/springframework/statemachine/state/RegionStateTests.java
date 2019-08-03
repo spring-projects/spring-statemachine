@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import java.util.Collection;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.region.Region;
@@ -70,10 +69,8 @@ public class RegionStateTests extends AbstractStateMachineTests {
 		transitions.add(transitionFromS1ToS2);
 		transitions.add(transitionFromS2ToS3);
 
-		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
 		BeanFactory beanFactory = new DefaultListableBeanFactory();
 		ObjectStateMachine<TestStates, TestEvents> machine = new ObjectStateMachine<TestStates, TestEvents>(states, transitions, stateSI);
-		machine.setTaskExecutor(taskExecutor);
 		machine.setBeanFactory(beanFactory);
 		machine.afterPropertiesSet();
 		machine.start();

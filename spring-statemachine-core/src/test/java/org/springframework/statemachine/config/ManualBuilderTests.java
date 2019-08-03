@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.support.StaticListableBeanFactory;
 import org.springframework.context.SmartLifecycle;
-import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.StateMachineSystemConstants;
-import org.springframework.statemachine.TestUtils;
 import org.springframework.statemachine.config.StateMachineBuilder.Builder;
 import org.springframework.statemachine.config.builders.StateMachineConfigBuilder;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
@@ -60,8 +56,6 @@ public class ManualBuilderTests {
 				new DefaultStateMachineModel<String, String>(stateMachineConfigurationConfig, stateMachineStates, stateMachineTransitions));
 
 		StaticListableBeanFactory beanFactory = new StaticListableBeanFactory();
-		beanFactory.addBean(StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME, new SyncTaskExecutor());
-		beanFactory.addBean("taskScheduler", new ConcurrentTaskScheduler());
 		stateMachineFactory.setBeanFactory(beanFactory);
 
 		TestListener listener = new TestListener();
@@ -80,8 +74,6 @@ public class ManualBuilderTests {
 		Builder<String, String> builder = StateMachineBuilder.builder();
 
 		StaticListableBeanFactory beanFactory = new StaticListableBeanFactory();
-		beanFactory.addBean(StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME, new SyncTaskExecutor());
-		beanFactory.addBean("taskScheduler", new ConcurrentTaskScheduler());
 
 		builder.configureConfiguration()
 			.withConfiguration()
@@ -115,8 +107,6 @@ public class ManualBuilderTests {
 		Builder<MyStates, MyEvents> builder = StateMachineBuilder.builder();
 
 		StaticListableBeanFactory beanFactory = new StaticListableBeanFactory();
-		beanFactory.addBean(StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME, new SyncTaskExecutor());
-		beanFactory.addBean("taskScheduler", new ConcurrentTaskScheduler());
 
 		builder.configureConfiguration()
 			.withConfiguration()
@@ -153,75 +143,12 @@ public class ManualBuilderTests {
 	}
 
 	@Test
-	public void testManualBuildExplicitTaskExecutorAndScheduler() throws Exception {
-		Builder<String, String> builder = StateMachineBuilder.builder();
-
-		builder.configureConfiguration()
-			.withConfiguration()
-				.taskExecutor(new SyncTaskExecutor())
-				.taskScheduler(new ConcurrentTaskScheduler());
-
-		builder.configureStates()
-			.withStates()
-				.initial("S1").state("S2");
-
-		builder.configureTransitions()
-			.withExternal()
-				.source("S1").target("S2").event("E1")
-				.and()
-			.withExternal()
-				.source("S2").target("S1").event("E2");
-
-		StateMachine<String, String> stateMachine = builder.build();
-		assertThat(stateMachine, notNullValue());
-		TestListener listener = new TestListener();
-		stateMachine.addStateListener(listener);
-		doStartAndAssert(stateMachine);
-
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(stateMachine, notNullValue());
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
-
-		listener.reset(1);
-		doSendEventAndConsumeAll(stateMachine, "E1");
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(stateMachine, notNullValue());
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
-	}
-
-	@Test
-	public void testManualBuildDefaultTaskExecutor() throws Exception {
-		Builder<String, String> builder = StateMachineBuilder.builder();
-
-		builder.configureStates()
-			.withStates()
-				.initial("S1").state("S2");
-
-		builder.configureTransitions()
-			.withExternal()
-				.source("S1").target("S2").event("E1")
-				.and()
-			.withExternal()
-				.source("S2").target("S1").event("E2");
-
-		StateMachine<String, String> stateMachine = builder.build();
-		assertThat(stateMachine, notNullValue());
-
-		assertThat(TestUtils.readField("taskExecutor", stateMachine), notNullValue());
-		assertThat(TestUtils.readField("taskScheduler", stateMachine), notNullValue());
-	}
-
-	@Test
 	public void testAutoStartFlagOn() throws Exception {
 		Builder<String, String> builder = StateMachineBuilder.builder();
 
 		builder.configureConfiguration()
 			.withConfiguration()
-				.autoStartup(true)
-				.taskExecutor(new SyncTaskExecutor())
-				.taskScheduler(new ConcurrentTaskScheduler());
+				.autoStartup(true);
 
 		builder.configureStates()
 			.withStates()
@@ -279,12 +206,6 @@ public class ManualBuilderTests {
 			stateChangedCount++;
 			stateChangedLatch.countDown();
 		}
-
-		public void reset(int a1) {
-			stateChangedCount = 0;
-			stateChangedLatch = new CountDownLatch(a1);
-		}
-
 	}
 
 	private static class TestListener2 extends StateMachineListenerAdapter<MyStates, MyEvents> {

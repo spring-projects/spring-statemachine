@@ -32,10 +32,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
@@ -65,30 +62,6 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		assertThat(readField.size(), is(1));
 		doSendEventAndConsumeAll(machine, "E2");
 		assertThat(readField.size(), is(2));
-	}
-
-	@Test
-	public void testDeferWithFlatThreadExecutor() throws Exception {
-		context.register(Config2.class, ExecutorConfig.class);
-		context.refresh();
-		StateMachine<String, String> machine = resolveMachine(context);
-		TestListener listener = new TestListener();
-		machine.addStateListener(listener);
-		doStartAndAssert(machine);
-		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedLatch.await(3, TimeUnit.SECONDS), is(true));
-
-		listener.reset(1, 0, 0, 0);
-		doSendEventAndConsumeAll(machine, "E3");
-		assertThat(listener.stateChangedLatch.await(3, TimeUnit.SECONDS), is(true));
-
-		doSendEventAndConsumeAll(machine, "E1");
-		doSendEventAndConsumeAll(machine, "E1");
-		Object executor = TestUtils.readField("stateMachineExecutor", machine);
-		Collection<?> readField = TestUtils.readField("deferList", executor);
-		assertThat(readField.size(), is(2));
-		doSendEventAndConsumeAll(machine, "E2");
-		assertThat(readField.size(), is(3));
 	}
 
 	@Test
@@ -167,71 +140,6 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		assertThat(listener.readyStateEnteredCount, is(2));
 
 		assertThat(machine.getState().getIds(), contains("READY"));
-	}
-
-	@Test
-	public void testDeferWithSubsThreadExecutor() throws Exception {
-		context.register(Config1.class, ExecutorConfig2.class);
-		context.refresh();
-		StateMachine<String, String> machine = resolveMachine(context);
-		TestListener listener = new TestListener();
-		machine.addStateListener(listener);
-		doStartAndAssert(machine);
-
-		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedLatch.await(3, TimeUnit.SECONDS), is(true));
-
-		listener.reset(0, 0, 0, 1);
-		doSendEventAndConsumeAll(machine, "E3");
-		assertThat(listener.sub3readyStateEnteredLatch.await(3, TimeUnit.SECONDS), is(true));
-		assertThat(listener.sub3readyStateEnteredCount, is(1));
-
-		listener.reset(0, 0, 2, 0);
-		doSendEventAndConsumeAll(machine, "E1");
-		doSendEventAndConsumeAll(machine, "E1");
-
-		Object executor = TestUtils.readField("stateMachineExecutor", machine);
-		Collection<?> readField = TestUtils.readField("deferList", executor);
-		assertThat(readField.size(), is(2));
-
-		listener.reset(0, 0, 3, 0);
-		doSendEventAndConsumeAll(machine, "E4");
-		assertThat(listener.readyStateEnteredLatch.await(3, TimeUnit.SECONDS), is(true));
-		assertThat(listener.readyStateEnteredCount, is(3));
-
-		assertThat(machine.getState().getIds(), contains("READY"));
-	}
-
-	@Test
-	public void testDeferWithSubs2ThreadExecutor() throws Exception {
-		context.register(Config1.class, ExecutorConfig.class);
-		context.refresh();
-		StateMachine<String, String> machine = resolveMachine(context);
-		TestListener listener = new TestListener();
-		machine.addStateListener(listener);
-		doStartAndAssert(machine);
-
-		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedLatch.await(3, TimeUnit.SECONDS), is(true));
-
-		listener.reset(0, 0, 2, 0);
-		doSendEventAndConsumeAll(machine, "E2");
-		doSendEventAndConsumeAll(machine, "E2");
-
-		assertThat(listener.readyStateEnteredLatch.await(3, TimeUnit.SECONDS), is(true));
-		assertThat(listener.readyStateEnteredCount, is(2));
-
-		assertThat(machine.getState().getIds(), contains("READY"));
-	}
-
-	@Test
-	public void testDeferWithSubs2ThreadExecutorSmoke() throws Exception {
-		// smoke above test to see threading issues
-		for (int i = 0; i < 500; i++) {
-			setup();
-			testDeferWithSubs2ThreadExecutor();
-			clean();
-		}
 	}
 
 	@Test
@@ -634,32 +542,6 @@ public class EventDeferTests extends AbstractStateMachineTests {
 					.source("S2").target("S1")
 					.event("E2");
 		}
-	}
-
-	@Configuration
-	static class ExecutorConfig {
-
-		@Bean(name=StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME)
-		public TaskExecutor taskExecutor() {
-			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-			taskExecutor.setCorePoolSize(1);
-			taskExecutor.setMaxPoolSize(1);
-			return taskExecutor;
-		}
-
-	}
-
-	@Configuration
-	static class ExecutorConfig2 {
-
-		@Bean(name=StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME)
-		public TaskExecutor taskExecutor() {
-			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-			taskExecutor.setCorePoolSize(1);
-			taskExecutor.setMaxPoolSize(4);
-			return taskExecutor;
-		}
-
 	}
 
 	static class TestListener extends StateMachineListenerAdapter<String, String> {

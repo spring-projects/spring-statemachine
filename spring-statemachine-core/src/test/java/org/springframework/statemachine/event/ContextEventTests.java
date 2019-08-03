@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ public class ContextEventTests extends AbstractStateMachineTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void contextEventsEnabled() throws Exception {
-		context.register(BaseConfig.class, Config.class, Config1.class);
+		context.register(Config.class, Config1.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -68,7 +68,7 @@ public class ContextEventTests extends AbstractStateMachineTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void contextEventsDisabled() throws Exception {
-		context.register(BaseConfig.class, Config.class, Config2.class);
+		context.register(Config.class, Config2.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -82,7 +82,7 @@ public class ContextEventTests extends AbstractStateMachineTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void contextEventsWithManualBuilder() throws Exception {
-		context.register(BaseConfig.class, Config.class, Config3.class);
+		context.register(Config.class, Config3.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -96,7 +96,7 @@ public class ContextEventTests extends AbstractStateMachineTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void contextEventsWithManualBuilderExternalConfigClass() throws Exception {
-		context.register(BaseConfig.class, Config.class, ExternalConfig.class);
+		context.register(Config.class, ExternalConfig.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);

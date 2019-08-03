@@ -33,7 +33,6 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.action.Actions;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -134,15 +133,11 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		ObjectStateMachine<TestStates, TestEvents> machine = new ObjectStateMachine<TestStates, TestEvents>(states, transitions, stateS1);
 
 
-		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
 		BeanFactory beanFactory = new DefaultListableBeanFactory();
-		machine.setTaskExecutor(taskExecutor);
 		machine.setBeanFactory(beanFactory);
 		machine.afterPropertiesSet();
-		submachine1.setTaskExecutor(taskExecutor);
 		submachine1.setBeanFactory(beanFactory);
 		submachine1.afterPropertiesSet();
-		submachine11.setTaskExecutor(taskExecutor);
 		submachine11.setBeanFactory(beanFactory);
 		submachine11.afterPropertiesSet();
 		machine.start();
@@ -231,12 +226,9 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		ObjectStateMachine<TestStates, TestEvents> machine = new ObjectStateMachine<TestStates, TestEvents>(states, transitions, stateS1);
 
 
-		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
 		BeanFactory beanFactory = new DefaultListableBeanFactory();
-		machine.setTaskExecutor(taskExecutor);
 		machine.setBeanFactory(beanFactory);
 		machine.afterPropertiesSet();
-		submachine11.setTaskExecutor(taskExecutor);
 		submachine11.setBeanFactory(beanFactory);
 		submachine11.afterPropertiesSet();
 		machine.start();
@@ -332,15 +324,11 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		ObjectStateMachine<TestStates, TestEvents> machine = new ObjectStateMachine<TestStates, TestEvents>(states, transitions, stateS1);
 
 
-		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
 		BeanFactory beanFactory = new DefaultListableBeanFactory();
-		machine.setTaskExecutor(taskExecutor);
 		machine.setBeanFactory(beanFactory);
 		machine.afterPropertiesSet();
-		submachine1.setTaskExecutor(taskExecutor);
 		submachine1.setBeanFactory(beanFactory);
 		submachine1.afterPropertiesSet();
-		submachine11.setTaskExecutor(taskExecutor);
 		submachine11.setBeanFactory(beanFactory);
 		submachine11.afterPropertiesSet();
 		machine.start();
@@ -364,7 +352,7 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testExternalTransition3() throws Exception {
-		context.register(BaseConfig.class, Config1.class);
+		context.register(Config1.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
@@ -400,7 +388,7 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testMixedStates() throws Exception {
-		context.register(BaseConfig.class, Config2.class);
+		context.register(Config2.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
@@ -414,7 +402,7 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testStateChangeWithinMachine() {
-		context.register(BaseConfig.class, Config3.class);
+		context.register(Config3.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")

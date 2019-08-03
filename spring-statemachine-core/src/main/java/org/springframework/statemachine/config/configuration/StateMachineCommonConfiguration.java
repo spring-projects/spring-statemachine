@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,6 @@ package org.springframework.statemachine.config.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
-import org.springframework.statemachine.StateMachineSystemConstants;
 
 /**
  * Common configuration for statemachine.
@@ -31,16 +26,6 @@ import org.springframework.statemachine.StateMachineSystemConstants;
  */
 @Configuration
 public class StateMachineCommonConfiguration {
-
-	@Bean(name = StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME)
-	public TaskExecutor taskExecutor() {
-		return new SyncTaskExecutor();
-	}
-
-	@Bean
-	public TaskScheduler taskScheduler() {
-		return new ConcurrentTaskScheduler();
-	}
 
 	@Bean(name = StateMachineHandlerApplicationListener.BEAN_NAME)
 	public StateMachineHandlerApplicationListener stateMachineHandlerApplicationListener() {

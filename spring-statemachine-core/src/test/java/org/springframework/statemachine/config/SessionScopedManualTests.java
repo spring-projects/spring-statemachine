@@ -31,7 +31,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -137,8 +136,7 @@ public class SessionScopedManualTests {
 			Builder<String, String> builder = StateMachineBuilder.builder();
 			builder.configureConfiguration()
 				.withConfiguration()
-					.autoStartup(true)
-					.taskExecutor(new SyncTaskExecutor());
+					.autoStartup(true);
 			builder.configureStates()
 				.withStates()
 					.initial("S1").state("S2");

@@ -57,7 +57,7 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testContextEvents() throws Exception {
-		context.register(BaseConfig.class, Config1.class);
+		context.register(Config1.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		TestEventListener listener = context.getBean(TestEventListener.class);
@@ -80,7 +80,7 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testEventNotAccepted() throws Exception {
-		context.register(BaseConfig.class, Config1.class);
+		context.register(Config1.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		TestEventListener eventListener = context.getBean(TestEventListener.class);
@@ -110,7 +110,7 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testSubmachineHandlesEvent() throws Exception {
-		context.register(BaseConfig.class, Config2.class);
+		context.register(Config2.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
@@ -126,7 +126,7 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testEventNotAcceptedS1() throws Exception {
-		context.register(BaseConfig.class, Config3.class);
+		context.register(Config3.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
@@ -148,7 +148,7 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testEventAcceptedS1() throws Exception {
-		context.register(BaseConfig.class, Config3.class);
+		context.register(Config3.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
@@ -170,7 +170,7 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testEventAcceptedS1NoS1Transition() throws Exception {
-		context.register(BaseConfig.class, Config4.class);
+		context.register(Config4.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
@@ -192,7 +192,7 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testEventAcceptedS1GuardAllow() throws Exception {
-		context.register(BaseConfig.class, Config3.class);
+		context.register(Config3.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
@@ -215,7 +215,7 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testEventAcceptedS11GuardAllow() throws Exception {
-		context.register(BaseConfig.class, Config3.class);
+		context.register(Config3.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
@@ -238,7 +238,7 @@ public class StateMachineEventTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testEventAcceptedS111GuardAllow() throws Exception {
-		context.register(BaseConfig.class, Config3.class);
+		context.register(Config3.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")

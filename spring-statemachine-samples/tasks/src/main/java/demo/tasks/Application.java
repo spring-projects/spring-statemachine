@@ -23,12 +23,9 @@ import java.util.Map;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.shell.Bootstrap;
 import org.springframework.statemachine.StateContext;
-import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.annotation.OnTransition;
 import org.springframework.statemachine.config.EnableStateMachine;

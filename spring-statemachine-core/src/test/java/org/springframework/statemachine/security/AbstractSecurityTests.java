@@ -23,7 +23,6 @@ import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAl
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineBuilder;
@@ -98,8 +97,7 @@ public abstract class AbstractSecurityTests extends AbstractStateMachineTests {
 		StateMachineConfigurationConfigurer<States, Events> configureConfiguration = builder.configureConfiguration();
 		configureConfiguration.withConfiguration()
 				.listener(listener)
-				.autoStartup(true)
-				.taskExecutor(new SyncTaskExecutor());
+				.autoStartup(true);
 
 		SecurityConfigurer<States, Events> withSecurity = configureConfiguration.withSecurity();
 		withSecurity.enabled(true);

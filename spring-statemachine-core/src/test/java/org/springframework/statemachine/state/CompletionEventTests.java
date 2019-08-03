@@ -64,24 +64,6 @@ public class CompletionEventTests extends AbstractStateMachineTests {
 	}
 
 	@Test
-	public void testSimpleStateWithStateActionCompletesThreading() throws Exception {
-		context.register(Config1.class, BaseConfig2.class);
-		context.refresh();
-		StateMachine<String,String> machine = resolveMachine(context);
-		TestCountAction testAction2 = context.getBean("testAction2", TestCountAction.class);
-
-		doStartAndAssert(machine);
-		Thread.sleep(1000);
-
-		doSendEventAndConsumeAll(machine, "E1");
-
-		assertThat(testAction2.latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(testAction2.count, is(1));
-		Thread.sleep(1000);
-		assertThat(machine.getState().getId(), is("S3"));
-	}
-
-	@Test
 	public void testSimpleStateWithoutStateActionCompletes() throws Exception {
 		context.register(Config2.class);
 		context.refresh();
@@ -121,24 +103,6 @@ public class CompletionEventTests extends AbstractStateMachineTests {
 
 		doSendEventAndConsumeAll(machine, "E1");
 		assertThat(machine.getState().getId(), is("S3"));
-	}
-
-	@Test
-	public void testSubmachineWithoutStateActionCompletesThreading() throws Exception {
-		context.register(Config3.class, BaseConfig2.class);
-		context.refresh();
-		StateMachine<String,String> machine = resolveMachine(context);
-
-		doStartAndAssert(machine);
-		Thread.sleep(200);
-		assertThat(machine.getState().getId(), is("S1"));
-
-		doSendEventAndConsumeAll(machine, "E1");
-		Thread.sleep(200);
-		assertThat(machine.getState().getId(), is("S3"));
-	}
-
-	public void testRegionWithStateActionCompletes() throws Exception {
 	}
 
 	@Test

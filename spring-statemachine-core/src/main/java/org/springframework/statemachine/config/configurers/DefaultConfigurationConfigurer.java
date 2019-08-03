@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.statemachine.action.StateDoActionPolicy;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationBuilder;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
@@ -45,8 +43,6 @@ public class DefaultConfigurationConfigurer<S, E>
 
 	private String machineId;
 	private BeanFactory beanFactory;
-	private TaskExecutor taskExecutor;
-	private TaskScheduler taskScheculer;
 	private boolean autoStart = false;
 	private TransitionConflictPolicy transitionConflightPolicy;
 	private StateDoActionPolicy stateDoActionPolicy;
@@ -58,8 +54,6 @@ public class DefaultConfigurationConfigurer<S, E>
 	public void configure(StateMachineConfigurationBuilder<S, E> builder) throws Exception {
 		builder.setMachineId(machineId);
 		builder.setBeanFactory(beanFactory);
-		builder.setTaskExecutor(taskExecutor);
-		builder.setTaskScheculer(taskScheculer);
 		builder.setAutoStart(autoStart);
 		builder.setStateMachineListeners(listeners);
 		builder.setTransitionConflictPolicy(transitionConflightPolicy);
@@ -76,18 +70,6 @@ public class DefaultConfigurationConfigurer<S, E>
 	@Override
 	public ConfigurationConfigurer<S, E> beanFactory(BeanFactory beanFactory) {
 		this.beanFactory = beanFactory;
-		return this;
-	}
-
-	@Override
-	public ConfigurationConfigurer<S, E> taskExecutor(TaskExecutor taskExecutor) {
-		this.taskExecutor = taskExecutor;
-		return this;
-	}
-
-	@Override
-	public ConfigurationConfigurer<S, E> taskScheduler(TaskScheduler taskScheduler) {
-		this.taskScheculer = taskScheduler;
 		return this;
 	}
 

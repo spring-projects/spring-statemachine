@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class ClassAnnotationTests extends AbstractStateMachineTests {
 	@SuppressWarnings("unchecked")
 	public void testClassAnnotations() throws Exception {
 		AnnotationConfigApplicationContext context =
-				new AnnotationConfigApplicationContext(BaseConfig.class, BeanConfig1.class, FooConfig.class, BarConfig.class);
+				new AnnotationConfigApplicationContext(BeanConfig1.class, FooConfig.class, BarConfig.class);
 
 		ObjectStateMachine<TestStates,TestEvents> fooMachine =
 				context.getBean("fooMachine", ObjectStateMachine.class);
@@ -82,7 +82,7 @@ public class ClassAnnotationTests extends AbstractStateMachineTests {
 	@SuppressWarnings("unchecked")
 	public void testClassAnnotationsWithMeta() throws Exception {
 		AnnotationConfigApplicationContext context =
-				new AnnotationConfigApplicationContext(BaseConfig.class, BeanConfig2.class, JeeConfig.class, FooConfig.class);
+				new AnnotationConfigApplicationContext(BeanConfig2.class, JeeConfig.class, FooConfig.class);
 
 		ObjectStateMachine<TestStates,TestEvents> jeeMachine =
 				context.getBean("jeeMachine", ObjectStateMachine.class);

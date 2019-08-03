@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,9 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateContext;
@@ -68,7 +66,7 @@ public class TransitionTests extends AbstractStateMachineTests {
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testTriggerlessTransition() throws Exception {
-		context.register(BaseConfig.class, Config1.class);
+		context.register(Config1.class);
 		context.refresh();
 
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
@@ -91,7 +89,7 @@ public class TransitionTests extends AbstractStateMachineTests {
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testTriggerlessTransitionFromInitial() throws Exception {
-		context.register(BaseConfig.class, Config3.class);
+		context.register(Config3.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		ObjectStateMachine<TestStates,TestEvents> machine =
@@ -103,7 +101,7 @@ public class TransitionTests extends AbstractStateMachineTests {
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testTriggerlessTransitionFromInitialToEnd() throws Exception {
-		context.register(BaseConfig.class, Config4.class);
+		context.register(Config4.class);
 		context.refresh();
 
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
@@ -120,7 +118,7 @@ public class TransitionTests extends AbstractStateMachineTests {
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testTriggerlessTransitionInRegionsDefinedInSubStates() throws Exception {
-		context.register(BaseConfig.class, Config5.class);
+		context.register(Config5.class);
 		context.refresh();
 
 		TestAction testAction1 = context.getBean("testAction1", TestAction.class);
@@ -147,7 +145,7 @@ public class TransitionTests extends AbstractStateMachineTests {
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testTriggerlessTransitionInRegions() throws Exception {
-		context.register(BaseConfig.class, Config6.class);
+		context.register(Config6.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		ObjectStateMachine<TestStates,TestEvents> machine =
@@ -161,7 +159,7 @@ public class TransitionTests extends AbstractStateMachineTests {
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testInternalTransition() throws Exception {
-		context.register(BaseConfig.class, Config2.class);
+		context.register(Config2.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		ObjectStateMachine<TestStates,TestEvents> machine =
@@ -191,7 +189,7 @@ public class TransitionTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testTransitDirectlyToSubstateSkipInitial() throws InterruptedException {
-		context.register(BaseConfig.class, Config7.class);
+		context.register(Config7.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
@@ -215,7 +213,7 @@ public class TransitionTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testTransitDeepDirectlyToSubstateSkipInitial() throws InterruptedException {
-		context.register(BaseConfig.class, Config8.class);
+		context.register(Config8.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		@SuppressWarnings("unchecked")
@@ -240,7 +238,7 @@ public class TransitionTests extends AbstractStateMachineTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testAnonymousTransitionInSubmachine() throws InterruptedException {
-		context.register(BaseConfig.class, Config9.class);
+		context.register(Config9.class);
 		context.refresh();
 
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
@@ -264,97 +262,6 @@ public class TransitionTests extends AbstractStateMachineTests {
 
 		assertThat(testAction1.testHeader, is("testValue"));
 		assertThat(testAction2.testHeader, is("testValue"));
-	}
-
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testAnonymousTransitionInSubmachineWithThreading() throws InterruptedException {
-		context.register(Config9.class, ExecutorConfig.class);
-		context.refresh();
-
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		ObjectStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		HeaderTestAction testAction1 = context.getBean("testAction1", HeaderTestAction.class);
-		HeaderTestAction testAction2 = context.getBean("testAction2", HeaderTestAction.class);
-
-
-		TestListener listener = new TestListener();
-		machine.addStateListener(listener);
-
-		machine.start();
-		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
-
-		listener.reset(4);
-		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("testHeader", "testValue").build());
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(4));
-		assertThat(machine.getState().getIds(), contains(TestStates.S2, TestStates.S212));
-
-		assertThat(testAction1.testHeader, is("testValue"));
-		assertThat(testAction2.testHeader, is("testValue"));
-	}
-
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testAnonymousTransitionInSubmachineWithExitWithThreading1() throws InterruptedException {
-		context.register(Config10.class, ExecutorConfig.class);
-		context.refresh();
-
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		ObjectStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		HeaderTestAction testAction1 = context.getBean("testAction1", HeaderTestAction.class);
-		HeaderTestAction testAction2 = context.getBean("testAction2", HeaderTestAction.class);
-
-
-		TestListener listener = new TestListener();
-		machine.addStateListener(listener);
-
-		machine.start();
-		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
-
-		listener.reset(5);
-		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("testHeader", "testValue").build());
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(5));
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
-
-		assertThat(testAction1.testHeader, is("testValue"));
-		assertThat(testAction2.testHeader, is("testValue"));
-	}
-
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testAnonymousTransitionInSubmachineWithExitWithThreading2() throws InterruptedException {
-		context.register(Config11.class, ExecutorConfig.class);
-		context.refresh();
-
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
-		ObjectStateMachine<TestStates,TestEvents> machine =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		HeaderTestAction testAction1 = context.getBean("testAction1", HeaderTestAction.class);
-
-
-		TestListener listener = new TestListener();
-		machine.addStateListener(listener);
-
-		machine.start();
-		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
-
-		listener.reset(3);
-		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("testHeader", "testValue").build());
-		assertThat(testAction1.latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.s20Latch.await(2, TimeUnit.SECONDS), is(true));
-
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(3));
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
-
-		assertThat(testAction1.testHeader, is("testValue"));
 	}
 
 	@Configuration
@@ -906,17 +813,5 @@ public class TransitionTests extends AbstractStateMachineTests {
 			stateEnteredCount = 0;
 		}
 
-	}
-
-	@Configuration
-	static class ExecutorConfig {
-
-		@Bean(name=StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME)
-		public TaskExecutor taskExecutor() {
-			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-			taskExecutor.setCorePoolSize(3);
-			taskExecutor.setMaxPoolSize(3);
-			return taskExecutor;
-		}
 	}
 }

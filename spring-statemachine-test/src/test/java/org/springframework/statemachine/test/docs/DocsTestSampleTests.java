@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import static org.hamcrest.collection.IsMapContaining.hasEntry;
 //end::snippetC[]
 
 import org.junit.Test;
-import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineBuilder;
 import org.springframework.statemachine.test.StateMachineTestPlan;
@@ -64,7 +63,6 @@ public class DocsTestSampleTests {
 
 		builder.configureConfiguration()
 			.withConfiguration()
-				.taskExecutor(new SyncTaskExecutor())
 				.autoStartup(true);
 
 		builder.configureStates()

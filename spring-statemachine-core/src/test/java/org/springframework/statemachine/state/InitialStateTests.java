@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class InitialStateTests extends AbstractStateMachineTests {
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testInitialStateTransition() throws Exception {
-		context.register(BaseConfig.class, Config1.class);
+		context.register(Config1.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		ObjectStateMachine<TestStates,TestEvents> machine =
@@ -56,7 +56,7 @@ public class InitialStateTests extends AbstractStateMachineTests {
 	@Test
 	public void testInitialStateMissingFailure() throws Exception {
 		assertThrows(Exception.class, () -> {
-			context.register(BaseConfig.class, Config2.class);
+			context.register(Config2.class);
 			context.refresh();
 		});
 
@@ -65,7 +65,7 @@ public class InitialStateTests extends AbstractStateMachineTests {
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testInitialNoNeedAsState() throws Exception {
-		context.register(BaseConfig.class, Config3.class);
+		context.register(Config3.class);
 		context.refresh();
 		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
 		ObjectStateMachine<TestStates,TestEvents> machine =
@@ -151,7 +151,7 @@ public class InitialStateTests extends AbstractStateMachineTests {
 		}
 
 	}
-	
+
 	@Override
 	protected AnnotationConfigApplicationContext buildContext() {
 		return new AnnotationConfigApplicationContext();

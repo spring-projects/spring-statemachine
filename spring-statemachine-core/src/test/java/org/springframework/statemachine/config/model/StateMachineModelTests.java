@@ -29,9 +29,6 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.ObjectStateMachineFactory;
@@ -47,8 +44,6 @@ public class StateMachineModelTests {
 	@Test
 	public void testMachineManuallyViaModel() {
 		BeanFactory beanFactory = null;
-		TaskExecutor taskExecutor = new SyncTaskExecutor();
-		TaskScheduler taskScheduler = null;
 		boolean autoStart = false;
 		StateMachineEnsemble<String, String> ensemble = null;
 		List<StateMachineListener<String, String>> listeners = new ArrayList<>();
@@ -60,8 +55,8 @@ public class StateMachineModelTests {
 		boolean verifierEnabled = true;
 		StateMachineModelVerifier<String, String> verifier = new DefaultStateMachineModelVerifier<>();
 
-		ConfigurationData<String, String> configurationData = new ConfigurationData<>(beanFactory, taskExecutor, taskScheduler, autoStart,
-				ensemble, listeners, securityEnabled, transitionSecurityAccessDecisionManager, eventSecurityAccessDecisionManager,
+		ConfigurationData<String, String> configurationData = new ConfigurationData<>(beanFactory, autoStart, ensemble,
+				listeners, securityEnabled, transitionSecurityAccessDecisionManager, eventSecurityAccessDecisionManager,
 				eventSecurityRule, transitionSecurityRule, verifierEnabled, verifier, null, null, null);
 
 		Collection<StateData<String, String>> stateData = new ArrayList<>();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.Lifecycle;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineSystemConstants;
@@ -34,7 +31,6 @@ import org.springframework.statemachine.TestUtils;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.StateMachineFactory;
-import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
@@ -105,58 +101,6 @@ public class DefaultStateMachineServiceTests extends AbstractStateMachineTests {
 	}
 
 	@Test
-	public void testAcquireNotStartedThreading() {
-		context.register(Config2.class);
-		context.refresh();
-		StateMachineFactory<TestStates, TestEvents> stateMachineFactory =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINEFACTORY, StateMachineFactory.class);
-
-		DefaultStateMachineService<TestStates, TestEvents> service = new DefaultStateMachineService<>(stateMachineFactory);
-		StateMachine<TestStates,TestEvents> machine1 = service.acquireStateMachine("m1", false);
-		assertThat(((Lifecycle)machine1).isRunning(), is(false));
-	}
-
-	@Test
-	public void testAcquireStartedThreading() {
-		context.register(Config2.class);
-		context.refresh();
-		StateMachineFactory<TestStates, TestEvents> stateMachineFactory =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINEFACTORY, StateMachineFactory.class);
-
-		DefaultStateMachineService<TestStates, TestEvents> service = new DefaultStateMachineService<>(stateMachineFactory);
-		StateMachine<TestStates,TestEvents> machine1 = service.acquireStateMachine("m1", true);
-		assertThat(((Lifecycle)machine1).isRunning(), is(true));
-	}
-
-	@Test
-	public void testReleaseStopsMachineThreading() {
-		context.register(Config2.class);
-		context.refresh();
-		StateMachineFactory<TestStates, TestEvents> stateMachineFactory =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINEFACTORY, StateMachineFactory.class);
-
-		DefaultStateMachineService<TestStates, TestEvents> service = new DefaultStateMachineService<>(stateMachineFactory);
-		StateMachine<TestStates,TestEvents> machine1 = service.acquireStateMachine("m1", true);
-		assertThat(((Lifecycle)machine1).isRunning(), is(true));
-		service.releaseStateMachine("m1");
-		assertThat(((Lifecycle)machine1).isRunning(), is(false));
-	}
-
-	@Test
-	public void testReleaseDoesNotStopMachineThreading() {
-		context.register(Config2.class);
-		context.refresh();
-		StateMachineFactory<TestStates, TestEvents> stateMachineFactory =
-				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINEFACTORY, StateMachineFactory.class);
-
-		DefaultStateMachineService<TestStates, TestEvents> service = new DefaultStateMachineService<>(stateMachineFactory);
-		StateMachine<TestStates,TestEvents> machine1 = service.acquireStateMachine("m1", true);
-		assertThat(((Lifecycle)machine1).isRunning(), is(true));
-		service.releaseStateMachine("m1", false);
-		assertThat(((Lifecycle)machine1).isRunning(), is(true));
-	}
-
-	@Test
 	public void testServiceStop() throws Exception {
 		context.register(Config1.class);
 		context.refresh();
@@ -195,43 +139,5 @@ public class DefaultStateMachineServiceTests extends AbstractStateMachineTests {
 					.target(TestStates.S2)
 					.event(TestEvents.E1);
 		}
-	}
-
-	@Configuration
-	@EnableStateMachineFactory
-	static class Config2 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
-
-		@Override
-		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
-			config
-				.withConfiguration()
-					.taskExecutor(stateMachineTaskExecutor());
-		}
-
-		@Override
-		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
-			states
-				.withStates()
-					.initial(TestStates.S1)
-					.state(TestStates.S1)
-					.state(TestStates.S2);
-		}
-
-		@Override
-		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
-			transitions
-				.withExternal()
-					.source(TestStates.S1)
-					.target(TestStates.S2)
-					.event(TestEvents.E1);
-		}
-
-		@Bean
-		public TaskExecutor stateMachineTaskExecutor() {
-			ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-			executor.setCorePoolSize(4);
-			return executor;
-		}
-
 	}
 }

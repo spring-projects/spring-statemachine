@@ -31,7 +31,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.context.Lifecycle;
-import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.MessageBuilder;
@@ -307,16 +306,6 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				triggerToTransitionMap, triggerlessTransitions, initialTransition, initialEvent, transitionConflictPolicy);
 		if (getBeanFactory() != null) {
 			executor.setBeanFactory(getBeanFactory());
-		}
-		if (getTaskExecutor() != null){
-			// parent machine is set when we're on substates(not regions)
-			// so then force sync executor which makes things a bit more reliable
-			// as state execution should anyway get synched with plain substates.
-			if(parentMachine != null) {
-				executor.setTaskExecutor(new SyncTaskExecutor());
-			} else {
-				executor.setTaskExecutor(getTaskExecutor());
-			}
 		}
 		executor.afterPropertiesSet();
 		executor.setStateMachineExecutorTransit(new StateMachineExecutorTransit<S, E>() {

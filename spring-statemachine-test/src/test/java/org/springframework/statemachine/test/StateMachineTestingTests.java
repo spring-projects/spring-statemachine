@@ -28,7 +28,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
-import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
@@ -183,13 +182,6 @@ public class StateMachineTestingTests extends AbstractStateMachineTests {
 	@Configuration
 	@EnableStateMachine
 	static class Config2 extends StateMachineConfigurerAdapter<String, String> {
-
-		@Override
-		public void configure(StateMachineConfigurationConfigurer<String, String> config) throws Exception {
-			config
-				.withConfiguration()
-					.taskExecutor(taskExecutor());
-		}
 
 		@Override
 		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {

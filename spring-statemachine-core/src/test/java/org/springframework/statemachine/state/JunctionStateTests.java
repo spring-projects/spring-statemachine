@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ public class JunctionStateTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testFirst() {
-		context.register(BaseConfig.class, Config1.class);
+		context.register(Config1.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -65,7 +65,7 @@ public class JunctionStateTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testThen1() {
-		context.register(BaseConfig.class, Config1.class);
+		context.register(Config1.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -79,7 +79,7 @@ public class JunctionStateTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testThen2() {
-		context.register(BaseConfig.class, Config1.class);
+		context.register(Config1.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -93,7 +93,7 @@ public class JunctionStateTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testLast() {
-		context.register(BaseConfig.class, Config1.class);
+		context.register(Config1.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -107,7 +107,7 @@ public class JunctionStateTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testOnlyLast() {
-		context.register(BaseConfig.class, Config2.class);
+		context.register(Config2.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -121,7 +121,7 @@ public class JunctionStateTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testSubsequentJunctionStates() {
-		context.register(BaseConfig.class, Config3.class);
+		context.register(Config3.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);

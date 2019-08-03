@@ -25,13 +25,6 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
@@ -96,38 +89,6 @@ public abstract class AbstractStateMachineTests {
 
 	public static enum TestEvents2 {
 		PLAY, STOP, PAUSE, EJECT, LOAD
-	}
-
-	@Configuration
-	public static class BaseConfig {
-
-		@Bean(name = StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME)
-		public TaskExecutor taskExecutor() {
-			return new SyncTaskExecutor();
-		}
-
-		@Bean
-		public TaskScheduler taskScheduler() {
-			return new ConcurrentTaskScheduler();
-		}
-
-	}
-
-	@Configuration
-	public static class BaseConfig2 {
-
-		@Bean(name = StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME)
-		public TaskExecutor taskExecutor() {
-			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-			taskExecutor.setCorePoolSize(5);
-			return taskExecutor;
-		}
-
-		@Bean
-		public TaskScheduler taskScheduler() {
-			return new ConcurrentTaskScheduler();
-		}
-
 	}
 
 	public static class TestEntryAction extends AbstractTestAction {

@@ -28,7 +28,6 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateMachine;
@@ -83,10 +82,8 @@ public class SubmachineStateTests extends AbstractStateMachineTests {
 		transitions.add(transitionFromS1ToS2);
 		transitions.add(transitionFromS2ToS3);
 
-		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
 		BeanFactory beanFactory = new DefaultListableBeanFactory();
 		ObjectStateMachine<TestStates, TestEvents> machine = new ObjectStateMachine<TestStates, TestEvents>(states, transitions, stateSI);
-		machine.setTaskExecutor(taskExecutor);
 		machine.setBeanFactory(beanFactory);
 		machine.afterPropertiesSet();
 		machine.start();
@@ -104,7 +101,7 @@ public class SubmachineStateTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testFromSimpleToOtherSubstate() {
-		context.register(BaseConfig.class, Config1.class);
+		context.register(Config1.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -121,7 +118,7 @@ public class SubmachineStateTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testAllSubmachinesRunningInitialsTakesToDeep() throws Exception {
-		context.register(BaseConfig.class, Config2.class);
+		context.register(Config2.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -147,7 +144,7 @@ public class SubmachineStateTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testAllSubmachinesRunningInitialsNotTakeToDeep() throws Exception {
-		context.register(BaseConfig.class, Config3.class);
+		context.register(Config3.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -173,7 +170,7 @@ public class SubmachineStateTests extends AbstractStateMachineTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testAllSubmachinesStopped() throws Exception {
-		context.register(BaseConfig.class, Config3.class);
+		context.register(Config3.class);
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);

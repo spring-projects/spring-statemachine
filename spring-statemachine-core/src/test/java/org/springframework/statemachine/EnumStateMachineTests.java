@@ -27,7 +27,6 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.action.Actions;
@@ -80,10 +79,8 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 		transitions.add(transitionFromS1ToS2);
 		transitions.add(transitionFromS2ToS3);
 
-		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
 		BeanFactory beanFactory = new DefaultListableBeanFactory();
 		ObjectStateMachine<TestStates, TestEvents> machine = new ObjectStateMachine<TestStates, TestEvents>(states, transitions, stateSI);
-		machine.setTaskExecutor(taskExecutor);
 		machine.setBeanFactory(beanFactory);
 		machine.afterPropertiesSet();
 		machine.start();
@@ -155,10 +152,8 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 		transitions.add(transitionFromS2ToS3);
 
 		// create machine
-		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
 		BeanFactory beanFactory = new DefaultListableBeanFactory();
 		ObjectStateMachine<TestStates, TestEvents> machine = new ObjectStateMachine<TestStates, TestEvents>(states, transitions, stateSI);
-		machine.setTaskExecutor(taskExecutor);
 		machine.setBeanFactory(beanFactory);
 		machine.afterPropertiesSet();
 		machine.start();
@@ -198,10 +193,8 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 		Collection<Transition<TestStates,TestEvents>> transitions = new ArrayList<Transition<TestStates,TestEvents>>();
 		transitions.add(transitionInternalSI);
 
-		SyncTaskExecutor taskExecutor = new SyncTaskExecutor();
 		BeanFactory beanFactory = new DefaultListableBeanFactory();
 		ObjectStateMachine<TestStates, TestEvents> machine = new ObjectStateMachine<TestStates, TestEvents>(states, transitions, stateSI);
-		machine.setTaskExecutor(taskExecutor);
 		machine.setBeanFactory(beanFactory);
 		machine.afterPropertiesSet();
 		machine.start();

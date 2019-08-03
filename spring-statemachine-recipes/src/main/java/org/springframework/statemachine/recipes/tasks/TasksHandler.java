@@ -40,6 +40,7 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.listener.AbstractCompositeListener;
 import org.springframework.statemachine.recipes.support.RunnableAction;
+import org.springframework.statemachine.region.RegionExecutionPolicy;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
@@ -228,9 +229,9 @@ public class TasksHandler {
 		StateMachineBuilder.Builder<String, String> builder = StateMachineBuilder.builder();
 
 		int taskCount = topLevelTaskCount(tasks);
-
-		builder.configureConfiguration().withConfiguration()
-			.taskExecutor(taskExecutor != null ? taskExecutor : taskExecutor(taskCount));
+		if (taskCount > 1) {
+			builder.configureConfiguration().withConfiguration().regionExecutionPolicy(RegionExecutionPolicy.PARALLEL);
+		}
 
 		StateMachineStateConfigurer<String, String> stateMachineStateConfigurer = builder.configureStates();
 		StateMachineTransitionConfigurer<String, String> stateMachineTransitionConfigurer = builder.configureTransitions();
@@ -315,13 +316,6 @@ public class TasksHandler {
 				.event(EVENT_FIX);
 
 		return builder.build();
-	}
-
-	private static TaskExecutor taskExecutor(int taskCount) {
-		ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-		taskExecutor.afterPropertiesSet();
-		taskExecutor.setCorePoolSize(taskCount);
-		return taskExecutor;
 	}
 
 	private static int topLevelTaskCount(List<TaskWrapper> tasks) {

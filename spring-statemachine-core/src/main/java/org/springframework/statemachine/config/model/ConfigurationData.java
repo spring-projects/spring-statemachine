@@ -19,10 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.statemachine.action.StateDoActionPolicy;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationBuilder;
@@ -48,8 +44,6 @@ public class ConfigurationData<S, E> {
 
 	private final String machineId;
 	private final BeanFactory beanFactory;
-	private final TaskExecutor taskExecutor;
-	private final TaskScheduler taskScheduler;
 	private final boolean autoStart;
 	private final TransitionConflictPolicy transitionConflictPolicy;
 	private final StateDoActionPolicy stateDoActionPolicy;
@@ -71,16 +65,14 @@ public class ConfigurationData<S, E> {
 	 * Instantiates a new state machine configuration config data.
 	 */
 	public ConfigurationData() {
-		this(null, new SyncTaskExecutor(), new ConcurrentTaskScheduler(), false, null, new ArrayList<StateMachineListener<S, E>>(), false,
-				null, null, null, null, true, new DefaultStateMachineModelVerifier<S, E>(), null, null, null);
+		this(null, false, null, new ArrayList<StateMachineListener<S, E>>(), false, null, null, null, null, true,
+				new DefaultStateMachineModelVerifier<S, E>(), null, null, null);
 	}
 
 	/**
 	 * Instantiates a new state machine configuration config data.
 	 *
 	 * @param beanFactory the bean factory
-	 * @param taskExecutor the task executor
-	 * @param taskScheduler the task scheduler
 	 * @param autoStart the autostart flag
 	 * @param ensemble the state machine ensemble
 	 * @param listeners the state machine listeners
@@ -95,24 +87,22 @@ public class ConfigurationData<S, E> {
 	 * @param stateMachineMonitor the state machine monitor
 	 * @param interceptors the state machine interceptors.
 	 */
-	public ConfigurationData(BeanFactory beanFactory, TaskExecutor taskExecutor,
-			TaskScheduler taskScheduler, boolean autoStart, StateMachineEnsemble<S, E> ensemble,
+	public ConfigurationData(BeanFactory beanFactory, boolean autoStart, StateMachineEnsemble<S, E> ensemble,
 			List<StateMachineListener<S, E>> listeners, boolean securityEnabled,
-			AccessDecisionManager transitionSecurityAccessDecisionManager, AccessDecisionManager eventSecurityAccessDecisionManager,
-			SecurityRule eventSecurityRule, SecurityRule transitionSecurityRule, boolean verifierEnabled,
-			StateMachineModelVerifier<S, E> verifier, String machineId, StateMachineMonitor<S, E> stateMachineMonitor,
+			AccessDecisionManager transitionSecurityAccessDecisionManager,
+			AccessDecisionManager eventSecurityAccessDecisionManager, SecurityRule eventSecurityRule,
+			SecurityRule transitionSecurityRule, boolean verifierEnabled, StateMachineModelVerifier<S, E> verifier,
+			String machineId, StateMachineMonitor<S, E> stateMachineMonitor,
 			List<StateMachineInterceptor<S, E>> interceptors) {
-		this(beanFactory, taskExecutor, taskScheduler, autoStart, ensemble, listeners, securityEnabled,
-				transitionSecurityAccessDecisionManager, eventSecurityAccessDecisionManager, eventSecurityRule, transitionSecurityRule,
-				verifierEnabled, verifier, machineId, stateMachineMonitor, interceptors, null, null, null, null);
+		this(beanFactory, autoStart, ensemble, listeners, securityEnabled, transitionSecurityAccessDecisionManager,
+				eventSecurityAccessDecisionManager, eventSecurityRule, transitionSecurityRule, verifierEnabled,
+				verifier, machineId, stateMachineMonitor, interceptors, null, null, null, null);
 	}
 
 	/**
 	 * Instantiates a new state machine configuration config data.
 	 *
 	 * @param beanFactory the bean factory
-	 * @param taskExecutor the task executor
-	 * @param taskScheduler the task scheduler
 	 * @param autoStart the autostart flag
 	 * @param ensemble the state machine ensemble
 	 * @param listeners the state machine listeners
@@ -131,17 +121,16 @@ public class ConfigurationData<S, E> {
 	 * @param stateDoActionPolicyTimeout the state do action policy timeout
 	 * @param regionExecutionPolicy the region execution policy
 	 */
-	public ConfigurationData(BeanFactory beanFactory, TaskExecutor taskExecutor,
-			TaskScheduler taskScheduler, boolean autoStart, StateMachineEnsemble<S, E> ensemble,
+	public ConfigurationData(BeanFactory beanFactory, boolean autoStart, StateMachineEnsemble<S, E> ensemble,
 			List<StateMachineListener<S, E>> listeners, boolean securityEnabled,
-			AccessDecisionManager transitionSecurityAccessDecisionManager, AccessDecisionManager eventSecurityAccessDecisionManager,
-			SecurityRule eventSecurityRule, SecurityRule transitionSecurityRule, boolean verifierEnabled,
-			StateMachineModelVerifier<S, E> verifier, String machineId, StateMachineMonitor<S, E> stateMachineMonitor,
+			AccessDecisionManager transitionSecurityAccessDecisionManager,
+			AccessDecisionManager eventSecurityAccessDecisionManager, SecurityRule eventSecurityRule,
+			SecurityRule transitionSecurityRule, boolean verifierEnabled, StateMachineModelVerifier<S, E> verifier,
+			String machineId, StateMachineMonitor<S, E> stateMachineMonitor,
 			List<StateMachineInterceptor<S, E>> interceptors, TransitionConflictPolicy transitionConflightPolicy,
-			StateDoActionPolicy stateDoActionPolicy, Long stateDoActionPolicyTimeout, RegionExecutionPolicy regionExecutionPolicy) {
+			StateDoActionPolicy stateDoActionPolicy, Long stateDoActionPolicyTimeout,
+			RegionExecutionPolicy regionExecutionPolicy) {
 		this.beanFactory = beanFactory;
-		this.taskExecutor = taskExecutor;
-		this.taskScheduler = taskScheduler;
 		this.autoStart = autoStart;
 		this.ensemble = ensemble;
 		this.listeners = listeners;
@@ -172,24 +161,6 @@ public class ConfigurationData<S, E> {
 	 */
 	public BeanFactory getBeanFactory() {
 		return beanFactory;
-	}
-
-	/**
-	 * Gets the task executor.
-	 *
-	 * @return the task executor
-	 */
-	public TaskExecutor getTaskExecutor() {
-		return taskExecutor;
-	}
-
-	/**
-	 * Gets the task scheduler.
-	 *
-	 * @return the task scheduler
-	 */
-	public TaskScheduler getTaskScheduler() {
-		return taskScheduler;
 	}
 
 	/**

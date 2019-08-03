@@ -15,7 +15,6 @@
  */
 package org.springframework.statemachine.transition;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
@@ -24,17 +23,12 @@ import static org.springframework.statemachine.TestUtils.resolveMachine;
 
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
@@ -177,24 +171,6 @@ public class TransitionOrderTests extends AbstractStateMachineTests {
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
 		assertThat(listener.statesEntered,
 				contains(TestStates.S1, TestStates.S10, TestStates.S1011, TestStates.S1));
-	}
-
-	@Test
-	public void testAnonymousTransitionInConfigUseParent3Threading() throws InterruptedException {
-		TestListener listener = new TestListener();
-		context.register(Config4.class, StateMachineExecutorConfiguration.class);
-		context.refresh();
-		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
-		machine.addStateListener(listener);
-
-		doStartAndAssert(machine);
-		assertThat(listener.statesEnteredLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
-
-		listener.reset(1, 3);
-		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(listener.statesEnteredLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(listener.statesEntered, contains(TestStates.S10, TestStates.S1011, TestStates.S1));
 	}
 
 	@Configuration
@@ -557,18 +533,6 @@ public class TransitionOrderTests extends AbstractStateMachineTests {
 					.target(TestStates.S2011);
 		}
 	}
-
-	@Configuration
-	public static class StateMachineExecutorConfiguration {
-
-		@Bean(name = StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME)
-		public TaskExecutor stateMachineTaskExecutor() {
-			ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-			executor.setCorePoolSize(4);
-			return executor;
-		}
-	}
-
 
 	static class TestListener extends StateMachineListenerAdapter<TestStates, TestEvents> {
 

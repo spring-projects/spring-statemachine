@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateContext;
@@ -791,7 +790,6 @@ public class ZookeeperStateMachineTests extends AbstractZookeeperTests {
 
 		builder.configureConfiguration()
 			.withConfiguration()
-				.taskExecutor(new SyncTaskExecutor())
 				.autoStartup(true)
 				.and()
 			.withDistributed()
@@ -897,7 +895,6 @@ public class ZookeeperStateMachineTests extends AbstractZookeeperTests {
 
 		builder.configureConfiguration()
 			.withConfiguration()
-				.taskExecutor(new SyncTaskExecutor())
 				.autoStartup(true)
 				.and()
 			.withDistributed()

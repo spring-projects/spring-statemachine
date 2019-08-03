@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.springframework.statemachine.config;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
@@ -38,9 +37,6 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateMachine;
@@ -177,66 +173,6 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 	}
 
 	@Test
-	public void testTaskExecutor1() throws Exception {
-		// set in builder, no bf or taskExecutor bean registered
-		context.register(Config14.class);
-		context.refresh();
-		@SuppressWarnings("unchecked")
-		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
-
-		Object executorFromMachine = TestUtils.readField("taskExecutor", stateMachine);
-		Object stateMachineExecutor = TestUtils.readField("stateMachineExecutor", stateMachine);
-		Object executorFromExecutor = TestUtils.readField("taskExecutor", stateMachineExecutor);
-
-		assertThat(executorFromMachine, sameInstance(Config14.taskExecutor));
-		assertThat(executorFromExecutor, sameInstance(Config14.taskExecutor));
-
-		assertThat(executorFromMachine, notNullValue());
-		assertThat(executorFromExecutor, notNullValue());
-		assertThat(executorFromMachine, sameInstance(executorFromExecutor));
-	}
-
-	@Test
-	public void testTaskExecutor2() throws Exception {
-		// set as bean, should get from bf
-		context.register(BaseConfig.class, Config15.class);
-		context.refresh();
-		@SuppressWarnings("unchecked")
-		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
-		assertThat(context.containsBean(StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME), is(true));
-
-		Object stateMachineExecutor = TestUtils.readField("stateMachineExecutor", stateMachine);
-
-		Object executorFromMachine = TestUtils.callMethod("getTaskExecutor", stateMachine);
-		Object executorFromExecutor = TestUtils.callMethod("getTaskExecutor", stateMachineExecutor);
-
-		assertThat(executorFromMachine, notNullValue());
-		assertThat(executorFromExecutor, notNullValue());
-		assertThat(executorFromMachine, sameInstance(executorFromExecutor));
-	}
-
-	@Test
-	public void testTaskExecutor3() throws Exception {
-		// override task execution via configurer
-		context.register(Config19.class);
-		context.refresh();
-		@SuppressWarnings("unchecked")
-		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
-		assertThat(context.containsBean(StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME), is(true));
-
-		Object stateMachineExecutor = TestUtils.readField("stateMachineExecutor", stateMachine);
-
-		Object executorFromMachine = TestUtils.callMethod("getTaskExecutor", stateMachine);
-		Object executorFromExecutor = TestUtils.callMethod("getTaskExecutor", stateMachineExecutor);
-
-		assertThat(executorFromMachine, notNullValue());
-		assertThat(executorFromExecutor, notNullValue());
-		assertThat(executorFromMachine, sameInstance(executorFromExecutor));
-
-		assertThat(executorFromMachine, instanceOf(ThreadPoolTaskExecutor.class));
-	}
-
-	@Test
 	public void testBeanFactory1() throws Exception {
 		// should come from context
 		context.register(Config15.class);
@@ -318,7 +254,7 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 			}
 		}
 	}
-	
+
 	@Test
 	public void testMachinesWithDependenciesAndConstructorInjection() {
 		context.register(Config21.class);
@@ -329,8 +265,8 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		StateMachine<String,String> stateMachine22 = stateMachineFactory22.getStateMachine();
 		assertThat(stateMachine22, notNullValue());
 	}
-	
-	
+
+
 
 	@Configuration
 	@EnableStateMachine
@@ -367,12 +303,6 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		public TestGuard testGuard() {
 			return new TestGuard();
 		}
-
-		@Bean
-		public TaskExecutor taskExecutor() {
-			return new SyncTaskExecutor();
-		}
-
 	}
 
 	@Configuration
@@ -745,16 +675,12 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 
 	@Configuration
 	public static class Config14 {
-
-		public static TaskExecutor taskExecutor = new SyncTaskExecutor();
-
 		@Bean
 		StateMachine<String, String> stateMachine() throws Exception {
 			Builder<String, String> builder = StateMachineBuilder.builder();
 			builder.configureConfiguration()
 				.withConfiguration()
-					.autoStartup(false)
-					.taskExecutor(taskExecutor);
+					.autoStartup(false);
 			builder.configureStates()
 				.withStates()
 					.initial("S1").state("S2");
@@ -887,7 +813,6 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		public void configure(StateMachineConfigurationConfigurer<String, String> config) throws Exception {
 			config
 				.withConfiguration()
-					.taskExecutor(taskExecutor())
 					.autoStartup(true);
 		}
 
@@ -906,11 +831,6 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 					.source("S1")
 					.target("S2")
 					.event("E1");
-		}
-
-		@Bean(name = "fakeBeanName")
-		public TaskExecutor taskExecutor() {
-			return new ThreadPoolTaskExecutor();
 		}
 	}
 
@@ -936,7 +856,7 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 					.event("E1");
 		}
 	}
-	
+
 	@Configuration
 	@EnableStateMachineFactory(name="stateMachineConfig21")
 	public static class Config21 extends StateMachineConfigurerAdapter<String, String> {

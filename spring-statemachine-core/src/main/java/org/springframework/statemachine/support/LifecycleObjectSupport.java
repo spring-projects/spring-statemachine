@@ -26,8 +26,6 @@ import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.SmartLifecycle;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.util.Assert;
 
 import reactor.core.publisher.Mono;
@@ -48,10 +46,6 @@ public abstract class LifecycleObjectSupport
 	// fields for lifecycle
 	private volatile boolean autoStartup = false;
 	private volatile int phase = 0;
-
-	// common task handling
-	private TaskScheduler taskScheduler;
-	private TaskExecutor taskExecutor;
 
 	// to access bean factory
 	private volatile BeanFactory beanFactory;
@@ -166,56 +160,6 @@ public abstract class LifecycleObjectSupport
 	 */
 	protected final BeanFactory getBeanFactory() {
 		return beanFactory;
-	}
-
-	/**
-	 * Sets the used {@link TaskScheduler}.
-	 *
-	 * @param taskScheduler the task scheduler
-	 */
-	public void setTaskScheduler(TaskScheduler taskScheduler) {
-		Assert.notNull(taskScheduler, "taskScheduler must not be null");
-		this.taskScheduler = taskScheduler;
-	}
-
-	/**
-	 * Gets the defined {@link TaskScheduler}.
-	 *
-	 * @return the defined task scheduler
-	 */
-	protected TaskScheduler getTaskScheduler() {
-		if(taskScheduler == null && getBeanFactory() != null) {
-			if(log.isTraceEnabled()) {
-				log.trace("getting taskScheduler service from bean factory " + getBeanFactory());
-			}
-			taskScheduler = StateMachineContextUtils.getTaskScheduler(getBeanFactory());
-		}
-		return taskScheduler;
-	}
-
-	/**
-	 * Sets the used {@link TaskExecutor}.
-	 *
-	 * @param taskExecutor the task executor
-	 */
-	public void setTaskExecutor(TaskExecutor taskExecutor) {
-		Assert.notNull(taskExecutor, "taskExecutor must not be null");
-		this.taskExecutor = taskExecutor;
-	}
-
-	/**
-	 * Gets the defined {@link TaskExecutor}.
-	 *
-	 * @return the defined task executor
-	 */
-	protected TaskExecutor getTaskExecutor() {
-		if(taskExecutor == null && getBeanFactory() != null) {
-			if(log.isTraceEnabled()) {
-				log.trace("getting taskExecutor service from bean factory " + getBeanFactory());
-			}
-			taskExecutor = StateMachineContextUtils.getTaskExecutor(getBeanFactory());
-		}
-		return taskExecutor;
 	}
 
 	/**
