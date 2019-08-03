@@ -86,11 +86,9 @@ include::samples/demo/tasks/Application.java[tags=snippetAD]
 ----
 ====
 
-Currently, the default region execution is synchronous, but you can change
-it to be asynchronous by changing `TaskExecutor`. Task simulates
-work by sleeping two seconds so that you can see how actions in
-regions are executed inparallel.
-The following listing shows the `TaskExecutor` bean definition:
+Default region execution is synchronous meaning a regions would be processed
+sequentially. In this sample we simply want all task regions to get processed
+parallel. This can be accomplished by defining `RegionExecutionPolicy`:
 
 ====
 [source,java,indent=0]
@@ -109,22 +107,24 @@ State machine started
 Entry state READY
 
 sm>tasks run
+Exit state READY
 Entry state TASKS
-run task on T3
 run task on T2
 run task on T1
+run task on T3
 run task on T2 done
 run task on T1 done
 run task on T3 done
 Entry state T2
-Entry state T3
 Entry state T1
+Entry state T3
+Exit state T2
+Exit state T1
+Exit state T3
+Entry state T3E
 Entry state T1E
 Entry state T2E
-Entry state T3E
 Exit state TASKS
-Entry state JOIN
-Exit state JOIN
 Entry state READY
 ----
 ====

@@ -33,9 +33,11 @@ import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.annotation.OnTransition;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.guard.Guard;
+import org.springframework.statemachine.region.RegionExecutionPolicy;
 import org.springframework.util.ObjectUtils;
 
 import reactor.core.publisher.Mono;
@@ -47,6 +49,16 @@ public class Application  {
 	@EnableStateMachine
 	static class StateMachineConfig
 			extends EnumStateMachineConfigurerAdapter<States, Events> {
+
+//tag::snippetAE[]
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<States, Events> config)
+				throws Exception {
+			config
+				.withConfiguration()
+					.regionExecutionPolicy(RegionExecutionPolicy.PARALLEL);
+		}
+//end::snippetAE[]
 
 //tag::snippetAA[]
 		@Override
@@ -195,16 +207,6 @@ public class Application  {
 		public Tasks tasks() {
 			return new Tasks();
 		}
-
-//tag::snippetAE[]
-		@Bean(name = StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME)
-		public TaskExecutor taskExecutor() {
-			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-			taskExecutor.setCorePoolSize(5);
-			return taskExecutor;
-		}
-//end::snippetAE[]
-
 	}
 
 //tag::snippetB[]
