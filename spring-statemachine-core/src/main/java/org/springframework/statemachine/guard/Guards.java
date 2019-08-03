@@ -41,8 +41,6 @@ public final class Guards {
 		if (guard != null) {
 			return context -> Mono.fromSupplier(() -> guard.evaluate(context));
 		} else {
-			// TODO: REACTOR think if should just return funtion evaluating true as null guard
-			// essentially is like a guard evaluating true, thought we'd prevent on dummy call.
 			return null;
 		}
 	}
