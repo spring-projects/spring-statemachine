@@ -1,0 +1,4 @@
+=== TaskExecutor and TaskScheduler
+StateMachine execution with `TaskExecutor` and state action scheduling with `TaskScheduler`
+has been fully replaced in favour or Reactor execution and scheduling. For configuring
+parallel region execution see <<statemachine-config-commonsettings>>.

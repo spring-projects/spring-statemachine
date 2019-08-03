@@ -55,6 +55,7 @@ import org.springframework.statemachine.event.OnStateMachineError;
 import org.springframework.statemachine.event.StateMachineEvent;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
+import org.springframework.statemachine.region.RegionExecutionPolicy;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.StateMachineInterceptor;
 import org.springframework.statemachine.support.StateMachineInterceptorAdapter;
@@ -1190,7 +1191,8 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 						.machineId("myMachineId")
 						.beanFactory(new StaticListableBeanFactory())
 						.listener(new StateMachineListenerAdapter<States, Events>())
-						.transitionConflictPolicy(TransitionConflictPolicy.CHILD);
+						.transitionConflictPolicy(TransitionConflictPolicy.CHILD)
+						.regionExecutionPolicy(RegionExecutionPolicy.PARALLEL);
 			}
 		}
 // end::snippetYA[]

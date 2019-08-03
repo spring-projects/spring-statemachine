@@ -199,9 +199,8 @@ actions, because execution happens after state has been entered
 and can be cancelled if state exit happens before a particular action
 has been completed.
 
-State actions are run by using a normal Spring `TaskScheduler`
-wrapped within a `Runnable` that can get cancelled through
-`ScheduledFuture`. This means that, whatever you do in your
+State actions are executed using normal reactive flow by subscribing with
+a Reactor's default parallel scheduler. This means that, whatever you do in your
 action, you need to be able to catch `InterruptedException` or, more generally,
 periodically check whether `Thread` is interrupted.
 
@@ -478,9 +477,9 @@ exit and entry respectively.
 === Configuring Common Settings
 
 You can set part of a common state machine configuration by using
-`ConfigurationConfigurer`. This you set set `BeanFactory`,
-`TaskExecutor`, `TaskScheduler`, and an autostart flag for a state machine≥
-It also lets you register `StateMachineListener` instances.
+`ConfigurationConfigurer`. With it you can set `BeanFactory` and an autostart flag
+for a state machine. It also lets you register `StateMachineListener` instances,
+configure transition conflict policy and region execution policy.
 The following example shows how to use `ConfigurationConfigurer`:
 
 ====
@@ -499,9 +498,6 @@ top-level state machine.
 
 Setting `machineId` within a configuration class is simply a convenience for those times when
 you want or need to do it there.
-
-Setting a `BeanFactory`, `TaskExecutor`, or `TaskScheduler` is another
-convenience for you, and those settings are also used within the framework itself.
 
 Registering `StateMachineListener` instances is also partly for
 convenience but is required if you want to catch a callback during a

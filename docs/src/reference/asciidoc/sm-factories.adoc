@@ -88,10 +88,8 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippetFC]
 
 You need to understand when common configuration needs
 to be used with machines instantiated from a builder. You can use a configurer
-returned from a `withConfiguration()` to setup `autoStart`,
-`TaskScheduler`, `TaskExecutor`, and `BeanFactory`. You can also use one to register
-a `StateMachineListener`. If a `StateMachine` instance returned from
-a builder is registered as a bean by using `@Bean`, `BeanFactory`
-is attached automatically and you can find the default `TaskExecutor`
-from there. If you use instances outside of a spring application context,
+returned from a `withConfiguration()` to setup `autoStart` and `BeanFactory`.
+You can also use one to register a `StateMachineListener`. If a `StateMachine`
+instance returned from a builder is registered as a bean by using `@Bean`, `BeanFactory`
+is attached automatically. If you use instances outside of a spring application context,
 you must use these methods to set up the needed facilities.

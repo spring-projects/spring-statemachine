@@ -8,3 +8,5 @@ has been moved over to handled by a reactor. Essentially what this means is that
 is considerably different compared to `2.x`. Following chapters go throught all these changes.
 
 include::appendix-reactormigration-communicating.adoc[]
+
+include::appendix-reactormigration-threading.adoc[]

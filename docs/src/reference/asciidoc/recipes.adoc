@@ -68,8 +68,8 @@ errors manually.
 
 `TasksHandler` contains a builder method to configure a handler instance
 and follows a simple builder pattern. You can use this builder to
-register `Runnable` tasks and `TasksListener` instances, define
-`StateMachinePersist` hook, and set up custom `TaskExecutor` instance.
+register `Runnable` tasks and `TasksListener` instances and define
+`StateMachinePersist` hook.
 
 Now we can take a simple `Runnable` that runs a simple sleep as the following
 example shows:
