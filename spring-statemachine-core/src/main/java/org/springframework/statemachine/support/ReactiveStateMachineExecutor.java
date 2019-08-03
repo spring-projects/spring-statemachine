@@ -44,6 +44,7 @@ import org.springframework.statemachine.transition.AbstractTransition;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionConflictPolicy;
 import org.springframework.statemachine.trigger.DefaultTriggerContext;
+import org.springframework.statemachine.trigger.TriggerContext;
 import org.springframework.statemachine.trigger.TimerTrigger;
 import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.statemachine.trigger.TriggerListener;
@@ -214,18 +215,24 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 				log.info("Current state " + currentState + " deferred event " + queuedEvent);
 				return Mono.just(new TriggerQueueItem(null, queuedEvent));
 			}
-			for (Transition<S,E> transition : transitions) {
-				State<S,E> source = transition.getSource();
-				Trigger<S, E> trigger = transition.getTrigger();
-
-				if (StateMachineUtils.containsAtleastOne(source.getIds(), currentState.getIds())) {
-					if (trigger != null && trigger.evaluate(new DefaultTriggerContext<S, E>(queuedEvent.getPayload()))) {
-						deferList.remove(queuedEvent);
-						return Mono.just(new TriggerQueueItem(trigger, queuedEvent));
-					}
-				}
-			}
-			return Mono.empty();
+			TriggerContext<S, E> triggerContext = new DefaultTriggerContext<S, E>(queuedEvent.getPayload());
+			return Flux.fromIterable(transitions)
+				.filter(transition -> transition.getTrigger() != null)
+				.filter(transition -> StateMachineUtils.containsAtleastOne(transition.getSource().getIds(),
+						currentState.getIds()))
+				.flatMap(transition -> {
+					return Mono.from(transition.getTrigger().evaluate(triggerContext))
+						.flatMap(e -> {
+							if (e) {
+								return Mono.just(transition.getTrigger());
+							} else {
+								return Mono.empty();
+							}
+						});
+				})
+				.next()
+				.doOnNext(trigger -> deferList.remove(queuedEvent))
+				.map(trigger -> new TriggerQueueItem(trigger, queuedEvent));
 		});
 	}
 

@@ -66,6 +66,7 @@ import org.springframework.statemachine.transition.TransitionConflictPolicy;
 import org.springframework.statemachine.transition.TransitionKind;
 import org.springframework.statemachine.trigger.DefaultTriggerContext;
 import org.springframework.statemachine.trigger.Trigger;
+import org.springframework.statemachine.trigger.TriggerContext;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -643,6 +644,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	private Flux<StateMachineEventResult<S, E>> acceptEvent(Message<E> message) {
 		return Flux.defer(() -> {
+			TriggerContext<S, E> triggerContext = new DefaultTriggerContext<S, E>(message.getPayload());
 			State<S, E> cs = currentState;
 			if (cs != null) {
 				if (cs.shouldDefer(message)) {
@@ -652,18 +654,23 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				return cs.sendEvent(message).collectList().flatMapMany(l -> {
 					Flux<StateMachineEventResult<S, E>> ret = Flux.fromIterable(l);
 					if (!l.stream().anyMatch(er -> er.getResultType() == ResultType.ACCEPTED)) {
-						ret = ret.concatWith(Mono.defer(() -> {
-							for (Transition<S,E> transition : transitions) {
-								State<S,E> source = transition.getSource();
-								Trigger<S, E> trigger = transition.getTrigger();
-								if (cs != null && StateMachineUtils.containsAtleastOne(source.getIds(), cs.getIds())) {
-									if (trigger != null && trigger.evaluate(new DefaultTriggerContext<S, E>(message.getPayload()))) {
-										return stateMachineExecutor.queueEvent(Mono.just(message)).thenReturn(StateMachineEventResult.<S, E>from(this, message, ResultType.ACCEPTED));
-									}
-								}
-							}
-							return Mono.just(StateMachineEventResult.<S, E>from(this, message, ResultType.DENIED));
-						}));
+						Mono<StateMachineEventResult<S, E>> result = Flux.fromIterable(transitions)
+							.filter(transition -> cs != null && transition.getTrigger() != null)
+							.filter(transition -> StateMachineUtils.containsAtleastOne(transition.getSource().getIds(), cs.getIds()))
+							.flatMap(transition -> {
+								return Mono.from(transition.getTrigger().evaluate(triggerContext))
+									.flatMap(e -> {
+										if (e) {
+											return stateMachineExecutor.queueEvent(Mono.just(message))
+												.thenReturn(StateMachineEventResult.<S, E>from(this, message, ResultType.ACCEPTED));
+										} else {
+											return Mono.empty();
+										}
+									});
+							})
+							.next()
+							.switchIfEmpty(Mono.just(StateMachineEventResult.<S, E>from(this, message, ResultType.DENIED)));
+						ret = ret.concatWith(result);
 					}
 					return ret;
 				});

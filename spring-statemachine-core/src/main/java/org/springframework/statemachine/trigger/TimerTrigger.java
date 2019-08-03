@@ -15,12 +15,12 @@
  */
 package org.springframework.statemachine.trigger;
 
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
-import org.springframework.statemachine.support.CountTrigger;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
 
+import reactor.core.Disposable;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -37,7 +37,7 @@ public class TimerTrigger<S, E> extends LifecycleObjectSupport implements Trigge
 	private final CompositeTriggerListener triggerListener = new CompositeTriggerListener();
 	private final long period;
 	private final int count;
-	private volatile ScheduledFuture<?> scheduled;
+	private Disposable disposable;
 
 	/**
 	 * Instantiates a new timer trigger.
@@ -68,8 +68,8 @@ public class TimerTrigger<S, E> extends LifecycleObjectSupport implements Trigge
 	}
 
 	@Override
-	public boolean evaluate(TriggerContext<S, E> context) {
-		return false;
+	public Mono<Boolean> evaluate(TriggerContext<S, E> context) {
+		return Mono.just(false);
 	}
 
 	@Override
@@ -102,7 +102,7 @@ public class TimerTrigger<S, E> extends LifecycleObjectSupport implements Trigge
 
 	@Override
 	public void arm() {
-		if (scheduled != null) {
+		if (disposable != null) {
 			return;
 		}
 		schedule();
@@ -117,13 +117,14 @@ public class TimerTrigger<S, E> extends LifecycleObjectSupport implements Trigge
 
 	private void schedule() {
 		long initialDelay = count > 0 ? period : 0;
-		scheduled = getTaskScheduler().schedule(new Runnable() {
-
-			@Override
-			public void run() {
+		Flux<Long> interval = Flux.interval(Duration.ofMillis(initialDelay), Duration.ofMillis(period))
+			.doOnNext(c -> {
 				notifyTriggered();
-			}
-		}, new CountTrigger(count, period, initialDelay, TimeUnit.MILLISECONDS));
+			});
+		if (count > 0) {
+			interval = interval.take(count);
+		}
+		disposable = interval.subscribe();
 	}
 
 	private void notifyTriggered() {
@@ -131,9 +132,9 @@ public class TimerTrigger<S, E> extends LifecycleObjectSupport implements Trigge
 	}
 
 	private void cancel() {
-		if (scheduled != null) {
-			scheduled.cancel(true);
+		if (disposable != null) {
+			disposable.dispose();
 		}
-		scheduled = null;
+		disposable = null;
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@ package org.springframework.statemachine.trigger;
 
 import org.springframework.statemachine.transition.Transition;
 
+import reactor.core.publisher.Mono;
+
 /**
  * {@code Trigger} is the cause of the {@link Transition}. Cause is usually an
  * event but can be some other signal or a change in some condition.
@@ -32,9 +34,9 @@ public interface Trigger<S,E> {
 	 * Evaluate trigger.
 	 *
 	 * @param context the context
-	 * @return true, triggers is fired, false otherwise
+	 * @return Mono for completion with true, if trigger is fired, false otherwise
 	 */
-	boolean evaluate(TriggerContext<S, E> context);
+	Mono<Boolean> evaluate(TriggerContext<S, E> context);
 
 	/**
 	 * Adds the trigger listener.
