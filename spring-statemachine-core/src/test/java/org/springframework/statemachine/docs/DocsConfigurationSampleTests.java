@@ -32,6 +32,7 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.StateMachineEventResult;
 import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.action.Actions;
@@ -62,6 +63,7 @@ import org.springframework.statemachine.support.StateMachineInterceptorAdapter;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionConflictPolicy;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -584,21 +586,38 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 
 // tag::snippetO[]
 		@Autowired
-		StateMachine<States, Events> stateMachine;
+		StateMachine<String, String> stateMachine;
 
 		void signalMachine() {
 			stateMachine
 				.sendEvent(Mono.just(MessageBuilder
-					.withPayload(Events.E1).build()))
+					.withPayload("E1").build()))
 				.subscribe();
 
-			Message<Events> message = MessageBuilder
-					.withPayload(Events.E2)
+			Message<String> message = MessageBuilder
+					.withPayload("E2")
 					.setHeader("foo", "bar")
 					.build();
 			stateMachine.sendEvent(Mono.just(message)).subscribe();
 		}
 // end::snippetO[]
+
+		void signalMachine2() {
+// tag::snippetO2[]
+			Message<String> message1 = MessageBuilder
+				.withPayload("E1")
+				.build();
+			Message<String> message2 = MessageBuilder
+				.withPayload("E2")
+				.build();
+
+			Flux<StateMachineEventResult<String, String>> results =
+				stateMachine.sendEvents(Flux.just(message1, message2));
+
+			results.subscribe();
+
+// end::snippetO2[]
+		}
 
 	}
 

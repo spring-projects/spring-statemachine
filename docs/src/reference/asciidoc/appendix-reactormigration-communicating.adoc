@@ -11,7 +11,8 @@ include::samples/DocsMigrationTests.java[tags=snippetA]
 
 We're now solely working on a spring `Message` and reactor `Mono` and `Flux` classes.
 You can send a `Mono` of a `Message` and receive back a `Flux` of `StateMachineEventResult`.
-Remember that nothing happens until you subscribe to this `Flux`.
+Remember that nothing happens until you subscribe to this `Flux`. More about
+this returned value, see <<sm-triggers-statemachineeventresult>>.
 
 ====
 [source,java,indent=0]
@@ -36,5 +37,15 @@ do something when event handling is completed, you could do something like.
 [source,java,indent=0]
 ----
 include::samples/DocsMigrationTests.java[tags=snippetB3]
+----
+====
+
+Old API methods returning a `boolean` for accepted status are still in place
+but are deprecated to get removed in future releases.
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsMigrationTests.java[tags=snippetB4]
 ----
 ====

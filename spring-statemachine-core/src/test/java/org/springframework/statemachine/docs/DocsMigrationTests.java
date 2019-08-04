@@ -23,6 +23,7 @@ import org.springframework.statemachine.StateMachineEventResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@SuppressWarnings({ "unused", "deprecation" })
 public class DocsMigrationTests {
 
 	StateMachine<String, String> machine;
@@ -54,5 +55,11 @@ public class DocsMigrationTests {
 			})
 			.subscribe();
 		// end::snippetB3[]
+	}
+
+	public void sample3() {
+		// tag::snippetB4[]
+		boolean accepted = machine.sendEvent("EVENT");
+		// end::snippetB4[]
 	}
 }

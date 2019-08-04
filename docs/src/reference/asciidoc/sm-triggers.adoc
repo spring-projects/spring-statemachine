@@ -20,19 +20,38 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippetO]
 ----
 ====
 
-The preceding example sends an event two different ways. First, it
-sends a type-safe event by using the state machine API method called
-`sendEvent(E event)`. Second, it sends an event wrapped in a Spring
-messaging `Message` by using the API method called `sendEvent(Message<E> message)`
-with a custom event headers. This lets us add arbitrary extra
-information to an event, which is then visible to `StateContext` when
-(for example) you implement actions.
+IMPORTANT: Nothing happens until returned flux is subscribed. See more about it from
+<<sm-triggers-statemachineeventresult>>.
+
+The preceding example sends an events by constructing a `Mono` wrapping
+a `Message` and subscribing into returned `Flux` of results. `Message` lets
+us add arbitrary extra information to an event, which is then visible
+to `StateContext` when (for example) you implement actions.
 
 NOTE: Message headers are generally passed on until machine runs to
 completion for a specific event. For example if an event is causing
 transition into a state `A` which have an anonymous transition into a
 state `B`, original event is available for actions or guards in state
 `B`.
+
+It is also possible to send a `Flux` of messages instead of sending just
+one with a `Mono`.
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetO2]
+----
+====
+
+[[sm-triggers-statemachineeventresult]]
+==== StateMachineEventResult
+
+`StateMachineEventResult` contains more detailed information about a result
+of a event sending. From this you can get a `Region` which handled an event,
+`Message` itself and what was an actual `ResultType`. From `ResultType` you
+can see if message was accepted, denied or deferred. Generally speaking when
+subscribtion completes, events are passed into a machine.
 
 === Using `TimerTrigger`
 
