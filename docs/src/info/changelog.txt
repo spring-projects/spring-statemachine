@@ -4,6 +4,20 @@ https://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 3.0.0.M1 (2019-08-08)
+----------------------------------------
+* Initial reactive refactor [#740]
+* Add initial reactive Action support [#743]
+* Refactor test to use reactive methods [#744]
+* Deferred events not cleared in ReactiveStateMachineExecutor [#747]
+* Refactor internals to reactive methods [#750]
+* Generic Boot 2.2.x and Framework 5.2.x changes [#765]
+* Change StateMachineFunction to Consumer [#767]
+* Add junit 5 to build infra [#772]
+* Add initial reactive Guard support [#791]
+* Add reactive Trigger support [#799]
+* Remove TaskExecutor/TaskScheduler [#800]
+
 Changes in version 2.1.2.RELEASE (2019-04-29)
 ---------------------------------------------
 * Polish docs [#687]
