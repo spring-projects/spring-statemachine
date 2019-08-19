@@ -18,8 +18,13 @@ package org.springframework.statemachine.data;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Before;
@@ -430,6 +435,26 @@ public abstract class AbstractRepositoryTests {
 		plan.test();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testMachine15() throws Exception {
+		context.register(getRegisteredClasses());
+		context.register(Config15.class, FactoryConfig.class);
+		context.refresh();
+		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
+		StateMachine<String, String> stateMachine = stateMachineFactory.getStateMachine();
+		
+		Map<String, State<String, String>> states = stateMachine.getStates().stream().collect(Collectors.toMap((State<String, String> s1) -> s1.getId(), s2 -> s2));
+		assertEquals(2, states.size());
+		
+		State<String,String> S1 = (State<String, String>) states.get("S1");
+		assertEquals(1, S1.getExitActions().size());
+		
+		State<String,String> S2 = (State<String,String>)states.get("S2");
+		assertEquals(1, S2.getEntryActions().size());
+		assertEquals(1, S2.getStateActions().size());
+	}
+	
 	@Configuration
 	public static class Config2 {
 
@@ -601,6 +626,17 @@ public abstract class AbstractRepositoryTests {
 		public StateMachineJackson2RepositoryPopulatorFactoryBean jackson2RepositoryPopulatorFactoryBean() {
 			StateMachineJackson2RepositoryPopulatorFactoryBean factoryBean = new StateMachineJackson2RepositoryPopulatorFactoryBean();
 			factoryBean.setResources(new Resource[]{new ClassPathResource("data14.json")});
+			return factoryBean;
+		}
+	}
+
+	@Configuration
+	public static class Config15 {
+
+		@Bean
+		public StateMachineJackson2RepositoryPopulatorFactoryBean jackson2RepositoryPopulatorFactoryBean() {
+			StateMachineJackson2RepositoryPopulatorFactoryBean factoryBean = new StateMachineJackson2RepositoryPopulatorFactoryBean();
+			factoryBean.setResources(new Resource[]{new ClassPathResource("data15.json")});
 			return factoryBean;
 		}
 	}
