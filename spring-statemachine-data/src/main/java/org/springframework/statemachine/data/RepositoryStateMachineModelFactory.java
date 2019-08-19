@@ -95,62 +95,14 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 				subStateMachineModel = build(submachineId);
 			}
 
-			Collection<Function<StateContext<String, String>, Mono<Void>>> stateActions = new ArrayList<>();
-			Set<? extends RepositoryAction> repositoryStateActions = s.getStateActions();
-			if (repositoryStateActions != null) {
-				for (RepositoryAction repositoryAction : repositoryStateActions) {
-					Action<String, String> action = null;
-					if (StringUtils.hasText(repositoryAction.getName())) {
-						action = resolveAction(repositoryAction.getName());
-					} else if (StringUtils.hasText(repositoryAction.getSpel())) {
-						SpelExpressionParser parser = new SpelExpressionParser(
-								new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
+			Collection<Function<StateContext<String, String>, Mono<Void>>> stateActions = 
+					loadStateActionsFromRepositoryState(s.getStateActions());
 
-						action = new SpelExpressionAction<String, String>(parser.parseExpression(repositoryAction.getSpel()));
-					}
-					if (action != null) {
-						stateActions.add(Actions.from(action));
-					}
-				}
-			}
+			Collection<Function<StateContext<String, String>, Mono<Void>>> entryActions = 
+					loadStateActionsFromRepositoryState(s.getEntryActions());
 
-			Collection<Function<StateContext<String, String>, Mono<Void>>> entryActions = new ArrayList<>();
-			Set<? extends RepositoryAction> repositoryEntryActions = s.getEntryActions();
-			if (repositoryEntryActions != null) {
-				for (RepositoryAction repositoryAction : repositoryEntryActions) {
-					Action<String, String> action = null;
-					if (StringUtils.hasText(repositoryAction.getName())) {
-						action = resolveAction(repositoryAction.getName());
-					} else if (StringUtils.hasText(repositoryAction.getSpel())) {
-						SpelExpressionParser parser = new SpelExpressionParser(
-								new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
-
-						action = new SpelExpressionAction<String, String>(parser.parseExpression(repositoryAction.getSpel()));
-					}
-					if (action != null) {
-						stateActions.add(Actions.from(action));
-					}
-				}
-			}
-
-			Collection<Function<StateContext<String, String>, Mono<Void>>> exitActions = new ArrayList<>();
-			Set<? extends RepositoryAction> repositoryExitActions = s.getExitActions();
-			if (repositoryExitActions != null) {
-				for (RepositoryAction repositoryAction : repositoryExitActions) {
-					Action<String, String> action = null;
-					if (StringUtils.hasText(repositoryAction.getName())) {
-						action = resolveAction(repositoryAction.getName());
-					} else if (StringUtils.hasText(repositoryAction.getSpel())) {
-						SpelExpressionParser parser = new SpelExpressionParser(
-								new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
-
-						action = new SpelExpressionAction<String, String>(parser.parseExpression(repositoryAction.getSpel()));
-					}
-					if (action != null) {
-						stateActions.add(Actions.from(action));
-					}
-				}
-			}
+			Collection<Function<StateContext<String, String>, Mono<Void>>> exitActions = 
+					loadStateActionsFromRepositoryState(s.getExitActions());
 
 			RepositoryState parentState = s.getParentState();
 			Object region = s.getRegion();
@@ -289,6 +241,28 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 				entrys, exits, historys);
 
 		return new DefaultStateMachineModel<>(null, statesData, transitionsData);
+	}
+
+	private Collection<Function<StateContext<String, String>, Mono<Void>>> loadStateActionsFromRepositoryState(
+			Set<? extends RepositoryAction> repositoryStateActions) {
+		Collection<Function<StateContext<String, String>, Mono<Void>>> stateActions = new ArrayList<>();
+		if (repositoryStateActions != null) {
+			for (RepositoryAction repositoryAction : repositoryStateActions) {
+				Action<String, String> action = null;
+				if (StringUtils.hasText(repositoryAction.getName())) {
+					action = resolveAction(repositoryAction.getName());
+				} else if (StringUtils.hasText(repositoryAction.getSpel())) {
+					SpelExpressionParser parser = new SpelExpressionParser(
+							new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
+
+					action = new SpelExpressionAction<String, String>(parser.parseExpression(repositoryAction.getSpel()));
+				}
+				if (action != null) {
+					stateActions.add(Actions.from(action));
+				}
+			}
+		}
+		return stateActions;
 	}
 
 	private Guard<String, String> resolveGuard(RepositoryTransition t) {
