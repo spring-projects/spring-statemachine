@@ -48,7 +48,7 @@ public class Gh737TestsPlus extends AbstractBuildTests {
 //		doStartAndAssert(machine);
 
 		StateMachineContext stateMachineContext = new DefaultStateMachineContext(Status.CLOSED, null, null, null, null, null);
-		machine.getStateMachineAccessor().doWithRegion(function -> function.resetStateMachine(stateMachineContext));
+		machine.getStateMachineAccessor().doWithAllRegions(function -> function.resetStateMachine(stateMachineContext));
 
 		doSendEventAndConsumeAll(machine, Event.NEW);
 		assertThat(machine.getState().getIds(), containsInAnyOrder(Status.CLOSED));
