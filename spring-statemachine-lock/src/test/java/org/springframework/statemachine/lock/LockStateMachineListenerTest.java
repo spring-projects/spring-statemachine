@@ -1,46 +1,42 @@
-package org.springframework.statemachine.cluster;
+package org.springframework.statemachine.lock;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.lock.LockService;
 import org.springframework.statemachine.lock.LockStateMachineGuard;
+import org.springframework.statemachine.lock.LockStateMachineListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class LockStateMachineGuardTest {
+public class LockStateMachineListenerTest {
 
     @Test
-    public void testEvaluate(){
+    public void stateContextCorrectStage(){
         LockService service = mock(LockService.class);
+        LockStateMachineListener lockStateMachineListener = new LockStateMachineListener(service);
         StateContext stateContext = mock(StateContext.class);
-        LockStateMachineGuard lockStateMachineGuard = new LockStateMachineGuard(service, 120);
         StateMachine stateMachine = mock(StateMachine.class);
 
         when(stateContext.getStateMachine()).thenReturn(stateMachine);
-        when(service.lock(stateMachine, 120)).thenReturn(true);
+        when(stateContext.getStage()).thenReturn(StateContext.Stage.TRANSITION_END);
+        lockStateMachineListener.stateContext(stateContext);
 
-        boolean result = lockStateMachineGuard.evaluate(stateContext);
-        assertThat(result).isTrue();
-
-        verify(service, times(1)).lock(stateMachine, 120);
+        verify(service, times(1)).unLock(stateMachine);
     }
 
     @Test
-    public void testEvaluateFails(){
+    public void stateContextWrongState(){
         LockService service = mock(LockService.class);
+        LockStateMachineListener lockStateMachineListener = new LockStateMachineListener(service);
         StateContext stateContext = mock(StateContext.class);
-        LockStateMachineGuard lockStateMachineGuard = new LockStateMachineGuard(service, 120);
         StateMachine stateMachine = mock(StateMachine.class);
 
         when(stateContext.getStateMachine()).thenReturn(stateMachine);
-        when(service.lock(stateMachine, 120)).thenReturn(true);
+        when(stateContext.getStage()).thenReturn(StateContext.Stage.TRANSITION);
+        lockStateMachineListener.stateContext(stateContext);
 
-        boolean result = lockStateMachineGuard.evaluate(stateContext);
-        assertThat(result).isTrue();
-
-        verify(service, times(1)).lock(stateMachine, 120);
-
+        verify(service, never()).unLock(stateMachine);
     }
 }
