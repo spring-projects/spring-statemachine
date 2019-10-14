@@ -17,6 +17,11 @@ package org.springframework.statemachine.lock;
 
 import org.springframework.statemachine.StateMachine;
 
+/**
+ *
+ * @param <S> the type of state
+ * @param <E> the type of event
+ */
 public interface LockService<S, E> {
 
     /**

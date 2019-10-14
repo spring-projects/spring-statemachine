@@ -20,9 +20,11 @@ import net.javacrumbs.shedlock.provider.redis.spring.RedisLockProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.messaging.Message;
@@ -35,24 +37,26 @@ import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
-import org.springframework.statemachine.lock.LockInterceptor;
 import org.springframework.statemachine.lock.LockService;
+import org.springframework.statemachine.lock.LockStateMachineGuard;
+import org.springframework.statemachine.lock.LockStateMachineListener;
 import org.springframework.statemachine.lock.shedlock.ShedLockService;
-import org.springframework.statemachine.support.StateMachineInterceptor;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ShedLockServiceTest {
 
-    protected AnnotationConfigApplicationContext context;
+    private AnnotationConfigApplicationContext context;
+    private RedisConnection connection;
 
     @BeforeEach
     public void setup() {
         context = buildContext();
         context.register(ShedLockConfig.class, Config1.class);
         context.refresh();
-        context.getBean(RedisConnectionFactory.class).getConnection().flushAll();
+        connection = context.getBean(RedisConnectionFactory.class).getConnection();
+        connection.flushAll();
     }
 
     @AfterEach
@@ -69,31 +73,50 @@ public class ShedLockServiceTest {
     @Test
     public void testLockOnLockedMachine() {
         LockService<String, String> lockService = context.getBean(LockService.class);
-        StateMachine<String, String> stateMachine = getStateMachineWithInterceptor();
+        StateMachine<String, String> stateMachine = getStateMachine();
 
         boolean lock = lockService.lock(stateMachine, 120);
         assertThat(lock).isTrue();
 
         StateMachineEventResult<String, String> lockResult = stateMachine.sendEvent(Mono.just(buildE1Event())).blockLast();
-        assertThat(lockResult).isNull();
         assertThat(stateMachine.getState().getId()).isEqualTo("S1");
+        assertThat(connection.exists("job-lock:test:testId".getBytes())).isTrue();
     }
 
     @Test
     public void testLock() {
-        StateMachine<String, String> stateMachine = getStateMachineWithInterceptor();
+        StateMachine<String, String> stateMachine = getStateMachine();
         assertThat(stateMachine.getState().getId()).isEqualTo("S1");
         StateMachineEventResult<String, String> lockResult = stateMachine.sendEvent(Mono.just(buildE1Event())).blockLast();
         assertThat(lockResult).isNotNull();
+        assertThat(lockResult.getResultType()).isEqualTo(StateMachineEventResult.ResultType.ACCEPTED);
         assertThat(stateMachine.getState().getId()).isEqualTo("S2");
+        assertThat(connection.exists("job-lock:test:testId".getBytes())).isFalse();
     }
 
-    private StateMachine<String, String> getStateMachineWithInterceptor() {
+    @Test
+    public void testLockInSameState() {
+        StateMachine<String, String> stateMachine = getStateMachine();
+        assertThat(stateMachine.getState().getId()).isEqualTo("S1");
+        StateMachineEventResult<String, String> lockResult = stateMachine.sendEvent(Mono.just(buildE1Event())).blockLast();
+
+        assertThat(lockResult).isNotNull();
+        assertThat(stateMachine.getState().getId()).isEqualTo("S2");
+        assertThat(connection.exists("job-lock:test:testId".getBytes())).isFalse();
+
+        StateMachineEventResult<String, String> lockResultAfter = stateMachine.sendEvent(Mono.just(buildE1Event())).blockLast();
+        assertThat(lockResultAfter).isNotNull();
+        assertThat(stateMachine.getState().getId()).isEqualTo("S2");
+        assertThat(lockResult.getResultType()).isEqualTo(StateMachineEventResult.ResultType.ACCEPTED);
+        assertThat(connection.exists("job-lock:test:testId".getBytes())).isFalse();
+
+
+    }
+
+    private StateMachine<String, String> getStateMachine() {
         StateMachineFactory<String, String> factory = context.getBean(StateMachineFactory.class);
         StateMachine<String, String> stateMachine = factory.getStateMachine("testId");
         LockService<String, String> lockService = context.getBean(LockService.class);
-        StateMachineInterceptor<String, String> lockInterceptor = new LockInterceptor<>(lockService, 120);
-        stateMachine.getStateMachineAccessor().doWithAllRegions(region -> region.addStateMachineInterceptor(lockInterceptor));
         return stateMachine;
     }
 
@@ -123,10 +146,14 @@ public class ShedLockServiceTest {
     @EnableStateMachineFactory
     static class Config1 extends StateMachineConfigurerAdapter<String, String> {
 
+        @Autowired
+        private LockService<String, String> lockService;
+
         @Override
         public void configure(StateMachineConfigurationConfigurer<String, String> config) throws Exception {
             config
                     .withConfiguration()
+                    .listener(new LockStateMachineListener<>(lockService))
                     .autoStartup(true);
         }
 
@@ -143,6 +170,7 @@ public class ShedLockServiceTest {
         public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
             transitions
                     .withExternal()
+                    .guard(new LockStateMachineGuard<>(lockService, 120))
                     .source("S1").target("S2")
                     .event("E1")
                     .action(stateContext -> System.out.println("Action on " + stateContext.getStateMachine().getId()))
