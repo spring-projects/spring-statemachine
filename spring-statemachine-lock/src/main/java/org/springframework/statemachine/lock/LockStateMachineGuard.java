@@ -15,25 +15,25 @@
  */
 package org.springframework.statemachine.lock;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.guard.Guard;
 
 /**
  * The guard will try to lock the state machine.
+ *
  * @param <S> the type of state
  * @param <E> the type of event
  */
 public class LockStateMachineGuard<S, E> implements Guard<S, E> {
 
-    private final static Logger log = LoggerFactory.getLogger(LockStateMachineListener.class);
+    private final static Log log = LogFactory.getLog(LockStateMachineListener.class);
 
     private final LockService<S, E> lockService;
     private final int lockAtMostUntil;
 
     /**
-     *
      * @param lockService
      * @param lockAtMostUntil defines when the lock expires
      */
@@ -49,8 +49,8 @@ public class LockStateMachineGuard<S, E> implements Guard<S, E> {
     @Override
     public boolean evaluate(StateContext<S, E> stateContext) {
         if (log.isDebugEnabled()) {
-			String id = stateContext.getStateMachine().getId();
-			log.debug("Starting lock on {} with event {} and status from {} to {}", id, stateContext.getEvent(), stateContext.getSource(), stateContext.getTarget());
+            String id = stateContext.getStateMachine().getId();
+            log.debug("Starting lock on " + id + " with event " + stateContext.getEvent() + " and status from " + stateContext.getSource() + " to " + stateContext.getTarget());
         }
         return lockService.lock(stateContext.getStateMachine(), this.lockAtMostUntil);
     }

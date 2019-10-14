@@ -15,8 +15,8 @@
  */
 package org.springframework.statemachine.lock;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateContext.Stage;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
@@ -29,7 +29,7 @@ import org.springframework.statemachine.listener.StateMachineListenerAdapter;
  */
 public class LockStateMachineListener<S, E> extends StateMachineListenerAdapter<S, E> {
 
-    private final static Logger log = LoggerFactory.getLogger(LockStateMachineListener.class);
+    private final static Log log = LogFactory.getLog(LockStateMachineListener.class);
 
     private final LockService<S, E> lockService;
 
@@ -41,7 +41,7 @@ public class LockStateMachineListener<S, E> extends StateMachineListenerAdapter<
     public void stateContext(StateContext<S, E> stateContext) {
         if (Stage.TRANSITION_END.equals(stateContext.getStage())) {
             if (log.isDebugEnabled()) {
-                log.debug("Starting unlock for state machine with id: {}", stateContext.getStateMachine().getId());
+                log.debug("Starting unlock for state machine with id: " + stateContext.getStateMachine().getId());
             }
             lockService.unLock(stateContext.getStateMachine());
         }

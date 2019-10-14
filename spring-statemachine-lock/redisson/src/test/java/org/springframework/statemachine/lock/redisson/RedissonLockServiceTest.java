@@ -20,7 +20,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
-import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -41,6 +40,7 @@ import org.springframework.statemachine.lock.LockStateMachineListener;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.statemachine.lock.redisson.RedissonLockService.LOCK_PREFIX;
 
 public class RedissonLockServiceTest {
 
@@ -72,12 +72,15 @@ public class RedissonLockServiceTest {
         LockService<String, String> lockService = context.getBean(LockService.class);
         StateMachine<String, String> stateMachine = getStateMachine();
 
-        boolean lock = lockService.lock(stateMachine, 120);
-        assertThat(lock).isTrue();
+        new Thread(() -> {
+            boolean lock = lockService.lock(stateMachine, 120);
+            assertThat(lock).isTrue();
+        }).start();
 
-        StateMachineEventResult<String, String> lockResult = stateMachine.sendEvent(Mono.just(buildE1Event())).blockLast();
+
+        stateMachine.sendEvent(Mono.just(buildE1Event())).blockLast();
         assertThat(stateMachine.getState().getId()).isEqualTo("S1");
-        //assertThat(connection.getKeys().getkey("job-lock:test:testId".getBytes())).isTrue();
+        assertThat(connection.getBucket(LOCK_PREFIX + stateMachine.getId()).isExists()).isTrue();
     }
 
     @Test
@@ -88,7 +91,7 @@ public class RedissonLockServiceTest {
         assertThat(lockResult).isNotNull();
         assertThat(lockResult.getResultType()).isEqualTo(StateMachineEventResult.ResultType.ACCEPTED);
         assertThat(stateMachine.getState().getId()).isEqualTo("S2");
-        //assertThat(connection.exists("job-lock:test:testId".getBytes())).isFalse();
+        assertThat(connection.getBucket(LOCK_PREFIX + stateMachine.getId()).isExists()).isFalse();
     }
 
     @Test
@@ -99,19 +102,18 @@ public class RedissonLockServiceTest {
 
         assertThat(lockResult).isNotNull();
         assertThat(stateMachine.getState().getId()).isEqualTo("S2");
-        //assertThat(connection.exists("job-lock:test:testId".getBytes())).isFalse();
+        assertThat(connection.getBucket(LOCK_PREFIX + stateMachine.getId()).isExists()).isFalse();
 
         StateMachineEventResult<String, String> lockResultAfter = stateMachine.sendEvent(Mono.just(buildE1Event())).blockLast();
         assertThat(lockResultAfter).isNotNull();
         assertThat(stateMachine.getState().getId()).isEqualTo("S2");
         assertThat(lockResult.getResultType()).isEqualTo(StateMachineEventResult.ResultType.ACCEPTED);
-        //assertThat(connection.exists("job-lock:test:testId".getBytes())).isFalse();
+        assertThat(connection.getBucket(LOCK_PREFIX + stateMachine.getId()).isExists()).isFalse();
     }
 
     private StateMachine<String, String> getStateMachine() {
         StateMachineFactory<String, String> factory = context.getBean(StateMachineFactory.class);
         StateMachine<String, String> stateMachine = factory.getStateMachine("testId");
-        LockService<String, String> lockService = context.getBean(LockService.class);
         return stateMachine;
     }
 
@@ -126,9 +128,8 @@ public class RedissonLockServiceTest {
 
         @Bean
         public RedissonClient redissonClient() {
-            Config config = new Config();
-            config.useSingleServer().setAddress("redis://localhost:6379");
-            return Redisson.create(config);
+            //default address is localhost:6379
+            return Redisson.create();
         }
 
         @Bean

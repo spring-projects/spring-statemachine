@@ -414,13 +414,11 @@ project('spring-statemachine-uml') {
     }
 }
 
-project('spring-statemachine-lock') {
+project('spring-statemachine-lock-common') {
     description = 'Spring State Machine Lock'
 
     dependencies {
         compile project(':spring-statemachine-core')
-        compile group: 'net.javacrumbs.shedlock', name: 'shedlock-core', version: '3.0.0'
-        compile group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-redis-spring', version: '3.0.0'
         compile 'org.springframework:spring-messaging'
 
         testCompile(project(':spring-statemachine-test')) { dep ->

@@ -37,9 +37,10 @@ public class RedissonLockService<S, E> implements LockService<S, E> {
 
     private final static Logger log = LoggerFactory.getLogger(RedissonLockService.class);
 
+    protected final static String LOCK_PREFIX = "lock:";
+
     private RedissonClient redissonClient;
     private final Map<String, RLock> locks;
-
 
     public RedissonLockService(RedissonClient redissonClient) {
         this.redissonClient = redissonClient;
@@ -48,15 +49,14 @@ public class RedissonLockService<S, E> implements LockService<S, E> {
 
     @Override
     public boolean lock(StateMachine<S, E> stateMachine, int lockAtMostUntil) {
-        String id = stateMachine.getId();
+        String id = buildLockId(stateMachine);
         RLock lock = this.redissonClient.getLock(id);
         boolean result = false;
         try {
             log.trace("Lock acquired for state machine with id {}, Rlock: {}", id, lock);
-            lock.lock(lockAtMostUntil, TimeUnit.SECONDS);
+            result = lock.tryLock(0, lockAtMostUntil, TimeUnit.SECONDS);
             this.locks.put(id, lock);
-            result = true;
-        } catch (IllegalStateException e) {
+        } catch (InterruptedException e) {
             log.warn("Cannot acquire lock for state machine with id {}", id);
         }
         return result;
@@ -64,12 +64,16 @@ public class RedissonLockService<S, E> implements LockService<S, E> {
 
     @Override
     public void unLock(StateMachine<S, E> stateMachine) {
-        String id = stateMachine.getId();
+        String id = buildLockId(stateMachine);
         RLock lock = locks.remove(id);
         if (lock != null) {
             log.trace("Starting unlock on {}", id);
             lock.unlock();
         }
+    }
+
+    private String buildLockId(StateMachine<S, E> stateMachine) {
+        return LOCK_PREFIX + stateMachine.getId();
     }
 
 }
