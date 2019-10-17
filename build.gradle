@@ -1,33 +1,33 @@
 buildscript {
-    ext {
-        log4jVersion = '1.2.17'
-        springBootVersion = '2.2.0.M6'
-        eclipsePersistenceVersion = '2.1.1'
-        kryoVersion = '4.0.2'
-        springCloudClusterVersion = '1.0.2.RELEASE'
-        springShellVersion = '1.1.0.RELEASE'
-        eclipseEmfXmiVersion = '2.11.1-v20150805-0538'
-        eclipseUml2CommonVersion = '2.0.0-v20140602-0749'
-        eclipseEmfCommonVersion = '2.11.0-v20150805-0538'
-        eclipseUml2TypesVersion = '2.0.0-v20140602-0749'
-        eclipseEmfEcoreVersion = '2.11.1-v20150805-0538'
-        eclipseUml2UmlVersion = '5.0.0-v20140602-0749'
-        curatorVersion = '2.11.1'
-        docResourcesVersion = '0.1.1.RELEASE'
-        awaitilityVersion = '3.1.6'
-        reactorBlockHoundVersion = '1.0.0.M3'
-    }
-    repositories {
-        maven { url 'https://repo.springsource.org/libs-release' }
-        maven { url 'https://repo.springsource.org/plugins-release' }
-        maven { url 'https://repo.springsource.org/plugins-snapshot' }
-    }
-    dependencies {
-        classpath('io.spring.gradle:propdeps-plugin:0.0.8')
-        classpath('org.asciidoctor:asciidoctor-gradle-plugin:1.5.6')
-        classpath 'org.asciidoctor:asciidoctorj-pdf:1.5.0-alpha.16'
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
-    }
+	ext {
+		log4jVersion = '1.2.17'
+		springBootVersion = '2.2.0.RELEASE'
+		eclipsePersistenceVersion = '2.1.1'
+		kryoVersion = '4.0.2'
+		springCloudClusterVersion = '1.0.2.RELEASE'
+		springShellVersion = '1.1.0.RELEASE'
+		eclipseEmfXmiVersion = '2.11.1-v20150805-0538'
+		eclipseUml2CommonVersion = '2.0.0-v20140602-0749'
+		eclipseEmfCommonVersion = '2.11.0-v20150805-0538'
+		eclipseUml2TypesVersion = '2.0.0-v20140602-0749'
+		eclipseEmfEcoreVersion = '2.11.1-v20150805-0538'
+		eclipseUml2UmlVersion = '5.0.0-v20140602-0749'
+		curatorVersion = '2.11.1'
+		docResourcesVersion = '0.1.1.RELEASE'
+		awaitilityVersion = '3.1.6'
+		reactorBlockHoundVersion = '1.0.0.M3'
+	}
+	repositories {
+		maven { url 'https://repo.springsource.org/libs-release'}
+		maven { url 'https://repo.springsource.org/plugins-release' }
+		maven { url 'https://repo.springsource.org/plugins-snapshot' }
+	}
+	dependencies {
+		classpath('io.spring.gradle:propdeps-plugin:0.0.8')
+		classpath('org.asciidoctor:asciidoctor-gradle-plugin:1.5.6')
+		classpath 'org.asciidoctor:asciidoctorj-pdf:1.5.0-alpha.16'
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
+	}
 }
 
 def recipeProjects() {
