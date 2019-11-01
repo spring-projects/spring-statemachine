@@ -55,7 +55,7 @@
     "karma-sauce-launcher": "^0.2.8",
     "karma-sinon": "^1.0.3",
     "mocha": "~1.8.1",
-    "open": "0.0.4",
+    "open": "7.0.0",
     "qunitjs": "~1.14.0",
     "semver": "~1.1.4",
     "sinon": "~1.9.1",
