@@ -21,14 +21,12 @@ import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -60,13 +58,13 @@ public abstract class AbstractRepositoryTests {
 
 	protected AnnotationConfigApplicationContext context;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		cleanInternal();
 		context = buildContext();
 	}
 
-	@After
+	@AfterEach
 	public void clean() {
 		if (context != null) {
 			context.close();
@@ -443,18 +441,18 @@ public abstract class AbstractRepositoryTests {
 		context.refresh();
 		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
 		StateMachine<String, String> stateMachine = stateMachineFactory.getStateMachine();
-		
+
 		Map<String, State<String, String>> states = stateMachine.getStates().stream().collect(Collectors.toMap((State<String, String> s1) -> s1.getId(), s2 -> s2));
 		assertEquals(2, states.size());
-		
+
 		State<String,String> S1 = (State<String, String>) states.get("S1");
 		assertEquals(1, S1.getExitActions().size());
-		
+
 		State<String,String> S2 = (State<String,String>)states.get("S2");
 		assertEquals(1, S2.getEntryActions().size());
 		assertEquals(1, S2.getStateActions().size());
 	}
-	
+
 	@Configuration
 	public static class Config2 {
 

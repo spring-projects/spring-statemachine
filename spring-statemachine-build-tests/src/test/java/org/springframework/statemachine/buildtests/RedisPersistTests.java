@@ -25,8 +25,7 @@ import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveFactory;
 import static org.springframework.statemachine.TestUtils.resolvePersister;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,7 +33,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachinePersist;
-import org.springframework.statemachine.buildtests.tck.redis.RedisRule;
+import org.springframework.statemachine.buildtests.tck.redis.EnabledOnRedis;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.StateMachineFactory;
@@ -45,10 +44,8 @@ import org.springframework.statemachine.data.redis.RedisStateMachinePersister;
 import org.springframework.statemachine.persist.RepositoryStateMachinePersist;
 import org.springframework.statemachine.persist.StateMachinePersister;
 
+@EnabledOnRedis
 public class RedisPersistTests extends AbstractBuildTests {
-
-	@Rule
-	public RedisRule redisAvailableRule = new RedisRule();
 
 	@Override
 	protected AnnotationConfigApplicationContext buildContext() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.springframework.statemachine.buildtests.tck.redis;
 
-import org.junit.Rule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -49,10 +48,8 @@ import org.springframework.statemachine.data.support.StateMachineJackson2Reposit
  * @author Janne Valkealahti
  *
  */
+@EnabledOnRedis
 public class RedisJsonTckTests extends AbstractTckTests {
-
-	@Rule
-	public RedisRule redisAvailableRule = new RedisRule();
 
 	@Override
 	protected AnnotationConfigApplicationContext buildContext() {

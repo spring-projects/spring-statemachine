@@ -25,8 +25,7 @@ import static org.springframework.statemachine.TestUtils.resolveMachine;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -50,10 +49,8 @@ import org.springframework.statemachine.transition.TransitionKind;
  *
  * @author Janne Valkealahti
  */
+@EnabledOnMongoDb
 public class MongoDbRepositoryTests extends AbstractRepositoryTests {
-
-	@Rule
-	public MongoDbRule MongoDbAvailableRule = new MongoDbRule();
 
 	@Override
 	protected void cleanInternal() {
