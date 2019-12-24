@@ -271,10 +271,10 @@ project('spring-statemachine-test') {
 		compile 'org.springframework:spring-test'
 		compile 'org.hamcrest:hamcrest-core'
 		compile 'org.hamcrest:hamcrest-library'
-		compile 'junit:junit'
-		compile 'org.junit.jupiter:junit-jupiter-api'
-		compile 'org.junit.vintage:junit-vintage-engine'
 		compile 'org.assertj:assertj-core'
+		optional 'junit:junit'
+		optional 'org.junit.jupiter:junit-jupiter-api'
+		optional 'org.junit.vintage:junit-vintage-engine'
 		testCompile('org.mockito:mockito-core') { dep ->
 			exclude group: 'org.hamcrest'
 		}

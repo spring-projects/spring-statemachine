@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,14 @@ package org.springframework.statemachine.test;
 
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.statemachine.test.StateMachineTestPlanBuilder.StateMachineTestPlanStep;
 
-public class StateMachineTestPlanBuilderTests {
+public class StateMachineTestPlanBuilderJUnit5Tests {
 
 	@Test
 	public void testBuilderNoSteps() throws Exception {

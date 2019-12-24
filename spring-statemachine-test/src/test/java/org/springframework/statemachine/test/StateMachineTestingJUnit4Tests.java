@@ -31,7 +31,7 @@ import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
-public class StateMachineTestingTests extends AbstractStateMachineTests {
+public class StateMachineTestingJUnit4Tests extends AbstractStateMachineJUnit4Tests {
 
 	@Test
 	public void testSimpleTestingConcept() throws Exception {

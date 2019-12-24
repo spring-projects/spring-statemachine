@@ -19,10 +19,12 @@ package org.springframework.statemachine.test.docs;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.collection.IsMapContaining.hasKey;
 import static org.hamcrest.collection.IsMapContaining.hasValue;
+
+import org.junit.jupiter.api.Test;
+
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
 //end::snippetC[]
 
-import org.junit.Test;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineBuilder;
 import org.springframework.statemachine.test.StateMachineTestPlan;
