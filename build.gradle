@@ -1,7 +1,7 @@
 buildscript {
 	ext {
 		log4jVersion = '1.2.17'
-		springBootVersion = '2.1.3.RELEASE'
+		springBootVersion = '2.2.2.RELEASE'
 		eclipsePersistenceVersion = '2.1.1'
 		kryoVersion = '4.0.2'
 		springCloudClusterVersion = '1.0.2.RELEASE'
@@ -14,6 +14,7 @@ buildscript {
 		eclipseUml2UmlVersion = '5.0.0-v20140602-0749'
 		curatorVersion = '2.11.1'
 		docResourcesVersion = '0.1.1.RELEASE'
+		h2DatabaseVersion = '1.4.199'
 	}
 	repositories {
 		maven { url 'https://repo.springsource.org/libs-release'}
@@ -89,6 +90,8 @@ configure(allprojects) {
 			mavenBom "org.springframework.boot:spring-boot-dependencies:$springBootVersion"
 		}
 		dependencies {
+			// https://github.com/spring-projects/spring-statemachine/issues/817
+			dependency "com.h2database:$h2DatabaseVersion"
 			dependency "log4j:log4j:$log4jVersion"
 			dependency "org.eclipse.persistence:javax.persistence:$eclipsePersistenceVersion"
 			dependency "com.esotericsoftware:kryo-shaded:$kryoVersion"
@@ -347,7 +350,6 @@ project('spring-statemachine-uml') {
 
 project('spring-statemachine-build-tests') {
 	description = "Spring State Machine Build Tests"
-	configurations.archives.artifacts.removeAll { it.archiveTask.is jar }
 	tasks.findByPath("artifactoryPublish")?.enabled = false
 
 	dependencies {
@@ -461,7 +463,6 @@ project('spring-statemachine-starter') {
 
 configure(sampleProjects()) {
 	apply plugin: 'org.springframework.boot'
-	configurations.archives.artifacts.removeAll { it.archiveTask.is jar }
 	tasks.findByPath("artifactoryPublish")?.enabled = false
 	// as samples are not published, we can use jdk8
 	compileJava {
@@ -488,7 +489,6 @@ configure(sampleProjects()) {
 }
 
 project('spring-statemachine-samples-common') {
-	configurations.archives.artifacts.removeAll { it.archiveTask.is jar }
 	tasks.findByPath("artifactoryPublish")?.enabled = false
 	dependencies {
 		compile project(":spring-statemachine-core")
@@ -707,11 +707,4 @@ configure(rootProject) {
 		archives docsZip
 		archives distZip
 	}
-
-
-	task wrapper(type: Wrapper) {
-		description = 'Generates gradlew[.bat] scripts'
-		gradleVersion = '4.4.1'
-	}
-
 }
