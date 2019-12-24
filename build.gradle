@@ -91,7 +91,7 @@ configure(allprojects) {
 		}
 		dependencies {
 			// https://github.com/spring-projects/spring-statemachine/issues/817
-			dependency "com.h2database:$h2DatabaseVersion"
+			dependency "com.h2database:h2:$h2DatabaseVersion"
 			dependency "log4j:log4j:$log4jVersion"
 			dependency "org.eclipse.persistence:javax.persistence:$eclipsePersistenceVersion"
 			dependency "com.esotericsoftware:kryo-shaded:$kryoVersion"
