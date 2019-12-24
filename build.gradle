@@ -116,11 +116,15 @@ configure(allprojects) {
 
 	test {
 		useJUnitPlatform {
-			if (project.hasProperty('statemachineIncludeTags') && statemachineIncludeTags.size() > 0) {
-					includeTags = statemachineIncludeTags.split(',')
-			}
-			if (project.hasProperty('statemachineExcludeTags') && statemachineExcludeTags.size() > 0) {
-					excludeTags = statemachineExcludeTags.split(',')
+			if (!project.hasProperty('statemachineIncludeTags') && !project.hasProperty('statemachineExcludeTags')) {
+				excludeTags = ['smoke']
+			} else {
+				if (project.hasProperty('statemachineIncludeTags') && statemachineIncludeTags.size() > 0) {
+						includeTags = statemachineIncludeTags.split(',')
+				}
+				if (project.hasProperty('statemachineExcludeTags') && statemachineExcludeTags.size() > 0) {
+						excludeTags = statemachineExcludeTags.split(',')
+				}
 			}
 		}
 		exclude '**/*IntegrationTests.*'
