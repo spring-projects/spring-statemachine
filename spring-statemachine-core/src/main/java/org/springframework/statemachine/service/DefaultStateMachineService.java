@@ -82,8 +82,10 @@ public class DefaultStateMachineService<S, E> implements StateMachineService<S, 
 	@Override
 	public StateMachine<S, E> acquireStateMachine(String machineId, boolean start) {
 		log.info("Acquiring machine with id " + machineId);
+		StateMachine<S, E> stateMachine;
+		// naive sync to handle concurrency with release
 		synchronized (machines) {
-			StateMachine<S,E> stateMachine = machines.get(machineId);
+			stateMachine = machines.get(machineId);
 			if (stateMachine == null) {
 				log.info("Getting new machine from factory with id " + machineId);
 				stateMachine = stateMachineFactory.getStateMachine(machineId);
@@ -98,8 +100,9 @@ public class DefaultStateMachineService<S, E> implements StateMachineService<S, 
 				}
 				machines.put(machineId, stateMachine);
 			}
-			return handleStart(stateMachine, start);
 		}
+		// handle start outside of sync as it might take some time and would block other machines acquire
+		return handleStart(stateMachine, start);
 	}
 
 	@Override
