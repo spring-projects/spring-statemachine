@@ -38,3 +38,5 @@ NOTE: `StateContext` is described in <<sm-statecontext>>.
 You can also use a SpEL expression as a replacement for a
 full `Action` implementation.
 // TODO An example would help
+
+include::sm-actions-reactive.adoc[]

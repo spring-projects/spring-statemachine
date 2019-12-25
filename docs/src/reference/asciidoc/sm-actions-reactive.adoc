@@ -1,0 +1,35 @@
+[[sm-actions-reactive]]
+=== Reactive Actions
+Normal `Action` interface is a simple functional method taking `StateContext`
+and returning _void_. There's nothing blocking here until you block
+in a method itself and this is a bit of a problem as framework cannot
+know what's exactly happening inside of it.
+
+====
+[source,java,indent=0]
+----
+public interface Action<S, E> {
+	void execute(StateContext<S, E> context);
+}
+----
+====
+
+To overcome this issue we've internally changed `Action` handling to
+process a plain java's `Function` taking `StateContext` and returning
+`Mono`. This way we can call action and fully in a reactive way to
+execute action only when it's subscribed and in a non-blocking way
+to wait it's completion.
+
+====
+[source,java,indent=0]
+----
+public interface ReactiveAction<S, E> extends Function<StateContext<S, E>, Mono<Void>> {
+}
+----
+====
+
+[NOTE]
+====
+Internally old `Action` interface is wrapped with a Reactor Mono Runnable as it
+shares same return type. We have no control what you do in that method!
+====

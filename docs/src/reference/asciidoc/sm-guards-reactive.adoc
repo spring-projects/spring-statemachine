@@ -1,0 +1,35 @@
+[[sm-guards-reactive]]
+=== Reactive Guards
+Normal `Guard` interface is a simple functional method taking `StateContext`
+and returning _boolean_. There's nothing blocking here until you block
+in a method itself and this is a bit of a problem as framework cannot
+know what's exactly happening inside of it.
+
+====
+[source,java,indent=0]
+----
+public interface Guard<S, E> {
+	boolean evaluate(StateContext<S, E> context);
+}
+----
+====
+
+To overcome this issue we've internally changed `Guard` handling to
+process a plain java's `Function` taking `StateContext` and returning
+`Mono<Boolean>`. This way we can call guard and fully in a reactive way
+to evaluate it only when it's subscribed and in a non-blocking way
+to wait it's completion with a return value.
+
+====
+[source,java,indent=0]
+----
+public interface ReactiveGuard<S, E> extends Function<StateContext<S, E>, Mono<Boolean>> {
+}
+----
+====
+
+[NOTE]
+====
+Internally old `Guard` interface is wrapped with a Reactor Mono Function. We have no
+control what you do in that method!
+====

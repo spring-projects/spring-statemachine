@@ -1,7 +1,7 @@
 [[sm-guards]]
 == Using Guards
 
-As shown in <<statemachine\-config\-thingstoremember>>, the `guard1` and `guard2` beans are attached to the entry and
+As shown in <<statemachine-config-thingstoremember>>, the `guard1` and `guard2` beans are attached to the entry and
 exit states, respectively.
 The following example also uses guards on events:
 
@@ -35,3 +35,5 @@ to return a `Boolean` value to satisfy the `Guard` implementation. This can be
 demonstrated with a `guardExpression()` function that takes an
 expression as an argument.
 // TODO Good spot for an example
+
+include::sm-guards-reactive.adoc[]
