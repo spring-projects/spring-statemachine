@@ -103,7 +103,7 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings({"all", "deprecation"})
 	public boolean sendEvent(Message<E> event) {
 		// adding state machine id to the message so that
 		// listeners can know from where a state change originates
@@ -111,6 +111,7 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 	}
 
 	@Override
+	@SuppressWarnings({"all", "deprecation"})
 	public boolean sendEvent(E event) {
 		return sendEvent(MessageBuilder.withPayload(event).build());
 	}
@@ -319,7 +320,7 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 		public void stateChanged(StateMachineContext<S, E> context) {
 			// do not pass if state change was originated from this dist machine
 			if (!ObjectUtils.nullSafeEquals(delegate.getUuid(),
-					context.getEventHeaders().get(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER))) {				
+					context.getEventHeaders().get(StateMachineSystemConstants.STATEMACHINE_IDENTIFIER))) {
 				Message<E> m = MessageBuilder.withPayload(context.getEvent())
 						.copyHeaders(context.getEventHeaders())
 						.build();

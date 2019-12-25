@@ -218,6 +218,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	@Override
+	@SuppressWarnings({"all", "deprecation"})
 	public boolean sendEvent(Message<E> event) {
 		return sendEvent(Mono.just(event))
 			.switchIfEmpty(Flux.just(StateMachineEventResult.<S, E>from(this, event, ResultType.DENIED)))
@@ -233,6 +234,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	@Override
+	@SuppressWarnings({"all", "deprecation"})
 	public boolean sendEvent(E event) {
 		return sendEvent(MessageBuilder.withPayload(event).build());
 	}

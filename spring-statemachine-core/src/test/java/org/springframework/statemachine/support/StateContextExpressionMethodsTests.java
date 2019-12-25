@@ -177,20 +177,24 @@ public class StateContextExpressionMethodsTests {
 		}
 
 		@Override
+		@SuppressWarnings({"all", "deprecation"})
 		public void start() {
 		}
 
 		@Override
+		@SuppressWarnings({"all", "deprecation"})
 		public void stop() {
 		}
 
 		@Override
+		@SuppressWarnings({"all", "deprecation"})
 		public boolean sendEvent(Message<SpelEvents> event) {
 			events.add(event);
 			return true;
 		}
 
 		@Override
+		@SuppressWarnings({"all", "deprecation"})
 		public boolean sendEvent(SpelEvents event) {
 			return sendEvent(MessageBuilder.createMessage(event, new MessageHeaders(new HashMap<String, Object>())));
 		}

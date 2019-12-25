@@ -122,19 +122,23 @@ public class StateMachineAccessTests {
 		}
 
 		@Override
+		@SuppressWarnings({"all", "deprecation"})
 		public void start() {
 		}
 
 		@Override
+		@SuppressWarnings({"all", "deprecation"})
 		public void stop() {
 		}
 
 		@Override
+		@SuppressWarnings({"all", "deprecation"})
 		public boolean sendEvent(Message<String> event) {
 			return false;
 		}
 
 		@Override
+		@SuppressWarnings({"all", "deprecation"})
 		public boolean sendEvent(String event) {
 			return false;
 		}

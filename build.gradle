@@ -77,7 +77,7 @@ configure(allprojects) {
 
 	group = 'org.springframework.statemachine'
 
-	[compileJava, compileTestJava]*.options*.compilerArgs = ['-Xlint:none']
+	[compileJava, compileTestJava]*.options*.compilerArgs = ['-Xlint:deprecation']
 
 	repositories {
 		mavenCentral()
@@ -626,7 +626,6 @@ configure(rootProject) {
 			include 'index.adoc'
 		}
 		options doctype: 'book', eruby: 'erubis'
-		logDocuments = true
 		attributes 'icons': 'font',
 			'sectanchors': '',
 			'toc': '',
@@ -647,7 +646,6 @@ configure(rootProject) {
 			}
 		}
 		options doctype: 'book', eruby: 'erubis'
-		logDocuments = true
 		attributes 'docinfo': 'shared',
 			toc: 'left',
 			'toc-levels': '4',
