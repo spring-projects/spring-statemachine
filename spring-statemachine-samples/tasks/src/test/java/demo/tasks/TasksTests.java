@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -96,6 +97,7 @@ public class TasksTests {
 	}
 
 	@Test
+	@Tag("smoke")
 	public void testRunSmoke() throws InterruptedException {
 		for (int i = 0; i < 20; i++) {
 			log.info("testRunSmoke SMOKE START " + i);
