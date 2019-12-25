@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine.config;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -119,6 +120,26 @@ public class ConfigurationErrorTests extends AbstractStateMachineTests {
 					.state("S2");
 		builder.build();
 		assertThat(verifier.latch.await(2, TimeUnit.SECONDS), is(true));
+	}
+
+	@Test
+	public void testPseudostateNoTransition() throws Exception {
+		Exception exception = assertThrows(Exception.class, ()-> {
+			Builder<String, String> builder = StateMachineBuilder.builder();
+			builder.configureStates()
+				.withStates()
+					.initial("S1")
+					.state("S1")
+					.choice("S2")
+					.state("S3");
+			builder.configureTransitions()
+				.withExternal()
+					.source("S1")
+					.target("S2");
+			builder.build();
+		});
+		assertTrue(exception.getCause() instanceof MalformedConfigurationException);
+		assertThat(exception.getLocalizedMessage(), containsString("No transitions for state S2"));
 	}
 
 	@Configuration

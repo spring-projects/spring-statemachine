@@ -46,6 +46,7 @@ import org.springframework.statemachine.config.model.EntryData;
 import org.springframework.statemachine.config.model.ExitData;
 import org.springframework.statemachine.config.model.HistoryData;
 import org.springframework.statemachine.config.model.JunctionData;
+import org.springframework.statemachine.config.model.MalformedConfigurationException;
 import org.springframework.statemachine.config.model.StateData;
 import org.springframework.statemachine.config.model.StateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineModelFactory;
@@ -665,6 +666,9 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 				State<S, E> defaultState = null;
 				S s = stateData.getState();
 				Collection<HistoryData<S,E>> historys = stateMachineTransitions.getHistorys();
+				if (historys == null) {
+					throw new MalformedConfigurationException("No transitions for state " + s);
+				}
 				for (HistoryData<S,E> history : historys) {
 					if (history.getSource().equals(s)) {
 						defaultState = stateMap.get(history.getTarget());
@@ -685,6 +689,9 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 				State<S, E> defaultState = null;
 				S s = stateData.getState();
 				Collection<HistoryData<S,E>> historys = stateMachineTransitions.getHistorys();
+				if (historys == null) {
+					throw new MalformedConfigurationException("No transitions for state " + s);
+				}
 				for (HistoryData<S,E> history : historys) {
 					if (history.getSource().equals(s)) {
 						defaultState = stateMap.get(history.getTarget());
@@ -706,6 +713,9 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			if (stateData.getPseudoStateKind() == PseudoStateKind.CHOICE) {
 				S s = stateData.getState();
 				List<ChoiceData<S, E>> list = stateMachineTransitions.getChoices().get(s);
+				if (list == null) {
+					throw new MalformedConfigurationException("No transitions for state " + s);
+				}
 				List<ChoiceStateData<S, E>> choices = new ArrayList<ChoiceStateData<S, E>>();
 				for (ChoiceData<S, E> c : list) {
 					StateHolder<S, E> holder = new StateHolder<S, E>(stateMap.get(c.getTarget()));
@@ -723,6 +733,9 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 				S s = stateData.getState();
 				List<JunctionData<S, E>> list = stateMachineTransitions.getJunctions().get(s);
 				List<JunctionStateData<S, E>> junctions = new ArrayList<JunctionStateData<S, E>>();
+				if (list == null) {
+					throw new MalformedConfigurationException("No transitions for state " + s);
+				}
 				for (JunctionData<S, E> c : list) {
 					StateHolder<S, E> holder = new StateHolder<S, E>(stateMap.get(c.getTarget()));
 					if (holder.getState() == null) {
@@ -738,6 +751,9 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			} else if (stateData.getPseudoStateKind() == PseudoStateKind.ENTRY) {
 				S s = stateData.getState();
 				Collection<EntryData<S, E>> entrys = stateMachineTransitions.getEntrys();
+				if (entrys == null) {
+					throw new MalformedConfigurationException("No transitions for state " + s);
+				}
 				for (EntryData<S, E> entry : entrys) {
 					if (s.equals(entry.getSource())) {
 						PseudoState<S, E> pseudoState = new EntryPseudoState<S, E>(stateMap.get(entry.getTarget()));
@@ -751,6 +767,9 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			} else if (stateData.getPseudoStateKind() == PseudoStateKind.EXIT) {
 				S s = stateData.getState();
 				Collection<ExitData<S, E>> exits = stateMachineTransitions.getExits();
+				if (exits == null) {
+					throw new MalformedConfigurationException("No transitions for state " + s);
+				}
 				for (ExitData<S, E> entry : exits) {
 					if (s.equals(entry.getSource())) {
 						StateHolder<S, E> holder = new StateHolder<S, E>(stateMap.get(entry.getTarget()));
@@ -769,6 +788,9 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 				S s = stateData.getState();
 				List<S> list = stateMachineTransitions.getForks().get(s);
 				List<State<S, E>> forks = new ArrayList<State<S,E>>();
+				if (list == null) {
+					throw new MalformedConfigurationException("No transitions for state " + s);
+				}
 				for (S fs : list) {
 					forks.add(stateMap.get(fs));
 				}
@@ -780,6 +802,9 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			} else if (stateData.getPseudoStateKind() == PseudoStateKind.JOIN) {
 				S s = stateData.getState();
 				List<S> list = stateMachineTransitions.getJoins().get(s);
+				if (list == null) {
+					throw new MalformedConfigurationException("No transitions for state " + s);
+				}
 				List<List<State<S, E>>> joins = new ArrayList<List<State<S, E>>>();
 
 				// if join source is an orthogonal state, assume we're joining by region end states
