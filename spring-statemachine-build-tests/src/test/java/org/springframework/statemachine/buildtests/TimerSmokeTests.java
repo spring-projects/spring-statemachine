@@ -110,7 +110,7 @@ public class TimerSmokeTests {
 	@Tag("smoke")
 	public void testDeadlock() throws Exception {
 		StateMachineTestPlan<String, String> plan;
-		for (int i = 0; i < 20; i++) {
+		for (int i = 0; i < 100; i++) {
 			plan = StateMachineTestPlanBuilder.<String, String> builder()
 					.defaultAwaitTime(5)
 					.stateMachine(buildMachine())
@@ -126,8 +126,6 @@ public class TimerSmokeTests {
 					.step()
 						.expectStateEntered(1)
 						.expectStateEntered("end")
-						.and()
-					.step()
 						.expectStateMachineStopped(1)
 						.and()
 					.build();
