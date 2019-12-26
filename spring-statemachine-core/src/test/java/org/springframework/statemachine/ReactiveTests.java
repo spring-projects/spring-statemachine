@@ -137,6 +137,27 @@ public class ReactiveTests extends AbstractStateMachineTests {
 			.verify();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testFluxsSomeDenied() {
+		context.register(Config1.class);
+		context.refresh();
+		assertThat(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
+		StateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		assertThat(machine).isNotNull();
+		verifyStart(machine);
+		assertThat(machine.getState().getIds()).containsExactlyInAnyOrder(TestStates.S1);
+
+		StepVerifier.create(machine.sendEvents(asFlux(TestEvents.E1, TestEvents.E2, TestEvents.E3)))
+			.expectNextMatches(r -> r.getResultType() == ResultType.ACCEPTED)
+			.expectNextMatches(r -> r.getResultType() == ResultType.ACCEPTED)
+			.expectNextMatches(r -> r.getResultType() == ResultType.DENIED)
+			.expectComplete()
+			.verify();
+		assertThat(machine.getState().getIds()).containsExactlyInAnyOrder(TestStates.S3);
+	}
+
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testJoin() throws Exception {
