@@ -153,15 +153,33 @@ public class ObjectStateTests {
 
 		@Override
 		public Mono<Void> apply(StateContext<String, String> context) {
+			// TODO: leaving this here as I had to extract sleep to
+			//       its own method for BlockHound to find it change
+			//       allowBlockingCallsInside from 'apply' to 'sleep'
+
+			// return Mono.fromRunnable(() -> {
+			// 	countBefore.incrementAndGet();
+			// 	try {
+			// 		Thread.sleep(1000);
+			// 	} catch (Exception e) {
+			// 		countInterrupt.incrementAndGet();
+			// 	}
+			// 	countAfter.incrementAndGet();
+			// });
+
 			return Mono.fromRunnable(() -> {
-				countBefore.incrementAndGet();
-				try {
-					Thread.sleep(1000);
-				} catch (Exception e) {
-					countInterrupt.incrementAndGet();
-				}
-				countAfter.incrementAndGet();
+				sleep();
 			});
+		}
+
+		private void sleep() {
+			countBefore.incrementAndGet();
+			try {
+				Thread.sleep(1000);
+			} catch (Exception e) {
+				countInterrupt.incrementAndGet();
+			}
+			countAfter.incrementAndGet();
 		}
 	}
 }

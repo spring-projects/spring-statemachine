@@ -15,7 +15,7 @@ buildscript {
 		curatorVersion = '2.11.1'
 		docResourcesVersion = '0.1.1.RELEASE'
 		awaitilityVersion = '3.1.6'
-		reactorBlockHoundVersion = '1.0.0.M3'
+		reactorBlockHoundVersion = '1.0.1.RELEASE'
 	}
 	repositories {
 		maven { url 'https://repo.springsource.org/libs-release'}
@@ -106,6 +106,7 @@ configure(allprojects) {
 			dependency "org.apache.curator:curator-recipes:$curatorVersion"
 			dependency "org.apache.curator:curator-test:$curatorVersion"
 			dependency "org.awaitility:awaitility:$awaitilityVersion"
+			dependency "io.projectreactor.tools:blockhound:$reactorBlockHoundVersion"
 			dependency "io.projectreactor.tools:blockhound-junit-platform:$reactorBlockHoundVersion"
 		}
 	}
@@ -136,6 +137,7 @@ configure(subprojects) { subproject ->
 
 	dependencies {
 		testCompile("org.junit.jupiter:junit-jupiter-api")
+		testCompile("io.projectreactor.tools:blockhound")
 		testRuntime("org.junit.jupiter:junit-jupiter-engine")
 		if (project.hasProperty('statemachineBlockHound') && statemachineBlockHound.toBoolean()) {
 			testRuntime("org.junit.platform:junit-platform-launcher")
