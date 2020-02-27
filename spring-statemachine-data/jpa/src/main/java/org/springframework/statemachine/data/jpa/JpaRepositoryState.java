@@ -46,21 +46,30 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  *
  */
 @Entity
-@Table(name = "State")
-@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class)
+@Table(name = "state")
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
 public class JpaRepositoryState extends RepositoryState {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
+	private Long id;
 
+	@Column(name = "machine_id")
 	private String machineId;
+
+	@Column(name = "state")
 	private String state;
+
+	@Column(name = "region")
 	private String region;
 
-	@Column(name = "initialState")
-	private boolean initial;
+	@Column(name = "initial_state")
+	private Boolean initial;
+
+	@Column(name = "kind")
 	private PseudoStateKind kind;
+
+	@Column(name = "submachine_id")
 	private String submachineId;
 
 	@OneToOne(fetch = FetchType.EAGER)
@@ -84,7 +93,7 @@ public class JpaRepositoryState extends RepositoryState {
 	private Set<JpaRepositoryAction> exitActions;
 
 	@ElementCollection(fetch = FetchType.EAGER, targetClass = String.class)
-	@CollectionTable(name="DeferredEvents", foreignKey = @ForeignKey(name = "fk_state_deferred_events"))
+	@CollectionTable(name = "deferred_events", foreignKey = @ForeignKey(name = "fk_state_deferred_events"))
 	private Set<String> deferredEvents;
 
 	/**
@@ -106,10 +115,10 @@ public class JpaRepositoryState extends RepositoryState {
 	/**
 	 * Instantiates a new jpa repository state.
 	 *
-	 * @param state the state
+	 * @param state   the state
 	 * @param initial the initial
 	 */
-	public JpaRepositoryState(String state, boolean initial) {
+	public JpaRepositoryState(String state, Boolean initial) {
 		this(null, state, initial);
 	}
 
@@ -117,38 +126,38 @@ public class JpaRepositoryState extends RepositoryState {
 	 * Instantiates a new jpa repository state.
 	 *
 	 * @param machineId the machine id
-	 * @param state the state
-	 * @param initial the initial
+	 * @param state     the state
+	 * @param initial   the initial
 	 */
-	public JpaRepositoryState(String machineId, String state, boolean initial) {
+	public JpaRepositoryState(String machineId, String state, Boolean initial) {
 		this(machineId, null, state, initial);
 	}
 
 	/**
 	 * Instantiates a new jpa repository state.
 	 *
-	 * @param machineId the machine id
+	 * @param machineId   the machine id
 	 * @param parentState the parent state
-	 * @param state the state
-	 * @param initial the initial
+	 * @param state       the state
+	 * @param initial     the initial
 	 */
-	public JpaRepositoryState(String machineId, JpaRepositoryState parentState, String state, boolean initial) {
+	public JpaRepositoryState(String machineId, JpaRepositoryState parentState, String state, Boolean initial) {
 		this(machineId, parentState, state, initial, null, null, null);
 	}
 
 	/**
 	 * Instantiates a new jpa repository state.
 	 *
-	 * @param machineId the machine id
-	 * @param parentState the parent state
-	 * @param state the state
-	 * @param initial the initial
+	 * @param machineId    the machine id
+	 * @param parentState  the parent state
+	 * @param state        the state
+	 * @param initial      the initial
 	 * @param stateActions the state actions
 	 * @param entryActions the entry actions
-	 * @param exitActions the exit actions
+	 * @param exitActions  the exit actions
 	 */
-	public JpaRepositoryState(String machineId, JpaRepositoryState parentState, String state, boolean initial, Set<JpaRepositoryAction> stateActions,
-			Set<JpaRepositoryAction> entryActions, Set<JpaRepositoryAction> exitActions) {
+	public JpaRepositoryState(String machineId, JpaRepositoryState parentState, String state, Boolean initial, Set<JpaRepositoryAction> stateActions,
+							  Set<JpaRepositoryAction> entryActions, Set<JpaRepositoryAction> exitActions) {
 		this.machineId = machineId == null ? "" : machineId;
 		this.parentState = parentState;
 		this.state = state;
@@ -204,11 +213,11 @@ public class JpaRepositoryState extends RepositoryState {
 	}
 
 	@Override
-	public boolean isInitial() {
+	public Boolean isInitial() {
 		return initial;
 	}
 
-	public void setInitial(boolean initial) {
+	public void setInitial(Boolean initial) {
 		this.initial = initial;
 	}
 

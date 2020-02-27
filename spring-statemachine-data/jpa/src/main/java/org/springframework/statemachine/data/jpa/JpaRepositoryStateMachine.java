@@ -15,10 +15,7 @@
  */
 package org.springframework.statemachine.data.jpa;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import org.springframework.statemachine.data.RepositoryStateMachine;
 
@@ -32,16 +29,19 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  *
  */
 @Entity
-@Table(name = "StateMachine")
+@Table(name = "state_machine")
 @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class)
 public class JpaRepositoryStateMachine extends RepositoryStateMachine {
 
 	@Id
+	@Column(name = "machine_id")
 	private String machineId;
 
+	@Column(name = "state")
 	private String state;
 
 	@Lob
+	@Column(name = "state_machine_context")
 	private byte[] stateMachineContext;
 
 	@Override

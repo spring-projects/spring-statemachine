@@ -15,11 +15,7 @@
  */
 package org.springframework.statemachine.data.jpa;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import org.springframework.statemachine.data.RepositoryGuard;
 
@@ -33,15 +29,19 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  *
  */
 @Entity
-@Table(name = "Guard")
-@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class)
+@Table(name = "guard")
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
 public class JpaRepositoryGuard extends RepositoryGuard {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
+	@Column(name = "id")
+	private Long id;
 
+	@Column(name = "name")
 	private String name;
+
+	@Column(name = "spel")
 	private String spel;
 
 	@Override
