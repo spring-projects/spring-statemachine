@@ -190,7 +190,7 @@ public class RedisRepositoryState extends RepositoryState {
 	}
 
 	@Override
-	public boolean isInitial() {
+	public Boolean isInitial() {
 		return initial;
 	}
 

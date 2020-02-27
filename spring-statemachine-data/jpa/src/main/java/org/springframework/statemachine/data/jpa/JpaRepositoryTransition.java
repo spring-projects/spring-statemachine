@@ -18,16 +18,17 @@ package org.springframework.statemachine.data.jpa;
 import java.util.Set;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Column;
+import javax.persistence.OneToOne;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ForeignKey;
+import javax.persistence.ManyToMany;
+import javax.persistence.JoinTable;
 
 import org.springframework.statemachine.data.RepositoryTransition;
 import org.springframework.statemachine.transition.TransitionKind;
@@ -42,14 +43,16 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  *
  */
 @Entity
-@Table(name = "Transition")
+@Table(name = "transition")
 @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class)
 public class JpaRepositoryTransition extends RepositoryTransition {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
+	@Column(name = "id")
+	private Long id;
 
+	@Column(name = "machine_id")
 	private String machineId;
 
 	@OneToOne(fetch = FetchType.EAGER)
@@ -60,7 +63,10 @@ public class JpaRepositoryTransition extends RepositoryTransition {
 	@JoinColumn(foreignKey = @ForeignKey(name = "fk_transition_target"))
 	private JpaRepositoryState target;
 
+	@Column(name = "event")
 	private String event;
+
+	@Column(name = "kind")
 	private TransitionKind kind;
 
 	@ManyToMany(fetch = FetchType.EAGER)
