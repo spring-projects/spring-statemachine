@@ -15,7 +15,11 @@
  */
 package org.springframework.statemachine.data.jpa;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Lob;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Column;
 
 import org.springframework.statemachine.data.RepositoryStateMachine;
 
