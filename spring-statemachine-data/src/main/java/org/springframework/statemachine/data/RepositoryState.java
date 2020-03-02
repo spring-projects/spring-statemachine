@@ -60,7 +60,7 @@ public abstract class RepositoryState extends BaseRepositoryEntity {
 	 *
 	 * @return true, if is initial
 	 */
-	public abstract boolean isInitial();
+	public abstract Boolean isInitial();
 
 	/**
 	 * Gets the initial action. This is any meaningful if
