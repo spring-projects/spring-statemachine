@@ -254,7 +254,7 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippetEC]
 ----
 ====
 
-If need be, you can manually create imilar logic for every action.
+If need be, you can manually create similar logic for every action.
 The following example shows how to do so:
 
 ====
