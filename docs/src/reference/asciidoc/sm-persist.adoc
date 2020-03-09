@@ -28,7 +28,7 @@ custom persistent method within a listener fails to update the serialized
 state in an external repository, the state in a state machine and the state in
 an external repository are then in an inconsistent state.
 
-You can isntead use a state machine interceptor to try to save the
+You can instead use a state machine interceptor to try to save the
 serialized state into external storage during the state
 change within a state machine. If this interceptor callback fails,
 you can halt the state change attempt and, instead of ending in an
