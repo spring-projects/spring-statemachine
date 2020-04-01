@@ -13,7 +13,7 @@ buildscript {
 		eclipseEmfEcoreVersion = '2.11.1-v20150805-0538'
 		eclipseUml2UmlVersion = '5.0.0-v20140602-0749'
 		curatorVersion = '2.11.1'
-		docResourcesVersion = '0.1.1.RELEASE'
+		docResourcesVersion = '0.2.0.RELEASE'
 		awaitilityVersion = '3.1.6'
 		reactorBlockHoundVersion = '1.0.1.RELEASE'
 	}
@@ -660,7 +660,7 @@ configure(rootProject) {
 			// use provided highlighter
 			'source-highlighter=highlight.js',
 			'highlightjsdir=js/highlight',
-			'highlightjs-theme=atom-one-dark-reasonable',
+			'highlightjs-theme=github',
 			'idprefix': '',
 			'idseparator': '-',
 			'spring-statemachine-version' : project.version,
