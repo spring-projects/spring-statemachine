@@ -38,14 +38,11 @@ import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.ObjectStateMachineFactory;
 import org.springframework.statemachine.config.StateMachineConfig;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.config.builders.StateMachineConfigBuilder;
 import org.springframework.statemachine.config.builders.StateMachineConfigurer;
 import org.springframework.statemachine.config.common.annotation.AbstractImportingAnnotationConfiguration;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurer;
-import org.springframework.statemachine.config.model.ConfigurationData;
-import org.springframework.statemachine.config.model.DefaultStateMachineModel;
-import org.springframework.statemachine.config.model.StatesData;
-import org.springframework.statemachine.config.model.TransitionsData;
 import org.springframework.statemachine.monitor.StateMachineMonitor;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
@@ -165,27 +162,15 @@ public class StateMachineConfiguration<S, E> extends
 			AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>> configurer =
 					(AnnotationConfigurer<StateMachineConfig<S, E>, StateMachineConfigBuilder<S, E>>) getBeanFactory()
 						.getBean(ClassUtils.forName(clazzName, classLoader));
-			getBuilder().apply(configurer);
+			StateMachineConfigBuilder<S, E> builder = getBuilder();
+			builder.apply(configurer);
 
-			StateMachineConfig<S, E> stateMachineConfig = getBuilder().getOrBuild();
-			TransitionsData<S, E> stateMachineTransitions = stateMachineConfig.getTransitions();
-			StatesData<S, E> stateMachineStates = stateMachineConfig.getStates();
-			ConfigurationData<S, E> stateMachineConfigurationConfig = stateMachineConfig.getStateMachineConfigurationConfig();
-
-			ObjectStateMachineFactory<S, E> stateMachineFactory = null;
-			if (stateMachineConfig.getModel() != null && stateMachineConfig.getModel().getFactory() != null) {
-				stateMachineFactory = new ObjectStateMachineFactory<S, E>(
-						new DefaultStateMachineModel<S, E>(stateMachineConfigurationConfig, null, null),
-						stateMachineConfig.getModel().getFactory());
-			} else {
-				stateMachineFactory = new ObjectStateMachineFactory<S, E>(new DefaultStateMachineModel<S, E>(
-						stateMachineConfigurationConfig, stateMachineStates, stateMachineTransitions), null);
-			}
+			ObjectStateMachineFactory<S, E> stateMachineFactory = StateMachineFactory.create(builder);
 
 			stateMachineFactory.setBeanFactory(getBeanFactory());
 			stateMachineFactory.setContextEventsEnabled(contextEvents);
 			stateMachineFactory.setBeanName(beanName);
-			stateMachineFactory.setHandleAutostartup(stateMachineConfigurationConfig.isAutoStart());
+			stateMachineFactory.setHandleAutostartup(builder.getOrBuild().stateMachineConfigurationConfig.isAutoStart());
 			if (stateMachineMonitor != null) {
 				stateMachineFactory.setStateMachineMonitor(stateMachineMonitor);
 			}

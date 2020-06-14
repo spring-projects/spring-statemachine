@@ -18,6 +18,7 @@ package org.springframework.statemachine;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveFactory;
@@ -33,6 +34,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.StateMachineFactory;
+import org.springframework.statemachine.config.builders.StateMachineConfigBuilder;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
@@ -44,6 +46,23 @@ public class StateMachineFactoryTests extends AbstractStateMachineTests {
 	@Override
 	protected AnnotationConfigApplicationContext buildContext() {
 		return new AnnotationConfigApplicationContext();
+	}
+
+	/**
+	 * {@link org.springframework.statemachine.config.ManualBuilderTests#testManualBuildConcept()}
+	 */
+	@Test
+	public void testCreate() throws Exception{
+		StateMachineConfigBuilder<TestStates, TestEvents> builder = new StateMachineConfigBuilder<>();
+		Config1 config = new Config1();
+		builder.apply(config);
+
+		StateMachineFactory<TestStates,TestEvents> factory = StateMachineFactory.create(builder);
+		StateMachine<TestStates,TestEvents> machine = factory.getStateMachine();
+		doStartAndAssert(machine);
+
+		assertThat(machine, notNullValue());
+		assertThat(machine.getState().getId(), is(TestStates.S1));
 	}
 
 	@Test

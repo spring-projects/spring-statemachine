@@ -41,10 +41,6 @@ import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.config.builders.StateMachineConfigBuilder;
 import org.springframework.statemachine.config.common.annotation.AbstractImportingAnnotationConfiguration;
 import org.springframework.statemachine.config.common.annotation.AnnotationConfigurer;
-import org.springframework.statemachine.config.model.ConfigurationData;
-import org.springframework.statemachine.config.model.DefaultStateMachineModel;
-import org.springframework.statemachine.config.model.StatesData;
-import org.springframework.statemachine.config.model.TransitionsData;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -156,21 +152,7 @@ public class StateMachineFactoryConfiguration<S, E> extends
 						.getBean(ClassUtils.forName(clazzName, classLoader));
 		    builder.apply(configurer);
 
-			StateMachineConfig<S, E> stateMachineConfig = builder.getOrBuild();
-			TransitionsData<S, E> stateMachineTransitions = stateMachineConfig.getTransitions();
-			StatesData<S, E> stateMachineStates = stateMachineConfig.getStates();
-			ConfigurationData<S, E> stateMachineConfigurationConfig = stateMachineConfig
-					.getStateMachineConfigurationConfig();
-
-			ObjectStateMachineFactory<S, E> objectStateMachineFactory = null;
-			if (stateMachineConfig.getModel() != null && stateMachineConfig.getModel().getFactory() != null) {
-				objectStateMachineFactory = new ObjectStateMachineFactory<S, E>(
-						new DefaultStateMachineModel<S, E>(stateMachineConfigurationConfig, null, null),
-						stateMachineConfig.getModel().getFactory());
-			} else {
-				objectStateMachineFactory = new ObjectStateMachineFactory<S, E>(new DefaultStateMachineModel<S, E>(
-						stateMachineConfigurationConfig, stateMachineStates, stateMachineTransitions), null);
-			}
+			ObjectStateMachineFactory<S, E> objectStateMachineFactory =	StateMachineFactory.create(builder);
 
 			objectStateMachineFactory.setBeanFactory(beanFactory);
 			objectStateMachineFactory.setContextEventsEnabled(contextEvents);
