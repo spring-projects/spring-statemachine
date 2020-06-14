@@ -29,10 +29,7 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionBu
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.config.common.annotation.AnnotationBuilder;
 import org.springframework.statemachine.config.common.annotation.ObjectPostProcessor;
-import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.ConfigurationData;
-import org.springframework.statemachine.config.model.StatesData;
-import org.springframework.statemachine.config.model.TransitionsData;
 
 /**
  * {@code StateMachineBuilder} provides a builder pattern for
@@ -112,38 +109,35 @@ public class StateMachineBuilder {
 		}
 
 		/**
-		 * Builds a {@link StateMachine}.
+		 * Creates a {@link StateMachineFactory} from builder
 		 *
-		 * @return the state machine
+		 * @return the factory to create a state machine
 		 */
-		public StateMachine<S, E> build() {
+		public StateMachineFactory<S, E> createFactory() {
 			try {
 				builder.apply(adapter);
-				StateMachineConfig<S, E> stateMachineConfig = builder.getOrBuild();
 
-				TransitionsData<S, E> stateMachineTransitions = stateMachineConfig.getTransitions();
-				StatesData<S, E> stateMachineStates = stateMachineConfig.getStates();
-				ConfigurationData<S, E> stateMachineConfigurationConfig = stateMachineConfig.getStateMachineConfigurationConfig();
-
-				ObjectStateMachineFactory<S, E> stateMachineFactory = null;
-				if (stateMachineConfig.getModel() != null && stateMachineConfig.getModel().getFactory() != null) {
-					stateMachineFactory = new ObjectStateMachineFactory<S, E>(
-							new DefaultStateMachineModel<S, E>(stateMachineConfigurationConfig, null, null),
-							stateMachineConfig.getModel().getFactory());
-				} else {
-					stateMachineFactory = new ObjectStateMachineFactory<S, E>(new DefaultStateMachineModel<S, E>(
-							stateMachineConfigurationConfig, stateMachineStates, stateMachineTransitions), null);
-				}
+				ObjectStateMachineFactory<S, E> stateMachineFactory = StateMachineFactory.create(builder);
+				ConfigurationData<S, E> stateMachineConfigurationConfig = builder.getOrBuild().stateMachineConfigurationConfig;
 
 				stateMachineFactory.setHandleAutostartup(stateMachineConfigurationConfig.isAutoStart());
 
 				if (stateMachineConfigurationConfig.getBeanFactory() != null) {
 					stateMachineFactory.setBeanFactory(stateMachineConfigurationConfig.getBeanFactory());
 				}
-				return stateMachineFactory.getStateMachine();
+				return stateMachineFactory;
 			} catch (Exception e) {
 				throw new StateMachineException("Error building state machine", e);
 			}
+		}
+
+		/**
+		 * Builds a {@link StateMachine}.
+		 *
+		 * @return the state machine
+		 */
+		public StateMachine<S, E> build() {
+			return createFactory().getStateMachine();
 		}
 
 	}

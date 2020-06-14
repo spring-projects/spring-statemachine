@@ -16,6 +16,11 @@
 package org.springframework.statemachine.config;
 
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.config.builders.StateMachineConfigBuilder;
+import org.springframework.statemachine.config.model.ConfigurationData;
+import org.springframework.statemachine.config.model.DefaultStateMachineModel;
+import org.springframework.statemachine.config.model.StatesData;
+import org.springframework.statemachine.config.model.TransitionsData;
 
 import java.util.UUID;
 
@@ -53,4 +58,23 @@ public interface StateMachineFactory<S, E> {
 	 * @return a new state machine instance.
 	 */
 	StateMachine<S, E> getStateMachine(UUID uuid);
+
+	static <S, E> ObjectStateMachineFactory<S, E> create(StateMachineConfigBuilder<S, E> builder) {
+		StateMachineConfig<S, E> stateMachineConfig = builder.getOrBuild();
+
+		TransitionsData<S, E> stateMachineTransitions = stateMachineConfig.getTransitions();
+		StatesData<S, E> stateMachineStates = stateMachineConfig.getStates();
+		ConfigurationData<S, E> stateMachineConfigurationConfig = stateMachineConfig.getStateMachineConfigurationConfig();
+
+		ObjectStateMachineFactory<S, E> stateMachineFactory = null;
+		if (stateMachineConfig.getModel() != null && stateMachineConfig.getModel().getFactory() != null) {
+			stateMachineFactory = new ObjectStateMachineFactory<S, E>(
+					new DefaultStateMachineModel<S, E>(stateMachineConfigurationConfig, null, null),
+					stateMachineConfig.getModel().getFactory());
+		} else {
+			stateMachineFactory = new ObjectStateMachineFactory<S, E>(new DefaultStateMachineModel<S, E>(
+					stateMachineConfigurationConfig, stateMachineStates, stateMachineTransitions), null);
+		}
+		return stateMachineFactory;
+	}
 }
