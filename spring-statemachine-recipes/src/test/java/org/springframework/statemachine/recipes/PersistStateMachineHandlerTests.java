@@ -23,12 +23,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineBuilder;
+import org.springframework.statemachine.recipes.persist.FactoryPersistStateMachineHandler;
 import org.springframework.statemachine.recipes.persist.PersistStateMachineHandler;
 import org.springframework.statemachine.recipes.persist.PersistStateMachineHandler.PersistStateChangeListener;
 import org.springframework.statemachine.state.State;
@@ -114,6 +116,47 @@ public class PersistStateMachineHandlerTests {
 		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
 	}
 
+	@Test
+	public void testFactoryPersistStateMachineHandler() throws Exception {
+		StateMachineBuilder.Builder<String, String> builder = testStateMachineBuilder();
+
+		FactoryPersistStateMachineHandler<String, String> handler = new FactoryPersistStateMachineHandler<String, String>(builder);
+
+		TestPersistStateChangeListener listener = new TestPersistStateChangeListener();
+		handler.addPersistStateChangeListener(listener);
+
+		Message<String> event = MessageBuilder.withPayload("E2").build();
+		handler.handleEventWithStateReactively(event, "S1").subscribe();
+
+		assertThat(listener.latch.await(1, TimeUnit.SECONDS), is(true));
+	}
+
+	@Test
+	public void testConcurrentFactoryPersistStateMachineHandler() throws Exception {
+		StateMachineBuilder.Builder<String, String> builder = testStateMachineBuilder();
+
+		FactoryPersistStateMachineHandler<String, String> handler = new FactoryPersistStateMachineHandler<String, String>(builder);
+
+		ArrayList<TestPersistStateChangeListener> listeners = new ArrayList<>();
+		for (int i = 0; i < 8; i++) {
+			listeners.add(new TestPersistStateChangeListener());
+		}
+
+		for (TestPersistStateChangeListener listener : listeners) {
+			new Thread(() -> {
+				handler.addPersistStateChangeListener(listener);
+
+				Message<String> event = MessageBuilder.withPayload("E2").build();
+				handler.handleEventWithStateReactively(event, "S1").subscribe();
+			}).start();
+		}
+
+		for (TestPersistStateChangeListener listener : listeners) {
+			assertThat(listener.latch.await(1, TimeUnit.SECONDS), is(true));
+		}
+	}
+
+
 	private static class TestPersistStateChangeListener implements PersistStateChangeListener {
 
 		CountDownLatch latch = new CountDownLatch(1);
@@ -128,8 +171,7 @@ public class PersistStateMachineHandlerTests {
 
 	}
 
-	private static StateMachine<String, String> buildTestStateMachine()
-			throws Exception {
+	private static StateMachineBuilder.Builder<String, String> testStateMachineBuilder() throws Exception {
 		StateMachineBuilder.Builder<String, String> builder = StateMachineBuilder.builder();
 
 		builder.configureConfiguration()
@@ -149,11 +191,14 @@ public class PersistStateMachineHandlerTests {
 				.withExternal()
 					.source("S1").target("S2").event("E2");
 
-		return builder.build();
+		return builder;
 	}
 
-	private static StateMachine<String, String> buildTestStateMachine2()
-			throws Exception {
+	private static StateMachine<String, String> buildTestStateMachine() throws Exception {
+		return testStateMachineBuilder().build();
+	}
+
+	private static StateMachineBuilder.Builder<String, String> testStateMachineBuilder2() throws Exception {
 		StateMachineBuilder.Builder<String, String> builder = StateMachineBuilder.builder();
 
 		builder.configureConfiguration()
@@ -175,6 +220,10 @@ public class PersistStateMachineHandlerTests {
 					.source("S1")
 					.last("S2");
 
-		return builder.build();
+		return builder;
+	}
+
+	private static StateMachine<String, String> buildTestStateMachine2() throws Exception {
+		return testStateMachineBuilder2().build();
 	}
 }

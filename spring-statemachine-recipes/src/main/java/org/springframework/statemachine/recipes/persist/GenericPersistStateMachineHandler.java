@@ -16,9 +16,10 @@
 package org.springframework.statemachine.recipes.persist;
 
 import org.springframework.statemachine.StateMachine;
+import org.springframework.util.Assert;
 
 /**
- * {@code PersistStateMachineHandler} is a recipe which can be used to
+ * {@code GenericPersistStateMachineHandler} is a recipe which can be used to
  * handle a state change of an arbitrary entity in a persistent storage.
  * <br>
  * For concurrent usage, please consider using {@link FactoryPersistStateMachineHandler}
@@ -26,13 +27,27 @@ import org.springframework.statemachine.StateMachine;
  *
  * @author Janne Valkealahti
  */
-public class PersistStateMachineHandler extends GenericPersistStateMachineHandler<String, String> {
+public class GenericPersistStateMachineHandler<S, E> extends AbstractPersistStateMachineHandler<S, E> {
 
-    public PersistStateMachineHandler(StateMachine<String, String> stateMachine) {
-        super(stateMachine);
+    protected final StateMachine<S, E> stateMachine;
+
+    /**
+     * Instantiates a new persist state machine handler.
+     *
+     * @param stateMachine the state machine
+     */
+    public GenericPersistStateMachineHandler(StateMachine<S, E> stateMachine) {
+        Assert.notNull(stateMachine, "State machine must be set");
+        this.stateMachine = stateMachine;
     }
 
-    public interface PersistStateChangeListener extends GenericPersistStateChangeListener<String, String> {
+    @Override
+    protected void onInit() throws Exception {
+        initStateMachine(stateMachine);
     }
 
+    @Override
+    protected StateMachine<S, E> getInitStateMachine() {
+        return stateMachine;
+    }
 }
