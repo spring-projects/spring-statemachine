@@ -41,7 +41,7 @@ public class StateMachineInterceptorList<S, E> {
 	 * Sets the interceptors, clears any existing interceptors.
 	 *
 	 * @param interceptors the list of interceptors
-	 * @return <tt>true</tt> if interceptor list changed as a result of the
+	 * @return {@code true} if interceptor list changed as a result of the
 	 *         call
 	 */
 	public boolean set(List<StateMachineInterceptor<S, E>> interceptors) {
@@ -55,7 +55,7 @@ public class StateMachineInterceptorList<S, E> {
 	 * Adds interceptor to the list.
 	 *
 	 * @param interceptor the interceptor
-	 * @return <tt>true</tt> (as specified by {@link Collection#add})
+	 * @return {@code true} (as specified by {@link Collection#add})
 	 */
 	public boolean add(StateMachineInterceptor<S, E> interceptor) {
 		return interceptors.add(interceptor);
@@ -65,7 +65,7 @@ public class StateMachineInterceptorList<S, E> {
 	 * Removes interceptor from the list.
 	 *
 	 * @param interceptor the interceptor
-	 * @return <tt>true</tt> (as specified by {@link Collection#remove})
+	 * @return {@code true} (as specified by {@link Collection#remove})
 	 */
 	public boolean remove(StateMachineInterceptor<S, E> interceptor) {
 		return interceptors.remove(interceptor);
