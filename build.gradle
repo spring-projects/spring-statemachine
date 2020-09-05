@@ -138,6 +138,7 @@ configure(subprojects) { subproject ->
 	dependencies {
 		testCompile("org.junit.jupiter:junit-jupiter-api")
 		testCompile("io.projectreactor.tools:blockhound")
+		testCompile("org.springframework.boot:spring-boot-starter-test")
 		testRuntime("org.junit.jupiter:junit-jupiter-engine")
 		if (project.hasProperty('statemachineBlockHound') && statemachineBlockHound.toBoolean()) {
 			testRuntime("org.junit.platform:junit-platform-launcher")
