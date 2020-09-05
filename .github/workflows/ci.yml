@@ -17,6 +17,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         java: [1.8, 11]
+      fail-fast: false
 
     steps:
     - uses: actions/checkout@v2
