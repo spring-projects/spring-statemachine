@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,9 @@
  */
 package org.springframework.statemachine.test.assertj;
 
+import java.util.Objects;
+
 import org.assertj.core.api.AbstractAssert;
-import org.assertj.core.util.Objects;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateContext.Stage;
 
@@ -46,7 +47,7 @@ public class StateContextAssert extends AbstractAssert<StateContextAssert, State
 	 */
 	public StateContextAssert hasStage(Stage stage) {
 		isNotNull();
-		if (!Objects.areEqual(actual.getStage(), stage)) {
+		if (!Objects.deepEquals(actual.getStage(), stage)) {
 			failWithMessage("Expected context's stage to be <%s> but was <%s>", stage, actual.getStage());
 		}
 		return this;
@@ -61,7 +62,7 @@ public class StateContextAssert extends AbstractAssert<StateContextAssert, State
 	 */
 	public StateContextAssert hasEvent(Object event) {
 		isNotNull();
-		if (!Objects.areEqual(actual.getEvent(), event)) {
+		if (!Objects.deepEquals(actual.getEvent(), event)) {
 			failWithMessage("Expected context's event to be <%s> but was <%s>", event, actual.getEvent());
 		}
 		return this;
@@ -79,7 +80,7 @@ public class StateContextAssert extends AbstractAssert<StateContextAssert, State
 		if (actual.getSource() == null) {
 			failWithMessage("Expected context's source to be not null");
 		}
-		if (!Objects.areEqual(actual.getSource().getId(), id)) {
+		if (!Objects.deepEquals(actual.getSource().getId(), id)) {
 			failWithMessage("Expected context's source id to be <%s> but was <%s>", id, actual.getSource().getId());
 		}
 		return this;
@@ -111,7 +112,7 @@ public class StateContextAssert extends AbstractAssert<StateContextAssert, State
 		if (actual.getTarget() == null) {
 			failWithMessage("Expected context's target to be not null");
 		}
-		if (!Objects.areEqual(actual.getTarget().getId(), id)) {
+		if (!Objects.deepEquals(actual.getTarget().getId(), id)) {
 			failWithMessage("Expected context's target id to be <%s> but was <%s>", id, actual.getTarget().getId());
 		}
 		return this;

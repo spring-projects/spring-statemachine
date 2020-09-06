@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,9 @@
  */
 package org.springframework.statemachine.test.assertj;
 
+import java.util.Objects;
+
 import org.assertj.core.api.AbstractAssert;
-import org.assertj.core.util.Objects;
 import org.springframework.statemachine.StateMachineEventResult;
 import org.springframework.statemachine.StateMachineEventResult.ResultType;
 
@@ -48,7 +49,7 @@ public class StateMachineEventResultAssert
 	 */
 	public StateMachineEventResultAssert hasResultType(ResultType resultType) {
 		isNotNull();
-		if (!Objects.areEqual(actual.getResultType(), resultType)) {
+		if (!Objects.deepEquals(actual.getResultType(), resultType)) {
 			failWithMessage("Expected result's type to be <%s> but was <%s>", resultType, actual.getResultType());
 		}
 		return this;

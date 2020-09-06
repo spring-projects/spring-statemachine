@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,9 @@
  */
 package org.springframework.statemachine.test.assertj;
 
+import java.util.Objects;
+
 import org.assertj.core.api.AbstractAssert;
-import org.assertj.core.util.Objects;
 import org.springframework.statemachine.StateMachine;
 
 /**
@@ -48,7 +49,7 @@ public class StateMachineAssert extends AbstractAssert<StateMachineAssert, State
 		if (actual.getState() == null) {
 			failWithMessage("Expected machine's state to be not null");
 		}
-		if (!Objects.areEqual(actual.getState().getId(), id)) {
+		if (!Objects.deepEquals(actual.getState().getId(), id)) {
 			failWithMessage("Expected machine's state id to be <%s> but was <%s>", id, actual.getState().getId());
 		}
 		return this;
