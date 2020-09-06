@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 package org.springframework.statemachine.data.mongodb;
 
 import org.springframework.statemachine.StateMachineContext;
-import org.springframework.statemachine.data.mongodb.MongoDbRepositoryStateMachinePersist;
-import org.springframework.statemachine.data.mongodb.MongoDbStateMachineRepository;
 import org.springframework.statemachine.persist.AbstractPersistingStateMachineInterceptor;
 import org.springframework.statemachine.persist.StateMachineRuntimePersister;
 import org.springframework.statemachine.support.StateMachineInterceptor;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,8 +60,7 @@ import reactor.core.publisher.Mono;
  * @author Janne Valkealahti
  *
  */
-public class RepositoryStateMachineModelFactory extends AbstractStateMachineModelFactory<String, String>
-		implements StateMachineModelFactory<String, String> {
+public class RepositoryStateMachineModelFactory extends AbstractStateMachineModelFactory<String, String> {
 
 	private final StateRepository<? extends RepositoryState> stateRepository;
 	private final TransitionRepository<? extends RepositoryTransition> transitionRepository;
@@ -95,13 +94,13 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 				subStateMachineModel = build(submachineId);
 			}
 
-			Collection<Function<StateContext<String, String>, Mono<Void>>> stateActions = 
+			Collection<Function<StateContext<String, String>, Mono<Void>>> stateActions =
 					loadStateActionsFromRepositoryState(s.getStateActions());
 
-			Collection<Function<StateContext<String, String>, Mono<Void>>> entryActions = 
+			Collection<Function<StateContext<String, String>, Mono<Void>>> entryActions =
 					loadStateActionsFromRepositoryState(s.getEntryActions());
 
-			Collection<Function<StateContext<String, String>, Mono<Void>>> exitActions = 
+			Collection<Function<StateContext<String, String>, Mono<Void>>> exitActions =
 					loadStateActionsFromRepositoryState(s.getExitActions());
 
 			RepositoryState parentState = s.getParentState();

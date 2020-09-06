@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.springframework.statemachine.data.mongodb;
 
-import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -28,7 +27,7 @@ import org.springframework.util.SocketUtils;
  * @author Janne Valkealahti
  *
  */
-public class MongoDbRule extends TestWatcher implements TestRule {
+public class MongoDbRule extends TestWatcher {
 
 	@Override
 	public Statement apply(Statement base, Description description) {

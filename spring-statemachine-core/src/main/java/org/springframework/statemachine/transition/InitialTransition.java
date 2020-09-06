@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,7 @@ import reactor.core.publisher.Mono;
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public class InitialTransition<S, E> extends AbstractTransition<S, E>
-		implements Transition<S, E> {
+public class InitialTransition<S, E> extends AbstractTransition<S, E> {
 
 	/**
 	 * Instantiates a new initial transition.
