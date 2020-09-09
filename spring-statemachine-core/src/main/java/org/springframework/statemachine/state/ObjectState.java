@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -146,9 +146,7 @@ public class ObjectState<S, E> extends AbstractSimpleState<S, E> {
 	public Mono<Void> exit(StateContext<S, E> context) {
 		Mono<Void> actions = Flux.fromIterable(getExitActions())
 			.flatMap(a -> executeAction(a, context))
-			.onErrorContinue((t, u) -> {
-				// TODO: REACTOR allow continue and fix with error handling overhaul
-			})
+			.onErrorResume(t -> Mono.empty())
 			.then();
 		return super.exit(context).and(actions);
 	}
@@ -157,9 +155,7 @@ public class ObjectState<S, E> extends AbstractSimpleState<S, E> {
 	public Mono<Void> entry(StateContext<S, E> context) {
 		Mono<Void> actions = Flux.fromIterable(getEntryActions())
 			.flatMap(a -> executeAction(a, context))
-			.onErrorContinue((t, u) -> {
-				// TODO: REACTOR allow continue and fix with error handling overhaul
-			})
+			.onErrorResume(t -> Mono.empty())
 			.then();
 		return actions.and(super.entry(context));
 	}

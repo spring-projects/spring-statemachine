@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.statemachine.StateMachineEventResult.ResultType;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.persist.StateMachinePersister;
@@ -36,7 +37,7 @@ import reactor.test.StepVerifier;
 
 /**
  * Utils for tests.
- * 
+ *
  * @author Janne Valkealahti
  *
  */
@@ -107,6 +108,22 @@ public class TestUtils {
 			.verifyComplete();
 	}
 
+	public static <S, E> void doSendEventAndConsumeResultAsDenied(StateMachine<S, E> stateMachine, E event) {
+		StepVerifier.create(stateMachine.sendEvent(eventAsMono(event)))
+			.consumeNextWith(result -> {
+				assertThat(result.getResultType()).isEqualTo(ResultType.DENIED);
+			})
+			.verifyComplete();
+	}
+
+	public static <S, E> void doSendEventAndConsumeResultAsDenied(StateMachine<S, E> stateMachine, Message<E> event) {
+		StepVerifier.create(stateMachine.sendEvent(eventAsMono(event)))
+			.consumeNextWith(result -> {
+				assertThat(result.getResultType()).isEqualTo(ResultType.DENIED);
+			})
+			.verifyComplete();
+	}
+
 	@SuppressWarnings("unchecked")
 	public static <T> T readField(String name, Object target) throws Exception {
 		Field field = null;
@@ -169,5 +186,5 @@ public class TestUtils {
 		method.setAccessible(true);
 		return (T) ReflectionUtils.invokeMethod(method, target, args);
 	}
-	
+
 }

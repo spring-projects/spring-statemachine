@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 the original author or authors.
+ * Copyright 2017-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -466,9 +466,9 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 			final AtomicInteger completionCount = new AtomicInteger(stateActions.size());
 			Long timeout = resolveDoActionTimeout(context);
 			return Flux.fromIterable(stateActions)
-				.map(stateAction -> executeAction(stateAction, context))
-				.map(function -> {
-					return function
+				.doOnNext(stateAction -> {
+					executeAction(stateAction, context)
+						.onErrorResume(t -> Mono.empty())
 						.subscribeOn(Schedulers.parallel())
 						.doOnSubscribe(subscription -> {
 							if (log.isDebugEnabled()) {
@@ -479,13 +479,13 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 						.then(handleCompleteOrEmpty1(context, completionCount))
 						.subscribe();
 				})
-				.then(handleCompleteOrEmpty2(context, completionCount))
-				;
+				.then(handleCompleteOrEmpty2(context, completionCount));
 		});
 	}
 
 	private Mono<Void> handleCompleteOrEmpty1(StateContext<S, E> context, AtomicInteger completionCount) {
 		return Mono.defer(() -> {
+			log.debug("handleCompleteOrEmpty1 " + completionCount + " " + stateActions);
 			if (completionCount.decrementAndGet() <= 0 && stateActions.size() > 0) {
 				return handleStateDoOnComplete(context)
 					.then(Mono.fromRunnable(() -> notifyStateOnComplete(context)));
