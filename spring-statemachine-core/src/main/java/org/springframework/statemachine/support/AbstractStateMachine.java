@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -619,6 +619,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		}
 		return Mono.just(message)
 			.map(m -> getStateMachineInterceptors().preEvent(m, this))
+			// .onErrorResume(error -> Mono.empty())
 			.onErrorResume(error -> Mono.empty())
 			.flatMapMany(m -> acceptEvent(m))
 			.doOnNext(notifyOnDenied());
@@ -642,29 +643,41 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 					stateMachineExecutor.queueDeferredEvent(message);
 					return Flux.just(StateMachineEventResult.<S, E>from(this, message, ResultType.DEFERRED));
 				}
-				return cs.sendEvent(message).collectList().flatMapMany(l -> {
-					Flux<StateMachineEventResult<S, E>> ret = Flux.fromIterable(l);
-					if (!l.stream().anyMatch(er -> er.getResultType() == ResultType.ACCEPTED)) {
-						Mono<StateMachineEventResult<S, E>> result = Flux.fromIterable(transitions)
-							.filter(transition -> cs != null && transition.getTrigger() != null)
-							.filter(transition -> StateMachineUtils.containsAtleastOne(transition.getSource().getIds(), cs.getIds()))
-							.flatMap(transition -> {
-								return Mono.from(transition.getTrigger().evaluate(triggerContext))
-									.flatMap(e -> {
-										if (e) {
-											return stateMachineExecutor.queueEvent(Mono.just(message))
-												.thenReturn(StateMachineEventResult.<S, E>from(this, message, ResultType.ACCEPTED));
-										} else {
-											return Mono.empty();
-										}
-									});
-							})
-							.next()
-							.switchIfEmpty(Mono.just(StateMachineEventResult.<S, E>from(this, message, ResultType.DENIED)));
-						ret = ret.concatWith(result);
-					}
-					return ret;
-				});
+
+				return cs.sendEvent(message)
+					.collectList()
+					.flatMapMany(l -> {
+						Flux<StateMachineEventResult<S, E>> ret = Flux.fromIterable(l);
+						if (!l.stream().anyMatch(er -> er.getResultType() == ResultType.ACCEPTED)) {
+							Mono<StateMachineEventResult<S, E>> result = Flux.fromIterable(transitions)
+								.filter(transition -> cs != null && transition.getTrigger() != null)
+								.filter(transition -> StateMachineUtils.containsAtleastOne(transition.getSource().getIds(), cs.getIds()))
+								.flatMap(transition -> {
+									return Mono.from(transition.getTrigger().evaluate(triggerContext))
+										.flatMap(e -> {
+											if (e) {
+												return stateMachineExecutor.queueEvent(Mono.just(message))
+													.then(Mono.defer(() -> {
+														return Mono.just(StateMachineEventResult.<S, E>from(this, message, ResultType.ACCEPTED));
+													}))
+													.onErrorResume(t -> {
+														return Mono.defer(() -> {
+															return Mono.just(StateMachineEventResult.<S, E>from(this, message, ResultType.DENIED));
+														});
+													});
+											} else {
+												return Mono.empty();
+											}
+										});
+								})
+								.next()
+								.switchIfEmpty(Mono.defer(() -> {
+									return Mono.just(StateMachineEventResult.<S, E>from(this, message, ResultType.DENIED));
+								}));
+							ret = ret.concatWith(result);
+						}
+						return ret;
+					});
 			}
 			return Flux.just(StateMachineEventResult.<S, E>from(this, message, ResultType.DENIED));
 		});

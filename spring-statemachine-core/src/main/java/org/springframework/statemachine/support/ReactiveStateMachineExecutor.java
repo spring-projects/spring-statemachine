@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateContext.Stage;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.StateMachineException;
 import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.state.JoinPseudoState;
 import org.springframework.statemachine.state.PseudoStateKind;
@@ -200,7 +201,11 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 		return messages
 			.flatMap(m -> handleEvent(m))
 			.doOnNext(i -> {
-				triggerSink.next(i);
+				try {
+					triggerSink.next(i);
+				} catch (Exception e) {
+					throw new StateMachineException("Unable to handle queued event", e);
+				}
 			})
 			.then();
 	}
@@ -325,8 +330,8 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 	}
 
 	private Mono<Boolean> handleTriggerTrans(List<Transition<S, E>> trans, Message<E> queuedMessage, State<S, E> completion) {
-			return Flux.fromIterable(trans)
-				.filter(t -> {
+		return Flux.fromIterable(trans)
+			.filter(t -> {
 				State<S,E> source = t.getSource();
 				if (source == null) {
 					return false;
@@ -368,8 +373,7 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 							.doFinally(s -> {
 								joinSyncTransitions.clear();
 							})
-							.then(Mono.just(true))
-							;
+							.then(Mono.just(true));
 					} else {
 						return Mono.just(false);
 					}
@@ -388,16 +392,16 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 									.onErrorResume(e -> {
 										interceptors.postTransition(stateContext);
 										return Mono.just(false);
-									});
+									})
+									;
 								} else {
 									return Mono.just(false);
 								}
 							})
-						)
-						.onErrorResume(e -> Mono.just(false));
+						);
 				}
 			})
-			.takeUntil(x -> x)
+			.takeUntil(transit -> transit)
 			.last(false);
 	}
 
