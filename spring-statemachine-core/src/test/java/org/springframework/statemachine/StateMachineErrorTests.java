@@ -26,6 +26,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
@@ -38,6 +39,9 @@ import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.StateMachineInterceptorAdapter;
 import org.springframework.statemachine.transition.Transition;
+
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 /**
  * Tests for various errors and error handling.
@@ -505,6 +509,52 @@ public class StateMachineErrorTests extends AbstractStateMachineTests {
 				.withExternal()
 					.source("S1")
 					.target("S2");
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testActionEntryErrorWithEvent() throws Exception {
+		context.register(Config4.class);
+		context.refresh();
+
+		ObjectStateMachine<String, String> machine =
+			context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
+		machine.start();
+		assertThat(machine.getState().getIds()).containsExactlyInAnyOrder("SI");
+
+		StepVerifier.create(machine.sendEvent(Mono.just(MessageBuilder.withPayload("E1").build())))
+			.consumeNextWith(result -> {
+				StepVerifier.create(result.complete()).consumeErrorWith(e -> {
+					assertThat(e).isInstanceOf(StateMachineException.class).hasMessageContaining("Execution error");
+				}).verify();
+			})
+			.verifyComplete();
+
+		assertThat(machine.getState().getIds()).containsExactlyInAnyOrder("S1");
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config4 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
+			states
+				.withStates()
+					.initial("SI")
+					.stateEntry("S1", (context) -> {
+						throw new RuntimeException("error");
+					});
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<String, String> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source("SI")
+					.target("S1")
+					.event("E1");
 		}
 	}
 }

@@ -58,6 +58,7 @@ import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.PseudoStateListener;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.state.StateListenerAdapter;
+import org.springframework.statemachine.support.StateMachineExecutor.MonoSinkStateMachineExecutorCallback;
 import org.springframework.statemachine.support.StateMachineExecutor.StateMachineExecutorTransit;
 import org.springframework.statemachine.transition.InitialTransition;
 import org.springframework.statemachine.transition.Transition;
@@ -619,9 +620,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		}
 		return Mono.just(message)
 			.map(m -> getStateMachineInterceptors().preEvent(m, this))
-			// .onErrorResume(error -> Mono.empty())
-			.onErrorResume(error -> Mono.empty())
 			.flatMapMany(m -> acceptEvent(m))
+			.onErrorResume(error -> Flux.just(StateMachineEventResult.<S, E>from(this, message, ResultType.DENIED)))
 			.doOnNext(notifyOnDenied());
 	}
 
@@ -656,9 +656,11 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 									return Mono.from(transition.getTrigger().evaluate(triggerContext))
 										.flatMap(e -> {
 											if (e) {
-												return stateMachineExecutor.queueEvent(Mono.just(message))
+												MonoSinkStateMachineExecutorCallback callback = new MonoSinkStateMachineExecutorCallback();
+												Mono<Void> sink = Mono.create(callback);
+												return stateMachineExecutor.queueEvent(Mono.just(message), callback)
 													.then(Mono.defer(() -> {
-														return Mono.just(StateMachineEventResult.<S, E>from(this, message, ResultType.ACCEPTED));
+														return Mono.just(StateMachineEventResult.<S, E>from(this, message, ResultType.ACCEPTED, sink));
 													}))
 													.onErrorResume(t -> {
 														return Mono.defer(() -> {

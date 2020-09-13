@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
@@ -55,6 +56,7 @@ import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
+import reactor.util.context.Context;
 
 /**
  * Default reactive implementation of a {@link StateMachineExecutor}.
@@ -153,7 +155,7 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 		if (log.isDebugEnabled()) {
 			log.debug("Queue trigger " + trigger);
 		}
-		triggerSink.next(new TriggerQueueItem(trigger, message));
+		triggerSink.next(new TriggerQueueItem(trigger, message, null));
 	}
 
 	@Override
@@ -196,10 +198,10 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 	}
 
 	@Override
-	public Mono<Void> queueEvent(Mono<Message<E>> message) {
+	public Mono<Void> queueEvent(Mono<Message<E>> message, StateMachineExecutorCallback callback) {
 		Flux<Message<E>> messages = Flux.merge(message, Flux.fromIterable(deferList));
 		return messages
-			.flatMap(m -> handleEvent(m))
+			.flatMap(m -> handleEvent(m, callback))
 			.doOnNext(i -> {
 				try {
 					triggerSink.next(i);
@@ -207,10 +209,11 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 					throw new StateMachineException("Unable to handle queued event", e);
 				}
 			})
-			.then();
+			.then()
+			;
 	}
 
-	private Mono<TriggerQueueItem> handleEvent(Message<E> queuedEvent) {
+	private Mono<TriggerQueueItem> handleEvent(Message<E> queuedEvent, StateMachineExecutorCallback callback) {
 		if (log.isDebugEnabled()) {
 			log.debug("Handling message " + queuedEvent);
 		}
@@ -218,7 +221,7 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 			State<S,E> currentState = stateMachine.getState();
 			if ((currentState != null && currentState.shouldDefer(queuedEvent))) {
 				log.info("Current state " + currentState + " deferred event " + queuedEvent);
-				return Mono.just(new TriggerQueueItem(null, queuedEvent));
+				return Mono.just(new TriggerQueueItem(null, queuedEvent, callback));
 			}
 			TriggerContext<S, E> triggerContext = new DefaultTriggerContext<S, E>(queuedEvent.getPayload());
 			return Flux.fromIterable(transitions)
@@ -237,7 +240,7 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 				})
 				.next()
 				.doOnNext(trigger -> deferList.remove(queuedEvent))
-				.map(trigger -> new TriggerQueueItem(trigger, queuedEvent));
+				.map(trigger -> new TriggerQueueItem(trigger, queuedEvent, callback));
 		});
 	}
 
@@ -303,7 +306,22 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 				ret = Mono.empty();
 			}
 			return ret;
-		});
+		})
+		.and(Mono.subscriberContext()
+			.doOnNext(ctx -> {
+				if (queueItem.callback != null) {
+					Optional<ExecutorExceptionHolder> holder = ctx.getOrEmpty(StateMachineSystemConstants.REACTOR_CONTEXT_ERRORS);
+					holder.ifPresent(h -> {
+						if (h.getError() != null) {
+							queueItem.callback.error(new StateMachineException("Execution error", h.getError()));
+						} else {
+							queueItem.callback.complete();
+						}
+					});
+				}
+			}))
+		.subscriberContext(Context.of(StateMachineSystemConstants.REACTOR_CONTEXT_ERRORS, new ExecutorExceptionHolder()))
+		;
 	}
 
 
@@ -388,12 +406,7 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 									.thenReturn(true)
 									.doOnNext(a -> {
 										interceptors.postTransition(stateContext);
-									})
-									.onErrorResume(e -> {
-										interceptors.postTransition(stateContext);
-										return Mono.just(false);
-									})
-									;
+									});
 								} else {
 									return Mono.just(false);
 								}
@@ -457,9 +470,12 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 	private class TriggerQueueItem {
 		Trigger<S, E> trigger;
 		Message<E> message;
-		public TriggerQueueItem(Trigger<S, E> trigger, Message<E> message) {
+		StateMachineExecutorCallback callback;
+
+		public TriggerQueueItem(Trigger<S, E> trigger, Message<E> message, StateMachineExecutorCallback callback) {
 			this.trigger = trigger;
 			this.message = message;
+			this.callback = callback;
 		}
 	}
 }

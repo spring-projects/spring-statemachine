@@ -15,6 +15,8 @@
  */
 package org.springframework.statemachine.support;
 
+import java.util.function.Consumer;
+
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
@@ -24,6 +26,7 @@ import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.trigger.Trigger;
 
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.MonoSink;
 
 /**
  * Interface for a {@link StateMachine} event executor.
@@ -39,9 +42,10 @@ public interface StateMachineExecutor<S, E> extends StateMachineReactiveLifecycl
 	 * Queue event.
 	 *
 	 * @param message the message
+	 * @param callback the executor callback
 	 * @return completion when event is queued
 	 */
-	Mono<Void> queueEvent(Mono<Message<E>> message);
+	Mono<Void> queueEvent(Mono<Message<E>> message, StateMachineExecutorCallback callback);
 
 	/**
 	 * Queue trigger.
@@ -110,5 +114,53 @@ public interface StateMachineExecutor<S, E> extends StateMachineReactiveLifecycl
 		 * @return completion when handled
 		 */
 		Mono<Void> transit(Transition<S, E> transition, StateContext<S, E> stateContext, Message<E> message);
+	}
+
+	/**
+	 * Completion callback to notify back complete or error.
+	 */
+	public interface StateMachineExecutorCallback {
+		void complete();
+		void error(Throwable e);
+	}
+
+	static class MonoSinkStateMachineExecutorCallback implements Consumer<MonoSink<Void>>, StateMachineExecutorCallback {
+
+		private boolean complete;
+		private Throwable error;
+
+		@Override
+		public void complete() {
+			complete = true;
+		}
+
+		@Override
+		public void error(Throwable e) {
+			error = e;
+		}
+
+		@Override
+		public void accept(MonoSink<Void> t) {
+			if (complete) {
+				t.success();
+			} else if (error != null) {
+				t.error(error);
+			} else {
+				t.success();
+			}
+		}
+	}
+
+	public static class ExecutorExceptionHolder {
+
+		private Throwable error;
+
+		public void setError(Throwable error) {
+			this.error = error;
+		}
+
+		public Throwable getError() {
+			return error;
+		}
 	}
 }
