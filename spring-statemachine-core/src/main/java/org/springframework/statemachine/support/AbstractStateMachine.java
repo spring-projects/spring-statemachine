@@ -1074,7 +1074,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	private Mono<Void> setCurrentStateInternal3(State<S, E> state, Message<E> message, Transition<S, E> transition, boolean exit,
 			StateMachine<S, E> stateMachine, Collection<State<S, E>> sources, Collection<State<S, E>> targets) {
 
-		java.util.function.Function<State<S, E>, State<S, E>> mapFromTargetSub = in -> {
+		Function<State<S, E>, State<S, E>> mapFromTargetSub = in -> {
 			if (transition != null) {
 				boolean isTargetSubOf = StateMachineUtils.isSubstate(state, transition.getSource());
 				if (isTargetSubOf && currentState == transition.getTarget()) {
@@ -1084,7 +1084,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			return in;
 		};
 
-		java.util.function.Function<State<S, E>, ? extends Mono<State<S, E>>> handleExit = in -> {
+		Function<State<S, E>, ? extends Mono<State<S, E>>> handleExit = in -> {
 			if (exit) {
 				return exitCurrentState(in, message, transition, stateMachine, sources, targets)
 						.then(Mono.just(in))
@@ -1093,14 +1093,14 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			return Mono.just(in);
 		};
 
-		java.util.function.Function<State<S, E>, ? extends Mono<State<S, E>>> handleStart = in -> {
+		Function<State<S, E>, ? extends Mono<State<S, E>>> handleStart = in -> {
 			if (!isRunning() && !isComplete()) {
 				return startReactively().then(Mono.just(in));
 			}
 			return Mono.just(in);
 		};
 
-		java.util.function.Function<State<S, E>, ? extends Mono<State<S, E>>> handleEntry1 = in -> {
+		Function<State<S, E>, ? extends Mono<State<S, E>>> handleEntry1 = in -> {
 			State<S, E> notifyFrom = currentState;
 			currentState = in;
 			return entryToState(in, message, transition, stateMachine)
@@ -1112,7 +1112,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				});
 		};
 
-		java.util.function.Function<State<S, E>, ? extends Mono<State<S, E>>> handleEntry2 = in -> {
+		Function<State<S, E>, ? extends Mono<State<S, E>>> handleEntry2 = in -> {
 			State<S, E> notifyFrom = currentState;
 			State<S, E> findDeep = findDeepParent(in);
 			currentState = findDeep;
@@ -1125,14 +1125,14 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				});
 		};
 
-		java.util.function.Function<State<S, E>, ? extends Mono<State<S, E>>> handleStop = s -> {
+		Function<State<S, E>, ? extends Mono<State<S, E>>> handleStop = s -> {
 			if (stateMachine != this && isComplete()) {
 				return stopReactively().then(Mono.just(s));
 			}
 			return Mono.just(s);
 		};
 
-		java.util.function.Function<State<S, E>, ? extends Mono<State<S, E>>> handleSubmachineOrRegions = in -> {
+		Function<State<S, E>, ? extends Mono<State<S, E>>> handleSubmachineOrRegions = in -> {
 			return Mono.just(in)
 				.flatMap(s -> {
 					if (currentState == findDeepParent(s)) {
@@ -1197,7 +1197,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				});
 		};
 
-		java.util.function.Function<State<S, E>, ? extends Mono<State<S, E>>> handleStage1 = in -> {
+		Function<State<S, E>, ? extends Mono<State<S, E>>> handleStage1 = in -> {
 			return Mono.just(in)
 				.map(mapFromTargetSub)
 				.filter(s -> states.contains(s))
@@ -1207,7 +1207,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				.then(Mono.just(in));
 		};
 
-		java.util.function.Function<State<S, E>, ? extends Mono<State<S, E>>> handleStage2 = in -> {
+		Function<State<S, E>, ? extends Mono<State<S, E>>> handleStage2 = in -> {
 			return Mono.just(in)
 				.filter(s -> currentState == null && !states.contains(s) && StateMachineUtils.isSubstate(findDeepParent(s), state))
 				.map(mapFromTargetSub)
@@ -1217,7 +1217,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				.then(Mono.just(in));
 		};
 
-		java.util.function.Function<State<S, E>, ? extends Mono<State<S, E>>> handleStage3 = in -> {
+		Function<State<S, E>, ? extends Mono<State<S, E>>> handleStage3 = in -> {
 			return Mono.just(in)
 				.map(mapFromTargetSub)
 				.filter(s -> currentState != null && !states.contains(s) && findDeepParent(state) != null)
@@ -1226,7 +1226,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				.then(Mono.just(in));
 		};
 
-		java.util.function.Function<State<S, E>, ? extends Mono<State<S, E>>> handleStage4 = in -> {
+		Function<State<S, E>, ? extends Mono<State<S, E>>> handleStage4 = in -> {
 			return Mono.just(in)
 				.filter(s -> history != null && transition.getKind() != TransitionKind.INITIAL)
 				.map(mapFromTargetSub)
@@ -1246,7 +1246,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 				.then(Mono.just(in));
 		};
 
-		java.util.function.Function<State<S, E>, ? extends Mono<State<S, E>>> handleStage5 = in -> {
+		Function<State<S, E>, ? extends Mono<State<S, E>>> handleStage5 = in -> {
 			return Mono.just(in).flatMap(handleStop);
 		};
 

@@ -18,6 +18,7 @@ package org.springframework.statemachine.support;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachineMessageHeaders;
@@ -202,7 +203,7 @@ public abstract class StateMachineUtils {
 	 *
 	 * @return mono for completion
 	 */
-	public static java.util.function.Function<? super Throwable, Mono<Void>> resumeErrorToContext() {
+	public static Function<? super Throwable, Mono<Void>> resumeErrorToContext() {
 		return t -> Mono.subscriberContext()
 			.doOnNext(ctx -> {
 				Optional<ExecutorExceptionHolder> holder = ctx.getOrEmpty(StateMachineSystemConstants.REACTOR_CONTEXT_ERRORS);
