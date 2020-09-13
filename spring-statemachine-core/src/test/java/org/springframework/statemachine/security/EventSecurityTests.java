@@ -43,7 +43,7 @@ public class EventSecurityTests extends AbstractSecurityTests {
 	public void testEventDeniedViaExpression() throws Exception {
 		TestListener listener = new TestListener();
 		StateMachine<States, Events> machine = buildMachine(listener, null, null, null, null, null, "false");
-		assertTransitionDenied(machine, listener);
+		assertTransitionDeniedResultAsDenied(machine, listener);
 	}
 
 	@Test
@@ -51,7 +51,7 @@ public class EventSecurityTests extends AbstractSecurityTests {
 	public void testEventDeniedViaAttributes() throws Exception {
 		TestListener listener = new TestListener();
 		StateMachine<States, Events> machine = buildMachine(listener, null, null, null, "EVENT_B", ComparisonType.ALL, null);
-		assertTransitionDenied(machine, listener);
+		assertTransitionDeniedResultAsDenied(machine, listener);
 	}
 
 	@Test

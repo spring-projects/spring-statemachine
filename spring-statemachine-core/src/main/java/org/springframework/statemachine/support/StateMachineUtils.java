@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,18 @@ package org.springframework.statemachine.support;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachineMessageHeaders;
+import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.state.PseudoState;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.support.StateMachineExecutor.ExecutorExceptionHolder;
 import org.springframework.util.ObjectUtils;
+
+import reactor.core.publisher.Mono;
 
 /**
  * Various utility methods for state machine.
@@ -190,5 +195,21 @@ public abstract class StateMachineUtils {
 		} catch (Exception e) {
 		}
 		return null;
+	}
+
+	/**
+	 * Utility function to stash error into reactor context.
+	 *
+	 * @return mono for completion
+	 */
+	public static java.util.function.Function<? super Throwable, Mono<Void>> resumeErrorToContext() {
+		return t -> Mono.subscriberContext()
+			.doOnNext(ctx -> {
+				Optional<ExecutorExceptionHolder> holder = ctx.getOrEmpty(StateMachineSystemConstants.REACTOR_CONTEXT_ERRORS);
+				holder.ifPresent(h -> {
+					h.setError(t);
+				});
+			})
+			.then();
 	}
 }

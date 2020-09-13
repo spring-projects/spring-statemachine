@@ -18,9 +18,12 @@ package org.springframework.statemachine.state;
 import java.util.Collection;
 import java.util.function.Function;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.region.Region;
+import org.springframework.statemachine.support.StateMachineUtils;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -34,6 +37,8 @@ import reactor.core.publisher.Mono;
  * @param <E> the type of event
  */
 public class ObjectState<S, E> extends AbstractSimpleState<S, E> {
+
+	private static final Log log = LogFactory.getLog(ObjectState.class);
 
 	/**
 	 * Instantiates a new object state.
@@ -145,17 +150,23 @@ public class ObjectState<S, E> extends AbstractSimpleState<S, E> {
 	@Override
 	public Mono<Void> exit(StateContext<S, E> context) {
 		Mono<Void> actions = Flux.fromIterable(getExitActions())
-			.flatMap(a -> executeAction(a, context))
-			.onErrorResume(t -> Mono.empty())
+			.flatMap(a -> executeAction(a, context)
+				.doOnError(e -> {
+					log.warn("Exit action execution error", e);
+				}))
+			.onErrorResume(StateMachineUtils.resumeErrorToContext())
 			.then();
 		return super.exit(context).and(actions);
 	}
 
 	@Override
 	public Mono<Void> entry(StateContext<S, E> context) {
-		Mono<Void> actions = Flux.fromIterable(getEntryActions())
-			.flatMap(a -> executeAction(a, context))
-			.onErrorResume(t -> Mono.empty())
+		Mono<Void> actions =  Flux.fromIterable(getEntryActions())
+			.flatMap(a -> executeAction(a, context)
+				.doOnError(e -> {
+					log.warn("Entry action execution error", e);
+				}))
+			.onErrorResume(StateMachineUtils.resumeErrorToContext())
 			.then();
 		return actions.and(super.entry(context));
 	}

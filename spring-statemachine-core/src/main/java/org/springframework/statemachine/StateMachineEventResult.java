@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@ package org.springframework.statemachine;
 
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.region.Region;
+
+import reactor.core.publisher.Mono;
 
 /**
  * Interface defining a result for sending an event to a statemachine.
@@ -50,6 +52,13 @@ public interface StateMachineEventResult<S, E> {
 	ResultType getResultType();
 
 	/**
+	 * Gets a mono representing completion.
+	 *
+	 * @return the mono for completion
+	 */
+	Mono<Void> complete();
+
+	/**
 	 * Enumeration of a result type indicating whether a region accepted, denied or
 	 * deferred an event.
 	 */
@@ -60,17 +69,37 @@ public interface StateMachineEventResult<S, E> {
 	}
 
 	/**
-	 * Create a {@link StateMachineEventResult} from a {@link Region}, {@link Message} and a {@link ResultType}.
+	 * Create a {@link StateMachineEventResult} from a {@link Region},
+	 * {@link Message} and a {@link ResultType}.
 	 *
-	 * @param <S> the type of state
-	 * @param <E> the type of event
-	 * @param region the region
-	 * @param message the message
+	 * @param <S>        the type of state
+	 * @param <E>        the type of event
+	 * @param region     the region
+	 * @param message    the message
 	 * @param resultType the result type
 	 * @return the state machine event result
 	 */
-	public static <S, E> StateMachineEventResult<S, E> from(Region<S, E> region, Message<E> message, ResultType resultType) {
-		return new DefaultStateMachineEventResult<>(region, message, resultType);
+	public static <S, E> StateMachineEventResult<S, E> from(Region<S, E> region, Message<E> message,
+			ResultType resultType) {
+		return new DefaultStateMachineEventResult<>(region, message, resultType, null);
+	}
+
+
+	/**
+	 * Create a {@link StateMachineEventResult} from a {@link Region},
+	 * {@link Message}, a {@link ResultType} and completion {@link Mono}.
+	 *
+	 * @param <S>        the type of state
+	 * @param <E>        the type of event
+	 * @param region     the region
+	 * @param message    the message
+	 * @param resultType the result type
+	 * @param complete the completion mono
+	 * @return the state machine event result
+	 */
+	public static <S, E> StateMachineEventResult<S, E> from(Region<S, E> region, Message<E> message,
+			ResultType resultType, Mono<Void> complete) {
+		return new DefaultStateMachineEventResult<>(region, message, resultType, complete);
 	}
 
 	static class DefaultStateMachineEventResult<S, E> implements StateMachineEventResult<S, E> {
@@ -78,11 +107,14 @@ public interface StateMachineEventResult<S, E> {
 		private final Region<S, E> region;
 		private final Message<E> message;
 		private final ResultType resultType;
+		private Mono<Void> complete;
 
-		DefaultStateMachineEventResult(Region<S, E> region, Message<E> message, ResultType resultType) {
+		DefaultStateMachineEventResult(Region<S, E> region, Message<E> message, ResultType resultType,
+				Mono<Void> complete) {
 			this.region = region;
 			this.message = message;
 			this.resultType = resultType;
+			this.complete = complete != null ? complete : Mono.empty();
 		}
 
 		@Override
@@ -98,6 +130,11 @@ public interface StateMachineEventResult<S, E> {
 		@Override
 		public ResultType getResultType() {
 			return resultType;
+		}
+
+		@Override
+		public Mono<Void> complete() {
+			return complete;
 		}
 
 		@Override
