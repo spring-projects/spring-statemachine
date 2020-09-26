@@ -68,14 +68,14 @@ public class StateMachineConfig {
 		}
 
 		@Bean
-		public Action<String, String> readyEntryction() {
+		public Action<String, String> readyEntryAction() {
 			return (context) -> {
 				context.getExtendedState().getVariables().clear();
 			};
 		}
 
 		@Bean
-		public Action<String, String> preparedeployEntryAction() {
+		public Action<String, String> prepareDeployEntryAction() {
 			return (context) -> {
 				System.out.println("Handle deploy prepare here");
 			};
