@@ -1,4 +1,9 @@
 === TaskExecutor and TaskScheduler
 StateMachine execution with `TaskExecutor` and state action scheduling with `TaskScheduler`
-has been fully replaced in favour or Reactor execution and scheduling. For configuring
-parallel region execution see <<statemachine-config-commonsettings>>.
+has been fully replaced in favour or Reactor execution and scheduling.
+
+Essentially execution outside of a main thread is needed in two places, firstly with
+_State Actions_ which needs to be cancellable and secondly with _Regions_ which should
+be always be executed independently. Currently we've chosen to just use _Reactor_
+`Schedulers.parallel()` for these which should give relatively good results as it
+tries to automatically use available number of cpu cores from a system.
