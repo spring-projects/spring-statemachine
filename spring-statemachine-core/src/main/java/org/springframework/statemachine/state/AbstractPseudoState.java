@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package org.springframework.statemachine.state;
 import java.util.List;
 
 import org.springframework.statemachine.StateContext;
+
+import reactor.core.publisher.Mono;
 
 /**
  * Base implementation of a {@link PseudoState}.
@@ -48,12 +50,13 @@ public abstract class AbstractPseudoState<S, E> implements PseudoState<S, E> {
 	}
 
 	@Override
-	public State<S, E> entry(StateContext<S, E> context) {
-		return null;
+	public Mono<State<S, E>> entry(StateContext<S, E> context) {
+		return Mono.empty();
 	}
 
 	@Override
-	public void exit(StateContext<S, E> context) {
+	public Mono<Void> exit(StateContext<S, E> context) {
+		return Mono.empty();
 	}
 
 	@Override

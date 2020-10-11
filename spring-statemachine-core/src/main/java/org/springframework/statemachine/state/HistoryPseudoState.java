@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@ package org.springframework.statemachine.state;
 
 import org.springframework.statemachine.StateContext;
 import org.springframework.util.Assert;
+
+import reactor.core.publisher.Mono;
 
 /**
  * History implementation of a {@link PseudoState}.
@@ -60,21 +62,21 @@ public class HistoryPseudoState<S, E> extends AbstractPseudoState<S, E> {
 	}
 
 	@Override
-	public State<S, E> entry(StateContext<S, E> context) {
+	public Mono<State<S, E>> entry(StateContext<S, E> context) {
 		// if no logged history or history is final state,
 		// go to default state. go to containing parent if
 		// we have no history and there's no default state.
 		if (state == null) {
 			if (defaultState.getState() == null) {
-				return containingState.getState();
+				return Mono.just(containingState.getState());
 			} else {
-				return defaultState.getState();
+				return Mono.just(defaultState.getState());
 			}
 		} else {
 			if (defaultState.getState() != null && state.getPseudoState() != null && state.getPseudoState().getKind() == PseudoStateKind.END) {
-				return defaultState.getState();
+				return Mono.just(defaultState.getState());
 			} else {
-				return state;
+				return Mono.just(state);
 			}
 		}
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,10 @@
 
 package org.springframework.statemachine.action;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.support.DefaultStateContext;
@@ -95,6 +98,23 @@ public final class Actions {
 			return context -> Mono.fromRunnable(() -> action.execute(context));
 		} else {
 			return null;
+		}
+	}
+
+
+	/**
+	 * Builds a {@link Collection} of {@link Function}s from a {@link Collection} of an {@link Action}s.
+	 *
+	 * @param <S> the type of state
+	 * @param <E> the type of event
+	 * @param actions the actions
+	 * @return the function
+	 */
+	public static <S, E> Collection<Function<StateContext<S, E>, Mono<Void>>> from(Collection<Action<S, E>> actions) {
+		if (actions != null) {
+			return actions.stream().map(action -> from(action)).collect(Collectors.toList());
+		} else {
+			return Collections.emptyList();
 		}
 	}
 }

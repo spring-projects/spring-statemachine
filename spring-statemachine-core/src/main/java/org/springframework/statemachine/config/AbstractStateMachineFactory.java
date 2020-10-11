@@ -722,7 +722,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 					if (holder.getState() == null) {
 						holderList.add(new HolderListItem<S, E>(c.getTarget(), holder));
 					}
-					choices.add(new ChoiceStateData<S, E>(holder, c.getGuard(), c.getActions()));
+					choices.add(new ChoiceStateData<S, E>(holder, c.getGuard(), Actions.from(c.getActions())));
 				}
 				PseudoState<S, E> pseudoState = new ChoicePseudoState<S, E>(choices);
 				state = buildStateInternal(stateData.getState(), stateData.getDeferred(), stateData.getEntryActions(),
@@ -741,7 +741,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 					if (holder.getState() == null) {
 						holderList.add(new HolderListItem<S, E>(c.getTarget(), holder));
 					}
-					junctions.add(new JunctionStateData<S, E>(holder, c.getGuard(), c.getActions()));
+					junctions.add(new JunctionStateData<S, E>(holder, c.getGuard(), Actions.from(c.getActions())));
 				}
 				PseudoState<S, E> pseudoState = new JunctionPseudoState<S, E>(junctions);
 				state = buildStateInternal(stateData.getState(), stateData.getDeferred(), stateData.getEntryActions(),

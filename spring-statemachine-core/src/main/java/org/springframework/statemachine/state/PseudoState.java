@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package org.springframework.statemachine.state;
 import java.util.List;
 
 import org.springframework.statemachine.StateContext;
+
+import reactor.core.publisher.Mono;
 
 /**
  * A {@code PseudoState} is an abstraction that encompasses different types of
@@ -51,14 +53,15 @@ public interface PseudoState<S, E> {
 	 * @param context the context
 	 * @return the next state or null
 	 */
-	State<S, E> entry(StateContext<S, E> context);
+	Mono<State<S, E>> entry(StateContext<S, E> context);
 
 	/**
 	 * Initiate an exit sequence for the state.
 	 *
 	 * @param context the context
+	 * @return mono of completion
 	 */
-	void exit(StateContext<S, E> context);
+	Mono<Void> exit(StateContext<S, E> context);
 
 	/**
 	 * Registers a new {@link PseudoStateListener}.

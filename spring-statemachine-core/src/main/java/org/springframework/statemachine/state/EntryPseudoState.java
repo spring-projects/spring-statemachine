@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package org.springframework.statemachine.state;
 import java.util.List;
 
 import org.springframework.statemachine.StateContext;
+
+import reactor.core.publisher.Mono;
 
 /**
  * Entrypoint implementation of a {@link PseudoState}.
@@ -46,12 +48,13 @@ public class EntryPseudoState<S, E> implements PseudoState<S, E> {
 	}
 
 	@Override
-	public State<S, E> entry(StateContext<S, E> context) {
-		return state;
+	public Mono<State<S, E>> entry(StateContext<S, E> context) {
+		return Mono.just(state);
 	}
 
 	@Override
-	public void exit(StateContext<S, E> context) {
+	public Mono<Void> exit(StateContext<S, E> context) {
+		return Mono.empty();
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.state.PseudoStateContext.PseudoAction;
 import org.springframework.util.Assert;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -59,23 +60,23 @@ public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 	}
 
 	@Override
-	public State<S, E> entry(StateContext<S, E> context) {
-		if (!tracker.isNotified()) {
-			return null;
-		}
-		State<S, E> s = null;
-		for (JoinStateData<S, E> c : joinTargets) {
-			s = c.getState();
-			if (c.guard != null && evaluateInternal(c.guard, context)) {
-				break;
+	public Mono<State<S, E>> entry(StateContext<S, E> context) {
+		return Mono.defer(() -> {
+			if (!tracker.isNotified()) {
+				return Mono.empty();
 			}
-		}
-		return s;
+			return Flux.fromIterable(joinTargets)
+				.filterWhen(jst -> evaluateInternal(jst.guard, context))
+				.next()
+				.map(jst -> jst.getState());
+		});
 	}
 
 	@Override
-	public void exit(StateContext<S, E> context) {
-		tracker.reset();
+	public Mono<Void> exit(StateContext<S, E> context) {
+		return Mono.fromRunnable(() -> {
+			tracker.reset();
+		});
 	}
 
 	/**
@@ -97,16 +98,15 @@ public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 		tracker.reset(ids);
 	}
 
-	private boolean evaluateInternal(Function<StateContext<S, E>, Mono<Boolean>> guard, StateContext<S, E> context) {
+	private Mono<Boolean> evaluateInternal(Function<StateContext<S, E>, Mono<Boolean>> guard, StateContext<S, E> context) {
+		if (guard == null) {
+			return Mono.just(true);
+		}
 		try {
-			// Function<StateContext<S, E>, Mono<Boolean>>
-			// TODO: REACTOR no blocking!
-			// return guard.evaluate(context);
-			return guard.apply(context).block();
-
-		} catch (Throwable t) {
-			log.warn("Deny guard due to throw as GUARD should not error", t);
-			return false;
+			return guard.apply(context);
+		} catch (Exception e) {
+			log.warn("Deny guard due to throw as GUARD should not error");
+			return Mono.just(false);
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,16 @@ package org.springframework.statemachine.state;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.statemachine.StateContext;
-import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.util.Assert;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * Junction implementation of a {@link PseudoState}.
@@ -53,24 +56,28 @@ public class JunctionPseudoState<S, E> implements PseudoState<S, E> {
 	}
 
 	@Override
-	public State<S, E> entry(StateContext<S, E> context) {
-		State<S, E> s = null;
-		JunctionStateData<S, E> jsd = null;
-		for (JunctionStateData<S, E> j : junctions) {
-			jsd = j;
-			if (j.guard != null && evaluateInternal(j.guard, context)) {
-				break;
+	public Mono<State<S, E>> entry(StateContext<S, E> context) {
+		return Mono.defer(() -> {
+			JunctionStateData<S, E> jsd = null;
+			for (JunctionStateData<S, E> j : junctions) {
+				jsd = j;
+				if (j.guard != null && evaluateInternal(j.guard, context)) {
+					break;
+				}
 			}
-		}
-		if (jsd != null) {
-			s = jsd.getState();
-			executeActions(jsd.getActions(), context);
-		}
-		return s;
+			return Mono.justOrEmpty(jsd);
+		})
+		.flatMap(jsd -> {
+			return Flux.fromIterable(jsd.getActions())
+				.flatMap(a -> a.apply(context))
+				.then(Mono.just(jsd.getState()));
+		});
 	}
 
+
 	@Override
-	public void exit(StateContext<S, E> context) {
+	public Mono<Void> exit(StateContext<S, E> context) {
+		return Mono.empty();
 	}
 
 	@Override
@@ -90,19 +97,6 @@ public class JunctionPseudoState<S, E> implements PseudoState<S, E> {
 		}
 	}
 
-	private void executeActions(Collection<Action<S, E>> actions, StateContext<S, E> context) {
-		if (actions == null) {
-			return;
-		}
-		for (Action<S, E> action : actions) {
-			try {
-				action.execute(context);
-			} catch (Throwable t) {
-				log.warn("Action execution resulted error", t);
-			}
-		}
-	}
-
 	/**
 	 * Data class wrapping choice {@link State} and {@link Guard}
 	 * together.
@@ -113,7 +107,7 @@ public class JunctionPseudoState<S, E> implements PseudoState<S, E> {
 	public static class JunctionStateData<S, E> {
 		private final StateHolder<S, E> state;
 		private final Guard<S, E> guard;
-		private final Collection<Action<S, E>> actions;
+		private final Collection<Function<StateContext<S, E>, Mono<Void>>> actions;
 
 		/**
 		 * Instantiates a new junction state data.
@@ -122,7 +116,8 @@ public class JunctionPseudoState<S, E> implements PseudoState<S, E> {
 		 * @param guard the guard
 		 * @param actions the actions
 		 */
-		public JunctionStateData(StateHolder<S, E> state, Guard<S, E> guard, Collection<Action<S, E>> actions) {
+		public JunctionStateData(StateHolder<S, E> state, Guard<S, E> guard,
+				Collection<Function<StateContext<S, E>, Mono<Void>>> actions) {
 			Assert.notNull(state, "Holder must be set");
 			this.state = state;
 			this.guard = guard;
@@ -161,7 +156,7 @@ public class JunctionPseudoState<S, E> implements PseudoState<S, E> {
 		 *
 		 * @return the actions
 		 */
-		public Collection<Action<S, E>> getActions() {
+		public Collection<Function<StateContext<S, E>, Mono<Void>>> getActions() {
 			return actions;
 		}
 	}
