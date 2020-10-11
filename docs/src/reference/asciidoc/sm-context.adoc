@@ -114,7 +114,7 @@ include::samples/DocsConfigurationSampleTests4.java[tags=snippetB]
 ====
 
 You can access the rest of the `StateContext` content.
-Tke number and order of the parameters does not matter.
+The number and order of the parameters does not matter.
 The following example shows how to access the various parts of the `StateContext` content:
 
 ====

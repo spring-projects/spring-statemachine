@@ -445,7 +445,7 @@ You can also have multiple transitions originate from a
 join state. It this case, we advise you to use guards and define your guards
 such that only one guard evaluates to `TRUE` at any given time. Otherwise,
 transition behavior is not predictable. This is shown in the following example, where the guard
-checks whwther the extended state has variables:
+checks whether the extended state has variables:
 
 ====
 [source,java,indent=0]
