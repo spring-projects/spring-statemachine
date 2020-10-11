@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ import java.util.List;
 
 import org.springframework.statemachine.StateContext;
 import org.springframework.util.Assert;
+
+import reactor.core.publisher.Mono;
 
 /**
  * Exitpoint implementation of a {@link PseudoState}.
@@ -48,12 +50,13 @@ public class ExitPseudoState<S, E> implements PseudoState<S, E> {
 	}
 
 	@Override
-	public State<S, E> entry(StateContext<S, E> context) {
-		return state.getState();
+	public Mono<State<S, E>> entry(StateContext<S, E> context) {
+		return Mono.just(state.getState());
 	}
 
 	@Override
-	public void exit(StateContext<S, E> context) {
+	public Mono<Void> exit(StateContext<S, E> context) {
+		return Mono.empty();
 	}
 
 	@Override

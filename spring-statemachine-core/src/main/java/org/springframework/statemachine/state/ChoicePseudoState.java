@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,16 @@ package org.springframework.statemachine.state;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.statemachine.StateContext;
-import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.util.Assert;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * Choice implementation of a {@link PseudoState}.
@@ -53,24 +56,27 @@ public class ChoicePseudoState<S, E> implements PseudoState<S, E> {
 	}
 
 	@Override
-	public State<S, E> entry(StateContext<S, E> context) {
-		State<S, E> s = null;
-		ChoiceStateData<S, E> csd = null;
-		for (ChoiceStateData<S, E> c : choices) {
-			csd = c;
-			if (c.guard != null && evaluateInternal(c.guard, context)) {
-				break;
+	public Mono<State<S, E>> entry(StateContext<S, E> context) {
+		return Mono.defer(() -> {
+			ChoiceStateData<S, E> csd = null;
+			for (ChoiceStateData<S, E> c : choices) {
+				csd = c;
+				if (c.guard != null && evaluateInternal(c.guard, context)) {
+					break;
+				}
 			}
-		}
-		if (csd != null) {
-			s = csd.getState();
-			executeActions(csd.getActions(), context);
-		}
-		return s;
+			return Mono.justOrEmpty(csd);
+		})
+		.flatMap(csd -> {
+			return Flux.fromIterable(csd.getActions())
+				.flatMap(a -> a.apply(context))
+				.then(Mono.just(csd.getState()));
+		});
 	}
 
 	@Override
-	public void exit(StateContext<S, E> context) {
+	public Mono<Void> exit(StateContext<S, E> context) {
+		return Mono.empty();
 	}
 
 	@Override
@@ -90,19 +96,6 @@ public class ChoicePseudoState<S, E> implements PseudoState<S, E> {
 		}
 	}
 
-	private void executeActions(Collection<Action<S, E>> actions, StateContext<S, E> context) {
-		if (actions == null) {
-			return;
-		}
-		for (Action<S, E> action : actions) {
-			try {
-				action.execute(context);
-			} catch (Throwable t) {
-				log.warn("Action execution resulted error", t);
-			}
-		}
-	}
-
 	/**
 	 * Data class wrapping choice {@link State} and {@link Guard}
 	 * together.
@@ -113,7 +106,7 @@ public class ChoicePseudoState<S, E> implements PseudoState<S, E> {
 	public static class ChoiceStateData<S, E> {
 		private final StateHolder<S, E> state;
 		private final Guard<S, E> guard;
-		private final Collection<Action<S, E>> actions;
+		private final Collection<Function<StateContext<S, E>, Mono<Void>>> actions;
 
 		/**
 		 * Instantiates a new choice state data.
@@ -122,7 +115,8 @@ public class ChoicePseudoState<S, E> implements PseudoState<S, E> {
 		 * @param guard the guard
 		 * @param actions the actions
 		 */
-		public ChoiceStateData(StateHolder<S, E> state, Guard<S, E> guard, Collection<Action<S, E>> actions) {
+		public ChoiceStateData(StateHolder<S, E> state, Guard<S, E> guard,
+				Collection<Function<StateContext<S, E>, Mono<Void>>> actions) {
 			Assert.notNull(state, "Holder must be set");
 			this.state = state;
 			this.guard = guard;
@@ -161,7 +155,7 @@ public class ChoicePseudoState<S, E> implements PseudoState<S, E> {
 		 *
 		 * @return the actions
 		 */
-		public Collection<Action<S, E>> getActions() {
+		public Collection<Function<StateContext<S, E>, Mono<Void>>> getActions() {
 			return actions;
 		}
 	}

@@ -932,57 +932,55 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 					&& !callPreStateChangeInterceptors(state, message, transition, stateMachine)) {
 				return Mono.empty();
 			}
-
 			StateContext<S, E> stateContext = buildStateContext(Stage.STATE_CHANGED, message, transition, stateMachine);
-			State<S,E> toState = followLinkedPseudoStates(state, stateContext);
-			PseudoStateKind kind = state.getPseudoState() != null ? state.getPseudoState().getKind() : null;
+			return Mono.from(followLinkedPseudoStates(state, stateContext))
+				.flatMap(toState -> {
+					PseudoStateKind kind = state.getPseudoState() != null ? state.getPseudoState().getKind() : null;
 
-			if (kind != null && (kind != PseudoStateKind.INITIAL && kind != PseudoStateKind.JOIN
-					&& kind != PseudoStateKind.FORK && kind != PseudoStateKind.END)) {
-				callPreStateChangeInterceptors(toState, message, transition, stateMachine);
-			}
+					if (kind != null && (kind != PseudoStateKind.INITIAL && kind != PseudoStateKind.JOIN
+							&& kind != PseudoStateKind.FORK && kind != PseudoStateKind.END)) {
+						callPreStateChangeInterceptors(toState, message, transition, stateMachine);
+					}
 
-			kind = toState.getPseudoState() != null ? toState.getPseudoState().getKind() : null;
-			if (kind == PseudoStateKind.FORK) {
-				Mono<Void> ret1 = exitCurrentState(toState, message, transition, stateMachine);
-				ForkPseudoState<S, E> fps = (ForkPseudoState<S, E>) toState.getPseudoState();
-				Mono<Void> ret2 = Flux.fromIterable(fps.getForks())
-					.flatMap(f -> {
-						callPreStateChangeInterceptors(f, message, transition, stateMachine);
-						return setCurrentState(f, message, transition, false, stateMachine, null, fps.getForks());
-					})
-					.then()
-					;
-				return ret1.then(ret2);
-			} else {
-				Collection<State<S, E>> targets = new ArrayList<>();
-				targets.add(toState);
-				return setCurrentState(toState, message, transition, true, stateMachine, null, targets);
-			}
+					kind = toState.getPseudoState() != null ? toState.getPseudoState().getKind() : null;
+					if (kind == PseudoStateKind.FORK) {
+						Mono<Void> ret1 = exitCurrentState(toState, message, transition, stateMachine);
+						ForkPseudoState<S, E> fps = (ForkPseudoState<S, E>) toState.getPseudoState();
+						Mono<Void> ret2 = Flux.fromIterable(fps.getForks())
+							.flatMap(f -> {
+								callPreStateChangeInterceptors(f, message, transition, stateMachine);
+								return setCurrentState(f, message, transition, false, stateMachine, null, fps.getForks());
+							})
+							.then()
+							;
+						return ret1.then(ret2);
+					} else {
+						Collection<State<S, E>> targets = new ArrayList<>();
+						targets.add(toState);
+						return setCurrentState(toState, message, transition, true, stateMachine, null, targets);
+					}
+
+				});
 		})
 		.then(Mono.defer(() -> {
 			return shouldComplete() ? stopReactively() : Mono.empty();
-		}))
-		;
+		}));
 	}
 
 	private boolean shouldComplete() {
 		return StateMachineUtils.isPseudoState(currentState, PseudoStateKind.END);
 	}
 
-	private State<S,E> followLinkedPseudoStates(State<S,E> state, StateContext<S, E> stateContext) {
+	private Mono<State<S,E>> followLinkedPseudoStates(State<S,E> state, StateContext<S, E> stateContext) {
 		PseudoStateKind kind = state.getPseudoState() != null ? state.getPseudoState().getKind() : null;
 		if (kind == PseudoStateKind.INITIAL ||  kind == PseudoStateKind.FORK) {
-			return state;
+			return Mono.just(state);
 		} else if (kind != null) {
-			State<S,E> toState = state.getPseudoState().entry(stateContext);
-			if (toState == null) {
-				return state;
-			} else {
-				return followLinkedPseudoStates(toState, stateContext);
-			}
+			return Mono.from(state.getPseudoState().entry(stateContext).log("xxx1").flatMap(s -> followLinkedPseudoStates(s, stateContext)))
+				.switchIfEmpty(Mono.just(state))
+				;
 		} else {
-			return state;
+			return Mono.just(state);
 		}
 	}
 
@@ -992,17 +990,26 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			if (p != null) {
 				List<PseudoStateListener<S, E>> listeners = new ArrayList<PseudoStateListener<S, E>>();
 				listeners.add(new PseudoStateListener<S, E>() {
+
 					@Override
 					public void onContext(PseudoStateContext<S, E> context) {
 						PseudoState<S, E> pseudoState = context.getPseudoState();
 						State<S, E> toStateOrig = findStateWithPseudoState(pseudoState);
 						StateContext<S, E> stateContext = buildStateContext(Stage.STATE_EXIT, null, null, getRelayStateMachine());
-						State<S, E> toState = followLinkedPseudoStates(toStateOrig, stateContext);
+						Mono<State<S, E>> toState = followLinkedPseudoStates(toStateOrig, stateContext);
 						// TODO: try to find matching transition based on direct link.
 						// should make this built-in in pseudostates
-						Transition<S, E> transition = findTransition(toStateOrig, toState);
-						switchToState(toState, null, transition, getRelayStateMachine()).subscribe();
-						pseudoState.exit(stateContext);
+						toState
+							.flatMap(toState2 -> {
+								return Mono.defer(() -> {
+									Transition<S, E> t = findTransition(toStateOrig, toState2);
+									return switchToState(toState2, null, t, getRelayStateMachine());
+								});
+							})
+							.then()
+							.and(pseudoState.exit(stateContext))
+							// TODO: REACTOR should remove fire and forget sub
+							.subscribe();
 					}
 				});
 				// setting instead adding makes sure existing listeners are removed

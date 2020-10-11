@@ -92,6 +92,7 @@ public class ForkJoinEntryExitTests extends AbstractBuildTests {
 					.step()
 						.sendEvent("E3")
 						.expectStateEntered(2)
+						// TODO: S211 exited twice
 						.expectStateExited(4)
 						.expectStates("S3").and()
 					.build();
@@ -122,6 +123,7 @@ public class ForkJoinEntryExitTests extends AbstractBuildTests {
 					.step()
 						.sendEvent("E3")
 						.expectStateEntered(2)
+						// TODO: S211 exited twice
 						.expectStateExited(4)
 						.expectStates("S3").and()
 					.build();
