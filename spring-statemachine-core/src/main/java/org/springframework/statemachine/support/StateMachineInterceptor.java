@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ public interface StateMachineInterceptor<S, E> {
 	 * @param message the message
 	 * @param transition the transition
 	 * @param stateMachine the state machine
+	 * @deprecated in favour of {@link #preStateChange(State, Message, Transition, StateMachine, StateMachine)}
 	 */
 	void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
 			StateMachine<S, E> stateMachine);
@@ -74,6 +75,7 @@ public interface StateMachineInterceptor<S, E> {
 	 * @param message the message
 	 * @param transition the transition
 	 * @param stateMachine the state machine
+	 * @deprecated in favour of {@link #postStateChange(State, Message, Transition, StateMachine, StateMachine)}
 	 */
 	void postStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
 			StateMachine<S, E> stateMachine);
