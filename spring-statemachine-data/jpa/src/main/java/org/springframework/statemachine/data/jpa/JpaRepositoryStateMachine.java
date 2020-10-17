@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 the original author or authors.
+ * Copyright 2017-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ public class JpaRepositoryStateMachine extends RepositoryStateMachine {
 	private String state;
 
 	@Lob
-	@Column(name = "state_machine_context")
+	@Column(name = "state_machine_context", length = 10240)
 	private byte[] stateMachineContext;
 
 	@Override
