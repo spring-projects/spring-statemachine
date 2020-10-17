@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 the original author or authors.
+ * Copyright 2017-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,12 +81,6 @@ public abstract class AbstractPersistingStateMachineInterceptor<S, E, T> extends
 		}
 	}
 
-	@Override
-	public void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
-			StateMachine<S, E> stateMachine) {
-		preStateChange(state, message, transition, stateMachine, stateMachine);
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public void postStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
@@ -106,12 +100,6 @@ public abstract class AbstractPersistingStateMachineInterceptor<S, E, T> extends
 				throw new StateMachineException("Unable to persist stateMachineContext", e);
 			}
 		}
-	}
-
-	@Override
-	public void postStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
-			StateMachine<S, E> stateMachine) {
-		postStateChange(state, message, transition, stateMachine, stateMachine);
 	}
 
 	/**
