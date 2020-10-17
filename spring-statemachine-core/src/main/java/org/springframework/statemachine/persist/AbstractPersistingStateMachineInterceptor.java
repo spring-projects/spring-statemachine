@@ -75,7 +75,7 @@ public abstract class AbstractPersistingStateMachineInterceptor<S, E, T> extends
 		// call chain aborts transition
 		// TODO: should probably come up with a policy vs. not force feeding this functionality
 		try {
-			write(buildStateMachineContext(stateMachine, rootStateMachine, state), (T)stateMachine.getId());
+			write(buildStateMachineContext(stateMachine, rootStateMachine, state, message), (T)stateMachine.getId());
 		} catch (Exception e) {
 			throw new StateMachineException("Unable to persist stateMachineContext", e);
 		}
@@ -95,7 +95,7 @@ public abstract class AbstractPersistingStateMachineInterceptor<S, E, T> extends
 		// TODO: consider intercept initial transition, but not aborting if error is thrown?
 		if (state != null && transition != null && transition.getKind() == TransitionKind.INITIAL) {
 			try {
-				write(buildStateMachineContext(stateMachine, rootStateMachine, state), (T)stateMachine.getId());
+				write(buildStateMachineContext(stateMachine, rootStateMachine, state, message), (T)stateMachine.getId());
 			} catch (Exception e) {
 				throw new StateMachineException("Unable to persist stateMachineContext", e);
 			}
@@ -132,14 +132,33 @@ public abstract class AbstractPersistingStateMachineInterceptor<S, E, T> extends
 	}
 
 	/**
-	 * Builds the state machine context.
+	 * Builds the state machine context. Note, for backward compatibility this
+	 * method doesn't pass event or headers into a {@link StateMachineContext}.
+	 * Implementor of this class, if using this method should move over to
+	 * {@link #buildStateMachineContext(StateMachine, StateMachine, State, Message)}.
 	 *
 	 * @param stateMachine the state machine
 	 * @param rootStateMachine the root state machine
 	 * @param state the state
 	 * @return the state machine context
+	 * @deprecated in favour of {@link #buildStateMachineContext(StateMachine, StateMachine, State, Message)}
 	 */
-	protected StateMachineContext<S, E> buildStateMachineContext(StateMachine<S, E> stateMachine, StateMachine<S, E> rootStateMachine, State<S, E> state) {
+	protected StateMachineContext<S, E> buildStateMachineContext(StateMachine<S, E> stateMachine,
+			StateMachine<S, E> rootStateMachine, State<S, E> state) {
+		return buildStateMachineContext(stateMachine, rootStateMachine, state, null);
+	}
+
+	/**
+	 * Builds the state machine context.
+	 *
+	 * @param stateMachine the state machine
+	 * @param rootStateMachine the root state machine
+	 * @param state the state
+	 * @param message the message
+	 * @return the state machine context
+	 */
+	protected StateMachineContext<S, E> buildStateMachineContext(StateMachine<S, E> stateMachine,
+			StateMachine<S, E> rootStateMachine, State<S, E> state, Message<E> message) {
 		ExtendedState extendedState = new DefaultExtendedState();
 		extendedState.getVariables().putAll(extendedStateVariablesFunction.apply(stateMachine));
 
@@ -181,7 +200,10 @@ public abstract class AbstractPersistingStateMachineInterceptor<S, E, T> extends
 				}
 			}
 		}
-		return new DefaultStateMachineContext<S, E>(childRefs, childs, id, null, null, extendedState, historyStates, stateMachine.getId());
+		E event = message != null ? message.getPayload() : null;
+		Map<String, Object> eventHeaders = message != null ? message.getHeaders() : null;
+		return new DefaultStateMachineContext<S, E>(childRefs, childs, id, event, eventHeaders, extendedState,
+				historyStates, stateMachine.getId());
 	}
 
 	private S getDeepState(State<S, E> state) {
