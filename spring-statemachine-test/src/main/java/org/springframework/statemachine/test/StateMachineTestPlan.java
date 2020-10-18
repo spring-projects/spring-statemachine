@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.springframework.statemachine.test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
@@ -241,7 +240,7 @@ public class StateMachineTestPlan<S, E> {
 					for (State<S, E> s : listener.getStateEntered()) {
 						states.add(s.getId());
 					}
-					assertThat(step.expectStatesEntrered, contains(states.toArray()));
+					assertThat(step.expectStatesEntrered, containsInAnyOrder(states.toArray()));
 				}
 			}
 
@@ -251,7 +250,7 @@ public class StateMachineTestPlan<S, E> {
 					for (State<S, E> s : listener.getStateExited()) {
 						states.add(s.getId());
 					}
-					assertThat(step.expectStatesExited, contains(states.toArray()));
+					assertThat(step.expectStatesExited, containsInAnyOrder(states.toArray()));
 				}
 			}
 
