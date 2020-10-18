@@ -15,7 +15,7 @@ buildscript {
 		curatorVersion = '2.11.1'
 		docResourcesVersion = '0.2.1.RELEASE'
 		awaitilityVersion = '3.1.6'
-		reactorBlockHoundVersion = '1.0.1.RELEASE'
+		reactorBlockHoundVersion = '1.0.4.RELEASE'
 	}
 	repositories {
 		maven { url 'https://repo.springsource.org/libs-release'}

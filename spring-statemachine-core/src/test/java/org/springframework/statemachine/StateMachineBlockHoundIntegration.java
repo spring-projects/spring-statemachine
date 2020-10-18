@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ public class StateMachineBlockHoundIntegration implements BlockHoundIntegration 
 			.allowBlockingCallsInside("org.springframework.statemachine.monitor.StateMachineMonitorTests$LatchAction", "execute")
 			.allowBlockingCallsInside("org.springframework.statemachine.state.CompletionEventTests$Config1$1", "execute")
 			.allowBlockingCallsInside("org.apache.commons.logging.LogAdapter$Log4jLog", "debug")
-			.allowBlockingCallsInside("org.springframework.statemachine.state.ObjectStateTests$TestBlockingAction", "sleep");
+			.allowBlockingCallsInside("org.springframework.statemachine.state.ObjectStateTests$TestBlockingAction", "sleep")
+			.allowBlockingCallsInside("org.springframework.statemachine.action.ActionAndTimerTests$TestTimerAction", "execute");
 	}
 }
