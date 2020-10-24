@@ -18,7 +18,7 @@ To overcome this issue we've internally changed `Guard` handling to
 process a plain java's `Function` taking `StateContext` and returning
 `Mono<Boolean>`. This way we can call guard and fully in a reactive way
 to evaluate it only when it's subscribed and in a non-blocking way
-to wait it's completion with a return value.
+to wait completion with a return value.
 
 ====
 [source,java,indent=0]

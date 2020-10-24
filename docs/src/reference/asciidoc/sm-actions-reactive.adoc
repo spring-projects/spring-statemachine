@@ -18,7 +18,7 @@ To overcome this issue we've internally changed `Action` handling to
 process a plain java's `Function` taking `StateContext` and returning
 `Mono`. This way we can call action and fully in a reactive way to
 execute action only when it's subscribed and in a non-blocking way
-to wait it's completion.
+to wait completion.
 
 ====
 [source,java,indent=0]
