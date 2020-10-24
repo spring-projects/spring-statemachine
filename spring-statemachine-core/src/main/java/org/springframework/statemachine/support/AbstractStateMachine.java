@@ -976,7 +976,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		if (kind == PseudoStateKind.INITIAL ||  kind == PseudoStateKind.FORK) {
 			return Mono.just(state);
 		} else if (kind != null) {
-			return Mono.from(state.getPseudoState().entry(stateContext).log("xxx1").flatMap(s -> followLinkedPseudoStates(s, stateContext)))
+			return Mono.from(state.getPseudoState().entry(stateContext).flatMap(s -> followLinkedPseudoStates(s, stateContext)))
 				.switchIfEmpty(Mono.just(state))
 				;
 		} else {
