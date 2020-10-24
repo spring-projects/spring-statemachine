@@ -167,7 +167,7 @@ public class StateMachineTestPlan<S, E> {
 
 			if (step.expectStateChanged != null) {
 				for (Entry<StateMachine<S, E>, LatchStateMachineListener<S, E>> entry : listeners.entrySet()) {
-					assertThat("StateChanged Await not matched for machine " + entry.getKey(), entry.getValue()
+					assertThat("StateChanged Await not matched for machine " + entry.getKey() + " step " + stepCounter, entry.getValue()
 							.getStateChangedLatch().await(defaultAwaitTime, TimeUnit.SECONDS), is(true));
 					assertThat("StateChanged count not matched for machine " + entry.getKey(), entry.getValue()
 							.getStateChanged().size(), is(step.expectStateChanged));
