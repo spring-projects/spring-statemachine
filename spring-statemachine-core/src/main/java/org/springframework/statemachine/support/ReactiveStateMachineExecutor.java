@@ -462,7 +462,12 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 	private void stopTriggers() {
 		for (final Trigger<S, E> trigger : triggerToTransitionMap.keySet()) {
 			if (trigger instanceof Lifecycle) {
-				((Lifecycle) trigger).stop();
+				try {
+					((Lifecycle) trigger).stop();
+				} catch (Exception e) {
+					//TODO: handle exception
+				}
+				// ((Lifecycle) trigger).stop();
 			}
 		}
 	}
