@@ -92,8 +92,8 @@ public class ForkJoinEntryExitTests extends AbstractBuildTests {
 					.step()
 						.sendEvent("E3")
 						.expectStateEntered(2)
-						// TODO: S211 exited twice
 						.expectStateExited(4)
+						.expectStateExited("S220", "S211", "S221", "S2")
 						.expectStates("S3").and()
 					.build();
 		plan.test();
@@ -123,8 +123,8 @@ public class ForkJoinEntryExitTests extends AbstractBuildTests {
 					.step()
 						.sendEvent("E3")
 						.expectStateEntered(2)
-						// TODO: S211 exited twice
 						.expectStateExited(4)
+						.expectStateExited("S220", "S211", "S221", "S2")
 						.expectStates("S3").and()
 					.build();
 		plan.test();

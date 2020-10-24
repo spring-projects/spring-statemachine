@@ -386,7 +386,7 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 						return Flux.fromIterable(joinSyncTransitions)
 							.flatMap(tt -> {
 								StateContext<S, E> stateContext = buildStateContext(queuedMessage, tt, relayStateMachine);
-								return tt.transit(stateContext).then(stateMachineExecutorTransit.transit(t, stateContext, queuedMessage));
+								return tt.transit(stateContext).then(stateMachineExecutorTransit.transit(tt, stateContext, queuedMessage));
 							})
 							.doFinally(s -> {
 								joinSyncTransitions.clear();
