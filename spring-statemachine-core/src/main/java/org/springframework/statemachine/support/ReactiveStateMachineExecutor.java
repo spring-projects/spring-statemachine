@@ -465,7 +465,7 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 				try {
 					((Lifecycle) trigger).stop();
 				} catch (Exception e) {
-					//TODO: handle exception
+					log.error("XXX", e);
 				}
 				// ((Lifecycle) trigger).stop();
 			}
