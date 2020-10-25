@@ -28,6 +28,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -116,8 +117,7 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 	@Override
 	protected Mono<Void> doPreStartReactively() {
 		return Mono.defer(() -> {
-			Mono<Void> mono = Mono.empty();
-			startTriggers();
+			Mono<Void> mono = startTriggers();
 
 			if (triggerDisposable == null) {
 				triggerDisposable = triggerFlux.subscribe();
@@ -140,14 +140,14 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 
 	@Override
 	protected Mono<Void> doPreStopReactively() {
-		return Mono.fromRunnable(() -> {
-			stopTriggers();
+		Mono<Void> mono = Mono.fromRunnable(() -> {
 			if (triggerDisposable != null) {
 				triggerDisposable.dispose();
 				triggerDisposable = null;
 			}
 			initialHandled.set(false);
 		});
+		return stopTriggers().and(mono);
 	}
 
 	@Override
@@ -451,20 +451,24 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 		}
 	}
 
-	private void startTriggers() {
-		for (final Trigger<S, E> trigger : triggerToTransitionMap.keySet()) {
-			if (trigger instanceof Lifecycle) {
-				((Lifecycle) trigger).start();
-			}
-		}
+	private Mono<Void> startTriggers() {
+		List<StateMachineReactiveLifecycle> smrl = triggerToTransitionMap.keySet().stream()
+			.filter(StateMachineReactiveLifecycle.class::isInstance)
+			.map(StateMachineReactiveLifecycle.class::cast)
+			.collect(Collectors.toList());
+		return Flux.fromIterable(smrl)
+			.flatMap(StateMachineReactiveLifecycle::startReactively)
+			.then();
 	}
 
-	private void stopTriggers() {
-		for (final Trigger<S, E> trigger : triggerToTransitionMap.keySet()) {
-			if (trigger instanceof Lifecycle) {
-				((Lifecycle) trigger).stop();
-			}
-		}
+	private Mono<Void> stopTriggers() {
+		List<StateMachineReactiveLifecycle> smrl = triggerToTransitionMap.keySet().stream()
+			.filter(StateMachineReactiveLifecycle.class::isInstance)
+			.map(StateMachineReactiveLifecycle.class::cast)
+			.collect(Collectors.toList());
+		return Flux.fromIterable(smrl)
+			.flatMap(StateMachineReactiveLifecycle::stopReactively)
+			.then();
 	}
 
 	private class TriggerQueueItem {
