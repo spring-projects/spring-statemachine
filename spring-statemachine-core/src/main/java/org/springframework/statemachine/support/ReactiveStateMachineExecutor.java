@@ -28,6 +28,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
@@ -69,6 +70,7 @@ import reactor.util.context.Context;
 public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport implements StateMachineExecutor<S, E> {
 
 	private static final Log log = LogFactory.getLog(ReactiveStateMachineExecutor.class);
+	private static final String REACTOR_CONTEXT_TRIGGER_ERRORS = "stateMachineTriggerErrors";
 	private final StateMachine<S, E> stateMachine;
 	private final StateMachine<S, E> relayStateMachine;
 	private final Map<Trigger<S, E>, Transition<S, E>> triggerToTransitionMap;
@@ -154,7 +156,7 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 		if (log.isDebugEnabled()) {
 			log.debug("Queue trigger " + trigger);
 		}
-		triggerSink.next(new TriggerQueueItem(trigger, message, null));
+		triggerSink.next(new TriggerQueueItem(trigger, message, null, null));
 	}
 
 	@Override
@@ -199,20 +201,24 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 	@Override
 	public Mono<Void> queueEvent(Mono<Message<E>> message, StateMachineExecutorCallback callback) {
 		Flux<Message<E>> messages = Flux.merge(message, Flux.fromIterable(deferList));
+
+		MonoSinkStateMachineExecutorCallback triggerCallback = new MonoSinkStateMachineExecutorCallback();
+		Mono<Void> triggerCallbackSink = Mono.create(triggerCallback);
+
 		return messages
-			.flatMap(m -> handleEvent(m, callback))
+			.flatMap(m -> handleEvent(m, callback, triggerCallback))
 			.doOnNext(i -> {
 				try {
 					triggerSink.next(i);
 				} catch (Exception e) {
-					throw new StateMachineException("Unable to handle queued event", e);
+					log.error("Unable to handle queued event", e);
 				}
 			})
 			.then()
-			;
+			.and(triggerCallbackSink);
 	}
 
-	private Mono<TriggerQueueItem> handleEvent(Message<E> queuedEvent, StateMachineExecutorCallback callback) {
+	private Mono<TriggerQueueItem> handleEvent(Message<E> queuedEvent, StateMachineExecutorCallback callback, StateMachineExecutorCallback triggerCallback) {
 		if (log.isDebugEnabled()) {
 			log.debug("Handling message " + queuedEvent);
 		}
@@ -220,7 +226,7 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 			State<S,E> currentState = stateMachine.getState();
 			if ((currentState != null && currentState.shouldDefer(queuedEvent))) {
 				log.info("Current state " + currentState + " deferred event " + queuedEvent);
-				return Mono.just(new TriggerQueueItem(null, queuedEvent, callback));
+				return Mono.just(new TriggerQueueItem(null, queuedEvent, callback, triggerCallback));
 			}
 			TriggerContext<S, E> triggerContext = new DefaultTriggerContext<S, E>(queuedEvent.getPayload());
 			return Flux.fromIterable(transitions)
@@ -239,7 +245,7 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 				})
 				.next()
 				.doOnNext(trigger -> deferList.remove(queuedEvent))
-				.map(trigger -> new TriggerQueueItem(trigger, queuedEvent, callback));
+				.map(trigger -> new TriggerQueueItem(trigger, queuedEvent, callback, triggerCallback));
 		});
 	}
 
@@ -306,6 +312,7 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 			}
 			return ret;
 		})
+		.onErrorResume(resumeTriggerErrorToContext())
 		.and(Mono.subscriberContext()
 			.doOnNext(ctx -> {
 				if (queueItem.callback != null) {
@@ -318,9 +325,22 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 						}
 					});
 				}
+
+				if (queueItem.triggerCallback != null) {
+					Optional<ExecutorExceptionHolder> holder = ctx.getOrEmpty(REACTOR_CONTEXT_TRIGGER_ERRORS);
+					holder.ifPresent(h -> {
+						if (h.getError() != null) {
+							queueItem.triggerCallback.error(new StateMachineException("Execution error", h.getError()));
+						} else {
+							queueItem.triggerCallback.complete();
+						}
+					});
+				}
+
+
 			}))
-		.subscriberContext(Context.of(StateMachineSystemConstants.REACTOR_CONTEXT_ERRORS, new ExecutorExceptionHolder()))
-		;
+			.subscriberContext(Context.of(StateMachineSystemConstants.REACTOR_CONTEXT_ERRORS,
+					new ExecutorExceptionHolder(), REACTOR_CONTEXT_TRIGGER_ERRORS, new ExecutorExceptionHolder()));
 	}
 
 
@@ -470,15 +490,28 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 			.then();
 	}
 
+	private static Function<? super Throwable, Mono<Void>> resumeTriggerErrorToContext() {
+		return t -> Mono.subscriberContext()
+			.doOnNext(ctx -> {
+				Optional<ExecutorExceptionHolder> holder = ctx.getOrEmpty(REACTOR_CONTEXT_TRIGGER_ERRORS);
+				holder.ifPresent(h -> {
+					h.setError(t);
+				});
+			})
+			.then();
+	}
+
 	private class TriggerQueueItem {
 		Trigger<S, E> trigger;
 		Message<E> message;
 		StateMachineExecutorCallback callback;
+		StateMachineExecutorCallback triggerCallback;
 
-		public TriggerQueueItem(Trigger<S, E> trigger, Message<E> message, StateMachineExecutorCallback callback) {
+		public TriggerQueueItem(Trigger<S, E> trigger, Message<E> message, StateMachineExecutorCallback callback, StateMachineExecutorCallback triggerCallback) {
 			this.trigger = trigger;
 			this.message = message;
 			this.callback = callback;
+			this.triggerCallback = triggerCallback;
 		}
 	}
 }
