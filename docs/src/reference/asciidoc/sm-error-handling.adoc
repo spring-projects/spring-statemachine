@@ -50,3 +50,26 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippet4]
 
 TIP: Actions defined for transitions also have their own error handling
 logic. See <<statemachine-config-transition-actions-errorhandling>>.
+
+With a reactive api's it is possible to get _Action_ execution error
+back from a _StateMachineEventResult_. Having simple machine which
+errors within action transitioning into state `S1`.
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests12.java[tags=snippetA1]
+----
+====
+
+Below test concept shows how possible error can be consumed
+from a _StateMachineEventResult_.
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests12.java[tags=snippetA2]
+----
+====
+
+NOTE: Error in entry/exit actions will not prevent transition to happen.

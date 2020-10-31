@@ -52,7 +52,8 @@ public interface StateMachineEventResult<S, E> {
 	ResultType getResultType();
 
 	/**
-	 * Gets a mono representing completion.
+	 * Gets a mono representing completion. Will have exception in a normal
+	 * reactive chain if there is one.
 	 *
 	 * @return the mono for completion
 	 */
