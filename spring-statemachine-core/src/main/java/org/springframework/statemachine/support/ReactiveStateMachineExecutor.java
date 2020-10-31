@@ -28,6 +28,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.LockSupport;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -53,10 +54,11 @@ import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.statemachine.trigger.TriggerListener;
 
 import reactor.core.Disposable;
-import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
+import reactor.core.publisher.Sinks.Many;
+import reactor.util.concurrent.Queues;
 import reactor.util.context.Context;
 
 /**
@@ -86,8 +88,7 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 	private volatile Message<E> forwardedInitialEvent;
 	private volatile Message<E> queuedMessage = null;
 	private StateMachineExecutorTransit<S, E> stateMachineExecutorTransit;
-	private EmitterProcessor<TriggerQueueItem> triggerProcessor = EmitterProcessor.create(false);
-	private FluxSink<TriggerQueueItem> triggerSink;
+	private Many<TriggerQueueItem> triggerSink;
 	private Flux<Void> triggerFlux;
 	private Disposable triggerDisposable;
 
@@ -111,8 +112,8 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 
 	@Override
 	protected void onInit() throws Exception {
-		triggerSink = triggerProcessor.sink();
-		triggerFlux = Flux.from(triggerProcessor).flatMap(trigger -> handleTrigger(trigger));
+		triggerSink = Sinks.many().multicast().onBackpressureBuffer(Queues.SMALL_BUFFER_SIZE, false);
+		triggerFlux = triggerSink.asFlux().flatMap(trigger -> handleTrigger(trigger));
 	}
 
 	@Override
@@ -156,7 +157,7 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 		if (log.isDebugEnabled()) {
 			log.debug("Queue trigger " + trigger);
 		}
-		triggerSink.next(new TriggerQueueItem(trigger, message, null, null));
+		triggerSink.emitNext(new TriggerQueueItem(trigger, message, null, null), Sinks.EmitFailureHandler.FAIL_FAST);
 	}
 
 	@Override
@@ -208,10 +209,8 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 		return messages
 			.flatMap(m -> handleEvent(m, callback, triggerCallback))
 			.doOnNext(i -> {
-				try {
-					triggerSink.next(i);
-				} catch (Exception e) {
-					log.error("Unable to handle queued event", e);
+				while (triggerSink.tryEmitNext(i).isFailure()) {
+					LockSupport.parkNanos(10);
 				}
 			})
 			.then()
@@ -313,7 +312,7 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 			return ret;
 		})
 		.onErrorResume(resumeTriggerErrorToContext())
-		.and(Mono.subscriberContext()
+		.and(Mono.deferContextual(Mono::just)
 			.doOnNext(ctx -> {
 				if (queueItem.callback != null) {
 					Optional<ExecutorExceptionHolder> holder = ctx.getOrEmpty(StateMachineSystemConstants.REACTOR_CONTEXT_ERRORS);
@@ -336,11 +335,10 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 						}
 					});
 				}
-
-
 			}))
-			.subscriberContext(Context.of(StateMachineSystemConstants.REACTOR_CONTEXT_ERRORS,
-					new ExecutorExceptionHolder(), REACTOR_CONTEXT_TRIGGER_ERRORS, new ExecutorExceptionHolder()));
+			.contextWrite(Context.of(
+					StateMachineSystemConstants.REACTOR_CONTEXT_ERRORS, new ExecutorExceptionHolder(),
+					REACTOR_CONTEXT_TRIGGER_ERRORS, new ExecutorExceptionHolder()));
 	}
 
 
@@ -491,7 +489,7 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 	}
 
 	private static Function<? super Throwable, Mono<Void>> resumeTriggerErrorToContext() {
-		return t -> Mono.subscriberContext()
+		return t -> Mono.deferContextual(Mono::just)
 			.doOnNext(ctx -> {
 				Optional<ExecutorExceptionHolder> holder = ctx.getOrEmpty(REACTOR_CONTEXT_TRIGGER_ERRORS);
 				holder.ifPresent(h -> {
