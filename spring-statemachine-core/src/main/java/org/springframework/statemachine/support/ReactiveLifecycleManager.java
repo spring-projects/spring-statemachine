@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,16 +23,18 @@ import java.util.function.Supplier;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
+import reactor.core.publisher.Sinks.Many;
+import reactor.util.concurrent.Queues;
 
 public class ReactiveLifecycleManager implements StateMachineReactiveLifecycle {
 
 	private static final Log log = LogFactory.getLog(ReactiveLifecycleManager.class);
 	private final AtomicEnum state = new AtomicEnum(LifecycleState.STOPPED);
-	private EmitterProcessor<Mono<Void>> startRequestsProcessor;
-	private EmitterProcessor<Mono<Void>> stopRequestsProcessor;
+	private Many<Mono<Void>> startRequestsSink;
+	private Many<Mono<Void>> stopRequestsSink;
 	private Flux<Mono<Void>> startRequests;
 	private Flux<Mono<Void>> stopRequests;
 	private Supplier<Mono<Void>> preStartRequest;
@@ -55,10 +57,10 @@ public class ReactiveLifecycleManager implements StateMachineReactiveLifecycle {
 		this.preStopRequest = preStopRequest;
 		this.postStartRequest = postStartRequest;
 		this.postStopRequest = postStopRequest;
-		this.startRequestsProcessor = EmitterProcessor.<Mono<Void>>create(false);
-		this.stopRequestsProcessor = EmitterProcessor.<Mono<Void>>create(false);
-		this.startRequests = this.startRequestsProcessor.cache(1);
-		this.stopRequests = this.stopRequestsProcessor.cache(1);
+		this.startRequestsSink = Sinks.many().multicast().onBackpressureBuffer(Queues.SMALL_BUFFER_SIZE, false);
+		this.stopRequestsSink = Sinks.many().multicast().onBackpressureBuffer(Queues.SMALL_BUFFER_SIZE, false);
+		this.startRequests = this.startRequestsSink.asFlux().cache(1);
+		this.stopRequests = this.stopRequestsSink.asFlux().cache(1);
 	}
 
 	@Override
@@ -69,8 +71,7 @@ public class ReactiveLifecycleManager implements StateMachineReactiveLifecycle {
 				.filter(owns -> owns)
 				.flatMap(owns -> this.startRequests.next().flatMap(Function.identity()).doOnSuccess(aVoid -> {
 					state.set(LifecycleState.STARTED);
-				}))
-				;
+				}));
 		})
 		.then(Mono.defer(postStartRequest))
 		.then(Mono.defer(() -> {
@@ -79,8 +80,7 @@ public class ReactiveLifecycleManager implements StateMachineReactiveLifecycle {
 				return stopReactively();
 			}
 			return Mono.empty();
-		}))
-		;
+		}));
 	}
 
 	@Override
@@ -145,10 +145,10 @@ public class ReactiveLifecycleManager implements StateMachineReactiveLifecycle {
 				log.debug("Lifecycle from " + expect + " to " + update + " in " + ReactiveLifecycleManager.this);
 				if (update == LifecycleState.STARTING) {
 					log.debug("Next start request with doStartReactively in " + ReactiveLifecycleManager.this);
-					startRequestsProcessor.onNext(preStartRequest.get());
+					startRequestsSink.emitNext(preStartRequest.get(), Sinks.EmitFailureHandler.FAIL_FAST);
 				} else if (update == LifecycleState.STOPPING) {
 					log.debug("Next stop request with doStopReactively in " + ReactiveLifecycleManager.this);
-					stopRequestsProcessor.onNext(preStopRequest.get());
+					stopRequestsSink.emitNext(preStopRequest.get(), Sinks.EmitFailureHandler.FAIL_FAST);
 				}
 			}
 			return set;

@@ -204,7 +204,7 @@ public abstract class StateMachineUtils {
 	 * @return mono for completion
 	 */
 	public static Function<? super Throwable, Mono<Void>> resumeErrorToContext() {
-		return t -> Mono.subscriberContext()
+		return t -> Mono.deferContextual(Mono::just)
 			.doOnNext(ctx -> {
 				Optional<ExecutorExceptionHolder> holder = ctx.getOrEmpty(StateMachineSystemConstants.REACTOR_CONTEXT_ERRORS);
 				holder.ifPresent(h -> {
