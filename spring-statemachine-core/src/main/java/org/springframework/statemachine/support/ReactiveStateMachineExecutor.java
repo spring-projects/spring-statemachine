@@ -157,7 +157,10 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 		if (log.isDebugEnabled()) {
 			log.debug("Queue trigger " + trigger);
 		}
-		triggerSink.emitNext(new TriggerQueueItem(trigger, message, null, null), Sinks.EmitFailureHandler.FAIL_FAST);
+		TriggerQueueItem tqi = new TriggerQueueItem(trigger, message, null, null);
+		while (triggerSink.tryEmitNext(tqi).isFailure()) {
+			LockSupport.parkNanos(10);
+		}
 	}
 
 	@Override
