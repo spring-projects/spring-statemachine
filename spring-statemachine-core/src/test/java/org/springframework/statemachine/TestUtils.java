@@ -21,6 +21,7 @@ import static org.springframework.statemachine.StateMachineSystemConstants.DEFAU
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.time.Duration;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.messaging.Message;
@@ -99,7 +100,8 @@ public class TestUtils {
 	public static <S, E> void doSendEventAndConsumeAll(StateMachine<S, E> stateMachine, E event) {
 		StepVerifier.create(stateMachine.sendEvent(eventAsMono(event)))
 			.thenConsumeWhile(eventResult -> true)
-			.verifyComplete();
+			.expectComplete()
+			.verify(Duration.ofSeconds(5));
 	}
 
 	public static <S, E> void doSendEventAndConsumeAll(StateMachine<S, E> stateMachine, Message<E> event) {
