@@ -88,6 +88,7 @@ configure(allprojects) {
 	dependencyManagement {
 		imports {
 			mavenBom "org.springframework.boot:spring-boot-dependencies:$springBootVersion"
+			mavenBom "io.projectreactor:reactor-bom:2020.0.2-SNAPSHOT"
 		}
 		dependencies {
 			dependency "log4j:log4j:$log4jVersion"
