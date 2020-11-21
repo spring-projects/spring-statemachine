@@ -17,9 +17,8 @@ buildscript {
 		h2DatabaseVersion = '1.4.199'
 	}
 	repositories {
-		maven { url 'https://repo.springsource.org/libs-release'}
+		gradlePluginPortal()
 		maven { url 'https://repo.springsource.org/plugins-release' }
-		maven { url 'https://repo.springsource.org/plugins-snapshot' }
 	}
 	dependencies {
 		classpath("io.spring.gradle:propdeps-plugin:0.0.8")
