@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,10 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
@@ -60,6 +62,7 @@ public class ReactiveTests extends AbstractStateMachineTests {
 
 	@SuppressWarnings("unchecked")
 	@Test
+	@Timeout(value = 10, unit = TimeUnit.SECONDS)
 	public void testMonosAllAccepted() {
 		context.register(Config1.class);
 		context.refresh();

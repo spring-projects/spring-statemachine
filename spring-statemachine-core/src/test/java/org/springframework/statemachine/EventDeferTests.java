@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -41,6 +44,8 @@ import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
 
 public class EventDeferTests extends AbstractStateMachineTests {
+
+	private static final Log log = LogFactory.getLog(EventDeferTests.class);
 
 	@Override
 	protected AnnotationConfigApplicationContext buildContext() {
@@ -65,6 +70,7 @@ public class EventDeferTests extends AbstractStateMachineTests {
 	}
 
 	@Test
+	@Timeout(value = 20, unit = TimeUnit.SECONDS)
 	public void testDeferSmokeExecutorConcurrentModification() throws Exception {
 		context.register(Config5.class);
 		context.refresh();
@@ -73,20 +79,15 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		doStartAndAssert(machine);
 		assertThat(machine.getState().getIds(), contains("S1"));
 
-		doSendEventAndConsumeAll(machine, "E2");
-
-		Object executor = TestUtils.readField("stateMachineExecutor", machine);
-		Collection<?> readField = TestUtils.readField("deferList", executor);
-		assertThat(readField.size(), is(1));
-
-		AtomicReference<Exception> error = new AtomicReference<>();
+		AtomicReference<Throwable> error = new AtomicReference<>();
 		AtomicInteger i1 = new AtomicInteger();
 		Thread t1 = new Thread(() -> {
 			while(i1.incrementAndGet() < 200) {
 				try {
 					doSendEventAndConsumeAll(machine, "E1");
 					doSendEventAndConsumeAll(machine, "E2");
-				} catch (Exception e) {
+				} catch (Throwable e) {
+					log.error("T1: error " + e);
 					error.set(e);
 					break;
 				}
@@ -98,7 +99,8 @@ public class EventDeferTests extends AbstractStateMachineTests {
 				try {
 					doSendEventAndConsumeAll(machine, "E1");
 					doSendEventAndConsumeAll(machine, "E2");
-				} catch (Exception e) {
+				} catch (Throwable e) {
+					log.error("T2: error " + e);
 					error.set(e);
 					break;
 				}

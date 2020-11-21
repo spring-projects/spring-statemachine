@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine.support;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,7 +29,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.LockSupport;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -57,9 +57,11 @@ import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
+import reactor.core.publisher.Sinks.EmitFailureHandler;
 import reactor.core.publisher.Sinks.Many;
 import reactor.util.concurrent.Queues;
 import reactor.util.context.Context;
+import reactor.util.retry.Retry;
 
 /**
  * Default reactive implementation of a {@link StateMachineExecutor}.
@@ -153,17 +155,6 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 	}
 
 	@Override
-	public void queueTrigger(Trigger<S, E> trigger, Message<E> message) {
-		if (log.isDebugEnabled()) {
-			log.debug("Queue trigger " + trigger);
-		}
-		TriggerQueueItem tqi = new TriggerQueueItem(trigger, message, null, null);
-		while (triggerSink.tryEmitNext(tqi).isFailure()) {
-			LockSupport.parkNanos(10);
-		}
-	}
-
-	@Override
 	public void queueDeferredEvent(Message<E> message) {
 		if (log.isDebugEnabled()) {
 			log.debug("Deferring message " + message);
@@ -211,11 +202,10 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 
 		return messages
 			.flatMap(m -> handleEvent(m, callback, triggerCallback))
-			.doOnNext(i -> {
-				while (triggerSink.tryEmitNext(i).isFailure()) {
-					LockSupport.parkNanos(10);
-				}
-			})
+			.flatMap(tqi -> Mono.fromRunnable(() -> {
+					triggerSink.emitNext(tqi, EmitFailureHandler.FAIL_FAST);
+				})
+				.retryWhen(Retry.fixedDelay(10, Duration.ofMillis(10))))
 			.then()
 			.and(triggerCallbackSink);
 	}
@@ -464,7 +454,13 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 						if (log.isDebugEnabled()) {
 							log.debug("TimedTrigger triggered " + trigger);
 						}
-						queueTrigger(trigger, null);
+						Mono.just(new TriggerQueueItem(trigger, null, null, null))
+							.flatMap(tqi -> Mono.fromCallable(() -> {
+									triggerSink.emitNext(tqi, EmitFailureHandler.FAIL_FAST);
+									return null;
+								})
+								.retryWhen(Retry.fixedDelay(10, Duration.ofNanos(10))))
+							.subscribe();
 					}
 				});
 			}
@@ -513,6 +509,11 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 			this.message = message;
 			this.callback = callback;
 			this.triggerCallback = triggerCallback;
+		}
+
+		@Override
+		public String toString() {
+			return "TriggerQueueItem [message=" + message + ", trigger=" + trigger + "]";
 		}
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.access.StateMachineAccess;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
-import org.springframework.statemachine.trigger.Trigger;
 
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoSink;
@@ -46,14 +45,6 @@ public interface StateMachineExecutor<S, E> extends StateMachineReactiveLifecycl
 	 * @return completion when event is queued
 	 */
 	Mono<Void> queueEvent(Mono<Message<E>> message, StateMachineExecutorCallback callback);
-
-	/**
-	 * Queue trigger.
-	 *
-	 * @param trigger the trigger
-	 * @param message the message
-	 */
-	void queueTrigger(Trigger<S, E> trigger, Message<E> message);
 
 	/**
 	 * Queue deferred event.
