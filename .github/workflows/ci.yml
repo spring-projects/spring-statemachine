@@ -16,7 +16,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        java: [1.8, 11]
+        java: [1.8]
+      fail-fast: false
 
     steps:
     - uses: actions/checkout@v2
@@ -26,3 +27,13 @@ jobs:
         java-version: ${{ matrix.java }}
     - name: Build with Gradle
       run: ./gradlew clean build
+    - name: Tar Build Logs
+      if: ${{ failure() }}
+      run: |
+        tar -zc --ignore-failed-read --file build/buildlogs.tar.gz */build/reports */*/build/reports
+    - name: Upload Build Logs
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: buildlogs
+        path: build/buildlogs.tar.gz
