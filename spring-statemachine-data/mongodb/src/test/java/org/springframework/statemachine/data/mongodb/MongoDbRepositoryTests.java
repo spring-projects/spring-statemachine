@@ -25,6 +25,7 @@ import static org.springframework.statemachine.TestUtils.resolveMachine;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -48,6 +49,7 @@ import org.springframework.statemachine.transition.TransitionKind;
  * @author Janne Valkealahti
  */
 @EnabledOnMongoDb
+@Tag("mongodb")
 public class MongoDbRepositoryTests extends AbstractRepositoryTests {
 
 	@Override
