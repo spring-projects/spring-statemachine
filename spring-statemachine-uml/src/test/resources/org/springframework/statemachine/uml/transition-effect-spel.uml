@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_WWYPsCwNEeufCYvq_3Ps8A" name="transition-effect-spel">
+  <packageImport xmi:type="uml:PackageImport" xmi:id="_WZq0QCwNEeufCYvq_3Ps8A">
+    <importedPackage xmi:type="uml:Model" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#_0"/>
+  </packageImport>
+  <packagedElement xmi:type="uml:StateMachine" xmi:id="_WXLg8CwNEeufCYvq_3Ps8A" name="StateMachine">
+    <region xmi:type="uml:Region" xmi:id="_WX4rkCwNEeufCYvq_3Ps8A" name="Region1">
+      <transition xmi:type="uml:Transition" xmi:id="_9SLb4CyPEeu3_ZAvzk8Jfg" source="_65dRACyPEeu3_ZAvzk8Jfg" target="_3XXDQCyPEeu3_ZAvzk8Jfg"/>
+      <transition xmi:type="uml:Transition" xmi:id="_-GvFUCyPEeu3_ZAvzk8Jfg" source="_3XXDQCyPEeu3_ZAvzk8Jfg" target="_5A6bACyPEeu3_ZAvzk8Jfg">
+        <effect xmi:type="uml:OpaqueBehavior" xmi:id="_nAgpQCySEeu3_ZAvzk8Jfg">
+          <language>spel</language>
+          <body>extendedState.variables.put('key','value')</body>
+        </effect>
+        <trigger xmi:type="uml:Trigger" xmi:id="_6JohICyQEeu3_ZAvzk8Jfg" name="Trigger1" event="_RG01oCyREeu3_ZAvzk8Jfg"/>
+      </transition>
+      <subvertex xmi:type="uml:State" xmi:id="_3XXDQCyPEeu3_ZAvzk8Jfg" name="S1"/>
+      <subvertex xmi:type="uml:State" xmi:id="_5A6bACyPEeu3_ZAvzk8Jfg" name="S2"/>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_65dRACyPEeu3_ZAvzk8Jfg" name=""/>
+    </region>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Signal" xmi:id="_z8mzoCyPEeu3_ZAvzk8Jfg" name="E1"/>
+  <packagedElement xmi:type="uml:SignalEvent" xmi:id="_RG01oCyREeu3_ZAvzk8Jfg" name="SignalEventE1" signal="_z8mzoCyPEeu3_ZAvzk8Jfg"/>
+</uml:Model>

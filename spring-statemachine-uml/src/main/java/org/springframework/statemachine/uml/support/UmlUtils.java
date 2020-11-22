@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,11 +38,16 @@ import org.eclipse.uml2.uml.Transition;
 import org.eclipse.uml2.uml.Trigger;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.eclipse.uml2.uml.resource.UMLResource;
+import org.springframework.expression.spel.SpelCompilerMode;
+import org.springframework.expression.spel.SpelParserConfiguration;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.action.Actions;
+import org.springframework.statemachine.action.SpelExpressionAction;
 import org.springframework.statemachine.config.model.StateMachineComponentResolver;
 import org.springframework.statemachine.transition.TransitionKind;
+import org.springframework.util.StringUtils;
 
 import reactor.core.publisher.Mono;
 
@@ -143,9 +148,18 @@ public abstract class UmlUtils {
 		Action<String, String> action = null;
 		if (transition.getEffect() instanceof OpaqueBehavior) {
 			String beanId = UmlUtils.resolveBodyByLanguage(UmlModelParser.LANGUAGE_BEAN, (OpaqueBehavior)transition.getEffect());
-			Action<String, String> bean = resolver.resolveAction(beanId);
-			if (bean != null) {
-				action = bean;
+			if (StringUtils.hasText(beanId)) {
+				Action<String, String> bean = resolver.resolveAction(beanId);
+				if (bean != null) {
+					action = bean;
+				}
+			} else {
+				String expression = UmlUtils.resolveBodyByLanguage(UmlModelParser.LANGUAGE_SPEL, (OpaqueBehavior)transition.getEffect());
+				if (StringUtils.hasText(expression)) {
+					SpelExpressionParser parser = new SpelExpressionParser(
+							new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
+					action = new SpelExpressionAction<String, String>(parser.parseExpression(expression));
+				}
 			}
 		}
 		return action;
@@ -180,9 +194,18 @@ public abstract class UmlUtils {
 		Action<String, String> action = null;
 		if (transition.getEffect() instanceof OpaqueBehavior) {
 			String beanId = UmlUtils.resolveBodyByLanguage(UmlModelParser.LANGUAGE_BEAN, (OpaqueBehavior)transition.getEffect());
-			Action<String, String> bean = resolver.resolveAction(beanId);
-			if (bean != null) {
-				action = bean;
+			if (StringUtils.hasText(beanId)) {
+				Action<String, String> bean = resolver.resolveAction(beanId);
+				if (bean != null) {
+					action = bean;
+				}
+			} else {
+				String expression = UmlUtils.resolveBodyByLanguage(UmlModelParser.LANGUAGE_SPEL, (OpaqueBehavior)transition.getEffect());
+				if (StringUtils.hasText(expression)) {
+					SpelExpressionParser parser = new SpelExpressionParser(
+							new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
+					action = new SpelExpressionAction<String, String>(parser.parseExpression(expression));
+				}
 			}
 		}
 		return Actions.from(action);

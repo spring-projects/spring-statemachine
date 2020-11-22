@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1124,6 +1124,20 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(choiceStateData.getParent(), is("S1"));
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testTransitionEffectSpel() {
+		context.register(Config27.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+
+		doStartAndAssert(stateMachine);
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		doSendEventAndConsumeAll(stateMachine, MessageBuilder.withPayload("E1").build());
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
+		assertThat(stateMachine.getExtendedState().get("key", String.class), is("value"));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config2 extends StateMachineConfigurerAdapter<String, String> {
@@ -1759,6 +1773,24 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 			return new LatchAction();
 		}
 
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config27 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			Resource model = new ClassPathResource("org/springframework/statemachine/uml/transition-effect-spel.uml");
+			return new UmlStateMachineModelFactory(model);
+		}
 	}
 
 	public static class LatchAction implements Action<String, String> {
