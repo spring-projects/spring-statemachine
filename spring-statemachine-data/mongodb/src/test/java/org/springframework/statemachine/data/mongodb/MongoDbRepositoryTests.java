@@ -16,6 +16,7 @@
 package org.springframework.statemachine.data.mongodb;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
@@ -62,6 +63,7 @@ public class MongoDbRepositoryTests extends AbstractRepositoryTests {
 		template.dropCollection(MongoDbRepositoryGuard.class);
 		template.dropCollection(MongoDbRepositoryState.class);
 		template.dropCollection(MongoDbRepositoryTransition.class);
+		template.dropCollection(MongoDbRepositoryStateMachine.class);
 		c.close();
 	}
 
@@ -146,6 +148,35 @@ public class MongoDbRepositoryTests extends AbstractRepositoryTests {
 		assertThat(stateMachine.getState().getId(), is(PersistTestStates.S2));
 		doSendEventAndConsumeAll(stateMachine, PersistTestEvents.E2);
 		assertThat(stateMachine.getState().getId(), is(PersistTestStates.S1));
+	}
+
+	@Test
+	public void testStateMachinePersists() {
+		context.register(TestConfig.class, ConfigWithStrings.class);
+		context.refresh();
+
+		MongoTemplate template = context.getBean(MongoTemplate.class);
+		List<MongoDbRepositoryStateMachine> findAll = template.findAll(MongoDbRepositoryStateMachine.class);
+		assertThat(findAll, hasSize(0));
+
+		StateMachine<String, String> stateMachine = resolveMachine(context);
+		doStartAndAssert(stateMachine);
+		assertThat(stateMachine.getState().getId(), is("S1"));
+		findAll = template.findAll(MongoDbRepositoryStateMachine.class);
+		assertThat(findAll, hasSize(1));
+		assertThat(findAll.get(0).getState(), is("S1"));
+
+		doSendEventAndConsumeAll(stateMachine, "E1");
+		assertThat(stateMachine.getState().getId(), is("S2"));
+		findAll = template.findAll(MongoDbRepositoryStateMachine.class);
+		assertThat(findAll, hasSize(1));
+		assertThat(findAll.get(0).getState(), is("S2"));
+
+		doSendEventAndConsumeAll(stateMachine, "E2");
+		assertThat(stateMachine.getState().getId(), is("S1"));
+		findAll = template.findAll(MongoDbRepositoryStateMachine.class);
+		assertThat(findAll, hasSize(1));
+		assertThat(findAll.get(0).getState(), is("S1"));
 	}
 
 	@Override
