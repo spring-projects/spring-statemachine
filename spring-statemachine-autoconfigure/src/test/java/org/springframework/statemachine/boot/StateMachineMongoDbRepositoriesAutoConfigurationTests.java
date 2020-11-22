@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.springframework.statemachine.boot;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -53,7 +52,7 @@ public class StateMachineMongoDbRepositoriesAutoConfigurationTests {
 				StateMachineMongoDbRepositoriesAutoConfiguration.class);
 
 		context.refresh();
-		assertThat(context.containsBean("mongoDbStateRepository"), is(true));
+		assertThat(context.containsBean("mongoDbStateRepository")).isTrue();
 	}
 
 	@Test
@@ -62,7 +61,7 @@ public class StateMachineMongoDbRepositoriesAutoConfigurationTests {
 		TestPropertyValues.of("spring.statemachine.data.redis.repositories.enabled=false").applyTo(context);
 		context.register(StateMachineRedisRepositoriesAutoConfiguration.class);
 		context.refresh();
-		assertThat(context.containsBean("mongoDbStateRepository"), is(false));
+		assertThat(context.containsBean("mongoDbStateRepository")).isFalse();
 	}
 
 	@Configuration

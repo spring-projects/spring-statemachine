@@ -256,8 +256,6 @@ project('spring-statemachine-autoconfigure') {
 		testRuntime 'com.h2database:h2'
 		testCompile 'org.springframework.boot:spring-boot-test'
 		testCompile 'org.springframework:spring-test'
-		testCompile 'org.hamcrest:hamcrest-core'
-		testCompile 'org.hamcrest:hamcrest-library'
 		testCompile("org.junit.jupiter:junit-jupiter-api")
 		testCompile("org.junit.jupiter:junit-jupiter-engine")
 	}
