@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -70,6 +71,7 @@ public class EventDeferTests extends AbstractStateMachineTests {
 	}
 
 	@Test
+	@Tag("smoke")
 	@Timeout(value = 20, unit = TimeUnit.SECONDS)
 	public void testDeferSmokeExecutorConcurrentModification() throws Exception {
 		context.register(Config5.class);
