@@ -127,6 +127,16 @@ configure(allprojects) {
 			}
 		}
 		exclude '**/*IntegrationTests.*'
+		if (project.hasProperty('statemachineTestResults') && statemachineTestResults.toBoolean()) {
+			afterSuite { desc, result ->
+				if (!desc.parent) {
+					def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+					def startItem = '|  ', endItem = '  |'
+					def repeatLength = startItem.length() + output.length() + endItem.length()
+					println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+				}
+			}
+		}
 	}
 }
 
