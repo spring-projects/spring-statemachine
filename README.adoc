@@ -5,8 +5,7 @@ NOTE: Master is now in a development of a `3.x` which may be extremely unstable.
       initial reactive stories, PR's and issues should target towards `2.2.x` branch.
 
 image:https://github.com/spring-projects/spring-statemachine/workflows/CI/badge.svg[link="https://github.com/spring-projects/spring-statemachine/actions"] (GitHub master)
-image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B22X[Bamboo Build Status, link=https://build.spring.io/browse/SDG-B22X] (Bamboo 2.2.x)
-image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-MAS[Bamboo Build Status, link=https://build.spring.io/browse/SDG-MAS] (master)
+image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-MAS[Bamboo Build Status, link=https://build.spring.io/browse/SDG-MAS] (Bamboo master)
 image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B23X[Bamboo Build Status, link=https://build.spring.io/browse/SDG-B23X] (Bamboo 2.3.x)
 image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B22X[Bamboo Build Status, link=https://build.spring.io/browse/SDG-B22X] (Bamboo 2.2.x)
 
