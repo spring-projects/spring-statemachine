@@ -1,26 +1,19 @@
 = Spring Statemachine
 
 NOTE: Master is now in a development of a `3.x` which may be extremely unstable.
-      Current stable release branch is `2.1.x`. Unless you are not planning to contribute to
-      initial reactive stories, PR's and issues should target towards `2.1.x` branch.
+      Current stable release branch is `2.2.x`. Unless you are not planning to contribute to
+      initial reactive stories, PR's and issues should target towards `2.2.x` branch.
 
-image:https://badges.gitter.im/spring-projects/spring-statemachine.svg[link="https://gitter.im/spring-projects/spring-statemachine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
+image:https://github.com/spring-projects/spring-statemachine/workflows/CI/badge.svg[link="https://github.com/spring-projects/spring-statemachine/actions"] (GitHub master)
+image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B22X[Bamboo Build Status, link=https://build.spring.io/browse/SDG-B22X] (Bamboo 2.2.x)
+image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-MAS[Bamboo Build Status, link=https://build.spring.io/browse/SDG-MAS] (master)
+image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B23X[Bamboo Build Status, link=https://build.spring.io/browse/SDG-B23X] (Bamboo 2.3.x)
+image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B22X[Bamboo Build Status, link=https://build.spring.io/browse/SDG-B22X] (Bamboo 2.2.x)
 
-image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-MAS[Bamboo
-Build Status, link=https://build.spring.io/browse/SDG-MAS] (master)
-image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B21X[Bamboo
-Build Status, link=https://build.spring.io/browse/SDG-B21X] (2.1.x)
-image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B20X[Bamboo
-Build Status, link=https://build.spring.io/browse/SDG-B20X] (2.0.x)
-image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B12X[Bamboo
-Build Status, link=https://build.spring.io/browse/SDG-B12X] (1.2.x)
-image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B11X[Bamboo
-Build Status, link=https://build.spring.io/browse/SDG-B11X] (1.1.x)
-
-The Spring Statemachine project aims to provide a common infrastructure 
+The Spring Statemachine project aims to provide a common infrastructure
 to work with state machine concepts in Spring applications.
 
-It is advised to check the actual state of this project by referring to 
+It is advised to check the actual state of this project by referring to
 the latest releases found on
 https://projects.spring.io/spring-statemachine/[Spring
 Statemachine Project Page].
@@ -94,7 +87,7 @@ guidelines] for details.
 
 If you want to contribute, search github tickets marked with `help
 wanted` or come up with your own ticket but please first open a ticket
-to discuss in order to avoid duplicate work on a topic or issue. Nobody 
+to discuss in order to avoid duplicate work on a topic or issue. Nobody
 wants to see the same work done twice!
 
 == License
