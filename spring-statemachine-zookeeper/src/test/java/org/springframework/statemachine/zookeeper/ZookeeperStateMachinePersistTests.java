@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.springframework.statemachine.zookeeper;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,8 +55,8 @@ public class ZookeeperStateMachinePersistTests extends AbstractZookeeperTests {
 		persist.write(contextOut, new Stat());
 		StateMachineContext<String, String> contextIn = persist.read(new Stat());
 
-		assertThat(contextOut.getState(), is(contextIn.getState()));
-		assertThat(contextOut.getEvent(), is(contextIn.getEvent()));
+		assertThat(contextOut.getState()).isEqualTo(contextIn.getState());
+		assertThat(contextOut.getEvent()).isEqualTo(contextIn.getEvent());
 	}
 
 	@Test
@@ -86,8 +85,8 @@ public class ZookeeperStateMachinePersistTests extends AbstractZookeeperTests {
 
 		for (int i = 0; i < 10; i++) {
 			StateMachineContext<String, String> contextIn = persist.readLog(i, new Stat());
-			assertThat(contextIn.getState(), is("S" + i));
-			assertThat(contextIn.getEvent(), is("E" + i));
+			assertThat(contextIn.getState()).isEqualTo("S" + i);
+			assertThat(contextIn.getEvent()).isEqualTo("E" + i);
 		}
 	}
 
@@ -111,9 +110,9 @@ public class ZookeeperStateMachinePersistTests extends AbstractZookeeperTests {
 		persist.write(contextOut, new Stat());
 		StateMachineContext<String, String> contextIn = persist.read(new Stat());
 
-		assertThat(contextOut.getState(), is(contextIn.getState()));
-		assertThat(contextOut.getEvent(), is(contextIn.getEvent()));
-		assertThat(contextOut.getEventHeaders().get("foo"), is(contextIn.getEventHeaders().get("foo")));
+		assertThat(contextOut.getState()).isEqualTo(contextIn.getState());
+		assertThat(contextOut.getEvent()).isEqualTo(contextIn.getEvent());
+		assertThat(contextOut.getEventHeaders().get("foo")).isEqualTo(contextIn.getEventHeaders().get("foo"));
 	}
 
 	@Test
@@ -137,9 +136,9 @@ public class ZookeeperStateMachinePersistTests extends AbstractZookeeperTests {
 		persist.write(contextOut, new Stat());
 		StateMachineContext<String, String> contextIn = persist.read(new Stat());
 
-		assertThat(contextOut.getState(), is(contextIn.getState()));
-		assertThat(contextOut.getEvent(), is(contextIn.getEvent()));
-		assertThat(contextOut.getEventHeaders().get("foo"), is(contextIn.getEventHeaders().get("foo")));
+		assertThat(contextOut.getState()).isEqualTo(contextIn.getState());
+		assertThat(contextOut.getEvent()).isEqualTo(contextIn.getEvent());
+		assertThat(contextOut.getEventHeaders().get("foo")).isEqualTo(contextIn.getEventHeaders().get("foo"));
 	}
 
 	@Test
@@ -163,9 +162,9 @@ public class ZookeeperStateMachinePersistTests extends AbstractZookeeperTests {
 		persist.write(contextOut, new Stat());
 		StateMachineContext<String, String> contextIn = persist.read(new Stat());
 
-		assertThat(contextOut.getState(), is(contextIn.getState()));
-		assertThat(contextOut.getEvent(), is(contextIn.getEvent()));
-		assertThat(contextOut.getExtendedState().getVariables().get("foo"), is(contextIn.getExtendedState().getVariables().get("foo")));
+		assertThat(contextOut.getState()).isEqualTo(contextIn.getState());
+		assertThat(contextOut.getEvent()).isEqualTo(contextIn.getEvent());
+		assertThat(contextOut.getExtendedState().getVariables().get("foo")).isEqualTo(contextIn.getExtendedState().getVariables().get("foo"));
 	}
 
 	@Test
@@ -189,11 +188,11 @@ public class ZookeeperStateMachinePersistTests extends AbstractZookeeperTests {
 		persist.write(contextOut, new Stat());
 		StateMachineContext<String, String> contextIn = persist.read(new Stat());
 
-		assertThat(contextOut.getState(), is(contextIn.getState()));
-		assertThat(contextOut.getEvent(), is(contextIn.getEvent()));
+		assertThat(contextOut.getState()).isEqualTo(contextIn.getState());
+		assertThat(contextOut.getEvent()).isEqualTo(contextIn.getEvent());
 
-		assertThat(contextIn.getChilds().size(), is(1));
-		assertThat(contextIn.getChilds().get(0).getEvent(), is("E2"));
+		assertThat(contextIn.getChilds()).hasSize(1);
+		assertThat(contextIn.getChilds().get(0).getEvent()).isEqualTo("E2");
 	}
 
 }
