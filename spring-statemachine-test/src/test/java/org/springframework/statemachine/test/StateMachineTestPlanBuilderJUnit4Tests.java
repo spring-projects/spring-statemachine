@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  */
 package org.springframework.statemachine.test;
 
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
@@ -31,9 +29,9 @@ public class StateMachineTestPlanBuilderJUnit4Tests {
 		StateMachineTestPlan<String, String> plan =
 				StateMachineTestPlanBuilder.<String, String>builder()
 					.build();
-		assertThat(plan, notNullValue());
+		assertThat(plan).isNotNull();
 		List<StateMachineTestPlanStep<?, ?>> steps = TestUtils.readField("steps", plan);
-		assertThat(steps.size(), is(0));
+		assertThat(steps).isEmpty();
 	}
 
 	@Test
@@ -42,9 +40,9 @@ public class StateMachineTestPlanBuilderJUnit4Tests {
 				StateMachineTestPlanBuilder.<String, String>builder()
 					.step().expectState("SI").and()
 					.build();
-		assertThat(plan, notNullValue());
+		assertThat(plan).isNotNull();
 		List<StateMachineTestPlanStep<?, ?>> steps = TestUtils.readField("steps", plan);
-		assertThat(steps.size(), is(1));
+		assertThat(steps).hasSize(1);
 	}
 
 }
