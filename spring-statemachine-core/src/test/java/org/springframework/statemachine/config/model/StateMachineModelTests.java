@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  */
 package org.springframework.statemachine.config.model;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 
@@ -82,9 +80,9 @@ public class StateMachineModelTests {
 
 		StateMachine<String,String> stateMachine = factory.getStateMachine();
 		doStartAndAssert(stateMachine);
-		assertThat(stateMachine.getState().getIds(), contains("S1"));
+		assertThat(stateMachine.getState().getIds()).containsExactly("S1");
 		doSendEventAndConsumeAll(stateMachine, "E1");
-		assertThat(stateMachine.getState().getIds(), contains("S2"));
+		assertThat(stateMachine.getState().getIds()).containsExactly("S2");
 	}
 
 	@Test
@@ -105,9 +103,9 @@ public class StateMachineModelTests {
 
 		StateMachine<String,String> stateMachine = factory.getStateMachine();
 		doStartAndAssert(stateMachine);
-		assertThat(stateMachine.getState().getIds(), contains("S1"));
+		assertThat(stateMachine.getState().getIds()).containsExactly("S1");
 		doSendEventAndConsumeAll(stateMachine, "E1");
-		assertThat(stateMachine.getState().getIds(), contains("S2"));
+		assertThat(stateMachine.getState().getIds()).containsExactly("S2");
 	}
 
 	@Test
@@ -145,12 +143,12 @@ public class StateMachineModelTests {
 		StateMachine<String,String> stateMachine = factory.getStateMachine();
 		doStartAndAssert(stateMachine);
 
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		assertThat(stateMachine.getState().getIds()).containsOnly("S1");
 		doSendEventAndConsumeAll(stateMachine, "E1");
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S20"));
+		assertThat(stateMachine.getState().getIds()).containsOnly("S2", "S20");
 		doSendEventAndConsumeAll(stateMachine, "E2");
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21", "S30"));
+		assertThat(stateMachine.getState().getIds()).containsOnly("S2", "S21", "S30");
 		doSendEventAndConsumeAll(stateMachine, "E3");
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2", "S21", "S31"));
+		assertThat(stateMachine.getState().getIds()).containsOnly("S2", "S21", "S31");
 	}
 }

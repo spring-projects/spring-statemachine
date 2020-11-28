@@ -15,9 +15,7 @@
  */
 package org.springframework.statemachine.security;
 
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,21 +30,20 @@ public class SecurityRuleTests {
 		Collection<String> attributes = new ArrayList<String>();
 		attributes.add("ROLE_1");
 		attributes.add("ROLE_2");
-		assertEquals("ROLE_1, ROLE_2", SecurityRule.securityAttributesToCommaDelimitedList(attributes));
+		assertThat("ROLE_1, ROLE_2").isEqualTo(SecurityRule.securityAttributesToCommaDelimitedList(attributes));
 	}
 
 	@Test
 	public void testConvertAttributesFromCommaSeparatedString() {
 		Collection<String> attributes = SecurityRule.commaDelimitedListToSecurityAttributes(" ,,ROLE_1, ROLE_2");
-		assertEquals(2, attributes.size());
-		assertTrue(attributes.contains("ROLE_1"));
-		assertTrue(attributes.contains("ROLE_2"));
+		assertThat(attributes.size()).isEqualTo(2);
+		assertThat(attributes.contains("ROLE_1")).isTrue();
+		assertThat(attributes.contains("ROLE_2")).isTrue();
 	}
 
 	@Test
 	public void testDefaultComparisonType() {
 		SecurityRule rule = new SecurityRule();
-		assertTrue(rule.getComparisonType() == SecurityRule.ComparisonType.ANY);
+		assertThat(rule.getComparisonType() == SecurityRule.ComparisonType.ANY).isTrue();
 	}
-
 }

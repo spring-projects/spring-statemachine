@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,7 @@
  */
 package org.springframework.statemachine.persist;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveFactory;
@@ -71,41 +66,41 @@ public class StateMachinePersistTests4 extends AbstractStateMachineTests {
 
 		StateMachine<TestStates, TestEvents> stateMachine = stateMachineFactory.getStateMachine("testid");
 		doStartAndAssert(stateMachine);
-		assertThat(stateMachine, notNullValue());
-		assertThat(stateMachine.getId(), is("testid"));
+		assertThat(stateMachine).isNotNull();
+		assertThat(stateMachine.getId()).isEqualTo("testid");
 
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E1);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S20, TestStates.S30);
 		persister.persist(stateMachine, "xxx1");
 
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E2);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 		persister.persist(stateMachine, "xxx2");
 
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E3);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S4));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S4);
 		persister.persist(stateMachine, "xxx3");
 
 		stateMachine = stateMachineFactory.getStateMachine();
-		assertThat(stateMachine, notNullValue());
-		assertThat(stateMachine.getId(), nullValue());
+		assertThat(stateMachine).isNotNull();
+		assertThat(stateMachine.getId()).isNull();
 		stateMachine = persister.restore(stateMachine, "xxx1");
-		assertThat(stateMachine.getId(), is("testid"));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+		assertThat(stateMachine.getId()).isEqualTo("testid");
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S20, TestStates.S30);
 
 		stateMachine = stateMachineFactory.getStateMachine();
-		assertThat(stateMachine, notNullValue());
-		assertThat(stateMachine.getId(), nullValue());
+		assertThat(stateMachine).isNotNull();
+		assertThat(stateMachine.getId()).isNull();
 		stateMachine = persister.restore(stateMachine, "xxx2");
-		assertThat(stateMachine.getId(), is("testid"));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getId()).isEqualTo("testid");
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 
 		stateMachine = stateMachineFactory.getStateMachine();
-		assertThat(stateMachine, notNullValue());
-		assertThat(stateMachine.getId(), nullValue());
+		assertThat(stateMachine).isNotNull();
+		assertThat(stateMachine.getId()).isNull();
 		stateMachine = persister.restore(stateMachine, "xxx3");
-		assertThat(stateMachine.getId(), is("testid"));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S4));
+		assertThat(stateMachine.getId()).isEqualTo("testid");
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S4);
 	}
 
 	@Test
@@ -122,18 +117,18 @@ public class StateMachinePersistTests4 extends AbstractStateMachineTests {
 		doStartAndAssert(stateMachine);
 
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E1);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S20, TestStates.S30);
 		persister.persist(stateMachine, "xxx1");
 
 		stateMachine = stateMachineFactory.getStateMachine();
 		stateMachine = persister.restore(stateMachine, "xxx1");
-		assertThat(stateMachine.getId(), is("testid"));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+		assertThat(stateMachine.getId()).isEqualTo("testid");
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S20, TestStates.S30);
 
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E2);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E3);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S4));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S4);
 	}
 
 	@Test
@@ -150,27 +145,27 @@ public class StateMachinePersistTests4 extends AbstractStateMachineTests {
 		doStartAndAssert(stateMachine);
 
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E1);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S20, TestStates.S30);
 		persister.persist(stateMachine, "xxx1");
 
 		stateMachine = stateMachineFactory.getStateMachine();
 		stateMachine = persister.restore(stateMachine, "xxx1");
-		assertThat(stateMachine.getId(), is("testid"));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+		assertThat(stateMachine.getId()).isEqualTo("testid");
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S20, TestStates.S30);
 
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E2);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E3);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S4));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S4);
 
 		stateMachine = persister.restore(stateMachine, "xxx1");
-		assertThat(stateMachine.getId(), is("testid"));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+		assertThat(stateMachine.getId()).isEqualTo("testid");
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S20, TestStates.S30);
 
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E2);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E3);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S4));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S4);
 	}
 
 	@Test
@@ -187,17 +182,17 @@ public class StateMachinePersistTests4 extends AbstractStateMachineTests {
 		doStartAndAssert(stateMachine);
 
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E1);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S20, TestStates.S30);
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E2);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 		persister.persist(stateMachine, "xxx1");
 
 		stateMachine = persister.restore(stateMachine, "xxx1");
-		assertThat(stateMachine.getId(), is("testid"));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getId()).isEqualTo("testid");
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E3);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S4));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S4);
 	}
 
 	@Test
@@ -214,26 +209,26 @@ public class StateMachinePersistTests4 extends AbstractStateMachineTests {
 		doStartAndAssert(stateMachine);
 
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E1);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S20, TestStates.S30);
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E2);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 		persister.persist(stateMachine, "xxx1");
 
 		stateMachine = persister.restore(stateMachine, "xxx1");
-		assertThat(stateMachine.getId(), is("testid"));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getId()).isEqualTo("testid");
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E3);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S4));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S4);
 
 		stateMachine = persister.restore(stateMachine, "xxx1");
-		assertThat(stateMachine.getId(), is("testid"));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getId()).isEqualTo("testid");
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E3);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S4));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S4);
 	}
 
 	@Test
@@ -250,18 +245,18 @@ public class StateMachinePersistTests4 extends AbstractStateMachineTests {
 		doStartAndAssert(stateMachine);
 
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E1);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S20, TestStates.S30);
 		persister.persist(stateMachine, "xxx1");
 
 		stateMachine = stateMachineFactory.getStateMachine();
 		stateMachine = persister.restore(stateMachine, "xxx1");
-		assertThat(stateMachine.getId(), is("testid"));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+		assertThat(stateMachine.getId()).isEqualTo("testid");
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S20, TestStates.S30);
 
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E2);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E3);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S4));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S4);
 	}
 
 	@Test
@@ -278,27 +273,27 @@ public class StateMachinePersistTests4 extends AbstractStateMachineTests {
 		doStartAndAssert(stateMachine);
 
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E1);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S20, TestStates.S30);
 		persister.persist(stateMachine, "xxx1");
 
 		stateMachine = stateMachineFactory.getStateMachine();
 		stateMachine = persister.restore(stateMachine, "xxx1");
-		assertThat(stateMachine.getId(), is("testid"));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+		assertThat(stateMachine.getId()).isEqualTo("testid");
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S20, TestStates.S30);
 
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E2);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E3);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S4));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S4);
 
 		stateMachine = persister.restore(stateMachine, "xxx1");
-		assertThat(stateMachine.getId(), is("testid"));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+		assertThat(stateMachine.getId()).isEqualTo("testid");
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S20, TestStates.S30);
 
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E2);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E3);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S4));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S4);
 	}
 
 	@Test
@@ -315,18 +310,18 @@ public class StateMachinePersistTests4 extends AbstractStateMachineTests {
 		doStartAndAssert(stateMachine);
 
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E1);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S20, TestStates.S30);
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E2);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 		persister.persist(stateMachine, "xxx1");
 
 		stateMachine = persister.restore(stateMachine, "xxx1");
-		assertThat(stateMachine.getId(), is("testid"));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getId()).isEqualTo("testid");
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E3);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S4));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S4);
 	}
 
 	@Test
@@ -343,26 +338,26 @@ public class StateMachinePersistTests4 extends AbstractStateMachineTests {
 		doStartAndAssert(stateMachine);
 
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E1);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S20, TestStates.S30);
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E2);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 		persister.persist(stateMachine, "xxx1");
 
 		stateMachine = persister.restore(stateMachine, "xxx1");
-		assertThat(stateMachine.getId(), is("testid"));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getId()).isEqualTo("testid");
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E3);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S4));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S4);
 
 		stateMachine = persister.restore(stateMachine, "xxx1");
-		assertThat(stateMachine.getId(), is("testid"));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getId()).isEqualTo("testid");
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E3);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S4));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S4);
 	}
 
 
@@ -379,32 +374,32 @@ public class StateMachinePersistTests4 extends AbstractStateMachineTests {
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 		listener.reset(1);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		doStartAndAssert(machine);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
 
 		listener.reset(3);
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(3));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(3);
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S20, TestStates.S30);
 
 		persister.persist(machine, "xxx1");
 		machine = persister.restore(machine, "xxx1");
 
 		listener.reset(1);
 		doSendEventAndConsumeAll(machine, TestEvents.E2);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 
 		listener.reset(2);
 		doSendEventAndConsumeAll(machine, TestEvents.E3);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(2));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(2);
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S4));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S4);
 
 		// try fresh machine
 		machine = stateMachineFactory.getStateMachine("testid");
@@ -413,16 +408,16 @@ public class StateMachinePersistTests4 extends AbstractStateMachineTests {
 
 		listener.reset(1);
 		doSendEventAndConsumeAll(machine, TestEvents.E2);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 
 		listener.reset(2);
 		doSendEventAndConsumeAll(machine, TestEvents.E3);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(2));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(2);
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S4));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S4);
 	}
 
 	@Test
@@ -438,23 +433,23 @@ public class StateMachinePersistTests4 extends AbstractStateMachineTests {
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 		listener.reset(1);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		doStartAndAssert(machine);
 		assertPseudoStatesHaveOneListener(machine);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
 
 		listener.reset(3);
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(3));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(3);
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S20, TestStates.S30);
 
 		listener.reset(1);
 		doSendEventAndConsumeAll(machine, TestEvents.E2);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 
 		persister.persist(machine, "xxx1");
 
@@ -462,29 +457,29 @@ public class StateMachinePersistTests4 extends AbstractStateMachineTests {
 		assertPseudoStatesHaveOneListener(machine);
 		listener.reset(2);
 		doSendEventAndConsumeAll(machine, TestEvents.E3);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(2));
-		assertThat(machine.getState().getIds(), contains(TestStates.S4));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(2);
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S4);
 
 
 		machine = persister.restore(machine, "xxx1");
 		assertPseudoStatesHaveOneListener(machine);
 		listener.reset(2);
 		doSendEventAndConsumeAll(machine, TestEvents.E3);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(2));
-		assertThat(machine.getState().getIds(), contains(TestStates.S4));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(2);
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S4);
 
 		// try fresh machine
 		machine = stateMachineFactory.getStateMachine("testid");
 		machine = persister.restore(machine, "xxx1");
 		machine.addStateListener(listener);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 		listener.reset(2);
 		doSendEventAndConsumeAll(machine, TestEvents.E3);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(2));
-		assertThat(machine.getState().getIds(), contains(TestStates.S4));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(2);
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S4);
 		assertPseudoStatesHaveOneListener(machine);
 	}
 
@@ -496,7 +491,7 @@ public class StateMachinePersistTests4 extends AbstractStateMachineTests {
 				CompositePseudoStateListener<?, ?> pseudoStateListener = TestUtils.readField("pseudoStateListener", ps);
 				OrderedComposite<?> listeners = TestUtils.readField("listeners", pseudoStateListener);
 				List<?> list = TestUtils.readField("list", listeners);
-				assertThat(list.size(), is(1));
+				assertThat(list).hasSize(1);
 			}
 		}
 	}

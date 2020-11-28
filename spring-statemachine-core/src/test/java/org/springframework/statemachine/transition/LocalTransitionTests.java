@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  */
 package org.springframework.statemachine.transition;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveMachine;
@@ -47,15 +45,15 @@ public class LocalTransitionTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
 		doSendEventAndConsumeAll(machine, "E1");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
+		assertThat(machine.getState().getIds()).containsOnly("S2", "S21");
 
 		listener.reset();
 		doSendEventAndConsumeAll(machine, "E20");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
-		assertThat(listener.exited.size(), is(2));
-		assertThat(listener.entered.size(), is(2));
-		assertThat(listener.exited, containsInAnyOrder("S2", "S21"));
-		assertThat(listener.entered, containsInAnyOrder("S2", "S21"));
+		assertThat(machine.getState().getIds()).containsOnly("S2", "S21");
+		assertThat(listener.exited).hasSize(2);
+		assertThat(listener.entered).hasSize(2);
+		assertThat(listener.exited).containsOnly("S2", "S21");
+		assertThat(listener.entered).containsOnly("S2", "S21");
 	}
 
 	@Test
@@ -67,15 +65,15 @@ public class LocalTransitionTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
 		doSendEventAndConsumeAll(machine, "E1");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
+		assertThat(machine.getState().getIds()).containsOnly("S2", "S21");
 
 		listener.reset();
 		doSendEventAndConsumeAll(machine, "E30");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
-		assertThat(listener.exited.size(), is(1));
-		assertThat(listener.entered.size(), is(1));
-		assertThat(listener.exited, containsInAnyOrder("S21"));
-		assertThat(listener.entered, containsInAnyOrder("S21"));
+		assertThat(machine.getState().getIds()).containsOnly("S2", "S21");
+		assertThat(listener.exited).hasSize(1);
+		assertThat(listener.entered).hasSize(1);
+		assertThat(listener.exited).containsOnly("S21");
+		assertThat(listener.entered).containsOnly("S21");
 	}
 
 	@Test
@@ -87,15 +85,15 @@ public class LocalTransitionTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
 		doSendEventAndConsumeAll(machine, "E1");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
+		assertThat(machine.getState().getIds()).containsOnly("S2", "S21");
 
 		listener.reset();
 		doSendEventAndConsumeAll(machine, "E21");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S22"));
-		assertThat(listener.exited.size(), is(2));
-		assertThat(listener.entered.size(), is(2));
-		assertThat(listener.exited, containsInAnyOrder("S2", "S21"));
-		assertThat(listener.entered, containsInAnyOrder("S2", "S22"));
+		assertThat(machine.getState().getIds()).containsOnly("S2", "S22");
+		assertThat(listener.exited).hasSize(2);
+		assertThat(listener.entered).hasSize(2);
+		assertThat(listener.exited).containsOnly("S2", "S21");
+		assertThat(listener.entered).containsOnly("S2", "S22");
 	}
 
 	@Test
@@ -107,15 +105,15 @@ public class LocalTransitionTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
 		doSendEventAndConsumeAll(machine, "E1");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
+		assertThat(machine.getState().getIds()).containsOnly("S2", "S21");
 
 		listener.reset();
 		doSendEventAndConsumeAll(machine, "E31");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S22"));
-		assertThat(listener.exited.size(), is(1));
-		assertThat(listener.entered.size(), is(1));
-		assertThat(listener.exited, containsInAnyOrder("S21"));
-		assertThat(listener.entered, containsInAnyOrder("S22"));
+		assertThat(machine.getState().getIds()).containsOnly("S2", "S22");
+		assertThat(listener.exited).hasSize(1);
+		assertThat(listener.entered).hasSize(1);
+		assertThat(listener.exited).containsOnly("S21");
+		assertThat(listener.entered).containsOnly("S22");
 	}
 
 	@Test
@@ -127,15 +125,15 @@ public class LocalTransitionTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
 		doSendEventAndConsumeAll(machine, "E1");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
+		assertThat(machine.getState().getIds()).containsOnly("S2", "S21");
 
 		listener.reset();
 		doSendEventAndConsumeAll(machine, "E22");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
-		assertThat(listener.exited.size(), is(2));
-		assertThat(listener.entered.size(), is(2));
-		assertThat(listener.exited, containsInAnyOrder("S2", "S21"));
-		assertThat(listener.entered, containsInAnyOrder("S2", "S21"));
+		assertThat(machine.getState().getIds()).containsOnly("S2", "S21");
+		assertThat(listener.exited).hasSize(2);
+		assertThat(listener.entered).hasSize(2);
+		assertThat(listener.exited).containsOnly("S2", "S21");
+		assertThat(listener.entered).containsOnly("S2", "S21");
 	}
 
 	@Test
@@ -147,15 +145,15 @@ public class LocalTransitionTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
 		doSendEventAndConsumeAll(machine, "E1");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
+		assertThat(machine.getState().getIds()).containsOnly("S2", "S21");
 
 		listener.reset();
 		doSendEventAndConsumeAll(machine, "E32");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
-		assertThat(listener.exited.size(), is(1));
-		assertThat(listener.entered.size(), is(1));
-		assertThat(listener.exited, containsInAnyOrder("S21"));
-		assertThat(listener.entered, containsInAnyOrder("S21"));
+		assertThat(machine.getState().getIds()).containsOnly("S2", "S21");
+		assertThat(listener.exited).hasSize(1);
+		assertThat(listener.entered).hasSize(1);
+		assertThat(listener.exited).containsOnly("S21");
+		assertThat(listener.entered).containsOnly("S21");
 	}
 
 	@Test
@@ -167,23 +165,23 @@ public class LocalTransitionTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
 		doSendEventAndConsumeAll(machine, "E1");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
+		assertThat(machine.getState().getIds()).containsOnly("S2", "S21");
 
 		listener.reset();
 		doSendEventAndConsumeAll(machine, "E21");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S22"));
-		assertThat(listener.exited.size(), is(2));
-		assertThat(listener.entered.size(), is(2));
-		assertThat(listener.exited, containsInAnyOrder("S2", "S21"));
-		assertThat(listener.entered, containsInAnyOrder("S2", "S22"));
+		assertThat(machine.getState().getIds()).containsOnly("S2", "S22");
+		assertThat(listener.exited).hasSize(2);
+		assertThat(listener.entered).hasSize(2);
+		assertThat(listener.exited).containsOnly("S2", "S21");
+		assertThat(listener.entered).containsOnly("S2", "S22");
 
 		listener.reset();
 		doSendEventAndConsumeAll(machine, "E23");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S22"));
-		assertThat(listener.exited.size(), is(2));
-		assertThat(listener.entered.size(), is(2));
-		assertThat(listener.exited, containsInAnyOrder("S2", "S22"));
-		assertThat(listener.entered, containsInAnyOrder("S2", "S22"));
+		assertThat(machine.getState().getIds()).containsOnly("S2", "S22");
+		assertThat(listener.exited).hasSize(2);
+		assertThat(listener.entered).hasSize(2);
+		assertThat(listener.exited).containsOnly("S2", "S22");
+		assertThat(listener.entered).containsOnly("S2", "S22");
 	}
 
 	@Test
@@ -195,23 +193,23 @@ public class LocalTransitionTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
 		doSendEventAndConsumeAll(machine, "E1");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S21"));
+		assertThat(machine.getState().getIds()).containsOnly("S2", "S21");
 
 		listener.reset();
 		doSendEventAndConsumeAll(machine, "E31");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S22"));
-		assertThat(listener.exited.size(), is(1));
-		assertThat(listener.entered.size(), is(1));
-		assertThat(listener.exited, containsInAnyOrder("S21"));
-		assertThat(listener.entered, containsInAnyOrder("S22"));
+		assertThat(machine.getState().getIds()).containsOnly("S2", "S22");
+		assertThat(listener.exited).hasSize(1);
+		assertThat(listener.entered).hasSize(1);
+		assertThat(listener.exited).containsOnly("S21");
+		assertThat(listener.entered).containsOnly("S22");
 
 		listener.reset();
 		doSendEventAndConsumeAll(machine, "E33");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("S2", "S22"));
-		assertThat(listener.exited.size(), is(1));
-		assertThat(listener.entered.size(), is(1));
-		assertThat(listener.exited, containsInAnyOrder("S22"));
-		assertThat(listener.entered, containsInAnyOrder("S22"));
+		assertThat(machine.getState().getIds()).containsOnly("S2", "S22");
+		assertThat(listener.exited).hasSize(1);
+		assertThat(listener.entered).hasSize(1);
+		assertThat(listener.exited).containsOnly("S22");
+		assertThat(listener.entered).containsOnly("S22");
 	}
 
 	@Configuration

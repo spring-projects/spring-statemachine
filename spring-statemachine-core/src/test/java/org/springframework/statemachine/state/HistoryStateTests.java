@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  */
 package org.springframework.statemachine.state;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -45,14 +43,14 @@ public class HistoryStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
 		machine.sendEvent(TestEvents.E2);
 		machine.sendEvent(TestEvents.E3);
 		machine.sendEvent(TestEvents.E4);
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S2, TestStates.S21));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S2, TestStates.S21);
 	}
 
 	@Test
@@ -62,11 +60,11 @@ public class HistoryStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(TestEvents.E4);
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S2, TestStates.S20));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S2, TestStates.S20);
 	}
 
 	@Test
@@ -76,13 +74,13 @@ public class HistoryStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
 		machine.sendEvent(TestEvents.E2);
 		machine.sendEvent(TestEvents.E3);
 		machine.sendEvent(TestEvents.E4);
-		assertThat(machine.getState().getIds(), contains(TestStates.S2, TestStates.S21, TestStates.S212));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S2, TestStates.S21, TestStates.S212);
 	}
 
 	@Test
@@ -92,14 +90,14 @@ public class HistoryStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
 		machine.sendEvent(TestEvents.E2);
 		machine.sendEvent(TestEvents.E3);
 		machine.sendEvent(TestEvents.E4);
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S2, TestStates.S21, TestStates.S211));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S2, TestStates.S21, TestStates.S211);
 	}
 
 	@Test
@@ -109,11 +107,11 @@ public class HistoryStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
 		machine.sendEvent(TestEvents.EH);
-		assertThat(machine.getState().getIds(), contains(TestStates.S3, TestStates.S33));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S3, TestStates.S33);
 	}
 
 	@Test
@@ -123,17 +121,17 @@ public class HistoryStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
 		machine.sendEvent(TestEvents.E1);
-		assertThat(machine.getState().getIds(), contains(TestStates.S3, TestStates.S30));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S3, TestStates.S30);
 		machine.sendEvent(TestEvents.EF);
-		assertThat(machine.getState().getIds(), contains(TestStates.S3, TestStates.SF));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S3, TestStates.SF);
 		machine.sendEvent(TestEvents.E4);
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
 		machine.sendEvent(TestEvents.EH);
-		assertThat(machine.getState().getIds(), contains(TestStates.S3, TestStates.S33));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S3, TestStates.S33);
 	}
 
 	@Configuration

@@ -221,8 +221,6 @@ project('spring-statemachine-core') {
 		testCompile 'org.springframework:spring-webmvc'
 		testCompile 'io.projectreactor:reactor-test'
 		testCompile 'org.apache.tomcat.embed:tomcat-embed-core'
-		testCompile 'org.hamcrest:hamcrest-core'
-		testCompile 'org.hamcrest:hamcrest-library'
 		testCompile('org.mockito:mockito-core') { dep ->
 			exclude group: 'org.hamcrest'
 		}

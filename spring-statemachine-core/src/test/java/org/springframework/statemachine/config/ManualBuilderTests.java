@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,7 @@
  */
 package org.springframework.statemachine.config;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 
@@ -63,10 +60,10 @@ public class ManualBuilderTests {
 		stateMachine.addStateListener(listener);
 		doStartAndAssert(stateMachine);
 
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(stateMachine, notNullValue());
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(stateMachine).isNotNull();
+		assertThat(stateMachine.getState().getIds()).containsOnly("S1");
 	}
 
 	@Test
@@ -91,15 +88,15 @@ public class ManualBuilderTests {
 				.source("S2").target("S1").event("E2");
 
 		StateMachine<String, String> stateMachine = builder.build();
-		assertThat(stateMachine, notNullValue());
+		assertThat(stateMachine).isNotNull();
 		TestListener listener = new TestListener();
 		stateMachine.addStateListener(listener);
 		doStartAndAssert(stateMachine);
 
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(stateMachine, notNullValue());
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(stateMachine).isNotNull();
+		assertThat(stateMachine.getState().getIds()).containsOnly("S1");
 	}
 
 	@Test
@@ -124,22 +121,22 @@ public class ManualBuilderTests {
 				.source(MyStates.S2).target(MyStates.S1).event(MyEvents.E2);
 
 		StateMachine<MyStates, MyEvents> stateMachine = builder.build();
-		assertThat(stateMachine, notNullValue());
+		assertThat(stateMachine).isNotNull();
 		TestListener2 listener = new TestListener2();
 		stateMachine.addStateListener(listener);
 		doStartAndAssert(stateMachine);
 
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(stateMachine, notNullValue());
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(MyStates.S1));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(stateMachine).isNotNull();
+		assertThat(stateMachine.getState().getIds()).containsOnly(MyStates.S1);
 
 		listener.reset(1);
 		doSendEventAndConsumeAll(stateMachine, MyEvents.E1);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(stateMachine, notNullValue());
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(MyStates.S2));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(stateMachine).isNotNull();
+		assertThat(stateMachine.getState().getIds()).containsOnly(MyStates.S2);
 	}
 
 	@Test
@@ -163,8 +160,8 @@ public class ManualBuilderTests {
 
 		StateMachine<String, String> stateMachine = builder.build();
 
-		assertThat(((SmartLifecycle)stateMachine).isAutoStartup(), is(true));
-		assertThat(((SmartLifecycle)stateMachine).isRunning(), is(true));
+		assertThat(((SmartLifecycle)stateMachine).isAutoStartup()).isTrue();
+		assertThat(((SmartLifecycle)stateMachine).isRunning()).isTrue();
 	}
 
 	static enum MyStates {

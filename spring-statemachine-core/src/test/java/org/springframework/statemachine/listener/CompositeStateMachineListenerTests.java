@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,12 @@
  */
 package org.springframework.statemachine.listener;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.statemachine.TestUtils;
 
 import java.util.List;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 
 public class CompositeStateMachineListenerTests {
 
@@ -32,7 +31,7 @@ public class CompositeStateMachineListenerTests {
 		listener.register(adapter1);
 		OrderedComposite<StateMachineListener<String, String>> listeners = listener.getListeners();
 		List<Object> list = TestUtils.readField("list", listeners);
-		assertThat(list.size(), is(1));
+		assertThat(list).hasSize(1);
 	}
 
 	@Test
@@ -43,7 +42,7 @@ public class CompositeStateMachineListenerTests {
 		listener.unregister(adapter1);
 		OrderedComposite<StateMachineListener<String, String>> listeners = listener.getListeners();
 		List<Object> list = TestUtils.readField("list", listeners);
-		assertThat(list.size(), is(0));
+		assertThat(list).isEmpty();
 	}
 
 }

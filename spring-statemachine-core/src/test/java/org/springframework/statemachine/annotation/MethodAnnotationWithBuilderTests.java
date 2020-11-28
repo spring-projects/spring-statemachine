@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 the original author or authors.
+ * Copyright 2017-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  */
 package org.springframework.statemachine.annotation;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveMachine;
@@ -51,10 +49,10 @@ public class MethodAnnotationWithBuilderTests extends AbstractStateMachineTests 
 		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
 		doStartAndAssert(machine);
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(machine.getState().getIds(), contains(TestStates.S2));
-		assertThat(bean1.onStateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S2);
+		assertThat(bean1.onStateChangedLatch.await(1, TimeUnit.SECONDS)).isTrue();
 	}
 
 	@Test
@@ -67,10 +65,10 @@ public class MethodAnnotationWithBuilderTests extends AbstractStateMachineTests 
 		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
 		doStartAndAssert(machine);
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(machine.getState().getIds(), contains(TestStates.S2));
-		assertThat(bean1.onStateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S2);
+		assertThat(bean1.onStateChangedLatch.await(1, TimeUnit.SECONDS)).isTrue();
 	}
 
 	@Test
@@ -83,10 +81,10 @@ public class MethodAnnotationWithBuilderTests extends AbstractStateMachineTests 
 		StateMachine<TestStates, TestEvents> machine = buildMachine(context);
 		doStartAndAssert(machine);
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(machine.getState().getIds(), contains(TestStates.S2));
-		assertThat(bean1.onStateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S2);
+		assertThat(bean1.onStateChangedLatch.await(1, TimeUnit.SECONDS)).isTrue();
 	}
 
 	@Test
@@ -99,10 +97,10 @@ public class MethodAnnotationWithBuilderTests extends AbstractStateMachineTests 
 		StateMachine<TestStates, TestEvents> machine = buildMachine(context);
 		doStartAndAssert(machine);
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(machine.getState().getIds(), contains(TestStates.S2));
-		assertThat(bean2.onStateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S2);
+		assertThat(bean2.onStateChangedLatch.await(1, TimeUnit.SECONDS)).isTrue();
 	}
 
 	@WithStateMachine(id = "xxx")

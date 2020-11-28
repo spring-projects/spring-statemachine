@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,7 @@
  */
 package org.springframework.statemachine;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -144,19 +140,19 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 
 		machine.sendEvent(TestEvents.E1);
 
-		assertThat(entryActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(exitActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(entryActionS11.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(exitActionS11.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(entryActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(exitActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(entryActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(exitActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(entryActionS11.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(exitActionS11.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(entryActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(exitActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
 
-		assertThat(entryActionS111.stateContexts.size(), is(2));
-		assertThat(exitActionS111.stateContexts.size(), is(1));
-		assertThat(entryActionS11.stateContexts.size(), is(2));
-		assertThat(exitActionS11.stateContexts.size(), is(1));
-		assertThat(entryActionS1.stateContexts.size(), is(1));
-		assertThat(exitActionS1.stateContexts.size(), is(1));
+		assertThat(entryActionS111.stateContexts).hasSize(2);
+		assertThat(exitActionS111.stateContexts).hasSize(1);
+		assertThat(entryActionS11.stateContexts).hasSize(2);
+		assertThat(exitActionS11.stateContexts).hasSize(1);
+		assertThat(entryActionS1.stateContexts).hasSize(1);
+		assertThat(exitActionS1.stateContexts).hasSize(1);
 	}
 
 	@Test
@@ -235,19 +231,19 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 
 		machine.sendEvent(TestEvents.E1);
 
-		assertThat(entryActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(exitActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(entryActionS112.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(exitActionS112.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));
-		assertThat(entryActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(exitActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(entryActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(exitActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(entryActionS112.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(exitActionS112.onExecuteLatch.await(1, TimeUnit.SECONDS)).isFalse();
+		assertThat(entryActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(exitActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS)).isFalse();
 
-		assertThat(entryActionS111.stateContexts.size(), is(1));
-		assertThat(exitActionS111.stateContexts.size(), is(1));
-		assertThat(entryActionS112.stateContexts.size(), is(1));
-		assertThat(exitActionS112.stateContexts.size(), is(0));
-		assertThat(entryActionS1.stateContexts.size(), is(1));
-		assertThat(exitActionS1.stateContexts.size(), is(0));
+		assertThat(entryActionS111.stateContexts).hasSize(1);
+		assertThat(exitActionS111.stateContexts).hasSize(1);
+		assertThat(entryActionS112.stateContexts).hasSize(1);
+		assertThat(exitActionS112.stateContexts).isEmpty();
+		assertThat(entryActionS1.stateContexts).hasSize(1);
+		assertThat(exitActionS1.stateContexts).isEmpty();
 	}
 
 
@@ -335,26 +331,26 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 
 		machine.sendEvent(TestEvents.E1);
 
-		assertThat(entryActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(exitActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(entryActionS11.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(exitActionS11.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(entryActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(exitActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(entryActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(exitActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(entryActionS11.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(exitActionS11.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(entryActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(exitActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS)).isFalse();
 
-		assertThat(entryActionS111.stateContexts.size(), is(2));
-		assertThat(exitActionS111.stateContexts.size(), is(1));
-		assertThat(entryActionS11.stateContexts.size(), is(1));
-		assertThat(exitActionS11.stateContexts.size(), is(1));
-		assertThat(entryActionS1.stateContexts.size(), is(1));
-		assertThat(exitActionS1.stateContexts.size(), is(0));
+		assertThat(entryActionS111.stateContexts).hasSize(2);
+		assertThat(exitActionS111.stateContexts).hasSize(1);
+		assertThat(entryActionS11.stateContexts).hasSize(1);
+		assertThat(exitActionS11.stateContexts).hasSize(1);
+		assertThat(entryActionS1.stateContexts).hasSize(1);
+		assertThat(exitActionS1.stateContexts).isEmpty();
 	}
 
 	@Test
 	public void testExternalTransition3() throws Exception {
 		context.register(Config1.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		@SuppressWarnings("unchecked")
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -370,19 +366,19 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 		TestEntryAction entryActionS1 = context.getBean("entryActionS1", TestEntryAction.class);
 		TestExitAction exitActionS1 = context.getBean("exitActionS1", TestExitAction.class);
 
-		assertThat(entryActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(exitActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(entryActionS11.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(exitActionS11.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(entryActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(exitActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(entryActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(exitActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(entryActionS11.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(exitActionS11.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(entryActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(exitActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
 
-		assertThat(entryActionS111.stateContexts.size(), is(2));
-		assertThat(exitActionS111.stateContexts.size(), is(1));
-		assertThat(entryActionS11.stateContexts.size(), is(2));
-		assertThat(exitActionS11.stateContexts.size(), is(1));
-		assertThat(entryActionS1.stateContexts.size(), is(1));
-		assertThat(exitActionS1.stateContexts.size(), is(1));
+		assertThat(entryActionS111.stateContexts).hasSize(2);
+		assertThat(exitActionS111.stateContexts).hasSize(1);
+		assertThat(entryActionS11.stateContexts).hasSize(2);
+		assertThat(exitActionS11.stateContexts).hasSize(1);
+		assertThat(entryActionS1.stateContexts).hasSize(1);
+		assertThat(exitActionS1.stateContexts).hasSize(1);
 
 	}
 
@@ -390,29 +386,29 @@ public class SubStateMachineTests extends AbstractStateMachineTests {
 	public void testMixedStates() throws Exception {
 		context.register(Config2.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		@SuppressWarnings("unchecked")
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		machine.start();
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S1, TestStates.S10));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1, TestStates.S10);
 	}
 
 	@Test
 	public void testStateChangeWithinMachine() {
 		context.register(Config3.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		@SuppressWarnings("unchecked")
 		ObjectStateMachine<TestStates2,TestEvents2> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		machine.start();
-		assertThat(machine, notNullValue());
-		assertThat(machine.getState().getIds(), contains(TestStates2.IDLE, TestStates2.CLOSED));
+		assertThat(machine).isNotNull();
+		assertThat(machine.getState().getIds()).containsExactly(TestStates2.IDLE, TestStates2.CLOSED);
 		machine.sendEvent(TestEvents2.EJECT);
-		assertThat(machine.getState().getIds(), contains(TestStates2.IDLE, TestStates2.OPEN));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates2.IDLE, TestStates2.OPEN);
 	}
 
 	@Configuration

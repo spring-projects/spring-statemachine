@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,7 @@
  */
 package org.springframework.statemachine.config.common.annotation;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Iterator;
 
@@ -54,36 +50,35 @@ public class SimpleAnnotationConfiguration2Tests {
 
 	@Test
 	public void testSimpleConfig() throws Exception {
-		assertNotNull(ctx);
-		assertTrue(ctx.containsBean("simpleConfig"));
+		assertThat(ctx.containsBean("simpleConfig")).isTrue();
 		SimpleTestConfig config = ctx.getBean("simpleConfig", SimpleTestConfig.class);
-		assertThat(config.simpleData, notNullValue());
-		assertThat(config.simpleData, is("simpleData"));
+		assertThat(config.simpleData).isNotNull();
+		assertThat(config.simpleData).isEqualTo("simpleData");
 
-		assertThat(config.simpleProperties, notNullValue());
-		assertThat(config.simpleProperties.getProperty("simpleKey1"), notNullValue());
-		assertThat(config.simpleProperties.getProperty("simpleKey1"), is("simpleValue1"));
+		assertThat(config.simpleProperties).isNotNull();
+		assertThat(config.simpleProperties.getProperty("simpleKey1")).isNotNull();
+		assertThat(config.simpleProperties.getProperty("simpleKey1")).isEqualTo("simpleValue1");
 
-		assertThat(config.simpleBeanA, notNullValue());
-		assertThat(config.simpleBeanA.dataA, notNullValue());
-		assertThat(config.simpleBeanA.resources, notNullValue());
+		assertThat(config.simpleBeanA).isNotNull();
+		assertThat(config.simpleBeanA.dataA).isNotNull();
+		assertThat(config.simpleBeanA.resources).isNotNull();
 
-		assertThat(config.simpleBeanA.dataA, is("simpleDataA"));
-		assertThat(config.simpleBeanA.resources.size(), is(2));
+		assertThat(config.simpleBeanA.dataA).isEqualTo("simpleDataA");
+		assertThat(config.simpleBeanA.resources).hasSize(2);
 		Iterator<Resource> iterator = config.simpleBeanA.resources.iterator();
 		String fileName1 = iterator.next().getFilename();
 		String fileName2 = iterator.next().getFilename();
 		String[] fileNames = new String[2];
 		fileNames[0] = fileName1.equals("simpleResourceA1") ? fileName1 : fileName2;
 		fileNames[1] = fileName2.equals("simpleResourceA2") ? fileName2 : fileName1;
-		assertThat(fileNames[0], is("simpleResourceA1"));
-		assertThat(fileNames[1], is("simpleResourceA2"));
+		assertThat(fileNames[0]).isEqualTo("simpleResourceA1");
+		assertThat(fileNames[1]).isEqualTo("simpleResourceA2");
 
 //		assertTrue(ctx.containsBean("simpleConfigData"));
 //		assertTrue(ctx.containsBean("simpleConfigBeanB"));
 //		SimpleTestConfigBeanB beanB = ctx.getBean("simpleConfigBeanB", SimpleTestConfigBeanB.class);
-//		assertThat(beanB.dataB, is("simpleDataB"));
-//		assertThat(beanB.dataBB, is("simpleDataBB"));
+//		assertThat(beanB.dataB).isEqualTo("simpleDataB");
+//		assertThat(beanB.dataBB).isEqualTo("simpleDataBB");
 	}
 
 	@Configuration

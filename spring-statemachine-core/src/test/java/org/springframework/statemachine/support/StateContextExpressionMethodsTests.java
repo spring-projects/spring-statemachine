@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.springframework.statemachine.support;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,14 +57,14 @@ public class StateContextExpressionMethodsTests {
 		StateContextExpressionMethods methods = new StateContextExpressionMethods(evaluationContext);
 		StateContext<SpelStates, SpelEvents> stateContext = mockStateContext(null);
 
-		assertThat(methods.getValue(parser.parseExpression("true"), stateContext, Boolean.class), is(true));
-		assertThat(methods.getValue(parser.parseExpression("event.toString().equals('E1')"), stateContext, Boolean.class), is(true));
-		assertThat(methods.getValue(parser.parseExpression("event==T(org.springframework.statemachine.support.StateContextExpressionMethodsTests.SpelEvents).E1"), stateContext, Boolean.class), is(true));
-		assertThat(methods.getValue(parser.parseExpression("getExtendedState().getVariables().get('boolean1')"), stateContext, Boolean.class), is(true));
-		assertThat(methods.getValue(parser.parseExpression("extendedState.variables.get('boolean1')"), stateContext, Boolean.class), is(true));
-		assertThat(methods.getValue(parser.parseExpression("extendedState.variables.get('boolean1')&&!extendedState.variables.get('boolean2')"), stateContext, Boolean.class), is(true));
-		assertThat(methods.getValue(parser.parseExpression("extendedState.variables.get('boolean3')==NULL"), stateContext, Boolean.class), is(true));
-		assertThat(methods.getValue(parser.parseExpression("transition.source.id.toString().equals('S1')"), stateContext, Boolean.class), is(true));
+		assertThat(methods.getValue(parser.parseExpression("true"), stateContext, Boolean.class)).isTrue();
+		assertThat(methods.getValue(parser.parseExpression("event.toString().equals('E1')"), stateContext, Boolean.class)).isTrue();
+		assertThat(methods.getValue(parser.parseExpression("event==T(org.springframework.statemachine.support.StateContextExpressionMethodsTests.SpelEvents).E1"), stateContext, Boolean.class)).isTrue();
+		assertThat(methods.getValue(parser.parseExpression("getExtendedState().getVariables().get('boolean1')"), stateContext, Boolean.class)).isTrue();
+		assertThat(methods.getValue(parser.parseExpression("extendedState.variables.get('boolean1')"), stateContext, Boolean.class)).isTrue();
+		assertThat(methods.getValue(parser.parseExpression("extendedState.variables.get('boolean1')&&!extendedState.variables.get('boolean2')"), stateContext, Boolean.class)).isTrue();
+		assertThat(methods.getValue(parser.parseExpression("extendedState.variables.get('boolean3')==NULL"), stateContext, Boolean.class)).isTrue();
+		assertThat(methods.getValue(parser.parseExpression("transition.source.id.toString().equals('S1')"), stateContext, Boolean.class)).isTrue();
 	}
 
 	@Test
@@ -76,8 +75,8 @@ public class StateContextExpressionMethodsTests {
 		MockStatemachine stateMachine = new MockStatemachine();
 		StateContext<SpelStates, SpelEvents> stateContext = mockStateContext(stateMachine);
 
-		assertThat(methods.getValue(parser.parseExpression("stateMachine.sendEvent(T(org.springframework.statemachine.support.StateContextExpressionMethodsTests.SpelEvents).E1)"), stateContext, Boolean.class), is(true));
-		assertThat(stateMachine.events.size(), is(1));
+		assertThat(methods.getValue(parser.parseExpression("stateMachine.sendEvent(T(org.springframework.statemachine.support.StateContextExpressionMethodsTests.SpelEvents).E1)"), stateContext, Boolean.class)).isTrue();
+		assertThat(stateMachine.events).hasSize(1);
 	}
 
 	enum SpelStates {

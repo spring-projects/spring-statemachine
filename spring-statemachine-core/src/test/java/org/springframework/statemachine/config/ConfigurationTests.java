@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,8 @@
  */
 package org.springframework.statemachine.config;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,14 +65,14 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 	public void testStates() {
 		context.register(Config1.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		TestAction testAction = context.getBean("testAction", TestAction.class);
 		TestGuard testGuard = context.getBean("testGuard", TestGuard.class);
-		assertThat(testAction, notNullValue());
-		assertThat(testGuard, notNullValue());
+		assertThat(testAction).isNotNull();
+		assertThat(testGuard).isNotNull();
 	}
 
 	@SuppressWarnings({ "unchecked" })
@@ -84,10 +80,10 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 	public void testSimpleSubmachine() throws Exception {
 		context.register(Config4.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 	}
 
 	@SuppressWarnings({ "unchecked" })
@@ -95,10 +91,10 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 	public void testRegions() throws Exception {
 		context.register(Config6.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 	}
 
 	@SuppressWarnings({ "unchecked" })
@@ -106,10 +102,10 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 	public void testSubmachineWithState() throws Exception {
 		context.register(Config7.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 	}
 
 	@SuppressWarnings({ "unchecked" })
@@ -117,10 +113,10 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 	public void testSubmachineWithRegion() throws Exception {
 		context.register(Config8.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 	}
 
 	@SuppressWarnings({ "unchecked" })
@@ -130,8 +126,8 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine.isAutoStartup(), is(true));
-		assertThat(machine.isRunning(), is(true));
+		assertThat(machine.isAutoStartup()).isTrue();
+		assertThat(machine.isRunning()).isTrue();
 	}
 
 	@SuppressWarnings({ "unchecked" })
@@ -141,8 +137,8 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine.isAutoStartup(), is(false));
-		assertThat(machine.isRunning(), is(false));
+		assertThat(machine.isAutoStartup()).isFalse();
+		assertThat(machine.isRunning()).isFalse();
 	}
 
 	@SuppressWarnings({ "unchecked" })
@@ -155,7 +151,7 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		Object o1 = TestUtils.readField("stateListener", machine);
 		Object o2 = TestUtils.readField("listeners", o1);
 		Object o3 = TestUtils.readField("list", o2);
-		assertThat(((List<?>)o3).size(), is(2));
+		assertThat(((List<?>)o3)).hasSize(2);
 	}
 
 	@Test
@@ -166,10 +162,10 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 
 	@Test
 	public void testEnableStateMachineFactoryNoAdapter() {
-		assertThrows(BeanCreationException.class, () -> {
+		assertThatThrownBy(() -> {
 			context.register(Config13.class);
 			context.refresh();
-		});
+		}).isInstanceOf(BeanCreationException.class);
 	}
 
 	@Test
@@ -185,9 +181,9 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		Object bfFromMachine = TestUtils.callMethod("getBeanFactory", stateMachine);
 		Object bfFromExecutor = TestUtils.callMethod("getBeanFactory", stateMachineExecutor);
 
-		assertThat(bfFromMachine, notNullValue());
-		assertThat(bfFromExecutor, notNullValue());
-		assertThat(bfFromMachine, sameInstance(bfFromExecutor));
+		assertThat(bfFromMachine).isNotNull();
+		assertThat(bfFromExecutor).isNotNull();
+		assertThat(bfFromMachine).isSameAs(bfFromExecutor);
 	}
 
 	@Test
@@ -203,9 +199,9 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		Object bfFromMachine = TestUtils.callMethod("getBeanFactory", stateMachine);
 		Object bfFromExecutor = TestUtils.callMethod("getBeanFactory", stateMachineExecutor);
 
-		assertThat(bfFromMachine, notNullValue());
-		assertThat(bfFromExecutor, notNullValue());
-		assertThat(bfFromMachine, sameInstance(Config16.beanFactory));
+		assertThat(bfFromMachine).isNotNull();
+		assertThat(bfFromExecutor).isNotNull();
+		assertThat(bfFromMachine).isSameAs(Config16.beanFactory);
 	}
 
 	@Test
@@ -214,8 +210,8 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		context.refresh();
 		@SuppressWarnings("unchecked")
 		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
-		assertThat(stateMachine, notNullValue());
-		assertThat(stateMachine.getId(), is("testid1"));
+		assertThat(stateMachine).isNotNull();
+		assertThat(stateMachine.getId()).isEqualTo("testid1");
 	}
 
 	@Test
@@ -225,12 +221,12 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		@SuppressWarnings("unchecked")
 		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
 		StateMachine<String,String> stateMachine = stateMachineFactory.getStateMachine();
-		assertThat(stateMachine, notNullValue());
-		assertThat(stateMachine.getId(), is("testid1"));
+		assertThat(stateMachine).isNotNull();
+		assertThat(stateMachine.getId()).isEqualTo("testid1");
 
 		stateMachine = stateMachineFactory.getStateMachine("testid2");
-		assertThat(stateMachine, notNullValue());
-		assertThat(stateMachine.getId(), is("testid2"));
+		assertThat(stateMachine).isNotNull();
+		assertThat(stateMachine.getId()).isEqualTo("testid2");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -238,19 +234,19 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 	public void testMultipleEndStates() {
 		context.register(Config20.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		ObjectStateMachine<String, String> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 
 		Collection<State<String, String>> states = machine.getStates();
 		for (State<String, String> s : states) {
 			if (s.getId().equals("S3")) {
-				assertThat(s.getPseudoState(), notNullValue());
-				assertThat(s.getPseudoState().getKind(), is(PseudoStateKind.END));
+				assertThat(s.getPseudoState()).isNotNull();
+				assertThat(s.getPseudoState().getKind()).isEqualTo(PseudoStateKind.END);
 			}
 			if (s.getId().equals("S2")) {
-				assertThat(s.getPseudoState(), notNullValue());
-				assertThat(s.getPseudoState().getKind(), is(PseudoStateKind.END));
+				assertThat(s.getPseudoState()).isNotNull();
+				assertThat(s.getPseudoState().getKind()).isEqualTo(PseudoStateKind.END);
 			}
 		}
 	}
@@ -263,7 +259,7 @@ public class ConfigurationTests extends AbstractStateMachineTests {
 		@SuppressWarnings("unchecked")
 		StateMachineFactory<String, String> stateMachineFactory22 = context.getBean("stateMachineConfig22", StateMachineFactory.class);
 		StateMachine<String,String> stateMachine22 = stateMachineFactory22.getStateMachine();
-		assertThat(stateMachine22, notNullValue());
+		assertThat(stateMachine22).isNotNull();
 	}
 
 

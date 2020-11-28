@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,7 @@
  */
 package org.springframework.statemachine.state;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -58,11 +55,11 @@ public class ChoiceStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("choice", "s30").build());
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S30));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S30);
 	}
 
 	@Test
@@ -72,11 +69,11 @@ public class ChoiceStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("choice", "s31").build());
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S31));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S31);
 	}
 
 	@Test
@@ -86,11 +83,11 @@ public class ChoiceStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("choice", "s32").build());
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S32));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S32);
 	}
 
 	@Test
@@ -100,11 +97,11 @@ public class ChoiceStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S33));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S33);
 	}
 
 	@Test
@@ -114,11 +111,11 @@ public class ChoiceStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S33));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S33);
 	}
 
 	@Test
@@ -128,11 +125,11 @@ public class ChoiceStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("choice", "s2").build());
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S21));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S21);
 	}
 
 	@Test
@@ -142,21 +139,21 @@ public class ChoiceStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		TestStateEntryExitListener listener = new TestStateEntryExitListener();
 		machine.addStateListener(listener);
 		machine.start();
-		assertThat(machine.getState().getIds(), contains(TestStates.SI));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.SI);
 		listener.reset();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
-		assertThat(machine.getState().getIds(), contains(TestStates.SI));
-		assertThat(listener.exited.size(), is(1));
-		assertThat(listener.entered.size(), is(1));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.SI);
+		assertThat(listener.exited).hasSize(1);
+		assertThat(listener.entered).hasSize(1);
 		listener.reset();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E2).build());
-		assertThat(machine.getState().getIds(), contains(TestStates.S4));
-		assertThat(listener.exited.size(), is(1));
-		assertThat(listener.entered.size(), is(1));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S4);
+		assertThat(listener.exited).hasSize(1);
+		assertThat(listener.entered).hasSize(1);
 	}
 
 	@Test
@@ -169,13 +166,13 @@ public class ChoiceStateTests extends AbstractStateMachineTests {
 		LatchAction sIToChoice = context.getBean("sIToChoice", LatchAction.class);
 		LatchAction choiceToS30 = context.getBean("choiceToS30", LatchAction.class);
 		LatchAction choiceToS33 = context.getBean("choiceToS33", LatchAction.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("choice", "s30").build());
-		assertThat(sIToChoice.latch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(choiceToS30.latch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(choiceToS33.latch.await(1, TimeUnit.SECONDS), is(false));
-		assertThat(machine.getState().getIds(), contains(TestStates.S30));
+		assertThat(sIToChoice.latch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(choiceToS30.latch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(choiceToS33.latch.await(1, TimeUnit.SECONDS)).isFalse();
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S30);
 	}
 
 	@Test
@@ -188,13 +185,13 @@ public class ChoiceStateTests extends AbstractStateMachineTests {
 		LatchAction sIToChoice = context.getBean("sIToChoice", LatchAction.class);
 		LatchAction choiceToS30 = context.getBean("choiceToS30", LatchAction.class);
 		LatchAction choiceToS33 = context.getBean("choiceToS33", LatchAction.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
-		assertThat(sIToChoice.latch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(choiceToS30.latch.await(1, TimeUnit.SECONDS), is(false));
-		assertThat(choiceToS33.latch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), contains(TestStates.S33));
+		assertThat(sIToChoice.latch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(choiceToS30.latch.await(1, TimeUnit.SECONDS)).isFalse();
+		assertThat(choiceToS33.latch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S33);
 	}
 
 	@Configuration

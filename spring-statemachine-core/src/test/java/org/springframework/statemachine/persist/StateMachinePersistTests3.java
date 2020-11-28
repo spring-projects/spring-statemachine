@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,7 @@
  */
 package org.springframework.statemachine.persist;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
 
@@ -55,17 +52,17 @@ public class StateMachinePersistTests3 extends AbstractStateMachineTests {
 		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
 
 		StateMachine<String,String> stateMachine = stateMachineFactory.getStateMachine("testid2");
-		assertThat(stateMachine, notNullValue());
-		assertThat(stateMachine.getId(), is("testid2"));
+		assertThat(stateMachine).isNotNull();
+		assertThat(stateMachine.getId()).isEqualTo("testid2");
 
 		persister.persist(stateMachine, "xxx");
 
 		stateMachine = stateMachineFactory.getStateMachine();
-		assertThat(stateMachine, notNullValue());
-		assertThat(stateMachine.getId(), nullValue());
+		assertThat(stateMachine).isNotNull();
+		assertThat(stateMachine.getId()).isNull();
 
 		stateMachine = persister.restore(stateMachine, "xxx");
-		assertThat(stateMachine.getId(), is("testid2"));
+		assertThat(stateMachine.getId()).isEqualTo("testid2");
 	}
 
 	@Test
@@ -78,19 +75,19 @@ public class StateMachinePersistTests3 extends AbstractStateMachineTests {
 		StateMachineFactory<String, String> stateMachineFactory = context.getBean(StateMachineFactory.class);
 
 		StateMachine<String,String> stateMachine = stateMachineFactory.getStateMachine("testid2");
-		assertThat(stateMachine, notNullValue());
-		assertThat(stateMachine.getId(), is("testid2"));
+		assertThat(stateMachine).isNotNull();
+		assertThat(stateMachine.getId()).isEqualTo("testid2");
 		TestUtils.setField("id", stateMachine, "newid");
-		assertThat(stateMachine.getId(), is("newid"));
+		assertThat(stateMachine.getId()).isEqualTo("newid");
 
 		persister.persist(stateMachine, "xxx");
 
 		stateMachine = stateMachineFactory.getStateMachine();
-		assertThat(stateMachine, notNullValue());
-		assertThat(stateMachine.getId(), nullValue());
+		assertThat(stateMachine).isNotNull();
+		assertThat(stateMachine.getId()).isNull();
 
 		stateMachine = persister.restore(stateMachine, "xxx");
-		assertThat(stateMachine.getId(), is("newid"));
+		assertThat(stateMachine.getId()).isEqualTo("newid");
 	}
 
 	@Test
@@ -101,16 +98,16 @@ public class StateMachinePersistTests3 extends AbstractStateMachineTests {
 		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(stateMachinePersist);
 		@SuppressWarnings("unchecked")
 		StateMachine<String,String> stateMachine = context.getBean(StateMachine.class);
-		assertThat(stateMachine, notNullValue());
-		assertThat(stateMachine.getId(), nullValue());
+		assertThat(stateMachine).isNotNull();
+		assertThat(stateMachine.getId()).isNull();
 		TestUtils.setField("id", stateMachine, "newid");
-		assertThat(stateMachine.getId(), is("newid"));
+		assertThat(stateMachine.getId()).isEqualTo("newid");
 
 		persister.persist(stateMachine, "xxx");
 		TestUtils.setField("id", stateMachine, "xxx");
 
 		stateMachine = persister.restore(stateMachine, "xxx");
-		assertThat(stateMachine.getId(), is("newid"));
+		assertThat(stateMachine.getId()).isEqualTo("newid");
 	}
 
 	@Configuration

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,7 @@
  */
 package org.springframework.statemachine.state;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -90,12 +87,12 @@ public class SubmachineStateTests extends AbstractStateMachineTests {
 
 		StateMachineState<TestStates,TestEvents> state = new StateMachineState<TestStates,TestEvents>(TestStates.S4, machine);
 
-		assertThat(state.isSimple(), is(false));
-		assertThat(state.isComposite(), is(false));
-		assertThat(state.isOrthogonal(), is(false));
-		assertThat(state.isSubmachineState(), is(true));
+		assertThat(state.isSimple()).isFalse();
+		assertThat(state.isComposite()).isFalse();
+		assertThat(state.isOrthogonal()).isFalse();
+		assertThat(state.isSubmachineState()).isTrue();
 
-		assertThat(state.getIds(), contains(TestStates.S4, TestStates.SI));
+		assertThat(state.getIds()).containsExactly(TestStates.S4, TestStates.SI);
 	}
 
 	@Test
@@ -105,14 +102,14 @@ public class SubmachineStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
 		machine.sendEvent(TestEvents.E2);
 		machine.sendEvent(TestEvents.E3);
 		machine.sendEvent(TestEvents.E4);
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S2, TestStates.S21));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S2, TestStates.S21);
 	}
 
 	@Test
@@ -122,23 +119,23 @@ public class SubmachineStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
 
-		assertThat(machine.isRunning(), is(true));
+		assertThat(machine.isRunning()).isTrue();
 
 		State<TestStates, TestEvents> s = machine.getState();
 		StateMachine<TestStates, TestEvents> m = ((StateMachineState<TestStates, TestEvents>) s).getSubmachine();
 		boolean r = TestUtils.callMethod("isRunning", m);
-		assertThat(r, is(true));
+		assertThat(r).isTrue();
 
 		s = m.getState();
 		m = ((StateMachineState<TestStates, TestEvents>) s).getSubmachine();
 		r = TestUtils.callMethod("isRunning", m);
-		assertThat(r, is(true));
+		assertThat(r).isTrue();
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S2, TestStates.S20, TestStates.S2011));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S2, TestStates.S20, TestStates.S2011);
 	}
 
 	@Test
@@ -148,23 +145,23 @@ public class SubmachineStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
 
-		assertThat(machine.isRunning(), is(true));
+		assertThat(machine.isRunning()).isTrue();
 
 		State<TestStates, TestEvents> s = machine.getState();
 		StateMachine<TestStates, TestEvents> m = ((StateMachineState<TestStates, TestEvents>) s).getSubmachine();
 		boolean r = TestUtils.callMethod("isRunning", m);
-		assertThat(r, is(true));
+		assertThat(r).isTrue();
 
 		s = m.getState();
 		m = ((StateMachineState<TestStates, TestEvents>) s).getSubmachine();
 		r = TestUtils.callMethod("isRunning", m);
-		assertThat(r, is(true));
+		assertThat(r).isTrue();
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S2, TestStates.S21, TestStates.S212));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S2, TestStates.S21, TestStates.S212);
 	}
 
 	@Test
@@ -174,12 +171,12 @@ public class SubmachineStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
 		machine.sendEvent(TestEvents.E2);
 
-		assertThat(machine.isRunning(), is(true));
+		assertThat(machine.isRunning()).isTrue();
 
 		State<TestStates, TestEvents> s1 = machine.getState();
 		StateMachine<TestStates, TestEvents> m1 = ((StateMachineState<TestStates, TestEvents>) s1).getSubmachine();
@@ -190,11 +187,11 @@ public class SubmachineStateTests extends AbstractStateMachineTests {
 		machine.sendEvent(TestEvents.E3);
 
 		boolean r1 = TestUtils.callMethod("isRunning", m1);
-		assertThat(r1, is(false));
+		assertThat(r1).isFalse();
 		boolean r2 = TestUtils.callMethod("isRunning", m2);
-		assertThat(r2, is(false));
+		assertThat(r2).isFalse();
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
 	}
 
 	@Configuration

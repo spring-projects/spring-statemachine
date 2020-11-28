@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,7 @@
  */
 package org.springframework.statemachine;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveFactory;
@@ -61,8 +58,8 @@ public class StateMachineFactoryTests extends AbstractStateMachineTests {
 		StateMachine<TestStates,TestEvents> machine = factory.getStateMachine();
 		doStartAndAssert(machine);
 
-		assertThat(machine, notNullValue());
-		assertThat(machine.getState().getId(), is(TestStates.S1));
+		assertThat(machine).isNotNull();
+		assertThat(machine.getState().getId()).isEqualTo(TestStates.S1);
 	}
 
 	@Test
@@ -74,9 +71,9 @@ public class StateMachineFactoryTests extends AbstractStateMachineTests {
 		StateMachine<TestStates,TestEvents> machine = stateMachineFactory.getStateMachine();
 		doStartAndAssert(machine);
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(machine.getState().getIds(), contains(TestStates.S2));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S2);
 	}
 
 	@Test
@@ -86,8 +83,8 @@ public class StateMachineFactoryTests extends AbstractStateMachineTests {
 		StateMachineFactory<TestStates, TestEvents> stateMachineFactory = resolveFactory(context);
 		StateMachine<TestStates,TestEvents> machine = stateMachineFactory.getStateMachine();
 
-		assertThat(((SmartLifecycle)machine).isAutoStartup(), is(true));
-		assertThat(((SmartLifecycle)machine).isRunning(), is(true));
+		assertThat(((SmartLifecycle)machine).isAutoStartup()).isTrue();
+		assertThat(((SmartLifecycle)machine).isRunning()).isTrue();
 	}
 
 	@Test
@@ -97,8 +94,8 @@ public class StateMachineFactoryTests extends AbstractStateMachineTests {
 		StateMachineFactory<TestStates, TestEvents> stateMachineFactory = resolveFactory(context);
 		StateMachine<TestStates,TestEvents> machine = stateMachineFactory.getStateMachine();
 
-		assertThat(((SmartLifecycle)machine).isAutoStartup(), is(false));
-		assertThat(((SmartLifecycle)machine).isRunning(), is(false));
+		assertThat(((SmartLifecycle)machine).isAutoStartup()).isFalse();
+		assertThat(((SmartLifecycle)machine).isRunning()).isFalse();
 	}
 
 	@Test
@@ -109,7 +106,7 @@ public class StateMachineFactoryTests extends AbstractStateMachineTests {
 		StateMachine<TestStates,TestEvents> machine = stateMachineFactory.getStateMachine();
 		doStartAndAssert(machine);
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
 	}
 
 	@Test
@@ -124,8 +121,8 @@ public class StateMachineFactoryTests extends AbstractStateMachineTests {
 		doStartAndAssert(machine1);
 		doStartAndAssert(machine2);
 
-		assertThat(machine1.getState().getIds(), contains(TestStates.S1));
-		assertThat(machine2.getState().getIds(), contains(TestStates.S1));
+		assertThat(machine1.getState().getIds()).containsExactly(TestStates.S1);
+		assertThat(machine2.getState().getIds()).containsExactly(TestStates.S1);
 	}
 
 	@Test
@@ -138,15 +135,15 @@ public class StateMachineFactoryTests extends AbstractStateMachineTests {
 
 		// factory waits machine to get started so we
 		// should have state immediately
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
 
 		// still need to listen state chance manually before
 		// checking state as execution happens in a thread
 		TestStateMachineListener listener = new TestStateMachineListener();
 		machine.addStateListener(listener);
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(listener.latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), contains(TestStates.S2));
+		assertThat(listener.latch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S2);
 	}
 
 	@Configuration

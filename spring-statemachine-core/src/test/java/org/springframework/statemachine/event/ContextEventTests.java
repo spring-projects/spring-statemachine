@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  */
 package org.springframework.statemachine.event;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -62,7 +60,7 @@ public class ContextEventTests extends AbstractStateMachineTests {
 		machine.sendEvent(TestEvents.E1);
 		StateMachineApplicationEventListener listener = context.getBean(StateMachineApplicationEventListener.class);
 		listener.latch.await(1, TimeUnit.SECONDS);
-		assertThat(listener.count, greaterThan(1));
+		assertThat(listener.count).isGreaterThan(1);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -76,7 +74,7 @@ public class ContextEventTests extends AbstractStateMachineTests {
 		machine.sendEvent(TestEvents.E1);
 		StateMachineApplicationEventListener listener = context.getBean(StateMachineApplicationEventListener.class);
 		listener.latch.await(1, TimeUnit.SECONDS);
-		assertThat(listener.count, is(0));
+		assertThat(listener.count).isZero();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -90,7 +88,7 @@ public class ContextEventTests extends AbstractStateMachineTests {
 		machine.sendEvent(TestEvents.E1);
 		StateMachineApplicationEventListener listener = context.getBean(StateMachineApplicationEventListener.class);
 		listener.latch.await(1, TimeUnit.SECONDS);
-		assertThat(listener.count, greaterThan(1));
+		assertThat(listener.count).isGreaterThan(1);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -106,7 +104,7 @@ public class ContextEventTests extends AbstractStateMachineTests {
 		listener.reset();
 		machine.sendEvent(TestEvents.E1);
 		listener.latch.await(1, TimeUnit.SECONDS);
-		assertThat(listener.count, greaterThan(1));
+		assertThat(listener.count).isGreaterThan(1);
 	}
 
 	@Configuration

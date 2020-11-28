@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 the original author or authors.
+ * Copyright 2017-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,7 @@
  */
 package org.springframework.statemachine.persist;
 
-import static org.hamcrest.CoreMatchers.anyOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 
@@ -49,15 +46,15 @@ public class DefaultStateMachinePersisterTests {
 		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(persist);
 		persister.persist(machine, "xxx");
 		StateMachineContext<String, String> context = persist.contexts.get("xxx");
-		assertThat(context.getState(), is("SI"));
-		assertThat(context.getId(), nullValue());
-		assertThat(context.getChilds().isEmpty(), is(true));
+		assertThat(context.getState()).isEqualTo("SI");
+		assertThat(context.getId()).isNull();
+		assertThat(context.getChilds().isEmpty()).isTrue();
 
 		doSendEventAndConsumeAll(machine, "E1");
 		doSendEventAndConsumeAll(machine, "E1");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
-		assertThat(context.getState(), is("S1"));
+		assertThat(context.getState()).isEqualTo("S1");
 	}
 
 	@Test
@@ -69,27 +66,27 @@ public class DefaultStateMachinePersisterTests {
 		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(persist);
 		persister.persist(machine, "xxx");
 		StateMachineContext<String, String> context = persist.contexts.get("xxx");
-		assertThat(context.getState(), is("SI"));
-		assertThat(context.getId(), nullValue());
-		assertThat(context.getChilds().isEmpty(), is(true));
+		assertThat(context.getState()).isEqualTo("SI");
+		assertThat(context.getId()).isNull();
+		assertThat(context.getChilds().isEmpty()).isTrue();
 
 		doSendEventAndConsumeAll(machine, "E1");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
-		assertThat(context.getState(), is("S1I"));
-		assertThat(context.getChilds().size(), is(1));
+		assertThat(context.getState()).isEqualTo("S1I");
+		assertThat(context.getChilds()).hasSize(1);
 
 		doSendEventAndConsumeAll(machine, "E2");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
-		assertThat(context.getState(), is("S11"));
-		assertThat(context.getChilds().size(), is(1));
+		assertThat(context.getState()).isEqualTo("S11");
+		assertThat(context.getChilds()).hasSize(1);
 
 		doSendEventAndConsumeAll(machine, "E3");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
-		assertThat(context.getState(), is("S11"));
-		assertThat(context.getChilds().size(), is(1));
+		assertThat(context.getState()).isEqualTo("S11");
+		assertThat(context.getChilds()).hasSize(1);
 	}
 
 	@Test
@@ -101,32 +98,56 @@ public class DefaultStateMachinePersisterTests {
 		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(persist);
 		persister.persist(machine, "xxx");
 		StateMachineContext<String, String> context = persist.contexts.get("xxx");
-		assertThat(context.getState(), nullValue());
-		assertThat(context.getId(), nullValue());
-		assertThat(context.getChilds().size(), is(2));
-		assertThat(context.getChilds().get(0).getState(), anyOf(is("S111"), is("S21")));
-		assertThat(context.getChilds().get(1).getState(), anyOf(is("S111"), is("S21")));
+		assertThat(context.getState()).isNull();
+		assertThat(context.getId()).isNull();
+		assertThat(context.getChilds()).hasSize(2);
+		assertThat(context.getChilds().get(0).getState()).satisfiesAnyOf(
+			state -> assertThat(state).isEqualTo("S111"),
+			state -> assertThat(state).isEqualTo("S21")
+		);
+		assertThat(context.getChilds().get(1).getState()).satisfiesAnyOf(
+			state -> assertThat(state).isEqualTo("S111"),
+			state -> assertThat(state).isEqualTo("S21")
+		);
 
 		doSendEventAndConsumeAll(machine, "E1");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
-		assertThat(context.getChilds().size(), is(2));
-		assertThat(context.getChilds().get(0).getState(), anyOf(is("S12"), is("S21")));
-		assertThat(context.getChilds().get(1).getState(), anyOf(is("S12"), is("S21")));
+		assertThat(context.getChilds()).hasSize(2);
+		assertThat(context.getChilds().get(0).getState()).satisfiesAnyOf(
+			state -> assertThat(state).isEqualTo("S12"),
+			state -> assertThat(state).isEqualTo("S21")
+		);
+		assertThat(context.getChilds().get(1).getState()).satisfiesAnyOf(
+			state -> assertThat(state).isEqualTo("S12"),
+			state -> assertThat(state).isEqualTo("S21")
+		);
 
 		doSendEventAndConsumeAll(machine, "E2");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
-		assertThat(context.getChilds().size(), is(2));
-		assertThat(context.getChilds().get(0).getState(), anyOf(is("S12"), is("S221")));
-		assertThat(context.getChilds().get(1).getState(), anyOf(is("S12"), is("S221")));
+		assertThat(context.getChilds()).hasSize(2);
+		assertThat(context.getChilds().get(0).getState()).satisfiesAnyOf(
+			state -> assertThat(state).isEqualTo("S12"),
+			state -> assertThat(state).isEqualTo("S221")
+		);
+		assertThat(context.getChilds().get(1).getState()).satisfiesAnyOf(
+			state -> assertThat(state).isEqualTo("S12"),
+			state -> assertThat(state).isEqualTo("S221")
+		);
 
 		doSendEventAndConsumeAll(machine, "E3");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
-		assertThat(context.getChilds().size(), is(2));
-		assertThat(context.getChilds().get(0).getState(), anyOf(is("S12"), is("S222")));
-		assertThat(context.getChilds().get(1).getState(), anyOf(is("S12"), is("S222")));
+		assertThat(context.getChilds()).hasSize(2);
+		assertThat(context.getChilds().get(0).getState()).satisfiesAnyOf(
+			state -> assertThat(state).isEqualTo("S12"),
+			state -> assertThat(state).isEqualTo("S222")
+		);
+		assertThat(context.getChilds().get(1).getState()).satisfiesAnyOf(
+			state -> assertThat(state).isEqualTo("S12"),
+			state -> assertThat(state).isEqualTo("S222")
+		);
 	}
 
 	@Test
@@ -138,42 +159,42 @@ public class DefaultStateMachinePersisterTests {
 		StateMachinePersister<String, String, String> persister = new DefaultStateMachinePersister<>(persist);
 		persister.persist(machine, "xxx");
 		StateMachineContext<String, String> context = persist.contexts.get("xxx");
-		assertThat(context.getState(), is("S2"));
+		assertThat(context.getState()).isEqualTo("S2");
 
 		doSendEventAndConsumeAll(machine, "E1");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
-		assertThat(context.getState(), is("S3"));
-		assertThat(context.getChilds().size(), is(1));
-		assertThat(context.getChilds().get(0).getChilds().size(), is(2));
+		assertThat(context.getState()).isEqualTo("S3");
+		assertThat(context.getChilds()).hasSize(1);
+		assertThat(context.getChilds().get(0).getChilds()).hasSize(2);
 
 		doSendEventAndConsumeAll(machine, "E2");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
-		assertThat(context.getState(), is("S3"));
-		assertThat(context.getChilds().size(), is(1));
-		assertThat(context.getChilds().get(0).getChilds().size(), is(2));
+		assertThat(context.getState()).isEqualTo("S3");
+		assertThat(context.getChilds()).hasSize(1);
+		assertThat(context.getChilds().get(0).getChilds()).hasSize(2);
 
 		doSendEventAndConsumeAll(machine, "E3");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
-		assertThat(context.getState(), is("S3"));
-		assertThat(context.getChilds().size(), is(1));
-		assertThat(context.getChilds().get(0).getChilds().size(), is(2));
+		assertThat(context.getState()).isEqualTo("S3");
+		assertThat(context.getChilds()).hasSize(1);
+		assertThat(context.getChilds().get(0).getChilds()).hasSize(2);
 
 		doSendEventAndConsumeAll(machine, "E4");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
-		assertThat(context.getState(), is("S3"));
-		assertThat(context.getChilds().size(), is(1));
-		assertThat(context.getChilds().get(0).getChilds().size(), is(2));
+		assertThat(context.getState()).isEqualTo("S3");
+		assertThat(context.getChilds()).hasSize(1);
+		assertThat(context.getChilds().get(0).getChilds()).hasSize(2);
 
 		doSendEventAndConsumeAll(machine, "E5");
 		persister.persist(machine, "xxx");
 		context = persist.contexts.get("xxx");
-		assertThat(context.getState(), is("END"));
-		assertThat(context.getChilds().size(), is(1));
-		assertThat(context.getChilds().get(0).getChilds().isEmpty(), is(true));
+		assertThat(context.getState()).isEqualTo("END");
+		assertThat(context.getChilds()).hasSize(1);
+		assertThat(context.getChilds().get(0).getChilds().isEmpty()).isTrue();
 	}
 
 	private StateMachine<String, String> buildSimpleFlat() throws Exception {

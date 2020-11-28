@@ -16,7 +16,6 @@
 package org.springframework.statemachine.data;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -441,14 +440,14 @@ public abstract class AbstractRepositoryTests {
 		StateMachine<String, String> stateMachine = stateMachineFactory.getStateMachine();
 
 		Map<String, State<String, String>> states = stateMachine.getStates().stream().collect(Collectors.toMap((State<String, String> s1) -> s1.getId(), s2 -> s2));
-		assertEquals(2, states.size());
+		assertThat(states.size()).isEqualTo(2);
 
 		State<String,String> S1 = (State<String, String>) states.get("S1");
-		assertEquals(1, S1.getExitActions().size());
+		assertThat(S1.getExitActions().size()).isEqualTo(1);
 
 		State<String,String> S2 = (State<String,String>)states.get("S2");
-		assertEquals(1, S2.getEntryActions().size());
-		assertEquals(1, S2.getStateActions().size());
+		assertThat(S2.getEntryActions().size()).isEqualTo(1);
+		assertThat(S2.getStateActions().size()).isEqualTo(1);
 	}
 
 	@Configuration

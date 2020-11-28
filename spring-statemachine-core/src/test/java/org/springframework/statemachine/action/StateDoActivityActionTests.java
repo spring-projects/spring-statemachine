@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  */
 package org.springframework.statemachine.action;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveMachine;
@@ -50,10 +48,10 @@ public class StateDoActivityActionTests extends AbstractStateMachineTests {
 		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
 		doStartAndAssert(machine);
 
-		assertThat(testActionS1.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(testActionS1.onExecuteLatch.await(2, TimeUnit.SECONDS)).isTrue();
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
 
-		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS)).isTrue();
 		doSendEventAndConsumeAll(machine, TestEvents.E2);
 	}
 
@@ -66,16 +64,16 @@ public class StateDoActivityActionTests extends AbstractStateMachineTests {
 		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
 		doStartAndAssert(machine);
 
-		assertThat(testActionS1.onExecuteStartLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(testActionS1.onExecuteStartLatch.await(2, TimeUnit.SECONDS)).isTrue();
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(testActionS1.interruptedLatch.await(6, TimeUnit.SECONDS), is(true));
-		assertThat(testActionS1.onExecuteLatch.await(6, TimeUnit.SECONDS), is(true));
+		assertThat(testActionS1.interruptedLatch.await(6, TimeUnit.SECONDS)).isTrue();
+		assertThat(testActionS1.onExecuteLatch.await(6, TimeUnit.SECONDS)).isTrue();
 
-		assertThat(testActionS2.onExecuteStartLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(testActionS2.onExecuteStartLatch.await(2, TimeUnit.SECONDS)).isTrue();
 		doSendEventAndConsumeAll(machine, TestEvents.E2);
-		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S3));
+		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S3);
 	}
 
 	@Test
@@ -89,22 +87,22 @@ public class StateDoActivityActionTests extends AbstractStateMachineTests {
 		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
 		doStartAndAssert(machine);
 		doSendEventAndConsumeAll(machine, TestEvents.E3);
-		assertThat(testActionS1I.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(testActionS1.interruptedLatch.await(2, TimeUnit.SECONDS), is(false));
+		assertThat(testActionS1I.onExecuteLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(testActionS1.interruptedLatch.await(2, TimeUnit.SECONDS)).isFalse();
 
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2));
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S2);
 
 		doSendEventAndConsumeAll(machine, TestEvents.E4);
-		assertThat(testActionS2I.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS), is(false));
+		assertThat(testActionS2I.onExecuteLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS)).isFalse();
 		doSendEventAndConsumeAll(machine, TestEvents.E2);
 
-		assertThat(testActionS1.interruptedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(testActionS1.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S3));
+		assertThat(testActionS1.interruptedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(testActionS1.onExecuteLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S3);
 	}
 
 	@Configuration
@@ -255,10 +253,10 @@ public class StateDoActivityActionTests extends AbstractStateMachineTests {
 		Message<TestEvents> event = MessageBuilder.withPayload(TestEvents.E1)
 				.setHeader(StateMachineMessageHeaders.HEADER_DO_ACTION_TIMEOUT, 4000).build();
 		doSendEventAndConsumeAll(machine, event);
-		assertThat(testActionS2.onExecuteStartLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(testActionS2.onExecuteStartLatch.await(2, TimeUnit.SECONDS)).isTrue();
 		doSendEventAndConsumeAll(machine, TestEvents.E2);
-		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS), is(false));
+		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS)).isFalse();
 	}
 
 	@Test
@@ -272,10 +270,10 @@ public class StateDoActivityActionTests extends AbstractStateMachineTests {
 		Message<TestEvents> event = MessageBuilder.withPayload(TestEvents.E1)
 				.setHeader(StateMachineMessageHeaders.HEADER_DO_ACTION_TIMEOUT, 100).build();
 		doSendEventAndConsumeAll(machine, event);
-		assertThat(testActionS2.onExecuteStartLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(testActionS2.onExecuteStartLatch.await(2, TimeUnit.SECONDS)).isTrue();
 		doSendEventAndConsumeAll(machine, TestEvents.E2);
-		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS)).isTrue();
 	}
 
 	@Test
@@ -287,10 +285,10 @@ public class StateDoActivityActionTests extends AbstractStateMachineTests {
 		doStartAndAssert(machine);
 
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(testActionS2.onExecuteStartLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(testActionS2.onExecuteStartLatch.await(2, TimeUnit.SECONDS)).isTrue();
 		doSendEventAndConsumeAll(machine, TestEvents.E2);
-		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS)).isTrue();
 	}
 
 	@Test
@@ -302,10 +300,10 @@ public class StateDoActivityActionTests extends AbstractStateMachineTests {
 		doStartAndAssert(machine);
 
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(testActionS2.onExecuteStartLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(testActionS2.onExecuteStartLatch.await(2, TimeUnit.SECONDS)).isTrue();
 		doSendEventAndConsumeAll(machine, TestEvents.E2);
-		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS), is(false));
+		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS)).isFalse();
 	}
 
 	@Configuration

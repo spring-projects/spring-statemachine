@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,7 @@
  */
 package org.springframework.statemachine.config.common.annotation;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,24 +43,23 @@ public class MultipleAnnotationConfigurationTests {
 
 	@Test
 	public void testConfig() throws Exception {
-		assertNotNull(ctx);
-		assertTrue(ctx.containsBean("simpleConfig"));
+		assertThat(ctx.containsBean("simpleConfig")).isTrue();
 		SimpleTestConfig simpleConfig = ctx.getBean("simpleConfig", SimpleTestConfig.class);
-		assertThat(simpleConfig.simpleData, notNullValue());
-		assertThat(simpleConfig.simpleData, is("simpleData"));
+		assertThat(simpleConfig.simpleData).isNotNull();
+		assertThat(simpleConfig.simpleData).isEqualTo("simpleData");
 
-		assertThat(simpleConfig.simpleProperties, notNullValue());
-		assertThat(simpleConfig.simpleProperties.getProperty("simpleKey1"), notNullValue());
-		assertThat(simpleConfig.simpleProperties.getProperty("simpleKey1"), is("simpleValue1"));
+		assertThat(simpleConfig.simpleProperties).isNotNull();
+		assertThat(simpleConfig.simpleProperties.getProperty("simpleKey1")).isNotNull();
+		assertThat(simpleConfig.simpleProperties.getProperty("simpleKey1")).isEqualTo("simpleValue1");
 
-		assertTrue(ctx.containsBean("complexConfig"));
+		assertThat(ctx.containsBean("complexConfig")).isTrue();
 		ComplexTestConfig complexConfig = ctx.getBean("complexConfig", ComplexTestConfig.class);
-		assertThat(complexConfig.complexData, notNullValue());
-		assertThat(complexConfig.complexData, is("complexData"));
+		assertThat(complexConfig.complexData).isNotNull();
+		assertThat(complexConfig.complexData).isEqualTo("complexData");
 
-		assertThat(complexConfig.complexProperties, notNullValue());
-		assertThat(complexConfig.complexProperties.getProperty("complexKey1"), notNullValue());
-		assertThat(complexConfig.complexProperties.getProperty("complexKey1"), is("complexValue1"));
+		assertThat(complexConfig.complexProperties).isNotNull();
+		assertThat(complexConfig.complexProperties.getProperty("complexKey1")).isNotNull();
+		assertThat(complexConfig.complexProperties.getProperty("complexKey1")).isEqualTo("complexValue1");
 
 	}
 

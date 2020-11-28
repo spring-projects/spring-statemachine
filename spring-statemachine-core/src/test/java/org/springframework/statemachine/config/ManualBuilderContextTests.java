@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  */
 package org.springframework.statemachine.config;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveMachine;
@@ -48,13 +46,13 @@ public class ManualBuilderContextTests extends AbstractStateMachineTests {
 		context.refresh();
 		TestListener listener = context.getBean(TestListener.class);
 		StateMachine<String, String> stateMachine = resolveMachine(context);
-		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(stateMachine.getState().getIds()).containsOnly("S1");
 		listener.reset(1);
 		doSendEventAndConsumeAll(stateMachine, "E1");
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(stateMachine.getState().getIds()).containsOnly("S2");
 	}
 
 	@Test
@@ -64,13 +62,13 @@ public class ManualBuilderContextTests extends AbstractStateMachineTests {
 		TestListener listener = context.getBean(TestListener.class);
 		StateMachine<String, String> stateMachine = resolveMachine(context);
 		doStartAndAssert(stateMachine);
-		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(stateMachine.getState().getIds()).containsOnly("S1");
 		listener.reset(1);
 		doSendEventAndConsumeAll(stateMachine, "E1");
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(stateMachine.getState().getIds()).containsOnly("S2");
 	}
 
 	@Configuration

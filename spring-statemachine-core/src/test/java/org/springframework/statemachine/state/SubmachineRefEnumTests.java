@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  */
 package org.springframework.statemachine.state;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveMachine;
@@ -47,15 +45,15 @@ public class SubmachineRefEnumTests extends AbstractStateMachineTests {
 		context.register(Config2.class, Config1.class);
 		context.refresh();
 		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S1));
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S1);
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20));
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S20);
 		doSendEventAndConsumeAll(machine, TestEvents.E2);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 		doSendEventAndConsumeAll(machine, TestEvents.E3);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S31));
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S31);
 	}
 
 	@Test
@@ -63,15 +61,15 @@ public class SubmachineRefEnumTests extends AbstractStateMachineTests {
 		context.register(Config4.class, Config3.class);
 		context.refresh();
 		StateMachine<Object, Object> machine = resolveMachine(context);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States1.S1));
+		assertThat(machine.getState().getIds()).containsOnly(States1.S1);
 		doSendEventAndConsumeAll(machine, Events1.E1);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States1.S2, States2.S20));
+		assertThat(machine.getState().getIds()).containsOnly(States1.S2, States2.S20);
 		doSendEventAndConsumeAll(machine, Events2.E2);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States1.S2, States2.S21, States2.S30));
+		assertThat(machine.getState().getIds()).containsOnly(States1.S2, States2.S21, States2.S30);
 		doSendEventAndConsumeAll(machine, Events2.E3);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States1.S2, States2.S21, States2.S31));
+		assertThat(machine.getState().getIds()).containsOnly(States1.S2, States2.S21, States2.S31);
 	}
 
 	@Configuration

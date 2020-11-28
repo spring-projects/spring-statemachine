@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,7 @@
  */
 package org.springframework.statemachine.state;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -53,13 +50,13 @@ public class StateActionTests extends AbstractStateMachineTests {
 				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		TestExitAction testExitAction = ctx.getBean("testExitAction", TestExitAction.class);
 		TestEntryAction testEntryAction = ctx.getBean("testEntryAction", TestEntryAction.class);
-		assertThat(testExitAction, notNullValue());
-		assertThat(testEntryAction, notNullValue());
+		assertThat(testExitAction).isNotNull();
+		assertThat(testEntryAction).isNotNull();
 
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
-		assertThat(testExitAction.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(testEntryAction.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(testExitAction.onExecuteLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(testEntryAction.onExecuteLatch.await(2, TimeUnit.SECONDS)).isTrue();
 
 		ctx.close();
 	}
@@ -73,14 +70,14 @@ public class StateActionTests extends AbstractStateMachineTests {
 		TestEntryAction testEntryAction = ctx.getBean("testEntryAction", TestEntryAction.class);
 		machine.start();
 
-		assertThat(machine, notNullValue());
-		assertThat(machine.isComplete(), is(false));
-		assertThat(machine.getState().getIds(), contains(TestStates.SI));
+		assertThat(machine).isNotNull();
+		assertThat(machine.isComplete()).isFalse();
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.SI);
 
 		machine.sendEvent(TestEvents.E1);
-		assertThat(machine.isComplete(), is(true));
-		assertThat(machine.getState().getIds(), contains(TestStates.SF));
-		assertThat(testEntryAction.onExecuteLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(machine.isComplete()).isTrue();
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.SF);
+		assertThat(testEntryAction.onExecuteLatch.await(2, TimeUnit.SECONDS)).isTrue();
 
 		ctx.close();
 	}

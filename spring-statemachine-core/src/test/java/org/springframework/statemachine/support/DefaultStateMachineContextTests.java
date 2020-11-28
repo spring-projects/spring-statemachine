@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,9 @@
  */
 package org.springframework.statemachine.support;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -32,7 +31,7 @@ public class DefaultStateMachineContextTests {
 				null);
 		DefaultStateMachineContext<String, String> c2 = new DefaultStateMachineContext<String, String>(null, null, null,
 				null);
-		assertThat(c1.equals(c2), is(true));
+		assertThat(c1.equals(c2)).isTrue();
 
 		DefaultStateMachineContext<String, String> c0 = new DefaultStateMachineContext<String, String>(null, null, null,
 				null);
@@ -41,10 +40,10 @@ public class DefaultStateMachineContextTests {
 				new HashMap<>(), new DefaultExtendedState(), new HashMap<>(), "id");
 		c2 = new DefaultStateMachineContext<String, String>(Arrays.asList("x", "y"), Arrays.asList(c0), "s1", "e1",
 				new HashMap<>(), new DefaultExtendedState(), new HashMap<>(), "id");
-		assertThat(c1.equals(c2), is(true));
+		assertThat(c1.equals(c2)).isTrue();
 
 		c2 = new DefaultStateMachineContext<String, String>(Arrays.asList("d", "y"), Arrays.asList(c0), "s1", "e1",
 				new HashMap<>(), new DefaultExtendedState(), new HashMap<>(), "id");
-		assertThat(c1.equals(c2), is(false));
+		assertThat(c1.equals(c2)).isFalse();
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,7 @@
 package org.springframework.statemachine.state;
 
 import static org.awaitility.Awaitility.await;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveMachine;
@@ -26,7 +24,6 @@ import static org.springframework.statemachine.TestUtils.resolveMachine;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -57,10 +54,10 @@ public class CompletionEventTests extends AbstractStateMachineTests {
 
 		doSendEventAndConsumeAll(machine, "E1");
 
-		assertThat(testAction2.latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(testAction2.count, is(1));
-		await().until(() -> machine.getState().getIds(), containsInAnyOrder("S3"));
-		assertThat(machine.getState().getId(), is("S3"));
+		assertThat(testAction2.latch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(testAction2.count).isEqualTo(1);
+		await().untilAsserted(() -> assertThat(machine.getState().getIds()).containsExactly("S3"));
+		assertThat(machine.getState().getId()).isEqualTo("S3");
 	}
 
 	@Test
@@ -70,10 +67,10 @@ public class CompletionEventTests extends AbstractStateMachineTests {
 		StateMachine<String,String> machine = resolveMachine(context);
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getId(), is("S1"));
+		assertThat(machine.getState().getId()).isEqualTo("S1");
 
 		doSendEventAndConsumeAll(machine, "E1");
-		assertThat(machine.getState().getId(), is("S3"));
+		assertThat(machine.getState().getId()).isEqualTo("S3");
 	}
 
 	public void testSubmachineWithStateActionCompletes() throws Exception {
@@ -86,10 +83,10 @@ public class CompletionEventTests extends AbstractStateMachineTests {
 		StateMachine<String,String> machine = resolveMachine(context);
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getId(), is("S1"));
+		assertThat(machine.getState().getId()).isEqualTo("S1");
 
 		doSendEventAndConsumeAll(machine, "E1");
-		assertThat(machine.getState().getId(), is("S3"));
+		assertThat(machine.getState().getId()).isEqualTo("S3");
 	}
 
 	@Test
@@ -99,10 +96,10 @@ public class CompletionEventTests extends AbstractStateMachineTests {
 		StateMachine<String,String> machine = resolveMachine(context);
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getId(), is("S1"));
+		assertThat(machine.getState().getId()).isEqualTo("S1");
 
 		doSendEventAndConsumeAll(machine, "E1");
-		assertThat(machine.getState().getId(), is("S3"));
+		assertThat(machine.getState().getId()).isEqualTo("S3");
 	}
 
 	@Test
@@ -112,10 +109,10 @@ public class CompletionEventTests extends AbstractStateMachineTests {
 		StateMachine<String,String> machine = resolveMachine(context);
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getId(), is("S1"));
+		assertThat(machine.getState().getId()).isEqualTo("S1");
 
 		doSendEventAndConsumeAll(machine, "E1");
-		assertThat(machine.getState().getId(), is("S3"));
+		assertThat(machine.getState().getId()).isEqualTo("S3");
 	}
 
 	@Test
@@ -125,15 +122,15 @@ public class CompletionEventTests extends AbstractStateMachineTests {
 		StateMachine<String,String> machine = resolveMachine(context);
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getId(), is("S1"));
+		assertThat(machine.getState().getId()).isEqualTo("S1");
 
 		doSendEventAndConsumeAll(machine, "E1");
 		doSendEventAndConsumeAll(machine, "E2");
 
 		// TODO: REACTOR think this change is because we do subcribe
 		//       with onComplete so things are not fully changed with sendEvent
-		Awaitility.await().until(() -> machine.getState().getId(), is("S3"));
-		// assertThat(machine.getState().getId(), is("S3"));
+		await().untilAsserted(() -> assertThat(machine.getState().getId()).isEqualTo("S3"));
+		// assertThat(machine.getState().getId()).isEqualTo("S3");
 	}
 
 	@Test
@@ -143,15 +140,15 @@ public class CompletionEventTests extends AbstractStateMachineTests {
 		StateMachine<String,String> machine = resolveMachine(context);
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getId(), is("S1"));
+		assertThat(machine.getState().getId()).isEqualTo("S1");
 
 		doSendEventAndConsumeAll(machine, "E1");
 		doSendEventAndConsumeAll(machine, "E3");
 
 		// TODO: REACTOR think this change is because we do subcribe
 		//       with onComplete so things are not fully changed with sendEvent
-		Awaitility.await().until(() -> machine.getState().getId(), is("S3"));
-		// assertThat(machine.getState().getId(), is("S3"));
+		await().untilAsserted(() -> assertThat(machine.getState().getId()).isEqualTo("S3"));
+		// assertThat(machine.getState().getId()).isEqualTo("S3");
 	}
 
 	@Configuration

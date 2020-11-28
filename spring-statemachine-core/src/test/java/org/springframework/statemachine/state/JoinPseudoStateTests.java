@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.springframework.statemachine.state;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,21 +43,21 @@ public class JoinPseudoStateTests {
 		Object obj2 = TestUtils.readField("track", obj1);
 
 		List<List<State<String, String>>> track = (List<List<State<String, String>>>) obj2;
-		assertThat(track.size(), is(2));
-		assertThat(track.get(0).size(), is(1));
-		assertThat(track.get(1).size(), is(1));
+		assertThat(track).hasSize(2);
+		assertThat(track.get(0)).hasSize(1);
+		assertThat(track.get(1)).hasSize(1);
 
 		pseudoState.reset(Arrays.asList("S1"));
-		assertThat(track.size(), is(1));
-		assertThat(track.get(0).size(), is(1));
+		assertThat(track).hasSize(1);
+		assertThat(track.get(0)).hasSize(1);
 
 		pseudoState.reset(Arrays.asList("S1", "S2"));
-		assertThat(track.size(), is(0));
+		assertThat(track).isEmpty();
 
 		pseudoState.reset(Collections.emptyList());
-		assertThat(track.size(), is(2));
-		assertThat(track.get(0).size(), is(1));
-		assertThat(track.get(1).size(), is(1));
+		assertThat(track).hasSize(2);
+		assertThat(track.get(0)).hasSize(1);
+		assertThat(track.get(1)).hasSize(1);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -79,20 +78,20 @@ public class JoinPseudoStateTests {
 		Object obj2 = TestUtils.readField("track", obj1);
 
 		List<List<State<String, String>>> track = (List<List<State<String, String>>>) obj2;
-		assertThat(track.size(), is(2));
-		assertThat(track.get(0).size(), is(2));
-		assertThat(track.get(1).size(), is(2));
+		assertThat(track).hasSize(2);
+		assertThat(track.get(0)).hasSize(2);
+		assertThat(track.get(1)).hasSize(2);
 
 		pseudoState.reset(Arrays.asList("S11"));
-		assertThat(track.size(), is(1));
-		assertThat(track.get(0).size(), is(2));
+		assertThat(track).hasSize(1);
+		assertThat(track.get(0)).hasSize(2);
 
 		pseudoState.reset(Arrays.asList("S11", "S21"));
-		assertThat(track.size(), is(0));
+		assertThat(track).isEmpty();
 
 		pseudoState.reset(Collections.emptyList());
-		assertThat(track.size(), is(2));
-		assertThat(track.get(0).size(), is(2));
-		assertThat(track.get(1).size(), is(2));
+		assertThat(track).hasSize(2);
+		assertThat(track.get(0)).hasSize(2);
+		assertThat(track.get(1)).hasSize(2);
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.springframework.statemachine.processor;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.EnumSet;
 import java.util.concurrent.CountDownLatch;
@@ -46,14 +45,14 @@ public class StateMachineAnnotationPostProcessorTests extends AbstractStateMachi
 	public void testWithNormalAnnotation() {
 		context.register(Config1.class, BeanConfig1.class);
 		context.refresh();
-		assertThat(context.getBeansOfType(StateMachineHandler.class).size(), is(2));
+		assertThat(context.getBeansOfType(StateMachineHandler.class)).hasSize(2);
 	}
 
 	@Test
 	public void testWithNormalAnnotationWithTransactional() {
 		context.register(Config1.class, BeanConfig2.class);
 		context.refresh();
-		assertThat(context.getBeansOfType(StateMachineHandler.class).size(), is(1));
+		assertThat(context.getBeansOfType(StateMachineHandler.class)).hasSize(1);
 	}
 
 	@WithStateMachine

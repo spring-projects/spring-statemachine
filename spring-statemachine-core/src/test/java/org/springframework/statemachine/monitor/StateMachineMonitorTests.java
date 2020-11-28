@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  */
 package org.springframework.statemachine.monitor;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveMachine;
@@ -57,22 +55,22 @@ public class StateMachineMonitorTests extends AbstractStateMachineTests {
 		LatchAction saction = context.getBean("saction", LatchAction.class);
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), contains("S1"));
+		assertThat(machine.getState().getIds()).containsExactly("S1");
 		doSendEventAndConsumeAll(machine, "E1");
-		assertThat(machine.getState().getIds(), contains("S2"));
+		assertThat(machine.getState().getIds()).containsExactly("S2");
 		// there's also initial transition, thus 2 instead 1
-		assertThat(monitor.transitions.size(), is(2));
-		assertThat(saction.latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(monitor.latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(monitor.actions.size(), is(4));
+		assertThat(monitor.transitions).hasSize(2);
+		assertThat(saction.latch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(monitor.latch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(monitor.actions).hasSize(4);
 		// TODO: REACTOR yeah we wrap action internally so can't match like this anymore
 		// Action<String, String> taction = context.getBean("taction", Action.class);
 		// Action<String, String> enaction = context.getBean("enaction", Action.class);
 		// Action<String, String> exaction = context.getBean("exaction", Action.class);
-		// assertThat(monitor.actions.keySet(), containsInAnyOrder(taction, enaction, exaction, saction));
+		// assertThat(monitor.actions.keySet()).containsOnly(taction, enaction, exaction, saction);
 		monitor.reset();
 		doSendEventAndConsumeAll(machine, "E2");
-		assertThat(machine.getState().getIds(), contains("S1"));
+		assertThat(machine.getState().getIds()).containsExactly("S1");
 	}
 
 	@Configuration

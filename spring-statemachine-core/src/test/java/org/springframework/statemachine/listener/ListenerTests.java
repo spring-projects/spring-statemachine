@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,7 @@
  */
 package org.springframework.statemachine.listener;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -57,7 +53,7 @@ public class ListenerTests extends AbstractStateMachineTests {
 	@Test
 	public void testStateEvents() {
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config1.class);
-		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		@SuppressWarnings("unchecked")
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -66,17 +62,17 @@ public class ListenerTests extends AbstractStateMachineTests {
 		TestStateMachineListener listener = new TestStateMachineListener();
 		machine.addStateListener(listener);
 
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("foo", "jee1").build());
-		assertThat(listener.states.size(), is(1));
-		assertThat(listener.states.get(0).from.getIds(), contains(TestStates.S1));
-		assertThat(listener.states.get(0).to.getIds(), contains(TestStates.S2));
+		assertThat(listener.states).hasSize(1);
+		assertThat(listener.states.get(0).from.getIds()).containsExactly(TestStates.S1);
+		assertThat(listener.states.get(0).to.getIds()).containsExactly(TestStates.S2);
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E2).setHeader("foo", "jee2").build());
-		assertThat(listener.states.size(), is(2));
-		assertThat(listener.states.get(1).from.getIds(), contains(TestStates.S2));
-		assertThat(listener.states.get(1).to.getIds(), contains(TestStates.S3));
+		assertThat(listener.states).hasSize(2);
+		assertThat(listener.states.get(1).from.getIds()).containsExactly(TestStates.S2);
+		assertThat(listener.states.get(1).to.getIds()).containsExactly(TestStates.S3);
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E4).setHeader("foo", "jee2").build());
-		assertThat(listener.states.size(), is(2));
+		assertThat(listener.states).hasSize(2);
 
 		ctx.close();
 	}
@@ -84,7 +80,7 @@ public class ListenerTests extends AbstractStateMachineTests {
 	@Test
 	public void testStartEndEvents() throws Exception {
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config2.class);
-		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		@SuppressWarnings("unchecked")
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -95,16 +91,16 @@ public class ListenerTests extends AbstractStateMachineTests {
 		machine.start();
 		machine.sendEvent(TestEvents.E1);
 		machine.sendEvent(TestEvents.E2);
-		assertThat(listener.stopLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.started, is(1));
-		assertThat(listener.stopped, is(1));
+		assertThat(listener.stopLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.started).isEqualTo(1);
+		assertThat(listener.stopped).isEqualTo(1);
 		ctx.close();
 	}
 
 	@Test
 	public void testExtendedStateEvents() throws Exception {
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config2.class);
-		assertTrue(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(ctx.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		@SuppressWarnings("unchecked")
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				ctx.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
@@ -114,10 +110,10 @@ public class ListenerTests extends AbstractStateMachineTests {
 		machine.start();
 
 		machine.getExtendedState().getVariables().put("foo", "jee");
-		assertThat(listener.extendedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.extended.size(), is(1));
-		assertThat(listener.extended.get(0).key, is("foo"));
-		assertThat(listener.extended.get(0).value, is("jee"));
+		assertThat(listener.extendedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.extended).hasSize(1);
+		assertThat(listener.extended.get(0).key).isEqualTo("foo");
+		assertThat(listener.extended.get(0).value).isEqualTo("jee");
 		ctx.close();
 	}
 

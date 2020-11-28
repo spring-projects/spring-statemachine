@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 the original author or authors.
+ * Copyright 2017-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.springframework.statemachine.service;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 
@@ -57,7 +56,7 @@ public class DefaultStateMachineServiceTests extends AbstractStateMachineTests {
 
 		DefaultStateMachineService<TestStates, TestEvents> service = new DefaultStateMachineService<>(stateMachineFactory);
 		StateMachine<TestStates,TestEvents> machine1 = service.acquireStateMachine("m1", false);
-		assertThat(((Lifecycle)machine1).isRunning(), is(false));
+		assertThat(((Lifecycle)machine1).isRunning()).isFalse();
 	}
 
 	@Test
@@ -69,7 +68,7 @@ public class DefaultStateMachineServiceTests extends AbstractStateMachineTests {
 
 		DefaultStateMachineService<TestStates, TestEvents> service = new DefaultStateMachineService<>(stateMachineFactory);
 		StateMachine<TestStates,TestEvents> machine1 = service.acquireStateMachine("m1", true);
-		assertThat(((Lifecycle)machine1).isRunning(), is(true));
+		assertThat(((Lifecycle)machine1).isRunning()).isTrue();
 	}
 
 	@Test
@@ -81,9 +80,9 @@ public class DefaultStateMachineServiceTests extends AbstractStateMachineTests {
 
 		DefaultStateMachineService<TestStates, TestEvents> service = new DefaultStateMachineService<>(stateMachineFactory);
 		StateMachine<TestStates,TestEvents> machine1 = service.acquireStateMachine("m1", true);
-		assertThat(((Lifecycle)machine1).isRunning(), is(true));
+		assertThat(((Lifecycle)machine1).isRunning()).isTrue();
 		service.releaseStateMachine("m1");
-		assertThat(((Lifecycle)machine1).isRunning(), is(false));
+		assertThat(((Lifecycle)machine1).isRunning()).isFalse();
 	}
 
 	@Test
@@ -95,9 +94,9 @@ public class DefaultStateMachineServiceTests extends AbstractStateMachineTests {
 
 		DefaultStateMachineService<TestStates, TestEvents> service = new DefaultStateMachineService<>(stateMachineFactory);
 		StateMachine<TestStates,TestEvents> machine1 = service.acquireStateMachine("m1", true);
-		assertThat(((Lifecycle)machine1).isRunning(), is(true));
+		assertThat(((Lifecycle)machine1).isRunning()).isTrue();
 		service.releaseStateMachine("m1", false);
-		assertThat(((Lifecycle)machine1).isRunning(), is(true));
+		assertThat(((Lifecycle)machine1).isRunning()).isTrue();
 	}
 
 	@Test
@@ -110,12 +109,12 @@ public class DefaultStateMachineServiceTests extends AbstractStateMachineTests {
 		DefaultStateMachineService<TestStates, TestEvents> service = new DefaultStateMachineService<>(stateMachineFactory);
 		StateMachine<TestStates,TestEvents> machine1 = service.acquireStateMachine("m1", false);
 		StateMachine<TestStates,TestEvents> machine2 = service.acquireStateMachine("m2", false);
-		assertThat(((Lifecycle)machine1).isRunning(), is(false));
-		assertThat(((Lifecycle)machine2).isRunning(), is(false));
+		assertThat(((Lifecycle)machine1).isRunning()).isFalse();
+		assertThat(((Lifecycle)machine2).isRunning()).isFalse();
 		Map<?, ?> machines = TestUtils.readField("machines", service);
-		assertThat(machines.size(), is(2));
+		assertThat(machines).hasSize(2);
 		service.destroy();
-		assertThat(machines.size(), is(0));
+		assertThat(machines).isEmpty();
 	}
 
 	@Configuration

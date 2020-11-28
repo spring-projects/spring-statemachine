@@ -16,7 +16,7 @@
 package org.springframework.statemachine.zookeeper;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -229,8 +229,9 @@ public class ZookeeperStateMachineEnsembleTests extends AbstractZookeeperTests {
 
 	@Test
 	public void testIllegalLogSize() throws Exception {
-		assertThrows(IllegalStateException.class,
-			() -> new ZookeeperStateMachineEnsemble<String, String>(null, "/foo", true, 3));
+		assertThatThrownBy(() -> {
+			new ZookeeperStateMachineEnsemble<String, String>(null, "/foo", true, 3);
+		}).isInstanceOf(IllegalStateException.class);
 	}
 
 	@Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,7 @@
  */
 package org.springframework.statemachine.config.common.annotation;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,14 +48,13 @@ public class XmlImportDependenciesTests {
 
 	@Test
 	public void testDependencyBeanFromXml() throws Exception {
-		assertNotNull(ctx);
-		assertTrue(ctx.containsBean("simpleConfig"));
-		assertTrue(ctx.containsBean("simpleConfigBeanB"));
-		assertTrue(ctx.containsBean("dependencyBean"));
+		assertThat(ctx.containsBean("simpleConfig")).isTrue();
+		assertThat(ctx.containsBean("simpleConfigBeanB")).isTrue();
+		assertThat(ctx.containsBean("dependencyBean")).isTrue();
 
 		DependencyBean dependencyBean = ctx.getBean(DependencyBean.class);
-		assertThat(dependencyBean, notNullValue());
-		assertThat(dependencyBean.getBeanB(), notNullValue());
+		assertThat(dependencyBean).isNotNull();
+		assertThat(dependencyBean.getBeanB()).isNotNull();
 	}
 
 	@Configuration

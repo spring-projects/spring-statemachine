@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,7 @@
  */
 package org.springframework.statemachine;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveMachine;
@@ -30,9 +23,8 @@ import static org.springframework.statemachine.TestUtils.resolveMachine;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import org.hamcrest.FeatureMatcher;
-import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -63,95 +55,95 @@ public class StateContextTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S1, States.S11));
-		assertThat(listener.contexts, hasSize(19));
-
-		assertThat(listener.contexts, contains(
+		assertThat(machine.getState().getIds()).containsOnly(States.S0, States.S1, States.S11);
+		assertThat(listener.contexts).hasSize(19);
+		assertThat(listener.contexts.stream().map(c -> c.getStage()).collect(Collectors.toList())).containsExactly(
 			Arrays.asList(
-				hasStage(Stage.TRANSITION_START),
-				hasStage(Stage.EXTENDED_STATE_CHANGED),
-				hasStage(Stage.TRANSITION),
-				hasStage(Stage.STATE_ENTRY),
-				hasStage(Stage.TRANSITION_START),
-				hasStage(Stage.TRANSITION),
-				hasStage(Stage.STATE_ENTRY),
-				hasStage(Stage.TRANSITION_START),
-				hasStage(Stage.TRANSITION),
-				hasStage(Stage.STATE_ENTRY),
-				hasStage(Stage.STATE_CHANGED),
-				hasStage(Stage.STATEMACHINE_START),
-				hasStage(Stage.TRANSITION_END),
-				hasStage(Stage.STATE_CHANGED),
-				hasStage(Stage.STATEMACHINE_START),
-				hasStage(Stage.TRANSITION_END),
-				hasStage(Stage.STATE_CHANGED),
-				hasStage(Stage.STATEMACHINE_START),
-				hasStage(Stage.TRANSITION_END))
-		));
+				Stage.TRANSITION_START,
+				Stage.EXTENDED_STATE_CHANGED,
+				Stage.TRANSITION,
+				Stage.STATE_ENTRY,
+				Stage.TRANSITION_START,
+				Stage.TRANSITION,
+				Stage.STATE_ENTRY,
+				Stage.TRANSITION_START,
+				Stage.TRANSITION,
+				Stage.STATE_ENTRY,
+				Stage.STATE_CHANGED,
+				Stage.STATEMACHINE_START,
+				Stage.TRANSITION_END,
+				Stage.STATE_CHANGED,
+				Stage.STATEMACHINE_START,
+				Stage.TRANSITION_END,
+				Stage.STATE_CHANGED,
+				Stage.STATEMACHINE_START,
+				Stage.TRANSITION_END
+				).toArray(new Stage[0])
+		);
 
-		assertThat(listener.contexts.get(0).getStage(), is(Stage.TRANSITION_START));
-		assertThat(listener.contexts.get(0).getTransition(), notNullValue());
-		assertThat(listener.contexts.get(0).getTransition().getSource(), nullValue());
-		assertThat(listener.contexts.get(0).getTransition().getTarget(), notNullValue());
-		assertThat(listener.contexts.get(0).getTransition().getTarget().getId(), is(States.S0));
-		assertThat(listener.contexts.get(0).getSource(), nullValue());
-		assertThat(listener.contexts.get(0).getTarget(), notNullValue());
+		assertThat(listener.contexts.get(0).getStage()).isEqualTo(Stage.TRANSITION_START);
+		assertThat(listener.contexts.get(0).getTransition()).isNotNull();
+		assertThat(listener.contexts.get(0).getTransition().getSource()).isNull();
+		assertThat(listener.contexts.get(0).getTransition().getTarget()).isNotNull();
+		assertThat(listener.contexts.get(0).getTransition().getTarget().getId()).isEqualTo(States.S0);
+		assertThat(listener.contexts.get(0).getSource()).isNull();
+		assertThat(listener.contexts.get(0).getTarget()).isNotNull();
 
-		assertThat(listener.contexts.get(1).getStage(), is(Stage.EXTENDED_STATE_CHANGED));
+		assertThat(listener.contexts.get(1).getStage()).isEqualTo(Stage.EXTENDED_STATE_CHANGED);
 
-		assertThat(listener.contexts.get(2).getStage(), is(Stage.TRANSITION));
-		assertThat(listener.contexts.get(2).getTransition(), notNullValue());
-		assertThat(listener.contexts.get(2).getTransition().getSource(), nullValue());
-		assertThat(listener.contexts.get(2).getTransition().getTarget(), notNullValue());
-		assertThat(listener.contexts.get(2).getTransition().getTarget().getId(), is(States.S0));
-		assertThat(listener.contexts.get(2).getSource(), nullValue());
-		assertThat(listener.contexts.get(2).getTarget(), notNullValue());
+		assertThat(listener.contexts.get(2).getStage()).isEqualTo(Stage.TRANSITION);
+		assertThat(listener.contexts.get(2).getTransition()).isNotNull();
+		assertThat(listener.contexts.get(2).getTransition().getSource()).isNull();
+		assertThat(listener.contexts.get(2).getTransition().getTarget()).isNotNull();
+		assertThat(listener.contexts.get(2).getTransition().getTarget().getId()).isEqualTo(States.S0);
+		assertThat(listener.contexts.get(2).getSource()).isNull();
+		assertThat(listener.contexts.get(2).getTarget()).isNotNull();
 
 
-		assertThat(listener.contexts.get(3).getStage(), is(Stage.STATE_ENTRY));
-		assertThat(listener.contexts.get(3).getTarget(), notNullValue());
-		assertThat(listener.contexts.get(3).getTarget().getId(), is(States.S0));
-		assertThat(listener.contexts.get(3).getTransition(), notNullValue());
+		assertThat(listener.contexts.get(3).getStage()).isEqualTo(Stage.STATE_ENTRY);
+		assertThat(listener.contexts.get(3).getTarget()).isNotNull();
+		assertThat(listener.contexts.get(3).getTarget().getId()).isEqualTo(States.S0);
+		assertThat(listener.contexts.get(3).getTransition()).isNotNull();
 
-		assertThat(listener.contexts.get(4).getStage(), is(Stage.TRANSITION_START));
+		assertThat(listener.contexts.get(4).getStage()).isEqualTo(Stage.TRANSITION_START);
 
-		assertThat(listener.contexts.get(5).getStage(), is(Stage.TRANSITION));
+		assertThat(listener.contexts.get(5).getStage()).isEqualTo(Stage.TRANSITION);
 
-		assertThat(listener.contexts.get(6).getStage(), is(Stage.STATE_ENTRY));
-		assertThat(listener.contexts.get(6).getTarget(), notNullValue());
-		assertThat(listener.contexts.get(6).getTarget().getId(), is(States.S1));
-		assertThat(listener.contexts.get(6).getTransition(), notNullValue());
+		assertThat(listener.contexts.get(6).getStage()).isEqualTo(Stage.STATE_ENTRY);
+		assertThat(listener.contexts.get(6).getTarget()).isNotNull();
+		assertThat(listener.contexts.get(6).getTarget().getId()).isEqualTo(States.S1);
+		assertThat(listener.contexts.get(6).getTransition()).isNotNull();
 
-		assertThat(listener.contexts.get(7).getStage(), is(Stage.TRANSITION_START));
+		assertThat(listener.contexts.get(7).getStage()).isEqualTo(Stage.TRANSITION_START);
 
-		assertThat(listener.contexts.get(8).getStage(), is(Stage.TRANSITION));
+		assertThat(listener.contexts.get(8).getStage()).isEqualTo(Stage.TRANSITION);
 
-		assertThat(listener.contexts.get(9).getStage(), is(Stage.STATE_ENTRY));
-		assertThat(listener.contexts.get(9).getTarget(), notNullValue());
-		assertThat(listener.contexts.get(9).getTarget().getId(), is(States.S11));
-		assertThat(listener.contexts.get(9).getTransition(), notNullValue());
+		assertThat(listener.contexts.get(9).getStage()).isEqualTo(Stage.STATE_ENTRY);
+		assertThat(listener.contexts.get(9).getTarget()).isNotNull();
+		assertThat(listener.contexts.get(9).getTarget().getId()).isEqualTo(States.S11);
+		assertThat(listener.contexts.get(9).getTransition()).isNotNull();
 
-		assertThat(listener.contexts.get(10).getStage(), is(Stage.STATE_CHANGED));
+		assertThat(listener.contexts.get(10).getStage()).isEqualTo(Stage.STATE_CHANGED);
 
-		assertThat(listener.contexts.get(11).getStage(), is(Stage.STATEMACHINE_START));
-		assertThat(listener.contexts.get(11).getTransition(), notNullValue());
+		assertThat(listener.contexts.get(11).getStage()).isEqualTo(Stage.STATEMACHINE_START);
+		assertThat(listener.contexts.get(11).getTransition()).isNotNull();
 
-		assertThat(listener.contexts.get(12).getStage(), is(Stage.TRANSITION_END));
+		assertThat(listener.contexts.get(12).getStage()).isEqualTo(Stage.TRANSITION_END);
 
-		assertThat(listener.contexts.get(13).getStage(), is(Stage.STATE_CHANGED));
+		assertThat(listener.contexts.get(13).getStage()).isEqualTo(Stage.STATE_CHANGED);
 
-		assertThat(listener.contexts.get(14).getStage(), is(Stage.STATEMACHINE_START));
-		assertThat(listener.contexts.get(14).getTransition(), notNullValue());
+		assertThat(listener.contexts.get(14).getStage()).isEqualTo(Stage.STATEMACHINE_START);
+		assertThat(listener.contexts.get(14).getTransition()).isNotNull();
 
-		assertThat(listener.contexts.get(15).getStage(), is(Stage.TRANSITION_END));
+		assertThat(listener.contexts.get(15).getStage()).isEqualTo(Stage.TRANSITION_END);
 
-		assertThat(listener.contexts.get(16).getStage(), is(Stage.STATE_CHANGED));
+		assertThat(listener.contexts.get(16).getStage()).isEqualTo(Stage.STATE_CHANGED);
 
-		assertThat(listener.contexts.get(17).getStage(), is(Stage.STATEMACHINE_START));
-		assertThat(listener.contexts.get(17).getTransition(), notNullValue());
+		assertThat(listener.contexts.get(17).getStage()).isEqualTo(Stage.STATEMACHINE_START);
+		assertThat(listener.contexts.get(17).getTransition()).isNotNull();
 
-		assertThat(listener.contexts.get(18).getStage(), is(Stage.TRANSITION_END));
-		assertThat(listener.contexts.get(18).getTransition(), notNullValue());
+		assertThat(listener.contexts.get(18).getStage()).isEqualTo(Stage.TRANSITION_END);
+		assertThat(listener.contexts.get(18).getTransition()).isNotNull();
 	}
 
 	@Test
@@ -169,19 +161,20 @@ public class StateContextTests extends AbstractStateMachineTests {
 		doSendEventAndConsumeAll(machine, Events.J);
 
 		// all nested machines sends these
-		assertThat(listener.contexts, contains(
+		assertThat(listener.contexts.stream().map(c -> c.getStage()).collect(Collectors.toList())).containsExactly(
 			Arrays.asList(
-				hasStage(Stage.EVENT_NOT_ACCEPTED),
-				hasStage(Stage.EVENT_NOT_ACCEPTED),
-				hasStage(Stage.EVENT_NOT_ACCEPTED))
-		));
+				Stage.EVENT_NOT_ACCEPTED,
+				Stage.EVENT_NOT_ACCEPTED,
+				Stage.EVENT_NOT_ACCEPTED
+				).toArray(new Stage[0])
+		);
 
-		assertThat(listener.contexts.get(0).getStage(), is(Stage.EVENT_NOT_ACCEPTED));
-		assertThat(listener.contexts.get(0).getTransition(), nullValue());
-		assertThat(listener.contexts.get(0).getEvent(), is(Events.J));
-		assertThat(listener.contexts.get(0).getSource(), notNullValue());
-		assertThat(listener.contexts.get(0).getSource().getId(), is(States.S0));
-		assertThat(listener.contexts.get(0).getTarget(), nullValue());
+		assertThat(listener.contexts.get(0).getStage()).isEqualTo(Stage.EVENT_NOT_ACCEPTED);
+		assertThat(listener.contexts.get(0).getTransition()).isNull();
+		assertThat(listener.contexts.get(0).getEvent()).isEqualTo(Events.J);
+		assertThat(listener.contexts.get(0).getSource()).isNotNull();
+		assertThat(listener.contexts.get(0).getSource().getId()).isEqualTo(States.S0);
+		assertThat(listener.contexts.get(0).getTarget()).isNull();
 	}
 
 	static class TestStateMachineListener extends StateMachineListenerAdapter<States, Events> {
@@ -192,15 +185,6 @@ public class StateContextTests extends AbstractStateMachineTests {
 		public void stateContext(StateContext<States, Events> stateContext) {
 			contexts.add(stateContext);
 		}
-	}
-
-	private static Matcher<StateContext<?, ?>> hasStage(final Stage stage) {
-		return new FeatureMatcher<StateContext<?, ?>, Stage>(equalTo(stage), "stage", "stage") {
-			@Override
-			protected Stage featureValueOf(final StateContext<?, ?> actual) {
-				return actual.getStage();
-			}
-		};
 	}
 
 	@Configuration

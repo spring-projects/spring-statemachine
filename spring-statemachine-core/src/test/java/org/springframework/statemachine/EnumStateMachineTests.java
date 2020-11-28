@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.springframework.statemachine;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -86,27 +85,27 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 		machine.start();
 
 		State<TestStates,TestEvents> initialState = machine.getInitialState();
-		assertThat(initialState, is(stateSI));
+		assertThat(initialState).isEqualTo(stateSI);
 
 		State<TestStates,TestEvents> state = machine.getState();
-		assertThat(state, is(stateSI));
+		assertThat(state).isEqualTo(stateSI);
 
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
 		state = machine.getState();
-		assertThat(state, is(stateS1));
+		assertThat(state).isEqualTo(stateS1);
 
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E2).build());
 		state = machine.getState();
-		assertThat(state, is(stateS2));
+		assertThat(state).isEqualTo(stateS2);
 
 		// not processed
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
 		state = machine.getState();
-		assertThat(state, is(stateS2));
+		assertThat(state).isEqualTo(stateS2);
 
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E3).build());
 		state = machine.getState();
-		assertThat(state, is(stateS3));
+		assertThat(state).isEqualTo(stateS3);
 	}
 
 	@Test
@@ -159,21 +158,21 @@ public class EnumStateMachineTests extends AbstractStateMachineTests {
 		machine.start();
 
 		State<TestStates,TestEvents> initialState = machine.getInitialState();
-		assertThat(initialState, is(stateSI));
+		assertThat(initialState).isEqualTo(stateSI);
 
 		State<TestStates,TestEvents> state = machine.getState();
-		assertThat(state, is(stateSI));
+		assertThat(state).isEqualTo(stateSI);
 
 
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E2).build());
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E3).build());
 		state = machine.getState();
-		assertThat(state, is(stateSI));
+		assertThat(state).isEqualTo(stateSI);
 
 
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
 		state = machine.getState();
-		assertThat(state, is(stateS3));
+		assertThat(state).isEqualTo(stateS3);
 	}
 
 	@Test

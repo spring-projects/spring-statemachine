@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,7 @@
  */
 package org.springframework.statemachine.config;
 
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +40,9 @@ public class MachineTypedTests extends AbstractStateMachineTests {
 		context.refresh();
 
 		MyBean1 myBean1 = context.getBean(MyBean1.class);
-		assertThat(myBean1.machine1, notNullValue());
-		assertThat(myBean1.machine2, notNullValue());
-		assertThat(myBean1.machine1, not(sameInstance(myBean1.machine2)));
+		assertThat(myBean1.machine1).isNotNull();
+		assertThat(myBean1.machine2).isNotNull();
+		assertThat(myBean1.machine1).isNotSameAs(myBean1.machine2);
 	}
 
 	@Test
@@ -54,9 +51,9 @@ public class MachineTypedTests extends AbstractStateMachineTests {
 		context.refresh();
 
 		MyBean2 myBean2 = context.getBean(MyBean2.class);
-		assertThat(myBean2.someMachine1, notNullValue());
-		assertThat(myBean2.someMachine2, notNullValue());
-		assertThat(myBean2.someMachine1, not(sameInstance(myBean2.someMachine2)));
+		assertThat(myBean2.someMachine1).isNotNull();
+		assertThat(myBean2.someMachine2).isNotNull();
+		assertThat(myBean2.someMachine1).isNotSameAs(myBean2.someMachine2);
 	}
 
 	@Test
@@ -65,9 +62,9 @@ public class MachineTypedTests extends AbstractStateMachineTests {
 		context.refresh();
 
 		MyBean3 myBean3 = context.getBean(MyBean3.class);
-		assertThat(myBean3.machinefactory1, notNullValue());
-		assertThat(myBean3.machinefactory2, notNullValue());
-		assertThat(myBean3.machinefactory1, not(sameInstance(myBean3.machinefactory2)));
+		assertThat(myBean3.machinefactory1).isNotNull();
+		assertThat(myBean3.machinefactory2).isNotNull();
+		assertThat(myBean3.machinefactory1).isNotSameAs(myBean3.machinefactory2);
 	}
 
 	@Test
@@ -76,9 +73,9 @@ public class MachineTypedTests extends AbstractStateMachineTests {
 		context.refresh();
 
 		MyBean4 myBean4 = context.getBean(MyBean4.class);
-		assertThat(myBean4.someMachineFactory1, notNullValue());
-		assertThat(myBean4.someMachineFactory2, notNullValue());
-		assertThat(myBean4.someMachineFactory1, not(sameInstance(myBean4.someMachineFactory2)));
+		assertThat(myBean4.someMachineFactory1).isNotNull();
+		assertThat(myBean4.someMachineFactory2).isNotNull();
+		assertThat(myBean4.someMachineFactory1).isNotSameAs(myBean4.someMachineFactory2);
 	}
 
 	@Test
@@ -87,9 +84,9 @@ public class MachineTypedTests extends AbstractStateMachineTests {
 		context.refresh();
 
 		MyBean5 myBean5 = context.getBean(MyBean5.class);
-		assertThat(myBean5.someMachineFactory3, notNullValue());
-		assertThat(myBean5.someMachineFactory4, notNullValue());
-		assertThat(myBean5.someMachineFactory3, not(sameInstance(myBean5.someMachineFactory4)));
+		assertThat(myBean5.someMachineFactory3).isNotNull();
+		assertThat(myBean5.someMachineFactory4).isNotNull();
+		assertThat(myBean5.someMachineFactory3).isNotSameAs(myBean5.someMachineFactory4);
 	}
 
 	@Test
@@ -98,9 +95,9 @@ public class MachineTypedTests extends AbstractStateMachineTests {
 		context.refresh();
 
 		MyBean6 myBean6 = context.getBean(MyBean6.class);
-		assertThat(myBean6.someMachine3, notNullValue());
-		assertThat(myBean6.someMachine4, notNullValue());
-		assertThat(myBean6.someMachine3, not(sameInstance(myBean6.someMachine4)));
+		assertThat(myBean6.someMachine3).isNotNull();
+		assertThat(myBean6.someMachine4).isNotNull();
+		assertThat(myBean6.someMachine3).isNotSameAs(myBean6.someMachine4);
 	}
 
 	@Configuration

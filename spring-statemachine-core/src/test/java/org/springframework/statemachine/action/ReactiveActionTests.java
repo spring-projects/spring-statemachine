@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.springframework.statemachine.action;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveMachine;
@@ -59,14 +58,14 @@ public class ReactiveActionTests extends AbstractStateMachineTests {
 		TestCountAction testAction4 = context.getBean("testAction4", TestCountAction.class);
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
 		doSendEventAndConsumeAll(machine, TestEvents.E2);
-		assertThat(testAction1.latch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(testAction2.latch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(testAction3.latch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(testAction4.latch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(testAction1.count, is(1));
-		assertThat(testAction2.count, is(1));
-		assertThat(testAction3.count, is(1));
-		assertThat(testAction4.count, is(1));
+		assertThat(testAction1.latch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(testAction2.latch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(testAction3.latch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(testAction4.latch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(testAction1.count).isEqualTo(1);
+		assertThat(testAction2.count).isEqualTo(1);
+		assertThat(testAction3.count).isEqualTo(1);
+		assertThat(testAction4.count).isEqualTo(1);
 	}
 
 	@Configuration

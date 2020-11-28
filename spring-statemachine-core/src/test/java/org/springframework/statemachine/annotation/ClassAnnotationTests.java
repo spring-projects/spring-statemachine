@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.springframework.statemachine.annotation;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -51,8 +50,8 @@ public class ClassAnnotationTests extends AbstractStateMachineTests {
 		ObjectStateMachine<TestStates,TestEvents> barMachine =
 				context.getBean("barMachine", ObjectStateMachine.class);
 
-		assertThat(context.containsBean("fooMachine"), is(true));
-		assertThat(context.containsBean("barMachine"), is(true));
+		assertThat(context.containsBean("fooMachine")).isTrue();
+		assertThat(context.containsBean("barMachine")).isTrue();
 		fooMachine.start();
 		barMachine.start();
 
@@ -64,16 +63,16 @@ public class ClassAnnotationTests extends AbstractStateMachineTests {
 		// this event should cause 'FooBean.fooMethod' to get called
 		fooMachine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
 
-		assertThat(fooBean.onFooMethodLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(barBean.onBarMethodLatch.await(2, TimeUnit.SECONDS), is(false));
+		assertThat(fooBean.onFooMethodLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(barBean.onBarMethodLatch.await(2, TimeUnit.SECONDS)).isFalse();
 
 		fooBean.resetMethodLatch();
 
 		// this event should cause 'BarBean.barMethod' to get called
 		barMachine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
 
-		assertThat(fooBean.onFooMethodLatch.await(2, TimeUnit.SECONDS), is(false));
-		assertThat(barBean.onBarMethodLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(fooBean.onFooMethodLatch.await(2, TimeUnit.SECONDS)).isFalse();
+		assertThat(barBean.onBarMethodLatch.await(2, TimeUnit.SECONDS)).isTrue();
 
 		context.close();
 	}
@@ -87,16 +86,16 @@ public class ClassAnnotationTests extends AbstractStateMachineTests {
 		ObjectStateMachine<TestStates,TestEvents> jeeMachine =
 				context.getBean("jeeMachine", ObjectStateMachine.class);
 
-		assertThat(context.containsBean("fooMachine"), is(true));
-		assertThat(context.containsBean("jeeMachine"), is(true));
+		assertThat(context.containsBean("fooMachine")).isTrue();
+		assertThat(context.containsBean("jeeMachine")).isTrue();
 
 		JeeBean jeeBean = context.getBean(JeeBean.class);
 		FooBean fooBean = context.getBean(FooBean.class);
 		fooBean.resetMethodLatch();
 		jeeMachine.start();
 		jeeMachine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
-		assertThat(jeeBean.onJeeMethodLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(fooBean.onFooMethodLatch.await(2, TimeUnit.SECONDS), is(false));
+		assertThat(jeeBean.onJeeMethodLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(fooBean.onFooMethodLatch.await(2, TimeUnit.SECONDS)).isFalse();
 		context.close();
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,7 @@
  */
 package org.springframework.statemachine.action;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveMachine;
@@ -59,9 +56,9 @@ public class ActionTests extends AbstractStateMachineTests {
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
 		doSendEventAndConsumeAll(machine, TestEvents.E2);
 		doSendEventAndConsumeAll(machine, TestEvents.E3);
-		assertThat(testAction1.count, is(1));
-		assertThat(testAction2.count, is(1));
-		assertThat(testAction3.count, is(1));
+		assertThat(testAction1.count).isEqualTo(1);
+		assertThat(testAction2.count).isEqualTo(1);
+		assertThat(testAction3.count).isEqualTo(1);
 	}
 
 	@Test
@@ -74,12 +71,12 @@ public class ActionTests extends AbstractStateMachineTests {
 		TestCountAction testAction1 = context.getBean("testAction1", TestCountAction.class);
 		TestCountAction testErrorAction = context.getBean("testErrorAction", TestCountAction.class);
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(testAction1.count, is(1));
-		assertThat(testErrorAction.count, is(1));
-		assertThat(testErrorAction.context, notNullValue());
-		assertThat(testErrorAction.context.getException(), notNullValue());
-		assertThat(testErrorAction.context.getException(), instanceOf(RuntimeException.class));
-		assertThat(testErrorAction.context.getException().getMessage(), is("Fake Error"));
+		assertThat(testAction1.count).isEqualTo(1);
+		assertThat(testErrorAction.count).isEqualTo(1);
+		assertThat(testErrorAction.context).isNotNull();
+		assertThat(testErrorAction.context.getException()).isNotNull();
+		assertThat(testErrorAction.context.getException()).isInstanceOf(RuntimeException.class);
+		assertThat(testErrorAction.context.getException().getMessage()).isEqualTo("Fake Error");
 	}
 
 	@Test
@@ -97,33 +94,33 @@ public class ActionTests extends AbstractStateMachineTests {
 		TestCountAction testErrorAction4 = context.getBean("testErrorAction4", TestCountAction.class);
 
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(machine.getState().getId(), is(TestStates.S2));
-		assertThat(testErrorAction3.latch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(testErrorAction2.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getId()).isEqualTo(TestStates.S2);
+		assertThat(testErrorAction3.latch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(testErrorAction2.latch.await(1, TimeUnit.SECONDS)).isTrue();
 
 		doSendEventAndConsumeAll(machine, TestEvents.E2);
-		assertThat(testErrorAction4.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(testErrorAction4.latch.await(1, TimeUnit.SECONDS)).isTrue();
 
-		assertThat(testAction2.count, is(1));
-		assertThat(testErrorAction2.count, is(1));
-		assertThat(testErrorAction2.context, notNullValue());
-		assertThat(testErrorAction2.context.getException(), notNullValue());
-		assertThat(testErrorAction2.context.getException(), instanceOf(RuntimeException.class));
-		assertThat(testErrorAction2.context.getException().getMessage(), is("Fake Error"));
+		assertThat(testAction2.count).isEqualTo(1);
+		assertThat(testErrorAction2.count).isEqualTo(1);
+		assertThat(testErrorAction2.context).isNotNull();
+		assertThat(testErrorAction2.context.getException()).isNotNull();
+		assertThat(testErrorAction2.context.getException()).isInstanceOf(RuntimeException.class);
+		assertThat(testErrorAction2.context.getException().getMessage()).isEqualTo("Fake Error");
 
-		assertThat(testAction3.count, is(1));
-		assertThat(testErrorAction3.count, is(1));
-		assertThat(testErrorAction3.context, notNullValue());
-		assertThat(testErrorAction3.context.getException(), notNullValue());
-		assertThat(testErrorAction3.context.getException(), instanceOf(RuntimeException.class));
-		assertThat(testErrorAction3.context.getException().getMessage(), is("Fake Error"));
+		assertThat(testAction3.count).isEqualTo(1);
+		assertThat(testErrorAction3.count).isEqualTo(1);
+		assertThat(testErrorAction3.context).isNotNull();
+		assertThat(testErrorAction3.context.getException()).isNotNull();
+		assertThat(testErrorAction3.context.getException()).isInstanceOf(RuntimeException.class);
+		assertThat(testErrorAction3.context.getException().getMessage()).isEqualTo("Fake Error");
 
-		assertThat(testAction4.count, is(1));
-		assertThat(testErrorAction4.count, is(1));
-		assertThat(testErrorAction4.context, notNullValue());
-		assertThat(testErrorAction4.context.getException(), notNullValue());
-		assertThat(testErrorAction4.context.getException(), instanceOf(RuntimeException.class));
-		assertThat(testErrorAction4.context.getException().getMessage(), is("Fake Error"));
+		assertThat(testAction4.count).isEqualTo(1);
+		assertThat(testErrorAction4.count).isEqualTo(1);
+		assertThat(testErrorAction4.context).isNotNull();
+		assertThat(testErrorAction4.context.getException()).isNotNull();
+		assertThat(testErrorAction4.context.getException()).isInstanceOf(RuntimeException.class);
+		assertThat(testErrorAction4.context.getException().getMessage()).isEqualTo("Fake Error");
 	}
 
 	@Test

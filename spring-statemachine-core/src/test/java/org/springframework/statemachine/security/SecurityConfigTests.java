@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,7 @@
  */
 package org.springframework.statemachine.security;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collection;
 import java.util.List;
@@ -64,136 +59,136 @@ public class SecurityConfigTests extends AbstractStateMachineTests {
 	public void testSecurityEnabledWithTrue() throws Exception {
 		context.register(Config1.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		@SuppressWarnings("unchecked")
 		ObjectStateMachine<String, String> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 
 		StateMachineInterceptorList<?, ?> ilist = TestUtils.readField("interceptors", machine);
 		List<StateMachineInterceptor<?, ?>> interceptors = TestUtils.readField("interceptors", ilist);
-		assertThat(interceptors, notNullValue());
-		assertThat(interceptors.size(), is(1));
-		assertThat(interceptors.get(0), instanceOf(StateMachineSecurityInterceptor.class));
+		assertThat(interceptors).isNotNull();
+		assertThat(interceptors).hasSize(1);
+		assertThat(interceptors.get(0)).isInstanceOf(StateMachineSecurityInterceptor.class);
 		Object adm = TestUtils.readField("transitionAccessDecisionManager", interceptors.get(0));
-		assertThat(adm, nullValue());
+		assertThat(adm).isNull();
 	}
 
 	@Test
 	public void testSecurityDisabledWithFalse() throws Exception {
 		context.register(Config2.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		@SuppressWarnings("unchecked")
 		ObjectStateMachine<String, String> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 
 		StateMachineInterceptorList<?, ?> ilist = TestUtils.readField("interceptors", machine);
 		List<StateMachineInterceptor<?, ?>> interceptors = TestUtils.readField("interceptors", ilist);
-		assertThat(interceptors, notNullValue());
-		assertThat(interceptors.size(), is(0));
+		assertThat(interceptors).isNotNull();
+		assertThat(interceptors).isEmpty();
 	}
 
 	@Test
 	public void testSecurityEnabledWithJustWith() throws Exception {
 		context.register(Config3.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		@SuppressWarnings("unchecked")
 		ObjectStateMachine<String, String> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 
 		StateMachineInterceptorList<?, ?> ilist = TestUtils.readField("interceptors", machine);
 		List<StateMachineInterceptor<?, ?>> interceptors = TestUtils.readField("interceptors", ilist);
-		assertThat(interceptors.size(), is(1));
-		assertThat(interceptors.get(0), instanceOf(StateMachineSecurityInterceptor.class));
+		assertThat(interceptors).hasSize(1);
+		assertThat(interceptors.get(0)).isInstanceOf(StateMachineSecurityInterceptor.class);
 		Object adm = TestUtils.readField("transitionAccessDecisionManager", interceptors.get(0));
-		assertThat(adm, nullValue());
+		assertThat(adm).isNull();
 	}
 
 	@Test
 	public void testSecurityDisabledNoSecurityConfigurer() throws Exception {
 		context.register(Config4.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		@SuppressWarnings("unchecked")
 		ObjectStateMachine<String, String> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 
 		StateMachineInterceptorList<?, ?> ilist = TestUtils.readField("interceptors", machine);
 		List<StateMachineInterceptor<?, ?>> interceptors = TestUtils.readField("interceptors", ilist);
-		assertThat(interceptors, notNullValue());
-		assertThat(interceptors.size(), is(0));
+		assertThat(interceptors).isNotNull();
+		assertThat(interceptors).isEmpty();
 	}
 
 	@Test
 	public void testCustomAccessDecisionManager() throws Exception {
 		context.register(Config5.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		@SuppressWarnings("unchecked")
 		ObjectStateMachine<String, String> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 
 		StateMachineInterceptorList<?, ?> ilist = TestUtils.readField("interceptors", machine);
 		List<StateMachineInterceptor<?, ?>> interceptors = TestUtils.readField("interceptors", ilist);
-		assertThat(interceptors, notNullValue());
-		assertThat(interceptors.size(), is(1));
-		assertThat(interceptors.get(0), instanceOf(StateMachineSecurityInterceptor.class));
+		assertThat(interceptors).isNotNull();
+		assertThat(interceptors).hasSize(1);
+		assertThat(interceptors.get(0)).isInstanceOf(StateMachineSecurityInterceptor.class);
 		Object adm = TestUtils.readField("transitionAccessDecisionManager", interceptors.get(0));
-		assertThat(adm, notNullValue());
-		assertThat(adm, instanceOf(MockAccessDecisionManager.class));
+		assertThat(adm).isNotNull();
+		assertThat(adm).isInstanceOf(MockAccessDecisionManager.class);
 	}
 
 	@Test
 	public void testTransitionExplicit() throws Exception {
 		context.register(Config6.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		@SuppressWarnings("unchecked")
 		ObjectStateMachine<String, String> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 
 		Transition<String, String> transition = machine.getTransitions().iterator().next();
-		assertThat(transition.getSecurityRule(), notNullValue());
+		assertThat(transition.getSecurityRule()).isNotNull();
 	}
 
 	@Test
 	public void testTransitionGlobal() throws Exception {
 		context.register(Config8.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		@SuppressWarnings("unchecked")
 		ObjectStateMachine<String, String> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 
 		Transition<String, String> transition = machine.getTransitions().iterator().next();
-		assertThat(transition.getSecurityRule(), notNullValue());
+		assertThat(transition.getSecurityRule()).isNotNull();
 	}
 
 	@Test
 	public void testEventRule() throws Exception {
 		context.register(Config7.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		@SuppressWarnings("unchecked")
 		ObjectStateMachine<String, String> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 
 		StateMachineInterceptorList<?, ?> ilist = TestUtils.readField("interceptors", machine);
 		List<StateMachineInterceptor<?, ?>> interceptors = TestUtils.readField("interceptors", ilist);
-		assertThat(interceptors, notNullValue());
-		assertThat(interceptors.size(), is(1));
-		assertThat(interceptors.get(0), instanceOf(StateMachineSecurityInterceptor.class));
+		assertThat(interceptors).isNotNull();
+		assertThat(interceptors).hasSize(1);
+		assertThat(interceptors.get(0)).isInstanceOf(StateMachineSecurityInterceptor.class);
 		Object adm = TestUtils.readField("eventSecurityRule", interceptors.get(0));
-		assertThat(adm, notNullValue());
+		assertThat(adm).isNotNull();
 	}
 
 	@Configuration

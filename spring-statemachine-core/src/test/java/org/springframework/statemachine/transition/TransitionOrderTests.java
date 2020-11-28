@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 the original author or authors.
+ * Copyright 2017-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.springframework.statemachine.transition;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveMachine;
@@ -59,11 +58,11 @@ public class TransitionOrderTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
-		assertThat(listener.statesEntered, contains(TestStates.S1));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
+		assertThat(listener.statesEntered).containsExactly(TestStates.S1);
 
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(listener.statesEntered, contains(TestStates.S1, TestStates.S10, TestStates.S1011, TestStates.S1));
+		assertThat(listener.statesEntered).containsExactly(TestStates.S1, TestStates.S10, TestStates.S1011, TestStates.S1);
 	}
 
 	@Test
@@ -75,10 +74,10 @@ public class TransitionOrderTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
 
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(listener.statesEntered, contains(TestStates.S1, TestStates.S10, TestStates.S1011, TestStates.S1));
+		assertThat(listener.statesEntered).containsExactly(TestStates.S1, TestStates.S10, TestStates.S1011, TestStates.S1);
 	}
 
 	@Test
@@ -90,10 +89,10 @@ public class TransitionOrderTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
 
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(listener.statesEntered, contains(TestStates.S1, TestStates.S10, TestStates.S1011, TestStates.S1012, TestStates.S1));
+		assertThat(listener.statesEntered).containsExactly(TestStates.S1, TestStates.S10, TestStates.S1011, TestStates.S1012, TestStates.S1);
 	}
 
 	@Test
@@ -105,10 +104,10 @@ public class TransitionOrderTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
 
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(listener.statesEntered, contains(TestStates.S1, TestStates.S10, TestStates.S1011, TestStates.S1));
+		assertThat(listener.statesEntered).containsExactly(TestStates.S1, TestStates.S10, TestStates.S1011, TestStates.S1);
 	}
 
 	@Test
@@ -120,10 +119,10 @@ public class TransitionOrderTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
 
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(listener.statesEntered, contains(TestStates.S1, TestStates.S10, TestStates.S1011, TestStates.S1012));
+		assertThat(listener.statesEntered).containsExactly(TestStates.S1, TestStates.S10, TestStates.S1011, TestStates.S1012);
 	}
 
 	@Test
@@ -135,10 +134,10 @@ public class TransitionOrderTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
 
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(listener.statesEntered, contains(TestStates.S1, TestStates.S10, TestStates.S1011, TestStates.S1));
+		assertThat(listener.statesEntered).containsExactly(TestStates.S1, TestStates.S10, TestStates.S1011, TestStates.S1);
 	}
 
 	@Test
@@ -150,11 +149,10 @@ public class TransitionOrderTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
 
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(listener.statesEntered,
-				contains(TestStates.S1, TestStates.S10, TestStates.S1011, TestStates.S1012, TestStates.S2011, TestStates.S1));
+		assertThat(listener.statesEntered).containsExactly(TestStates.S1, TestStates.S10, TestStates.S1011, TestStates.S1012, TestStates.S2011, TestStates.S1);
 	}
 
 	@Test
@@ -166,11 +164,10 @@ public class TransitionOrderTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), contains(TestStates.S1));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
 
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(listener.statesEntered,
-				contains(TestStates.S1, TestStates.S10, TestStates.S1011, TestStates.S1));
+		assertThat(listener.statesEntered).containsExactly(TestStates.S1, TestStates.S10, TestStates.S1011, TestStates.S1);
 	}
 
 	@Configuration

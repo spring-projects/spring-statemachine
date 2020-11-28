@@ -15,11 +15,7 @@
  */
 package org.springframework.statemachine;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveMachine;
@@ -65,9 +61,9 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		doSendEventAndConsumeAll(machine, "E1");
 		Object executor = TestUtils.readField("stateMachineExecutor", machine);
 		Collection<?> readField = TestUtils.readField("deferList", executor);
-		assertThat(readField.size(), is(1));
+		assertThat(readField).hasSize(1);
 		doSendEventAndConsumeAll(machine, "E2");
-		assertThat(readField.size(), is(2));
+		assertThat(readField).hasSize(2);
 	}
 
 	@Test
@@ -79,7 +75,7 @@ public class EventDeferTests extends AbstractStateMachineTests {
 
 		StateMachine<String, String> machine = resolveMachine(context);
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), contains("S1"));
+		assertThat(machine.getState().getIds()).containsExactly("S1");
 
 		AtomicReference<Throwable> error = new AtomicReference<>();
 		AtomicInteger i1 = new AtomicInteger();
@@ -112,7 +108,7 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		t2.start();
 		t1.join();
 		t2.join();
-		assertThat(error.get(), nullValue());
+		assertThat(error.get()).isNull();
 	}
 
 	@Test
@@ -124,26 +120,26 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
 
-		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedLatch.await(3, TimeUnit.SECONDS)).isTrue();
 
 		listener.reset(0, 0, 0, 1);
 		doSendEventAndConsumeAll(machine, "E3");
-		assertThat(listener.sub3readyStateEnteredLatch.await(3, TimeUnit.SECONDS), is(true));
-		assertThat(listener.sub3readyStateEnteredCount, is(1));
+		assertThat(listener.sub3readyStateEnteredLatch.await(3, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.sub3readyStateEnteredCount).isEqualTo(1);
 
 		doSendEventAndConsumeAll(machine, "E1");
 
 		Object executor = TestUtils.readField("stateMachineExecutor", machine);
 		Collection<?> readField = TestUtils.readField("deferList", executor);
-		assertThat(readField.size(), is(1));
+		assertThat(readField).hasSize(1);
 
 		listener.reset(0, 0, 2, 0);
 		doSendEventAndConsumeAll(machine, "E4");
-		assertThat(listener.readyStateEnteredLatch.await(3, TimeUnit.SECONDS), is(true));
-		assertThat(listener.readyStateEnteredCount, is(2));
+		assertThat(listener.readyStateEnteredLatch.await(3, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.readyStateEnteredCount).isEqualTo(2);
 
-		assertThat(machine.getState().getIds(), contains("READY"));
+		assertThat(machine.getState().getIds()).containsExactly("READY");
 	}
 
 	@Test
@@ -154,18 +150,18 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
-		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS)).isTrue();
 
 		doSendEventAndConsumeAll(machine, "E1");
-		assertThat(machine.getState().getIds(), contains("SUB1", "SUB11"));
+		assertThat(machine.getState().getIds()).containsExactly("SUB1", "SUB11");
 
 		// sub doesn't defer
 		doSendEventAndConsumeAll(machine, "E15");
 		Object executor = TestUtils.readField("stateMachineExecutor", machine);
 		Collection<?> readField = TestUtils.readField("deferList", executor);
-		assertThat(readField.size(), is(0));
+		assertThat(readField).isEmpty();
 
-		assertThat(machine.getState().getIds(), contains("SUB5"));
+		assertThat(machine.getState().getIds()).containsExactly("SUB5");
 	}
 
 	@Test
@@ -176,26 +172,26 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
-		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS)).isTrue();
 
 		doSendEventAndConsumeAll(machine, "E1");
-		assertThat(machine.getState().getIds(), contains("SUB1", "SUB11"));
+		assertThat(machine.getState().getIds()).containsExactly("SUB1", "SUB11");
 
 		doSendEventAndConsumeAll(machine, "E1112");
-		assertThat(machine.getState().getIds(), contains("SUB1", "SUB12"));
+		assertThat(machine.getState().getIds()).containsExactly("SUB1", "SUB12");
 
 		// sub defers
 		doSendEventAndConsumeAll(machine, "E15");
 		Object executor = TestUtils.readField("stateMachineExecutor", machine);
 		Collection<?> readField = TestUtils.readField("deferList", executor);
-		assertThat(readField.size(), is(1));
+		assertThat(readField).hasSize(1);
 
-		assertThat(machine.getState().getIds(), contains("SUB1", "SUB12"));
+		assertThat(machine.getState().getIds()).containsExactly("SUB1", "SUB12");
 
 		// from SUB12 to SUB11 should then cause E15 to fire in root
 		// causing SUB1 to SUB5
 		doSendEventAndConsumeAll(machine, "E1211");
-		assertThat(machine.getState().getIds(), contains("SUB5"));
+		assertThat(machine.getState().getIds()).containsExactly("SUB5");
 	}
 
 	@Test
@@ -206,19 +202,19 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
-		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS)).isTrue();
 
 		doSendEventAndConsumeAll(machine, "E1");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("SUB111", "SUB1", "SUB121"));
+		assertThat(machine.getState().getIds()).containsOnly("SUB111", "SUB1", "SUB121");
 
 		doSendEventAndConsumeAll(machine, "E5");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("SUB112", "SUB1", "SUB121"));
+		assertThat(machine.getState().getIds()).containsOnly("SUB112", "SUB1", "SUB121");
 
 		// regions defers
 		doSendEventAndConsumeAll(machine, "E3");
 		Object executor = TestUtils.readField("stateMachineExecutor", machine);
 		Collection<?> readField = TestUtils.readField("deferList", executor);
-		assertThat(readField.size(), is(0));
+		assertThat(readField).isEmpty();
 	}
 
 	@Test
@@ -229,22 +225,22 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
-		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS)).isTrue();
 
 		doSendEventAndConsumeAll(machine, "E1");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("SUB111", "SUB1", "SUB121"));
+		assertThat(machine.getState().getIds()).containsOnly("SUB111", "SUB1", "SUB121");
 
 		doSendEventAndConsumeAll(machine, "E5");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("SUB112", "SUB1", "SUB121"));
+		assertThat(machine.getState().getIds()).containsOnly("SUB112", "SUB1", "SUB121");
 
 		doSendEventAndConsumeAll(machine, "E8");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("SUB112", "SUB1", "SUB122"));
+		assertThat(machine.getState().getIds()).containsOnly("SUB112", "SUB1", "SUB122");
 
 		// regions defers
 		doSendEventAndConsumeAll(machine, "E3");
 		Object executor = TestUtils.readField("stateMachineExecutor", machine);
 		Collection<?> readField = TestUtils.readField("deferList", executor);
-		assertThat(readField.size(), is(1));
+		assertThat(readField).hasSize(1);
 	}
 
 	@Test
@@ -255,18 +251,18 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
-		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS), is(true));
+		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS)).isTrue();
 
 		doSendEventAndConsumeAll(machine, "E1");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("SUB111", "SUB1", "SUB121"));
+		assertThat(machine.getState().getIds()).containsOnly("SUB111", "SUB1", "SUB121");
 
 		// regions doesn't defer
 		doSendEventAndConsumeAll(machine, "E3");
 		Object executor = TestUtils.readField("stateMachineExecutor", machine);
 		Collection<?> readField = TestUtils.readField("deferList", executor);
-		assertThat(readField.size(), is(0));
+		assertThat(readField).isEmpty();
 
-		assertThat(machine.getState().getIds(), contains("SUB2"));
+		assertThat(machine.getState().getIds()).containsExactly("SUB2");
 	}
 
 	@Test
@@ -276,22 +272,22 @@ public class EventDeferTests extends AbstractStateMachineTests {
 		StateMachine<String, String> machine = resolveMachine(context);
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), containsInAnyOrder("S1"));
+		assertThat(machine.getState().getIds()).containsOnly("S1");
 
 		doSendEventAndConsumeAll(machine, "E2");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("S1"));
+		assertThat(machine.getState().getIds()).containsOnly("S1");
 		Object executor = TestUtils.readField("stateMachineExecutor", machine);
 		Collection<?> readField = TestUtils.readField("deferList", executor);
-		assertThat(readField.size(), is(1));
+		assertThat(readField).hasSize(1);
 
 		doSendEventAndConsumeAll(machine, "E1");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("S1"));
+		assertThat(machine.getState().getIds()).containsOnly("S1");
 		readField = TestUtils.readField("deferList", executor);
-		assertThat(readField.size(), is(0));
+		assertThat(readField).isEmpty();
 
 		// deferred event handled so should not get back to S1
 		doSendEventAndConsumeAll(machine, "E1");
-		assertThat(machine.getState().getIds(), containsInAnyOrder("S2"));
+		assertThat(machine.getState().getIds()).containsOnly("S2");
 	}
 
 	@Configuration

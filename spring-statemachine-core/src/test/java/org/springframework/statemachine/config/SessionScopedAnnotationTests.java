@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  */
 package org.springframework.statemachine.config;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -80,8 +78,8 @@ public class SessionScopedAnnotationTests {
 			perform(get("/ping").session(session1)).
 			andExpect(status().isOk());
 		Object machine = session1.getAttribute("scopedTarget.stateMachine");
-		assertThat(machine, notNullValue());
-		assertThat(TestUtils.callMethod("isRunning", machine), is(true));
+		assertThat(machine).isNotNull();
+		assertThat(TestUtils.<Boolean>callMethod("isRunning", machine)).isTrue();
 	}
 
 	@Test
@@ -92,11 +90,11 @@ public class SessionScopedAnnotationTests {
 		mvc.
 			perform(get("/state").session(session1)).
 			andExpect(status().isOk()).
-			andExpect(content().string(is("SI")));
+			andExpect(content().string("SI"));
 		mvc.
 			perform(get("/state").session(session2)).
 			andExpect(status().isOk()).
-			andExpect(content().string(is("SI")));
+			andExpect(content().string("SI"));
 
 		mvc.
 			perform(post("/state").session(session1).param("event", "E1")).
@@ -108,11 +106,11 @@ public class SessionScopedAnnotationTests {
 		mvc.
 			perform(get("/state").session(session1)).
 			andExpect(status().isOk()).
-			andExpect(content().string(is("S1")));
+			andExpect(content().string("S1"));
 		mvc.
 			perform(get("/state").session(session2)).
 			andExpect(status().isOk()).
-			andExpect(content().string(is("S2")));
+			andExpect(content().string("S2"));
 
 		session1.invalidate();
 		session2.invalidate();
@@ -124,14 +122,14 @@ public class SessionScopedAnnotationTests {
 		mvc.
 			perform(get("/state").session(session1)).
 			andExpect(status().isOk()).
-			andExpect(content().string(is("SI")));
+			andExpect(content().string("SI"));
 
 		Object machine = session1.getAttribute("scopedTarget.stateMachine");
 		machine = TestUtils.readField("object", machine);
-		assertThat(machine, notNullValue());
-		assertThat(TestUtils.callMethod("isRunning", machine), is(true));
+		assertThat(machine).isNotNull();
+		assertThat(TestUtils.<Boolean>callMethod("isRunning", machine)).isTrue();
 		session1.invalidate();
-		assertThat(TestUtils.callMethod("isRunning", machine), is(false));
+		assertThat(TestUtils.<Boolean>callMethod("isRunning", machine)).isFalse();
 	}
 
 	@Configuration

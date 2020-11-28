@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 the original author or authors.
+ * Copyright 2017-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.springframework.statemachine.support;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -77,21 +76,21 @@ public class TransitionComparatorTests {
 				stateS11, stateS1, null, TestEvents.E1, null, new EventTrigger<TestStates, TestEvents>(TestEvents.E1));
 
 		TransitionComparator<TestStates, TestEvents> comparator = new TransitionComparator<>(null);
-		assertThat(comparator.compare(transitionFromS111ToS1, transitionFromS11ToS1), is(-1));
-		assertThat(comparator.compare(transitionFromS11ToS1, transitionFromS111ToS1), is(1));
-		assertThat(comparator.compare(transitionFromS111ToS1, transitionFromS111ToS1), is(0));
-		assertThat(comparator.compare(transitionFromS11ToS1, transitionFromS11ToS1), is(0));
+		assertThat(comparator.compare(transitionFromS111ToS1, transitionFromS11ToS1)).isEqualTo(-1);
+		assertThat(comparator.compare(transitionFromS11ToS1, transitionFromS111ToS1)).isEqualTo(1);
+		assertThat(comparator.compare(transitionFromS111ToS1, transitionFromS111ToS1)).isZero();
+		assertThat(comparator.compare(transitionFromS11ToS1, transitionFromS11ToS1)).isZero();
 
 		comparator = new TransitionComparator<>(TransitionConflictPolicy.CHILD);
-		assertThat(comparator.compare(transitionFromS111ToS1, transitionFromS11ToS1), is(-1));
-		assertThat(comparator.compare(transitionFromS11ToS1, transitionFromS111ToS1), is(1));
-		assertThat(comparator.compare(transitionFromS111ToS1, transitionFromS111ToS1), is(0));
-		assertThat(comparator.compare(transitionFromS11ToS1, transitionFromS11ToS1), is(0));
+		assertThat(comparator.compare(transitionFromS111ToS1, transitionFromS11ToS1)).isEqualTo(-1);
+		assertThat(comparator.compare(transitionFromS11ToS1, transitionFromS111ToS1)).isEqualTo(1);
+		assertThat(comparator.compare(transitionFromS111ToS1, transitionFromS111ToS1)).isZero();
+		assertThat(comparator.compare(transitionFromS11ToS1, transitionFromS11ToS1)).isZero();
 
 		comparator = new TransitionComparator<>(TransitionConflictPolicy.PARENT);
-		assertThat(comparator.compare(transitionFromS111ToS1, transitionFromS11ToS1), is(1));
-		assertThat(comparator.compare(transitionFromS11ToS1, transitionFromS111ToS1), is(-1));
-		assertThat(comparator.compare(transitionFromS111ToS1, transitionFromS111ToS1), is(0));
-		assertThat(comparator.compare(transitionFromS11ToS1, transitionFromS11ToS1), is(0));
+		assertThat(comparator.compare(transitionFromS111ToS1, transitionFromS11ToS1)).isEqualTo(1);
+		assertThat(comparator.compare(transitionFromS11ToS1, transitionFromS111ToS1)).isEqualTo(-1);
+		assertThat(comparator.compare(transitionFromS111ToS1, transitionFromS111ToS1)).isZero();
+		assertThat(comparator.compare(transitionFromS11ToS1, transitionFromS11ToS1)).isZero();
 	}
 }

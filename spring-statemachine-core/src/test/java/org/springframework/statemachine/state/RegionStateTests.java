@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  */
 package org.springframework.statemachine.state;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -79,12 +77,12 @@ public class RegionStateTests extends AbstractStateMachineTests {
 		regions.add(machine);
 		RegionState<TestStates,TestEvents> state = new RegionState<TestStates,TestEvents>(TestStates.S11, regions);
 
-		assertThat(state.isSimple(), is(false));
-		assertThat(state.isComposite(), is(true));
-		assertThat(state.isOrthogonal(), is(false));
-		assertThat(state.isSubmachineState(), is(false));
+		assertThat(state.isSimple()).isFalse();
+		assertThat(state.isComposite()).isTrue();
+		assertThat(state.isOrthogonal()).isFalse();
+		assertThat(state.isSubmachineState()).isFalse();
 
-		assertThat(state.getIds(), containsInAnyOrder(TestStates.SI, TestStates.S11));
+		assertThat(state.getIds()).containsOnly(TestStates.SI, TestStates.S11);
 
 
 

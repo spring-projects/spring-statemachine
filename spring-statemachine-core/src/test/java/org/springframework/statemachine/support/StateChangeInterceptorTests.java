@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  */
 package org.springframework.statemachine.support;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveMachine;
@@ -66,24 +64,24 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 
 
 		doStartAndAssert(machine);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(3));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S1, States.S11));
-		assertThat((Integer)machine.getExtendedState().getVariables().get("foo"), is(0));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(3);
+		assertThat(machine.getState().getIds()).containsOnly(States.S0, States.S1, States.S11);
+		assertThat((Integer)machine.getExtendedState().getVariables().get("foo")).isZero();
 
 		listener.reset(3);
 		interceptor.reset(1);
 		doSendEventAndConsumeAll(machine, Events.C);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(3));
-		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount1, is(1));
-		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount2, is(1));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S2, States.S21, States.S211));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(3);
+		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.preStateChangeCount1).isEqualTo(1);
+		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.preStateChangeCount2).isEqualTo(1);
+		assertThat(machine.getState().getIds()).containsOnly(States.S0, States.S2, States.S21, States.S211);
 		doSendEventAndConsumeAll(machine, Events.H);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S2, States.S21, States.S211));
-		assertThat((Integer)machine.getExtendedState().getVariables().get("foo"), is(1));
+		assertThat(machine.getState().getIds()).containsOnly(States.S0, States.S2, States.S21, States.S211);
+		assertThat((Integer)machine.getExtendedState().getVariables().get("foo")).isEqualTo(1);
 	}
 
 	@Test
@@ -98,42 +96,42 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		machine.getStateMachineAccessor().doWithRegion(function -> function.addStateMachineInterceptor(interceptor));
 
 		doStartAndAssert(machine);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(machine.getState().getIds()).containsOnly(States.S0);
 
 		interceptor.reset(1);
 		listener.reset(1);
 		doSendEventAndConsumeAll(machine, Events.A);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S1));
-		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount1, is(1));
-		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount2, is(1));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(machine.getState().getIds()).containsOnly(States.S1);
+		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.preStateChangeCount1).isEqualTo(1);
+		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.preStateChangeCount2).isEqualTo(1);
 
 		interceptor.reset(1);
 		listener.reset(1);
 		doSendEventAndConsumeAll(machine, Events.B);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S2));
-		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount1, is(1));
-		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount2, is(1));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(machine.getState().getIds()).containsOnly(States.S2);
+		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.preStateChangeCount1).isEqualTo(1);
+		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.preStateChangeCount2).isEqualTo(1);
 
 		interceptor.reset(1);
 		listener.reset(1);
 		doSendEventAndConsumeAll(machine, Events.C);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
-		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount1, is(1));
-		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount2, is(1));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(machine.getState().getIds()).containsOnly(States.S0);
+		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.preStateChangeCount1).isEqualTo(1);
+		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.preStateChangeCount2).isEqualTo(1);
 	}
 
 	@Test
@@ -148,20 +146,20 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		machine.getStateMachineAccessor().doWithRegion(function -> function.addStateMachineInterceptor(interceptor));
 
 		doStartAndAssert(machine);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(machine.getState().getIds()).containsOnly(States.S0);
 
 		interceptor.reset(1);
 		listener.reset(1);
 		doSendEventAndConsumeAll(machine, Events.A);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S2));
-		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount1, is(1));
-		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount2, is(1));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(machine.getState().getIds()).containsOnly(States.S2);
+		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.preStateChangeCount1).isEqualTo(1);
+		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.preStateChangeCount2).isEqualTo(1);
 	}
 
 	@Test
@@ -176,30 +174,30 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		machine.getStateMachineAccessor().doWithRegion(function -> function.addStateMachineInterceptor(interceptor));
 
 		doStartAndAssert(machine);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(machine.getState().getIds()).containsOnly(States.S0);
 
 		interceptor.reset(1);
 		listener.reset(1);
 		doSendEventAndConsumeAll(machine, Events.A);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S2));
-		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount1, is(1));
-		assertThat(interceptor.postStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.postStateChangeCount1, is(1));
-		assertThat(interceptor.preStateChangeStates1.size(), is(1));
-		assertThat(interceptor.postStateChangeStates1.size(), is(1));
-		assertThat(interceptor.preStateChangeStates1.get(0).getId(), is(interceptor.postStateChangeStates1.get(0).getId()));
-		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount2, is(1));
-		assertThat(interceptor.postStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.postStateChangeCount2, is(1));
-		assertThat(interceptor.preStateChangeStates2.size(), is(1));
-		assertThat(interceptor.postStateChangeStates2.size(), is(1));
-		assertThat(interceptor.preStateChangeStates2.get(0).getId(), is(interceptor.postStateChangeStates2.get(0).getId()));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(machine.getState().getIds()).containsOnly(States.S2);
+		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.preStateChangeCount1).isEqualTo(1);
+		assertThat(interceptor.postStateChangeLatch1.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.postStateChangeCount1).isEqualTo(1);
+		assertThat(interceptor.preStateChangeStates1).hasSize(1);
+		assertThat(interceptor.postStateChangeStates1).hasSize(1);
+		assertThat(interceptor.preStateChangeStates1.get(0).getId()).isEqualTo(interceptor.postStateChangeStates1.get(0).getId());
+		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.preStateChangeCount2).isEqualTo(1);
+		assertThat(interceptor.postStateChangeLatch2.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.postStateChangeCount2).isEqualTo(1);
+		assertThat(interceptor.preStateChangeStates2).hasSize(1);
+		assertThat(interceptor.postStateChangeStates2).hasSize(1);
+		assertThat(interceptor.preStateChangeStates2.get(0).getId()).isEqualTo(interceptor.postStateChangeStates2.get(0).getId());
 	}
 
 	@Test
@@ -214,30 +212,30 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		machine.getStateMachineAccessor().doWithRegion(function -> function.addStateMachineInterceptor(interceptor));
 
 		doStartAndAssert(machine);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(machine.getState().getIds()).containsOnly(States.S0);
 
 		interceptor.reset(1);
 		listener.reset(1);
 		doSendEventAndConsumeAll(machine, MessageBuilder.withPayload(Events.A).setHeader("test", "exists").build());
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S3));
-		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount1, is(1));
-		assertThat(interceptor.postStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.postStateChangeCount1, is(1));
-		assertThat(interceptor.preStateChangeStates1.size(), is(1));
-		assertThat(interceptor.postStateChangeStates1.size(), is(1));
-		assertThat(interceptor.preStateChangeStates1.get(0).getId(), is(interceptor.postStateChangeStates1.get(0).getId()));
-		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount2, is(1));
-		assertThat(interceptor.postStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.postStateChangeCount2, is(1));
-		assertThat(interceptor.preStateChangeStates2.size(), is(1));
-		assertThat(interceptor.postStateChangeStates2.size(), is(1));
-		assertThat(interceptor.preStateChangeStates2.get(0).getId(), is(interceptor.postStateChangeStates2.get(0).getId()));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(machine.getState().getIds()).containsOnly(States.S3);
+		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.preStateChangeCount1).isEqualTo(1);
+		assertThat(interceptor.postStateChangeLatch1.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.postStateChangeCount1).isEqualTo(1);
+		assertThat(interceptor.preStateChangeStates1).hasSize(1);
+		assertThat(interceptor.postStateChangeStates1).hasSize(1);
+		assertThat(interceptor.preStateChangeStates1.get(0).getId()).isEqualTo(interceptor.postStateChangeStates1.get(0).getId());
+		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.preStateChangeCount2).isEqualTo(1);
+		assertThat(interceptor.postStateChangeLatch2.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.postStateChangeCount2).isEqualTo(1);
+		assertThat(interceptor.preStateChangeStates2).hasSize(1);
+		assertThat(interceptor.postStateChangeStates2).hasSize(1);
+		assertThat(interceptor.preStateChangeStates2.get(0).getId()).isEqualTo(interceptor.postStateChangeStates2.get(0).getId());
 	}
 
 	@Test
@@ -252,31 +250,31 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		machine.getStateMachineAccessor().doWithRegion(function -> function.addStateMachineInterceptor(interceptor));
 
 		doStartAndAssert(machine);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(machine.getState().getIds()).containsOnly(States.S0);
 
 		interceptor.reset(1);
 		listener.reset(1);
 		doSendEventAndConsumeAll(machine, Events.A);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S1));
-		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount1, is(1));
-		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount2, is(1));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(machine.getState().getIds()).containsOnly(States.S1);
+		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.preStateChangeCount1).isEqualTo(1);
+		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.preStateChangeCount2).isEqualTo(1);
 
 		interceptor.reset(1);
 		listener.reset(1);
 		doSendEventAndConsumeAll(machine, Events.E);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S2));
-		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount1, is(1));
-		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount2, is(1));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(machine.getState().getIds()).containsOnly(States.S2);
+		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.preStateChangeCount1).isEqualTo(1);
+		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.preStateChangeCount2).isEqualTo(1);
 	}
 
 	@Test
@@ -291,33 +289,33 @@ public class StateChangeInterceptorTests extends AbstractStateMachineTests {
 		machine.getStateMachineAccessor().doWithRegion(function -> function.addStateMachineInterceptor(interceptor));
 
 		doStartAndAssert(machine);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
+		assertThat(machine.getState().getIds()).containsOnly(States.S0);
 
 		interceptor.reset(2);
 		listener.reset(2);
 		doSendEventAndConsumeAll(machine, Events.A);
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(2));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S2));
-		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount1, is(2));
-		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.preStateChangeCount2, is(2));
-		assertThat(interceptor.postStateChangeLatch1.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.postStateChangeCount1, is(2));
-		assertThat(interceptor.postStateChangeLatch2.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(interceptor.postStateChangeCount2, is(2));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(2);
+		assertThat(machine.getState().getIds()).containsOnly(States.S2);
+		assertThat(interceptor.preStateChangeLatch1.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.preStateChangeCount1).isEqualTo(2);
+		assertThat(interceptor.preStateChangeLatch2.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.preStateChangeCount2).isEqualTo(2);
+		assertThat(interceptor.postStateChangeLatch1.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.postStateChangeCount1).isEqualTo(2);
+		assertThat(interceptor.postStateChangeLatch2.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(interceptor.postStateChangeCount2).isEqualTo(2);
 
-		assertThat(interceptor.preStateChangeStates1.size(), is(2));
-		assertThat(interceptor.postStateChangeStates1.size(), is(2));
+		assertThat(interceptor.preStateChangeStates1).hasSize(2);
+		assertThat(interceptor.postStateChangeStates1).hasSize(2);
 
-		assertThat(interceptor.preStateChangeStates1.get(0).getId(), is(States.S1));
-		assertThat(interceptor.preStateChangeStates1.get(1).getId(), is(States.S2));
+		assertThat(interceptor.preStateChangeStates1.get(0).getId()).isEqualTo(States.S1);
+		assertThat(interceptor.preStateChangeStates1.get(1).getId()).isEqualTo(States.S2);
 
-		assertThat(interceptor.postStateChangeStates1.get(0).getId(), is(States.S1));
-		assertThat(interceptor.postStateChangeStates1.get(1).getId(), is(States.S2));
+		assertThat(interceptor.postStateChangeStates1.get(0).getId()).isEqualTo(States.S1);
+		assertThat(interceptor.postStateChangeStates1.get(1).getId()).isEqualTo(States.S2);
 	}
 
 	@Configuration

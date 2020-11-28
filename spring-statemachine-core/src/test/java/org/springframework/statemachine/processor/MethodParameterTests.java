@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.springframework.statemachine.processor;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.lang.reflect.Method;
@@ -76,12 +75,12 @@ public class MethodParameterTests {
 		@OnTransition
 		public void onTransition(@EventHeaders Map<String, Object> headers, ExtendedState extendedState, StateMachine<?, ?> stateMachine,
 				Message<?> message, Exception e, StateContext<?, ?> stateContext) {
-			assertThat(headers, notNullValue());
-			assertThat(extendedState, notNullValue());
-			assertThat(stateMachine, notNullValue());
-			assertThat(message, notNullValue());
-			assertThat(e, notNullValue());
-			assertThat(stateContext, notNullValue());
+			assertThat(headers).isNotNull();
+			assertThat(extendedState).isNotNull();
+			assertThat(stateMachine).isNotNull();
+			assertThat(message).isNotNull();
+			assertThat(e).isNotNull();
+			assertThat(stateContext).isNotNull();
 		}
 
 	}

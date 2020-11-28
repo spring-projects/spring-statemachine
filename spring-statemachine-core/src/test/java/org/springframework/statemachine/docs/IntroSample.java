@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.springframework.statemachine.docs;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 
@@ -116,11 +115,11 @@ public class IntroSample {
 	public void testManual() throws Exception {
 		StateMachine<States, Events> stateMachine = buildMachine();
 		doStartAndAssert(stateMachine);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(States.STATE1));
+		assertThat(stateMachine.getState().getIds()).containsOnly(States.STATE1);
 		doSendEventAndConsumeAll(stateMachine, Events.EVENT1);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(States.STATE2));
+		assertThat(stateMachine.getState().getIds()).containsOnly(States.STATE2);
 		doSendEventAndConsumeAll(stateMachine, Events.EVENT2);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(States.STATE1));
+		assertThat(stateMachine.getState().getIds()).containsOnly(States.STATE1);
 	}
 
 	public StateMachine<States, Events> buildMachine() throws Exception {

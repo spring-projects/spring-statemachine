@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.springframework.statemachine.config.common.annotation;
 
-import static org.hamcrest.CoreMatchers.sameInstance;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.UUID;
 
@@ -35,7 +34,7 @@ public class ImportingBeanDefinitionTests {
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class);
 		Object beanBuilt = ctx.getBean("enableImportingTestBean");
 		Object beanInjected = ctx.getBean("uuid");
-		assertThat(beanBuilt, sameInstance(beanInjected));
+		assertThat(beanBuilt).isSameAs(beanInjected);
 		ctx.close();
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,7 @@
  */
 package org.springframework.statemachine;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.doStopAndAssert;
@@ -79,8 +74,8 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 		machine.getStateMachineAccessor().doWithAllRegions(function -> function.resetStateMachine(stateMachineContext));
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S1, States.S12));
-		assertThat((Integer)machine.getExtendedState().getVariables().get("foo"), is(1));
+		assertThat(machine.getState().getIds()).containsOnly(States.S0, States.S1, States.S12);
+		assertThat((Integer)machine.getExtendedState().getVariables().get("foo")).isEqualTo(1);
 	}
 
 	@Test
@@ -97,8 +92,8 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 		machine.getStateMachineAccessor().doWithAllRegions(function -> function.resetStateMachine(stateMachineContext));
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S2, States.S21, States.S211));
-		assertThat((Integer)machine.getExtendedState().getVariables().get("foo"), is(1));
+		assertThat(machine.getState().getIds()).containsOnly(States.S0, States.S2, States.S21, States.S211);
+		assertThat((Integer)machine.getExtendedState().getVariables().get("foo")).isEqualTo(1);
 	}
 
 	@Test
@@ -115,8 +110,8 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 		machine.getStateMachineAccessor().doWithAllRegions(function -> function.resetStateMachine(stateMachineContext));
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S2, States.S21, States.S211));
-		assertThat((Integer)machine.getExtendedState().getVariables().get("foo"), is(1));
+		assertThat(machine.getState().getIds()).containsOnly(States.S0, States.S2, States.S21, States.S211);
+		assertThat((Integer)machine.getExtendedState().getVariables().get("foo")).isEqualTo(1);
 	}
 
 	@Test
@@ -140,7 +135,7 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 		machine.getStateMachineAccessor().doWithAllRegions(function -> function.resetStateMachine(stateMachineContext));
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S31));
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S31);
 	}
 
 	@Test
@@ -164,7 +159,7 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 		machine.getStateMachineAccessor().doWithAllRegions(function -> function.resetStateMachine(stateMachineContext));
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S31));
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S31);
 	}
 
 	@Test
@@ -173,9 +168,9 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 		context.refresh();
 		StateMachine<States, Events> machine = resolveMachine(context);
 
-		assertThat((Integer)machine.getExtendedState().getVariables().get("count"), nullValue());
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count")).isNull();
 		doSendEventAndConsumeAll(machine, Events.A);
-		assertThat((Integer)machine.getExtendedState().getVariables().get("count"), is(1));
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count")).isEqualTo(1);
 
 		doStopAndAssert(machine);
 		Map<Object, Object> variables = new HashMap<Object, Object>();
@@ -186,9 +181,9 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 		machine.getStateMachineAccessor().doWithAllRegions(function -> function.resetStateMachine(stateMachineContext));
 
 		doStartAndAssert(machine);
-		assertThat((Integer)machine.getExtendedState().getVariables().get("count"), is(1));
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count")).isEqualTo(1);
 		doSendEventAndConsumeAll(machine, Events.A);
-		assertThat((Integer)machine.getExtendedState().getVariables().get("count"), is(2));
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count")).isEqualTo(2);
 	}
 
 	@Test
@@ -198,18 +193,18 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 		StateMachine<States, Events> machine = resolveMachine(context);
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S1, States.S11));
-		assertThat((Integer)machine.getExtendedState().getVariables().get("foo"), is(0));
+		assertThat(machine.getState().getIds()).containsOnly(States.S0, States.S1, States.S11);
+		assertThat((Integer)machine.getExtendedState().getVariables().get("foo")).isZero();
 
 		doSendEventAndConsumeAll(machine, Events.I);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S1, States.S12));
-		assertThat((Integer)machine.getExtendedState().getVariables().get("foo"), is(0));
+		assertThat(machine.getState().getIds()).containsOnly(States.S0, States.S1, States.S12);
+		assertThat((Integer)machine.getExtendedState().getVariables().get("foo")).isZero();
 
 		doStopAndAssert(machine);
 		machine.getStateMachineAccessor().doWithAllRegions(function -> function.resetStateMachine(null));
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S1, States.S11));
-		assertThat(machine.getExtendedState().getVariables().size(), is(0));
+		assertThat(machine.getState().getIds()).containsOnly(States.S0, States.S1, States.S11);
+		assertThat(machine.getExtendedState().getVariables()).isEmpty();
 	}
 
 	@Test
@@ -219,10 +214,10 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 		StateMachine<States, Events> machine = resolveMachine(context);
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S1, States.S11));
+		assertThat(machine.getState().getIds()).containsOnly(States.S0, States.S1, States.S11);
 
 		doSendEventAndConsumeAll(machine, Events.I);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S1, States.S12));
+		assertThat(machine.getState().getIds()).containsOnly(States.S0, States.S1, States.S12);
 
 		doStopAndAssert(machine);
 		DefaultStateMachineContext<States, Events> stateMachineContext = new DefaultStateMachineContext<States, Events>(
@@ -231,9 +226,9 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 				.doWithAllRegions(function -> function.resetStateMachine(stateMachineContext));
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0, States.S1, States.S11));
-		assertEquals(States.S11, stateMachineContext.getState());
-		assertNotEquals(stateMachineContext.getState(), machine.getInitialState());
+		assertThat(machine.getState().getIds()).containsOnly(States.S0, States.S1, States.S11);
+		assertThat(States.S11).isEqualTo(stateMachineContext.getState());
+		assertThat(stateMachineContext.getState()).isNotEqualTo(machine.getInitialState());
 	}
 
 	@Test
@@ -249,7 +244,7 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 
 		doStartAndAssert(machine);
 		Thread.sleep(1100);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S2));
+		assertThat(machine.getState().getIds()).containsOnly(States.S2);
 
 	}
 
@@ -261,27 +256,27 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 		CountListener listener = new CountListener();
 		machine.addStateListener(listener);
 
-		assertThat((Integer)machine.getExtendedState().getVariables().get("count1"), nullValue());
-		assertThat(listener.count1, nullValue());
-		assertThat(listener.count2, nullValue());
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count1")).isNull();
+		assertThat(listener.count1).isNull();
+		assertThat(listener.count2).isNull();
 		doSendEventAndConsumeAll(machine, Events.A);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S1, States.S11));
-		assertThat((Integer)machine.getExtendedState().getVariables().get("count1"), is(1));
-		assertThat(listener.count1, is(1));
+		assertThat(machine.getState().getIds()).containsOnly(States.S1, States.S11);
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count1")).isEqualTo(1);
+		assertThat(listener.count1).isEqualTo(1);
 		// listener is called before action is executed
-		assertThat(listener.count2, nullValue());
+		assertThat(listener.count2).isNull();
 
-		assertThat((Integer)machine.getExtendedState().getVariables().get("count2"), nullValue());
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count2")).isNull();
 		doSendEventAndConsumeAll(machine, Events.B);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S1, States.S12));
-		assertThat((Integer)machine.getExtendedState().getVariables().get("count2"), is(1));
-		assertThat(listener.count1, is(1));
-		assertThat(listener.count2, nullValue());
+		assertThat(machine.getState().getIds()).containsOnly(States.S1, States.S12);
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count2")).isEqualTo(1);
+		assertThat(listener.count1).isEqualTo(1);
+		assertThat(listener.count2).isNull();
 
 		doSendEventAndConsumeAll(machine, Events.C);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S0));
-		assertThat(listener.count1, is(1));
-		assertThat(listener.count2, is(1));
+		assertThat(machine.getState().getIds()).containsOnly(States.S0);
+		assertThat(listener.count1).isEqualTo(1);
+		assertThat(listener.count2).isEqualTo(1);
 
 		doStopAndAssert(machine);
 		Map<Object, Object> variables = new HashMap<Object, Object>();
@@ -292,22 +287,22 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 		machine.getStateMachineAccessor().doWithAllRegions(function -> function.resetStateMachine(stateMachineContext));
 		doStartAndAssert(machine);
 
-		assertThat((Integer)machine.getExtendedState().getVariables().get("count1"), is(1));
-		assertThat(listener.count1, is(1));
-		assertThat(listener.count2, is(1));
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count1")).isEqualTo(1);
+		assertThat(listener.count1).isEqualTo(1);
+		assertThat(listener.count2).isEqualTo(1);
 		doSendEventAndConsumeAll(machine, Events.A);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S1, States.S11));
-		assertThat((Integer)machine.getExtendedState().getVariables().get("count1"), is(2));
-		assertThat(listener.count1, is(2));
+		assertThat(machine.getState().getIds()).containsOnly(States.S1, States.S11);
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count1")).isEqualTo(2);
+		assertThat(listener.count1).isEqualTo(2);
 		// listener is called before action is executed
-		assertThat(listener.count2, is(1));
+		assertThat(listener.count2).isEqualTo(1);
 
-		assertThat((Integer)machine.getExtendedState().getVariables().get("count2"), is(1));
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count2")).isEqualTo(1);
 		doSendEventAndConsumeAll(machine, Events.B);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(States.S1, States.S12));
-		assertThat((Integer)machine.getExtendedState().getVariables().get("count2"), is(2));
-		assertThat(listener.count1, is(2));
-		assertThat(listener.count2, is(1));
+		assertThat(machine.getState().getIds()).containsOnly(States.S1, States.S12);
+		assertThat((Integer)machine.getExtendedState().getVariables().get("count2")).isEqualTo(2);
+		assertThat(listener.count1).isEqualTo(2);
+		assertThat(listener.count2).isEqualTo(1);
 	}
 
 	@Test
@@ -323,7 +318,7 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 		machine.getStateMachineAccessor().doWithAllRegions(function -> function.resetStateMachine(stateMachineContext));
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(SuperState.PARENT, SubState.SUB_NEXT));
+		assertThat(machine.getState().getIds()).containsOnly(SuperState.PARENT, SubState.SUB_NEXT);
 	}
 
 	@Test
@@ -339,7 +334,7 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 		machine.getStateMachineAccessor().doWithAllRegions(function -> function.resetStateMachine(stateMachineContext));
 
 		doStartAndAssert(machine);
-		assertThat(machine.getState().getIds(), containsInAnyOrder(SuperState.INITIAL));
+		assertThat(machine.getState().getIds()).containsOnly(SuperState.INITIAL);
 	}
 
 	@Configuration

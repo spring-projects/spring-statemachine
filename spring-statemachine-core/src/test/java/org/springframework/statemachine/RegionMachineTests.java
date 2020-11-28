@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,13 @@
  */
 package org.springframework.statemachine;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.lessThan;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanFactory;
@@ -45,7 +39,6 @@ import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.region.RegionExecutionPolicy;
 import org.springframework.statemachine.state.DefaultPseudoState;
 import org.springframework.statemachine.state.EnumState;
-import org.springframework.statemachine.state.ObjectState;
 import org.springframework.statemachine.state.PseudoState;
 import org.springframework.statemachine.state.PseudoStateKind;
 import org.springframework.statemachine.state.RegionState;
@@ -118,20 +111,20 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 		regions.add(machine);
 		RegionState<TestStates,TestEvents> state = new RegionState<TestStates,TestEvents>(TestStates.S11, regions);
 
-		assertThat(state.isSimple(), is(false));
-		assertThat(state.isComposite(), is(true));
-		assertThat(state.isOrthogonal(), is(false));
-		assertThat(state.isSubmachineState(), is(false));
+		assertThat(state.isSimple()).isFalse();
+		assertThat(state.isComposite()).isTrue();
+		assertThat(state.isOrthogonal()).isFalse();
+		assertThat(state.isSubmachineState()).isFalse();
 
-		assertThat(state.getIds(), containsInAnyOrder(TestStates.SI, TestStates.S11));
+		assertThat(state.getIds()).containsOnly(TestStates.SI, TestStates.S11);
 
 		machine.sendEvent(TestEvents.E1);
 		machine.sendEvent(TestEvents.E2);
 
-		assertThat(entryActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(exitActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(entryActionS1.stateContexts.size(), is(1));
-		assertThat(exitActionS1.stateContexts.size(), is(1));
+		assertThat(entryActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(exitActionS1.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(entryActionS1.stateContexts).hasSize(1);
+		assertThat(exitActionS1.stateContexts).hasSize(1);
 	}
 
 	@Test
@@ -207,58 +200,58 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 		machine.afterPropertiesSet();
 		machine.start();
 
-		assertThat(entryActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(exitActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));
-		assertThat(entryActionS121.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(exitActionS121.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(entryActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(exitActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS)).isFalse();
+		assertThat(entryActionS121.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(exitActionS121.onExecuteLatch.await(1, TimeUnit.SECONDS)).isFalse();
 
-		assertThat(entryActionS111.stateContexts.size(), is(1));
-		assertThat(exitActionS111.stateContexts.size(), is(0));
-		assertThat(entryActionS121.stateContexts.size(), is(1));
-		assertThat(exitActionS121.stateContexts.size(), is(0));
+		assertThat(entryActionS111.stateContexts).hasSize(1);
+		assertThat(exitActionS111.stateContexts).isEmpty();
+		assertThat(entryActionS121.stateContexts).hasSize(1);
+		assertThat(exitActionS121.stateContexts).isEmpty();
 
 		machine.sendEvent(TestEvents.E2);
 
-		assertThat(entryActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(exitActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(entryActionS112.onExecuteLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(exitActionS112.onExecuteLatch.await(1, TimeUnit.SECONDS), is(false));
+		assertThat(entryActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(exitActionS111.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(entryActionS112.onExecuteLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(exitActionS112.onExecuteLatch.await(1, TimeUnit.SECONDS)).isFalse();
 
-		assertThat(entryActionS111.stateContexts.size(), is(1));
-		assertThat(exitActionS111.stateContexts.size(), is(1));
-		assertThat(entryActionS112.stateContexts.size(), is(1));
-		assertThat(exitActionS112.stateContexts.size(), is(0));
+		assertThat(entryActionS111.stateContexts).hasSize(1);
+		assertThat(exitActionS111.stateContexts).hasSize(1);
+		assertThat(entryActionS112.stateContexts).hasSize(1);
+		assertThat(exitActionS112.stateContexts).isEmpty();
 	}
 
 	@Test
 	public void testMultiRegion() throws Exception {
 		context.register(Config1.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		@SuppressWarnings("unchecked")
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		TestStateMachineListener listener = context.getBean(TestStateMachineListener.class);
 		machine.addStateListener(listener);
 		machine.start();
-		assertThat(listener.stateMachineStartedLatch.await(5, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S10, TestStates.S20));
+		assertThat(listener.stateMachineStartedLatch.await(5, TimeUnit.SECONDS)).isTrue();
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S10, TestStates.S20);
 
 		listener.reset(2, 0);
 		machine.sendEvent(TestEvents.E1);
-		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S11, TestStates.S21));
+		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS)).isTrue();
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S11, TestStates.S21);
 
 		listener.reset(1, 0);
 		machine.sendEvent(TestEvents.E2);
-		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S10, TestStates.S21));
+		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS)).isTrue();
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S10, TestStates.S21);
 
 		listener.reset(1, 0);
 		machine.sendEvent(TestEvents.E3);
-		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S10, TestStates.S20));
+		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS)).isTrue();
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S10, TestStates.S20);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -268,88 +261,90 @@ public class RegionMachineTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		Collection<Object> states = TestUtils.readField("states", machine);
-		assertThat(states.size(), is(3));
-
-		assertThat(states, containsInAnyOrder(instanceOf(ObjectState.class), instanceOf(ObjectState.class), instanceOf(RegionState.class)));
+		assertThat(states).hasSize(3);
+		assertThat(states.stream().map(s -> s.getClass().getName()).sorted().collect(Collectors.toList()))
+				.containsExactly("org.springframework.statemachine.state.ObjectState",
+						"org.springframework.statemachine.state.ObjectState",
+						"org.springframework.statemachine.state.RegionState");
 		TestStateMachineListener listener = context.getBean(TestStateMachineListener.class);
 		machine.addStateListener(listener);
 		machine.start();
 		listener.reset(3, 0);
 		machine.sendEvent(TestEvents.E1);
-		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS)).isTrue();
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S20, TestStates.S30);
 	}
 
 	@Test
 	public void testParallelRegionExecution() throws Exception {
 		context.register(Config3.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		@SuppressWarnings("unchecked")
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		TestSleepAction action1 = context.getBean("action1", TestSleepAction.class);
 		TestSleepAction action2 = context.getBean("action2", TestSleepAction.class);
 		TestStateMachineListener listener = context.getBean(TestStateMachineListener.class);
 		machine.addStateListener(listener);
 		machine.start();
-		assertThat(listener.stateMachineStartedLatch.await(5, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S10, TestStates.S20));
+		assertThat(listener.stateMachineStartedLatch.await(5, TimeUnit.SECONDS)).isTrue();
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S10, TestStates.S20);
 
 		listener.reset(2, 0);
 		machine.sendEvent(TestEvents.E1);
-		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S11, TestStates.S21));
+		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS)).isTrue();
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S11, TestStates.S21);
 
 		listener.reset(1, 0);
 		machine.sendEvent(TestEvents.E2);
-		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S10, TestStates.S21));
+		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS)).isTrue();
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S10, TestStates.S21);
 
 		listener.reset(1, 0);
 		machine.sendEvent(TestEvents.E3);
-		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S10, TestStates.S20));
+		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS)).isTrue();
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S10, TestStates.S20);
 
 		// check that actions are called and that both are executed
 		// within a time which is less than their sleep time,
 		// indicating that we must have paralled execution
-		assertThat(action1.now, greaterThan(0l));
-		assertThat(action2.now, greaterThan(0l));
-		assertThat(Math.abs(action1.now-action2.now), lessThan(1999l));
+		assertThat(action1.now).isGreaterThan(0l);
+		assertThat(action2.now).isGreaterThan(0l);
+		assertThat(Math.abs(action1.now-action2.now)).isLessThan(1999l);
 	}
 
 	@Test
 	public void testParallelRegionExecutionInInitialState() throws Exception {
 		context.register(Config4.class);
 		context.refresh();
-		assertTrue(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE));
+		assertThat(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
 		@SuppressWarnings("unchecked")
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		TestSleepAction action1 = context.getBean("action1", TestSleepAction.class);
 		TestSleepAction action2 = context.getBean("action2", TestSleepAction.class);
 		TestStateMachineListener listener = context.getBean(TestStateMachineListener.class);
 		machine.addStateListener(listener);
 		machine.start();
-		assertThat(listener.stateMachineStartedLatch.await(5, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S10, TestStates.S20));
+		assertThat(listener.stateMachineStartedLatch.await(5, TimeUnit.SECONDS)).isTrue();
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S10, TestStates.S20);
 
 		listener.reset(2, 0);
 		machine.sendEvent(TestEvents.E1);
-		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), containsInAnyOrder(TestStates.S11, TestStates.S21));
+		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS)).isTrue();
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S11, TestStates.S21);
 
 		// check that actions are called and that both are executed
 		// within a time which is less than their sleep time,
 		// indicating that we must have paralled execution
-		assertThat(action1.now, greaterThan(0l));
-		assertThat(action2.now, greaterThan(0l));
-		assertThat(Math.abs(action1.now-action2.now), lessThan(1999l));
+		assertThat(action1.now).isGreaterThan(0l);
+		assertThat(action2.now).isGreaterThan(0l);
+		assertThat(Math.abs(action1.now-action2.now)).isLessThan(1999l);
 	}
 
 	@Configuration

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.springframework.statemachine.docs;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveMachine;
@@ -206,14 +205,14 @@ public class DocsConfigurationSampleTests2 extends AbstractStateMachineTests {
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
-		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS), is(true));
-		assertThat(listener.readyStateEnteredLatch.await(3, TimeUnit.SECONDS), is(true));
-		assertThat(listener.readyStateEnteredCount, is(1));
+		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.readyStateEnteredLatch.await(3, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.readyStateEnteredCount).isEqualTo(1);
 		listener.reset(0, 0, 2);
 		doSendEventAndConsumeAll(machine, "DEPLOY");
 		doSendEventAndConsumeAll(machine, "DEPLOY");
-		assertThat(listener.readyStateEnteredLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.readyStateEnteredCount, is(2));
+		assertThat(listener.readyStateEnteredLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.readyStateEnteredCount).isEqualTo(2);
 	}
 
 	@Test
@@ -224,14 +223,14 @@ public class DocsConfigurationSampleTests2 extends AbstractStateMachineTests {
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
-		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS), is(true));
-		assertThat(listener.readyStateEnteredLatch.await(3, TimeUnit.SECONDS), is(true));
-		assertThat(listener.readyStateEnteredCount, is(1));
+		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.readyStateEnteredLatch.await(3, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.readyStateEnteredCount).isEqualTo(1);
 		listener.reset(0, 0, 2);
 		doSendEventAndConsumeAll(machine, "DEPLOY");
 		doSendEventAndConsumeAll(machine, "DEPLOY");
-		assertThat(listener.readyStateEnteredLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.readyStateEnteredCount, is(2));
+		assertThat(listener.readyStateEnteredLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.readyStateEnteredCount).isEqualTo(2);
 	}
 
 	@Test
@@ -242,14 +241,14 @@ public class DocsConfigurationSampleTests2 extends AbstractStateMachineTests {
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
-		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS), is(true));
-		assertThat(listener.readyStateEnteredLatch.await(3, TimeUnit.SECONDS), is(true));
-		assertThat(listener.readyStateEnteredCount, is(1));
+		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.readyStateEnteredLatch.await(3, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.readyStateEnteredCount).isEqualTo(1);
 		listener.reset(0, 0, 2);
 		doSendEventAndConsumeAll(machine, "DEPLOY");
 		doSendEventAndConsumeAll(machine, "DEPLOY");
-		assertThat(listener.readyStateEnteredLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.readyStateEnteredCount, is(2));
+		assertThat(listener.readyStateEnteredLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.readyStateEnteredCount).isEqualTo(2);
 	}
 
 	@Test
@@ -260,14 +259,14 @@ public class DocsConfigurationSampleTests2 extends AbstractStateMachineTests {
 		TestListener listener = new TestListener();
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
-		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS), is(true));
-		assertThat(listener.readyStateEnteredLatch.await(3, TimeUnit.SECONDS), is(true));
-		assertThat(listener.readyStateEnteredCount, is(1));
+		assertThat(listener.stateMachineStartedLatch.await(3, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.readyStateEnteredLatch.await(3, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.readyStateEnteredCount).isEqualTo(1);
 		listener.reset(0, 0, 2);
 		doSendEventAndConsumeAll(machine, "DEPLOY");
 		doSendEventAndConsumeAll(machine, "DEPLOY");
-		assertThat(listener.readyStateEnteredLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.readyStateEnteredCount, is(2));
+		assertThat(listener.readyStateEnteredLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.readyStateEnteredCount).isEqualTo(2);
 	}
 
 // tag::snippetE[]

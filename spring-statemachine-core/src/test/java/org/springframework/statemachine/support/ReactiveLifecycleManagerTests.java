@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.springframework.statemachine.support;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -34,24 +33,24 @@ public class ReactiveLifecycleManagerTests {
 		ReactiveLifecycleManager manager = new ReactiveLifecycleManager(() -> Mono.empty(), () -> Mono.empty(),
 				() -> Mono.empty(), () -> Mono.empty());
 
-		assertThat(manager.isRunning(), is(false));
-		assertThat(manager.getLifecycleState(), is(LifecycleState.STOPPED));
+		assertThat(manager.isRunning()).isFalse();
+		assertThat(manager.getLifecycleState()).isEqualTo(LifecycleState.STOPPED);
 
 		StepVerifier.create(manager.startReactively()).expectComplete().verify();
-		assertThat(manager.isRunning(), is(true));
-		assertThat(manager.getLifecycleState(), is(LifecycleState.STARTED));
+		assertThat(manager.isRunning()).isTrue();
+		assertThat(manager.getLifecycleState()).isEqualTo(LifecycleState.STARTED);
 
 		StepVerifier.create(manager.stopReactively()).expectComplete().verify();
-		assertThat(manager.isRunning(), is(false));
-		assertThat(manager.getLifecycleState(), is(LifecycleState.STOPPED));
+		assertThat(manager.isRunning()).isFalse();
+		assertThat(manager.getLifecycleState()).isEqualTo(LifecycleState.STOPPED);
 
 		StepVerifier.create(manager.startReactively()).expectComplete().verify();
-		assertThat(manager.isRunning(), is(true));
-		assertThat(manager.getLifecycleState(), is(LifecycleState.STARTED));
+		assertThat(manager.isRunning()).isTrue();
+		assertThat(manager.getLifecycleState()).isEqualTo(LifecycleState.STARTED);
 
 		StepVerifier.create(manager.stopReactively()).expectComplete().verify();
-		assertThat(manager.isRunning(), is(false));
-		assertThat(manager.getLifecycleState(), is(LifecycleState.STOPPED));
+		assertThat(manager.isRunning()).isFalse();
+		assertThat(manager.getLifecycleState()).isEqualTo(LifecycleState.STOPPED);
 	}
 
 	@Test
@@ -61,8 +60,8 @@ public class ReactiveLifecycleManagerTests {
 				() -> Mono.empty(), () -> Mono.empty());
 		startSupplier.setManager(manager);
 		StepVerifier.create(manager.startReactively()).expectComplete().verify();
-		assertThat(manager.isRunning(), is(true));
-		assertThat(manager.getLifecycleState(), is(LifecycleState.STARTED));
+		assertThat(manager.isRunning()).isTrue();
+		assertThat(manager.getLifecycleState()).isEqualTo(LifecycleState.STARTED);
 	}
 
 	@Test
@@ -72,8 +71,8 @@ public class ReactiveLifecycleManagerTests {
 				startSupplier, () -> Mono.empty());
 		startSupplier.setManager(manager);
 		StepVerifier.create(manager.startReactively()).expectComplete().verify();
-		assertThat(manager.isRunning(), is(false));
-		assertThat(manager.getLifecycleState(), is(LifecycleState.STOPPED));
+		assertThat(manager.isRunning()).isFalse();
+		assertThat(manager.getLifecycleState()).isEqualTo(LifecycleState.STOPPED);
 	}
 
 	@Test
@@ -83,8 +82,8 @@ public class ReactiveLifecycleManagerTests {
 				() -> Mono.empty(), () -> Mono.empty());
 		startSupplier.setManager(manager);
 		StepVerifier.create(manager.startReactively()).expectComplete().verify();
-//		assertThat(manager.isRunning(), is(false));
-		assertThat(manager.getLifecycleState(), is(LifecycleState.STOPPED));
+//		assertThat(manager.isRunning()).isFalse();
+		assertThat(manager.getLifecycleState()).isEqualTo(LifecycleState.STOPPED);
 	}
 
 	private static class RecursiveStartRequestSupplier implements Supplier<Mono<Void>> {

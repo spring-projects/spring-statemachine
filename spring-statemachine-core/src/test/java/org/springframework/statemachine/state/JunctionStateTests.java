@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,7 @@
  */
 package org.springframework.statemachine.state;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.EnumSet;
 import java.util.concurrent.CountDownLatch;
@@ -55,11 +52,11 @@ public class JunctionStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("junction", "s30").build());
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S30));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S30);
 	}
 
 	@Test
@@ -69,11 +66,11 @@ public class JunctionStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("junction", "s31").build());
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S31));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S31);
 	}
 
 	@Test
@@ -83,11 +80,11 @@ public class JunctionStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("junction", "s32").build());
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S32));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S32);
 	}
 
 	@Test
@@ -97,11 +94,11 @@ public class JunctionStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S33));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S33);
 	}
 
 	@Test
@@ -111,11 +108,11 @@ public class JunctionStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S33));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S33);
 	}
 
 	@Test
@@ -125,11 +122,11 @@ public class JunctionStateTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("junction", "s2").build());
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S21));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S21);
 	}
 
 	@Test
@@ -142,13 +139,13 @@ public class JunctionStateTests extends AbstractStateMachineTests {
 		LatchAction sIToJunction = context.getBean("sIToJunction", LatchAction.class);
 		LatchAction junctionToS30 = context.getBean("junctionToS30", LatchAction.class);
 		LatchAction junctionToS33 = context.getBean("junctionToS33", LatchAction.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("junction", "s30").build());
-		assertThat(sIToJunction.latch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(junctionToS30.latch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(junctionToS33.latch.await(1, TimeUnit.SECONDS), is(false));
-		assertThat(machine.getState().getIds(), contains(TestStates.S30));
+		assertThat(sIToJunction.latch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(junctionToS30.latch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(junctionToS33.latch.await(1, TimeUnit.SECONDS)).isFalse();
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S30);
 	}
 
 	@Test
@@ -161,13 +158,13 @@ public class JunctionStateTests extends AbstractStateMachineTests {
 		LatchAction sIToJunction = context.getBean("sIToJunction", LatchAction.class);
 		LatchAction junctionToS30 = context.getBean("junctionToS30", LatchAction.class);
 		LatchAction junctionToS33 = context.getBean("junctionToS33", LatchAction.class);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
-		assertThat(sIToJunction.latch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(junctionToS30.latch.await(1, TimeUnit.SECONDS), is(false));
-		assertThat(junctionToS33.latch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), contains(TestStates.S33));
+		assertThat(sIToJunction.latch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(junctionToS30.latch.await(1, TimeUnit.SECONDS)).isFalse();
+		assertThat(junctionToS33.latch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S33);
 	}
 
 	@Configuration

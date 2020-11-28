@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,7 @@
  */
 package org.springframework.statemachine.annotation;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.EnumSet;
 import java.util.Map;
@@ -60,25 +57,25 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(context.containsBean("fooMachine"), is(true));
+		assertThat(context.containsBean("fooMachine")).isTrue();
 		Bean1 bean1 = context.getBean(Bean1.class);
 
 		bean1.reset(1, 1, 1, 1, 1, 1, 1, 1);
 		machine.start();
 
-		assertThat(bean1.onTransitionFromS1ToS2Latch.await(1, TimeUnit.SECONDS), is(false));
-		assertThat(bean1.onTransitionLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(bean1.onTransitionFromS1ToS2Count, is(0));
-		assertThat(bean1.onTransitionCount, is(1));
+		assertThat(bean1.onTransitionFromS1ToS2Latch.await(1, TimeUnit.SECONDS)).isFalse();
+		assertThat(bean1.onTransitionLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean1.onTransitionFromS1ToS2Count).isZero();
+		assertThat(bean1.onTransitionCount).isEqualTo(1);
 
 		bean1.reset(1, 1, 1, 1, 1, 1, 1, 1);
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
 
-		assertThat(bean1.onTransitionFromS1ToS2Latch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(bean1.onTransitionLatch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(bean1.onTransitionFromS1ToS2Latch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean1.onTransitionLatch.await(1, TimeUnit.SECONDS)).isTrue();
 
-		assertThat(bean1.onTransitionFromS1ToS2Count, is(1));
-		assertThat(bean1.onTransitionCount, is(1));
+		assertThat(bean1.onTransitionFromS1ToS2Count).isEqualTo(1);
+		assertThat(bean1.onTransitionCount).isEqualTo(1);
 	}
 
 	@Test
@@ -89,25 +86,25 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(context.containsBean("fooMachine"), is(true));
+		assertThat(context.containsBean("fooMachine")).isTrue();
 		Bean1 bean1 = context.getBean(Bean1.class);
 
 		bean1.reset(1, 1, 1, 1, 1, 1, 1, 1);
 		machine.start();
 
-		assertThat(bean1.onStateChangedFromS1ToS2Latch.await(1, TimeUnit.SECONDS), is(false));
-		assertThat(bean1.onStateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(bean1.onStateChangedFromS1ToS2Count, is(0));
-		assertThat(bean1.onStateChangedCount, is(1));
+		assertThat(bean1.onStateChangedFromS1ToS2Latch.await(1, TimeUnit.SECONDS)).isFalse();
+		assertThat(bean1.onStateChangedLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean1.onStateChangedFromS1ToS2Count).isZero();
+		assertThat(bean1.onStateChangedCount).isEqualTo(1);
 
 		bean1.reset(1, 1, 1, 1, 1, 1, 1, 1);
 
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
 
-		assertThat(bean1.onStateChangedFromS1ToS2Latch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(bean1.onStateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(bean1.onStateChangedFromS1ToS2Count, is(1));
-		assertThat(bean1.onStateChangedCount, is(1));
+		assertThat(bean1.onStateChangedFromS1ToS2Latch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean1.onStateChangedLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean1.onStateChangedFromS1ToS2Count).isEqualTo(1);
+		assertThat(bean1.onStateChangedCount).isEqualTo(1);
 	}
 
 	@Test
@@ -117,23 +114,23 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		context.refresh();
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(context.containsBean("fooMachine"), is(true));
+		assertThat(context.containsBean("fooMachine")).isTrue();
 		Bean1 bean1 = context.getBean(Bean1.class);
 
 		bean1.reset(1, 1, 1, 1, 1, 1, 1, 1);
 
 		machine.start();
-		assertThat(bean1.onStateMachineStartLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(bean1.onStateMachineStartCount, is(1));
-		assertThat(bean1.onStateMachineStopLatch.await(1, TimeUnit.SECONDS), is(false));
-		assertThat(bean1.onStateMachineStopCount, is(0));
+		assertThat(bean1.onStateMachineStartLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean1.onStateMachineStartCount).isEqualTo(1);
+		assertThat(bean1.onStateMachineStopLatch.await(1, TimeUnit.SECONDS)).isFalse();
+		assertThat(bean1.onStateMachineStopCount).isZero();
 
 		bean1.reset(1, 1, 1, 1, 1, 1, 1, 1);
 		machine.stop();
-		assertThat(bean1.onStateMachineStartLatch.await(1, TimeUnit.SECONDS), is(false));
-		assertThat(bean1.onStateMachineStartCount, is(0));
-		assertThat(bean1.onStateMachineStopLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(bean1.onStateMachineStopCount, is(1));
+		assertThat(bean1.onStateMachineStartLatch.await(1, TimeUnit.SECONDS)).isFalse();
+		assertThat(bean1.onStateMachineStartCount).isZero();
+		assertThat(bean1.onStateMachineStopLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean1.onStateMachineStopCount).isEqualTo(1);
 	}
 
 	@Test
@@ -144,23 +141,23 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(context.containsBean("fooMachine"), is(true));
+		assertThat(context.containsBean("fooMachine")).isTrue();
 		Bean5 bean5 = context.getBean(Bean5.class);
 		machine.start();
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).setHeader("V1", "V1val").build());
 
-		assertThat(bean5.onExtendedStateChanged1Latch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(bean5.onExtendedStateChanged1Count, is(1));
+		assertThat(bean5.onExtendedStateChanged1Latch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean5.onExtendedStateChanged1Count).isEqualTo(1);
 
-		assertThat(bean5.onExtendedStateChanged2Latch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(bean5.onExtendedStateChanged2Count, is(1));
-		assertThat(bean5.onExtendedStateChanged2Value, is("V1val"));
+		assertThat(bean5.onExtendedStateChanged2Latch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean5.onExtendedStateChanged2Count).isEqualTo(1);
+		assertThat(bean5.onExtendedStateChanged2Value).isEqualTo("V1val");
 
-		assertThat(bean5.onExtendedStateChangedKeyV1Latch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(bean5.onExtendedStateChangedKeyV1Count, is(1));
+		assertThat(bean5.onExtendedStateChangedKeyV1Latch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean5.onExtendedStateChangedKeyV1Count).isEqualTo(1);
 
-		assertThat(bean5.onExtendedStateChangedKeyV2Latch.await(1, TimeUnit.SECONDS), is(false));
-		assertThat(bean5.onExtendedStateChangedKeyV2Count, is(0));
+		assertThat(bean5.onExtendedStateChangedKeyV2Latch.await(1, TimeUnit.SECONDS)).isFalse();
+		assertThat(bean5.onExtendedStateChangedKeyV2Count).isZero();
 	}
 
 	@Test
@@ -171,7 +168,7 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(context.containsBean("fooMachine"), is(true));
+		assertThat(context.containsBean("fooMachine")).isTrue();
 		machine.start();
 
 		Bean2 bean2 = context.getBean(Bean2.class);
@@ -185,19 +182,19 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 				.build());
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E2).build());
 
-		assertThat(bean2.onMethod1Latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(bean2.headers, notNullValue());
-		assertThat((String)bean2.headers.get("foo"), is("jee"));
-		assertThat(bean2.extendedState, notNullValue());
+		assertThat(bean2.onMethod1Latch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean2.headers).isNotNull();
+		assertThat((String)bean2.headers.get("foo")).isEqualTo("jee");
+		assertThat(bean2.extendedState).isNotNull();
 
-		assertThat(bean2.onMethod2Latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(bean2.variable, notNullValue());
-		assertThat((String)bean2.variable, is("jee"));
+		assertThat(bean2.onMethod2Latch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean2.variable).isNotNull();
+		assertThat((String)bean2.variable).isEqualTo("jee");
 
-		assertThat((String)bean2.fooHeader, is("jee"));
-		assertThat((String)bean2.bar1Header, is("jee1"));
-		assertThat((String)bean2.bar2Header, is("jee2"));
-		assertThat(bean2.bar3Header, is("jee3"));
+		assertThat((String)bean2.fooHeader).isEqualTo("jee");
+		assertThat((String)bean2.bar1Header).isEqualTo("jee1");
+		assertThat((String)bean2.bar2Header).isEqualTo("jee2");
+		assertThat(bean2.bar3Header).isEqualTo("jee3");
 	}
 
 	@Test
@@ -208,7 +205,7 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(context.containsBean("fooMachine"), is(true));
+		assertThat(context.containsBean("fooMachine")).isTrue();
 		machine.start();
 
 		Bean3 bean3 = context.getBean(Bean3.class);
@@ -216,7 +213,7 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		// this event should cause 'method1' to get called
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
 
-		assertThat(bean3.onStateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean3.onStateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
 	}
 
 	@Test
@@ -227,23 +224,23 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 
 		ObjectStateMachine<TestStates,TestEvents> machine =
 				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
-		assertThat(context.containsBean("fooMachine"), is(true));
+		assertThat(context.containsBean("fooMachine")).isTrue();
 		Bean4 bean4 = context.getBean(Bean4.class);
 		machine.start();
 
-		assertThat(bean4.onStateEntryLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(bean4.onStateExitLatch.await(2, TimeUnit.SECONDS), is(false));
-		assertThat(bean4.onStateEntryCount, is(1));
-		assertThat(bean4.onStateExitCount, is(0));
+		assertThat(bean4.onStateEntryLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean4.onStateExitLatch.await(2, TimeUnit.SECONDS)).isFalse();
+		assertThat(bean4.onStateEntryCount).isEqualTo(1);
+		assertThat(bean4.onStateExitCount).isZero();
 
 		bean4.reset(1, 1);
 
 		// this event should cause 'method1' to get called
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E1).build());
-		assertThat(bean4.onStateEntryLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(bean4.onStateExitLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(bean4.onStateEntryCount, is(1));
-		assertThat(bean4.onStateExitCount, is(1));
+		assertThat(bean4.onStateEntryLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean4.onStateExitLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean4.onStateEntryCount).isEqualTo(1);
+		assertThat(bean4.onStateExitCount).isEqualTo(1);
 	}
 
 	@Test
@@ -258,13 +255,13 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		machine.start();
 
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.E4).build());
-		assertThat(bean6.onEventNotAccepted1Latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(bean6.onEventNotAccepted2Latch.await(2, TimeUnit.SECONDS), is(false));
-		assertThat(bean6.onEventNotAccepted3Latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(bean6.onEventNotAccepted4Latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(bean6.onEventNotAccepted4Message, notNullValue());
-		assertThat(bean6.onEventNotAccepted4Message.getPayload(), is(TestEvents.E4));
-		assertThat(bean6.onEventNotAccepted5Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean6.onEventNotAccepted1Latch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean6.onEventNotAccepted2Latch.await(2, TimeUnit.SECONDS)).isFalse();
+		assertThat(bean6.onEventNotAccepted3Latch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean6.onEventNotAccepted4Latch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean6.onEventNotAccepted4Message).isNotNull();
+		assertThat(bean6.onEventNotAccepted4Message.getPayload()).isEqualTo(TestEvents.E4);
+		assertThat(bean6.onEventNotAccepted5Latch.await(2, TimeUnit.SECONDS)).isTrue();
 	}
 
 	@Test
@@ -282,9 +279,9 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 
 		machine.setStateMachineError(new RuntimeException());
 
-		assertThat(bean7.OnStateMachineError1Latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(bean7.OnStateMachineError2Latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(bean7.OnStateMachineError2Exception, notNullValue());
+		assertThat(bean7.OnStateMachineError1Latch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean7.OnStateMachineError2Latch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean7.OnStateMachineError2Exception).isNotNull();
 	}
 
 	@Test
@@ -300,8 +297,8 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 
 		machine.sendEvent(MessageBuilder.withPayload(TestEvents.EF).build());
 
-		assertThat(bean8.OnTransition1Latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(bean8.OnTransition2Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(bean8.OnTransition1Latch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean8.OnTransition2Latch.await(2, TimeUnit.SECONDS)).isTrue();
 	}
 
 	@Test
@@ -320,9 +317,9 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		machine.sendEvent(TestEvents.E3);
 		machine.sendEvent(TestEvents.E4);
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S2, TestStates.S21));
-		assertThat(bean9.OnStateEntry1Latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(bean9.OnTransition1Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S2, TestStates.S21);
+		assertThat(bean9.OnStateEntry1Latch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean9.OnTransition1Latch.await(2, TimeUnit.SECONDS)).isTrue();
 	}
 
 	@Test
@@ -341,9 +338,9 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 		machine.sendEvent(TestEvents.E3);
 		machine.sendEvent(TestEvents.E4);
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S2, TestStates.S21));
-		assertThat(bean10.OnStateEntry1Latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(bean10.OnTransition1Latch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S2, TestStates.S21);
+		assertThat(bean10.OnStateEntry1Latch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean10.OnTransition1Latch.await(2, TimeUnit.SECONDS)).isTrue();
 	}
 
 	@Test
@@ -359,11 +356,11 @@ public class MethodAnnotationTests extends AbstractStateMachineTests {
 
 		machine.sendEvent(TestEvents.E1);
 
-		assertThat(machine.getState().getIds(), contains(TestStates.S2));
-		assertThat(bean11.OnTransition1Latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(bean11.OnTransition2Latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(bean11.count1, is(1));
-		assertThat(bean11.count2, is(1));
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S2);
+		assertThat(bean11.OnTransition1Latch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean11.OnTransition2Latch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean11.count1).isEqualTo(1);
+		assertThat(bean11.count2).isEqualTo(1);
 	}
 
 	@WithStateMachine

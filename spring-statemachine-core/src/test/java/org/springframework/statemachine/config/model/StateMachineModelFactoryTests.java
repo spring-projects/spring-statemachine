@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  */
 package org.springframework.statemachine.config.model;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.doStopAndAssert;
@@ -67,9 +65,9 @@ public class StateMachineModelFactoryTests extends AbstractStateMachineTests {
 
 		StateMachine<String,String> stateMachine = factory.getStateMachine();
 		doStartAndAssert(stateMachine);
-		assertThat(stateMachine.getState().getIds(), contains("S1"));
+		assertThat(stateMachine.getState().getIds()).containsExactly("S1");
 		doSendEventAndConsumeAll(stateMachine, "E1");
-		assertThat(stateMachine.getState().getIds(), contains("S2"));
+		assertThat(stateMachine.getState().getIds()).containsExactly("S2");
 	}
 
 	@Test
@@ -79,9 +77,9 @@ public class StateMachineModelFactoryTests extends AbstractStateMachineTests {
 		StateMachine<String, String> stateMachine = resolveMachine(context);
 
 		doStartAndAssert(stateMachine);
-		assertThat(stateMachine.getState().getIds(), contains("S1"));
+		assertThat(stateMachine.getState().getIds()).containsExactly("S1");
 		doSendEventAndConsumeAll(stateMachine, "E1");
-		assertThat(stateMachine.getState().getIds(), contains("S2"));
+		assertThat(stateMachine.getState().getIds()).containsExactly("S2");
 	}
 
 	@Test
@@ -93,9 +91,9 @@ public class StateMachineModelFactoryTests extends AbstractStateMachineTests {
 		TestStateMachineModelFactory modelFactory = context.getBean(TestStateMachineModelFactory.class);
 
 		doStartAndAssert(stateMachine);
-		assertThat(stateMachine.getState().getIds(), contains("S1"));
+		assertThat(stateMachine.getState().getIds()).containsExactly("S1");
 		doSendEventAndConsumeAll(stateMachine, "E1");
-		assertThat(stateMachine.getState().getIds(), contains("S2"));
+		assertThat(stateMachine.getState().getIds()).containsExactly("S2");
 		doStopAndAssert(stateMachine);
 
 		modelFactory.state1 = "SS1";
@@ -104,9 +102,9 @@ public class StateMachineModelFactoryTests extends AbstractStateMachineTests {
 
 		stateMachine = stateMachineFactory.getStateMachine();
 		doStartAndAssert(stateMachine);
-		assertThat(stateMachine.getState().getIds(), contains("SS1"));
+		assertThat(stateMachine.getState().getIds()).containsExactly("SS1");
 		doSendEventAndConsumeAll(stateMachine, "EE1");
-		assertThat(stateMachine.getState().getIds(), contains("SS2"));
+		assertThat(stateMachine.getState().getIds()).containsExactly("SS2");
 		doStopAndAssert(stateMachine);
 	}
 
@@ -119,7 +117,7 @@ public class StateMachineModelFactoryTests extends AbstractStateMachineTests {
 		Object o1 = TestUtils.readField("stateListener", stateMachine);
 		Object o2 = TestUtils.readField("listeners", o1);
 		Object o3 = TestUtils.readField("list", o2);
-		assertThat(((List<?>)o3).size(), is(0));
+		assertThat(((List<?>)o3)).isEmpty();
 	}
 
 	@Test
@@ -131,7 +129,7 @@ public class StateMachineModelFactoryTests extends AbstractStateMachineTests {
 		Object o1 = TestUtils.readField("stateListener", stateMachine);
 		Object o2 = TestUtils.readField("listeners", o1);
 		Object o3 = TestUtils.readField("list", o2);
-		assertThat(((List<?>)o3).size(), is(1));
+		assertThat(((List<?>)o3)).hasSize(1);
 	}
 
 	@Configuration

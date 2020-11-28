@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,7 @@
  */
 package org.springframework.statemachine;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveMachine;
@@ -50,14 +47,14 @@ public class RelayTests extends AbstractStateMachineTests {
 		context.register(Config1.class);
 		context.refresh();
 		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
-		assertThat(machine, notNullValue());
+		assertThat(machine).isNotNull();
 		TestStateMachineListener listener = new TestStateMachineListener();
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
 		listener.reset(3, 0);
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
-		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), contains(TestStates.S2, TestStates.S21));
+		assertThat(listener.stateChangedLatch.await(5, TimeUnit.SECONDS)).isTrue();
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S2, TestStates.S21);
 	}
 
 	@Configuration

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  */
 package org.springframework.statemachine;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveMachine;
@@ -60,20 +58,20 @@ public class EventHeaderTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
 
-		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
+		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
 
 		listener.reset(3);
 		doSendEventAndConsumeAll(machine, MessageBuilder.withPayload("E1").setHeader("testHeader", "testValue").build());
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(3));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(3);
 
-		assertThat(headerTestAction1I.testHeader, is("testValue"));
-		assertThat(headerTestAction1.testHeader, is("testValue"));
-		assertThat(headerTestAction11.testHeader, is("testValue"));
-		assertThat(headerTestAction111.testHeader, is("testValue"));
-		assertThat(headerTestAction112.testHeader, nullValue());
+		assertThat(headerTestAction1I.testHeader).isEqualTo("testValue");
+		assertThat(headerTestAction1.testHeader).isEqualTo("testValue");
+		assertThat(headerTestAction11.testHeader).isEqualTo("testValue");
+		assertThat(headerTestAction111.testHeader).isEqualTo("testValue");
+		assertThat(headerTestAction112.testHeader).isNull();
 
 		headerTestAction1.testHeader = null;
 		headerTestAction11.testHeader = null;
@@ -81,13 +79,13 @@ public class EventHeaderTests extends AbstractStateMachineTests {
 
 		listener.reset(1);
 		doSendEventAndConsumeAll(machine, MessageBuilder.withPayload("E2").setHeader("testHeader", "testValue").build());
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
 
-		assertThat(headerTestAction1.testHeader, nullValue());
-		assertThat(headerTestAction11.testHeader, nullValue());
-		assertThat(headerTestAction111.testHeader, nullValue());
-		assertThat(headerTestAction112.testHeader, is("testValue"));
+		assertThat(headerTestAction1.testHeader).isNull();
+		assertThat(headerTestAction11.testHeader).isNull();
+		assertThat(headerTestAction111.testHeader).isNull();
+		assertThat(headerTestAction112.testHeader).isEqualTo("testValue");
 	}
 
 	@Test
@@ -104,19 +102,19 @@ public class EventHeaderTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
 
-		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
+		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
 
 		listener.reset(3);
 		doSendEventAndConsumeAll(machine, MessageBuilder.withPayload("E1").setHeader("testHeader", "testValue").build());
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(3));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(3);
 
-		assertThat(headerTestAction1.testHeader, is("testValue"));
-		assertThat(headerTestAction11.testHeader, is("testValue"));
-		assertThat(headerTestAction111.testHeader, is("testValue"));
-		assertThat(headerTestAction112.testHeader, nullValue());
+		assertThat(headerTestAction1.testHeader).isEqualTo("testValue");
+		assertThat(headerTestAction11.testHeader).isEqualTo("testValue");
+		assertThat(headerTestAction111.testHeader).isEqualTo("testValue");
+		assertThat(headerTestAction112.testHeader).isNull();
 
 		headerTestAction1.testHeader = null;
 		headerTestAction11.testHeader = null;
@@ -124,13 +122,13 @@ public class EventHeaderTests extends AbstractStateMachineTests {
 
 		listener.reset(1);
 		doSendEventAndConsumeAll(machine, "E2");
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
 
-		assertThat(headerTestAction1.testHeader, nullValue());
-		assertThat(headerTestAction11.testHeader, nullValue());
-		assertThat(headerTestAction111.testHeader, nullValue());
-		assertThat(headerTestAction112.testHeader, nullValue());
+		assertThat(headerTestAction1.testHeader).isNull();
+		assertThat(headerTestAction11.testHeader).isNull();
+		assertThat(headerTestAction111.testHeader).isNull();
+		assertThat(headerTestAction112.testHeader).isNull();
 	}
 
 	@Test
@@ -148,19 +146,19 @@ public class EventHeaderTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
 
-		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
+		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
 
 		listener.reset(3);
 		doSendEventAndConsumeAll(machine, MessageBuilder.withPayload("E1").setHeader("testHeader", "testValue").build());
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(3));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(3);
 
 		listener.reset(1);
 		doSendEventAndConsumeAll(machine, MessageBuilder.withPayload("E2").setHeader("testHeader", "testValue").build());
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
 
 		headerTestAction1I.testHeader = null;
 		headerTestAction1.testHeader = null;
@@ -169,14 +167,14 @@ public class EventHeaderTests extends AbstractStateMachineTests {
 		headerTestAction112.testHeader = null;
 		listener.reset(1);
 		doSendEventAndConsumeAll(machine, MessageBuilder.withPayload("E3").setHeader("testHeader", "testValue").build());
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
 
-		assertThat(headerTestAction1I.testHeader, nullValue());
-		assertThat(headerTestAction1.testHeader, nullValue());
-		assertThat(headerTestAction11.testHeader, nullValue());
-		assertThat(headerTestAction111.testHeader, is("testValue"));
-		assertThat(headerTestAction112.testHeader, nullValue());
+		assertThat(headerTestAction1I.testHeader).isNull();
+		assertThat(headerTestAction1.testHeader).isNull();
+		assertThat(headerTestAction11.testHeader).isNull();
+		assertThat(headerTestAction111.testHeader).isEqualTo("testValue");
+		assertThat(headerTestAction112.testHeader).isNull();
 	}
 
 	@Test
@@ -194,20 +192,20 @@ public class EventHeaderTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
 
-		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
+		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
 
 		listener.reset(3);
 		doSendEventAndConsumeAll(machine, MessageBuilder.withPayload("E1").setHeader("testHeader", "testValue").build());
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(3));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(3);
 
-		assertThat(headerTestAction1I.testHeader, is("testValue"));
-		assertThat(headerTestAction1.testHeader, is("testValue"));
-		assertThat(headerTestAction11.testHeader, is("testValue"));
-		assertThat(headerTestAction111.testHeader, is("testValue"));
-		assertThat(headerTestAction112.testHeader, nullValue());
+		assertThat(headerTestAction1I.testHeader).isEqualTo("testValue");
+		assertThat(headerTestAction1.testHeader).isEqualTo("testValue");
+		assertThat(headerTestAction11.testHeader).isEqualTo("testValue");
+		assertThat(headerTestAction111.testHeader).isEqualTo("testValue");
+		assertThat(headerTestAction112.testHeader).isNull();
 
 		headerTestAction1.testHeader = null;
 		headerTestAction11.testHeader = null;
@@ -215,13 +213,13 @@ public class EventHeaderTests extends AbstractStateMachineTests {
 
 		listener.reset(1);
 		doSendEventAndConsumeAll(machine, MessageBuilder.withPayload("E2").setHeader("testHeader", "testValue").build());
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
 
-		assertThat(headerTestAction1.testHeader, nullValue());
-		assertThat(headerTestAction11.testHeader, nullValue());
-		assertThat(headerTestAction111.testHeader, nullValue());
-		assertThat(headerTestAction112.testHeader, is("testValue"));
+		assertThat(headerTestAction1.testHeader).isNull();
+		assertThat(headerTestAction11.testHeader).isNull();
+		assertThat(headerTestAction111.testHeader).isNull();
+		assertThat(headerTestAction112.testHeader).isEqualTo("testValue");
 	}
 
 	@Test
@@ -238,19 +236,19 @@ public class EventHeaderTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
 
-		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
+		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
 
 		listener.reset(3);
 		doSendEventAndConsumeAll(machine, MessageBuilder.withPayload("E1").setHeader("testHeader", "testValue").build());
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(3));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(3);
 
-		assertThat(headerTestAction1.testHeader, is("testValue"));
-		assertThat(headerTestAction11.testHeader, is("testValue"));
-		assertThat(headerTestAction111.testHeader, is("testValue"));
-		assertThat(headerTestAction112.testHeader, nullValue());
+		assertThat(headerTestAction1.testHeader).isEqualTo("testValue");
+		assertThat(headerTestAction11.testHeader).isEqualTo("testValue");
+		assertThat(headerTestAction111.testHeader).isEqualTo("testValue");
+		assertThat(headerTestAction112.testHeader).isNull();
 
 		headerTestAction1.testHeader = null;
 		headerTestAction11.testHeader = null;
@@ -258,13 +256,13 @@ public class EventHeaderTests extends AbstractStateMachineTests {
 
 		listener.reset(1);
 		doSendEventAndConsumeAll(machine, "E2");
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
 
-		assertThat(headerTestAction1.testHeader, nullValue());
-		assertThat(headerTestAction11.testHeader, nullValue());
-		assertThat(headerTestAction111.testHeader, nullValue());
-		assertThat(headerTestAction112.testHeader, nullValue());
+		assertThat(headerTestAction1.testHeader).isNull();
+		assertThat(headerTestAction11.testHeader).isNull();
+		assertThat(headerTestAction111.testHeader).isNull();
+		assertThat(headerTestAction112.testHeader).isNull();
 	}
 
 	@Test
@@ -282,19 +280,19 @@ public class EventHeaderTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
 
-		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
+		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
 
 		listener.reset(3);
 		doSendEventAndConsumeAll(machine, MessageBuilder.withPayload("E1").setHeader("testHeader", "testValue").build());
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(3));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(3);
 
 		listener.reset(1);
 		doSendEventAndConsumeAll(machine, MessageBuilder.withPayload("E2").setHeader("testHeader", "testValue").build());
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
 
 		headerTestAction1I.testHeader = null;
 		headerTestAction1.testHeader = null;
@@ -303,14 +301,14 @@ public class EventHeaderTests extends AbstractStateMachineTests {
 		headerTestAction112.testHeader = null;
 		listener.reset(1);
 		doSendEventAndConsumeAll(machine, MessageBuilder.withPayload("E3").setHeader("testHeader", "testValue").build());
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
 
-		assertThat(headerTestAction1I.testHeader, nullValue());
-		assertThat(headerTestAction1.testHeader, nullValue());
-		assertThat(headerTestAction11.testHeader, nullValue());
-		assertThat(headerTestAction111.testHeader, is("testValue"));
-		assertThat(headerTestAction112.testHeader, nullValue());
+		assertThat(headerTestAction1I.testHeader).isNull();
+		assertThat(headerTestAction1.testHeader).isNull();
+		assertThat(headerTestAction11.testHeader).isNull();
+		assertThat(headerTestAction111.testHeader).isEqualTo("testValue");
+		assertThat(headerTestAction112.testHeader).isNull();
 	}
 
 	@Test
@@ -326,18 +324,18 @@ public class EventHeaderTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
 
-		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
+		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
 
 		listener.reset(3);
 		doSendEventAndConsumeAll(machine, MessageBuilder.withPayload("E1").setHeader("testHeader", "testValue").build());
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(3));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(3);
 
-		assertThat(headerTestAction1.testHeader, is("testValue"));
-		assertThat(headerTestAction2.testHeader, is("testValue"));
-		assertThat(headerTestAction3.testHeader, is("testValue"));
+		assertThat(headerTestAction1.testHeader).isEqualTo("testValue");
+		assertThat(headerTestAction2.testHeader).isEqualTo("testValue");
+		assertThat(headerTestAction3.testHeader).isEqualTo("testValue");
 	}
 
 	@Test
@@ -353,18 +351,18 @@ public class EventHeaderTests extends AbstractStateMachineTests {
 		machine.addStateListener(listener);
 		doStartAndAssert(machine);
 
-		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(1));
+		assertThat(listener.stateMachineStartedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(1);
 
 		listener.reset(3);
 		doSendEventAndConsumeAll(machine, MessageBuilder.withPayload("E1").setHeader("testHeader", "testValue").build());
-		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateChangedCount, is(3));
+		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateChangedCount).isEqualTo(3);
 
-		assertThat(headerTestAction1.testHeader, is("testValue"));
-		assertThat(headerTestAction2.testHeader, is("testValue"));
-		assertThat(headerTestAction3.testHeader, is("testValue"));
+		assertThat(headerTestAction1.testHeader).isEqualTo("testValue");
+		assertThat(headerTestAction2.testHeader).isEqualTo("testValue");
+		assertThat(headerTestAction3.testHeader).isEqualTo("testValue");
 	}
 
 	@Configuration
