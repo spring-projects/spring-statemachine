@@ -4,6 +4,19 @@ https://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 2.2.1.RELEASE (2020-11-28)
+---------------------------------------------
+* Backport master changes [#834]
+* AbstractPersistingStateMachineInterceptor does not pass event to context [#870]
+* Double invokation in interceptor [#871]
+* stateMachineContext JPA column too short [#882]
+* Testplan array contains should discard order [#883]
+* SPeL is not supported in transition effect in UML file [#889]
+
+Changes in version 2.2.0.RELEASE (2020-01-27)
+---------------------------------------------
+* Basically just a boot upgrade to 2.2.x
+
 Changes in version 2.1.3.RELEASE (2019-06-03)
 ---------------------------------------------
 * URL Cleanup [#686]
