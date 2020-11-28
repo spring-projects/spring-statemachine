@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  */
 package org.springframework.statemachine.cluster;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -56,15 +54,15 @@ public class LeaderZookeeperStateMachineEnsembleTests extends AbstractZookeeperT
 		TestEnsembleListener listener = context.getBean(TestEnsembleListener.class);
 
 		StateMachine<String, String> machine1 = factory.getStateMachine();
-		assertThat(machine1.getState().getIds(), contains("S1"));
-		assertThat(listener.latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(stateMachineEnsemble.getLeader(), is(machine1));
+		assertThat(machine1.getState().getIds()).containsExactly("S1");
+		assertThat(listener.latch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(stateMachineEnsemble.getLeader()).isEqualTo(machine1);
 
 		listener.reset(1);
 		StateMachine<String, String> machine2 = factory.getStateMachine();
 		stateMachineEnsemble.leave(machine1);
-		assertThat(listener.latch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(stateMachineEnsemble.getLeader(), is(machine2));
+		assertThat(listener.latch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(stateMachineEnsemble.getLeader()).isEqualTo(machine2);
 	}
 
 	@Configuration
