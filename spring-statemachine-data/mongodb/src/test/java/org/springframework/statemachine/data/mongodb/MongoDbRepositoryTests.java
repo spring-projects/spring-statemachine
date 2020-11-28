@@ -15,9 +15,7 @@
  */
 package org.springframework.statemachine.data.mongodb;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveMachine;
@@ -73,18 +71,18 @@ public class MongoDbRepositoryTests extends AbstractRepositoryTests {
 
 		MongoDbStateRepository stateRepository = context.getBean(MongoDbStateRepository.class);
 		MongoDbTransitionRepository transitionRepository = context.getBean(MongoDbTransitionRepository.class);
-		assertThat(stateRepository.count(), is(3l));
-		assertThat(transitionRepository.count(), is(3l));
+		assertThat(stateRepository.count()).isEqualTo(3l);
+		assertThat(transitionRepository.count()).isEqualTo(3l);
 
 		List<MongoDbRepositoryState> states = new ArrayList<>();
 		stateRepository.findAll().iterator().forEachRemaining(states::add);
 		List<MongoDbRepositoryTransition> transitions = new ArrayList<>();
 		transitionRepository.findAll().iterator().forEachRemaining(transitions::add);
-		assertThat(states.size(), is(3));
-		assertThat(transitions.size(), is(3));
+		assertThat(states).hasSize(3);
+		assertThat(transitions).hasSize(3);
 		MongoDbRepositoryTransition transition1 = transitions.get(0);
-		assertThat(transition1.getSource(), notNullValue());
-		assertThat(transition1.getTarget(), notNullValue());
+		assertThat(transition1.getSource()).isNotNull();
+		assertThat(transition1.getTarget()).isNotNull();
 	}
 
 	@Test
@@ -95,27 +93,27 @@ public class MongoDbRepositoryTests extends AbstractRepositoryTests {
 		MongoDbStateRepository statesRepository = context.getBean(MongoDbStateRepository.class);
 		MongoDbRepositoryState stateS1 = new MongoDbRepositoryState("S1");
 		MongoDbRepositoryState stateS2 = new MongoDbRepositoryState("S2");
-		assertThat(statesRepository.count(), is(0l));
+		assertThat(statesRepository.count()).isEqualTo(0l);
 
 		statesRepository.save(stateS1);
 		statesRepository.save(stateS2);
-		assertThat(statesRepository.count(), is(2l));
+		assertThat(statesRepository.count()).isEqualTo(2l);
 
 		MongoDbTransitionRepository transitionsRepository = context.getBean(MongoDbTransitionRepository.class);
 		MongoDbRepositoryTransition transition = new MongoDbRepositoryTransition(stateS1, stateS2, "E1");
 		transition.setKind(TransitionKind.EXTERNAL);
 		transitionsRepository.save(transition);
 
-		assertThat(statesRepository.count(), is(2l));
+		assertThat(statesRepository.count()).isEqualTo(2l);
 
 		MongoDbRepositoryTransition transition2 = transitionsRepository.findAll().iterator().next();
-		assertThat(transition2.getSource().getState(), is("S1"));
-		assertThat(transition2.getTarget().getState(), is("S2"));
-		assertThat(transition2.getEvent(), is("E1"));
-		assertThat(transition2.getKind(), is(TransitionKind.EXTERNAL));
+		assertThat(transition2.getSource().getState()).isEqualTo("S1");
+		assertThat(transition2.getTarget().getState()).isEqualTo("S2");
+		assertThat(transition2.getEvent()).isEqualTo("E1");
+		assertThat(transition2.getKind()).isEqualTo(TransitionKind.EXTERNAL);
 
 		List<MongoDbRepositoryState> findByMachineId = statesRepository.findByMachineId("");
-		assertThat(findByMachineId.size(), is(2));
+		assertThat(findByMachineId).hasSize(2);
 
 		context.close();
 	}
@@ -127,11 +125,11 @@ public class MongoDbRepositoryTests extends AbstractRepositoryTests {
 
 		StateMachine<String, String> stateMachine = resolveMachine(context);
 		doStartAndAssert(stateMachine);
-		assertThat(stateMachine.getState().getId(), is("S1"));
+		assertThat(stateMachine.getState().getId()).isEqualTo("S1");
 		doSendEventAndConsumeAll(stateMachine, "E1");
-		assertThat(stateMachine.getState().getId(), is("S2"));
+		assertThat(stateMachine.getState().getId()).isEqualTo("S2");
 		doSendEventAndConsumeAll(stateMachine, "E2");
-		assertThat(stateMachine.getState().getId(), is("S1"));
+		assertThat(stateMachine.getState().getId()).isEqualTo("S1");
 	}
 
 	@Test
@@ -141,11 +139,11 @@ public class MongoDbRepositoryTests extends AbstractRepositoryTests {
 
 		StateMachine<PersistTestStates, PersistTestEvents> stateMachine = resolveMachine(context);
 		doStartAndAssert(stateMachine);
-		assertThat(stateMachine.getState().getId(), is(PersistTestStates.S1));
+		assertThat(stateMachine.getState().getId()).isEqualTo(PersistTestStates.S1);
 		doSendEventAndConsumeAll(stateMachine, PersistTestEvents.E1);
-		assertThat(stateMachine.getState().getId(), is(PersistTestStates.S2));
+		assertThat(stateMachine.getState().getId()).isEqualTo(PersistTestStates.S2);
 		doSendEventAndConsumeAll(stateMachine, PersistTestEvents.E2);
-		assertThat(stateMachine.getState().getId(), is(PersistTestStates.S1));
+		assertThat(stateMachine.getState().getId()).isEqualTo(PersistTestStates.S1);
 	}
 
 	@Override

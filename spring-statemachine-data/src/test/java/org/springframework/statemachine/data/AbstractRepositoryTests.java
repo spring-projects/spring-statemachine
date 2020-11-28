@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  */
 package org.springframework.statemachine.data;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Iterator;
@@ -349,9 +347,9 @@ public abstract class AbstractRepositoryTests {
 				break;
 			}
 		}
-		assertThat(endState, notNullValue());
-		assertThat(endState.getPseudoState(), notNullValue());
-		assertThat(endState.getPseudoState().getKind(), is(PseudoStateKind.END));
+		assertThat(endState).isNotNull();
+		assertThat(endState.getPseudoState()).isNotNull();
+		assertThat(endState.getPseudoState().getKind()).isEqualTo(PseudoStateKind.END);
 	}
 
 	@SuppressWarnings("unchecked")
