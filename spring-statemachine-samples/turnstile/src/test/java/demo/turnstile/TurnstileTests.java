@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  */
 package demo.turnstile;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.doStopAndAssert;
 
@@ -56,7 +54,7 @@ public class TurnstileTests {
 
 	@Test
 	public void testNotStarted() throws Exception {
-		assertThat(commands.state(), is("No state"));
+		assertThat(commands.state()).isEqualTo("No state");
 	}
 
 	@Test
@@ -64,10 +62,10 @@ public class TurnstileTests {
 		doStartAndAssert(machine);
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
 		listener.stateEnteredLatch.await(1, TimeUnit.SECONDS);
-		assertThat(machine.getState().getIds(), contains(States.LOCKED));
-		assertThat(listener.statesEntered.size(), is(1));
-		assertThat(listener.statesEntered.get(0).getId(), is(States.LOCKED));
-		assertThat(listener.statesExited.size(), is(0));
+		assertThat(machine.getState().getIds()).containsExactly(States.LOCKED);
+		assertThat(listener.statesEntered).hasSize(1);
+		assertThat(listener.statesEntered.get(0).getId()).isEqualTo(States.LOCKED);
+		assertThat(listener.statesExited).isEmpty();
 	}
 
 	static class Config {

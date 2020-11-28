@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  */
 package demo.showcase;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.doStopAndAssert;
@@ -55,14 +53,14 @@ public class ShowcaseTests {
 
 	@Test
 	public void testInitialState() throws Exception {
-		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), contains(States.S0, States.S1, States.S11));
-		assertThat(listener.statesEntered.size(), is(3));
-		assertThat(listener.statesEntered.get(0).getId(), is(States.S0));
-		assertThat(listener.statesEntered.get(1).getId(), is(States.S1));
-		assertThat(listener.statesEntered.get(2).getId(), is(States.S11));
-		assertThat(listener.statesExited.size(), is(0));
+		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(machine.getState().getIds()).containsExactly(States.S0, States.S1, States.S11);
+		assertThat(listener.statesEntered).hasSize(3);
+		assertThat(listener.statesEntered.get(0).getId()).isEqualTo(States.S0);
+		assertThat(listener.statesEntered.get(1).getId()).isEqualTo(States.S1);
+		assertThat(listener.statesEntered.get(2).getId()).isEqualTo(States.S11);
+		assertThat(listener.statesExited).isEmpty();
 	}
 
 	@Test
@@ -72,10 +70,10 @@ public class ShowcaseTests {
 		doSendEventAndConsumeAll(machine, Events.A);
 		// machine.sendEvent(Events.A);
 		// variable foo is 0, guard denies transition
-		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(false));
-		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS), is(false));
-		assertThat(listener.stateExitedLatch.await(1, TimeUnit.SECONDS), is(false));
-		assertThat(machine.getState().getIds(), contains(States.S0, States.S1, States.S11));
+		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS)).isFalse();
+		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS)).isFalse();
+		assertThat(listener.stateExitedLatch.await(1, TimeUnit.SECONDS)).isFalse();
+		assertThat(machine.getState().getIds()).containsExactly(States.S0, States.S1, States.S11);
 	}
 
 	@Test
@@ -83,12 +81,12 @@ public class ShowcaseTests {
 		testInitialState();
 		listener.reset(1, 2, 2);
 		doSendEventAndConsumeAll(machine, Events.B);
-		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateExitedLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(listener.statesExited.size(), is(2));
-		assertThat(listener.statesEntered.size(), is(2));
-		assertThat(machine.getState().getIds(), contains(States.S0, States.S1, States.S11));
+		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateExitedLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.statesExited).hasSize(2);
+		assertThat(listener.statesEntered).hasSize(2);
+		assertThat(machine.getState().getIds()).containsExactly(States.S0, States.S1, States.S11);
 	}
 
 	@Test
@@ -106,14 +104,14 @@ public class ShowcaseTests {
 		listener.stateEnteredLatch.await(1, TimeUnit.SECONDS);
 		listener.stateExitedLatch.await(1, TimeUnit.SECONDS);
 		listener.transitionLatch.await(1, TimeUnit.SECONDS);
-		assertThat(machine.getState().getIds(), contains(States.S0, States.S1, States.S11));
-		assertThat(listener.statesEntered.size(), is(2));
-		assertThat(listener.statesEntered.get(0).getId(), is(States.S1));
-		assertThat(listener.statesEntered.get(1).getId(), is(States.S11));
-		assertThat(listener.statesExited.size(), is(2));
-		assertThat(listener.statesExited.get(0).getId(), is(States.S11));
-		assertThat(listener.statesExited.get(1).getId(), is(States.S1));
-		assertThat(listener.transitionCount, is(2));
+		assertThat(machine.getState().getIds()).containsExactly(States.S0, States.S1, States.S11);
+		assertThat(listener.statesEntered).hasSize(2);
+		assertThat(listener.statesEntered.get(0).getId()).isEqualTo(States.S1);
+		assertThat(listener.statesEntered.get(1).getId()).isEqualTo(States.S11);
+		assertThat(listener.statesExited).hasSize(2);
+		assertThat(listener.statesExited.get(0).getId()).isEqualTo(States.S11);
+		assertThat(listener.statesExited.get(1).getId()).isEqualTo(States.S1);
+		assertThat(listener.transitionCount).isEqualTo(2);
 	}
 
 	@Test
@@ -123,11 +121,11 @@ public class ShowcaseTests {
 		doSendEventAndConsumeAll(machine, Events.C);
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
 		listener.stateEnteredLatch.await(1, TimeUnit.SECONDS);
-		assertThat(machine.getState().getIds(), contains(States.S0, States.S2, States.S21, States.S211));
-		assertThat(listener.statesEntered.size(), is(3));
-		assertThat(listener.statesEntered.get(0).getId(), is(States.S2));
-		assertThat(listener.statesEntered.get(1).getId(), is(States.S21));
-		assertThat(listener.statesEntered.get(2).getId(), is(States.S211));
+		assertThat(machine.getState().getIds()).containsExactly(States.S0, States.S2, States.S21, States.S211);
+		assertThat(listener.statesEntered).hasSize(3);
+		assertThat(listener.statesEntered.get(0).getId()).isEqualTo(States.S2);
+		assertThat(listener.statesEntered.get(1).getId()).isEqualTo(States.S21);
+		assertThat(listener.statesEntered.get(2).getId()).isEqualTo(States.S211);
 	}
 
 	@Test
@@ -136,15 +134,15 @@ public class ShowcaseTests {
 		listener.reset(1, 3, 0);
 		doSendEventAndConsumeAll(machine, Events.C);
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
-		assertThat(machine.getState().getIds(), contains(States.S0, States.S2, States.S21, States.S211));
+		assertThat(machine.getState().getIds()).containsExactly(States.S0, States.S2, States.S21, States.S211);
 		listener.reset(1, 2, 0);
 		doSendEventAndConsumeAll(machine, Events.C);
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
 		listener.stateEnteredLatch.await(1, TimeUnit.SECONDS);
-		assertThat(machine.getState().getIds(), contains(States.S0, States.S1, States.S11));
-		assertThat(listener.statesEntered.size(), is(2));
-		assertThat(listener.statesEntered.get(0).getId(), is(States.S1));
-		assertThat(listener.statesEntered.get(1).getId(), is(States.S11));
+		assertThat(machine.getState().getIds()).containsExactly(States.S0, States.S1, States.S11);
+		assertThat(listener.statesEntered).hasSize(2);
+		assertThat(listener.statesEntered.get(0).getId()).isEqualTo(States.S1);
+		assertThat(listener.statesEntered.get(1).getId()).isEqualTo(States.S11);
 	}
 
 	@Test
@@ -154,12 +152,12 @@ public class ShowcaseTests {
 		doSendEventAndConsumeAll(machine, Events.D);
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
 		listener.stateEnteredLatch.await(1, TimeUnit.SECONDS);
-		assertThat(machine.getState().getIds(), contains(States.S0, States.S1, States.S11));
-		assertThat(listener.statesEntered.size(), is(3));
-		assertThat(listener.statesEntered.get(0).getId(), is(States.S0));
-		assertThat(listener.statesEntered.get(1).getId(), is(States.S1));
-		assertThat(listener.statesEntered.get(2).getId(), is(States.S11));
-		assertThat(listener.statesExited.size(), is(3));
+		assertThat(machine.getState().getIds()).containsExactly(States.S0, States.S1, States.S11);
+		assertThat(listener.statesEntered).hasSize(3);
+		assertThat(listener.statesEntered.get(0).getId()).isEqualTo(States.S0);
+		assertThat(listener.statesEntered.get(1).getId()).isEqualTo(States.S1);
+		assertThat(listener.statesEntered.get(2).getId()).isEqualTo(States.S11);
+		assertThat(listener.statesExited).hasSize(3);
 	}
 
 	@Test
@@ -172,10 +170,10 @@ public class ShowcaseTests {
 		doSendEventAndConsumeAll(machine, Events.D);
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
 		listener.stateEnteredLatch.await(1, TimeUnit.SECONDS);
-		assertThat(machine.getState().getIds(), contains(States.S0, States.S2, States.S21, States.S211));
-		assertThat(listener.statesEntered.size(), is(2));
-		assertThat(listener.statesEntered.get(0).getId(), is(States.S21));
-		assertThat(listener.statesEntered.get(1).getId(), is(States.S211));
+		assertThat(machine.getState().getIds()).containsExactly(States.S0, States.S2, States.S21, States.S211);
+		assertThat(listener.statesEntered).hasSize(2);
+		assertThat(listener.statesEntered.get(0).getId()).isEqualTo(States.S21);
+		assertThat(listener.statesEntered.get(1).getId()).isEqualTo(States.S211);
 	}
 
 	@Test
@@ -186,11 +184,11 @@ public class ShowcaseTests {
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
 		listener.stateEnteredLatch.await(1, TimeUnit.SECONDS);
 		listener.stateExitedLatch.await(1, TimeUnit.SECONDS);
-		assertThat(machine.getState().getIds(), contains(States.S0, States.S1, States.S12));
-		assertThat(listener.statesEntered.size(), is(1));
-		assertThat(listener.statesEntered.get(0).getId(), is(States.S12));
-		assertThat(listener.statesExited.size(), is(1));
-		assertThat(listener.statesExited.get(0).getId(), is(States.S11));
+		assertThat(machine.getState().getIds()).containsExactly(States.S0, States.S1, States.S12);
+		assertThat(listener.statesEntered).hasSize(1);
+		assertThat(listener.statesEntered.get(0).getId()).isEqualTo(States.S12);
+		assertThat(listener.statesExited).hasSize(1);
+		assertThat(listener.statesExited.get(0).getId()).isEqualTo(States.S11);
 	}
 
 	@Test
@@ -199,21 +197,21 @@ public class ShowcaseTests {
 		listener.reset(1, 1, 1);
 		doSendEventAndConsumeAll(machine, Events.I);
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
-		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateExitedLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(listener.statesEntered.size(), is(1));
-		assertThat(listener.statesExited.size(), is(1));
-		assertThat(machine.getState().getIds(), contains(States.S0, States.S1, States.S12));
+		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateExitedLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.statesEntered).hasSize(1);
+		assertThat(listener.statesExited).hasSize(1);
+		assertThat(machine.getState().getIds()).containsExactly(States.S0, States.S1, States.S12);
 
 		listener.reset(1, 3, 2);
 		doSendEventAndConsumeAll(machine, Events.I);
-		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateExitedLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(listener.statesEntered.size(), is(3));
-		assertThat(listener.statesExited.size(), is(2));
-		assertThat(machine.getState().getIds(), contains(States.S0, States.S2, States.S21, States.S212));
+		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateExitedLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.statesEntered).hasSize(3);
+		assertThat(listener.statesExited).hasSize(2);
+		assertThat(machine.getState().getIds()).containsExactly(States.S0, States.S2, States.S21, States.S212);
 	}
 
 	@Test
@@ -222,8 +220,8 @@ public class ShowcaseTests {
 		listener.reset(0, 0, 0, 1);
 		doSendEventAndConsumeAll(machine, Events.H);
 		listener.transitionLatch.await(1, TimeUnit.SECONDS);
-		assertThat(listener.transitionCount, is(1));
-		assertThat(listener.transitions.get(0).getSource().getId(), is(States.S1));
+		assertThat(listener.transitionCount).isEqualTo(1);
+		assertThat(listener.transitions.get(0).getSource().getId()).isEqualTo(States.S1);
 	}
 
 	@Test
@@ -233,8 +231,8 @@ public class ShowcaseTests {
 		listener.reset(0, 0, 0, 1);
 		doSendEventAndConsumeAll(machine, Events.H);
 		listener.transitionLatch.await(1, TimeUnit.SECONDS);
-		assertThat(listener.transitionCount, is(1));
-		assertThat(listener.transitions.get(0).getSource().getId(), is(States.S0));
+		assertThat(listener.transitionCount).isEqualTo(1);
+		assertThat(listener.transitions.get(0).getSource().getId()).isEqualTo(States.S0);
 	}
 
 	@Test
@@ -246,8 +244,8 @@ public class ShowcaseTests {
 		doSendEventAndConsumeAll(machine, Events.H);
 		doSendEventAndConsumeAll(machine, Events.A);
 		listener.transitionLatch.await(1, TimeUnit.SECONDS);
-		assertThat(listener.transitionCount, is(1));
-		assertThat(listener.transitions.get(0).getSource().getId(), is(States.S0));
+		assertThat(listener.transitionCount).isEqualTo(1);
+		assertThat(listener.transitions.get(0).getSource().getId()).isEqualTo(States.S0);
 	}
 
 	@Test
@@ -256,12 +254,12 @@ public class ShowcaseTests {
 		listener.reset(1, 4, 3, 0);
 		doSendEventAndConsumeAll(machine, Events.E);
 		listener.stateChangedLatch.await(1, TimeUnit.SECONDS);
-		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateExitedLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), contains(States.S0, States.S2, States.S21, States.S211));
-		assertThat(listener.statesExited.size(), is(3));
-		assertThat(listener.statesEntered.size(), is(4));
+		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateExitedLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(machine.getState().getIds()).containsExactly(States.S0, States.S2, States.S21, States.S211);
+		assertThat(listener.statesExited).hasSize(3);
+		assertThat(listener.statesEntered).hasSize(4);
 	}
 
 	@Test
@@ -269,12 +267,12 @@ public class ShowcaseTests {
 		testInitialState();
 		listener.reset(1, 3, 2, 0);
 		doSendEventAndConsumeAll(machine, Events.F);
-		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateExitedLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), contains(States.S0, States.S2, States.S21, States.S211));
-		assertThat(listener.statesExited.size(), is(2));
-		assertThat(listener.statesEntered.size(), is(3));
+		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateExitedLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(machine.getState().getIds()).containsExactly(States.S0, States.S2, States.S21, States.S211);
+		assertThat(listener.statesExited).hasSize(2);
+		assertThat(listener.statesEntered).hasSize(3);
 	}
 
 	@Test
@@ -282,12 +280,12 @@ public class ShowcaseTests {
 		testInitialState();
 		listener.reset(1, 3, 2, 0);
 		doSendEventAndConsumeAll(machine, Events.G);
-		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(listener.stateExitedLatch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(machine.getState().getIds(), contains(States.S0, States.S2, States.S21, States.S211));
-		assertThat(listener.statesExited.size(), is(2));
-		assertThat(listener.statesEntered.size(), is(3));
+		assertThat(listener.stateChangedLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateEnteredLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.stateExitedLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(machine.getState().getIds()).containsExactly(States.S0, States.S2, States.S21, States.S211);
+		assertThat(listener.statesExited).hasSize(2);
+		assertThat(listener.statesEntered).hasSize(3);
 	}
 
 	static class Config {
