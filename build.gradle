@@ -437,8 +437,6 @@ project('spring-statemachine-build-tests') {
 		testCompile 'com.h2database:h2'
 		testCompile 'org.springframework.boot:spring-boot-starter'
 		testCompile 'org.springframework:spring-test'
-		testCompile 'org.hamcrest:hamcrest-core'
-		testCompile 'org.hamcrest:hamcrest-library'
 	}
 }
 

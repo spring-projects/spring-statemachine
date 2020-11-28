@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 the original author or authors.
+ * Copyright 2017-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,7 @@
  */
 package org.springframework.statemachine.buildtests;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveFactory;
@@ -62,45 +58,45 @@ public class RedisPersistTests extends AbstractBuildTests {
 		StateMachine<TestStates, TestEvents> stateMachine = stateMachineFactory.getStateMachine("testid");
 
 		doStartAndAssert(stateMachine);
-		assertThat(stateMachine, notNullValue());
-		assertThat(stateMachine.getId(), is("testid"));
+		assertThat(stateMachine).isNotNull();
+		assertThat(stateMachine.getId()).isEqualTo("testid");
 
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E1);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S20, TestStates.S30);
 		persister.persist(stateMachine, "xxx1");
 
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E2);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 		persister.persist(stateMachine, "xxx2");
 
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E3);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S4));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S4);
 		persister.persist(stateMachine, "xxx3");
 
 		stateMachine = stateMachineFactory.getStateMachine();
-		assertThat(stateMachine, notNullValue());
-		assertThat(stateMachine.getId(), nullValue());
+		assertThat(stateMachine).isNotNull();
+		assertThat(stateMachine.getId()).isNull();
 		stateMachine = persister.restore(stateMachine, "xxx1");
-		assertThat(stateMachine.getId(), is("testid"));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+		assertThat(stateMachine.getId()).isEqualTo("testid");
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S20, TestStates.S30);
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E2);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 
 		stateMachine = stateMachineFactory.getStateMachine();
-		assertThat(stateMachine, notNullValue());
-		assertThat(stateMachine.getId(), nullValue());
+		assertThat(stateMachine).isNotNull();
+		assertThat(stateMachine.getId()).isNull();
 		stateMachine = persister.restore(stateMachine, "xxx2");
-		assertThat(stateMachine.getId(), is("testid"));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S30));
+		assertThat(stateMachine.getId()).isEqualTo("testid");
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S2, TestStates.S21, TestStates.S30);
 		doSendEventAndConsumeAll(stateMachine, TestEvents.E3);
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S4));
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S4);
 
 		stateMachine = stateMachineFactory.getStateMachine();
-		assertThat(stateMachine, notNullValue());
-		assertThat(stateMachine.getId(), nullValue());
+		assertThat(stateMachine).isNotNull();
+		assertThat(stateMachine.getId()).isNull();
 		stateMachine = persister.restore(stateMachine, "xxx3");
-		assertThat(stateMachine.getId(), is("testid"));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S4));
+		assertThat(stateMachine.getId()).isEqualTo("testid");
+		assertThat(stateMachine.getState().getIds()).containsOnly(TestStates.S4);
 	}
 
 	@Configuration

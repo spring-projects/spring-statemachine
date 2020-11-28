@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,10 @@
  */
 package org.springframework.statemachine.buildtests;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 import static org.springframework.statemachine.TestUtils.resolveMachine;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -40,11 +39,11 @@ public class Gh737Tests extends AbstractBuildTests {
 		StateMachine<Status, Event> machine = resolveMachine(context);
 		doStartAndAssert(machine);
 
-		assertThat(machine.getState().getIds(), containsInAnyOrder(Status.ROOT, Status.S0));
+		assertThat(machine.getState().getIds()).containsOnly(Status.ROOT, Status.S0);
 		doSendEventAndConsumeAll(machine, Event.NEW);
 
-		assertThat(machine.getState().getIds(), containsInAnyOrder(Status.ROOT, Status.S2, Status.S21I, Status.S22I,
-				Status.S23_IN_PROGRESS, Status.S24E));
+		assertThat(machine.getState().getIds()).containsOnly(Status.ROOT, Status.S2, Status.S21I, Status.S22I,
+				Status.S23_IN_PROGRESS, Status.S24E);
 	}
 
 	@Configuration

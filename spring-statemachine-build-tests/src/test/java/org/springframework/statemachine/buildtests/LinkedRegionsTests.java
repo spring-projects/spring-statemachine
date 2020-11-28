@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,7 @@
  */
 package org.springframework.statemachine.buildtests;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.startsWith;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 
@@ -54,7 +51,11 @@ public class LinkedRegionsTests extends AbstractBuildTests {
 					.step().expectStateChanged(15).expectStates("S3").and()
 					.build();
 		plan.test();
-		assertThat(listener.statesEntered, not(hasItem(startsWith("JOIN"))));
+		assertThat(listener.statesEntered).satisfies(l -> {
+			l.forEach(s -> {
+				assertThat(s).doesNotStartWith("JOIN");
+			});
+		});
 	}
 
 	@Configuration
