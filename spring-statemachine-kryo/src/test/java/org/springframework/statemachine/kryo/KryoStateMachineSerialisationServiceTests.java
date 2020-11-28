@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2018-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.springframework.statemachine.kryo;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +49,6 @@ public class KryoStateMachineSerialisationServiceTests {
 		byte[] bytes = service.serialiseStateMachineContext(root);
 
 		StateMachineContext<String, String> context = service.deserialiseStateMachineContext(bytes);
-		assertThat(context.getChilds().size(), is(2));
+		assertThat(context.getChilds()).hasSize(2);
 	}
 }

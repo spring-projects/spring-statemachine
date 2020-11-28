@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 the original author or authors.
+ * Copyright 2018-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.springframework.statemachine.kryo;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -98,7 +97,7 @@ public class StateMachineContextSerializerTests {
 
 		Input inputTo = new Input(new ByteArrayInputStream(outStreamFrom.toByteArray()));
 		StateMachineContext<String, String> rootTo = (StateMachineContext<String, String>) kryoTo.readClassAndObject(inputTo);
-		assertThat(rootFrom, equalTo(rootTo));
+		assertThat(rootFrom).isEqualTo(rootTo);
 	}
 
 	/**
