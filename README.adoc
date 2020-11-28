@@ -1,11 +1,16 @@
 = Spring Statemachine
 
-NOTE: Master is now in a development of a `3.x` which may be extremely unstable.
+NOTE: Default branch is now in a development of a `3.x` which may be extremely unstable.
       Current stable release branch is `2.2.x`. Unless you are not planning to contribute to
       initial reactive stories, PR's and issues should target towards `2.2.x` branch.
 
-image:https://github.com/spring-projects/spring-statemachine/workflows/CI/badge.svg[link="https://github.com/spring-projects/spring-statemachine/actions"] (GitHub master)
-image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-MAS[Bamboo Build Status, link=https://build.spring.io/browse/SDG-MAS] (Bamboo master)
+image:https://github.com/spring-projects/spring-statemachine/workflows/CI/badge.svg[link="https://github.com/spring-projects/spring-statemachine/actions"] (GitHub default)
+image:https://github.com/spring-projects/spring-statemachine/workflows/CI/badge.svg?branch=2.4.x[link="https://github.com/spring-projects/spring-statemachine/actions"] (GitHub 2.4.x)
+image:https://github.com/spring-projects/spring-statemachine/workflows/CI/badge.svg?branch=2.3.x[link="https://github.com/spring-projects/spring-statemachine/actions"] (GitHub 2.3.x)
+image:https://github.com/spring-projects/spring-statemachine/workflows/CI/badge.svg?branch=2.2.x[link="https://github.com/spring-projects/spring-statemachine/actions"] (GitHub 2.2.x)
+
+image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-MAS[Bamboo Build Status, link=https://build.spring.io/browse/SDG-MAS] (Bamboo default)
+image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B23X[Bamboo Build Status, link=https://build.spring.io/browse/SDG-B24X] (Bamboo 2.4.x)
 image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B23X[Bamboo Build Status, link=https://build.spring.io/browse/SDG-B23X] (Bamboo 2.3.x)
 image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B22X[Bamboo Build Status, link=https://build.spring.io/browse/SDG-B22X] (Bamboo 2.2.x)
 
@@ -16,7 +21,7 @@ It is advised to check the actual state of this project by referring to
 the latest releases found on
 https://projects.spring.io/spring-statemachine/[Spring
 Statemachine Project Page].
-The git repo master branch may be relatively unstable when new features are
+The git repo default branch may be relatively unstable when new features are
 added into the source code.
 
 == Code of Conduct
