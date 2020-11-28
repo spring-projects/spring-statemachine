@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  */
 package org.springframework.statemachine.recipes;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,9 +49,9 @@ public class PersistStateMachineHandlerTests {
 
 		Message<String> event = MessageBuilder.withPayload("E2").build();
 		boolean accepted = handler.handleEventWithState(event, "S1");
-		assertThat(accepted, is(true));
-		assertThat(listener.latch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
+		assertThat(accepted).isTrue();
+		assertThat(listener.latch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(stateMachine.getState().getIds()).containsOnly("S2");
 	}
 
 	@Test
@@ -70,9 +68,9 @@ public class PersistStateMachineHandlerTests {
 
 		Message<String> event = MessageBuilder.withPayload("E1").build();
 		boolean accepted = handler.handleEventWithState(event, "S1");
-		assertThat(accepted, is(false));
-		assertThat(listener.latch.await(1, TimeUnit.SECONDS), is(false));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S1"));
+		assertThat(accepted).isFalse();
+		assertThat(listener.latch.await(1, TimeUnit.SECONDS)).isFalse();
+		assertThat(stateMachine.getState().getIds()).containsOnly("S1");
 	}
 
 	@Test
@@ -90,11 +88,11 @@ public class PersistStateMachineHandlerTests {
 		Message<String> event = MessageBuilder.withPayload("E1").build();
 
 		boolean accepted = handler.handleEventWithState(event, "SI");
-		assertThat(accepted, is(true));
-		assertThat(listener.latch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(listener.states.size(), is(1));
-		assertThat(listener.states.get(0).getId(), is("S2"));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
+		assertThat(accepted).isTrue();
+		assertThat(listener.latch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(listener.states).hasSize(1);
+		assertThat(listener.states.get(0).getId()).isEqualTo("S2");
+		assertThat(stateMachine.getState().getIds()).containsOnly("S2");
 	}
 
 	@Test
@@ -111,8 +109,8 @@ public class PersistStateMachineHandlerTests {
 		Message<String> event = MessageBuilder.withPayload("E2").build();
 		handler.handleEventWithStateReactively(event, "S1").subscribe();
 
-		assertThat(listener.latch.await(1, TimeUnit.SECONDS), is(true));
-		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("S2"));
+		assertThat(listener.latch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(stateMachine.getState().getIds()).containsOnly("S2");
 	}
 
 	@Test
@@ -127,7 +125,7 @@ public class PersistStateMachineHandlerTests {
 		Message<String> event = MessageBuilder.withPayload("E2").build();
 		handler.handleEventWithStateReactively(event, "S1").subscribe();
 
-		assertThat(listener.latch.await(1, TimeUnit.SECONDS), is(true));
+		assertThat(listener.latch.await(1, TimeUnit.SECONDS)).isTrue();
 	}
 
 	@Test
@@ -151,7 +149,7 @@ public class PersistStateMachineHandlerTests {
 		}
 
 		for (TestPersistStateChangeListener listener : listeners) {
-			assertThat(listener.latch.await(1, TimeUnit.SECONDS), is(true));
+			assertThat(listener.latch.await(1, TimeUnit.SECONDS)).isTrue();
 		}
 	}
 
