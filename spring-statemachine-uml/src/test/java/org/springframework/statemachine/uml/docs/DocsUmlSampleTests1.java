@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,4 +97,25 @@ public class DocsUmlSampleTests1 {
 		}
 	}
 // end::snippetB[]
+
+// tag::snippetC[]
+	@Configuration
+	@EnableStateMachine
+	public static class Config3 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			return new UmlStateMachineModelFactory(
+				"classpath:org/springframework/statemachine/uml/import-main/import-main.uml",
+				new String[] { "classpath:org/springframework/statemachine/uml/import-sub/import-sub.uml" });
+		}
+	}
+// end::snippetC[]
 }

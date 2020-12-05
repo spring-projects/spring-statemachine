@@ -1136,6 +1136,17 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		assertThat(stateMachine.getExtendedState().get("key", String.class), is("value"));
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testImportedSubMachine() {
+		context.register(Config28.class);
+		context.refresh();
+		StateMachine<String, String> stateMachine = context.getBean(StateMachine.class);
+
+		stateMachine.start();
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder("MAIN2", "CHILD2"));
+	}
+
 	@Configuration
 	@EnableStateMachine
 	public static class Config2 extends StateMachineConfigurerAdapter<String, String> {
@@ -1788,6 +1799,25 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 		public StateMachineModelFactory<String, String> modelFactory() {
 			Resource model = new ClassPathResource("org/springframework/statemachine/uml/transition-effect-spel.uml");
 			return new UmlStateMachineModelFactory(model);
+		}
+	}
+
+	@Configuration
+	@EnableStateMachine
+	public static class Config28 extends StateMachineConfigurerAdapter<String, String> {
+
+		@Override
+		public void configure(StateMachineModelConfigurer<String, String> model) throws Exception {
+			model
+				.withModel()
+					.factory(modelFactory());
+		}
+
+		@Bean
+		public StateMachineModelFactory<String, String> modelFactory() {
+			Resource mainModel = new ClassPathResource("org/springframework/statemachine/uml/import-main/import-main.uml");
+			Resource subModel = new ClassPathResource("org/springframework/statemachine/uml/import-sub/import-sub.uml");
+			return new UmlStateMachineModelFactory(mainModel, new Resource[] { subModel });
 		}
 	}
 
