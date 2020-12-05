@@ -2723,6 +2723,27 @@ sub-state.
 
 image::images/papyrus-gs-15.png[scaledwidth="100%"]
 
+[[sm-papyrus-import]]
+=== Using a Machine Import
+It's also possible to use import functionality where uml files can reference to other models.
+
+image::images/papyrus-gs-22.png[scaledwidth="100%"]
+
+Within `UmlStateMachineModelFactory` it's possible to use additional resources or locations
+to define referenced model files.
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsUmlSampleTests1.java[tags=snippetC]
+----
+====
+
+IMPORTANT: Links between files in uml models needs to be relative as
+otherwise things break when model files are copied out from a
+classpath to a temporary directory so that eclipse parsing classes can
+read those.
+
 [[sm-repository]]
 == Repository Support
 
