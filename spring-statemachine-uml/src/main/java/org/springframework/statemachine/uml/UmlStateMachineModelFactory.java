@@ -15,11 +15,7 @@
  */
 package org.springframework.statemachine.uml;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.uml2.uml.Model;
@@ -29,15 +25,24 @@ import org.springframework.statemachine.config.model.AbstractStateMachineModelFa
 import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineModelFactory;
+import org.springframework.statemachine.uml.ResourcerResolver.Holder;
 import org.springframework.statemachine.uml.support.UmlModelParser;
 import org.springframework.statemachine.uml.support.UmlModelParser.DataHolder;
 import org.springframework.statemachine.uml.support.UmlUtils;
 import org.springframework.util.Assert;
-import org.springframework.util.FileCopyUtils;
 
 /**
  * {@link StateMachineModelFactory} which builds {@link StateMachineModel} from
  * uml representation.
+ *
+ * {@code resource} or {@code location} is a main uml file used as a source
+ * passed to parser classes. {@code additionalResources} and {@code additionalLocations}
+ * are needed if uml model have references or links to additional uml files as an
+ * import. In case of a these files being located in a classpath which is inside of
+ * a jar, files are copied out into filesystem as eclipse uml libs can only parse
+ * physical files. In a case of this a common "path" from all resources are resolved
+ * and copied into filesystem with a structure so that at least relative links in uml
+ * files will work.
  *
  * @author Janne Valkealahti
  */
@@ -45,6 +50,8 @@ public class UmlStateMachineModelFactory extends AbstractStateMachineModelFactor
 
 	private Resource resource;
 	private String location;
+	private Resource[] additionalResources;
+	private String[] additionalLocations;
 
 	/**
 	 * Instantiates a new uml state machine model factory.
@@ -52,8 +59,7 @@ public class UmlStateMachineModelFactory extends AbstractStateMachineModelFactor
 	 * @param resource the resource
 	 */
 	public UmlStateMachineModelFactory(Resource resource) {
-		Assert.notNull(resource, "Resource must be set");
-		this.resource = resource;
+		this(resource, null);
 	}
 
 	/**
@@ -62,20 +68,51 @@ public class UmlStateMachineModelFactory extends AbstractStateMachineModelFactor
 	 * @param location the resource location
 	 */
 	public UmlStateMachineModelFactory(String location) {
+		this(location, null);
+	}
+
+	/**
+	 * Instantiates a new uml state machine model factory.
+	 *
+	 * @param resource the resource
+	 * @param additionalResources the additional resources
+	 */
+	public UmlStateMachineModelFactory(Resource resource, Resource[] additionalResources) {
+		Assert.notNull(resource, "Resource must be set");
+		this.resource = resource;
+		this.additionalResources = additionalResources;
+	}
+
+	/**
+	 * Instantiates a new uml state machine model factory.
+	 *
+	 * @param location the resource location
+	 * @param additionalLocations the additional locations
+	 */
+	public UmlStateMachineModelFactory(String location, String[] additionalLocations) {
 		Assert.notNull(location, "Location must be set");
 		this.location = location;
+		this.additionalLocations = additionalLocations;
 	}
 
 	@Override
 	public StateMachineModel<String, String> build() {
-		Model model = null;
+		ResourcerResolver resourceResolver = null;
+		if (this.location != null) {
+			resourceResolver = new ResourcerResolver(getResourceLoader(), location, additionalLocations);
+		} else if (this.resource != null) {
+			resourceResolver = new ResourcerResolver(resource, additionalResources);
+		}
+
 		Holder holder = null;
+		Model model = null;
 		org.eclipse.emf.ecore.resource.Resource resource = null;
 		try {
-			holder = getResourceUri(resolveResource());
+			Holder[] resources = resourceResolver.resolve();
+			holder = resources != null && resources.length > 0 ? resources[0] : null;
 			resource = UmlUtils.getResource(holder.uri.getPath());
 			model = (Model) EcoreUtil.getObjectByType(resource.getContents(), UMLPackage.Literals.MODEL);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new IllegalArgumentException("Cannot build build model from resource " + resource + " or location " + location, e);
 		} finally {
 			// if we have a path, tmp file were created, clean it
@@ -86,6 +123,7 @@ public class UmlStateMachineModelFactory extends AbstractStateMachineModelFactor
 				}
 			}
 		}
+
 		UmlModelParser parser = new UmlModelParser(model, this);
 		DataHolder dataHolder = parser.parseModel();
 
@@ -105,40 +143,5 @@ public class UmlStateMachineModelFactory extends AbstractStateMachineModelFactor
 
 		// we don't set configurationData here, so assume null
 		return new DefaultStateMachineModel<String, String>(null, dataHolder.getStatesData(), dataHolder.getTransitionsData());
-	}
-
-	private Resource resolveResource() {
-		if (resource != null) {
-			return resource;
-		} else {
-			return getResourceLoader().getResource(location);
-		}
-	}
-
-	private Holder getResourceUri(Resource resource) throws IOException {
-		// try to see if resource is an actual File and eclipse
-		// libs cannot use input stream. thus creating a tmp file with
-		// needed .uml prefix and getting URI from there.
-		try {
-			return new Holder(resource.getFile().toURI());
-		} catch (Exception e) {
-		}
-		Path tempFile = Files.createTempFile(null, ".uml");
-		FileCopyUtils.copy(resource.getInputStream(), new FileOutputStream(tempFile.toFile()));
-		return new Holder(tempFile.toUri(), tempFile);
-	}
-
-	private static class Holder {
-		URI uri;
-		Path path;
-
-		public Holder(URI uri) {
-			this(uri, null);
-		}
-
-		public Holder(URI uri, Path path) {
-			this.uri = uri;
-			this.path = path;
-		}
 	}
 }

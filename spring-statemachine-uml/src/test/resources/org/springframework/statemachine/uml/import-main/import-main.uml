@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_9FX-oDIkEeuiF9TAc5z9jA" name="import-main">
+  <packageImport xmi:type="uml:PackageImport" xmi:id="_9FxAMDIkEeuiF9TAc5z9jA">
+    <importedPackage xmi:type="uml:Model" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#_0"/>
+  </packageImport>
+  <packagedElement xmi:type="uml:StateMachine" xmi:id="_9FbpADIkEeuiF9TAc5z9jA" name="StateMachineMain">
+    <region xmi:type="uml:Region" xmi:id="_9FcQEDIkEeuiF9TAc5z9jA" name="Region1">
+      <transition xmi:type="uml:Transition" xmi:id="_ZIlxwDIlEeuiF9TAc5z9jA" source="_XaQnsDIlEeuiF9TAc5z9jA" target="_T92yQDIlEeuiF9TAc5z9jA"/>
+      <transition xmi:type="uml:Transition" xmi:id="_aPiLsDIlEeuiF9TAc5z9jA" source="_T92yQDIlEeuiF9TAc5z9jA" target="_VoLmEDIlEeuiF9TAc5z9jA"/>
+      <subvertex xmi:type="uml:State" xmi:id="_T92yQDIlEeuiF9TAc5z9jA" name="MAIN1"/>
+      <subvertex xmi:type="uml:State" xmi:id="_VoLmEDIlEeuiF9TAc5z9jA" name="MAIN2">
+        <submachine xmi:type="uml:StateMachine" href="../import-sub/import-sub.uml#_FylmYDIlEeuiF9TAc5z9jA"/>
+      </subvertex>
+      <subvertex xmi:type="uml:Pseudostate" xmi:id="_XaQnsDIlEeuiF9TAc5z9jA" name=""/>
+    </region>
+  </packagedElement>
+</uml:Model>
