@@ -368,7 +368,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 		if (interceptors != null) {
 			for (final StateMachineInterceptor<S, E> interceptor : interceptors) {
 				// add persisting interceptor hooks to all regions
-				RegionPersistingInterceptorAdapter<S, E> adapter = new RegionPersistingInterceptorAdapter<>(interceptor, machine);
+				RegionPersistingInterceptorAdapter<S, E> adapter = new RegionPersistingInterceptorAdapter<>(interceptor);
 				machine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<S,E>>() {
 					@Override
 					public void apply(StateMachineAccess<S, E> function) {
@@ -390,11 +390,9 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 	private static class RegionPersistingInterceptorAdapter<S, E> extends StateMachineInterceptorAdapter<S, E> {
 
 		private final StateMachineInterceptor<S, E> interceptor;
-		private final StateMachine<S, E> rootStateMachine;
 
-		public RegionPersistingInterceptorAdapter(StateMachineInterceptor<S, E> interceptor, StateMachine<S, E> rootStateMachine) {
+		public RegionPersistingInterceptorAdapter(StateMachineInterceptor<S, E> interceptor) {
 			this.interceptor = interceptor;
-			this.rootStateMachine = rootStateMachine;
 		}
 
         @Override
