@@ -4,6 +4,28 @@ https://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 3.0.0-RC1 (2020-12-11)
+-----------------------------------------
+* Support using junit5 [#771]
+* NullPointerException in PseudoStates without Transitions [#775]
+* Forwardport 2.1.x changes to master [#777]
+* Refactor tests to use junit5 [#779]
+* Overhaul spring-statemachine-test use for junit [#780]
+* Reactive error handling for actions [#821]
+* Jpa eclipselink compability [#833]
+* Fix typo in documentation [#835]
+* Update spring-doc-resources version and highlight [#838]
+* StateMachineBuilder.Builder return StateMachineFactory [#854]
+* Add generic, thread safe support to PersistStateMachineHandler [#856]
+* Attempt to fix flaky tests [#864]
+* Remove Function interface [#867]
+* minor syntax fix [#873]
+* 2.2.0 RELEASE doc has wrong word [#875]
+* 2.2.0 RELEASE doc has wrong word [#877]
+* Reactive PseudoStates [#878]
+* Disable security on a web sample [#880]
+* Remove StateMachineInterceptor deprecations [#907]
+
 Changes in version 3.0.0.M1 (2019-08-08)
 ----------------------------------------
 * Initial reactive refactor [#740]
