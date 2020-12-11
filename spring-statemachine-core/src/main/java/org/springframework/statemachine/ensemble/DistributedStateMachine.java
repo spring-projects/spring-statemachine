@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -216,11 +216,6 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 
 		@Override
 		public void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
-				StateMachine<S, E> stateMachine) {
-		}
-
-		@Override
-		public void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
 				StateMachine<S, E> stateMachine, StateMachine<S, E> rootStateMachine) {
 			if (log.isTraceEnabled()) {
 				log.trace("Received preStateChange from " + stateMachine + " for delegate " + delegate);
@@ -232,11 +227,6 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 				ensemble.setState(new DefaultStateMachineContext<S, E>(transition.getTarget().getId(), message
 						.getPayload(), message.getHeaders(), stateMachine.getExtendedState()));
 			}
-		}
-
-		@Override
-		public void postStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
-				StateMachine<S, E> stateMachine) {
 		}
 
 		@Override

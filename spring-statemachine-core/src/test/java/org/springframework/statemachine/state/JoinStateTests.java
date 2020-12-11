@@ -276,11 +276,12 @@ public class JoinStateTests extends AbstractStateMachineTests {
 		machine.addStateMachineInterceptor(new StateMachineInterceptorAdapter<TestStates,TestEvents>() {
 			@Override
 			public void postStateChange(State<TestStates, TestEvents> state, Message<TestEvents> message,
-					Transition<TestStates, TestEvents> transition, StateMachine<TestStates, TestEvents> stateMachine) {
+					Transition<TestStates, TestEvents> transition, StateMachine<TestStates, TestEvents> stateMachine,
+					StateMachine<TestStates, TestEvents> rootStateMachine) {
 				if (state.getId() == TestStates.S4) {
 					nullCheck.set(transition == null);
 				}
-				super.postStateChange(state, message, transition, stateMachine);
+				super.postStateChange(state, message, transition, stateMachine, rootStateMachine);
 			}
 		});
 

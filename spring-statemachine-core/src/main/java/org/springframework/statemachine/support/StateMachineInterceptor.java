@@ -50,35 +50,10 @@ public interface StateMachineInterceptor<S, E> {
 	 * @param message the message
 	 * @param transition the transition
 	 * @param stateMachine the state machine
-	 * @deprecated in favour of {@link #preStateChange(State, Message, Transition, StateMachine, StateMachine)}
-	 */
-	void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
-			StateMachine<S, E> stateMachine);
-
-	/**
-	 * Called prior of a state change. Throwing an exception
-	 * from this method will stop a state change logic.
-	 *
-	 * @param state the state
-	 * @param message the message
-	 * @param transition the transition
-	 * @param stateMachine the state machine
 	 * @param rootStateMachine the root state machine
 	 */
 	void preStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
 			StateMachine<S, E> stateMachine, StateMachine<S, E> rootStateMachine);
-
-	/**
-	 * Called after a state change.
-	 *
-	 * @param state the state
-	 * @param message the message
-	 * @param transition the transition
-	 * @param stateMachine the state machine
-	 * @deprecated in favour of {@link #postStateChange(State, Message, Transition, StateMachine, StateMachine)}
-	 */
-	void postStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
-			StateMachine<S, E> stateMachine);
 
 	/**
 	 * Called after a state change.
