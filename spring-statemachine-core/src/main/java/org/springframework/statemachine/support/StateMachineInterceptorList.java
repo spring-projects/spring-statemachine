@@ -112,7 +112,6 @@ public class StateMachineInterceptorList<S, E> {
 	 * @param stateMachine the state machine
 	 * @param rootStateMachine the root state machine
 	 */
-
 	public void postStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition,
 			StateMachine<S, E> stateMachine, StateMachine<S, E> rootStateMachine) {
 		for (StateMachineInterceptor<S, E> interceptor : interceptors) {
