@@ -1,17 +1,112 @@
-name: Labels Manage
+- name: area/core
+  color: F9D0C4
+  description: Belongs to machine core
+- name: area/dependencies
+  color: F9D0C4
+  description: Belongs project dependencies
+- name: area/documentation
+  color: F9D0C4
+  description: Belongs to documentation
+- name: area/jepsen
+  color: F9D0C4
+  description: Belongs to jepsen feature
+- name: area/persistense
+  color: F9D0C4
+  description: Belongs to persistense feature
+- name: area/tests
+  color: F9D0C4
+  description: Belongs to tests
+- name: area/uml
+  color: F9D0C4
+  description: Belongs to uml feature
 
-on:
-  workflow_dispatch:
+- name: for/backport
+  color: E99695
+  description: For backporting
+- name: for/blocker
+  color: E99695
+  description: For blocking
+- name: for/marketing
+  color: E99695
+  description: For marketing
+- name: for/team-attention
+  color: E99695
+  description: For team attention
 
-jobs:
-  labeler:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Mangle Labels
-        uses: crazy-max/ghaction-github-labeler@v3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          yaml-file: .github/labels-manage.yml
-          dry-run: false
-          skip-delete: false
+- name: status/complete
+  color: FEF2C0
+  description: Issue is now complete
+- name: status/declined
+  color: FEF2C0
+  description: Issue has been declined
+- name: status/duplicate
+  color: FEF2C0
+  description: There were an existing issue
+- name: type/question
+  color: D4C5F9
+  description: Is a plain question
+- name: status/in-progress
+  color: FEF2C0
+  description: Something is happening
+- name: status/invalid
+  color: FEF2C0
+  description: Mistake, bogus, old, bye bye
+- name: status/need-design
+  color: FEF2C0
+  description: Vague so need some proper design
+- name: status/need-feedback
+  color: FEF2C0
+  description: Calling participant to provide feedback
+- name: status/need-investigation
+  color: FEF2C0
+  description: Oh need to look under a hood
+- name: status/need-triage
+  color: FEF2C0
+  description: Team needs to triage and take a first look
+- name: status/on-hold
+  color: FEF2C0
+  description: For various reasons is on hold
+
+- name: type/backport
+  color: D4C5F9
+  description: Is a issue to track backport, use with branch/xxx
+- name: type/epic
+  color: D4C5F9
+  description: Collection of issues
+- name: type/idea
+  color: D4C5F9
+  description: Is just an idea
+- name: type/bug
+  color: D4C5F9
+  description: Is a bug report
+- name: type/enhancement
+  color: D4C5F9
+  description: Is an enhancement request
+- name: type/feature
+  color: D4C5F9
+  description: Is a feature request
+- name: type/help-needed
+  color: D4C5F9
+  description: Calling help
+- name: type/task
+  color: D4C5F9
+  description: Something needs to get done
+
+- name: branch/2.2.x
+  color: BFDADC
+  description: Issue for a maintenance branch
+- name: branch/2.3.x
+  color: BFDADC
+  description: Issue for a maintenance branch
+- name: branch/2.4.x
+  color: BFD4F2
+  description: Issue for a maintenance branch
+- name: backport/2.2.x
+  color: C2E0C6
+  description: Mark backport for maintenance branch
+- name: backport/2.3.x
+  color: C2E0C6
+  description: Mark backport for maintenance branch
+- name: backport/2.4.x
+  color: C2E0C6
+  description: Mark backport for maintenance branch
