@@ -1,0 +1,17 @@
+name: Labels Manage
+
+on:
+  workflow_dispatch:
+
+jobs:
+  labeler:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Mangle Labels
+        uses: crazy-max/ghaction-github-labeler@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          yaml-file: .github/labels-manage.yml
+          dry-run: false
+          skip-delete: false
