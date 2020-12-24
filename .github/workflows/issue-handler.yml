@@ -1,0 +1,27 @@
+name: Issue Handler
+
+on:
+  workflow_dispatch:
+  issues:
+    types: [opened]
+
+jobs:
+  labeler:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Handle Issues
+      uses: jvalkeal/issue-handler@v0.0.1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        config: >
+          {
+            "recipes": [
+              {
+                "name": "Mark new issue to get triaged",
+                "type": "ifThen",
+                "if": "isEvent('issues') && isAction('opened') && !isMilestone() && !hasLabels()",
+                "then": "labelIssue(['status/need-triage'])"
+              }
+            ]
+          }
