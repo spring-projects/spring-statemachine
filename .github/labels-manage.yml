@@ -101,12 +101,3 @@
 - name: branch/2.4.x
   color: BFD4F2
   description: Issue for a maintenance branch
-- name: backport/2.2.x
-  color: C2E0C6
-  description: Mark backport for maintenance branch
-- name: backport/2.3.x
-  color: C2E0C6
-  description: Mark backport for maintenance branch
-- name: backport/2.4.x
-  color: C2E0C6
-  description: Mark backport for maintenance branch
