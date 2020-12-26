@@ -3,7 +3,7 @@ name: Issue Handler
 on:
   workflow_dispatch:
   issues:
-    types: [opened]
+    types: [opened, labeled, unlabeled]
 
 jobs:
   labeler:
@@ -11,7 +11,7 @@ jobs:
     steps:
 
     - name: Handle Issues
-      uses: jvalkeal/issue-handler@v0.0.1
+      uses: jvalkeal/issue-handler@v0.0.2
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         config: >
@@ -22,6 +22,16 @@ jobs:
                 "type": "ifThen",
                 "if": "isEvent('issues') && isAction('opened') && !isMilestone() && !hasLabels()",
                 "then": "labelIssue(['status/need-triage'])"
+              },
+              {
+                "name": "Manage backport issues",
+                "type": "manageBackportIssues",
+                "whenLabeled": "labeledStartsWith(['branch/'])",
+                "whenUnlabeled": "labeledStartsWith(['branch/'])",
+                "whenLabels": "labelsContainsAny(['for/backport'])",
+                "fromLabels": "labeledStartsWith(['branch/'])",
+                "additionalLabels": "'type/backport'",
+                "body": "'Backport #' + number"
               }
             ]
           }
