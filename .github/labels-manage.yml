@@ -94,10 +94,13 @@
 
 - name: branch/2.2.x
   color: BFDADC
-  description: Issue for a maintenance branch
+  description: Issue for a branch
 - name: branch/2.3.x
   color: BFDADC
-  description: Issue for a maintenance branch
+  description: Issue for a branch
 - name: branch/2.4.x
   color: BFD4F2
-  description: Issue for a maintenance branch
+  description: Issue for a branch
+- name: branch/3.0.x
+  color: BFD4F2
+  description: Issue for a branch
