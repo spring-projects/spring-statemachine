@@ -66,6 +66,12 @@
 - name: status/on-hold
   color: FEF2C0
   description: For various reasons is on hold
+- name: status/stale
+  color: FEF2C0
+  description: Marked as stale
+- name: status/closed-as-stale
+  color: FEF2C0
+  description: Closed as has been stale
 
 - name: type/backport
   color: D4C5F9
