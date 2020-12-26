@@ -99,8 +99,8 @@
   color: BFDADC
   description: Issue for a branch
 - name: branch/2.4.x
-  color: BFD4F2
+  color: BFDADC
   description: Issue for a branch
 - name: branch/3.0.x
-  color: BFD4F2
+  color: BFDADC
   description: Issue for a branch
