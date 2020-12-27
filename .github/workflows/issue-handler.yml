@@ -11,16 +11,19 @@ jobs:
     steps:
 
     - name: Handle Issues
-      uses: jvalkeal/issue-handler@v0.0.2
+      uses: jvalkeal/issue-handler@v0.0.3
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         config: >
           {
+            "data": {
+              "team": ["jvalkeal"]
+            },
             "recipes": [
               {
                 "name": "Mark new issue to get triaged",
                 "type": "ifThen",
-                "if": "isEvent('issues') && isAction('opened') && !isMilestone() && !hasLabels()",
+                "if": "isAction('opened') && !dataInArray('team', actor)",
                 "then": "labelIssue(['status/need-triage'])"
               },
               {
