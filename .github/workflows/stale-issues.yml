@@ -7,7 +7,7 @@ jobs:
   stale:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/stale@v3
+    - uses: jvalkeal/stale@v3-patch1
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         days-before-stale: 60
@@ -17,5 +17,4 @@ jobs:
         stale-issue-label: status/stale
         close-issue-label: status/closed-as-stale
         exempt-issue-labels: status/on-hold
-        operations-per-run: 5
         debug-only: true
