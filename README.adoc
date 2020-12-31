@@ -84,7 +84,7 @@ https://github.com/spring-projects/spring-framework/wiki/Gradle-build-and-releas
 build and release FAQ].
 
 == Contributing
-https://help.github.com/send-pull-requests[Pull requests] are welcome;
+https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/proposing-changes-to-your-work-with-pull-requests[Pull requests] are welcome;
 see the
 https://github.com/spring-projects/spring-statemachine/blob/master/CONTRIBUTING.md[contributor
 guidelines] for details.

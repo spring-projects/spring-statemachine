@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -713,6 +714,23 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void resetStateMachine(StateMachineContext<S, E> stateMachineContext) {
+		doResetStateMachine(stateMachineContext, Lifecycle::start);
+	}
+
+	@Override
+	public Mono<Void> resetStateMachineReactively(StateMachineContext<S, E> stateMachineContext) {
+		AtomicReference<Mono<Void>> machineStartMono = new AtomicReference<>(Mono.empty());
+		doResetStateMachine(stateMachineContext, lifecycle -> machineStartMono.set(((LifecycleObjectSupport) lifecycle).startReactively()));
+		return machineStartMono.get();
+	}
+
+	/**
+	 * Implementation of the state machine reset logic that accepts a handle for starting the machine.
+	 *
+	 * @param stateMachineContext state machine context to initialize the machine
+	 * @param machineStarter handle for starting the machine in different modes
+	 */
+	private void doResetStateMachine(StateMachineContext<S, E> stateMachineContext, Consumer<Lifecycle> machineStarter) {
 		// TODO: this function needs a serious rewrite
 		if (stateMachineContext == null) {
 			log.info("Got null context, resetting to initial state, clearing extended state and machine id");
@@ -849,7 +867,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 			this.extendedState.getVariables().putAll(stateMachineContext.getExtendedState().getVariables());
 		}
 		if (currentState instanceof Lifecycle) {
-			((Lifecycle)currentState).start();
+			machineStarter.accept((Lifecycle)currentState);
 		}
 	}
 

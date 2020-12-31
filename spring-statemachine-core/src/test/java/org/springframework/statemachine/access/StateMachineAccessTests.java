@@ -111,6 +111,11 @@ public class StateMachineAccessTests {
 		}
 
 		@Override
+		public Mono<Void> resetStateMachineReactively(StateMachineContext<String, String> stateMachineContext) {
+			return Mono.empty();
+		}
+
+		@Override
 		public Mono<Void> startReactively() {
 			return null;
 		}

@@ -45,6 +45,9 @@ import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.support.DefaultExtendedState;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
+import reactor.test.StepVerifier;
 
 /**
  * Tests for resetting a state machine state and extended variables using a
@@ -777,4 +780,47 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 
 	public enum MyEvent {
 		GO;
-	}}
+	}
+
+	@Test
+	public void testResetStateMachineReactively() {
+		context.register(Config7.class);
+		context.refresh();
+		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
+
+		DefaultStateMachineContext<TestStates, TestEvents> stateMachineContext =
+				new DefaultStateMachineContext<TestStates, TestEvents>(TestStates.S1, null, null, null);
+
+		Mono<Void> resetMono = Mono.<Void>fromRunnable(() -> {
+			machine.getStateMachineAccessor().doWithAllRegions(function -> function.resetStateMachineReactively(stateMachineContext));
+		})
+				.publishOn(Schedulers.single());
+		StepVerifier.create(resetMono).expectComplete().verify();
+
+		doStartAndAssert(machine);
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S1);
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config7 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+					.withStates()
+					.initial(TestStates.SI)
+					.state(TestStates.S1);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+					.withExternal()
+					.source(TestStates.SI)
+					.target(TestStates.S1)
+					.event(TestEvents.E1);
+		}
+
+	}
+}

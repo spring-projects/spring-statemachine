@@ -29,7 +29,7 @@ import org.springframework.statemachine.support.StateMachineInterceptor;
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public interface StateMachineAccess<S, E> {
+public interface StateMachineAccess<S, E> extends ReactiveStateMachineAccess<S, E>{
 
 	/**
 	 * Sets the relay state machine.
