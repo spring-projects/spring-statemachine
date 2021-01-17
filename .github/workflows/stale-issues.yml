@@ -7,16 +7,26 @@ jobs:
   stale:
     runs-on: ubuntu-latest
     steps:
-    - uses: jvalkeal/stale@v3-patch1
+    - name: Handle Stale Issues
+      uses: jvalkeal/issue-handler@v0.0.6
       with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        days-before-stale: 60
-        days-before-close: 7
-        stale-issue-message: 'This issue is stale because it has been open 60 days with no activity. Remove status/stale label or comment or this will be closed in 7 days'
-        close-issue-message: 'Closing stale issue due to inactivity'
-        stale-issue-label: status/stale
-        close-issue-label: status/closed-as-stale
-        exempt-issue-labels: status/on-hold
-        operations-per-run: 5
-        ascending: true
-        debug-only: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+        dry-run: true
+        config: >
+          {
+            "recipes": [
+              {
+                "name": "Handle stale issues",
+                "type": "staleIssues",
+                "issueSince": "2020-08-01",
+                "issueBeforeStale": 60,
+                "issueBeforeClose": 7,
+                "issueStaleMessage": "This issue is stale because it has been open 60 days with no activity. Remove status/stale label or comment or this will be closed in 7 days",
+                "issueCloseMessage": "Closing stale issue due to inactivity",
+                "issueStaleLabel": "status/stale",
+                "issueCloseLabel": "status/closed-as-stale",
+                "issueExemptLabels": "status/on-hold",
+                "issueUnstaleWhenUpdated": true
+              }
+            ]
+          }
