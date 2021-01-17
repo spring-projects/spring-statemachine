@@ -4,6 +4,11 @@ https://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 2.2.2.RELEASE (2021-01-18)
+---------------------------------------------
+* Update boot 2.2.13 [#919]
+* Imported uml state machines do not work in spring state machine [#902]
+
 Changes in version 2.2.1.RELEASE (2020-11-28)
 ---------------------------------------------
 * Backport master changes [#834]
