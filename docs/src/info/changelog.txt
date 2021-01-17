@@ -4,6 +4,11 @@ https://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 2.4.0 (2021-01-18)
+-------------------------------------
+* backport(916): Update boot 2.4.2 [#917]
+* Remove StateMachineInterceptor deprecations [#906]
+
 Changes in version 2.4.0-RC1 (2020-11-28)
 -----------------------------------------
 * Basically just a boot upgrade to 2.4.x
