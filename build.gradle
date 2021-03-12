@@ -80,6 +80,7 @@ configure(allprojects) {
 
 	repositories {
 		mavenCentral()
+		jcenter()
 		maven { url 'https://repo.springsource.org/libs-snapshot' }
 		maven { url 'https://repo.springsource.org/libs-release' }
 		maven { url 'https://repo.springsource.org/libs-milestone' }
