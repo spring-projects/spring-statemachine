@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import org.springframework.statemachine.support.StateMachineInterceptor;
  * @param <S> the type of state
  * @param <E> the type of event
  */
-public interface StateMachineAccess<S, E> {
+public interface StateMachineAccess<S, E> extends ReactiveStateMachineAccess<S, E> {
 
 	/**
 	 * Sets the relay state machine.

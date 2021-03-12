@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2020 the original author or authors.
+ * Copyright 2015-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -45,6 +46,11 @@ import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.support.DefaultExtendedState;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
+import reactor.test.StepVerifier;
 
 /**
  * Tests for resetting a state machine state and extended variables using a
@@ -777,4 +783,46 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 
 	public enum MyEvent {
 		GO;
-	}}
+	}
+
+	@Test
+	public void testResetError() {
+		context.register(Config7.class);
+		context.refresh();
+		StateMachine<TestStates, TestEvents> machine = resolveMachine(context);
+
+		DefaultStateMachineContext<TestStates, TestEvents> stateMachineContext =
+				new DefaultStateMachineContext<TestStates, TestEvents>(TestStates.S1, null, null, null);
+
+		Stream<Mono<Void>> monos = machine.getStateMachineAccessor().withAllRegions().stream()
+				.map(a -> a.resetStateMachineReactively(stateMachineContext));
+		Mono<Void> resetMono = Flux.fromStream(monos).flatMap(m -> m).next().publishOn(Schedulers.single());
+		StepVerifier.create(resetMono).expectComplete().verify();
+
+		doStartAndAssert(machine);
+		assertThat(machine.getState().getIds()).containsOnly(TestStates.S1);
+	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config7 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+				.withStates()
+					.initial(TestStates.SI)
+					.state(TestStates.S1);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+				.withExternal()
+					.source(TestStates.SI)
+					.target(TestStates.S1)
+					.event(TestEvents.E1);
+		}
+
+	}
+}
