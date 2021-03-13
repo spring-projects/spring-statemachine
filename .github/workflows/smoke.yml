@@ -28,7 +28,7 @@ jobs:
       with:
         java-version: ${{ matrix.java }}
     - name: Build with Gradle
-      run: ./gradlew clean build -x reference -PstatemachineIncludeTags=smoke -PstatemachineTestResults=true
+      run: ./gradlew clean build -x docsZip -x distZip -PstatemachineIncludeTags=smoke -PstatemachineTestResults=true
     - name: Tar Build Logs
       if: ${{ failure() }}
       run: |

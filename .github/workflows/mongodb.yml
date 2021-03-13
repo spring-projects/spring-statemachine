@@ -34,7 +34,7 @@ jobs:
       with:
         java-version: ${{ matrix.java }}
     - name: Build with Gradle
-      run: ./gradlew clean build -x reference -PstatemachineIncludeTags=mongodb -PstatemachineTestResults=true
+      run: ./gradlew clean build -x docsZip -x distZip -PstatemachineIncludeTags=mongodb -PstatemachineTestResults=true
     - name: Tar Build Logs
       if: ${{ failure() }}
       run: |
