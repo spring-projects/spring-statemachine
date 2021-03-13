@@ -18,6 +18,7 @@ package org.springframework.statemachine.docs;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.StaticListableBeanFactory;
@@ -615,10 +616,21 @@ public class DocsConfigurationSampleTests extends AbstractStateMachineTests {
 				stateMachine.sendEvents(Flux.just(message1, message2));
 
 			results.subscribe();
-
 // end::snippetO2[]
 		}
 
+		void signalMachine3() {
+// tag::snippetO3[]
+			Message<String> message1 = MessageBuilder
+				.withPayload("E1")
+				.build();
+
+			Mono<List<StateMachineEventResult<String, String>>> results =
+				stateMachine.sendEventCollect(Mono.just(message1));
+
+			results.subscribe();
+// end::snippetO3[]
+		}
 	}
 
 // tag::snippetP[]

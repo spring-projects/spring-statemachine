@@ -250,6 +250,11 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	@Override
+	public Mono<List<StateMachineEventResult<S, E>>> sendEventCollect(Mono<Message<E>> event) {
+		return event.flatMapMany(e -> handleEvent(e)).collectList();
+	}
+
+	@Override
 	protected void onInit() throws Exception {
 		super.onInit();
 		Assert.notNull(initialState, "Initial state must be set");

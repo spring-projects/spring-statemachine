@@ -12,7 +12,9 @@ include::samples/DocsMigrationTests.java[tags=snippetA]
 We're now solely working on a spring `Message` and reactor `Mono` and `Flux` classes.
 You can send a `Mono` of a `Message` and receive back a `Flux` of `StateMachineEventResult`.
 Remember that nothing happens until you subscribe to this `Flux`. More about
-this returned value, see <<sm-triggers-statemachineeventresult>>.
+this returned value, see <<sm-triggers-statemachineeventresult>>. Method `sendEventCollect`
+is just a syntactic sugar to pass in a `Mono` and get a `Mono` which wraps
+results as a list.
 
 ====
 [source,java,indent=0]

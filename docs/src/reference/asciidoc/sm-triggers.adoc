@@ -20,6 +20,20 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippetO]
 ----
 ====
 
+Whether you send one event or multiple events, result is always a sequence
+of results. This is so because in a presence multiple reqions, results will
+come back from multiple machines in those regions. This is shown
+with method `sendEventCollect` which gives a list of results. Method
+itself is a just a syntactic sugar collecting `Flux` as list. If there is
+just one region, this list contains one result.
+
+====
+[source,java,indent=0]
+----
+include::samples/DocsConfigurationSampleTests.java[tags=snippetO3]
+----
+====
+
 IMPORTANT: Nothing happens until returned flux is subscribed. See more about it from
 <<sm-triggers-statemachineeventresult>>.
 
