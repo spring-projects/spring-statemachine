@@ -153,6 +153,11 @@ public class StateMachineAccessTests {
 		}
 
 		@Override
+		public Mono<List<StateMachineEventResult<String, String>>> sendEventCollect(Mono<Message<String>> event) {
+			return null;
+		}
+
+		@Override
 		public Flux<StateMachineEventResult<String, String>> sendEvents(Flux<Message<String>> events) {
 			return null;
 		}

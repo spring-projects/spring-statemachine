@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.springframework.statemachine.region;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.messaging.Message;
@@ -114,6 +115,16 @@ public interface Region<S, E> extends StateMachineReactiveLifecycle {
 	 * @return the event results
 	 */
 	Flux<StateMachineEventResult<S, E>> sendEvent(Mono<Message<E>> event);
+
+	/**
+	 * Send a {@link Mono} of event and return a {@link Mono} of collected
+	 * {@link StateMachineEventResult}s as a list. Events are consumed after
+	 * returned results are consumed.
+	 *
+	 * @param event the event
+	 * @return the event results
+	 */
+	Mono<List<StateMachineEventResult<S, E>>> sendEventCollect(Mono<Message<E>> event);
 
 	/**
 	 * Gets the current {@link State}.

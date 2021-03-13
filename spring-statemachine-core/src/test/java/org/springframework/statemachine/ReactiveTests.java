@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 the original author or authors.
+ * Copyright 2019-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -251,6 +251,30 @@ public class ReactiveTests extends AbstractStateMachineTests {
 
 		assertThat(ers).filteredOnAssertions(er -> assertThat(er.getResultType()).isSameAs(ResultType.ACCEPTED)).hasSize(1);
 		assertThat(ers).filteredOnAssertions(er -> assertThat(er.getResultType()).isSameAs(ResultType.DENIED)).hasSize(1);
+		assertThat(machine.getState().getIds()).containsExactlyInAnyOrder(TestStates.S11, TestStates.S20);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testRegionsAsCollect() {
+		context.register(Config4.class);
+		context.refresh();
+		assertThat(context.containsBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)).isTrue();
+		StateMachine<TestStates,TestEvents> machine =
+				context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, StateMachine.class);
+		assertThat(machine).isNotNull();
+		verifyStart(machine);
+		assertThat(machine.getState().getIds()).containsExactlyInAnyOrder(TestStates.S10, TestStates.S20);
+
+		StepVerifier.create(machine.sendEventCollect(asMono(TestEvents.E1)))
+			.assertNext(r -> {
+				assertThat(r).hasSize(2);
+				assertThat(r).filteredOnAssertions(er -> assertThat(er.getResultType()).isSameAs(ResultType.ACCEPTED)).hasSize(1);
+				assertThat(r).filteredOnAssertions(er -> assertThat(er.getResultType()).isSameAs(ResultType.DENIED)).hasSize(1);
+			})
+			.expectComplete()
+			.verify();
+
 		assertThat(machine.getState().getIds()).containsExactlyInAnyOrder(TestStates.S11, TestStates.S20);
 	}
 
