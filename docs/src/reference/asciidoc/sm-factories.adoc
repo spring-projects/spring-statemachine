@@ -46,6 +46,7 @@ specifically handle the case in which the same bean is called by different
 state machines. This limitation is something that will be resolved in
 future releases.
 
+[[state-machine-via-builder]]
 === State Machine through a Builder
 
 Using adapters (as shown above) has a limitation imposed by its

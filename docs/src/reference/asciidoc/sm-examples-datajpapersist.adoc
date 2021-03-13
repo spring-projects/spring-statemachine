@@ -1,5 +1,5 @@
-[[statemachine-examples-datapersist]]
-== Data Persist
+[[statemachine-examples-datajpapersist]]
+== Data JPA Persist
 
 The data persist sample shows how you can state machine concepts
 with a persisting machine in an external repository. This sample uses

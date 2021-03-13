@@ -42,6 +42,8 @@ normal build cycle. This chapter includes the following samples:
 
 <<statemachine-examples-datapersist>>
 
+<<statemachine-examples-datajpapersist>>
+
 <<statemachine-examples-datajpamultipersist>>
 
 <<statemachine-examples-monitoring>>
