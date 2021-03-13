@@ -38,6 +38,7 @@ jobs:
     - name: Tar Build Logs
       if: ${{ failure() }}
       run: |
+        mkdir -p build
         tar -zc --ignore-failed-read --file build/buildlogs.tar.gz */build/reports */*/build/reports
     - name: Upload Build Logs
       if: ${{ failure() }}
