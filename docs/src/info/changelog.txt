@@ -4,6 +4,13 @@ https://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 3.0.0-RC2 (2021-03-14)
+-----------------------------------------
+* Update boot 2.4.3 [#928]
+* 3.0.0.RC1 sendEvent of Mono<Message> returns Flux<StateMachineResult> [#922]
+* resetStateMachine method of the StateMachineAccessor fails when using reactive model [#911]
+* Add reactive support [#397]
+
 Changes in version 3.0.0-RC1 (2020-12-11)
 -----------------------------------------
 * Support using junit5 [#771]
