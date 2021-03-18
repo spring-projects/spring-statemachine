@@ -4,6 +4,11 @@ https://projects.spring.io/spring-statemachine/
 
 Issues: https://github.com/spring-projects/spring-statemachine/issues
 
+Changes in version 3.0.0 (2021-03-19)
+-------------------------------------
+* Update boot 2.4.4 [#933]
+* Docs refactoring for reactive changes [#742]
+
 Changes in version 3.0.0-RC2 (2021-03-14)
 -----------------------------------------
 * Update boot 2.4.3 [#928]
