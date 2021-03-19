@@ -35,7 +35,6 @@ jobs:
     - name: Download Release Files
       run: |
         jfrog rt download \
-          --server-id spring \
           --spec .github/release-files-spec.json \
           --spec-vars "buildname=$JFROG_CLI_BUILD_NAME;buildnumber=$JFROG_CLI_BUILD_NUMBER"
 
