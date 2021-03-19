@@ -156,6 +156,7 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 		for (RepositoryTransition t : transitionRepository.findByMachineId(machineId == null ? "" : machineId)) {
 
 			Collection<Function<StateContext<String, String>, Mono<Void>>> actions = new ArrayList<>();
+			Collection<Action<String, String>> originalActions = new ArrayList<>();
 			Set<? extends RepositoryAction> repositoryActions = t.getActions();
 			if (repositoryActions != null) {
 				for (RepositoryAction repositoryAction : repositoryActions) {
@@ -170,6 +171,7 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 					}
 					if (action != null) {
 						actions.add(Actions.from(action));
+						originalActions.add(action);
 					}
 				}
 			}
@@ -190,12 +192,11 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 					list = new LinkedList<ChoiceData<String, String>>();
 					choices.put(t.getSource().getState(), list);
 				}
-				guard = resolveGuard(t);
 				// we want null guards to be at the end
 				if (guard == null) {
-					list.addLast(new ChoiceData<String, String>(t.getSource().getState(), t.getTarget().getState(), guard));
+					list.addLast(new ChoiceData<String, String>(t.getSource().getState(), t.getTarget().getState(), guard, originalActions));
 				} else {
-					list.addFirst(new ChoiceData<String, String>(t.getSource().getState(), t.getTarget().getState(), guard));
+					list.addFirst(new ChoiceData<String, String>(t.getSource().getState(), t.getTarget().getState(), guard, originalActions));
 				}
 			} else if (t.getSource().getKind() == PseudoStateKind.JUNCTION) {
 				LinkedList<JunctionData<String, String>> list = junctions.get(t.getSource().getState());
@@ -203,12 +204,11 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 					list = new LinkedList<JunctionData<String, String>>();
 					junctions.put(t.getSource().getState(), list);
 				}
-				guard = resolveGuard(t);
 				// we want null guards to be at the end
 				if (guard == null) {
-					list.addLast(new JunctionData<String, String>(t.getSource().getState(), t.getTarget().getState(), guard));
+					list.addLast(new JunctionData<String, String>(t.getSource().getState(), t.getTarget().getState(), guard, originalActions));
 				} else {
-					list.addFirst(new JunctionData<String, String>(t.getSource().getState(), t.getTarget().getState(), guard));
+					list.addFirst(new JunctionData<String, String>(t.getSource().getState(), t.getTarget().getState(), guard, originalActions));
 				}
 			} else if (t.getSource().getKind() == PseudoStateKind.FORK) {
 				List<String> list = forks.get(t.getSource().getState());
