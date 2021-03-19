@@ -15,6 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
+    # to get spec file in .github
+    - uses: actions/checkout@v2
+
     # Setup jfrog cli
     - uses: jfrog/setup-jfrog-cli@v1
       with:
