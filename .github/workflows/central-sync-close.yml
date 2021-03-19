@@ -1,0 +1,23 @@
+name: Central Sync Close
+
+on:
+  workflow_dispatch:
+    inputs:
+      stagedRepositoryId:
+        description: "Staged repository id"
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+    # Request close promotion repo
+    - uses: jvalkeal/nexus-sync@main
+      with:
+        url: ${{ secrets.OSSRH_URL }}
+        username: ${{ secrets.OSSRH_USERNAME }}
+        password: ${{ secrets.OSSRH_PASSWORD }}
+        staging-profile-name: ${{ secrets.OSSRH_STAGING_PROFILE_NAME }}
+        staging-repo-id: ${{ github.event.inputs.stagedRepositoryId }}
+        close: true
