@@ -56,7 +56,7 @@ jobs:
           ]
         pgp-sign: true
         pgp-sign-passphrase: ${{ secrets.GPG_PASSPHRASE }}
-        pgp-sign-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+        pgp-sign-private-key: ${{ secrets.GPG_PRIVATE_KEY_WITH_HEADER }}
 
     # Print staging repo id
     - name: Print Staging Repo Id
