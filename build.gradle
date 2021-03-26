@@ -421,7 +421,6 @@ project('spring-statemachine-uml') {
 
 project('spring-statemachine-build-tests') {
 	description = 'Spring State Machine Build Tests'
-	tasks.findByPath('artifactoryPublish')?.enabled = false
 
 	dependencies {
 		testCompile project(':spring-statemachine-uml')
@@ -535,7 +534,6 @@ project('spring-statemachine-starter') {
 
 configure(sampleProjects()) {
 	apply plugin: 'org.springframework.boot'
-	tasks.findByPath('artifactoryPublish')?.enabled = false
 	// as samples are not published, we can use jdk8
 	compileJava {
 		sourceCompatibility = 1.8
@@ -563,7 +561,6 @@ configure(sampleProjects()) {
 }
 
 project('spring-statemachine-samples-common') {
-	tasks.findByPath('artifactoryPublish')?.enabled = false
 	dependencies {
 		compile project(':spring-statemachine-core')
 		compile 'org.springframework.shell:spring-shell'
@@ -574,6 +571,20 @@ project('spring-statemachine-samples-common') {
 
 configure(rootProject) {
 	description = 'Spring State Machine'
+
+	pluginManager.withPlugin('com.jfrog.artifactory') {
+		artifactory {
+		    publish {
+		        defaults {
+					properties {
+						archives '*:*:*:*@zip', 'zip.deployed': false, 'zip.name': 'spring-statemachine', 'zip.displayname': 'Spring Statemachine'
+						archives '*:*:*:docs@zip', 'zip.type': 'docs'
+						archives '*:*:*:dist@zip', 'zip.type': 'dist'
+					}
+		        }
+		    }
+		}
+	}
 
 	dependencies {
 		// just used to get version into docs
