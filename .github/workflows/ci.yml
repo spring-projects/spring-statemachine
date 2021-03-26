@@ -67,7 +67,9 @@ jobs:
           --repo-deploy=snapshot
         echo JFROG_CLI_BUILD_NAME=spring-statemachine >> $GITHUB_ENV
         echo JFROG_CLI_BUILD_NUMBER=$GITHUB_RUN_NUMBER >> $GITHUB_ENV
-    - name: Build and Publish
+    - name: Build
       run: |
         jfrog rt gradle clean build -x test artifactoryPublish
+    - name: Publish
+      run: |
         jfrog rt build-publish
