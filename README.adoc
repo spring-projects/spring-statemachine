@@ -1,9 +1,5 @@
 = Spring Statemachine
 
-NOTE: Default branch is now in a development of a `3.x` which may be extremely unstable.
-      Current stable release branch is `2.2.x`. Unless you are not planning to contribute to
-      initial reactive stories, PR's and issues should target towards `2.2.x` branch.
-
 image:https://github.com/spring-projects/spring-statemachine/workflows/CI/badge.svg[link="https://github.com/spring-projects/spring-statemachine/actions"] (GitHub default)
 image:https://github.com/spring-projects/spring-statemachine/workflows/CI/badge.svg?branch=2.4.x[link="https://github.com/spring-projects/spring-statemachine/actions"] (GitHub 2.4.x)
 image:https://github.com/spring-projects/spring-statemachine/workflows/CI/badge.svg?branch=2.3.x[link="https://github.com/spring-projects/spring-statemachine/actions"] (GitHub 2.3.x)
