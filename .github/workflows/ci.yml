@@ -13,7 +13,7 @@ on:
 
 jobs:
 
-  # build and test
+  # build and test, then upload logs if failure
   build:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -34,7 +34,12 @@ jobs:
       if: ${{ failure() }}
       run: |
         mkdir -p build
-        tar -zc --ignore-failed-read --file build/buildlogs.tar.gz */build/reports */*/build/reports
+        tar \
+          -zc \
+          --ignore-failed-read \
+          --file build/buildlogs.tar.gz \
+          */build/reports \
+          */*/build/reports
     - name: Upload Build Logs
       if: ${{ failure() }}
       uses: actions/upload-artifact@v2
@@ -56,6 +61,11 @@ jobs:
         version: 1.43.2
       env:
         JF_ARTIFACTORY_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
+
+    # setup non persistent config for jfrog gradle to use server defined in
+    # secret which points via virtual repo into spring local repo.
+    # modify default build name and number as we don't like how those
+    # gets used from action defaults.
     - name: Configure JFrog Cli
       run: |
         jfrog rt gradlec \
@@ -67,9 +77,13 @@ jobs:
           --repo-deploy=snapshot
         echo JFROG_CLI_BUILD_NAME=spring-statemachine >> $GITHUB_ENV
         echo JFROG_CLI_BUILD_NUMBER=$GITHUB_RUN_NUMBER >> $GITHUB_ENV
-    - name: Build
+
+    # as we already tested just build and publish
+    - name: Build and Publish Snapshot
       run: |
         jfrog rt gradle clean build -x test artifactoryPublish
-    - name: Publish
+
+    # publish build info so that we can see it in artifactory "builds"
+    - name: Publish Build Info
       run: |
         jfrog rt build-publish
