@@ -1,7 +1,7 @@
 buildscript {
 	ext {
 		log4jVersion = '1.2.17'
-		springBootVersion = '2.4.4'
+		springBootVersion = '2.5.0-M3'
 		eclipsePersistenceVersion = '2.1.1'
 		kryoVersion = '4.0.2'
 		springCloudClusterVersion = '1.0.2.RELEASE'
@@ -553,9 +553,6 @@ configure(sampleProjects()) {
 		testCompile 'org.springframework:spring-test'
 		testCompile("org.junit.jupiter:junit-jupiter-api")
 		testCompile("org.junit.jupiter:junit-jupiter-engine")
-	}
-	bootJar {
-		excludeDevtools = false
 	}
 	build.dependsOn bootJar
 }
