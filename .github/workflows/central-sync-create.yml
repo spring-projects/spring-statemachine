@@ -42,6 +42,7 @@ jobs:
     - uses: jvalkeal/nexus-sync@main
       id: nexus
       with:
+        url: ${{ secrets.OSSRH_URL }}
         username: ${{ secrets.OSSRH_USERNAME }}
         password: ${{ secrets.OSSRH_PASSWORD }}
         staging-profile-name: ${{ secrets.OSSRH_STAGING_PROFILE_NAME }}
