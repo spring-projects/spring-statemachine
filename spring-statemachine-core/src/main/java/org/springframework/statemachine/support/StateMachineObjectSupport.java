@@ -79,13 +79,7 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 
 	@Override
 	public void setBeanName(String name) {
-		//When using StateMachineFactory.getStateMachine() to generate state machine, name will be null
-		//in that case set name to the default `stateMachine`
-		if (name == null || name.isEmpty()) {
-			beanName = StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE;
-		} else {
-			beanName = name;
-		}
+		beanName = name;
 	}
 
 	/**

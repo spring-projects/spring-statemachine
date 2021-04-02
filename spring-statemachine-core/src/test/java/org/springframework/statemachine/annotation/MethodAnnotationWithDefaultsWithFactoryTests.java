@@ -28,7 +28,6 @@ import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
-import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -55,7 +54,7 @@ public class MethodAnnotationWithDefaultsWithFactoryTests extends AbstractStateM
 		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
 		assertThat(machine.getState().getIds()).containsExactly(TestStates.S2);
-		assertThat(bean1.onStateChangedLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean1.counter).isEqualTo(1);
 		assertThat(bean2.onStateChangedLatch.await(1, TimeUnit.SECONDS)).isTrue();
 	}
 
@@ -76,18 +75,18 @@ public class MethodAnnotationWithDefaultsWithFactoryTests extends AbstractStateM
 		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
 		doSendEventAndConsumeAll(machine, TestEvents.E1);
 		assertThat(machine.getState().getIds()).containsExactly(TestStates.S2);
-		assertThat(bean1.onStateChangedLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean1.counter).isEqualTo(1);
 		assertThat(bean2.onStateChangedLatch.await(1, TimeUnit.SECONDS)).isTrue();
 	}
 
 	@WithStateMachine
 	static class Bean1 {
 
-		CountDownLatch onStateChangedLatch = new CountDownLatch(1);
+		int counter = 0;
 
-		@OnStateChanged
+		@OnStateChanged (source = "S1", target = "S2")
 		public void onStateChanged() {
-			onStateChangedLatch.countDown();
+			counter++;
 		}
 	}
 

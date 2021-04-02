@@ -15,10 +15,6 @@
  */
 package org.springframework.statemachine.config;
 
-import java.util.Collection;
-import java.util.UUID;
-import java.util.function.Function;
-
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.messaging.Message;
@@ -26,6 +22,7 @@ import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.model.StateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineModelFactory;
 import org.springframework.statemachine.region.Region;
@@ -34,8 +31,11 @@ import org.springframework.statemachine.state.PseudoState;
 import org.springframework.statemachine.state.RegionState;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
-
 import reactor.core.publisher.Mono;
+
+import java.util.Collection;
+import java.util.UUID;
+import java.util.function.Function;
 
 /**
  * Implementation of a {@link StateMachineFactory} which know the actual types of
@@ -86,6 +86,12 @@ public class ObjectStateMachineFactory<S, E> extends AbstractStateMachineFactory
 			machine.setBeanFactory(beanFactory);
 		}
 		if (machine instanceof BeanNameAware) {
+			//When using StateMachineFactory.getStateMachine() to generate state machine,
+			//which means name and id are null
+			//in that case set name to the default `stateMachine`
+			if ((machineId == null || machineId.isEmpty()) && (beanName == null || beanName.isEmpty())) {
+				beanName = StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE;
+			}
 			((BeanNameAware)machine).setBeanName(beanName);
 		}
 		return machine;
