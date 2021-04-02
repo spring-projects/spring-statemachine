@@ -28,6 +28,7 @@ import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
+import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -40,7 +41,7 @@ import static org.springframework.statemachine.TestUtils.resolveFactory;
 public class MethodAnnotationWithDefaultsWithFactoryTests extends AbstractStateMachineTests {
 
 	@Test
-	public void testMethodAnnotations1() throws Exception {
+	public void testMethodAnnotations() throws Exception {
 		context.register(BeanConfig1.class, Config1.class);
 		context.refresh();
 
@@ -49,6 +50,27 @@ public class MethodAnnotationWithDefaultsWithFactoryTests extends AbstractStateM
 
 		StateMachineFactory<TestStates,TestEvents> factory = resolveFactory(context);
 		StateMachine<TestStates,TestEvents> machine = factory.getStateMachine();
+		doStartAndAssert(machine);
+
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
+		doSendEventAndConsumeAll(machine, TestEvents.E1);
+		assertThat(machine.getState().getIds()).containsExactly(TestStates.S2);
+		assertThat(bean1.onStateChangedLatch.await(1, TimeUnit.SECONDS)).isTrue();
+		assertThat(bean2.onStateChangedLatch.await(1, TimeUnit.SECONDS)).isTrue();
+	}
+
+	@Test
+	public void testMethodAnnotationsWithDynamicId() throws Exception {
+		context.register(BeanConfig1.class, Config1.class);
+		context.refresh();
+
+		Bean1 bean1 = context.getBean(Bean1.class);
+		Bean2 bean2 = context.getBean(Bean2.class);
+
+		String id = String.valueOf(System.currentTimeMillis());
+
+		StateMachineFactory<TestStates,TestEvents> factory = resolveFactory(context);
+		StateMachine<TestStates,TestEvents> machine = factory.getStateMachine(id);
 		doStartAndAssert(machine);
 
 		assertThat(machine.getState().getIds()).containsExactly(TestStates.S1);
@@ -69,7 +91,7 @@ public class MethodAnnotationWithDefaultsWithFactoryTests extends AbstractStateM
 		}
 	}
 
-	@WithStateMachine(name = StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)
+	@WithStateMachine(id = StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE)
 	static class Bean2 {
 
 		CountDownLatch onStateChangedLatch = new CountDownLatch(1);
