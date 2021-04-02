@@ -26,6 +26,7 @@ import org.springframework.core.OrderComparator;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.event.StateMachineEventPublisher;
 import org.springframework.statemachine.listener.CompositeStateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListener;
@@ -78,7 +79,13 @@ public abstract class StateMachineObjectSupport<S, E> extends LifecycleObjectSup
 
 	@Override
 	public void setBeanName(String name) {
-		beanName = name;
+		//When using StateMachineFactory.getStateMachine() to generate state machine, name will be null
+		//in that case set name to the default `stateMachine`
+		if (name == null || name.isEmpty()) {
+			beanName = StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE;
+		} else {
+			beanName = name;
+		}
 	}
 
 	/**
