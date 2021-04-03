@@ -1,0 +1,94 @@
+# full release workflow which does a staging build, github tagging,
+# promotion in artifactory
+name: Release Milestone
+
+on:
+  workflow_dispatch:
+    inputs:
+      milestone:
+        description: 'Milestone version like, M1 or RC1, etc'
+        required: true
+
+# there's 3 jobs, staging, promote and central.
+# promote waits staging and manual approval and
+# central waits promote and manual approval.
+jobs:
+
+  # build and release to staging repo.
+  # stash artifactory build id so that promote and central
+  # jobs can work on it.
+  staging:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+    - uses: jfrog/setup-jfrog-cli@v1
+      with:
+        version: 1.43.2
+      env:
+        JF_ARTIFACTORY_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
+    # prepare env for cli to get a staging build working
+    - name: Configure JFrog Cli
+      run: |
+        jfrog rt gradlec \
+          --use-wrapper \
+          --deploy-ivy-desc=false \
+          --server-id-resolve=repo.spring.io \
+          --server-id-deploy=repo.spring.io \
+          --repo-resolve=libs-milestone \
+          --repo-deploy=libs-staging-local
+        echo JFROG_CLI_BUILD_NAME=spring-statemachine-main-milestone >> $GITHUB_ENV
+        echo JFROG_CLI_BUILD_NUMBER=$GITHUB_RUN_NUMBER >> $GITHUB_ENV
+    # switch from snapshot to a release version and extract project
+    # version to get used with tagging
+    - name: Configure Milestone Version
+      run: |
+        jfrog rt gradle milestoneVersion -P${{ github.event.inputs.milestone }}
+        echo PROJECT_VERSION=$(jfrog rt gradle "properties -q" | grep "version:" | awk '{print $2}')-${{ github.event.inputs.milestone }} >> $GITHUB_ENV
+    # build and publish to staging repo.
+    # we've allready tested with snapshots so no need to test
+    # with a release build as we are not a release train.
+    - name: Build and Publish
+      run: |
+        jfrog rt gradle clean build artifactoryPublish
+        jfrog rt build-publish
+    # we've now done a release build, branch and tag it in github
+    - name: Tag Release
+      uses: jvalkeal/build-zoo-handler@v0.0.4
+      with:
+        tag-release-branch: ${{ env.PROJECT_VERSION }}
+        tag-release-tag: ${{ env.PROJECT_VERSION }}
+        tag-release-tag-prefix: v
+
+  # wait manual approval.
+  # promote build from staging to milestones
+  promote:
+    runs-on: ubuntu-latest
+    needs: staging
+    environment: promote
+    steps:
+    # need repo to push release branch and a tag
+    - uses: actions/checkout@v2
+    - uses: jfrog/setup-jfrog-cli@v1
+      with:
+        version: 1.43.2
+      env:
+        JF_ARTIFACTORY_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
+    # prepare env for cli to promote
+    - name: Configure JFrog Cli
+      run: |
+        jfrog rt gradlec \
+          --use-wrapper \
+          --deploy-ivy-desc=false \
+          --server-id-resolve=repo.spring.io \
+          --server-id-deploy=repo.spring.io \
+          --repo-resolve=libs-milestone \
+          --repo-deploy=libs-staging-local
+        echo JFROG_CLI_BUILD_NAME=spring-statemachine-main-milestone >> $GITHUB_ENV
+        echo JFROG_CLI_BUILD_NUMBER=$GITHUB_RUN_NUMBER >> $GITHUB_ENV
+    # promoting build from staging repo into release
+    - name: Promote Build
+      run: |
+        jfrog rt build-promote libs-milestone-local

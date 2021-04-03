@@ -43,17 +43,12 @@ jobs:
       id: nexus
       with:
         url: ${{ secrets.OSSRH_URL }}
-        username: ${{ secrets.OSSRH_USERNAME }}
-        password: ${{ secrets.OSSRH_PASSWORD }}
+        username: ${{ secrets.OSSRH_S01_TOKEN_USERNAME }}
+        password: ${{ secrets.OSSRH_S01_TOKEN_PASSWORD }}
         staging-profile-name: ${{ secrets.OSSRH_STAGING_PROFILE_NAME }}
         create: true
         upload: true
         generate-checksums: true
-        generate-checksums-config: >
-          [
-            { "type": "md5", "extension": "md5" },
-            { "type": "sha1", "extension": "sha1" }
-          ]
         pgp-sign: true
         pgp-sign-passphrase: ${{ secrets.GPG_PASSPHRASE }}
         pgp-sign-private-key: ${{ secrets.GPG_PRIVATE_KEY_WITH_HEADER }}
