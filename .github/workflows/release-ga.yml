@@ -128,7 +128,7 @@ jobs:
           --spec .github/release-files-spec.json \
           --spec-vars "buildname=$JFROG_CLI_BUILD_NAME;buildnumber=$JFROG_CLI_BUILD_NUMBER"
     # last step, sync to central.
-    - uses: jvalkeal/nexus-sync@main
+    - uses: jvalkeal/nexus-sync@v0
       with:
         url: ${{ secrets.OSSRH_URL }}
         username: ${{ secrets.OSSRH_S01_TOKEN_USERNAME }}

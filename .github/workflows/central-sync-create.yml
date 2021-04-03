@@ -39,7 +39,7 @@ jobs:
           --spec-vars "buildname=$JFROG_CLI_BUILD_NAME;buildnumber=$JFROG_CLI_BUILD_NUMBER"
 
     # Create checksums, signatures and create staging repo on central and upload
-    - uses: jvalkeal/nexus-sync@main
+    - uses: jvalkeal/nexus-sync@v0
       id: nexus
       with:
         url: ${{ secrets.OSSRH_URL }}

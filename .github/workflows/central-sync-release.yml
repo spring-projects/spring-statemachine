@@ -13,7 +13,7 @@ jobs:
     steps:
 
     # Request release promotion repo
-    - uses: jvalkeal/nexus-sync@main
+    - uses: jvalkeal/nexus-sync@v0
       with:
         username: ${{ secrets.OSSRH_S01_TOKEN_USERNAME }}
         password: ${{ secrets.OSSRH_S01_TOKEN_PASSWORD }}
