@@ -1,0 +1,42 @@
+name: PR
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+
+  # build and test, then upload logs if failure
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        java: [1.8, 11]
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup JDK
+      uses: actions/setup-java@v1
+      with:
+        java-version: ${{ matrix.java }}
+    - name: Build with Gradle
+      run: ./gradlew clean build
+    - name: Tar Build Logs
+      if: ${{ failure() }}
+      run: |
+        mkdir -p build
+        tar \
+          -zc \
+          --ignore-failed-read \
+          --file build/buildlogs.tar.gz \
+          */build/reports \
+          */*/build/reports
+    - name: Upload Build Logs
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: buildlogs
+        path: build/buildlogs.tar.gz
