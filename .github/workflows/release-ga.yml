@@ -94,7 +94,7 @@ jobs:
         jfrog rt gradle nextVersion
     - uses: jvalkeal/build-zoo-handler@v0.0.4
       with:
-        commit-changes-branch: master
+        commit-changes-branch: main
         commit-changes-message: Next development version
 
   # wait manual approval.

@@ -3,7 +3,7 @@ name: Labels Manage
 on:
   push:
     branches:
-      - 'master'
+      - 'main'
     paths:
       - '.github/labels-manage.yml'
       - '.github/workflows/label-manage.yml'
