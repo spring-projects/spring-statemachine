@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 the original author or authors.
+ * Copyright 2019-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,7 +115,8 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 	@Override
 	protected void onInit() throws Exception {
 		triggerSink = Sinks.many().multicast().onBackpressureBuffer(Queues.SMALL_BUFFER_SIZE, false);
-		triggerFlux = triggerSink.asFlux().flatMap(trigger -> handleTrigger(trigger));
+		// limit concurrency so that we get one by one handling
+		triggerFlux = triggerSink.asFlux().flatMap(trigger -> handleTrigger(trigger), 1);
 	}
 
 	@Override
@@ -328,10 +329,11 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 						}
 					});
 				}
-			}))
-			.contextWrite(Context.of(
-					StateMachineSystemConstants.REACTOR_CONTEXT_ERRORS, new ExecutorExceptionHolder(),
-					REACTOR_CONTEXT_TRIGGER_ERRORS, new ExecutorExceptionHolder()));
+			})
+		)
+		.contextWrite(Context.of(
+				StateMachineSystemConstants.REACTOR_CONTEXT_ERRORS, new ExecutorExceptionHolder(),
+				REACTOR_CONTEXT_TRIGGER_ERRORS, new ExecutorExceptionHolder()));
 	}
 
 

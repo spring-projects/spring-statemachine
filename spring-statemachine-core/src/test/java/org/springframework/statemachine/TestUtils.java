@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2020 the original author or authors.
+ * Copyright 2015-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.time.Duration;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
@@ -43,6 +45,8 @@ import reactor.test.StepVerifier;
  *
  */
 public class TestUtils {
+
+	private static Log log = LogFactory.getLog(TestUtils.class);
 
 	@SuppressWarnings("unchecked")
 	public static <S, E> StateMachine<S, E> resolveMachine(BeanFactory beanFactory) {
@@ -99,7 +103,10 @@ public class TestUtils {
 
 	public static <S, E> void doSendEventAndConsumeAll(StateMachine<S, E> stateMachine, E event) {
 		StepVerifier.create(stateMachine.sendEvent(eventAsMono(event)))
-			.thenConsumeWhile(eventResult -> true)
+			.thenConsumeWhile(eventResult -> {
+				log.debug("Consume eventResult " + eventResult);
+				return true;
+			})
 			.expectComplete()
 			.verify(Duration.ofSeconds(5));
 	}
@@ -124,6 +131,30 @@ public class TestUtils {
 				assertThat(result.getResultType()).isEqualTo(ResultType.DENIED);
 			})
 			.verifyComplete();
+	}
+
+	@SafeVarargs
+	public static <S, E> void doSendEventsAndConsumeAll(StateMachine<S, E> stateMachine, E... events) {
+		StepVerifier.create(stateMachine.sendEvents(eventsAsFlux(events)))
+			.thenConsumeWhile(eventResult -> {
+				log.debug("Consume eventResult " + eventResult);
+				return true;
+			})
+			.expectComplete()
+			.verify(Duration.ofSeconds(5));
+	}
+
+	@SafeVarargs
+	public static <S, E> void doSendEventsAndConsumeAllWithComplete(StateMachine<S, E> stateMachine, E... events) {
+		Flux<Void> completions = stateMachine.sendEvents(eventsAsFlux(events))
+			.doOnNext(result -> {
+				log.debug("Consume eventResult " + result);
+			})
+			.flatMap(result -> result.complete());
+		StepVerifier.create(completions)
+			.thenConsumeWhile(complete -> true)
+			.expectComplete()
+			.verify(Duration.ofSeconds(10));
 	}
 
 	@SuppressWarnings("unchecked")
