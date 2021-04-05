@@ -45,8 +45,8 @@ jobs:
     # version to get used with tagging
     - name: Configure Milestone Version
       run: |
-        jfrog rt gradle milestoneVersion -P${{ github.event.inputs.milestone }}
-        echo PROJECT_VERSION=$(jfrog rt gradle "properties -q" | grep "version:" | awk '{print $2}')-${{ github.event.inputs.milestone }} >> $GITHUB_ENV
+        jfrog rt gradle milestoneVersion -PstatemachineMilestone=${{ github.event.inputs.milestone }}
+        echo PROJECT_VERSION=$(jfrog rt gradle "properties -q" | grep "version:" | awk '{print $2}') >> $GITHUB_ENV
     # build and publish to staging repo.
     # we've allready tested with snapshots so no need to test
     # with a release build as we are not a release train.
