@@ -80,7 +80,7 @@ Jepsen tests in the following environment:
   events and check particular state machine statuses.
 
 All Jepsen tests for `Spring Distributed Statemachine` are available from
-https://github.com/spring-projects/spring-statemachine/tree/master/jepsen/spring-statemachine-jepsen[Jepsen
+https://github.com/spring-projects/spring-statemachine/tree/main/jepsen/spring-statemachine-jepsen[Jepsen
 Tests.]
 
 === Generic Concepts
