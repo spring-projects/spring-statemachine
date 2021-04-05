@@ -7,9 +7,6 @@ on:
       - 3.0.x
     paths-ignore:
       - '.github/**'
-  pull_request:
-    branches:
-      - 3.0.x
 
 jobs:
 
