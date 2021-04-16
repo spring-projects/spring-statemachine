@@ -24,6 +24,7 @@ import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.statemachine.support.LifecycleObjectSupport;
 import org.springframework.statemachine.support.StateMachineInterceptorAdapter;
 import org.springframework.statemachine.transition.Transition;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Iterator;
@@ -63,7 +64,7 @@ public abstract class AbstractPersistStateMachineHandler<S, E> extends Lifecycle
         stateMachine.stopReactively().block();
         List<StateMachineAccess<S, E>> withAllRegions = stateMachine.getStateMachineAccessor().withAllRegions();
         for (StateMachineAccess<S, E> a : withAllRegions) {
-            a.resetStateMachine(new DefaultStateMachineContext<S, E>(state, null, null, null));
+            a.resetStateMachineReactively(new DefaultStateMachineContext<S, E>(state, null, null, null)).block();
         }
         stateMachine.startReactively().block();
         return stateMachine.sendEvent(event);
@@ -77,18 +78,18 @@ public abstract class AbstractPersistStateMachineHandler<S, E> extends Lifecycle
      * @return mono for completion
      */
     public Mono<Void> handleEventWithStateReactively(Message<E> event, S state) {
-        StateMachine<S, E> stateMachine = getInitStateMachine();
-        // TODO: REACTOR add docs and revisit this function concept
-        return Mono.from(stateMachine.stopReactively())
-                .then(Mono.fromRunnable(() -> {
-                    List<StateMachineAccess<S, E>> withAllRegions = stateMachine.getStateMachineAccessor().withAllRegions();
-                    for (StateMachineAccess<S, E> a : withAllRegions) {
-                        a.resetStateMachine(new DefaultStateMachineContext<S, E>(state, null, null, null));
-                    }
-                }))
-                .then(stateMachine.startReactively())
-                .thenMany(stateMachine.sendEvent(Mono.just(event)))
-                .then();
+        return Mono.defer(() -> {
+            StateMachine<S, E> stateMachine = getInitStateMachine();
+            // TODO: REACTOR add docs and revisit this function concept
+            return Mono.from(stateMachine.stopReactively())
+                    .thenEmpty(
+                            Flux.fromIterable(stateMachine.getStateMachineAccessor().withAllRegions())
+                                    .flatMap(region -> region.resetStateMachineReactively(new DefaultStateMachineContext<S, E>(state, null, null, null)))
+                    )
+                    .then(stateMachine.startReactively())
+                    .thenMany(stateMachine.sendEvent(Mono.just(event)))
+                    .then();
+        });
     }
 
     /**
