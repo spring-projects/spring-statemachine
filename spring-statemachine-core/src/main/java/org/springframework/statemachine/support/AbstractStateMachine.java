@@ -763,20 +763,16 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 								.then();
 							mono = mono.then(resetMono);
 						}  else if (s.isOrthogonal() && stateMachineContext.getChilds() != null) {
-							Collection<Region<S, E>> regions = ((AbstractState<S, E>)s).getRegions();
-							Mono<Void> resetMono = Flux.fromIterable(regions)
-								.flatMap(region -> {
-									return Flux.fromIterable(stateMachineContext.getChilds())
-										.flatMap(child -> {
-											return Mono.fromRunnable(() -> {
-												((StateMachine<S, E>)region).getStateMachineAccessor()
-													.doWithRegion(function -> function.resetStateMachine(child));
-											});
-										})
-										.then();
-								})
+							Collection<Region<S, E>> regions = ((AbstractState<S, E>) s).getRegions();
+							Mono<Void> resetMono = Flux.fromIterable(regions).flatMap(region ->
+									Flux.fromIterable(stateMachineContext.getChilds())
+										.flatMap(child ->
+											((StateMachine<S, E>) region).getStateMachineAccessor().withRegion().resetStateMachineReactively(child)
+										)
+										.then()
+								)
 								.then();
-							mono = mono.then(resetMono);
+							mono = mono.thenEmpty(resetMono);
 						}
 
 						if (log.isDebugEnabled()) {
@@ -787,20 +783,19 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 						break;
 					} else if (stateMachineContext.getChilds() != null && !stateMachineContext.getChilds().isEmpty()) {
 						if (s.isOrthogonal()) {
-							Collection<Region<S, E>> regions = ((AbstractState<S, E>)s).getRegions();
-							Mono<Void> resetMono = Flux.fromIterable(regions)
-								.flatMap(region -> {
-									return Flux.fromIterable(stateMachineContext.getChilds())
+							Collection<Region<S, E>> regions = ((AbstractState<S, E>) s).getRegions();
+							Mono<Void> resetMono = Flux.fromIterable(regions).flatMap(region ->
+									Flux.fromIterable(stateMachineContext.getChilds())
 										.flatMap(child -> {
-											return Mono.fromRunnable(() -> {
-												if (ObjectUtils.nullSafeEquals(region.getId(), child.getId())) {
-													((StateMachine<S, E>)region).getStateMachineAccessor()
-														.doWithRegion(function -> function.resetStateMachine(child));
-												}
-											});
+											if (ObjectUtils.nullSafeEquals(region.getId(), child.getId())) {
+												return ((StateMachine<S, E>) region).getStateMachineAccessor()
+														.withRegion().resetStateMachineReactively(child);
+											} else {
+												return Mono.empty();
+											}
 										})
-										.then();
-								})
+										.then()
+								)
 								.then();
 							monos.add(resetMono);
 						} else {

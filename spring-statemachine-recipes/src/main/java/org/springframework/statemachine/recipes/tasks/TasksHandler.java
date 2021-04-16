@@ -166,7 +166,7 @@ public class TasksHandler {
 		}
 
 		stateMachine.stopReactively().block();
-		stateMachine.getStateMachineAccessor().doWithAllRegions(function -> function.resetStateMachine(context));
+		stateMachine.getStateMachineAccessor().doWithAllRegions(function -> function.resetStateMachineReactively(context).block());
 		stateMachine.startReactively().block();
 	}
 
