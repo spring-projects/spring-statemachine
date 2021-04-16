@@ -296,7 +296,7 @@ public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implem
 						log.debug("Joining with context " + context);
 					}
 
-					delegate.getStateMachineAccessor().doWithAllRegions(function -> function.resetStateMachine(context));
+					delegate.getStateMachineAccessor().doWithAllRegions(function -> function.resetStateMachineReactively(context).block());
 				}
 				log.info("Requesting to start delegating state machine " + delegate);
 				log.info("Delegating machine id " + delegate.getUuid());

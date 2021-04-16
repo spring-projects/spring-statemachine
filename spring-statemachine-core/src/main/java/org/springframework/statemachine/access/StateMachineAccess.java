@@ -42,7 +42,9 @@ public interface StateMachineAccess<S, E> extends ReactiveStateMachineAccess<S, 
 	 * Reset state machine.
 	 *
 	 * @param stateMachineContext the state machine context
+	 * @see #resetStateMachineReactively(StateMachineContext)
 	 */
+	@Deprecated
 	void resetStateMachine(StateMachineContext<S, E> stateMachineContext);
 
 	/**

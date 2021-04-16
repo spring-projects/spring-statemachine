@@ -15,16 +15,6 @@
  */
 package org.springframework.statemachine.support;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
@@ -69,9 +59,18 @@ import org.springframework.statemachine.trigger.TriggerContext;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Base implementation of a {@link StateMachine} loosely modelled from UML state
@@ -763,20 +762,13 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 								.then();
 							mono = mono.then(resetMono);
 						}  else if (s.isOrthogonal() && stateMachineContext.getChilds() != null) {
-							Collection<Region<S, E>> regions = ((AbstractState<S, E>)s).getRegions();
-							Mono<Void> resetMono = Flux.fromIterable(regions)
-								.flatMap(region -> {
-									return Flux.fromIterable(stateMachineContext.getChilds())
-										.flatMap(child -> {
-											return Mono.fromRunnable(() -> {
-												((StateMachine<S, E>)region).getStateMachineAccessor()
-													.doWithRegion(function -> function.resetStateMachine(child));
-											});
-										})
-										.then();
-								})
-								.then();
-							mono = mono.then(resetMono);
+							Collection<Region<S, E>> regions = ((AbstractState<S, E>) s).getRegions();
+							Mono<Void> resetMono = Flux.fromIterable(regions).flatMap(region ->
+									Flux.fromIterable(stateMachineContext.getChilds()).flatMap(child ->
+											((StateMachine<S, E>) region).getStateMachineAccessor().withRegion().resetStateMachineReactively(child)
+									).then()
+							).then();
+							mono = mono.thenEmpty(resetMono);
 						}
 
 						if (log.isDebugEnabled()) {
@@ -787,21 +779,17 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 						break;
 					} else if (stateMachineContext.getChilds() != null && !stateMachineContext.getChilds().isEmpty()) {
 						if (s.isOrthogonal()) {
-							Collection<Region<S, E>> regions = ((AbstractState<S, E>)s).getRegions();
-							Mono<Void> resetMono = Flux.fromIterable(regions)
-								.flatMap(region -> {
-									return Flux.fromIterable(stateMachineContext.getChilds())
-										.flatMap(child -> {
-											return Mono.fromRunnable(() -> {
-												if (ObjectUtils.nullSafeEquals(region.getId(), child.getId())) {
-													((StateMachine<S, E>)region).getStateMachineAccessor()
-														.doWithRegion(function -> function.resetStateMachine(child));
-												}
-											});
-										})
-										.then();
-								})
-								.then();
+							Collection<Region<S, E>> regions = ((AbstractState<S, E>) s).getRegions();
+							Mono<Void> resetMono = Flux.fromIterable(regions).flatMap(region ->
+									Flux.fromIterable(stateMachineContext.getChilds()).flatMap(child -> {
+										if (ObjectUtils.nullSafeEquals(region.getId(), child.getId())) {
+											return ((StateMachine<S, E>) region).getStateMachineAccessor()
+													.withRegion().resetStateMachineReactively(child);
+										} else {
+											return Mono.empty();
+										}
+									}).then()
+							).then();
 							monos.add(resetMono);
 						} else {
 							Mono<Void> mono = Mono.empty();
