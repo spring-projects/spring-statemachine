@@ -4,12 +4,9 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - master
+      - main
     paths-ignore:
       - '.github/**'
-  pull_request:
-    branches:
-      - master
 
 jobs:
 
@@ -75,7 +72,7 @@ jobs:
           --server-id-deploy=repo.spring.io \
           --repo-resolve=snapshot \
           --repo-deploy=snapshot
-        echo JFROG_CLI_BUILD_NAME=spring-statemachine >> $GITHUB_ENV
+        echo JFROG_CLI_BUILD_NAME=spring-statemachine-main >> $GITHUB_ENV
         echo JFROG_CLI_BUILD_NUMBER=$GITHUB_RUN_NUMBER >> $GITHUB_ENV
 
     # as we already tested just build and publish

@@ -64,7 +64,7 @@ project's `build/libs` directory.
 
 NOTE: The filenames for the jars to which we refer in this section are populated during a
 build of this document, meaning that, if you build samples from
-master, you have files with a `BUILD-SNAPSHOT` postfix.
+main, you have files with a `BUILD-SNAPSHOT` postfix.
 
 include::sm-examples-turnstile.adoc[]
 include::sm-examples-turnstilereactive.adoc[]

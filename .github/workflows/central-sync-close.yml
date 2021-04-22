@@ -13,10 +13,10 @@ jobs:
     steps:
 
     # Request close promotion repo
-    - uses: jvalkeal/nexus-sync@main
+    - uses: jvalkeal/nexus-sync@v0
       with:
-        username: ${{ secrets.OSSRH_TOKEN_USERNAME }}
-        password: ${{ secrets.OSSRH_TOKEN_PASSWORD }}
+        username: ${{ secrets.OSSRH_S01_TOKEN_USERNAME }}
+        password: ${{ secrets.OSSRH_S01_TOKEN_PASSWORD }}
         staging-profile-name: ${{ secrets.OSSRH_STAGING_PROFILE_NAME }}
         staging-repo-id: ${{ github.event.inputs.stagedRepositoryId }}
         close: true
