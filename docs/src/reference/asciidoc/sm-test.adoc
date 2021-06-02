@@ -35,7 +35,7 @@ include::samples/DocsTestSampleTests.java[tags=snippetA]
 
 These utilities are also used within a framework to test distributed
 state machine features. Note that you can add multiple machines to a plan.
-If you add multiple machines, yuo can also choose to
+If you add multiple machines, you can also choose to
 send an event a particular machine, a random machine, or all machines.
 
 The preceding testing example uses the following Hamcrest imports:
