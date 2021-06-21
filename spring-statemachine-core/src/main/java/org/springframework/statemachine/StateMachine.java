@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine;
 
+import java.util.Optional;
 import org.springframework.statemachine.access.StateMachineAccessor;
 import org.springframework.statemachine.region.Region;
 import org.springframework.statemachine.state.State;
@@ -65,4 +66,11 @@ public interface StateMachine<S, E> extends Region<S, E> {
 	 */
 	boolean hasStateMachineError();
 
+	/**
+	 * If there was an exception that caused the transition to be denied - return that
+	 * @return Optional Throwable that caused the transition to be denied
+	 */
+	default Optional<Throwable> getDenialCause() {
+		return Optional.empty();
+	};
 }
