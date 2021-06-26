@@ -19,6 +19,8 @@ jobs:
   # jobs can work on it.
   staging:
     runs-on: ubuntu-latest
+    outputs:
+      project-version: ${{ steps.output.outputs.project-version }}
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-java@v1
@@ -61,6 +63,12 @@ jobs:
         tag-release-branch: ${{ env.PROJECT_VERSION }}
         tag-release-tag: ${{ env.PROJECT_VERSION }}
         tag-release-tag-prefix: v
+    - name: Output
+      id: output
+      env:
+        PROJECT_VERSION: ${{ env.PROJECT_VERSION }}
+      run: |
+        echo "::set-output name=project-version::$PROJECT_VERSION"
 
   # wait manual approval.
   # promote build from staging to milestones
@@ -92,3 +100,53 @@ jobs:
     - name: Promote Build
       run: |
         jfrog rt build-promote libs-milestone-local
+
+  ghrelease:
+    runs-on: ubuntu-latest
+    needs: [staging, promote]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Tooling
+      run: |
+        curl -sSL https://github.com/cbroglie/mustache/releases/download/v1.2.2/mustache_1.2.2_linux_amd64.tar.gz | sudo tar -C /usr/local/bin/ --no-same-owner -xzv mustache
+    - name: GitHub Release
+      env:
+        PROJECT_VERSION: ${{needs.staging.outputs.project-version}}
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        RELEASE_NOTES_FILE: ${{runner.temp}}/release_notes.md5
+        RELEASE_NOTES_DATA: ${{runner.temp}}/release_notes_data.json
+        RELEASE_NOTES_HEADERS: ${{runner.temp}}/release_notes_headers.json
+        RELEASE_NOTES_FOOTERS: ${{runner.temp}}/release_notes_footers.json
+        RELEASE_NOTES_ISSUES: ${{runner.temp}}/release_notes_issues.json
+      run: |
+        gh issue list \
+          --repo spring-projects/spring-statemachine \
+          --milestone $PROJECT_VERSION \
+          --label automation/rlnotes-header  \
+          --state all --json title,body \
+          --jq '{headers:map(.),headerslength:(length)}' \
+          > $RELEASE_NOTES_HEADERS
+        gh issue list \
+          --repo spring-projects/spring-statemachine \
+          --milestone $PROJECT_VERSION \
+          --label automation/rlnotes-footer  \
+          --state all --json title,body \
+          --jq '{footers:map(.),footerslength:(length)}' \
+          > $RELEASE_NOTES_FOOTERS
+        gh issue list \
+          --repo spring-projects/spring-statemachine \
+          --milestone $PROJECT_VERSION \
+          --state all --json number,title,labels \
+          --jq '{issues:map(select((.labels | length == 0) or (any(.labels[].name; startswith("automation/rlnotes")|not))))}' \
+          > $RELEASE_NOTES_ISSUES
+        jq -s '{issues:(.[0].issues),headers:(.[1].headers),headerslength:(.[1].headerslength),footers:(.[2].footers), footerslength:(.[2].footerslength)}' \
+          $RELEASE_NOTES_ISSUES \
+          $RELEASE_NOTES_HEADERS \
+          $RELEASE_NOTES_FOOTERS \
+          > $RELEASE_NOTES_DATA
+        mustache $RELEASE_NOTES_DATA .github/rlnotes.mustache > $RELEASE_NOTES_FILE
+        gh release create v$PROJECT_VERSION \
+          --draft \
+          --prerelease \
+          --title "$PROJECT_VERSION" \
+          --notes-file $RELEASE_NOTES_FILE
