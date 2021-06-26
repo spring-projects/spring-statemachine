@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 the original author or authors.
+ * Copyright 2017-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -165,8 +165,7 @@ public class DefaultStateMachineService<S, E> implements StateMachineService<S, 
 			return stateMachine;
 		}
 		stateMachine.stopReactively().block();
-		// only go via top region
-		stateMachine.getStateMachineAccessor().doWithRegion(function -> function.resetStateMachineReactively(stateMachineContext).block());
+		stateMachine.getStateMachineAccessor().doWithAllRegions(function -> function.resetStateMachineReactively(stateMachineContext).block());
 		return stateMachine;
 	}
 
