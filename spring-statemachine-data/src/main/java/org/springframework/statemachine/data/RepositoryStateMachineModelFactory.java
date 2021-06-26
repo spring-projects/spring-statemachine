@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 the original author or authors.
+ * Copyright 2016-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -199,6 +199,7 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 		for (RepositoryTransition t : transitionRepository.findByMachineId(machineId == null ? "" : machineId)) {
 
 			Collection<Action<String, String>> actions = new ArrayList<Action<String, String>>();
+			Collection<Action<String, String>> originalActions = new ArrayList<>();
 			Set<? extends RepositoryAction> repositoryActions = t.getActions();
 			if (repositoryActions != null) {
 				for (RepositoryAction repositoryAction : repositoryActions) {
@@ -213,6 +214,7 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 					}
 					if (action != null) {
 						actions.add(action);
+						originalActions.add(action);
 					}
 				}
 			}
@@ -232,12 +234,11 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 					list = new LinkedList<ChoiceData<String, String>>();
 					choices.put(t.getSource().getState(), list);
 				}
-				guard = resolveGuard(t);
 				// we want null guards to be at the end
 				if (guard == null) {
-					list.addLast(new ChoiceData<String, String>(t.getSource().getState(), t.getTarget().getState(), guard));
+					list.addLast(new ChoiceData<String, String>(t.getSource().getState(), t.getTarget().getState(), guard, originalActions));
 				} else {
-					list.addFirst(new ChoiceData<String, String>(t.getSource().getState(), t.getTarget().getState(), guard));
+					list.addFirst(new ChoiceData<String, String>(t.getSource().getState(), t.getTarget().getState(), guard, originalActions));
 				}
 			} else if (t.getSource().getKind() == PseudoStateKind.JUNCTION) {
 				LinkedList<JunctionData<String, String>> list = junctions.get(t.getSource().getState());
@@ -245,12 +246,11 @@ public class RepositoryStateMachineModelFactory extends AbstractStateMachineMode
 					list = new LinkedList<JunctionData<String, String>>();
 					junctions.put(t.getSource().getState(), list);
 				}
-				guard = resolveGuard(t);
 				// we want null guards to be at the end
 				if (guard == null) {
-					list.addLast(new JunctionData<String, String>(t.getSource().getState(), t.getTarget().getState(), guard));
+					list.addLast(new JunctionData<String, String>(t.getSource().getState(), t.getTarget().getState(), guard, originalActions));
 				} else {
-					list.addFirst(new JunctionData<String, String>(t.getSource().getState(), t.getTarget().getState(), guard));
+					list.addFirst(new JunctionData<String, String>(t.getSource().getState(), t.getTarget().getState(), guard, originalActions));
 				}
 			} else if (t.getSource().getKind() == PseudoStateKind.FORK) {
 				List<String> list = forks.get(t.getSource().getState());
