@@ -168,7 +168,7 @@ public class DefaultStateMachineService<S, E> implements StateMachineService<S, 
 		}
 		stateMachine.stop();
 		// only go via top region
-		stateMachine.getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S, E>>() {
+		stateMachine.getStateMachineAccessor().doWithAllRegions(new StateMachineFunction<StateMachineAccess<S, E>>() {
 
 			@Override
 			public void apply(StateMachineAccess<S, E> function) {
