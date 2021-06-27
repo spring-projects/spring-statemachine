@@ -1,11 +1,11 @@
 /*
- * Copyright 2019-2020 the original author or authors.
+ * Copyright 2019-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine;
 
+import java.util.Optional;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.region.Region;
 
@@ -60,6 +61,14 @@ public interface StateMachineEventResult<S, E> {
 	Mono<Void> complete();
 
 	/**
+	 * If there was an exception that caused the transition to be denied - return that
+	 * @return Optional Throwable that caused the transition to be denied
+	 */
+	default Optional<Throwable> getDenialCause() {
+		return Optional.empty();
+	};
+
+	/**
 	 * Enumeration of a result type indicating whether a region accepted, denied or
 	 * deferred an event.
 	 */
@@ -82,7 +91,7 @@ public interface StateMachineEventResult<S, E> {
 	 */
 	public static <S, E> StateMachineEventResult<S, E> from(Region<S, E> region, Message<E> message,
 			ResultType resultType) {
-		return new DefaultStateMachineEventResult<>(region, message, resultType, null);
+		return new DefaultStateMachineEventResult<>(region, message, resultType, null, null);
 	}
 
 
@@ -100,7 +109,24 @@ public interface StateMachineEventResult<S, E> {
 	 */
 	public static <S, E> StateMachineEventResult<S, E> from(Region<S, E> region, Message<E> message,
 			ResultType resultType, Mono<Void> complete) {
-		return new DefaultStateMachineEventResult<>(region, message, resultType, complete);
+		return new DefaultStateMachineEventResult<>(region, message, resultType, complete, null);
+	}
+
+	/**
+	 * Create a {@link StateMachineEventResult} from a {@link Region},
+	 * {@link Message} and a {@link ResultType}.
+	 *
+	 * @param <S>        the type of state
+	 * @param <E>        the type of event
+	 * @param region     the region
+	 * @param message    the message
+	 * @param resultType the result type
+	 * @param denialCause the throwable (that most likely caused transition denial)
+	 * @return the state machine event result
+	 */
+	public static <S, E> StateMachineEventResult<S, E> from(Region<S, E> region, Message<E> message,
+			ResultType resultType, Throwable denialCause) {
+		return new DefaultStateMachineEventResult<>(region, message, resultType, null, denialCause);
 	}
 
 	static class DefaultStateMachineEventResult<S, E> implements StateMachineEventResult<S, E> {
@@ -109,13 +135,15 @@ public interface StateMachineEventResult<S, E> {
 		private final Message<E> message;
 		private final ResultType resultType;
 		private Mono<Void> complete;
+		private Throwable denialCause;
 
 		DefaultStateMachineEventResult(Region<S, E> region, Message<E> message, ResultType resultType,
-				Mono<Void> complete) {
+				Mono<Void> complete, Throwable denialCause) {
 			this.region = region;
 			this.message = message;
 			this.resultType = resultType;
 			this.complete = complete != null ? complete : Mono.empty();
+			this.denialCause = denialCause;
 		}
 
 		@Override
@@ -136,6 +164,11 @@ public interface StateMachineEventResult<S, E> {
 		@Override
 		public Mono<Void> complete() {
 			return complete;
+		}
+
+		@Override
+		public Optional<Throwable> getDenialCause() {
+			return Optional.ofNullable(denialCause);
 		}
 
 		@Override

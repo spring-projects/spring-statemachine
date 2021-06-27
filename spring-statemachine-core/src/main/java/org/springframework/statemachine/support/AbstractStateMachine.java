@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -98,8 +97,6 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	private final Message<E> initialEvent;
 
 	private ExtendedState extendedState;
-
-	private Throwable denialCause;
 
 	private TransitionConflictPolicy transitionConflictPolicy;
 
@@ -501,11 +498,6 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	}
 
 	@Override
-	public Optional<Throwable> getDenialCause() {
-		return Optional.ofNullable(denialCause);
-	}
-
-	@Override
 	public void addStateListener(StateMachineListener<S, E> listener) {
 		getStateListener().register(listener);
 	}
@@ -628,12 +620,12 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	private Flux<StateMachineEventResult<S, E>> handleEvent(Message<E> message) {
 		if (hasStateMachineError()) {
-			return Flux.just(StateMachineEventResult.<S, E>from(this, message, ResultType.DENIED));
+			return Flux.just(StateMachineEventResult.<S, E>from(this, message, ResultType.DENIED, currentError.getCause()));
 		}
 		return Mono.just(message)
 			.map(m -> getStateMachineInterceptors().preEvent(m, this))
 			.flatMapMany(m -> acceptEvent(m))
-			.onErrorResume(error -> Flux.just(StateMachineEventResult.<S, E>from(this, message, ResultType.DENIED)))
+			.onErrorResume(error -> Flux.just(StateMachineEventResult.<S, E>from(this, message, ResultType.DENIED, error.getCause())))
 			.doOnNext(notifyOnDenied());
 	}
 
@@ -676,8 +668,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 													}))
 													.onErrorResume(t -> {
 														return Mono.defer(() -> {
-															denialCause = t.getCause();
-															return Mono.just(StateMachineEventResult.<S, E>from(this, message, ResultType.DENIED));
+															return Mono.just(StateMachineEventResult.<S, E>from(this, message, ResultType.DENIED, t.getCause()));
 														});
 													});
 											} else {
