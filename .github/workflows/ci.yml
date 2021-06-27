@@ -55,7 +55,7 @@ jobs:
         java-version: 1.8
     - uses: jfrog/setup-jfrog-cli@v1
       with:
-        version: 1.46.4
+        version: 1.50.0
       env:
         JF_ARTIFACTORY_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
 
