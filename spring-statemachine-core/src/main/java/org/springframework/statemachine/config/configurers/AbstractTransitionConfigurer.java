@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ public abstract class AbstractTransitionConfigurer<S, E> extends
 	private final Collection<Action<S, E>> actions = new ArrayList<>();
 	private Guard<S, E> guard;
 	private SecurityRule securityRule;
+	private String name;
 
 	protected S getSource() {
 		return source;
@@ -87,6 +88,10 @@ public abstract class AbstractTransitionConfigurer<S, E> extends
 
 	protected SecurityRule getSecurityRule() {
 		return securityRule;
+	}
+	
+	protected String getName() {
+		return name;
 	}
 
 	protected void setSource(S source) {
@@ -141,6 +146,10 @@ public abstract class AbstractTransitionConfigurer<S, E> extends
 			securityRule = new SecurityRule();
 		}
 		securityRule.setExpression(expression);
+	}
+	
+	protected void setName(String name) {
+		this.name = name;
 	}
 
 }

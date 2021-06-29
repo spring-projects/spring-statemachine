@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 the original author or authors.
+ * Copyright 2015-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 	private final Guard<S, E> guard;
 	private final Trigger<S, E> trigger;
 	private final SecurityRule securityRule;
+	private final String name;
 	private CompositeActionListener<S, E> actionListener;
 
 	/**
@@ -62,7 +63,23 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 	 */
 	public AbstractTransition(State<S, E> source, State<S, E> target, Collection<Action<S, E>> actions, E event, TransitionKind kind,
 			Guard<S, E> guard, Trigger<S, E> trigger) {
-		this(source, target, actions, event, kind, guard, trigger, null);
+		this(source, target, actions, event, kind, guard, trigger, null, null);
+	}
+	
+	/**
+	 * Instantiates a new abstract transition.
+	 *
+	 * @param source the source
+	 * @param target the target
+	 * @param actions the actions
+	 * @param event the event
+	 * @param kind the kind
+	 * @param guard the guard
+	 * @param trigger the trigger
+	 */
+	public AbstractTransition(State<S, E> source, State<S, E> target, Collection<Action<S, E>> actions, E event, TransitionKind kind,
+			Guard<S, E> guard, Trigger<S, E> trigger, SecurityRule securityRule) {
+		this(source, target, actions, event, kind, guard, trigger, securityRule, null);
 	}
 
 	/**
@@ -78,7 +95,7 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 	 * @param securityRule the security rule
 	 */
 	public AbstractTransition(State<S, E> source, State<S, E> target, Collection<Action<S, E>> actions, E event, TransitionKind kind,
-			Guard<S, E> guard, Trigger<S, E> trigger, SecurityRule securityRule) {
+			Guard<S, E> guard, Trigger<S, E> trigger, SecurityRule securityRule, String name) {
 		Assert.notNull(kind, "Transition type must be set");
 		this.source = source;
 		this.target = target;
@@ -87,6 +104,7 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 		this.guard = guard;
 		this.trigger = trigger;
 		this.securityRule = securityRule;
+		this.name = (name == null) ? "" : name;
 	}
 
 	@Override
@@ -133,6 +151,11 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 	@Override
 	public State<S, E> getTarget() {
 		return target;
+	}
+	
+	@Override
+	public String getName() {
+		return name;
 	}
 
 	@Override
