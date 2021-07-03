@@ -35,7 +35,7 @@ jobs:
           --server-id-deploy=repo.spring.io \
           --repo-resolve=libs-release \
           --repo-deploy=libs-staging-local
-        echo JFROG_CLI_BUILD_NAME=spring-statemachine-24x-release >> $GITHUB_ENV
+        echo JFROG_CLI_BUILD_NAME=spring-statemachine-25x-release >> $GITHUB_ENV
         echo JFROG_CLI_BUILD_NUMBER=$GITHUB_RUN_NUMBER >> $GITHUB_ENV
     # switch from snapshot to a release version and extract project
     # version to get used with tagging
@@ -82,7 +82,7 @@ jobs:
           --server-id-deploy=repo.spring.io \
           --repo-resolve=libs-release \
           --repo-deploy=libs-staging-local
-        echo JFROG_CLI_BUILD_NAME=spring-statemachine-24x-release >> $GITHUB_ENV
+        echo JFROG_CLI_BUILD_NAME=spring-statemachine-25x-release >> $GITHUB_ENV
         echo JFROG_CLI_BUILD_NUMBER=$GITHUB_RUN_NUMBER >> $GITHUB_ENV
     # promoting build from staging repo into release
     - name: Promote Build
@@ -94,7 +94,7 @@ jobs:
         jfrog rt gradle nextVersion
     - uses: jvalkeal/build-zoo-handler@v0.0.4
       with:
-        commit-changes-branch: 2.4.x
+        commit-changes-branch: 2.5.x
         commit-changes-message: Next development version
 
   # wait manual approval.
@@ -116,7 +116,7 @@ jobs:
     # prepare env for cli do download released files
     - name: Configure JFrog Cli
       run: |
-        echo JFROG_CLI_BUILD_NAME=spring-statemachine-24x-release >> $GITHUB_ENV
+        echo JFROG_CLI_BUILD_NAME=spring-statemachine-25x-release >> $GITHUB_ENV
         echo JFROG_CLI_BUILD_NUMBER=$GITHUB_RUN_NUMBER >> $GITHUB_ENV
     # download released files for a build.
     # spec file defines files we actually need for central

@@ -3,7 +3,7 @@ name: PR
 on:
   pull_request:
     branches:
-      - 2.4.x
+      - 2.5.x
 
 jobs:
 

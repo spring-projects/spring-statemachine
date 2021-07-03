@@ -39,7 +39,7 @@ jobs:
           --server-id-deploy=repo.spring.io \
           --repo-resolve=libs-milestone \
           --repo-deploy=libs-staging-local
-        echo JFROG_CLI_BUILD_NAME=spring-statemachine-24x-milestone >> $GITHUB_ENV
+        echo JFROG_CLI_BUILD_NAME=spring-statemachine-25x-milestone >> $GITHUB_ENV
         echo JFROG_CLI_BUILD_NUMBER=$GITHUB_RUN_NUMBER >> $GITHUB_ENV
     # switch from snapshot to a release version and extract project
     # version to get used with tagging
@@ -86,7 +86,7 @@ jobs:
           --server-id-deploy=repo.spring.io \
           --repo-resolve=libs-milestone \
           --repo-deploy=libs-staging-local
-        echo JFROG_CLI_BUILD_NAME=spring-statemachine-24x-milestone >> $GITHUB_ENV
+        echo JFROG_CLI_BUILD_NAME=spring-statemachine-25x-milestone >> $GITHUB_ENV
         echo JFROG_CLI_BUILD_NUMBER=$GITHUB_RUN_NUMBER >> $GITHUB_ENV
     # promoting build from staging repo into release
     - name: Promote Build
