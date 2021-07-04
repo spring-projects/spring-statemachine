@@ -695,6 +695,61 @@ configure(rootProject) {
 		}
 	}
 
+	task nextVersion {
+		doLast{
+			def properties = new Properties()
+			def file = new File('gradle.properties')
+			properties.load(file.newDataInputStream())
+			def currentVersion = properties.getProperty('version')
+			if (currentVersion.indexOf('-SNAPSHOT') < 0) {
+				throw new GradleException('Version is a non SNAPSHOT version')
+			} else {
+				def (major, minor, patch) = version.tokenize('.')
+				patch = patch.replace('-SNAPSHOT', '')
+				patch = String.valueOf(patch.toInteger() + 1)
+				def nextVersion = major + '.' + minor + '.' + patch + '-SNAPSHOT'
+				properties.setProperty('version', nextVersion)
+				properties.store(file.newWriter(), null)
+			}
+		}
+	}
+
+	task milestoneVersion {
+		doLast{
+			def postfix = project.getProperty('statemachineMilestone')
+			if (!(postfix ==~ /(?:M|RC)\d+/)) {
+				throw new GradleException('Illegal milestone version')
+			}
+			def properties = new Properties()
+			def file = new File('gradle.properties')
+			properties.load(file.newDataInputStream())
+			def currentVersion = properties.getProperty('version')
+			if (currentVersion.indexOf('-SNAPSHOT') > 0) {
+				def nextVersion = currentVersion - '-SNAPSHOT' + '-' + postfix
+				properties.setProperty('version', nextVersion)
+				properties.store(file.newWriter(), null)
+			} else {
+				throw new GradleException('Version is not a SNAPSHOT version')
+			}
+		}
+	}
+
+	task releaseVersion {
+		doLast{
+			def properties = new Properties()
+			def file = new File('gradle.properties')
+			properties.load(file.newDataInputStream())
+			def currentVersion = properties.getProperty('version')
+			if (currentVersion.indexOf('-SNAPSHOT') > 0) {
+				def nextVersion = currentVersion - '-SNAPSHOT'
+				properties.setProperty('version', nextVersion)
+				properties.store(file.newWriter(), null)
+			} else {
+				throw new GradleException('Version is not a SNAPSHOT version')
+			}
+		}
+	}
+
 	artifacts {
 		archives docsZip
 		archives distZip
