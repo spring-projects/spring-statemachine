@@ -740,8 +740,8 @@ configure(rootProject) {
 			def file = new File('gradle.properties')
 			properties.load(file.newDataInputStream())
 			def currentVersion = properties.getProperty('version')
-			if (currentVersion.indexOf('-SNAPSHOT') > 0) {
-				def nextVersion = currentVersion - '-SNAPSHOT'
+			if (currentVersion.indexOf('.BUILD-SNAPSHOT') > 0) {
+				def nextVersion = currentVersion - '.BUILD-SNAPSHOT'
 				properties.setProperty('version', nextVersion)
 				properties.store(file.newWriter(), null)
 			} else {
