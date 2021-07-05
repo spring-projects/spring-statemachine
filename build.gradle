@@ -499,6 +499,20 @@ project('spring-statemachine-samples-common') {
 configure(rootProject) {
 	description = 'Spring State Machine'
 
+	pluginManager.withPlugin('com.jfrog.artifactory') {
+		artifactory {
+		    publish {
+		        defaults {
+					properties {
+						archives '*:*:*:*@zip', 'zip.deployed': false, 'zip.name': 'spring-statemachine', 'zip.displayname': 'Spring Statemachine'
+						archives '*:*:*:docs@zip', 'zip.type': 'docs'
+						archives '*:*:*:dist@zip', 'zip.type': 'dist'
+					}
+		        }
+		    }
+		}
+	}
+
 	dependencies {
 		// just used to get version into docs
 		compile "org.springframework:spring-core"
@@ -701,13 +715,13 @@ configure(rootProject) {
 			def file = new File('gradle.properties')
 			properties.load(file.newDataInputStream())
 			def currentVersion = properties.getProperty('version')
-			if (currentVersion.indexOf('-SNAPSHOT') < 0) {
+			if (currentVersion.indexOf('.BUILD-SNAPSHOT') < 0) {
 				throw new GradleException('Version is a non SNAPSHOT version')
 			} else {
 				def (major, minor, patch) = version.tokenize('.')
-				patch = patch.replace('-SNAPSHOT', '')
+				patch = patch.replace('.BUILD-SNAPSHOT', '')
 				patch = String.valueOf(patch.toInteger() + 1)
-				def nextVersion = major + '.' + minor + '.' + patch + '-SNAPSHOT'
+				def nextVersion = major + '.' + minor + '.' + patch + '.BUILD-SNAPSHOT'
 				properties.setProperty('version', nextVersion)
 				properties.store(file.newWriter(), null)
 			}
@@ -725,7 +739,7 @@ configure(rootProject) {
 			properties.load(file.newDataInputStream())
 			def currentVersion = properties.getProperty('version')
 			if (currentVersion.indexOf('.BUILD-SNAPSHOT') > 0) {
-				def nextVersion = currentVersion - '.BUILD-SNAPSHOT' + '-' + postfix
+				def nextVersion = currentVersion - '.BUILD-SNAPSHOT' + '.' + postfix
 				properties.setProperty('version', nextVersion)
 				properties.store(file.newWriter(), null)
 			} else {
@@ -741,7 +755,7 @@ configure(rootProject) {
 			properties.load(file.newDataInputStream())
 			def currentVersion = properties.getProperty('version')
 			if (currentVersion.indexOf('.BUILD-SNAPSHOT') > 0) {
-				def nextVersion = currentVersion - '.BUILD-SNAPSHOT'
+				def nextVersion = currentVersion - '.BUILD-SNAPSHOT' + '.RELEASE'
 				properties.setProperty('version', nextVersion)
 				properties.store(file.newWriter(), null)
 			} else {
