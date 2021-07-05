@@ -496,6 +496,20 @@ project('spring-statemachine-samples-common') {
 configure(rootProject) {
 	description = 'Spring State Machine'
 
+	pluginManager.withPlugin('com.jfrog.artifactory') {
+		artifactory {
+		    publish {
+		        defaults {
+					properties {
+						archives '*:*:*:*@zip', 'zip.deployed': false, 'zip.name': 'spring-statemachine', 'zip.displayname': 'Spring Statemachine'
+						archives '*:*:*:docs@zip', 'zip.type': 'docs'
+						archives '*:*:*:dist@zip', 'zip.type': 'dist'
+					}
+		        }
+		    }
+		}
+	}
+
 	dependencies {
 		// just used to get version into docs
 		compile "org.springframework:spring-core"
