@@ -38,3 +38,44 @@ jobs:
       with:
         name: buildlogs
         path: build/buildlogs.tar.gz
+
+  # if build job succeed, build without tests and publish
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+    - uses: jfrog/setup-jfrog-cli@v1
+      with:
+        version: 1.50.0
+      env:
+        JF_ARTIFACTORY_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
+
+    # setup non persistent config for jfrog gradle to use server defined in
+    # secret which points via virtual repo into spring local repo.
+    # modify default build name and number as we don't like how those
+    # gets used from action defaults.
+    - name: Configure JFrog Cli
+      run: |
+        jfrog rt gradlec \
+          --use-wrapper \
+          --deploy-ivy-desc=false \
+          --server-id-resolve=repo.spring.io \
+          --server-id-deploy=repo.spring.io \
+          --repo-resolve=snapshot \
+          --repo-deploy=snapshot
+        echo JFROG_CLI_BUILD_NAME=spring-statemachine-23x >> $GITHUB_ENV
+        echo JFROG_CLI_BUILD_NUMBER=$GITHUB_RUN_NUMBER >> $GITHUB_ENV
+
+    # as we already tested just build and publish
+    - name: Build and Publish Snapshot
+      run: |
+        jfrog rt gradle clean build -x test artifactoryPublish
+
+    # publish build info so that we can see it in artifactory "builds"
+    - name: Publish Build Info
+      run: |
+        jfrog rt build-publish
