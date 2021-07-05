@@ -51,7 +51,7 @@ jobs:
         generate-checksums: true
         pgp-sign: true
         pgp-sign-passphrase: ${{ secrets.GPG_PASSPHRASE }}
-        pgp-sign-private-key: ${{ secrets.GPG_PRIVATE_KEY_WITH_HEADER }}
+        pgp-sign-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
 
     # Print staging repo id
     - name: Print Staging Repo Id
