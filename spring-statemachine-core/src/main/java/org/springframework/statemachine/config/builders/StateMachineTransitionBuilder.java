@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -176,14 +176,14 @@ public class StateMachineTransitionBuilder<S, E>
 	 * @param securityRule the security rule
 	 */
 	public void addTransition(S source, S target, S state, E event, Long period, Integer count, Collection<Action<S, E>> actions,
-			Guard<S, E> guard, TransitionKind kind, SecurityRule securityRule) {
+			Guard<S, E> guard, TransitionKind kind, SecurityRule securityRule, String name) {
 		// if rule not given, get it from global
 		if (securityRule == null) {
 			@SuppressWarnings("unchecked")
 			ConfigurationData<S, E> config = getSharedObject(ConfigurationData.class);
 			securityRule = config.getTransitionSecurityRule();
 		}
-		transitionData.add(new TransitionData<>(source, target, state, event, period, count, actions, guard, kind, securityRule));
+		transitionData.add(new TransitionData<>(source, target, state, event, period, count, actions, guard, kind, securityRule, name));
 	}
 
 	/**
