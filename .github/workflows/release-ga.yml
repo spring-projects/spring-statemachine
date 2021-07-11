@@ -90,7 +90,7 @@ jobs:
           --server-id-deploy=repo.spring.io \
           --repo-resolve=libs-release \
           --repo-deploy=libs-staging-local
-        echo JFROG_CLI_BUILD_NAME=spring-statemachine-22x-release >> $GITHUB_ENV
+        echo JFROG_CLI_BUILD_NAME=spring-statemachine-24x-release >> $GITHUB_ENV
         echo JFROG_CLI_BUILD_NUMBER=$GITHUB_RUN_NUMBER >> $GITHUB_ENV
     # promoting build from staging repo into release
     - name: Promote Build
