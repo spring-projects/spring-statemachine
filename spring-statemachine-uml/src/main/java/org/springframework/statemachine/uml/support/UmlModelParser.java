@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 the original author or authors.
+ * Copyright 2016-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -432,13 +432,13 @@ public class UmlModelParser {
 								addTransitionData(new TransitionData<String, String>(resolveName(transition.getSource()),
 										cprentries.get(0).getName(), signal.getName(),
 										UmlUtils.resolveTransitionActionFunctions(transition, resolver), Guards.from(guard),
-										UmlUtils.mapUmlTransitionType(transition)));
+										UmlUtils.mapUmlTransitionType(transition), transition.getName()));
 							}
 						} else {
 							addTransitionData(new TransitionData<String, String>(resolveName(transition.getSource()),
 									resolveName(transition.getTarget()), signal.getName(),
 									UmlUtils.resolveTransitionActionFunctions(transition, resolver), Guards.from(guard),
-									UmlUtils.mapUmlTransitionType(transition)));
+									UmlUtils.mapUmlTransitionType(transition), transition.getName()));
 						}
 					}
 				} else if (event instanceof TimeEvent) {
@@ -451,7 +451,7 @@ public class UmlModelParser {
 						}
 						addTransitionData(new TransitionData<String, String>(resolveName(transition.getSource()),
 								resolveName(transition.getTarget()), period, count, UmlUtils.resolveTransitionActionFunctions(transition, resolver),
-								Guards.from(guard), UmlUtils.mapUmlTransitionType(transition)));
+								Guards.from(guard), UmlUtils.mapUmlTransitionType(transition), transition.getName()));
 					}
 				}
 			}
@@ -461,7 +461,7 @@ public class UmlModelParser {
 				addTransitionData(new TransitionData<String, String>(resolveName(transition.getSource()),
 						resolveName(transition.getTarget()), null,
 						UmlUtils.resolveTransitionActionFunctions(transition, resolver),
-						Guards.from(resolveGuard(transition)), UmlUtils.mapUmlTransitionType(transition)));
+						Guards.from(resolveGuard(transition)), UmlUtils.mapUmlTransitionType(transition), transition.getName()));
 			}
 		}
 	}

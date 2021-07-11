@@ -155,6 +155,11 @@ public class StateContextExpressionMethodsTests {
 		@Override
 		public void removeActionListener(ActionListener<SpelStates, SpelEvents> listener) {
 		}
+
+		@Override
+		public String getName() {
+			return "";
+		}
 	}
 
 	private static class MockStatemachine implements StateMachine<SpelStates, SpelEvents> {

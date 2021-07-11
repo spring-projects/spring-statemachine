@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,5 +58,23 @@ public class DefaultExternalTransition<S, E> extends AbstractExternalTransition<
 			Collection<Function<StateContext<S, E>, Mono<Void>>> actions, E event,
 			Function<StateContext<S, E>, Mono<Boolean>> guard, Trigger<S, E> trigger, SecurityRule securityRule) {
 		super(source, target, actions, event, guard, trigger, securityRule);
+	}
+
+	/**
+	 * Instantiates a new default external transition.
+	 *
+	 * @param source the source
+	 * @param target the target
+	 * @param actions the actions
+	 * @param event the event
+	 * @param guard the guard
+	 * @param trigger the trigger
+	 * @param securityRule the security rule
+	 * @param name the name
+	 */
+	public DefaultExternalTransition(State<S, E> source, State<S, E> target,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> actions, E event,
+			Function<StateContext<S, E>, Mono<Boolean>> guard, Trigger<S, E> trigger, SecurityRule securityRule, String name) {
+		super(source, target, actions, event, guard, trigger, securityRule, name);
 	}
 }
