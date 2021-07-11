@@ -40,7 +40,7 @@ public class InitialTransition<S, E> extends AbstractTransition<S, E> {
 	 * @param target the target
 	 */
 	public InitialTransition(State<S, E> target) {
-		super(null, target, null, null, TransitionKind.INITIAL, null, null, null);
+		super(null, target, null, null, TransitionKind.INITIAL, null, null, null, null);
 	}
 
 	/**
@@ -51,7 +51,7 @@ public class InitialTransition<S, E> extends AbstractTransition<S, E> {
 	 */
 	public InitialTransition(State<S, E> target, Function<StateContext<S, E>, Mono<Void>> action) {
 		super(null, target, action != null ? Collections.singleton(action) : null, null, TransitionKind.INITIAL, null,
-				null, null);
+				null, null, null);
 	}
 
 	/**
@@ -61,7 +61,7 @@ public class InitialTransition<S, E> extends AbstractTransition<S, E> {
 	 * @param actions the actions
 	 */
 	public InitialTransition(State<S, E> target, Collection<Function<StateContext<S, E>, Mono<Void>>> actions) {
-		super(null, target, actions, null, TransitionKind.INITIAL, null, null, null);
+		super(null, target, actions, null, TransitionKind.INITIAL, null, null, null, null);
 	}
 
 	@Override

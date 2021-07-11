@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2020 the original author or authors.
+ * Copyright 2015-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,23 @@ public class AbstractInternalTransition<S, E> extends AbstractTransition<S, E> {
 	public AbstractInternalTransition(State<S, E> source, Collection<Function<StateContext<S, E>, Mono<Void>>> actions,
 			E event, Function<StateContext<S, E>, Mono<Boolean>> guard, Trigger<S, E> trigger,
 			SecurityRule securityRule) {
-		super(source, source, actions, event, TransitionKind.INTERNAL, guard, trigger, securityRule);
+		super(source, source, actions, event, TransitionKind.INTERNAL, guard, trigger, securityRule, null);
+	}
+
+	/**
+	 * Instantiates a new abstract internal transition.
+	 *
+	 * @param source the source
+	 * @param actions the actions
+	 * @param event the event
+	 * @param guard the guard
+	 * @param trigger the trigger
+	 * @param securityRule the security rule
+	 * @param name the name
+	 */
+	public AbstractInternalTransition(State<S, E> source, Collection<Function<StateContext<S, E>, Mono<Void>>> actions,
+			E event, Function<StateContext<S, E>, Mono<Boolean>> guard, Trigger<S, E> trigger,
+			SecurityRule securityRule, String name) {
+		super(source, source, actions, event, TransitionKind.INTERNAL, guard, trigger, securityRule, name);
 	}
 }
