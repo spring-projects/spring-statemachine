@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public class DefaultInternalTransitionConfigurer<S, E> extends AbstractTransitio
 	@Override
 	public void configure(StateMachineTransitionBuilder<S, E> builder) throws Exception {
 		builder.addTransition(getSource(), getTarget(), getState(), getEvent(), getPeriod(), getCount(), getActions(), getGuard(), TransitionKind.INTERNAL,
-				getSecurityRule());
+				getSecurityRule(), getName());
 	}
 
 	@Override
@@ -107,6 +107,12 @@ public class DefaultInternalTransitionConfigurer<S, E> extends AbstractTransitio
 	@Override
 	public InternalTransitionConfigurer<S, E> secured(String expression) {
 		setSecurityRule(expression);
+		return this;
+	}
+
+	@Override
+	public InternalTransitionConfigurer<S, E> name(String name) {
+		setName(name);
 		return this;
 	}
 
