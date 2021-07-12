@@ -534,7 +534,6 @@ project('spring-statemachine-starter') {
 
 configure(sampleProjects()) {
 	apply plugin: 'org.springframework.boot'
-	// as samples are not published, we can use jdk8
 	compileJava {
 		sourceCompatibility = 1.8
 		targetCompatibility = 1.8
@@ -555,6 +554,10 @@ configure(sampleProjects()) {
 		testCompile("org.junit.jupiter:junit-jupiter-engine")
 	}
 	build.dependsOn bootJar
+
+	artifacts {
+		archives bootJar
+	}
 }
 
 project('spring-statemachine-samples-common') {
