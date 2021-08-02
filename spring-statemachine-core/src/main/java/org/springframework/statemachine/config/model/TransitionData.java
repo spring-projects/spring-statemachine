@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ public class TransitionData<S, E> {
 	private final Function<StateContext<S, E>, Mono<Boolean>> guard;
 	private final TransitionKind kind;
 	private final SecurityRule securityRule;
+	private final String name;
 
 	/**
 	 * Instantiates a new transition data.
@@ -50,7 +51,7 @@ public class TransitionData<S, E> {
 	 * @param event the event
 	 */
 	public TransitionData(S source, S target, E event) {
-		this(source, target, null, event, null, null, null, null, TransitionKind.EXTERNAL, null);
+		this(source, target, null, event, null, null, null, null, TransitionKind.EXTERNAL, null, null);
 	}
 
 	/**
@@ -65,7 +66,23 @@ public class TransitionData<S, E> {
 	 */
 	public TransitionData(S source, S target, E event, Collection<Function<StateContext<S, E>, Mono<Void>>> actions,
 			Function<StateContext<S, E>, Mono<Boolean>> guard, TransitionKind kind) {
-		this(source, target, null, event, null, null, actions, guard, kind, null);
+		this(source, target, null, event, null, null, actions, guard, kind, null, null);
+	}
+
+	/**
+	 * Instantiates a new transition data.
+	 *
+	 * @param source the source
+	 * @param target the target
+	 * @param event the event
+	 * @param actions the actions
+	 * @param guard the guard
+	 * @param kind the kind
+	 * @param name the name
+	 */
+	public TransitionData(S source, S target, E event, Collection<Function<StateContext<S, E>, Mono<Void>>> actions,
+			Function<StateContext<S, E>, Mono<Boolean>> guard, TransitionKind kind, String name) {
+		this(source, target, null, event, null, null, actions, guard, kind, null, name);
 	}
 
 	/**
@@ -82,7 +99,25 @@ public class TransitionData<S, E> {
 	public TransitionData(S source, S target, Long period, Integer count,
 			Collection<Function<StateContext<S, E>, Mono<Void>>> actions,
 			Function<StateContext<S, E>, Mono<Boolean>> guard, TransitionKind kind) {
-		this(source, target, null, null, period, count, actions, guard, kind, null);
+		this(source, target, null, null, period, count, actions, guard, kind, null, null);
+	}
+
+	/**
+	 * Instantiates a new transition data.
+	 *
+	 * @param source the source
+	 * @param target the target
+	 * @param period the period
+	 * @param count the count
+	 * @param actions the actions
+	 * @param guard the guard
+	 * @param kind the kind
+	 * @param name the name
+	 */
+	public TransitionData(S source, S target, Long period, Integer count,
+			Collection<Function<StateContext<S, E>, Mono<Void>>> actions,
+			Function<StateContext<S, E>, Mono<Boolean>> guard, TransitionKind kind, String name) {
+		this(source, target, null, null, period, count, actions, guard, kind, null, name);
 	}
 
 	/**
@@ -98,10 +133,11 @@ public class TransitionData<S, E> {
 	 * @param guard the guard
 	 * @param kind the kind
 	 * @param securityRule the security rule
+	 * @param name the name
 	 */
 	public TransitionData(S source, S target, S state, E event, Long period, Integer count,
 			Collection<Function<StateContext<S, E>, Mono<Void>>> actions,
-			Function<StateContext<S, E>, Mono<Boolean>> guard, TransitionKind kind, SecurityRule securityRule) {
+			Function<StateContext<S, E>, Mono<Boolean>> guard, TransitionKind kind, SecurityRule securityRule, String name) {
 		this.source = source;
 		this.target = target;
 		this.state = state;
@@ -112,6 +148,7 @@ public class TransitionData<S, E> {
 		this.guard = guard;
 		this.kind = kind;
 		this.securityRule = securityRule;
+		this.name = (name == null) ? "" : name;
 	}
 
 	/**
@@ -202,5 +239,14 @@ public class TransitionData<S, E> {
 	 */
 	public SecurityRule getSecurityRule() {
 		return securityRule;
+	}
+
+	/**
+	 * Gets the name,
+	 *
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
 	}
 }
