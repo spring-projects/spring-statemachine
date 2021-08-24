@@ -73,7 +73,7 @@ in a future releases.
 [IMPORTANT]
 ====
 Please read an appendix <<appendix-reactormigrationguide>> carefully as it will steer you
-through a process of migrating into `3.x` for cases we're not handling internallyl.
+through a process of migrating into `3.x` for cases we're not handling internally.
 ====
 
 At this point most of a documentation has been changed to showcase reactive interfaces
