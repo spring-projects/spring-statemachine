@@ -126,10 +126,10 @@ public abstract class UmlUtils {
 	 * @param resolver the state machine component resolver
 	 * @return the collection of actions
 	 */
-	public static Collection<Action<String, String>> resolveTransitionActions(Transition transition,
-			StateMachineComponentResolver<String, String> resolver) {
-		ArrayList<Action<String, String>> actions = new ArrayList<Action<String, String>>();
-		Action<String, String> action = resolveTransitionAction(transition, resolver);
+	public static <S, E> Collection<Action<S, E>> resolveTransitionActions(Transition transition,
+			StateMachineComponentResolver<S, E> resolver) {
+		ArrayList<Action<S, E>> actions = new ArrayList<Action<S, E>>();
+		Action<S, E> action = UmlUtils.<S, E>resolveTransitionAction(transition, resolver);
 		if (action != null) {
 			actions.add(action);
 		}
@@ -143,22 +143,22 @@ public abstract class UmlUtils {
 	 * @param resolver the state machine component resolver
 	 * @return the action
 	 */
-	public static Action<String, String> resolveTransitionAction(Transition transition,
-			StateMachineComponentResolver<String, String> resolver) {
-		Action<String, String> action = null;
+	public static <S, E> Action<S, E> resolveTransitionAction(Transition transition,
+			StateMachineComponentResolver<S, E> resolver) {
+		Action<S, E> action = null;
 		if (transition.getEffect() instanceof OpaqueBehavior) {
-			String beanId = UmlUtils.resolveBodyByLanguage(UmlModelParser.LANGUAGE_BEAN, (OpaqueBehavior)transition.getEffect());
+			String beanId = UmlUtils.resolveBodyByLanguage(GenericUmlModelParser.LANGUAGE_BEAN, (OpaqueBehavior)transition.getEffect());
 			if (StringUtils.hasText(beanId)) {
-				Action<String, String> bean = resolver.resolveAction(beanId);
+				Action<S, E> bean = resolver.resolveAction(beanId);
 				if (bean != null) {
 					action = bean;
 				}
 			} else {
-				String expression = UmlUtils.resolveBodyByLanguage(UmlModelParser.LANGUAGE_SPEL, (OpaqueBehavior)transition.getEffect());
+				String expression = UmlUtils.resolveBodyByLanguage(GenericUmlModelParser.LANGUAGE_SPEL, (OpaqueBehavior)transition.getEffect());
 				if (StringUtils.hasText(expression)) {
 					SpelExpressionParser parser = new SpelExpressionParser(
 							new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
-					action = new SpelExpressionAction<String, String>(parser.parseExpression(expression));
+					action = new SpelExpressionAction<S, E>(parser.parseExpression(expression));
 				}
 			}
 		}
@@ -172,10 +172,10 @@ public abstract class UmlUtils {
 	 * @param resolver the state machine component resolver
 	 * @return the collection of actions
 	 */
-	public static Collection<Function<StateContext<String, String>, Mono<Void>>> resolveTransitionActionFunctions(
-			Transition transition, StateMachineComponentResolver<String, String> resolver) {
-		ArrayList<Function<StateContext<String, String>, Mono<Void>>> actions = new ArrayList<>();
-		Function<StateContext<String, String>, Mono<Void>> action = resolveTransitionActionFunction(transition, resolver);
+	public static <S, E> Collection<Function<StateContext<S, E>, Mono<Void>>> resolveTransitionActionFunctions(
+			Transition transition, StateMachineComponentResolver<S, E> resolver) {
+		ArrayList<Function<StateContext<S, E>, Mono<Void>>> actions = new ArrayList<>();
+		Function<StateContext<S, E>, Mono<Void>> action = resolveTransitionActionFunction(transition, resolver);
 		if (action != null) {
 			actions.add(action);
 		}
@@ -189,22 +189,22 @@ public abstract class UmlUtils {
 	 * @param resolver the state machine component resolver
 	 * @return the action
 	 */
-	public static Function<StateContext<String, String>, Mono<Void>> resolveTransitionActionFunction(Transition transition,
-			StateMachineComponentResolver<String, String> resolver) {
-		Action<String, String> action = null;
+	public static <S, E> Function<StateContext<S, E>, Mono<Void>> resolveTransitionActionFunction(Transition transition,
+			StateMachineComponentResolver<S, E> resolver) {
+		Action<S, E> action = null;
 		if (transition.getEffect() instanceof OpaqueBehavior) {
-			String beanId = UmlUtils.resolveBodyByLanguage(UmlModelParser.LANGUAGE_BEAN, (OpaqueBehavior)transition.getEffect());
+			String beanId = UmlUtils.resolveBodyByLanguage(GenericUmlModelParser.LANGUAGE_BEAN, (OpaqueBehavior)transition.getEffect());
 			if (StringUtils.hasText(beanId)) {
-				Action<String, String> bean = resolver.resolveAction(beanId);
+				Action<S, E> bean = resolver.resolveAction(beanId);
 				if (bean != null) {
 					action = bean;
 				}
 			} else {
-				String expression = UmlUtils.resolveBodyByLanguage(UmlModelParser.LANGUAGE_SPEL, (OpaqueBehavior)transition.getEffect());
+				String expression = UmlUtils.resolveBodyByLanguage(GenericUmlModelParser.LANGUAGE_SPEL, (OpaqueBehavior)transition.getEffect());
 				if (StringUtils.hasText(expression)) {
 					SpelExpressionParser parser = new SpelExpressionParser(
 							new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
-					action = new SpelExpressionAction<String, String>(parser.parseExpression(expression));
+					action = new SpelExpressionAction(parser.parseExpression(expression));
 				}
 			}
 		}
@@ -237,18 +237,18 @@ public abstract class UmlUtils {
 	}
 
 	/**
-	 * Resolve dererred events from a state.
+	 * Resolve deferred events from a state.
 	 *
 	 * @param state the state
 	 * @return the collection of deferred events
 	 */
-	public static Collection<String> resolveDererredEvents(State state) {
-		ArrayList<String> events = new ArrayList<String>();
+	public static <E> Collection<E> resolveDeferredEvents(State state, GenericTypeConverter<E> eventAdapter) {
+		ArrayList<E> events = new ArrayList<>();
 		for (Trigger trigger : state.getDeferrableTriggers()) {
 			Event event = trigger.getEvent();
 			if (event instanceof SignalEvent) {
 				Signal signal = ((SignalEvent)event).getSignal();
-				events.add(signal.getName());
+				events.add(eventAdapter.convert(signal.getName()));
 			}
 		}
 		return events;

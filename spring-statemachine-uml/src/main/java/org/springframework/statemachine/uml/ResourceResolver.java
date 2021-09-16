@@ -37,7 +37,7 @@ import org.springframework.util.FileCopyUtils;
  *
  * @author Janne Valkealahti
  */
-class ResourcerResolver {
+class ResourceResolver {
 
 	private ResourceLoader resourceLoader;
 	private Resource mainResource;
@@ -45,12 +45,12 @@ class ResourcerResolver {
 	private Resource[] additionalResources;
 	private String[] additionalLocations;
 
-	public ResourcerResolver(Resource mainResource, Resource[] additionalResources) {
+	public ResourceResolver(Resource mainResource, Resource[] additionalResources) {
 		this.mainResource = mainResource;
 		this.additionalResources = additionalResources != null ? additionalResources : new Resource[0];
 	}
 
-	public ResourcerResolver(ResourceLoader resourceLoader, String mainLocation, String[] additionalLocations) {
+	public ResourceResolver(ResourceLoader resourceLoader, String mainLocation, String[] additionalLocations) {
 		this.resourceLoader = resourceLoader;
 		this.mainLocation = mainLocation;
 		this.additionalLocations = additionalLocations != null ? additionalLocations : new String[0];
