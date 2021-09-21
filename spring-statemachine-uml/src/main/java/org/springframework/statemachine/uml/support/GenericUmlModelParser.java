@@ -53,15 +53,15 @@ public class GenericUmlModelParser<S, E> {
     public final static String LANGUAGE_SPEL = "spel";
     private final Model model;
     private final StateMachineComponentResolver<S, E> resolver;
-    private final Collection<StateData<S, E>> stateDatas = new ArrayList<StateData<S, E>>();
-    private final Collection<TransitionData<S, E>> transitionDatas = new ArrayList<TransitionData<S, E>>();
-    private final Collection<EntryData<S, E>> entrys = new ArrayList<EntryData<S, E>>();
-    private final Collection<ExitData<S, E>> exits = new ArrayList<ExitData<S, E>>();
-    private final Collection<HistoryData<S, E>> historys = new ArrayList<HistoryData<S, E>>();
-    private final Map<S, LinkedList<ChoiceData<S, E>>> choices = new HashMap<S, LinkedList<ChoiceData<S, E>>>();
-    private final Map<S, LinkedList<JunctionData<S, E>>> junctions = new HashMap<S, LinkedList<JunctionData<S, E>>>();
-    private final Map<S, List<S>> forks = new HashMap<S, List<S>>();
-    private final Map<S, List<S>> joins = new HashMap<S, List<S>>();
+    private final Collection<StateData<S, E>> stateDatas = new ArrayList<>();
+    private final Collection<TransitionData<S, E>> transitionDatas = new ArrayList<>();
+    private final Collection<EntryData<S, E>> entrys = new ArrayList<>();
+    private final Collection<ExitData<S, E>> exits = new ArrayList<>();
+    private final Collection<HistoryData<S, E>> historys = new ArrayList<>();
+    private final Map<S, LinkedList<ChoiceData<S, E>>> choices = new HashMap<>();
+    private final Map<S, LinkedList<JunctionData<S, E>>> junctions = new HashMap<>();
+    private final Map<S, List<S>> forks = new HashMap<>();
+    private final Map<S, List<S>> joins = new HashMap<>();
 
     private final AtomicInteger pseudostateNamingCounter = new AtomicInteger(1);
     private final Map<NamedElement, S> pseudostateNaming = new HashMap<>();
@@ -69,19 +69,19 @@ public class GenericUmlModelParser<S, E> {
     private final List<String> seenEntryData = new ArrayList<>();
     private final List<String> seenExitData = new ArrayList<>();
     private final List<String> seenTransitionData = new ArrayList<>();
-    private final GenericTypeConverter<S> stateAdapter;
-    private final GenericTypeConverter<E> eventAdapter;
+    private final GenericTypeConverter<S> stateConverter;
+    private final GenericTypeConverter<E> eventConverter;
 
     /**
      * Instantiates a new uml model parser.
      * @param model the model
      * @param resolver the resolver
-     * @param stateAdapter
-     * @param eventAdapter
+     * @param stateConverter converts between Strings and concrete state type 'S'.
+     * @param eventConverter converts between Strings and concrete event type 'E'
      */
-    public GenericUmlModelParser(Model model, StateMachineComponentResolver<S, E> resolver, GenericTypeConverter<S> stateAdapter, GenericTypeConverter<E> eventAdapter) {
-        this.stateAdapter = stateAdapter;
-        this.eventAdapter = eventAdapter;
+    public GenericUmlModelParser(Model model, StateMachineComponentResolver<S, E> resolver, GenericTypeConverter<S> stateConverter, GenericTypeConverter<E> eventConverter) {
+        this.stateConverter = stateConverter;
+        this.eventConverter = eventConverter;
         Assert.notNull(model, "Model must be set");
         Assert.notNull(resolver, "Resolver must be set");
         this.model = model;
@@ -114,12 +114,10 @@ public class GenericUmlModelParser<S, E> {
         }
 
         // LinkedList can be passed due to generics, need to copy
-        HashMap<S, List<ChoiceData<S, E>>> choicesCopy = new HashMap<S, List<ChoiceData<S, E>>>();
-        choicesCopy.putAll(choices);
-        HashMap<S, List<JunctionData<S, E>>> junctionsCopy = new HashMap<S, List<JunctionData<S, E>>>();
-        junctionsCopy.putAll(junctions);
+        HashMap<S, List<ChoiceData<S, E>>> choicesCopy = new HashMap<>(choices);
+        HashMap<S, List<JunctionData<S, E>>> junctionsCopy = new HashMap<>(junctions);
         return new DataHolder(new StatesData<>(stateDatas),
-                new TransitionsData<S, E>(transitionDatas, choicesCopy, junctionsCopy, forks, joins, entrys, exits, historys));
+                new TransitionsData<>(transitionDatas, choicesCopy, junctionsCopy, forks, joins, entrys, exits, historys));
     }
 
     private void handleStateMachine(StateMachine stateMachine) {
@@ -130,10 +128,10 @@ public class GenericUmlModelParser<S, E> {
 
     private S resolveName(NamedElement pseudostate) {
         return pseudostateNaming.computeIfAbsent(pseudostate, key -> {
-            S name = stateAdapter.convert(pseudostate.getName());
+            S name = stateConverter.convert(pseudostate.getName());
             if (ObjectUtils.isEmpty(name)) {
                 if (key instanceof Pseudostate) {
-                    name = stateAdapter.convert(((Pseudostate)key).getKind().getName() + pseudostateNamingCounter.getAndIncrement());
+                    name = stateConverter.convert(((Pseudostate)key).getKind().getName() + pseudostateNamingCounter.getAndIncrement());
                 }
             }
             return name;
@@ -149,8 +147,8 @@ public class GenericUmlModelParser<S, E> {
     }
 
     private void addEntryData(EntryData<S, E> entryData) {
-        S skey = entryData.getSource() != null ? entryData.getSource() : (S) null;
-        S tkey = entryData.getTarget() != null ? entryData.getTarget() : (S) null;
+        S skey = entryData.getSource();
+        S tkey = entryData.getTarget();
         String key = skey + "_" + tkey;
         if (!seenEntryData.contains(key)) {
             entrys.add(entryData);
@@ -159,8 +157,8 @@ public class GenericUmlModelParser<S, E> {
     }
 
     private void addExitData(ExitData<S, E> exitData) {
-        S skey = exitData.getSource() != null ? exitData.getSource() : (S) null;
-        S tkey = exitData.getTarget() != null ? exitData.getTarget() : (S) null;
+        S skey = exitData.getSource();
+        S tkey = exitData.getTarget();
         String key = skey + "_" + tkey;
         if (!seenExitData.contains(key)) {
             exits.add(exitData);
@@ -169,10 +167,10 @@ public class GenericUmlModelParser<S, E> {
     }
 
     private void addTransitionData(TransitionData<S, E> transitionData) {
-        S skey = transitionData.getSource() != null ? transitionData.getSource() : (S) null;
-        S tkey = transitionData.getTarget() != null ? transitionData.getTarget() : (S) null;
-        E ekey = transitionData.getEvent() != null ? transitionData.getEvent() : (E) null;
-        TransitionKind kkey = transitionData.getKind() != null ? transitionData.getKind() : null;
+        S skey = transitionData.getSource();
+        S tkey = transitionData.getTarget();
+        E ekey = transitionData.getEvent();
+        TransitionKind kkey = transitionData.getKind();
         String key = skey + "_" + tkey + "_" + ekey + "_" + kkey;
         if (!seenTransitionData.contains(key)) {
             transitionDatas.add(transitionData);
@@ -188,29 +186,29 @@ public class GenericUmlModelParser<S, E> {
                 State state = (State)vertex;
 
                 // find parent state if submachine state, root states have null parent
-                String parent = null;
+                S parent = null;
                 String regionId = null;
                 if (state.getContainer().getOwner() instanceof State) {
-                    parent = ((State)state.getContainer().getOwner()).getName();
+                    parent = stateConverter.convert(((State)state.getContainer().getOwner()).getName());
                 }
                 // if parent is unknown, check if it's a ref where parent is then that
                 if (parent == null && region.getOwner() instanceof StateMachine) {
                     EList<State> submachineStates = ((StateMachine)region.getOwner()).getSubmachineStates();
                     if (submachineStates.size() == 1) {
-                        parent = submachineStates.get(0).getName();
+                        parent = stateConverter.convert(submachineStates.get(0).getName());
                     }
                 }
                 if (state.getOwner() instanceof Region) {
                     regionId = ((Region)state.getOwner()).getName();
                 }
-                boolean isInitialState = UmlUtils.<S, E>isInitialState(state);
+                boolean isInitialState = UmlUtils.isInitialState(state);
                 StateData<S, E> stateData = handleActions(
-                        new StateData<S, E>(parent, regionId, stateAdapter.convert(state.getName()), isInitialState), state);
+                        new StateData<>(parent, regionId, stateConverter.convert(state.getName()), isInitialState), state);
                 if (isInitialState) {
                     // set possible initial transition
                     stateData.setInitialAction(resolveInitialTransitionAction(state));
                 }
-                stateData.setDeferred(UmlUtils.<E>resolveDeferredEvents(state, eventAdapter));
+                stateData.setDeferred(UmlUtils.resolveDeferredEvents(state, eventConverter));
                 if (UmlUtils.isFinalState(state)) {
                     stateData.setEnd(true);
                 }
@@ -220,14 +218,14 @@ public class GenericUmlModelParser<S, E> {
                 for (ConnectionPointReference cpr : state.getConnections()) {
                     if (cpr.getEntries() != null) {
                         for (Pseudostate cp : cpr.getEntries()) {
-                            StateData<S, E> cpStateData = new StateData<S, E>(parent, regionId, stateAdapter.convert(cp.getName()), false);
+                            StateData<S, E> cpStateData = new StateData<>(parent, regionId, stateConverter.convert(cp.getName()), false);
                             cpStateData.setPseudoStateKind(PseudoStateKind.ENTRY);
                             addStateData(cpStateData);
                         }
                     }
                     if (cpr.getExits() != null) {
                         for (Pseudostate cp : cpr.getExits()) {
-                            StateData<S, E> cpStateData = new StateData<S, E>(parent, regionId, stateAdapter.convert(cp.getName()), false);
+                            StateData<S, E> cpStateData = new StateData<>(parent, regionId, stateConverter.convert(cp.getName()), false);
                             cpStateData.setPseudoStateKind(PseudoStateKind.EXIT);
                             addStateData(cpStateData);
                         }
@@ -243,7 +241,7 @@ public class GenericUmlModelParser<S, E> {
                         kind = PseudoStateKind.EXIT;
                     }
                     if (kind != null) {
-                        StateData<S, E> cpStateData = new StateData<S, E>(parent, regionId, stateAdapter.convert(cp.getName()), false);
+                        StateData<S, E> cpStateData = new StateData<>(parent, regionId, stateConverter.convert(cp.getName()), false);
                         cpStateData.setPseudoStateKind(kind);
                         addStateData(cpStateData);
                     }
@@ -262,46 +260,46 @@ public class GenericUmlModelParser<S, E> {
             // pseudostates like choice, etc
             if (vertex instanceof Pseudostate) {
                 Pseudostate state = (Pseudostate)vertex;
-                String parent = null;
+                S parent = null;
                 String regionId = null;
                 if (state.getContainer().getOwner() instanceof State) {
-                    parent = ((State)state.getContainer().getOwner()).getName();
+                    parent = stateConverter.convert(((State)state.getContainer().getOwner()).getName());
                 } else if (state.getContainer().getOwner() instanceof StateMachine) {
                     // in case of a submachine ref, owner should be StateMachine instead
                     // of State so try to find from owning submachines states a matching one with a
                     // same name.
                     StateMachine owningMachine = (StateMachine)state.getContainer().getOwner();
-                    parent = owningMachine.getSubmachineStates().stream()
+                    parent = stateConverter.convert(owningMachine.getSubmachineStates().stream()
                             .filter(m -> owningMachine == m.getSubmachine())
-                            .map(s -> s.getName())
+                            .map(NamedElement::getName)
                             .findFirst()
-                            .orElse(null);
+                            .orElse(null));
                 }
                 if (state.getOwner() instanceof Region) {
                     regionId = ((Region)state.getOwner()).getName();
                 }
                 if (state.getKind() == PseudostateKind.CHOICE_LITERAL) {
-                    StateData<S, E> cpStateData = new StateData<S, E>(parent, regionId, resolveName(state), false);
+                    StateData<S, E> cpStateData = new StateData<>(parent, regionId, resolveName(state), false);
                     cpStateData.setPseudoStateKind(PseudoStateKind.CHOICE);
                     addStateData(cpStateData);
                 } else if (state.getKind() == PseudostateKind.JUNCTION_LITERAL) {
-                    StateData<S, E> cpStateData = new StateData<S, E>(parent, regionId, stateAdapter.convert(state.getName()), false);
+                    StateData<S, E> cpStateData = new StateData<>(parent, regionId, stateConverter.convert(state.getName()), false);
                     cpStateData.setPseudoStateKind(PseudoStateKind.JUNCTION);
                     addStateData(cpStateData);
                 } else if (state.getKind() == PseudostateKind.FORK_LITERAL) {
-                    StateData<S, E> cpStateData = new StateData<S, E>(parent, regionId, stateAdapter.convert(state.getName()), false);
+                    StateData<S, E> cpStateData = new StateData<>(parent, regionId, stateConverter.convert(state.getName()), false);
                     cpStateData.setPseudoStateKind(PseudoStateKind.FORK);
                     addStateData(cpStateData);
                 } else if (state.getKind() == PseudostateKind.JOIN_LITERAL) {
-                    StateData<S, E> cpStateData = new StateData<S, E>(parent, regionId, stateAdapter.convert(state.getName()), false);
+                    StateData<S, E> cpStateData = new StateData<>(parent, regionId, stateConverter.convert(state.getName()), false);
                     cpStateData.setPseudoStateKind(PseudoStateKind.JOIN);
                     addStateData(cpStateData);
                 } else if (state.getKind() == PseudostateKind.SHALLOW_HISTORY_LITERAL) {
-                    StateData<S, E> cpStateData = new StateData<S, E>(parent, regionId, stateAdapter.convert(state.getName()), false);
+                    StateData<S, E> cpStateData = new StateData<>(parent, regionId, stateConverter.convert(state.getName()), false);
                     cpStateData.setPseudoStateKind(PseudoStateKind.HISTORY_SHALLOW);
                     addStateData(cpStateData);
                 } else if (state.getKind() == PseudostateKind.DEEP_HISTORY_LITERAL) {
-                    StateData<S, E> cpStateData = new StateData<S, E>(parent, regionId, stateAdapter.convert(state.getName()), false);
+                    StateData<S, E> cpStateData = new StateData<>(parent, regionId, stateConverter.convert(state.getName()), false);
                     cpStateData.setPseudoStateKind(PseudoStateKind.HISTORY_DEEP);
                     addStateData(cpStateData);
                 }
@@ -323,67 +321,51 @@ public class GenericUmlModelParser<S, E> {
                 // realistic with state machines
                 EList<Pseudostate> cprentries = ((ConnectionPointReference)transition.getSource()).getEntries();
                 if (cprentries != null && cprentries.size() == 1 && cprentries.get(0).getKind() == PseudostateKind.ENTRY_POINT_LITERAL) {
-                    addEntryData(new EntryData<S, E>(stateAdapter.convert(cprentries.get(0).getName()), resolveName(transition.getTarget())));
+                    addEntryData(new EntryData<>(stateConverter.convert(cprentries.get(0).getName()), resolveName(transition.getTarget())));
                 }
                 EList<Pseudostate> cprexits = ((ConnectionPointReference)transition.getSource()).getExits();
                 if (cprexits != null && cprexits.size() == 1 && cprexits.get(0).getKind() == PseudostateKind.EXIT_POINT_LITERAL) {
-                    addExitData(new ExitData<S, E>(stateAdapter.convert(cprexits.get(0).getName()), resolveName(transition.getTarget())));
+                    addExitData(new ExitData<>(stateConverter.convert(cprexits.get(0).getName()), resolveName(transition.getTarget())));
                 }
             }
 
             if (transition.getSource() instanceof Pseudostate) {
                 if (((Pseudostate)transition.getSource()).getKind() == PseudostateKind.ENTRY_POINT_LITERAL) {
-                    addEntryData(new EntryData<S, E>(resolveName(transition.getSource()), resolveName(transition.getTarget())));
+                    addEntryData(new EntryData<>(resolveName(transition.getSource()), resolveName(transition.getTarget())));
                 } else if (((Pseudostate)transition.getSource()).getKind() == PseudostateKind.EXIT_POINT_LITERAL) {
-                    addExitData(new ExitData<S, E>(resolveName(transition.getSource()), resolveName(transition.getTarget())));
+                    addExitData(new ExitData<>(resolveName(transition.getSource()), resolveName(transition.getTarget())));
                 } else if (((Pseudostate)transition.getSource()).getKind() == PseudostateKind.CHOICE_LITERAL) {
-                    LinkedList<ChoiceData<S, E>> list = choices.get(resolveName(transition.getSource()));
-                    if (list == null) {
-                        list = new LinkedList<ChoiceData<S, E>>();
-                        choices.put(resolveName(transition.getSource()), list);
-                    }
+                    LinkedList<ChoiceData<S, E>> list = choices.computeIfAbsent(resolveName(transition.getSource()), k -> new LinkedList<>());
                     Guard<S, E> guard = resolveGuard(transition);
                     Collection<org.springframework.statemachine.action.Action<S, E>> actions = UmlUtils.resolveTransitionActions(transition, resolver);
                     // we want null guards to be at the end
                     if (guard == null) {
-                        list.addLast(new ChoiceData<S, E>(resolveName(transition.getSource()), resolveName(transition.getTarget()), guard, actions));
+                        list.addLast(new ChoiceData<>(resolveName(transition.getSource()), resolveName(transition.getTarget()), guard, actions));
                     } else {
-                        list.addFirst(new ChoiceData<S, E>(resolveName(transition.getSource()), resolveName(transition.getTarget()), guard, actions));
+                        list.addFirst(new ChoiceData<>(resolveName(transition.getSource()), resolveName(transition.getTarget()), guard, actions));
                     }
                 } else if (((Pseudostate)transition.getSource()).getKind() == PseudostateKind.JUNCTION_LITERAL) {
-                    LinkedList<JunctionData<S, E>> list = junctions.get(resolveName(transition.getSource()));
-                    if (list == null) {
-                        list = new LinkedList<JunctionData<S, E>>();
-                        junctions.put(resolveName(transition.getSource()), list);
-                    }
+                    LinkedList<JunctionData<S, E>> list = junctions.computeIfAbsent(resolveName(transition.getSource()), k -> new LinkedList<>());
                     Guard<S, E> guard = resolveGuard(transition);
                     Collection<org.springframework.statemachine.action.Action<S, E>> actions = UmlUtils.resolveTransitionActions(transition, resolver);
                     // we want null guards to be at the end
                     if (guard == null) {
-                        list.addLast(new JunctionData<S, E>(resolveName(transition.getSource()), resolveName(transition.getTarget()), guard, actions));
+                        list.addLast(new JunctionData<>(resolveName(transition.getSource()), resolveName(transition.getTarget()), guard, actions));
                     } else {
-                        list.addFirst(new JunctionData<S, E>(resolveName(transition.getSource()), resolveName(transition.getTarget()), guard, actions));
+                        list.addFirst(new JunctionData<>(resolveName(transition.getSource()), resolveName(transition.getTarget()), guard, actions));
                     }
                 } else if (((Pseudostate)transition.getSource()).getKind() == PseudostateKind.FORK_LITERAL) {
-                    List<S> list = forks.get(resolveName(transition.getSource()));
-                    if (list == null) {
-                        list = new ArrayList<S>();
-                        forks.put(resolveName(transition.getSource()), list);
-                    }
+                    List<S> list = forks.computeIfAbsent(resolveName(transition.getSource()), k -> new ArrayList<>());
                     list.add(resolveName(transition.getTarget()));
                 } else if (((Pseudostate)transition.getSource()).getKind() == PseudostateKind.SHALLOW_HISTORY_LITERAL) {
-                    historys.add(new HistoryData<S, E>(resolveName(transition.getSource()), resolveName(transition.getTarget())));
+                    historys.add(new HistoryData<>(resolveName(transition.getSource()), resolveName(transition.getTarget())));
                 } else if (((Pseudostate)transition.getSource()).getKind() == PseudostateKind.DEEP_HISTORY_LITERAL) {
-                    historys.add(new HistoryData<S, E>(resolveName(transition.getSource()), resolveName(transition.getTarget())));
+                    historys.add(new HistoryData<>(resolveName(transition.getSource()), resolveName(transition.getTarget())));
                 }
             }
             if (transition.getTarget() instanceof Pseudostate) {
                 if (((Pseudostate)transition.getTarget()).getKind() == PseudostateKind.JOIN_LITERAL) {
-                    List<S> list = joins.get(resolveName(transition.getTarget()));
-                    if (list == null) {
-                        list = new ArrayList<S>();
-                        joins.put(resolveName(transition.getTarget()), list);
-                    }
+                    List<S> list = joins.computeIfAbsent(resolveName(transition.getTarget()), k -> new ArrayList<>());
                     list.add(resolveName(transition.getSource()));
                 }
             }
@@ -400,14 +382,14 @@ public class GenericUmlModelParser<S, E> {
                         if (transition.getTarget() instanceof ConnectionPointReference) {
                             EList<Pseudostate> cprentries = ((ConnectionPointReference)transition.getTarget()).getEntries();
                             if (cprentries != null && cprentries.size() == 1) {
-                                addTransitionData(new TransitionData<S, E>(resolveName(transition.getSource()),
-                                        stateAdapter.convert(cprentries.get(0).getName()), eventAdapter.convert(signal.getName()),
-                                        UmlUtils.<S, E>resolveTransitionActionFunctions(transition, resolver), Guards.from(guard),
+                                addTransitionData(new TransitionData<>(resolveName(transition.getSource()),
+                                        stateConverter.convert(cprentries.get(0).getName()), eventConverter.convert(signal.getName()),
+                                        UmlUtils.resolveTransitionActionFunctions(transition, resolver), Guards.from(guard),
                                         UmlUtils.mapUmlTransitionType(transition), transition.getName()));
                             }
                         } else {
-                            addTransitionData(new TransitionData<S, E>(resolveName(transition.getSource()),
-                                    resolveName(transition.getTarget()), eventAdapter.convert(signal.getName()),
+                            addTransitionData(new TransitionData<>(resolveName(transition.getSource()),
+                                    resolveName(transition.getTarget()), eventConverter.convert(signal.getName()),
                                     UmlUtils.resolveTransitionActionFunctions(transition, resolver), Guards.from(guard),
                                     UmlUtils.mapUmlTransitionType(transition), transition.getName()));
                         }
@@ -420,7 +402,7 @@ public class GenericUmlModelParser<S, E> {
                         if (timeEvent.isRelative()) {
                             count = 1;
                         }
-                        addTransitionData(new TransitionData<S, E>(resolveName(transition.getSource()),
+                        addTransitionData(new TransitionData<>(resolveName(transition.getSource()),
                                 resolveName(transition.getTarget()), period, count, UmlUtils.resolveTransitionActionFunctions(transition, resolver),
                                 Guards.from(guard), UmlUtils.mapUmlTransitionType(transition), transition.getName()));
                     }
@@ -429,7 +411,7 @@ public class GenericUmlModelParser<S, E> {
 
             // create anonymous transition if needed
             if (shouldCreateAnonymousTransition(transition)) {
-                addTransitionData(new TransitionData<S, E>(resolveName(transition.getSource()),
+                addTransitionData(new TransitionData<>(resolveName(transition.getSource()),
                         resolveName(transition.getTarget()), null,
                         UmlUtils.resolveTransitionActionFunctions(transition, resolver),
                         Guards.from(resolveGuard(transition)), UmlUtils.mapUmlTransitionType(transition), transition.getName()));
@@ -449,7 +431,7 @@ public class GenericUmlModelParser<S, E> {
                     if (StringUtils.hasText(expression)) {
                         SpelExpressionParser parser = new SpelExpressionParser(
                                 new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
-                        guard = new SpelExpressionGuard<S, E>(parser.parseExpression(expression));
+                        guard = new SpelExpressionGuard<>(parser.parseExpression(expression));
                     }
                 }
             }
@@ -459,7 +441,7 @@ public class GenericUmlModelParser<S, E> {
 
     private Long getTimePeriod(TimeEvent event) {
         try {
-            return Long.valueOf(event.getWhen().getExpr().integerValue());
+            return (long) event.getWhen().getExpr().integerValue();
         } catch (Exception e) {
             return null;
         }
@@ -482,10 +464,10 @@ public class GenericUmlModelParser<S, E> {
         if (!transition.getTriggers().isEmpty()) {
             return false;
         }
-        if (!StringUtils.hasText(stateAdapter.revert(resolveName(transition.getSource())))) {
+        if (!StringUtils.hasText(stateConverter.revert(resolveName(transition.getSource())))) {
             return false;
         }
-        if (!StringUtils.hasText(stateAdapter.revert(resolveName(transition.getTarget())))) {
+        if (!StringUtils.hasText(stateConverter.revert(resolveName(transition.getTarget())))) {
             return false;
         }
         if (transition.getSource() instanceof Pseudostate) {
@@ -494,9 +476,7 @@ public class GenericUmlModelParser<S, E> {
             }
         }
         if (transition.getTarget() instanceof Pseudostate) {
-            if (((Pseudostate)transition.getTarget()).getKind() == PseudostateKind.JOIN_LITERAL) {
-                return false;
-            }
+            return ((Pseudostate) transition.getTarget()).getKind() != PseudostateKind.JOIN_LITERAL;
         }
         return true;
     }
@@ -517,7 +497,7 @@ public class GenericUmlModelParser<S, E> {
                     SpelExpressionParser parser = new SpelExpressionParser(
                             new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
                     ArrayList<Function<StateContext<S, E>, Mono<Void>>> entrys = new ArrayList<>();
-                    entrys.add(Actions.from(new SpelExpressionAction<S, E>(parser.parseExpression(expression))));
+                    entrys.add(Actions.from(new SpelExpressionAction<>(parser.parseExpression(expression))));
                     stateData.setEntryActions(entrys);
                 }
             }
@@ -537,7 +517,7 @@ public class GenericUmlModelParser<S, E> {
                     SpelExpressionParser parser = new SpelExpressionParser(
                             new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
                     ArrayList<Function<StateContext<S, E>, Mono<Void>>> exits = new ArrayList<>();
-                    exits.add(Actions.from(new SpelExpressionAction<S, E>(parser.parseExpression(expression))));
+                    exits.add(Actions.from(new SpelExpressionAction<>(parser.parseExpression(expression))));
                     stateData.setExitActions(exits);
                 }
             }
@@ -557,13 +537,13 @@ public class GenericUmlModelParser<S, E> {
                     SpelExpressionParser parser = new SpelExpressionParser(
                             new SpelParserConfiguration(SpelCompilerMode.MIXED, null));
                     ArrayList<Function<StateContext<S, E>, Mono<Void>>> stateActions = new ArrayList<>();
-                    stateActions.add(Actions.from(new SpelExpressionAction<S, E>(parser.parseExpression(expression))));
+                    stateActions.add(Actions.from(new SpelExpressionAction<>(parser.parseExpression(expression))));
                     stateData.setStateActions(stateActions);
                 }
             }
         }
         if (state.getEntry() instanceof Activity) {
-            String beanId = ((Activity)state.getEntry()).getName();
+            String beanId = state.getEntry().getName();
             org.springframework.statemachine.action.Action<S, E> bean = resolver.resolveAction(beanId);
             if (bean != null) {
                 ArrayList<Function<StateContext<S, E>, Mono<Void>>> entrys = new ArrayList<>();
@@ -572,7 +552,7 @@ public class GenericUmlModelParser<S, E> {
             }
         }
         if (state.getExit() instanceof Activity) {
-            String beanId = ((Activity)state.getExit()).getName();
+            String beanId = state.getExit().getName();
             org.springframework.statemachine.action.Action<S, E> bean = resolver.resolveAction(beanId);
             if (bean != null) {
                 ArrayList<Function<StateContext<S, E>, Mono<Void>>> exits = new ArrayList<>();
@@ -581,7 +561,7 @@ public class GenericUmlModelParser<S, E> {
             }
         }
         if (state.getDoActivity() instanceof Activity) {
-            String beanId = ((Activity)state.getDoActivity()).getName();
+            String beanId = state.getDoActivity().getName();
             Action<S, E> bean = resolver.resolveAction(beanId);
             if (bean != null) {
                 ArrayList<Function<StateContext<S, E>, Mono<Void>>> stateActions = new ArrayList<>();
