@@ -202,9 +202,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 			}
 
 			boolean stackContainsSameParent = false;
-			Iterator<StateData<S, E>> ii = stateStack.iterator();
-			while (ii.hasNext()) {
-				StateData<S, E> sd = ii.next();
+			for (StateData<S, E> sd : stateStack) {
 				if (stateData != null && ObjectUtils.nullSafeEquals(stateData.getState(), sd.getParent())) {
 					stackContainsSameParent = true;
 					break;
@@ -223,7 +221,7 @@ public abstract class AbstractStateMachineFactory<S, E> extends LifecycleObjectS
 
 			if (initialCount > 1) {
 				for (Collection<StateData<S, E>> regionStateDatas : regionsStateDatas) {
-					// try to build reqion id's
+					// try to build region id's
 					Object rId = regionStateDatas.iterator().next().getRegion();
 					String mId = machineId != null ? machineId : stateMachineModel.getConfigurationData().getMachineId();
 					mId = mId + "#" + (rId != null ? rId.toString() : "");
