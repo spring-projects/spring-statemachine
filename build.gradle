@@ -81,9 +81,9 @@ configure(allprojects) {
 
 	repositories {
 		mavenCentral()
-		maven { url "https://repo.springsource.org/libs-snapshot" }
-		maven { url "https://repo.springsource.org/libs-release" }
-		maven { url "https://repo.springsource.org/libs-milestone" }
+		maven { url "https://repo.spring.io/libs-snapshot" }
+		maven { url "https://repo.spring.io/libs-release" }
+		maven { url "https://repo.spring.io/libs-milestone" }
 	}
 
 	dependencyManagement {
