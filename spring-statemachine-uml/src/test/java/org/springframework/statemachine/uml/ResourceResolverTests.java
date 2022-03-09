@@ -25,9 +25,9 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.statemachine.uml.ResourcerResolver.Holder;
+import org.springframework.statemachine.uml.ResourceResolver.Holder;
 
-public class ResourcerResolverTests {
+public class ResourceResolverTests {
 
 	private ResourceLoader resourceLoader = new DefaultResourceLoader();
 	// private String[] EMPTY_LOCATIONS = new String[0];
@@ -38,7 +38,7 @@ public class ResourcerResolverTests {
 	@Test
 	public void testOneMainLocation() throws Exception {
 		String mainLocation = "classpath:org/springframework/statemachine/uml/import-main/import-main.uml";
-		ResourcerResolver resolver = new ResourcerResolver(resourceLoader, mainLocation, null);
+		ResourceResolver resolver = new ResourceResolver(resourceLoader, mainLocation, null);
 		Holder[] resolved = resolver.resolve();
 		assertThat(resolved).isNotNull();
 		assertThat(resolved.length).isEqualTo(1);
@@ -48,7 +48,7 @@ public class ResourcerResolverTests {
 	@Test
 	public void testOneMainResource() throws Exception {
 		Resource mainResource = new ClassPathResource("org/springframework/statemachine/uml/import-main/import-main.uml");
-		ResourcerResolver resolver = new ResourcerResolver(mainResource, null);
+		ResourceResolver resolver = new ResourceResolver(mainResource, null);
 		Holder[] resolved = resolver.resolve();
 		assertThat(resolved).isNotNull();
 		assertThat(resolved.length).isEqualTo(1);
@@ -59,7 +59,7 @@ public class ResourcerResolverTests {
 	public void testMultipleLocations() throws Exception {
 		String mainLocation = "classpath:org/springframework/statemachine/uml/import-main/import-main.uml";
 		String subLocation = "classpath:org/springframework/statemachine/uml/import-sub/import-sub.uml";
-		ResourcerResolver resolver = new ResourcerResolver(resourceLoader, mainLocation, new String[]{subLocation});
+		ResourceResolver resolver = new ResourceResolver(resourceLoader, mainLocation, new String[]{subLocation});
 		Holder[] resolved = resolver.resolve();
 		assertThat(resolved).isNotNull();
 		assertThat(resolved.length).isEqualTo(2);
@@ -71,7 +71,7 @@ public class ResourcerResolverTests {
 	public void testMultipleResources() throws Exception {
 		Resource mainResource = new ClassPathResource("org/springframework/statemachine/uml/import-main/import-main.uml");
 		Resource subResource = new ClassPathResource("org/springframework/statemachine/uml/import-sub/import-sub.uml");
-		ResourcerResolver resolver = new ResourcerResolver(mainResource, new Resource[]{subResource});
+		ResourceResolver resolver = new ResourceResolver(mainResource, new Resource[]{subResource});
 		Holder[] resolved = resolver.resolve();
 		assertThat(resolved).isNotNull();
 		assertThat(resolved.length).isEqualTo(2);
@@ -86,7 +86,7 @@ public class ResourcerResolverTests {
 	@Test
 	public void testOneMainResourceNotPhysicalFile() throws Exception {
 		Resource mainResource = new TestClassPathResource("org/springframework/statemachine/uml/import-main/import-main.uml");
-		ResourcerResolver resolver = new ResourcerResolver(mainResource, null);
+		ResourceResolver resolver = new ResourceResolver(mainResource, null);
 		Holder[] resolved = resolver.resolve();
 		assertThat(resolved).isNotNull();
 		assertThat(resolved.length).isEqualTo(1);
@@ -98,7 +98,7 @@ public class ResourcerResolverTests {
 	public void testMultipleResourcesNotPhysicalFile() throws Exception {
 		Resource mainResource = new TestClassPathResource("org/springframework/statemachine/uml/import-main/import-main.uml");
 		Resource subResource = new TestClassPathResource("org/springframework/statemachine/uml/import-sub/import-sub.uml");
-		ResourcerResolver resolver = new ResourcerResolver(mainResource, new Resource[]{subResource});
+		ResourceResolver resolver = new ResourceResolver(mainResource, new Resource[]{subResource});
 		Holder[] resolved = resolver.resolve();
 		assertThat(resolved).isNotNull();
 		assertThat(resolved.length).isEqualTo(2);

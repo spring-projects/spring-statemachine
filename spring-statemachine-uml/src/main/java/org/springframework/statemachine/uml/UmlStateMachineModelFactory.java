@@ -15,21 +15,10 @@
  */
 package org.springframework.statemachine.uml;
 
-import java.nio.file.Files;
-
-import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.uml2.uml.Model;
-import org.eclipse.uml2.uml.UMLPackage;
 import org.springframework.core.io.Resource;
-import org.springframework.statemachine.config.model.AbstractStateMachineModelFactory;
-import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineModel;
 import org.springframework.statemachine.config.model.StateMachineModelFactory;
-import org.springframework.statemachine.uml.ResourcerResolver.Holder;
-import org.springframework.statemachine.uml.support.UmlModelParser;
-import org.springframework.statemachine.uml.support.UmlModelParser.DataHolder;
-import org.springframework.statemachine.uml.support.UmlUtils;
-import org.springframework.util.Assert;
+import org.springframework.statemachine.uml.support.*;
 
 /**
  * {@link StateMachineModelFactory} which builds {@link StateMachineModel} from
@@ -46,102 +35,21 @@ import org.springframework.util.Assert;
  *
  * @author Janne Valkealahti
  */
-public class UmlStateMachineModelFactory extends AbstractStateMachineModelFactory<String, String> {
+public class UmlStateMachineModelFactory extends GenericUmlStateMachineModelFactory<String, String> {
 
-	private Resource resource;
-	private String location;
-	private Resource[] additionalResources;
-	private String[] additionalLocations;
+    public UmlStateMachineModelFactory(Resource resource) {
+        super(resource, new NoOpTypeConverter(), new NoOpTypeConverter());
+    }
 
-	/**
-	 * Instantiates a new uml state machine model factory.
-	 *
-	 * @param resource the resource
-	 */
-	public UmlStateMachineModelFactory(Resource resource) {
-		this(resource, null);
-	}
+    public UmlStateMachineModelFactory(String location) {
+        super(location, new NoOpTypeConverter(), new NoOpTypeConverter());
+    }
 
-	/**
-	 * Instantiates a new uml state machine model factory.
-	 *
-	 * @param location the resource location
-	 */
-	public UmlStateMachineModelFactory(String location) {
-		this(location, null);
-	}
+    public UmlStateMachineModelFactory(Resource resource, Resource[] additionalResources) {
+        super(resource, additionalResources, new NoOpTypeConverter(), new NoOpTypeConverter());
+    }
 
-	/**
-	 * Instantiates a new uml state machine model factory.
-	 *
-	 * @param resource the resource
-	 * @param additionalResources the additional resources
-	 */
-	public UmlStateMachineModelFactory(Resource resource, Resource[] additionalResources) {
-		Assert.notNull(resource, "Resource must be set");
-		this.resource = resource;
-		this.additionalResources = additionalResources;
-	}
-
-	/**
-	 * Instantiates a new uml state machine model factory.
-	 *
-	 * @param location the resource location
-	 * @param additionalLocations the additional locations
-	 */
-	public UmlStateMachineModelFactory(String location, String[] additionalLocations) {
-		Assert.notNull(location, "Location must be set");
-		this.location = location;
-		this.additionalLocations = additionalLocations;
-	}
-
-	@Override
-	public StateMachineModel<String, String> build() {
-		ResourcerResolver resourceResolver = null;
-		if (this.location != null) {
-			resourceResolver = new ResourcerResolver(getResourceLoader(), location, additionalLocations);
-		} else if (this.resource != null) {
-			resourceResolver = new ResourcerResolver(resource, additionalResources);
-		}
-
-		Holder holder = null;
-		Model model = null;
-		org.eclipse.emf.ecore.resource.Resource resource = null;
-		try {
-			Holder[] resources = resourceResolver.resolve();
-			holder = resources != null && resources.length > 0 ? resources[0] : null;
-			resource = UmlUtils.getResource(holder.uri.getPath());
-			model = (Model) EcoreUtil.getObjectByType(resource.getContents(), UMLPackage.Literals.MODEL);
-		} catch (Exception e) {
-			throw new IllegalArgumentException("Cannot build build model from resource " + resource + " or location " + location, e);
-		} finally {
-			// if we have a path, tmp file were created, clean it
-			if (holder != null && holder.path != null) {
-				try {
-					Files.deleteIfExists(holder.path);
-				} catch (Exception e2) {
-				}
-			}
-		}
-
-		UmlModelParser parser = new UmlModelParser(model, this);
-		DataHolder dataHolder = parser.parseModel();
-
-		// clean up
-		if (resource != null) {
-			try {
-				resource.unload();
-			} catch (Exception e) {
-			}
-		}
-		if (holder != null && holder.path != null) {
-			try {
-				Files.deleteIfExists(holder.path);
-			} catch (Exception e2) {
-			}
-		}
-
-		// we don't set configurationData here, so assume null
-		return new DefaultStateMachineModel<String, String>(null, dataHolder.getStatesData(), dataHolder.getTransitionsData());
-	}
+    public UmlStateMachineModelFactory(String location, String[] additionalLocations) {
+        super(location, additionalLocations, new NoOpTypeConverter(), new NoOpTypeConverter());
+    }
 }
