@@ -63,7 +63,7 @@ model regarding used table names. Previously, generated table names
 always had a prefix of `JPA_REPOSITORY_`, derived from entity class
 names. As this caused breaking issues with databases imposing
 restrictions on database object lengths, all entity classes have
-spesific definitions to force table names. For example,
+specific definitions to force table names. For example,
 `JPA_REPOSITORY_STATE` is now 'STATE' -- and so on with other
 ntity classes.
 
