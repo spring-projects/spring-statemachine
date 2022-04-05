@@ -15,25 +15,14 @@
  */
 package org.springframework.statemachine.persist;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.messaging.Message;
-import org.springframework.statemachine.ExtendedState;
-import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.StateMachineContext;
-import org.springframework.statemachine.StateMachineException;
-import org.springframework.statemachine.StateMachinePersist;
+import org.springframework.statemachine.*;
 import org.springframework.statemachine.region.Region;
-import org.springframework.statemachine.state.AbstractState;
-import org.springframework.statemachine.state.HistoryPseudoState;
-import org.springframework.statemachine.state.PseudoState;
-import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.state.*;
 import org.springframework.statemachine.support.AbstractStateMachine;
 import org.springframework.statemachine.support.DefaultExtendedState;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
@@ -43,6 +32,8 @@ import org.springframework.statemachine.support.StateMachineInterceptorAdapter;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionKind;
 import org.springframework.util.Assert;
+
+import javax.swing.text.html.Option;
 
 /**
  * Base class for {@link StateMachineInterceptor} persisting {@link StateMachineContext}s.
@@ -168,14 +159,14 @@ public abstract class AbstractPersistingStateMachineInterceptor<S, E, T> extends
 		if (state.isSubmachineState()) {
 			id = getDeepState(state);
 		} else if (state.isOrthogonal()) {
-			if (stateMachine.getState().isOrthogonal()) {
+			//if (stateMachine.getState().isOrthogonal()) {
 				Collection<Region<S, E>> regions = ((AbstractState<S, E>)state).getRegions();
 				for (Region<S, E> r : regions) {
 					// realistically we can only add refs because reqions are independent
 					// and when restoring, those child contexts need to get dehydrated
 					childRefs.add(r.getId());
 				}
-			}
+			//}
 			id = state.getId();
 		} else {
 			id = state.getId();
@@ -202,8 +193,9 @@ public abstract class AbstractPersistingStateMachineInterceptor<S, E, T> extends
 		}
 		E event = message != null ? message.getPayload() : null;
 		Map<String, Object> eventHeaders = message != null ? message.getHeaders() : null;
+		String stateMachineId = getActualStateMachineId(stateMachine, state.getId());
 		return new DefaultStateMachineContext<S, E>(childRefs, childs, id, event, eventHeaders, extendedState,
-				historyStates, stateMachine.getId());
+				historyStates, stateMachineId);
 	}
 
 	private S getDeepState(State<S, E> state) {
@@ -220,5 +212,26 @@ public abstract class AbstractPersistingStateMachineInterceptor<S, E, T> extends
 		public Map<Object, Object> apply(StateMachine<S, E> stateMachine) {
 			return stateMachine.getExtendedState().getVariables();
 		}
+	}
+
+	private String getActualStateMachineId(StateMachine<S,E> sm, S state){
+		return findSmIdByRegion(sm, state).orElse(sm.getId());
+	}
+
+	private Optional<String> findSmIdByRegion(StateMachine<S,E> sm, S state){
+		return sm.getStates().stream()
+				.filter(RegionState.class::isInstance)
+				.map(RegionState.class::cast)
+				.map(p->p.getRegions())
+				.flatMap(Collection::stream)
+				.filter(ObjectStateMachine.class::isInstance)
+				.map(ObjectStateMachine.class::cast)
+				.filter(p->hasStatesStateId(((ObjectStateMachine)p).getStates(), state))
+				.map(p->((ObjectStateMachine)p).getId())
+				.findFirst();
+	}
+
+	private boolean hasStatesStateId(Collection<State<S,E>> states, S stateId){
+		return states.stream().map(p->p.getId()).anyMatch(p->p == stateId);
 	}
 }

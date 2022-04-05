@@ -682,13 +682,16 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 						Collection<Region<S, E>> regions = ((AbstractState<S, E>)s).getRegions();
 						for (Region<S, E> region : regions) {
 							for (final StateMachineContext<S, E> child : stateMachineContext.getChilds()) {
-								((StateMachine<S, E>)region).getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S,E>>() {
+								// only call if reqion id matches with context id
+								if (ObjectUtils.nullSafeEquals(region.getId(), child.getId())) {
+									((StateMachine<S, E>) region).getStateMachineAccessor().doWithRegion(new StateMachineFunction<StateMachineAccess<S, E>>() {
 
-									@Override
-									public void apply(StateMachineAccess<S, E> function) {
-										function.resetStateMachine(child);
-									}
-								});
+										@Override
+										public void apply(StateMachineAccess<S, E> function) {
+											function.resetStateMachine(child);
+										}
+									});
+								}
 							}
 						}
 					}

@@ -17,24 +17,26 @@ package org.springframework.statemachine.data.jpa;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.statemachine.ObjectStateMachine;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.config.EnableStateMachine;
-import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
+import org.springframework.statemachine.StateMachineContext;
+import org.springframework.statemachine.StateMachinePersist;
+import org.springframework.statemachine.config.*;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
@@ -44,7 +46,13 @@ import org.springframework.statemachine.data.RepositoryTransition;
 import org.springframework.statemachine.data.StateMachineRepository;
 import org.springframework.statemachine.data.StateRepository;
 import org.springframework.statemachine.data.TransitionRepository;
+import org.springframework.statemachine.persist.DefaultStateMachinePersister;
+import org.springframework.statemachine.persist.StateMachinePersister;
 import org.springframework.statemachine.persist.StateMachineRuntimePersister;
+import org.springframework.statemachine.service.DefaultStateMachineService;
+import org.springframework.statemachine.service.StateMachineService;
+import org.springframework.statemachine.state.RegionState;
+import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.statemachine.transition.TransitionKind;
 
 /**
@@ -341,6 +349,75 @@ public class JpaRepositoryTests extends AbstractRepositoryTests {
 
 	}
 
+	private void checkCorrectRegionIdsInContext(JpaRepositoryStateMachinePersist<TestStates, TestEvents> persist ) throws Exception {
+		StateMachineContext<TestStates, TestEvents> context = persist.read("testid");
+		assertEquals(((DefaultStateMachineContext) context).getChilds().size(), 2);
+		List<String> regionIdList = (List<String >)((DefaultStateMachineContext) context).getChilds().stream().map(p->((StateMachineContext)p).getId()).collect(Collectors.toList());
+		assertThat(regionIdList, containsInAnyOrder("testid#FIRST", "testid#SECOND"));
+	}
+
+	private void checkCorrectRegionIdsInStateMachine(StateMachine<TestStates, TestEvents> stateMachine){
+		List<String> regionIdList =
+		stateMachine.getStates().stream().filter(RegionState.class::isInstance)
+				.map(RegionState.class::cast)
+				.map(p->p.getRegions())
+				.flatMap(Collection::stream)
+				.filter(ObjectStateMachine.class::isInstance)
+				.map(ObjectStateMachine.class::cast)
+				.map(p->p.getId())
+				.collect(Collectors.toList());
+		assertThat(regionIdList, containsInAnyOrder("testid#FIRST", "testid#SECOND"));
+	}
+
+
+
+
+	@Test
+	public void testPersistRegionsAndRestore() throws Exception {
+		context.register(TestConfig.class, Config4.class);
+		context.refresh();
+
+		@SuppressWarnings("unchecked")
+		StateMachineService<TestStates, TestEvents> stateMachineService = context.getBean(StateMachineService.class);
+
+		JpaStateMachineRepository jpaStateMachineRepository = (JpaStateMachineRepository)context.getBean("jpaStateMachineRepository");
+		JpaRepositoryStateMachinePersist<TestStates, TestEvents> persist = new JpaRepositoryStateMachinePersist<>(jpaStateMachineRepository);
+		StateMachine<TestStates, TestEvents> stateMachine = stateMachineService.acquireStateMachine("testid");
+
+		checkCorrectRegionIdsInContext(persist);
+		checkCorrectRegionIdsInStateMachine(stateMachine);
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S20, TestStates.S30));
+
+		stateMachine.sendEvent(TestEvents.E1);
+		stateMachine.sendEvent(TestEvents.E3);
+
+		checkCorrectRegionIdsInContext(persist);
+		checkCorrectRegionIdsInStateMachine(stateMachine);
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S31));
+
+
+		stateMachineService.releaseStateMachine("testid");
+		stateMachine = stateMachineService.acquireStateMachine("testid");
+		checkCorrectRegionIdsInContext(persist);
+		checkCorrectRegionIdsInStateMachine(stateMachine);
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S31));
+
+		stateMachine.sendEvent(TestEvents.E2);
+
+		stateMachineService.releaseStateMachine("testid");
+		stateMachine = stateMachineService.acquireStateMachine("testid");
+		checkCorrectRegionIdsInContext(persist);
+		checkCorrectRegionIdsInStateMachine(stateMachine);
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S2, TestStates.S21, TestStates.S32));
+
+		stateMachine.sendEvent(TestEvents.E4);
+
+		stateMachineService.releaseStateMachine("testid");
+		stateMachine = stateMachineService.acquireStateMachine("testid");
+		checkCorrectRegionIdsInStateMachine(stateMachine);
+		assertThat(stateMachine.getState().getIds(), containsInAnyOrder(TestStates.S4));
+	}
+
 	@EnableAutoConfiguration
 	static class TestConfig {
 	}
@@ -418,6 +495,98 @@ public class JpaRepositoryTests extends AbstractRepositoryTests {
 	}
 
 	@Configuration
+	@EnableStateMachineFactory
+	static class Config4 extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+
+		@Autowired
+		private JpaStateMachineRepository jpaStateMachineRepository;
+
+		@Bean
+		public StateMachineRuntimePersister<TestStates, TestEvents, String> stateMachineRuntimePersister() {
+			return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository);
+		}
+
+		@Bean
+		public StateMachineService<TestStates, TestEvents> stateMachineService(StateMachineFactory<TestStates, TestEvents> stateMachineFactory, StateMachineRuntimePersister<TestStates, TestEvents, String> runtimePersister) {
+			return new DefaultStateMachineService<>(stateMachineFactory, runtimePersister);
+		}
+
+
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config) throws Exception {
+			config
+					.withPersistence()
+					.runtimePersister(stateMachineRuntimePersister());
+		}
+		@Override
+		public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states) throws Exception {
+			states
+					.withStates()
+					.initial(TestStates.SI)
+					.fork(TestStates.S1)
+					.state(TestStates.S2)
+					.join(TestStates.S3)
+					.state(TestStates.S4)
+					.and()
+					.withStates()
+					.parent(TestStates.S2)
+					.region("FIRST")
+					.initial(TestStates.S20)
+					.state(TestStates.S21)
+					.end(TestStates.S22)
+					.and()
+					.withStates()
+					.parent(TestStates.S2)
+					.region("SECOND")
+					.initial(TestStates.S30)
+					.state(TestStates.S31)
+					.end(TestStates.S32);
+		}
+
+		@Override
+		public void configure(StateMachineTransitionConfigurer<TestStates, TestEvents> transitions) throws Exception {
+			transitions
+					.withExternal()
+					.source(TestStates.SI)
+					.target(TestStates.S1)
+					.and()
+					.withFork()
+					.source(TestStates.S1)
+					.target(TestStates.S2)
+					.and()
+					.withExternal()
+					.source(TestStates.S30)
+					.target(TestStates.S31)
+					.event(TestEvents.E1)
+					.and()
+					.withExternal()
+					.source(TestStates.S31)
+					.target(TestStates.S32)
+					.event(TestEvents.E2)
+					.and()
+					.withExternal()
+					.source(TestStates.S20)
+					.target(TestStates.S21)
+					.event(TestEvents.E3)
+					.and()
+					.withExternal()
+					.source(TestStates.S21)
+					.target(TestStates.S22)
+					.event(TestEvents.E4)
+					.and()
+					.withJoin()
+					.source(TestStates.S2)
+					.target(TestStates.S3)
+					.and()
+					.withExternal()
+					.source(TestStates.S3)
+					.target(TestStates.S4);
+		}
+
+
+	}
+
+	@Configuration
 	@EnableStateMachine
 	public static class ConfigWithEnums extends StateMachineConfigurerAdapter<PersistTestStates, PersistTestEvents> {
 
@@ -460,6 +629,15 @@ public class JpaRepositoryTests extends AbstractRepositoryTests {
 		public StateMachineRuntimePersister<PersistTestStates, PersistTestEvents, String> stateMachineRuntimePersister() {
 			return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository);
 		}
+	}
+	public enum TestStates {
+		SI,S1,S2,S3,S4,
+		S20,S21,S22,
+		S30,S31,S32
+	}
+
+	public enum TestEvents {
+		E1,E2,E3,E4
 	}
 
 	public enum PersistTestStates {
