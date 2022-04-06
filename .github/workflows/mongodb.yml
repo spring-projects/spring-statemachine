@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
+      - 3.1.x
     paths-ignore:
       - '.github/**'
   pull_request:
     branches:
-      - main
+      - 3.1.x
 
 jobs:
   build:
