@@ -15,7 +15,7 @@ to work with state machine concepts in Spring applications.
 
 It is advised to check the actual state of this project by referring to
 the latest releases found on
-https://projects.spring.io/spring-statemachine/[Spring
+https://spring.io/projects/spring-statemachine/[Spring
 Statemachine Project Page].
 The git repo default branch may be relatively unstable when new features are
 added into the source code.
