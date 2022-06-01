@@ -843,3 +843,10 @@ configure(rootProject) {
 		archives distZip
 	}
 }
+
+allprojects {
+    tasks.withType(JavaCompile).configureEach {
+        options.incremental = true
+    }
+
+}
