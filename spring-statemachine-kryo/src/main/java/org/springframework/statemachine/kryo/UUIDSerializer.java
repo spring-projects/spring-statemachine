@@ -1,3 +1,4 @@
+package org.springframework.statemachine.kryo;
 /*
  * Copyright 2015 the original author or authors.
  *
@@ -13,14 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.kryo;
+
+import com.esotericsoftware.kryo.kryo5.Kryo;
+import com.esotericsoftware.kryo.kryo5.Serializer;
+import com.esotericsoftware.kryo.kryo5.io.Input;
+import com.esotericsoftware.kryo.kryo5.io.Output;
 
 import java.util.UUID;
-
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.Serializer;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 
 /**
  * Kryo {@link Serializer} for {@link UUID}.
@@ -30,21 +30,23 @@ import com.esotericsoftware.kryo.io.Output;
  */
 public class UUIDSerializer extends Serializer<UUID> {
 
-	/**
-	 * Instantiates a new UUID serializer.
-	 */
-	public UUIDSerializer() {
-		setImmutable(true);
-	}
+    /**
+     * Instantiates a new UUID serializer.
+     */
+    public UUIDSerializer() {
+        setImmutable(true);
+    }
 
-	@Override
-	public void write(final Kryo kryo, final Output output, final UUID uuid) {
-		output.writeLong(uuid.getMostSignificantBits());
-		output.writeLong(uuid.getLeastSignificantBits());
-	}
+    @Override
+    public void write(final Kryo kryo, final Output output, final UUID uuid) {
+        output.writeLong(uuid.getMostSignificantBits());
+        output.writeLong(uuid.getLeastSignificantBits());
+    }
 
-	@Override
-	public UUID read(final Kryo kryo, final Input input, final Class<UUID> uuidClass) {
-		return new UUID(input.readLong(), input.readLong());
-	}
+    @Override
+    public UUID read(final Kryo kryo,final Input input,final Class<? extends UUID> aClass) {
+        return new UUID(input.readLong(), input.readLong());
+    }
+
 }
+

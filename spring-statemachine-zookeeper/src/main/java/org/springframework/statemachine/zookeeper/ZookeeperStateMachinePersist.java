@@ -29,14 +29,13 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.StateMachineException;
 import org.springframework.statemachine.StateMachinePersist;
-import org.springframework.statemachine.kryo.MessageHeadersSerializer;
-import org.springframework.statemachine.kryo.StateMachineContextSerializer;
-import org.springframework.statemachine.kryo.UUIDSerializer;
 import org.springframework.util.Assert;
-
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
+import org.springframework.statemachine.kryo.StateMachineContextSerializer;
+import org.springframework.statemachine.kryo.MessageHeadersSerializer;
+import org.springframework.statemachine.kryo.UUIDSerializer;
+import com.esotericsoftware.kryo.kryo5.Kryo;
+import com.esotericsoftware.kryo.kryo5.io.Input;
+import com.esotericsoftware.kryo.kryo5.io.Output;
 
 /**
  * {@link StateMachinePersist} using zookeeper as a storage and
@@ -57,6 +56,7 @@ public class ZookeeperStateMachinePersist<S, E> implements StateMachinePersist<S
 		@Override
 		protected Kryo initialValue() {
 			Kryo kryo = new Kryo();
+			kryo.setRegistrationRequired(false);
 			kryo.addDefaultSerializer(StateMachineContext.class, new StateMachineContextSerializer());
 			kryo.addDefaultSerializer(MessageHeaders.class, new MessageHeadersSerializer());
 			kryo.addDefaultSerializer(UUID.class, new UUIDSerializer());
