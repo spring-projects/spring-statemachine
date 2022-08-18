@@ -18,7 +18,9 @@ package org.springframework.statemachine.data.redis;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.UUID;
-
+import org.springframework.statemachine.kryo.StateMachineContextSerializer;
+import org.springframework.statemachine.kryo.MessageHeadersSerializer;
+import org.springframework.statemachine.kryo.UUIDSerializer;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -26,13 +28,10 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.StateMachineContextRepository;
-import org.springframework.statemachine.kryo.MessageHeadersSerializer;
-import org.springframework.statemachine.kryo.StateMachineContextSerializer;
-import org.springframework.statemachine.kryo.UUIDSerializer;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.kryo.kryo5.Kryo;
+import com.esotericsoftware.kryo.kryo5.io.Input;
+import com.esotericsoftware.kryo.kryo5.io.Output;
 
 /**
  * A {@link StateMachineContextRepository} backed by a redis and kryo serialization.

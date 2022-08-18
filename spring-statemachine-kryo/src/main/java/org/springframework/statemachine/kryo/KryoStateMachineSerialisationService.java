@@ -1,3 +1,4 @@
+package org.springframework.statemachine.kryo;
 /*
  * Copyright 2017 the original author or authors.
  *
@@ -13,17 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.kryo;
 
-import java.util.UUID;
-
+import com.esotericsoftware.kryo.kryo5.Kryo;
+import com.esotericsoftware.kryo.kryo5.io.Input;
+import com.esotericsoftware.kryo.kryo5.io.Output;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.service.StateMachineSerialisationService;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
+import java.util.UUID;
 
 /**
  * Implementation for {@link StateMachineSerialisationService} using kryo.
@@ -35,20 +34,21 @@ import com.esotericsoftware.kryo.io.Output;
  */
 public class KryoStateMachineSerialisationService<S, E> extends AbstractKryoStateMachineSerialisationService<S, E> {
 
-	@Override
-	protected void doEncode(Kryo kryo, Object object, Output output) {
-		kryo.writeObject(output, object);
-	}
+    @Override
+    protected void doEncode(Kryo kryo, Object object, Output output) {
+        kryo.writeObject(output, object);
+    }
 
-	@Override
-	protected <T> T doDecode(Kryo kryo, Input input, Class<T> type) {
-		return kryo.readObject(input, type);
-	}
+    @Override
+    protected <T> T doDecode(Kryo kryo, Input input, Class<T> type) {
+        return kryo.readObject(input, type);
+    }
 
-	@Override
-	protected void configureKryoInstance(Kryo kryo) {
-		kryo.addDefaultSerializer(StateMachineContext.class, new StateMachineContextSerializer<S, E>());
-		kryo.addDefaultSerializer(MessageHeaders.class, new MessageHeadersSerializer());
-		kryo.addDefaultSerializer(UUID.class, new UUIDSerializer());
-	}
+    @Override
+    protected void configureKryoInstance(Kryo kryo) {
+        kryo.setRegistrationRequired(false);
+        kryo.addDefaultSerializer(StateMachineContext.class, new StateMachineContextSerializer<S, E>());
+        kryo.addDefaultSerializer(MessageHeaders.class, new MessageHeadersSerializer());
+        kryo.addDefaultSerializer(UUID.class, new UUIDSerializer());
+    }
 }

@@ -1,3 +1,4 @@
+package org.springframework.statemachine.kryo;
 /*
  * Copyright 2015 the original author or authors.
  *
@@ -13,18 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.statemachine.kryo;
+
+import com.esotericsoftware.kryo.kryo5.Kryo;
+import com.esotericsoftware.kryo.kryo5.Serializer;
+import com.esotericsoftware.kryo.kryo5.io.Input;
+import com.esotericsoftware.kryo.kryo5.io.Output;
+import org.springframework.messaging.MessageHeaders;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.springframework.messaging.MessageHeaders;
-
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.Serializer;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 
 /**
  * Kryo {@link Serializer} for spring messaging message headers.
@@ -34,20 +33,20 @@ import com.esotericsoftware.kryo.io.Output;
  */
 public class MessageHeadersSerializer extends Serializer<MessageHeaders> {
 
-	@Override
-	public void write(Kryo kryo, Output output, MessageHeaders object) {
-		HashMap<String, Object> map = new HashMap<String, Object>();
-		for (Entry<String, Object> entry : object.entrySet()) {
-			map.put(entry.getKey(), entry.getValue());
-		}
-		kryo.writeClassAndObject(output, map);
-	}
+    @Override
+    public void write(Kryo kryo, Output output, MessageHeaders object) {
+        HashMap<String, Object> map = new HashMap<String, Object>();
+        for (Entry<String, Object> entry : object.entrySet()) {
+            map.put(entry.getKey(), entry.getValue());
+        }
+        kryo.writeClassAndObject(output, map);
+    }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public MessageHeaders read(Kryo kryo, Input input, Class<MessageHeaders> type) {
-		Map<String, Object> eventHeaders = (Map<String, Object>) kryo.readClassAndObject(input);
-		return new MessageHeaders(eventHeaders);
-	}
+    @SuppressWarnings("unchecked")
+    @Override
+    public MessageHeaders read(Kryo kryo, Input input, Class<? extends MessageHeaders> aClass) {
+        Map<String, Object> eventHeaders = (Map<String, Object>) kryo.readClassAndObject(input);
+        return new MessageHeaders(eventHeaders);
+    }
 
 }

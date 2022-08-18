@@ -29,10 +29,10 @@ import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.support.DefaultExtendedState;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.Serializer;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.kryo.kryo5.Kryo;
+import com.esotericsoftware.kryo.kryo5.Serializer;
+import com.esotericsoftware.kryo.kryo5.io.Input;
+import com.esotericsoftware.kryo.kryo5.io.Output;
 
 /**
  * Tests for {@link StateMachineContextSerializer}.
@@ -51,7 +51,7 @@ public class StateMachineContextSerializerTests {
 		Kryo kryo = new Kryo();
 		StateMachineContextSerializer<String, String> serializer = new StateMachineContextSerializer<>();
 		kryo.addDefaultSerializer(StateMachineContext.class, serializer);
-
+		kryo.setRegistrationRequired(false);
 		StateMachineContext<String, String> child = new DefaultStateMachineContext<String, String>(new ArrayList<>(), "child", "event1",
 				new HashMap<String, Object>(), new DefaultExtendedState());
 		List<StateMachineContext<String, String>> childs = new ArrayList<>();
@@ -76,7 +76,8 @@ public class StateMachineContextSerializerTests {
 		// and current(V2). raw bytes from V1 to V2.
 		Kryo kryoFrom = new Kryo();
 		Kryo kryoTo = new Kryo();
-
+		kryoFrom.setRegistrationRequired(false);
+		kryoTo.setRegistrationRequired(false);
 		StateMachineContextSerializerV1<String, String> serializerV1 = new StateMachineContextSerializerV1<>();
 		kryoFrom.addDefaultSerializer(StateMachineContext.class, serializerV1);
 
@@ -119,7 +120,7 @@ public class StateMachineContextSerializerTests {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public StateMachineContext<S, E> read(Kryo kryo, Input input, Class<StateMachineContext<S, E>> clazz) {
+		public StateMachineContext<S, E> read(Kryo kryo, Input input, Class<? extends StateMachineContext<S, E>> clazz) {
 			E event = (E) kryo.readClassAndObject(input);
 			S state = (S) kryo.readClassAndObject(input);
 			Map<String, Object> eventHeaders = (Map<String, Object>) kryo.readClassAndObject(input);
