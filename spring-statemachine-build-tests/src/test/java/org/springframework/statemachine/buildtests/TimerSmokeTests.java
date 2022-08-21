@@ -16,7 +16,10 @@
 package org.springframework.statemachine.buildtests;
 
 import org.junit.Test;
+import org.springframework.core.task.SyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineBuilder;
 import org.springframework.statemachine.test.StateMachineTestPlan;
@@ -25,8 +28,10 @@ import org.springframework.statemachine.test.StateMachineTestPlanBuilder;
 public class TimerSmokeTests {
 
 	private static ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+	private static ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
 	{
 		taskExecutor.initialize();
+		taskScheduler.initialize();
 	}
 
 	private StateMachine<String, String> buildMachine() throws Exception {
@@ -35,7 +40,8 @@ public class TimerSmokeTests {
 
 		builder.configureConfiguration()
 			.withConfiguration()
-				.taskExecutor(taskExecutor);
+				.taskExecutor(taskExecutor)
+					.taskScheduler(taskScheduler);
 
 		builder.configureStates()
 			.withStates()
