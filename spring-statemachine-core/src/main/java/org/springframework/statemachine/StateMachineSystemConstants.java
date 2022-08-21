@@ -38,4 +38,7 @@ public abstract class StateMachineSystemConstants {
 	/** Bean name for task executor */
 	public static final String TASK_EXECUTOR_BEAN_NAME = "stateMachineTaskExecutor";
 
+	/** Task scheduler threads prefix **/
+	public static final String TASK_SCHEDULER_THREAD_PREFIX = "spring-state-machine-task-scheduler-";
+
 }

@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.statemachine.StateMachineSystemConstants;
 
 /**
@@ -39,7 +39,7 @@ public class StateMachineCommonConfiguration {
 
 	@Bean
 	public TaskScheduler taskScheduler() {
-		return new ConcurrentTaskScheduler();
+		return new ThreadPoolTaskScheduler();
 	}
 
 	@Bean(name = StateMachineHandlerApplicationListener.BEAN_NAME)

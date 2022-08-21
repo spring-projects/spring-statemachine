@@ -16,9 +16,10 @@
 package org.springframework.statemachine.config;
 
 import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineException;
+import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.statemachine.config.builders.StateMachineConfigBuilder;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationBuilder;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
@@ -35,6 +36,11 @@ import org.springframework.statemachine.config.model.DefaultStateMachineModel;
 import org.springframework.statemachine.config.model.ConfigurationData;
 import org.springframework.statemachine.config.model.StatesData;
 import org.springframework.statemachine.config.model.TransitionsData;
+import org.springframework.statemachine.listener.StateMachineListener;
+import org.springframework.statemachine.listener.StateMachineListenerAdapter;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * {@code StateMachineBuilder} provides a builder pattern for
@@ -147,12 +153,35 @@ public class StateMachineBuilder {
 				} else {
 					stateMachineFactory.setTaskExecutor(new SyncTaskExecutor());
 				}
+
+				final Collection<StateMachineListener<S, E>> resourceManagementListeners = new ArrayList<>();
 				if (stateMachineConfigurationConfig.getTaskScheduler() != null) {
 					stateMachineFactory.setTaskScheduler(stateMachineConfigurationConfig.getTaskScheduler());
 				} else {
-					stateMachineFactory.setTaskScheduler(new ConcurrentTaskScheduler());
+					final ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
+					taskScheduler.setThreadNamePrefix(StateMachineSystemConstants.TASK_SCHEDULER_THREAD_PREFIX);
+					taskScheduler.setPoolSize(1);
+					taskScheduler.setWaitForTasksToCompleteOnShutdown(true);
+					taskScheduler.setAwaitTerminationSeconds(10);
+					taskScheduler.afterPropertiesSet();
+					stateMachineFactory.setTaskScheduler(taskScheduler);
+					resourceManagementListeners.add(new StateMachineListenerAdapter<S, E>() {
+						@Override
+						public void stateMachineStarted(final StateMachine<S, E> stateMachine) {
+							taskScheduler.afterPropertiesSet();
+						}
+
+						@Override
+						public void stateMachineStopped(final StateMachine<S, E> stateMachine) {
+							taskScheduler.destroy();
+						}
+					});
 				}
-				return stateMachineFactory.getStateMachine();
+				final StateMachine<S, E> stateMachine = stateMachineFactory.getStateMachine();
+				for (final StateMachineListener<S, E> listener : resourceManagementListeners) {
+					stateMachine.addStateListener(listener);
+				}
+				return stateMachine;
 			} catch (Exception e) {
 				throw new StateMachineException("Error building state machine", e);
 			}
