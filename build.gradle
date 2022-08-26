@@ -13,9 +13,9 @@ buildscript {
 		eclipseEmfEcoreVersion = '2.11.1-v20150805-0538'
 		eclipseUml2UmlVersion = '5.0.0-v20140602-0749'
 		curatorVersion = '2.11.1'
-		docResourcesVersion = '0.2.5'
 		awaitilityVersion = '3.1.6'
 		reactorBlockHoundVersion = '1.0.4.RELEASE'
+		springAsciidoctorBackendsVersion = '0.0.3'
 	}
 	repositories {
 		gradlePluginPortal()
@@ -600,16 +600,11 @@ configure(rootProject) {
 	}
 
 	configurations {
-		docs
+		asciidoctorExtensions
 	}
 
 	task prepareAsciidocBuild(type: Sync) {
-		dependsOn configurations.docs
-		// copy doc resources
-		from {
-			configurations.docs.collect { zipTree(it) }
-		}
-		// and doc sources
+		// Copy doc sources
 		from 'docs/src/reference/asciidoc/'
 		// to a build directory of your choice
 		into "$buildDir/asciidoc/assemble"
@@ -618,6 +613,7 @@ configure(rootProject) {
 	asciidoctor {
 		dependsOn 'prepareAsciidocBuild'
 		dependsOn 'copyDocsSamples'
+		configurations "asciidoctorExtensions"
 		baseDirFollowsSourceFile()
 		sourceDir "$buildDir/asciidoc/assemble"
 		sources {
@@ -627,6 +623,9 @@ configure(rootProject) {
 			from(sourceDir) {
 				include 'images/*', 'css/**', 'js/**', 'samples/**'
 			}
+		}
+		outputOptions {
+			backends "spring-html"
 		}
 		options doctype: 'book', eruby: 'erubis'
 		attributes \
@@ -662,8 +661,8 @@ configure(rootProject) {
 			'revnumber' : project.version
 	}
 
-	dependencies { // for integration tests
-		docs "io.spring.docresources:spring-doc-resources:${docResourcesVersion}@zip"
+	dependencies {
+		asciidoctorExtensions "io.spring.asciidoctor.backends:spring-asciidoctor-backends:${springAsciidoctorBackendsVersion}"
 	}
 
 	task copyDocsSamples(type: Copy) {
