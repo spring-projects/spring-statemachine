@@ -39,7 +39,7 @@ import org.springframework.util.ObjectUtils;
  */
 public class DistributedLeaderAction<S, E> implements Action<S, E> {
 
-	private final static Log log = LogFactory.getLog(DistributedLeaderAction.class);
+	private static final Log log = LogFactory.getLog(DistributedLeaderAction.class);
 	private final Action<S, E> action;
 	private final StateMachineEnsemble<S, E> ensemble;
 
