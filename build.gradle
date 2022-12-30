@@ -22,14 +22,14 @@ buildscript {
 		maven { url 'https://repo.spring.io/plugins-release' }
 	}
 	dependencies {
-		classpath("io.spring.gradle:propdeps-plugin:0.0.8")
+		// classpath("io.spring.gradle:propdeps-plugin:0.0.8")
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
 	}
 }
 
 plugins {
-	id 'org.asciidoctor.jvm.convert' version '3.1.0'
-	id 'org.asciidoctor.jvm.pdf' version '3.1.0'
+	id 'org.asciidoctor.jvm.convert' version '3.3.2'
+	id 'org.asciidoctor.jvm.pdf' version '3.3.2'
 }
 
 def recipeProjects() {
@@ -46,7 +46,7 @@ def sampleProjects() {
 
 def getResolvedVersionOf(dependency) {
 	// used for resolving version to docs
-	return configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.findAll { it.moduleName == dependency }[0].moduleVersion
+	return configurations.compileClasspath.resolvedConfiguration.firstLevelModuleDependencies.findAll { it.moduleName == dependency }[0].moduleVersion
 }
 
 configure(allprojects) {
@@ -54,7 +54,7 @@ configure(allprojects) {
 	apply plugin: 'eclipse'
 	apply plugin: 'io.spring.dependency-management'
 	apply plugin: 'idea'
-	apply plugin: 'propdeps'
+//	apply plugin: 'propdeps'
 
 	if (System.env.TRAVIS == 'true') {
 		tasks.withType(GroovyCompile) {
@@ -142,13 +142,14 @@ configure(allprojects) {
 	}
 }
 
+/*
 configure(subprojects) { subproject ->
 	apply from: "${rootProject.projectDir}/publish-maven.gradle"
 
 	dependencies {
-		testCompile("org.junit.jupiter:junit-jupiter-api")
-		testCompile("io.projectreactor.tools:blockhound")
-		testCompile("org.springframework.boot:spring-boot-starter-test")
+		testImplementation("org.junit.jupiter:junit-jupiter-api")
+		testImplementation("io.projectreactor.tools:blockhound")
+		testImplementation("org.springframework.boot:spring-boot-starter-test")
 		testRuntime("org.junit.jupiter:junit-jupiter-engine")
 		if (project.hasProperty('statemachineBlockHound') && statemachineBlockHound.toBoolean()) {
 			testRuntime("org.junit.platform:junit-platform-launcher")
@@ -204,6 +205,7 @@ configure(subprojects) { subproject ->
 		}
 	}
 }
+*/
 
 project('spring-statemachine-core') {
 	description = 'Spring State Machine Core'
@@ -213,27 +215,29 @@ project('spring-statemachine-core') {
 	}
 
 	dependencies {
-		compile 'org.springframework:spring-tx'
-		compile 'org.springframework:spring-messaging'
-		compile 'io.projectreactor:reactor-core'
-		optional 'org.springframework.security:spring-security-core'
+		implementation 'org.springframework:spring-tx'
+		implementation 'org.springframework:spring-messaging'
+		implementation 'io.projectreactor:reactor-core'
+		implementation 'org.springframework.security:spring-security-core'
 
-		testCompile 'org.springframework:spring-test'
-		testCompile 'org.springframework:spring-web'
-		testCompile 'org.springframework:spring-webmvc'
-		testCompile 'io.projectreactor:reactor-test'
-		testCompile 'org.apache.tomcat.embed:tomcat-embed-core'
-		testCompile('org.mockito:mockito-core') { dep ->
+		testImplementation 'org.springframework:spring-test'
+		testImplementation 'org.springframework:spring-web'
+		testImplementation 'org.springframework:spring-webmvc'
+		testImplementation 'org.springframework.boot:spring-boot-test'
+		testImplementation "io.projectreactor.tools:blockhound:$reactorBlockHoundVersion"
+		testImplementation 'io.projectreactor:reactor-test'
+		testImplementation 'org.apache.tomcat.embed:tomcat-embed-core'
+		testImplementation('org.mockito:mockito-core') { dep ->
 			exclude group: 'org.hamcrest'
 		}
-		testCompile("org.junit.jupiter:junit-jupiter-api")
-		testCompile("org.junit.jupiter:junit-jupiter-engine")
-		testCompile 'org.assertj:assertj-core'
-		testCompile 'org.springframework.security:spring-security-config'
-		testCompile 'org.springframework.security:spring-security-test'
-		testCompile 'javax.servlet:javax.servlet-api'
-		testCompile 'org.awaitility:awaitility'
-		testRuntime 'org.apache.logging.log4j:log4j-core'
+		testImplementation("org.junit.jupiter:junit-jupiter-api")
+		testImplementation("org.junit.jupiter:junit-jupiter-engine")
+		testImplementation 'org.assertj:assertj-core'
+		testImplementation 'org.springframework.security:spring-security-config'
+		testImplementation 'org.springframework.security:spring-security-test'
+		testImplementation 'javax.servlet:javax.servlet-api'
+		testImplementation 'org.awaitility:awaitility'
+		testRuntimeOnly 'org.apache.logging.log4j:log4j-core'
 	}
 
 	task testJar(type: Jar) {
@@ -250,24 +254,25 @@ project('spring-statemachine-autoconfigure') {
 	description = 'Spring State Machine Boot Autoconfigure'
 
 	dependencies {
-		compile project(':spring-statemachine-core')
-		compile 'org.springframework.boot:spring-boot-autoconfigure'
-		compile 'org.springframework.boot:spring-boot-actuator-autoconfigure'
-		compile 'org.springframework.boot:spring-boot-actuator'
-		optional project(':spring-statemachine-data-common:spring-statemachine-data-jpa')
-		optional project(':spring-statemachine-data-common:spring-statemachine-data-redis')
-		optional project(':spring-statemachine-data-common:spring-statemachine-data-mongodb')
-		optional 'org.springframework.boot:spring-boot-autoconfigure-processor'
-		optional 'io.micrometer:micrometer-core'
-		optional 'org.eclipse.persistence:javax.persistence'
-		optional 'org.springframework.boot:spring-boot-starter-data-jpa'
-		optional 'org.springframework.boot:spring-boot-starter-data-redis'
-		optional 'org.springframework.boot:spring-boot-starter-data-mongodb'
-		testRuntime 'com.h2database:h2'
-		testCompile 'org.springframework.boot:spring-boot-test'
-		testCompile 'org.springframework:spring-test'
-		testCompile("org.junit.jupiter:junit-jupiter-api")
-		testCompile("org.junit.jupiter:junit-jupiter-engine")
+		implementation project(':spring-statemachine-core')
+		implementation 'org.springframework.boot:spring-boot-autoconfigure'
+		implementation 'org.springframework.boot:spring-boot-actuator-autoconfigure'
+		implementation 'org.springframework.boot:spring-boot-actuator'
+		implementation project(':spring-statemachine-data-common:spring-statemachine-data-jpa')
+		implementation project(':spring-statemachine-data-common:spring-statemachine-data-redis')
+		implementation project(':spring-statemachine-data-common:spring-statemachine-data-mongodb')
+		implementation 'org.springframework.boot:spring-boot-autoconfigure-processor'
+		implementation 'io.micrometer:micrometer-core'
+		implementation 'org.eclipse.persistence:javax.persistence'
+		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+		implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+		implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+		testRuntimeOnly 'com.h2database:h2'
+		testImplementation 'org.springframework.boot:spring-boot-test'
+		testImplementation 'org.springframework:spring-test'
+		testImplementation 'org.assertj:assertj-core'
+		testImplementation("org.junit.jupiter:junit-jupiter-api")
+		testImplementation("org.junit.jupiter:junit-jupiter-engine")
 	}
 }
 
@@ -275,20 +280,22 @@ project('spring-statemachine-test') {
 	description = "Spring State Machine Test"
 
 	dependencies {
-		compile 'org.springframework:spring-context'
-		compile project(':spring-statemachine-core')
-		compile 'org.springframework:spring-test'
-		compile 'org.hamcrest:hamcrest-core'
-		compile 'org.hamcrest:hamcrest-library'
-		compile 'org.assertj:assertj-core'
-		optional 'junit:junit'
-		optional 'org.junit.jupiter:junit-jupiter-api'
-		optional 'org.junit.vintage:junit-vintage-engine'
-		testCompile('org.mockito:mockito-core') { dep ->
+		implementation 'org.springframework:spring-context'
+		implementation 'org.springframework:spring-messaging'
+		implementation 'io.projectreactor:reactor-core'
+		implementation project(':spring-statemachine-core')
+		implementation 'org.springframework:spring-test'
+		implementation 'org.hamcrest:hamcrest-core'
+		implementation 'org.hamcrest:hamcrest-library'
+		implementation 'org.assertj:assertj-core'
+		implementation 'junit:junit'
+		implementation 'org.junit.jupiter:junit-jupiter-api'
+		implementation 'org.junit.vintage:junit-vintage-engine'
+		testImplementation('org.mockito:mockito-core') { dep ->
 			exclude group: 'org.hamcrest'
 		}
-		testCompile project(path:':spring-statemachine-core', configuration:'testArtifacts')
-		testCompile 'io.projectreactor:reactor-test'
+		testImplementation project(path:':spring-statemachine-core', configuration:'testArtifacts')
+		testImplementation 'io.projectreactor:reactor-test'
 	}
 }
 
@@ -296,17 +303,20 @@ project('spring-statemachine-kryo') {
 	description = 'Spring State Machine Kryo'
 
 	dependencies {
-		compile project(':spring-statemachine-core')
-		compile 'com.esotericsoftware:kryo-shaded'
+		implementation project(':spring-statemachine-core')
+		implementation 'com.esotericsoftware:kryo-shaded'
+		implementation 'org.springframework:spring-core'
+		implementation 'org.springframework:spring-messaging'
 
-		testCompile (project(':spring-statemachine-test')) { dep ->
+		testImplementation (project(':spring-statemachine-test')) { dep ->
 			exclude group: 'junit', module: 'junit'
 			exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 		}
-		testCompile 'org.springframework:spring-test'
-		testCompile("org.junit.jupiter:junit-jupiter-api")
-		testCompile("org.junit.jupiter:junit-jupiter-engine")
-		testRuntime 'org.apache.logging.log4j:log4j-core'
+		testImplementation 'org.springframework:spring-test'
+		testImplementation 'org.assertj:assertj-core'
+		testImplementation("org.junit.jupiter:junit-jupiter-api")
+		testImplementation("org.junit.jupiter:junit-jupiter-engine")
+		testRuntimeOnly 'org.apache.logging.log4j:log4j-core'
 	}
 }
 
@@ -314,22 +324,27 @@ project('spring-statemachine-zookeeper') {
 	description = 'Spring State Machine Zookeeper'
 
 	dependencies {
-		compile 'org.springframework:spring-context'
-		compile project(':spring-statemachine-core')
-		compile project(':spring-statemachine-kryo')
-		compile 'org.apache.curator:curator-recipes'
+		implementation 'org.springframework:spring-context'
+		implementation project(':spring-statemachine-core')
+		implementation project(':spring-statemachine-kryo')
+		implementation 'com.esotericsoftware:kryo-shaded'
+		implementation 'io.projectreactor:reactor-core'
+		implementation 'org.springframework:spring-messaging'
+		implementation 'org.springframework:spring-tx'
+		implementation 'org.apache.curator:curator-recipes'
 		// github.com/spring-gradle-plugins/dependency-management-plugin/issues/136
-		runtime 'log4j:log4j'
+		runtimeOnly 'log4j:log4j'
 
-		testCompile (project(':spring-statemachine-test')) { dep ->
+		testImplementation (project(':spring-statemachine-test')) { dep ->
 			exclude group: 'junit', module: 'junit'
 			exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 		}
-		testCompile 'org.apache.curator:curator-test'
-		testCompile 'org.springframework:spring-test'
-		testCompile("org.junit.jupiter:junit-jupiter-api")
-		testCompile("org.junit.jupiter:junit-jupiter-engine")
-		testRuntime 'org.apache.logging.log4j:log4j-core'
+		testImplementation 'org.apache.curator:curator-test'
+		testImplementation 'org.springframework:spring-test'
+		testImplementation("org.junit.jupiter:junit-jupiter-api")
+		testImplementation("org.junit.jupiter:junit-jupiter-engine")
+		testImplementation 'org.assertj:assertj-core'
+		testRuntimeOnly 'org.apache.logging.log4j:log4j-core'
 	}
 }
 
@@ -338,20 +353,25 @@ project('spring-statemachine-data-common') {
 		testArtifacts.extendsFrom testRuntime
 	}
 	dependencies {
-		compile project(':spring-statemachine-core')
-		compile project(':spring-statemachine-kryo')
-		compile 'org.springframework.data:spring-data-commons'
-		optional 'org.springframework.security:spring-security-core'
-		compile 'com.fasterxml.jackson.core:jackson-core'
-		compile 'com.fasterxml.jackson.core:jackson-databind'
-		testCompile (project(':spring-statemachine-test')) { dep ->
+		implementation project(':spring-statemachine-core')
+		implementation project(':spring-statemachine-kryo')
+		implementation 'io.projectreactor:reactor-core'
+		implementation 'org.springframework.data:spring-data-commons'
+
+
+		implementation 'org.springframework.security:spring-security-core'
+		implementation 'com.fasterxml.jackson.core:jackson-core'
+		implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+		testImplementation (project(':spring-statemachine-test')) { dep ->
 			exclude group: 'junit', module: 'junit'
 			exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 		}
-		testCompile project(path:':spring-statemachine-core', configuration:'testArtifacts')
-		testCompile 'io.projectreactor:reactor-test'
-		testCompile 'org.springframework.boot:spring-boot-starter-test'
-		testRuntime 'org.springframework.boot:spring-boot-starter-web'
+		testImplementation project(path:':spring-statemachine-core', configuration:'testArtifacts')
+		testImplementation 'org.springframework:spring-messaging'
+		testImplementation 'io.projectreactor:reactor-test'
+		testImplementation 'org.springframework.boot:spring-boot-starter-test'
+		testRuntimeOnly 'org.springframework.boot:spring-boot-starter-web'
 	}
 	task testJar(type: Jar) {
 		classifier = 'tests'
@@ -366,18 +386,25 @@ project('spring-statemachine-cluster') {
 	description = 'Spring State Machine Cluster'
 
 	dependencies {
-		compile project(':spring-statemachine-zookeeper')
-		compile 'org.springframework.integration:spring-integration-zookeeper'
+		implementation project(':spring-statemachine-zookeeper')
+		implementation 'org.springframework.integration:spring-integration-zookeeper'
+		implementation project(':spring-statemachine-core')
+		//implementation project(':spring-statemachine-kryo')
+		//implementation 'com.esotericsoftware:kryo-shaded'
+		//implementation 'io.projectreactor:reactor-core'
+		//implementation 'org.springframework:spring-messaging'
+		//implementation 'org.springframework:spring-tx'
 
-		testCompile (project(':spring-statemachine-test')) { dep ->
+		testImplementation (project(':spring-statemachine-test')) { dep ->
 			exclude group: 'junit', module: 'junit'
 			exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 		}
-		testCompile 'org.apache.curator:curator-test'
-		testCompile 'org.springframework:spring-test'
-		testCompile("org.junit.jupiter:junit-jupiter-api")
-		testCompile("org.junit.jupiter:junit-jupiter-engine")
-		testRuntime 'org.apache.logging.log4j:log4j-core'
+		testImplementation 'org.apache.curator:curator-test'
+		testImplementation 'org.springframework:spring-test'
+		testImplementation("org.junit.jupiter:junit-jupiter-api")
+		testImplementation("org.junit.jupiter:junit-jupiter-engine")
+		testImplementation 'org.assertj:assertj-core'
+		testRuntimeOnly 'org.apache.logging.log4j:log4j-core'
 	}
 }
 
@@ -385,11 +412,16 @@ project('spring-statemachine-uml') {
 	description = 'Spring State Machine Uml'
 
 	dependencies {
-		compile project(':spring-statemachine-core')
-		optional 'org.springframework.security:spring-security-core'
+		implementation project(':spring-statemachine-core')
+		implementation 'io.projectreactor:reactor-core'
+		implementation 'org.springframework:spring-core'
+		implementation 'org.springframework:spring-expression'
+		implementation 'org.springframework:spring-beans'
+		implementation 'org.springframework:spring-context'
+		implementation 'org.springframework:spring-tx'
 
 		// these eclipse maven deps are simply broken
-		compile('org.eclipse.uml2:uml') { dep ->
+		implementation('org.eclipse.uml2:uml') { dep ->
 			exclude group: 'org.eclipse.core', module: 'runtime'
 			exclude group: 'org.eclipse.emf', module: 'ecore'
 			exclude group: 'org.eclipse.emf.ecore', module: 'xmi'
@@ -397,25 +429,27 @@ project('spring-statemachine-uml') {
 			exclude group: 'org.eclipse.uml2', module: 'common'
 			exclude group: 'org.eclipse.uml2', module: 'types'
 		}
-		compile('org.eclipse.uml2:types') { dep ->
+		implementation('org.eclipse.uml2:types') { dep ->
 			exclude group: 'org.eclipse.core', module: 'runtime'
 			exclude group: 'org.eclipse.emf', module: 'ecore'
 			exclude group: 'org.eclipse.uml2', module: 'common'
 		}
-		compile('org.eclipse.uml2:common') { dep ->
+		implementation('org.eclipse.uml2:common') { dep ->
 			exclude group: 'org.eclipse.core', module: 'runtime'
 			exclude group: 'org.eclipse.emf', module: 'ecore'
 		}
-		compile 'org.eclipse.emf:org.eclipse.emf.ecore.xmi'
-		compile 'org.eclipse.emf:org.eclipse.emf.ecore'
-		compile 'org.eclipse.emf:org.eclipse.emf.common'
-		testCompile project(path:':spring-statemachine-core', configuration:'testArtifacts')
-		testCompile 'io.projectreactor:reactor-test'
-		testCompile 'org.springframework:spring-test'
-		testCompile("org.junit.jupiter:junit-jupiter-api")
-		testCompile("org.junit.jupiter:junit-jupiter-engine")
-		testCompile 'org.awaitility:awaitility'
-		testRuntime 'org.apache.logging.log4j:log4j-core'
+		implementation 'org.eclipse.emf:org.eclipse.emf.ecore.xmi'
+		implementation 'org.eclipse.emf:org.eclipse.emf.ecore'
+		implementation 'org.eclipse.emf:org.eclipse.emf.common'
+		testImplementation project(path:':spring-statemachine-core', configuration:'testArtifacts')
+		testImplementation 'io.projectreactor:reactor-test'
+		testImplementation 'org.springframework:spring-test'
+		testImplementation("org.junit.jupiter:junit-jupiter-api")
+		testImplementation("org.junit.jupiter:junit-jupiter-engine")
+		testImplementation 'org.awaitility:awaitility'
+		testImplementation 'org.assertj:assertj-core'
+		testImplementation 'org.springframework:spring-messaging'
+		testRuntimeOnly 'org.apache.logging.log4j:log4j-core'
 	}
 }
 
@@ -423,44 +457,55 @@ project('spring-statemachine-build-tests') {
 	description = 'Spring State Machine Build Tests'
 
 	dependencies {
-		testCompile project(':spring-statemachine-uml')
-		testCompile project(':spring-statemachine-test')
-		testCompile project(':spring-statemachine-data-common:spring-statemachine-data-jpa')
-		testCompile project(':spring-statemachine-data-common:spring-statemachine-data-redis')
-		testCompile project(':spring-statemachine-data-common:spring-statemachine-data-mongodb')
-		testCompile project(path:':spring-statemachine-core', configuration:'testArtifacts')
-		testCompile 'io.projectreactor:reactor-test'
-		testCompile 'org.apache.commons:commons-pool2'
-		testRuntime 'org.springframework.boot:spring-boot-starter-data-mongodb'
-		testRuntime 'org.springframework.boot:spring-boot-starter-data-redis'
-		testRuntime 'redis.clients:jedis'
-		testCompile 'org.springframework.boot:spring-boot-starter-data-jpa'
-		testCompile 'com.h2database:h2'
-		testCompile 'org.springframework.boot:spring-boot-starter'
-		testCompile 'org.springframework:spring-test'
+		testImplementation project(':spring-statemachine-core')
+		testImplementation project(':spring-statemachine-uml')
+		testImplementation project(':spring-statemachine-test')
+		testImplementation project(':spring-statemachine-data-common')
+		testImplementation project(':spring-statemachine-data-common:spring-statemachine-data-jpa')
+		testImplementation project(':spring-statemachine-data-common:spring-statemachine-data-redis')
+		testImplementation project(':spring-statemachine-data-common:spring-statemachine-data-mongodb')
+		testImplementation project(path:':spring-statemachine-core', configuration:'testArtifacts')
+		testImplementation "io.projectreactor.tools:blockhound:$reactorBlockHoundVersion"
+		testImplementation 'io.projectreactor:reactor-test'
+		testImplementation 'org.apache.commons:commons-pool2'
+		testImplementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+		testImplementation 'org.springframework.boot:spring-boot-starter-data-redis'
+		testImplementation 'redis.clients:jedis'
+		testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+		testImplementation 'com.h2database:h2'
+		testImplementation 'org.springframework:spring-messaging'
+		testImplementation 'org.springframework.boot:spring-boot-starter'
+		testImplementation 'org.springframework.boot:spring-boot-starter-test'
+		testImplementation 'org.springframework:spring-test'
 	}
 }
 
 configure(recipeProjects()) {
 	dependencies {
-		compile project(':spring-statemachine-recipes-common')
-		testCompile project(path:':spring-statemachine-core', configuration:'testArtifacts')
-		testCompile 'io.projectreactor:reactor-test'
-		testCompile 'org.springframework:spring-test'
-		testCompile("org.junit.jupiter:junit-jupiter-api")
-		testCompile("org.junit.jupiter:junit-jupiter-engine")
+		implementation project(':spring-statemachine-recipes-common')
+		testImplementation project(path:':spring-statemachine-core', configuration:'testArtifacts')
+		testImplementation 'io.projectreactor:reactor-test'
+		testImplementation 'org.springframework:spring-test'
+		testImplementation("org.junit.jupiter:junit-jupiter-api")
+		testImplementation("org.junit.jupiter:junit-jupiter-engine")
 	}
 }
 
 project('spring-statemachine-recipes-common') {
 	dependencies {
-		compile 'org.springframework:spring-context'
-		compile project(':spring-statemachine-core')
-		testCompile project(path:':spring-statemachine-core', configuration:'testArtifacts')
-		testCompile 'io.projectreactor:reactor-test'
-		testCompile 'org.springframework:spring-test'
-		testCompile("org.junit.jupiter:junit-jupiter-api")
-		testCompile("org.junit.jupiter:junit-jupiter-engine")
+		implementation 'org.springframework:spring-context'
+		implementation project(':spring-statemachine-core')
+		implementation 'io.projectreactor:reactor-core'
+		implementation 'org.springframework:spring-messaging'
+		implementation 'org.springframework:spring-tx'
+
+		testImplementation project(path:':spring-statemachine-core', configuration:'testArtifacts')
+		testImplementation "io.projectreactor.tools:blockhound:$reactorBlockHoundVersion"
+		testImplementation 'io.projectreactor:reactor-test'
+		testImplementation 'org.springframework:spring-test'
+		testImplementation 'org.assertj:assertj-core'
+		testImplementation("org.junit.jupiter:junit-jupiter-api")
+		testImplementation("org.junit.jupiter:junit-jupiter-engine")
 	}
 }
 
@@ -479,6 +524,7 @@ project('spring-statemachine-bom') {
 		archives(file('spring-statemachine-bom.txt'))
 	}
 
+	/*
 	install {
 		repositories.mavenInstaller {
 			pom.whenConfigured {
@@ -505,16 +551,17 @@ project('spring-statemachine-bom') {
 			}
 		}
 	}
+	*/
 
 }
 
 project('spring-statemachine-starter') {
 	description = 'Spring Statemachine Starter'
 	dependencies {
-		compile project(':spring-statemachine-autoconfigure')
-		compile 'org.springframework.boot:spring-boot-starter'
+		implementation project(':spring-statemachine-autoconfigure')
+		implementation 'org.springframework.boot:spring-boot-starter'
 	}
-
+/*
 	install {
 		repositories.mavenInstaller {
 			pom.whenConfigured {
@@ -530,6 +577,7 @@ project('spring-statemachine-starter') {
 			}
 		}
 	}
+	*/
 }
 
 configure(sampleProjects()) {
@@ -539,19 +587,19 @@ configure(sampleProjects()) {
 		targetCompatibility = 1.8
 	}
 	dependencies {
-		compile project(':spring-statemachine-core')
-		compile 'org.springframework:spring-context-support'
-		testCompile('org.mockito:mockito-core') { dep ->
+		implementation project(':spring-statemachine-core')
+		implementation 'org.springframework:spring-context-support'
+		testImplementation('org.mockito:mockito-core') { dep ->
 			exclude group: 'org.hamcrest'
 		}
-		testCompile (project(':spring-statemachine-test')) { dep ->
+		testImplementation (project(':spring-statemachine-test')) { dep ->
 			exclude group: 'junit', module: 'junit'
 			exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 		}
-		testCompile 'org.springframework.boot:spring-boot-test'
-		testCompile 'org.springframework:spring-test'
-		testCompile("org.junit.jupiter:junit-jupiter-api")
-		testCompile("org.junit.jupiter:junit-jupiter-engine")
+		testImplementation 'org.springframework.boot:spring-boot-test'
+		testImplementation 'org.springframework:spring-test'
+		testImplementation("org.junit.jupiter:junit-jupiter-api")
+		testImplementation("org.junit.jupiter:junit-jupiter-engine")
 	}
 	build.dependsOn bootJar
 
@@ -562,10 +610,12 @@ configure(sampleProjects()) {
 
 project('spring-statemachine-samples-common') {
 	dependencies {
-		compile project(':spring-statemachine-core')
-		compile 'org.springframework.shell:spring-shell'
-		compile 'org.springframework.boot:spring-boot-starter'
-		testCompile project(path:':spring-statemachine-core', configuration:'testArtifacts')
+		implementation project(':spring-statemachine-core')
+		implementation 'io.projectreactor:reactor-core'
+		implementation 'org.springframework:spring-messaging'
+		implementation 'org.springframework.shell:spring-shell'
+		implementation 'org.springframework.boot:spring-boot-starter'
+		testImplementation project(path:':spring-statemachine-core', configuration:'testArtifacts')
 	}
 }
 
@@ -588,8 +638,8 @@ configure(rootProject) {
 
 	dependencies {
 		// just used to get version into docs
-		compile 'org.springframework:spring-core'
-		compile 'org.springframework.boot:spring-boot'
+		implementation 'org.springframework:spring-core'
+		implementation 'org.springframework.boot:spring-boot'
 	}
 
 	// don't publish the default jar for the root project

@@ -143,8 +143,6 @@ public interface TransitionConfigurer<T, S, E> extends
 	 *
 	 * @param name the name
 	 * @return configurer for chaining
-	 * @param name
-	 * @return
 	 */
 	T name(String name);
 }

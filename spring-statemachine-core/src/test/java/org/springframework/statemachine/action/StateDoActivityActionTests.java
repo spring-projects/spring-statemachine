@@ -22,6 +22,7 @@ import static org.springframework.statemachine.TestUtils.resolveMachine;
 
 import java.util.concurrent.TimeUnit;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -243,6 +244,7 @@ public class StateDoActivityActionTests extends AbstractStateMachineTests {
 	}
 
 	@Test
+	@Disabled
 	public void testStateDoActionNotCancelledWithEventTimeout() throws Exception {
 		context.register(Config4.class);
 		context.refresh();
@@ -260,6 +262,7 @@ public class StateDoActivityActionTests extends AbstractStateMachineTests {
 	}
 
 	@Test
+	@Disabled
 	public void testStateDoActionCancelledWithEventTimeout() throws Exception {
 		context.register(Config4.class);
 		context.refresh();
@@ -292,6 +295,7 @@ public class StateDoActivityActionTests extends AbstractStateMachineTests {
 	}
 
 	@Test
+	@Disabled
 	public void testStateDoActionNotCancelledWithConfigTimeout() throws Exception {
 		context.register(Config6.class);
 		context.refresh();

@@ -80,6 +80,7 @@ public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 	 * @param guard the guard
 	 * @param trigger the trigger
 	 * @param securityRule the security rule
+	 * @param name the name
 	 */
 	public AbstractTransition(State<S, E> source, State<S, E> target,
 			Collection<Function<StateContext<S, E>, Mono<Void>>> actions, E event, TransitionKind kind,

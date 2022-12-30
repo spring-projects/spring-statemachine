@@ -115,8 +115,8 @@ ext {
 }
 
 dependencies {
-	compile('org.springframework.statemachine:spring-statemachine-starter')
-	testCompile('org.springframework.boot:spring-boot-starter-test')
+	implementation('org.springframework.statemachine:spring-statemachine-starter')
+	testImplementation('org.springframework.boot:spring-boot-starter-test')
 }
 
 dependencyManagement {

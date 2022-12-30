@@ -7,48 +7,43 @@ include 'spring-statemachine-zookeeper'
 include 'spring-statemachine-cluster'
 include 'spring-statemachine-uml'
 include 'spring-statemachine-build-tests'
-include 'spring-statemachine-recipes'
+include 'spring-statemachine-recipes-common'
 include 'spring-statemachine-autoconfigure'
 include 'spring-statemachine-bom'
 include 'spring-statemachine-starter'
 
-include 'spring-statemachine-samples'
-include 'spring-statemachine-samples:turnstile'
-include 'spring-statemachine-samples:turnstilereactive'
-include 'spring-statemachine-samples:showcase'
-include 'spring-statemachine-samples:cdplayer'
-include 'spring-statemachine-samples:tasks'
-include 'spring-statemachine-samples:washer'
-include 'spring-statemachine-samples:zookeeper'
-include 'spring-statemachine-samples:persist'
-include 'spring-statemachine-samples:web'
-include 'spring-statemachine-samples:scope'
-include 'spring-statemachine-samples:security'
-include 'spring-statemachine-samples:eventservice'
-include 'spring-statemachine-samples:deploy'
-include 'spring-statemachine-samples:ordershipping'
-include 'spring-statemachine-samples:datajpa'
-include 'spring-statemachine-samples:datajpamultipersist'
-include 'spring-statemachine-samples:datapersist'
-include 'spring-statemachine-samples:monitoring'
+include 'spring-statemachine-samples-common'
+include 'spring-statemachine-samples-common:turnstile'
+include 'spring-statemachine-samples-common:turnstilereactive'
+include 'spring-statemachine-samples-common:showcase'
+include 'spring-statemachine-samples-common:cdplayer'
+include 'spring-statemachine-samples-common:tasks'
+include 'spring-statemachine-samples-common:washer'
+include 'spring-statemachine-samples-common:zookeeper'
+include 'spring-statemachine-samples-common:persist'
+include 'spring-statemachine-samples-common:web'
+include 'spring-statemachine-samples-common:scope'
+include 'spring-statemachine-samples-common:security'
+include 'spring-statemachine-samples-common:eventservice'
+include 'spring-statemachine-samples-common:deploy'
+include 'spring-statemachine-samples-common:ordershipping'
+include 'spring-statemachine-samples-common:datajpa'
+include 'spring-statemachine-samples-common:datajpamultipersist'
+include 'spring-statemachine-samples-common:datapersist'
+include 'spring-statemachine-samples-common:monitoring'
 
-include 'spring-statemachine-data'
-include 'spring-statemachine-data:jpa'
-include 'spring-statemachine-data:redis'
-include 'spring-statemachine-data:mongodb'
+include 'spring-statemachine-data-common'
+include 'spring-statemachine-data-common:jpa'
+include 'spring-statemachine-data-common:redis'
+include 'spring-statemachine-data-common:mongodb'
 
 rootProject.children.find {
-	if (it.name == 'spring-statemachine-recipes') {
-		it.name = 'spring-statemachine-recipes-common'
-	}
-	if (it.name == 'spring-statemachine-samples') {
-		it.name = 'spring-statemachine-samples-common'
+	if (it.name == 'spring-statemachine-samples-common') {
 		it.children.each {
 			it.name = 'spring-statemachine-samples-' + it.name
 		}
 	}
-	if (it.name == 'spring-statemachine-data') {
-		it.name = 'spring-statemachine-data-common'
+	if (it.name == 'spring-statemachine-data-common') {
 		it.children.each {
 			it.name = 'spring-statemachine-data-' + it.name
 		}

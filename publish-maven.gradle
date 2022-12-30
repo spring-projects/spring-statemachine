@@ -1,4 +1,4 @@
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 ext.optionalDeps = []
 ext.providedDeps = []
