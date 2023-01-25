@@ -40,7 +40,7 @@ You can find a sample that shows how to use this recipe at
 [[statemachine-recipes-tasks]]
 == Tasks
 
-The tasks recipe is a concept to run DAG (Directed Acrylic Graph) of `Runnable` instances that use
+The tasks recipe is a concept to run DAG (Directed Acyclic Graph) of `Runnable` instances that use
 a state machine. This recipe has been developed from ideas introduced
 in <<statemachine-examples-tasks>> sample.
 
