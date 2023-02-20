@@ -1,14 +1,6 @@
 = Spring Statemachine
 
 image:https://github.com/spring-projects/spring-statemachine/workflows/CI/badge.svg[link="https://github.com/spring-projects/spring-statemachine/actions"] (GitHub default)
-image:https://github.com/spring-projects/spring-statemachine/workflows/CI/badge.svg?branch=2.4.x[link="https://github.com/spring-projects/spring-statemachine/actions"] (GitHub 2.4.x)
-image:https://github.com/spring-projects/spring-statemachine/workflows/CI/badge.svg?branch=2.3.x[link="https://github.com/spring-projects/spring-statemachine/actions"] (GitHub 2.3.x)
-image:https://github.com/spring-projects/spring-statemachine/workflows/CI/badge.svg?branch=2.2.x[link="https://github.com/spring-projects/spring-statemachine/actions"] (GitHub 2.2.x)
-
-image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-MAS[Bamboo Build Status, link=https://build.spring.io/browse/SDG-MAS] (Bamboo default)
-image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B23X[Bamboo Build Status, link=https://build.spring.io/browse/SDG-B24X] (Bamboo 2.4.x)
-image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B23X[Bamboo Build Status, link=https://build.spring.io/browse/SDG-B23X] (Bamboo 2.3.x)
-image:https://build.spring.io/plugins/servlet/wittified/build-status/SDG-B22X[Bamboo Build Status, link=https://build.spring.io/browse/SDG-B22X] (Bamboo 2.2.x)
 
 The Spring Statemachine project aims to provide a common infrastructure
 to work with state machine concepts in Spring applications.
