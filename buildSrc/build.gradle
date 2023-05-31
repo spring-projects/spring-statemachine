@@ -1,0 +1,17 @@
+plugins {
+	id 'java-gradle-plugin'
+}
+
+repositories {
+	mavenCentral()
+	gradlePluginPortal()
+}
+
+gradlePlugin {
+	plugins {
+		optionalDependenciesPlugin {
+			id = "org.springframework.statemachine.optional-dependencies"
+			implementationClass = "org.springframework.statemachine.gradle.OptionalDependenciesPlugin"
+		}
+	}
+}
