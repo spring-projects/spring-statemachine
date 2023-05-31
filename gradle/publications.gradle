@@ -1,0 +1,50 @@
+apply plugin: "maven-publish"
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			pom {
+				afterEvaluate {
+					name = project.description
+					description = project.description
+				}
+				url = "https://github.com/spring-projects/spring-statemachine"
+				organization {
+					name = "Spring IO"
+					url = "https://spring.io/spring-statemachine"
+				}
+				licenses {
+					license {
+						name = "Apache License, Version 2.0"
+						url = "https://www.apache.org/licenses/LICENSE-2.0"
+						distribution = "repo"
+					}
+				}
+				scm {
+					url = "https://github.com/spring-projects/spring-statemachine"
+					connection = "scm:git:git://github.com/spring-projects/spring-statemachine"
+					developerConnection = "scm:git:git://github.com/spring-projects/spring-statemachine"
+				}
+				developers {
+					developer {
+						id = 'jvalkeal'
+						name = 'Janne Valkealahti'
+						email = 'janne.valkealahti@gmail.com'
+					}
+				}
+				issueManagement {
+					system = "GitHub"
+					url = "https://github.com/spring-projects/spring-statemachine/issues"
+				}
+			}
+			versionMapping {
+				usage('java-api') {
+					fromResolutionResult()
+				}
+				usage('java-runtime') {
+					fromResolutionResult()
+				}
+			}
+		}
+	}
+}
