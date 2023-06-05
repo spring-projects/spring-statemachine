@@ -53,11 +53,11 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - uses: jfrog/setup-jfrog-cli@v1
+    - uses: jfrog/setup-jfrog-cli@v3
       with:
-        version: 1.50.0
+        version: 2.39.1
       env:
-        JF_ARTIFACTORY_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
+        JF_ENV_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
 
     # setup non persistent config for jfrog gradle to use server defined in
     # secret which points via virtual repo into spring local repo.
@@ -65,7 +65,7 @@ jobs:
     # gets used from action defaults.
     - name: Configure JFrog Cli
       run: |
-        jfrog rt gradlec \
+        jf gradlec \
           --use-wrapper \
           --deploy-ivy-desc=false \
           --server-id-resolve=repo.spring.io \
@@ -78,9 +78,9 @@ jobs:
     # as we already tested just build and publish
     - name: Build and Publish Snapshot
       run: |
-        jfrog rt gradle clean build -x test artifactoryPublish
+        jf gradle clean build -x test artifactoryPublish
 
     # publish build info so that we can see it in artifactory "builds"
     - name: Publish Build Info
       run: |
-        jfrog rt build-publish
+        jf rt build-publish
