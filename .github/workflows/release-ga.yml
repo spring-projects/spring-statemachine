@@ -22,15 +22,15 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - uses: jfrog/setup-jfrog-cli@v1
+    - uses: jfrog/setup-jfrog-cli@v3
       with:
-        version: 1.50.0
+        version: 2.39.1
       env:
-        JF_ARTIFACTORY_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
+        JF_ENV_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
     # prepare env for cli to get a staging build working
     - name: Configure JFrog Cli
       run: |
-        jfrog rt gradlec \
+        jf gradlec \
           --use-wrapper \
           --deploy-ivy-desc=false \
           --server-id-resolve=repo.spring.io \
@@ -43,15 +43,15 @@ jobs:
     # version to get used with tagging
     - name: Configure Release Version
       run: |
-        jfrog rt gradle releaseVersion
+        jf gradle releaseVersion
         echo PROJECT_VERSION=$(jfrog rt gradle "properties -q" | grep "version:" | awk '{print $2}') >> $GITHUB_ENV
     # build and publish to staging repo.
     # we've allready tested with snapshots so no need to test
     # with a release build as we are not a release train.
     - name: Build and Publish
       run: |
-        jfrog rt gradle clean build artifactoryPublish
-        jfrog rt build-publish
+        jf gradle clean build artifactoryPublish
+        jf rt build-publish
     # we've now done a release build, branch and tag it in github
     - name: Tag Release
       uses: jvalkeal/build-zoo-handler@v0.0.4
@@ -75,15 +75,15 @@ jobs:
     steps:
     # need repo to push release branch and a tag
     - uses: actions/checkout@v2
-    - uses: jfrog/setup-jfrog-cli@v1
+    - uses: jfrog/setup-jfrog-cli@v3
       with:
-        version: 1.50.0
+        version: 2.39.1
       env:
-        JF_ARTIFACTORY_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
+        JF_ENV_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
     # prepare env for cli to promote
     - name: Configure JFrog Cli
       run: |
-        jfrog rt gradlec \
+        jf gradlec \
           --use-wrapper \
           --deploy-ivy-desc=false \
           --server-id-resolve=repo.spring.io \
@@ -95,11 +95,11 @@ jobs:
     # promoting build from staging repo into release
     - name: Promote Build
       run: |
-        jfrog rt build-promote libs-release-local
+        jf rt build-promote libs-release-local
     # we've promoted so change repo to next dev version
     - name: Switch to Next Dev Version
       run: |
-        jfrog rt gradle nextVersion
+        jf gradle nextVersion
     - uses: jvalkeal/build-zoo-handler@v0.0.4
       with:
         commit-changes-branch: 3.2.x
@@ -166,11 +166,11 @@ jobs:
     steps:
     # need repo for spec file
     - uses: actions/checkout@v2
-    - uses: jfrog/setup-jfrog-cli@v1
+    - uses: jfrog/setup-jfrog-cli@v3
       with:
-        version: 1.50.0
+        version: 2.39.1
       env:
-        JF_ARTIFACTORY_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
+        JF_ENV_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
     # prepare env for cli do download released files
     - name: Configure JFrog Cli
       run: |
@@ -182,7 +182,7 @@ jobs:
     # which we don't want in central.
     - name: Download Release Files
       run: |
-        jfrog rt download \
+        jf rt download \
           --spec .github/release-files-spec.json \
           --spec-vars "buildname=$JFROG_CLI_BUILD_NAME;buildnumber=$JFROG_CLI_BUILD_NUMBER"
     # last step, sync to central.
