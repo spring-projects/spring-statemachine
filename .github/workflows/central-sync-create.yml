@@ -19,11 +19,11 @@ jobs:
     - uses: actions/checkout@v2
 
     # Setup jfrog cli
-    - uses: jfrog/setup-jfrog-cli@v1
+    - uses: jfrog/setup-jfrog-cli@v3
       with:
-        version: 1.50.0
+        version: 2.39.1
       env:
-        JF_ARTIFACTORY_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
+        JF_ENV_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
 
     # Extract build id from input
     - name: Extract Build Id
@@ -34,7 +34,7 @@ jobs:
     # Download released files
     - name: Download Release Files
       run: |
-        jfrog rt download \
+        jf rt download \
           --spec .github/release-files-spec.json \
           --spec-vars "buildname=$JFROG_CLI_BUILD_NAME;buildnumber=$JFROG_CLI_BUILD_NUMBER"
 

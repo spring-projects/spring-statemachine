@@ -1,0 +1,28 @@
+plugins {
+	id 'java-platform'
+}
+
+javaPlatform {
+	allowDependencies()
+}
+
+dependencies {
+	api platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
+	constraints {
+		api "log4j:log4j:$log4jVersion"
+		api "org.eclipse.persistence:javax.persistence:$eclipsePersistenceVersion"
+		api "com.esotericsoftware:kryo-shaded:$kryoVersion"
+		api "org.springframework.shell:spring-shell:$springShellVersion"
+		api "org.eclipse.uml2:uml:$eclipseUml2UmlVersion"
+		api "org.eclipse.uml2:types:$eclipseUml2TypesVersion"
+		api "org.eclipse.uml2:common:$eclipseUml2CommonVersion"
+		api "org.eclipse.emf:org.eclipse.emf.ecore.xmi:$eclipseEmfXmiVersion"
+		api "org.eclipse.emf:org.eclipse.emf.ecore:$eclipseEmfEcoreVersion"
+		api "org.eclipse.emf:org.eclipse.emf.common:$eclipseEmfCommonVersion"
+		api "org.apache.curator:curator-recipes:$curatorVersion"
+		api "org.apache.curator:curator-test:$curatorVersion"
+		api "org.awaitility:awaitility:$awaitilityVersion"
+		api "io.projectreactor.tools:blockhound:$reactorBlockHoundVersion"
+		api "io.projectreactor.tools:blockhound-junit-platform:$reactorBlockHoundVersion"
+	}
+}

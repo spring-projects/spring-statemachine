@@ -1,0 +1,41 @@
+name: CI Boot
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  # build and test, then upload logs if failure
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        java: [1.8]
+        boot: [2.7.0, 2.7.12]
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup JDK
+      uses: actions/setup-java@v1
+      with:
+        java-version: ${{ matrix.java }}
+    - name: Build boot ${{ matrix.boot }} java ${{ matrix.java }}
+      run: ./gradlew clean build -PspringBootVersion=${{ matrix.boot }}
+    - name: Tar Build Logs
+      if: ${{ failure() }}
+      run: |
+        mkdir -p build
+        tar \
+          -zc \
+          --ignore-failed-read \
+          --file build/buildlogs.tar.gz \
+          */build/reports \
+          */*/build/reports
+    - name: Upload Build Logs
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: buildlogs-${{ matrix.boot }}-${{ matrix.java }}
+        path: build/buildlogs.tar.gz
