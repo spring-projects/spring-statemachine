@@ -44,7 +44,7 @@ jobs:
     - name: Configure Release Version
       run: |
         jf gradle releaseVersion
-        echo PROJECT_VERSION=$(jfrog rt gradle "properties -q" | grep "version:" | awk '{print $2}') >> $GITHUB_ENV
+        echo PROJECT_VERSION=$(cat gradle.properties | grep "version=" | awk -F'=' '{print $2}') >> $GITHUB_ENV
     # build and publish to staging repo.
     # we've allready tested with snapshots so no need to test
     # with a release build as we are not a release train.
