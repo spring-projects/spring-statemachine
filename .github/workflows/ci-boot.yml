@@ -23,6 +23,10 @@ jobs:
         java-version: ${{ matrix.java }}
     - name: Build boot ${{ matrix.boot }} java ${{ matrix.java }}
       run: ./gradlew clean build -PspringBootVersion=${{ matrix.boot }}
+      env:
+        GRADLE_ENTERPRISE_CACHE_USERNAME: ${{ secrets.GRADLE_ENTERPRISE_CACHE_USER }}
+        GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
+        GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
     - name: Tar Build Logs
       if: ${{ failure() }}
       run: |

@@ -45,6 +45,10 @@ jobs:
       run: |
         jf gradle releaseVersion
         echo PROJECT_VERSION=$(cat gradle.properties | grep "version=" | awk -F'=' '{print $2}') >> $GITHUB_ENV
+      env:
+        GRADLE_ENTERPRISE_CACHE_USERNAME: ${{ secrets.GRADLE_ENTERPRISE_CACHE_USER }}
+        GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
+        GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
     # build and publish to staging repo.
     # we've allready tested with snapshots so no need to test
     # with a release build as we are not a release train.
@@ -52,6 +56,10 @@ jobs:
       run: |
         jf gradle clean build artifactoryPublish
         jf rt build-publish
+      env:
+        GRADLE_ENTERPRISE_CACHE_USERNAME: ${{ secrets.GRADLE_ENTERPRISE_CACHE_USER }}
+        GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
+        GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
     # we've now done a release build, branch and tag it in github
     - name: Tag Release
       uses: jvalkeal/build-zoo-handler@v0.0.4
@@ -100,6 +108,10 @@ jobs:
     - name: Switch to Next Dev Version
       run: |
         jf gradle nextVersion
+      env:
+        GRADLE_ENTERPRISE_CACHE_USERNAME: ${{ secrets.GRADLE_ENTERPRISE_CACHE_USER }}
+        GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
+        GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
     - uses: jvalkeal/build-zoo-handler@v0.0.4
       with:
         commit-changes-branch: main
