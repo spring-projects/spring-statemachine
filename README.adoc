@@ -1,6 +1,6 @@
 = Spring Statemachine
 
-image:https://github.com/spring-projects/spring-statemachine/workflows/CI/badge.svg[link="https://github.com/spring-projects/spring-statemachine/actions"] (GitHub default)
+image:https://github.com/spring-projects/spring-statemachine/workflows/CI/badge.svg[link="https://github.com/spring-projects/spring-statemachine/actions"] (GitHub default) image:https://img.shields.io/badge/Revved%20up%20by-Gradle%20Enterprise-06A0CE?logo=Gradle&labelColor=02303A["Revved up by Gradle Enterprise", link="https://ge.spring.io/scans?&search.rootProjectNames=spring-statemachine"]
 
 The Spring Statemachine project aims to provide a common infrastructure
 to work with state machine concepts in Spring applications.
