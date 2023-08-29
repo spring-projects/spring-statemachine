@@ -13,7 +13,9 @@ security:
 
 ---
 spring:
-  profiles: jpa
+  config:
+    activate:
+      on-profile: jpa
   statemachine:
     data:
       mongo:
@@ -24,7 +26,9 @@ spring:
           enabled: false
 ---
 spring:
-  profiles: mongo
+  config:
+    activate:
+      on-profile: mongo
   statemachine:
     data:
       jpa:
@@ -35,7 +39,9 @@ spring:
           enabled: false
 ---
 spring:
-  profiles: redis
+  config:
+    activate:
+      on-profile: redis
   statemachine:
     data:
       jpa:

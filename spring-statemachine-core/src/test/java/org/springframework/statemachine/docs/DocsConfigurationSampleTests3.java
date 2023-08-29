@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,14 @@
  */
 package org.springframework.statemachine.docs;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -139,14 +138,16 @@ public class DocsConfigurationSampleTests3 {
 
 // tag::snippetE[]
 		@Configuration
-		@EnableGlobalMethodSecurity(securedEnabled = true)
-		public static class Config5 extends WebSecurityConfigurerAdapter {
+        public static class Config5 {
 
-			@Autowired
-			public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-				auth
-					.inMemoryAuthentication()
-						.withUser("user").password("password").roles("USER");
+    @Bean
+    public InMemoryUserDetailsManager userDetailsService() {
+        UserDetails user = User.withDefaultPasswordEncoder()
+                .username("user")
+                .password("password")
+                .roles("USER")
+                .build();
+        return new InMemoryUserDetailsManager(user);
 			}
 		}
 // end::snippetE[]

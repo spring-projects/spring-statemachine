@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 the original author or authors.
+ * Copyright 2017-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,14 @@
  */
 package org.springframework.statemachine.data.jpa;
 
-import javax.persistence.Entity;
-import javax.persistence.Lob;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Column;
-
-import org.springframework.statemachine.data.RepositoryStateMachine;
-
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
+import org.springframework.statemachine.data.RepositoryStateMachine;
 
 /**
  * A {@link RepositoryStateMachine} interface for JPA used for states machines.
