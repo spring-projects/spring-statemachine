@@ -15,15 +15,17 @@
  */
 package org.springframework.statemachine.data.jpa;
 
+import org.springframework.statemachine.data.RepositoryAction;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import org.springframework.statemachine.data.RepositoryAction;
 
 /**
  * JPA entity for actions.

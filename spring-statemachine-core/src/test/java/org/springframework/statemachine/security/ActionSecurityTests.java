@@ -20,6 +20,7 @@ import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAl
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

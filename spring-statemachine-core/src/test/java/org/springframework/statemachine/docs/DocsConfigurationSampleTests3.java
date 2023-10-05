@@ -138,16 +138,16 @@ public class DocsConfigurationSampleTests3 {
 
 // tag::snippetE[]
 		@Configuration
-        public static class Config5 {
+		public static class Config5 {
 
-    @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails user = User.withDefaultPasswordEncoder()
-                .username("user")
-                .password("password")
-                .roles("USER")
-                .build();
-        return new InMemoryUserDetailsManager(user);
+			@Bean
+			public InMemoryUserDetailsManager userDetailsService() {
+				UserDetails user = User.withDefaultPasswordEncoder()
+						.username("user")
+						.password("password")
+						.roles("USER")
+						.build();
+				return new InMemoryUserDetailsManager(user);
 			}
 		}
 // end::snippetE[]

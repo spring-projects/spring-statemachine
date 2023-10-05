@@ -15,9 +15,8 @@
  */
 package org.springframework.statemachine.data.redis;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import java.util.Set;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Reference;
 import org.springframework.data.redis.core.RedisHash;
@@ -25,6 +24,9 @@ import org.springframework.data.redis.core.index.Indexed;
 import org.springframework.statemachine.data.RepositoryAction;
 import org.springframework.statemachine.data.RepositoryState;
 import org.springframework.statemachine.state.PseudoStateKind;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 /**
  * Redis entity for states.

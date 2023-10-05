@@ -18,7 +18,11 @@ package org.springframework.statemachine.buildtests.tck.mongodb;
 import static org.junit.jupiter.api.extension.ConditionEvaluationResult.disabled;
 import static org.junit.jupiter.api.extension.ConditionEvaluationResult.enabled;
 
-import java.net.Socket;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+
+import javax.net.ServerSocketFactory;
+
 import org.junit.jupiter.api.extension.ConditionEvaluationResult;
 import org.junit.jupiter.api.extension.ExecutionCondition;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -31,11 +35,19 @@ public class EnabledOnMongoDbCondition implements ExecutionCondition {
 
     @Override
     public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
-        try {
-            new Socket("localhost", 27017);
-            return ENABLED_ON_MONGO;
-        } catch (Exception e) {
-            return DISABLED_ON_MONGO;
-        }
+        return isPortAvailable(27017) ? DISABLED_ON_MONGO : ENABLED_ON_MONGO;
     }
+
+	private static boolean isPortAvailable(int port) {
+		try {
+			ServerSocket serverSocket = ServerSocketFactory.getDefault()
+					.createServerSocket(port, 1, InetAddress.getByName("localhost"));
+			serverSocket.close();
+			return true;
+		}
+		catch (Exception ex) {
+			return false;
+		}
+	}
+
 }

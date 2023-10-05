@@ -15,14 +15,16 @@
  */
 package org.springframework.statemachine.data.jpa;
 
+import org.springframework.statemachine.data.RepositoryStateMachine;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
-import org.springframework.statemachine.data.RepositoryStateMachine;
 
 /**
  * A {@link RepositoryStateMachine} interface for JPA used for states machines.

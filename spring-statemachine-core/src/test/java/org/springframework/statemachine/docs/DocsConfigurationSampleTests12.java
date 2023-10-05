@@ -28,6 +28,7 @@ import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -73,7 +74,7 @@ public class DocsConfigurationSampleTests12 {
 		StepVerifier.create(machine.sendEvent(Mono.just(MessageBuilder.withPayload("E1").build())))
 			.consumeNextWith(result -> {
 				StepVerifier.create(result.complete()).consumeErrorWith(e -> {
-                    assertThat(e).isInstanceOf(StateMachineException.class).cause().hasMessageContaining("example error");
+					assertThat(e).isInstanceOf(StateMachineException.class).cause().hasMessageContaining("example error");
 				}).verify();
 			})
 			.verifyComplete();

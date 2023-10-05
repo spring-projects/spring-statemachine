@@ -15,8 +15,14 @@
  */
 package org.springframework.statemachine.data.jpa;
 
+import java.util.Set;
+
+import org.springframework.statemachine.data.RepositoryTransition;
+import org.springframework.statemachine.transition.TransitionKind;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -29,9 +35,6 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.util.Set;
-import org.springframework.statemachine.data.RepositoryTransition;
-import org.springframework.statemachine.transition.TransitionKind;
 
 /**
  * JPA entity for transitions.

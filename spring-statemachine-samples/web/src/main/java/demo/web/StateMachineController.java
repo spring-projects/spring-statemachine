@@ -15,13 +15,11 @@
  */
 package demo.web;
 
-import demo.web.StateMachineConfig.Events;
-import demo.web.StateMachineConfig.States;
-import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +44,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+import demo.web.StateMachineConfig.Events;
+import demo.web.StateMachineConfig.States;
+import jakarta.annotation.PostConstruct;
 import reactor.core.publisher.Mono;
 
 @Controller

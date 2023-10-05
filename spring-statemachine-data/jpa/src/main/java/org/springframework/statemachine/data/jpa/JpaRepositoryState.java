@@ -15,8 +15,15 @@
  */
 package org.springframework.statemachine.data.jpa;
 
+import java.util.Set;
+
+import org.springframework.statemachine.data.RepositoryAction;
+import org.springframework.statemachine.data.RepositoryState;
+import org.springframework.statemachine.state.PseudoStateKind;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -32,10 +39,6 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.util.Set;
-import org.springframework.statemachine.data.RepositoryAction;
-import org.springframework.statemachine.data.RepositoryState;
-import org.springframework.statemachine.state.PseudoStateKind;
 
 /**
  * JPA entity for states.

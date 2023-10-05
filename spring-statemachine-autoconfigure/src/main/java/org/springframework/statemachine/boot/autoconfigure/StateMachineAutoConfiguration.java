@@ -15,7 +15,6 @@
  */
 package org.springframework.statemachine.boot.autoconfigure;
 
-import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.actuate.autoconfigure.web.ManagementContextConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -32,6 +31,8 @@ import org.springframework.statemachine.boot.actuate.StateMachineTraceEndpoint;
 import org.springframework.statemachine.boot.actuate.StateMachineTraceRepository;
 import org.springframework.statemachine.boot.support.BootStateMachineMonitor;
 
+import io.micrometer.core.instrument.MeterRegistry;
+
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for Spring Statemachine.
  *
@@ -43,41 +44,41 @@ import org.springframework.statemachine.boot.support.BootStateMachineMonitor;
 @ConditionalOnProperty(prefix = "spring.statemachine.monitor", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class StateMachineAutoConfiguration {
 
-    @ManagementContextConfiguration
-    public static class StateMachineTraceEndpointConfiguration {
+	@ManagementContextConfiguration
+	public static class StateMachineTraceEndpointConfiguration {
 
-        @Bean
-        public StateMachineTraceEndpoint stateMachineTraceEndpoint(StateMachineTraceRepository stateMachineTraceRepository) {
-            return new StateMachineTraceEndpoint(stateMachineTraceRepository);
-        }
-    }
+		@Bean
+		public StateMachineTraceEndpoint stateMachineTraceEndpoint(StateMachineTraceRepository stateMachineTraceRepository) {
+			return new StateMachineTraceEndpoint(stateMachineTraceRepository);
+		}
+	}
 
-    @Configuration
-    public static class StateMachineTraceRepositoryConfiguration {
+	@Configuration
+	public static class StateMachineTraceRepositoryConfiguration {
 
-        @ConditionalOnMissingBean(StateMachineTraceRepository.class)
-        @Bean
-        public InMemoryStateMachineTraceRepository stateMachineTraceRepository() {
-            return new InMemoryStateMachineTraceRepository();
-        }
-    }
+		@ConditionalOnMissingBean(StateMachineTraceRepository.class)
+		@Bean
+		public InMemoryStateMachineTraceRepository stateMachineTraceRepository() {
+			return new InMemoryStateMachineTraceRepository();
+		}
+	}
 
-    @Configuration
-    public static class StateMachineMonitoringConfiguration {
+	@Configuration
+	public static class StateMachineMonitoringConfiguration {
 
-        private final MeterRegistry meterRegistry;
-        private final StateMachineTraceRepository stateMachineTraceRepository;
+		private final MeterRegistry meterRegistry;
+		private final StateMachineTraceRepository stateMachineTraceRepository;
 
-        public StateMachineMonitoringConfiguration(
-                ObjectProvider<MeterRegistry> meterRegistryProvider,
-                ObjectProvider<StateMachineTraceRepository> traceRepositoryProvider) {
-            this.meterRegistry = meterRegistryProvider.getIfAvailable();
-            this.stateMachineTraceRepository = traceRepositoryProvider.getIfAvailable();
-        }
+		public StateMachineMonitoringConfiguration(
+				ObjectProvider<MeterRegistry> meterRegistryProvider,
+				ObjectProvider<StateMachineTraceRepository> traceRepositoryProvider) {
+			this.meterRegistry = meterRegistryProvider.getIfAvailable();
+			this.stateMachineTraceRepository = traceRepositoryProvider.getIfAvailable();
+		}
 
-        @Bean
-        public BootStateMachineMonitor<?, ?> bootStateMachineMonitor() {
-            return new BootStateMachineMonitor<>(meterRegistry, stateMachineTraceRepository);
-        }
-    }
+		@Bean
+		public BootStateMachineMonitor<?, ?> bootStateMachineMonitor() {
+			return new BootStateMachineMonitor<>(meterRegistry, stateMachineTraceRepository);
+		}
+	}
 }

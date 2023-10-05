@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.EnumSet;
 import java.util.Scanner;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.annotation.Bean;
@@ -42,133 +43,133 @@ import org.springframework.statemachine.security.SecurityRule.ComparisonType;
 @Configuration
 public class StateMachineConfig {
 
-    private static final Log log = LogFactory.getLog(StateMachineConfig.class);
+	private static final Log log = LogFactory.getLog(StateMachineConfig.class);
 
-    //tag::snippetE[]
-    static class SecurityConfig {
+	//tag::snippetE[]
+	static class SecurityConfig {
 
-        @Bean
-        public InMemoryUserDetailsManager userDetailsService() {
-            UserDetails user = User.withDefaultPasswordEncoder()
-                    .username("user")
-                    .password("password")
-                    .roles("USER")
-                    .build();
-            UserDetails admin = User.withDefaultPasswordEncoder()
-                    .username("admin")
-                    .password("password")
-                    .roles("USER", "ADMIN")
-                    .build();
-            return new InMemoryUserDetailsManager(user, admin);
-        }
-    }
+		@Bean
+		public InMemoryUserDetailsManager userDetailsService() {
+			UserDetails user = User.withDefaultPasswordEncoder()
+					.username("user")
+					.password("password")
+					.roles("USER")
+					.build();
+			UserDetails admin = User.withDefaultPasswordEncoder()
+					.username("admin")
+					.password("password")
+					.roles("USER", "ADMIN")
+					.build();
+			return new InMemoryUserDetailsManager(user, admin);
+		}
+	}
 //end::snippetE[]
 
-    @Configuration
-    @EnableStateMachine
-    static class Config
-            extends EnumStateMachineConfigurerAdapter<States, Events> {
+	@Configuration
+	@EnableStateMachine
+	static class Config
+			extends EnumStateMachineConfigurerAdapter<States, Events> {
 
-        //tag::snippetA[]
-        @Override
-        public void configure(StateMachineConfigurationConfigurer<States, Events> config)
-                throws Exception {
-            config
-                    .withConfiguration()
-                    .autoStartup(true)
-                    .and()
-                    .withSecurity()
-                    .enabled(true)
-                    .event("hasRole('USER')");
-        }
+		//tag::snippetA[]
+		@Override
+		public void configure(StateMachineConfigurationConfigurer<States, Events> config)
+				throws Exception {
+			config
+				.withConfiguration()
+					.autoStartup(true)
+					.and()
+				.withSecurity()
+					.enabled(true)
+					.event("hasRole('USER')");
+		}
 //end::snippetA[]
 
-        @Override
-        public void configure(StateMachineStateConfigurer<States, Events> states)
-                throws Exception {
-            states
-                    .withStates()
-                    .initial(States.S0)
-                    .states(EnumSet.allOf(States.class));
-        }
+		@Override
+		public void configure(StateMachineStateConfigurer<States, Events> states)
+				throws Exception {
+			states
+					.withStates()
+					.initial(States.S0)
+					.states(EnumSet.allOf(States.class));
+		}
 
-        //tag::snippetB[]
-        @Override
-        public void configure(StateMachineTransitionConfigurer<States, Events> transitions)
-                throws Exception {
-            transitions
-                    .withExternal()
-                    .source(States.S0).target(States.S1).event(Events.A)
-                    .and()
-                    .withExternal()
-                    .source(States.S1).target(States.S2).event(Events.B)
-                    .and()
-                    .withExternal()
-                    .source(States.S2).target(States.S0).event(Events.C)
-                    .and()
-                    .withExternal()
-                    .source(States.S2).target(States.S3).event(Events.E)
-                    .secured("ROLE_ADMIN", ComparisonType.ANY)
-                    .and()
-                    .withExternal()
-                    .source(States.S3).target(States.S0).event(Events.C)
-                    .and()
-                    .withInternal()
-                    .source(States.S0).event(Events.D)
-                    .action(adminAction())
-                    .and()
-                    .withInternal()
-                    .source(States.S1).event(Events.F)
-                    .action(transitionAction())
-                    .secured("ROLE_ADMIN", ComparisonType.ANY);
-        }
+		//tag::snippetB[]
+		@Override
+		public void configure(StateMachineTransitionConfigurer<States, Events> transitions)
+				throws Exception {
+			transitions
+				.withExternal()
+					.source(States.S0).target(States.S1).event(Events.A)
+					.and()
+				.withExternal()
+					.source(States.S1).target(States.S2).event(Events.B)
+					.and()
+				.withExternal()
+					.source(States.S2).target(States.S0).event(Events.C)
+					.and()
+				.withExternal()
+					.source(States.S2).target(States.S3).event(Events.E)
+					.secured("ROLE_ADMIN", ComparisonType.ANY)
+					.and()
+				.withExternal()
+					.source(States.S3).target(States.S0).event(Events.C)
+					.and()
+				.withInternal()
+					.source(States.S0).event(Events.D)
+					.action(adminAction())
+					.and()
+				.withInternal()
+					.source(States.S1).event(Events.F)
+					.action(transitionAction())
+					.secured("ROLE_ADMIN", ComparisonType.ANY);
+		}
 //end::snippetB[]
 
-        //tag::snippetC[]
-        @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
-        @Bean
-        public Action<States, Events> adminAction() {
-            return new Action<States, Events>() {
+		//tag::snippetC[]
+		@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
+		@Bean
+		public Action<States, Events> adminAction() {
+			return new Action<States, Events>() {
 
-                @Secured("ROLE_ADMIN")
-                @Override
-                public void execute(StateContext<States, Events> context) {
-                    log.info("Executed only for admin role");
-                }
-            };
-        }
+				@Secured("ROLE_ADMIN")
+				@Override
+				public void execute(StateContext<States, Events> context) {
+					log.info("Executed only for admin role");
+				}
+			};
+		}
 //end::snippetC[]
 
-        //tag::snippetD[]
-        @Bean
-        public Action<States, Events> transitionAction() {
-            return new Action<States, Events>() {
+		//tag::snippetD[]
+		@Bean
+		public Action<States, Events> transitionAction() {
+			return new Action<States, Events>() {
 
-                @Override
-                public void execute(StateContext<States, Events> context) {
-                    log.info("Executed only for admin role");
-                }
-            };
-        }
+				@Override
+				public void execute(StateContext<States, Events> context) {
+					log.info("Executed only for admin role");
+				}
+			};
+		}
 //end::snippetD[]
-    }
+	}
 
-    @Bean
-    public String stateChartModel() throws IOException {
-        ClassPathResource model = new ClassPathResource("statechartmodel.txt");
-        InputStream inputStream = model.getInputStream();
-        Scanner scanner = new Scanner(inputStream);
-        String content = scanner.useDelimiter("\\Z").next();
-        scanner.close();
-        return content;
-    }
+	@Bean
+	public String stateChartModel() throws IOException {
+		ClassPathResource model = new ClassPathResource("statechartmodel.txt");
+		InputStream inputStream = model.getInputStream();
+		Scanner scanner = new Scanner(inputStream);
+		String content = scanner.useDelimiter("\\Z").next();
+		scanner.close();
+		return content;
+	}
 
-    public enum States {
-        S0, S1, S2, S3;
-    }
+	public enum States {
+		S0, S1, S2, S3;
+	}
 
-    public enum Events {
-        A, B, C, D, E, F;
-    }
+	public enum Events {
+		A, B, C, D, E, F;
+	}
 
 }
