@@ -1,7 +1,0 @@
-# Auto Configure
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.springframework.statemachine.boot.autoconfigure.StateMachineAutoConfiguration,\
-org.springframework.statemachine.boot.autoconfigure.StateMachineJpaRepositoriesAutoConfiguration,\
-org.springframework.statemachine.boot.autoconfigure.StateMachineRedisRepositoriesAutoConfiguration,\
-org.springframework.statemachine.boot.autoconfigure.StateMachineMongoDbRepositoriesAutoConfiguration
-

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,17 +22,15 @@ import java.util.Scanner;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -47,22 +45,22 @@ public class StateMachineConfig {
 
 	private static final Log log = LogFactory.getLog(StateMachineConfig.class);
 
-//tag::snippetE[]
-	@EnableWebSecurity
-	@EnableGlobalMethodSecurity(securedEnabled = true)
-	static class SecurityConfig extends WebSecurityConfigurerAdapter {
+	//tag::snippetE[]
+	static class SecurityConfig {
 
-		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-			auth
-				.inMemoryAuthentication()
-					.withUser("user")
-						.password("password")
-						.roles("USER")
-						.and()
-					.withUser("admin")
-						.password("password")
-						.roles("USER", "ADMIN");
+		@Bean
+		public InMemoryUserDetailsManager userDetailsService() {
+			UserDetails user = User.withDefaultPasswordEncoder()
+					.username("user")
+					.password("password")
+					.roles("USER")
+					.build();
+			UserDetails admin = User.withDefaultPasswordEncoder()
+					.username("admin")
+					.password("password")
+					.roles("USER", "ADMIN")
+					.build();
+			return new InMemoryUserDetailsManager(user, admin);
 		}
 	}
 //end::snippetE[]
@@ -72,7 +70,7 @@ public class StateMachineConfig {
 	static class Config
 			extends EnumStateMachineConfigurerAdapter<States, Events> {
 
-//tag::snippetA[]
+		//tag::snippetA[]
 		@Override
 		public void configure(StateMachineConfigurationConfigurer<States, Events> config)
 				throws Exception {
@@ -90,12 +88,12 @@ public class StateMachineConfig {
 		public void configure(StateMachineStateConfigurer<States, Events> states)
 				throws Exception {
 			states
-				.withStates()
+					.withStates()
 					.initial(States.S0)
 					.states(EnumSet.allOf(States.class));
 		}
 
-//tag::snippetB[]
+		//tag::snippetB[]
 		@Override
 		public void configure(StateMachineTransitionConfigurer<States, Events> transitions)
 				throws Exception {
@@ -127,7 +125,7 @@ public class StateMachineConfig {
 		}
 //end::snippetB[]
 
-//tag::snippetC[]
+		//tag::snippetC[]
 		@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 		@Bean
 		public Action<States, Events> adminAction() {
@@ -142,7 +140,7 @@ public class StateMachineConfig {
 		}
 //end::snippetC[]
 
-//tag::snippetD[]
+		//tag::snippetD[]
 		@Bean
 		public Action<States, Events> transitionAction() {
 			return new Action<States, Events>() {

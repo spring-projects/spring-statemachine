@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,27 +15,24 @@
  */
 package org.springframework.statemachine.boot.autoconfigure;
 
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.statemachine.data.mongodb.MongoDbRepositoryState;
 import org.springframework.statemachine.data.mongodb.MongoDbStateRepository;
 
 /**
- * {@link EnableAutoConfiguration Auto-configuration} for MongoDb repositories
- * and Entity classes.
+ * {@link EnableAutoConfiguration Auto-configuration} for MongoDb repositories and Entity classes.
  */
-@Configuration
+@AutoConfiguration(after = MongoRepositoriesAutoConfiguration.class)
 @ConditionalOnClass(MongoDbStateRepository.class)
 @ConditionalOnProperty(prefix = "spring.statemachine.data.mongo.repositories", name = "enabled", havingValue = "true", matchIfMissing = true)
-@AutoConfigureAfter(MongoRepositoriesAutoConfiguration.class)
-@EntityScan(basePackageClasses = { MongoDbRepositoryState.class })
-@EnableMongoRepositories(basePackageClasses = { MongoDbStateRepository.class })
+@EntityScan(basePackageClasses = {MongoDbRepositoryState.class})
+@EnableMongoRepositories(basePackageClasses = {MongoDbStateRepository.class})
 public class StateMachineMongoDbRepositoriesAutoConfiguration {
 
 }

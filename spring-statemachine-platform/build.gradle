@@ -10,7 +10,7 @@ dependencies {
 	api platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
 	constraints {
 		api "log4j:log4j:$log4jVersion"
-		api "org.eclipse.persistence:javax.persistence:$eclipsePersistenceVersion"
+        api "jakarta.persistence:jakarta.persistence-api:$jakartaPersistenceVersion"
 		api "com.esotericsoftware:kryo-shaded:$kryoVersion"
 		api "org.springframework.shell:spring-shell:$springShellVersion"
 		api "org.eclipse.uml2:uml:$eclipseUml2UmlVersion"

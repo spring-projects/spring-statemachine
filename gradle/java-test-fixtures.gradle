@@ -1,8 +1,8 @@
 apply plugin: 'java-test-fixtures'
 
 compileTestFixturesJava {
-	sourceCompatibility = 1.8
-	targetCompatibility = 1.8
+    sourceCompatibility = 17
+    targetCompatibility = 17
 }
 
 eclipse.classpath {

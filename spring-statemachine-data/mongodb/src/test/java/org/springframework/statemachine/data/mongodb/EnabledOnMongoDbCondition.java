@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,24 +18,36 @@ package org.springframework.statemachine.data.mongodb;
 import static org.junit.jupiter.api.extension.ConditionEvaluationResult.disabled;
 import static org.junit.jupiter.api.extension.ConditionEvaluationResult.enabled;
 
+import java.net.InetAddress;
+import java.net.ServerSocket;
+
+import javax.net.ServerSocketFactory;
+
 import org.junit.jupiter.api.extension.ConditionEvaluationResult;
 import org.junit.jupiter.api.extension.ExecutionCondition;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.springframework.util.SocketUtils;
 
 public class EnabledOnMongoDbCondition implements ExecutionCondition {
 
 	static final ConditionEvaluationResult ENABLED_ON_MONGO = enabled("Mongo DB found");
 
-	static final ConditionEvaluationResult DISABLED_ON_MONGO =	disabled("Mongo DB not found");
+	static final ConditionEvaluationResult DISABLED_ON_MONGO = disabled("Mongo DB not found");
 
 	@Override
 	public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
-		try {
-			SocketUtils.findAvailableTcpPort(27017, 27017);
-			return DISABLED_ON_MONGO;
-		} catch (Exception e) {
-		}
-		return ENABLED_ON_MONGO;
+        return isPortAvailable(27017) ? DISABLED_ON_MONGO : ENABLED_ON_MONGO;
 	}
+
+	private static boolean isPortAvailable(int port) {
+		try {
+			ServerSocket serverSocket = ServerSocketFactory.getDefault()
+					.createServerSocket(port, 1, InetAddress.getByName("localhost"));
+			serverSocket.close();
+			return true;
+		}
+		catch (Exception ex) {
+			return false;
+		}
+	}
+
 }

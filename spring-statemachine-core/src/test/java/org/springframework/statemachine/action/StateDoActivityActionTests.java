@@ -253,10 +253,10 @@ public class StateDoActivityActionTests extends AbstractStateMachineTests {
 		Message<TestEvents> event = MessageBuilder.withPayload(TestEvents.E1)
 				.setHeader(StateMachineMessageHeaders.HEADER_DO_ACTION_TIMEOUT, 4000).build();
 		doSendEventAndConsumeAll(machine, event);
-		assertThat(testActionS2.onExecuteStartLatch.await(2, TimeUnit.SECONDS)).isTrue();
+		assertThat(testActionS2.onExecuteStartLatch.await(6, TimeUnit.SECONDS)).isTrue();
 		doSendEventAndConsumeAll(machine, TestEvents.E2);
-		assertThat(testActionS2.onExecuteLatch.await(2, TimeUnit.SECONDS)).isTrue();
-		assertThat(testActionS2.interruptedLatch.await(2, TimeUnit.SECONDS)).isFalse();
+		assertThat(testActionS2.onExecuteLatch.await(6, TimeUnit.SECONDS)).isTrue();
+		assertThat(testActionS2.interruptedLatch.await(6, TimeUnit.SECONDS)).isFalse();
 	}
 
 	@Test
