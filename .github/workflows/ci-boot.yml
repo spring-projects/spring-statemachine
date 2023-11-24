@@ -12,7 +12,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         java: [ 17 ]
-        boot: [ 3.1.5, 3.2.0-RC2 ]
+        boot: [ 3.1.6, 3.2.0 ]
       fail-fast: false
 
     steps:
