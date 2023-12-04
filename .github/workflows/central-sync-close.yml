@@ -15,6 +15,7 @@ jobs:
     # Request close promotion repo
     - uses: jvalkeal/nexus-sync@v0
       with:
+        url: ${{ secrets.OSSRH_URL }}
         username: ${{ secrets.OSSRH_S01_TOKEN_USERNAME }}
         password: ${{ secrets.OSSRH_S01_TOKEN_PASSWORD }}
         staging-profile-name: ${{ secrets.OSSRH_STAGING_PROFILE_NAME }}
