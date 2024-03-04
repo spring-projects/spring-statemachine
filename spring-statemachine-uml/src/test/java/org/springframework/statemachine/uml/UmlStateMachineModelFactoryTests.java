@@ -21,9 +21,11 @@ import static org.springframework.statemachine.TestUtils.doStartAndAssert;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -35,6 +37,7 @@ import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
+import org.springframework.statemachine.config.StateMachineBuilder;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineModelConfigurer;
 import org.springframework.statemachine.config.model.DefaultStateMachineComponentResolver;
@@ -45,7 +48,10 @@ import org.springframework.statemachine.config.model.TransitionData;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.PseudoStateKind;
+import org.springframework.statemachine.state.RegionState;
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.support.AbstractStateMachine;
+import org.springframework.statemachine.transition.Transition;
 import org.springframework.statemachine.transition.TransitionKind;
 import org.springframework.util.ObjectUtils;
 
@@ -160,6 +166,109 @@ public class UmlStateMachineModelFactoryTests extends AbstractUmlTests {
 			} else {
 				throw new IllegalArgumentException();
 			}
+		}
+	}
+
+	/**
+	 * Test {@link StateMachine} vs {@link StateMachineModel} consistency.<BR/>
+	 * In this (failing) test, one can notice that the statemachine instance has a duplicated transition "S3->S4" as illustrated here<BR/>
+	 * <img src="data:image/png;base64,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">some</a>
+	 */
+	@Disabled
+	@Test
+	public void testStateMachineVsStateMachineModelConsistency() {
+		context.refresh();
+		Resource model1 = new ClassPathResource("org/springframework/statemachine/uml/simple-root-regions.uml");
+		UmlStateMachineModelFactory builder = new UmlStateMachineModelFactory(model1);
+		builder.setBeanFactory(context);
+		assertThat(model1.exists()).isTrue();
+		StateMachineModel<String, String> stateMachineModel = builder.build();
+
+		try {
+			// build statemachine from model
+			UmlStateMachineModelFactory umlStateMachineModelFactory = new UmlStateMachineModelFactory(("classpath:org/springframework/statemachine/uml/simple-root-regions.uml"));
+			StateMachineBuilder.Builder<String, String> stateMachineBuilder = StateMachineBuilder.builder();
+			stateMachineBuilder.configureModel().withModel().factory(umlStateMachineModelFactory);
+			stateMachineBuilder.configureConfiguration().withConfiguration();
+			StateMachine<String, String> stateMachine = stateMachineBuilder.build();
+
+			// get the "root" state of this state machines
+			State<String, String> rootState = stateMachine.getStates().stream().findFirst().get();
+			assertThat(rootState).isInstanceOf(RegionState.class);
+			RegionState<String, String> rootRegionState = ((RegionState<String, String>) rootState);
+
+			// compare statemachine and stateMachineModel
+
+			// states in Region1
+			AbstractStateMachine region1InStatemachine = (AbstractStateMachine)
+					((List) rootRegionState.getRegions()).stream()
+							.filter(region -> ((AbstractStateMachine) region).getId().contains("Region1"))
+							.findFirst().get();
+
+			List statesOfRegion1InStateMachine = region1InStatemachine.getStates().stream()
+					.map(o -> ((State) o).getId().toString())
+					.sorted().toList();
+
+			List<String> statesOfRegion1InStateMachineModel = stateMachineModel.getStatesData().getStateData().stream()
+					.filter(stateData -> "Region1".equals(stateData.getRegion().toString()))
+					.map(stateData -> stateData.getState().toString())
+					.sorted().toList();
+
+			assertThat(statesOfRegion1InStateMachine).isEqualTo(statesOfRegion1InStateMachineModel);
+
+			// states in Region2
+			AbstractStateMachine region2InStatemachine = (AbstractStateMachine)
+					((List) rootRegionState.getRegions()).stream()
+							.filter(region -> ((AbstractStateMachine) region).getId().contains("Region2"))
+							.findFirst().get();
+
+			List statesOfRegion2InStateMachine = region2InStatemachine.getStates().stream()
+					.map(o -> ((State) o).getId().toString())
+					.sorted().toList();
+
+			List<String> statesOfRegion2InStateMachineModel = stateMachineModel.getStatesData().getStateData().stream()
+					.filter(stateData -> "Region2".equals(stateData.getRegion().toString()))
+					.map(stateData -> stateData.getState().toString())
+					.sorted().toList();
+
+			assertThat(statesOfRegion2InStateMachine).isEqualTo(statesOfRegion2InStateMachineModel);
+
+			// transitions in Region1
+			List transitionsOfRegion1InStateMachine = region1InStatemachine.getTransitions().stream()
+					.map(o -> ((Transition) o).getSource().getId().toString() + "->" + ((Transition) o).getTarget().getId().toString())
+					.sorted().toList();
+
+			List<String> transitionsOfRegion1InStateMachineModel = stateMachineModel.getTransitionsData().getTransitions().stream()
+					// let's exclude "initial" transition
+					.filter(transitionData -> !transitionData.getSource().startsWith("initial"))
+					.filter(transitionData -> statesOfRegion1InStateMachine.contains(transitionData.getSource())
+							|| statesOfRegion1InStateMachine.contains(transitionData.getTarget()))
+					.map(transitionData -> transitionData.getSource() + "->" + transitionData.getTarget())
+					.sorted().toList();
+
+			assertThat(transitionsOfRegion1InStateMachine).isEqualTo(transitionsOfRegion1InStateMachineModel);
+
+			// transitions in Region2
+			List transitionsOfRegion2InStateMachine = region2InStatemachine.getTransitions().stream()
+					.map(o -> ((Transition) o).getSource().getId().toString() + "->" + ((Transition) o).getTarget().getId().toString())
+					.sorted().toList();
+
+			List<String> transitionsOfRegion2InStateMachineModel = stateMachineModel.getTransitionsData().getTransitions().stream()
+					// let's exclude "initial" transition
+					.filter(transitionData -> !transitionData.getSource().startsWith("initial"))
+					.filter(transitionData -> statesOfRegion2InStateMachine.contains(transitionData.getSource())
+							|| statesOfRegion2InStateMachine.contains(transitionData.getTarget()))
+					.map(transitionData -> transitionData.getSource() + "->" + transitionData.getTarget())
+					.sorted().toList();
+
+			// WOW! this is failing! Why is transition "S3->S4" present in both Region1 AND Region2 ?!?
+			// Does this indicates an issue in UmlStateMachineModelFactory ???
+			// Expected :["S1->S2"]
+			// Actual   :["S1->S2", "S3->S4"]
+			assertThat(transitionsOfRegion2InStateMachine).isEqualTo(transitionsOfRegion2InStateMachineModel);
+
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 
