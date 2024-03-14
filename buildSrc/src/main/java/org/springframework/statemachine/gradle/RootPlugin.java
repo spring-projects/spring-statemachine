@@ -22,6 +22,8 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.PluginManager;
+import org.gradle.api.publish.PublishingExtension;
+import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.bundling.Zip;
@@ -40,6 +42,7 @@ class RootPlugin implements Plugin<Project> {
 		PluginManager pluginManager = project.getPluginManager();
 		pluginManager.apply(MavenPublishPlugin.class);
 		pluginManager.apply(PublishLocalPlugin.class);
+		pluginManager.apply(SpringMavenPlugin.class);
 		new ArtifactoryConventions().apply(project);
 		Javadoc apiTask = createApiTask(project);
 		Zip zipTask = createZipTask(project);
@@ -65,7 +68,14 @@ class RootPlugin implements Plugin<Project> {
 			});
 		});
 
-		project.getArtifacts().add("archives", zipTask);
+		project.getPlugins().withType(MavenPublishPlugin.class).all(mavenPublish -> {
+			PublishingExtension publishing = project.getExtensions().getByType(PublishingExtension.class);
+			publishing.getPublications().withType(MavenPublication.class)
+				.all(mavenPublication -> {
+					mavenPublication.artifact(zipTask);
+				});
+		});
+
 		return zipTask;
 	}
 
