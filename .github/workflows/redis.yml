@@ -36,7 +36,7 @@ jobs:
         java-version: ${{ matrix.java }}
         cache: gradle
     - name: Build with Gradle
-      run: ./gradlew clean build -PstatemachineIncludeTags=redis -PstatemachineTestResults=true
+      run: ./gradlew clean build -PstatemachineIncludeTags=redis
     - name: Tar Build Logs
       if: ${{ failure() }}
       run: |

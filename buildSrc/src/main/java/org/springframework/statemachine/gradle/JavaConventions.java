@@ -39,6 +39,8 @@ import org.gradle.external.javadoc.CoreJavadocOptions;
 class JavaConventions {
 
 	private static final String SOURCE_AND_TARGET_COMPATIBILITY = "17";
+	private static final String INCLUDE_TAGS = "statemachineIncludeTags";
+	private static final String EXCLUDE_TAGS = "statemachineExcludeTags";
 
 	void apply(Project project) {
 		project.getPlugins().withType(JavaBasePlugin.class, java -> {
@@ -84,7 +86,31 @@ class JavaConventions {
 
 	private void configureTestConventions(Project project) {
 		project.getTasks().withType(Test.class, test -> {
-			test.useJUnitPlatform();
+			boolean hasIncludeTags = project.hasProperty(INCLUDE_TAGS);
+			boolean hasExcludeTags = project.hasProperty(EXCLUDE_TAGS);
+			test.useJUnitPlatform(options -> {
+				if (!hasIncludeTags && !hasExcludeTags) {
+					options.excludeTags("smoke");
+				}
+				else {
+					if (hasIncludeTags) {
+						Object includeTagsProperty = project.property(INCLUDE_TAGS);
+						if (includeTagsProperty instanceof String p) {
+							if (p.length() > 0) {
+								options.includeTags(p.split(","));
+							}
+						}
+					}
+					if (hasExcludeTags) {
+						Object excludeTagsProperty = project.property(EXCLUDE_TAGS);
+						if (excludeTagsProperty instanceof String p) {
+							if (p.length() > 0) {
+								options.excludeTags(p.split(","));
+							}
+						}
+					}
+				}
+			});
 		});
 	}
 

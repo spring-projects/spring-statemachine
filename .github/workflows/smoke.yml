@@ -30,7 +30,7 @@ jobs:
         java-version: ${{ matrix.java }}
         cache: gradle
     - name: Build with Gradle
-      run: ./gradlew clean build -PstatemachineIncludeTags=smoke -PstatemachineTestResults=true
+      run: ./gradlew clean build -PstatemachineIncludeTags=smoke
     - name: Tar Build Logs
       if: ${{ failure() }}
       run: |
