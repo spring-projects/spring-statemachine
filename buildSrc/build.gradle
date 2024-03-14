@@ -1,17 +1,58 @@
 plugins {
-	id 'java-gradle-plugin'
+	id "java-gradle-plugin"
+	id "java"
 }
 
+sourceCompatibility = JavaVersion.VERSION_17;
+
 repositories {
-	mavenCentral()
 	gradlePluginPortal()
+	mavenCentral()
+	maven { url 'https://repo.spring.io/plugins-release/' }
+	maven { url "https://repo.spring.io/snapshot" }
+}
+
+ext {
+	def propertiesFile = new File(new File("$projectDir").parentFile, "gradle.properties")
+	propertiesFile.withInputStream {
+		def properties = new Properties()
+		properties.load(it)
+		set("springBootVersion", properties["springBootVersion"])
+	}
+}
+
+dependencies {
+	implementation(platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}"))
+	implementation("org.springframework:spring-core")
+	implementation 'org.asciidoctor:asciidoctor-gradle-jvm:3.3.2'
+	implementation 'org.jfrog.buildinfo:build-info-extractor-gradle:4.29.0'
 }
 
 gradlePlugin {
 	plugins {
-		optionalDependenciesPlugin {
-			id = "org.springframework.statemachine.optional-dependencies"
-			implementationClass = "org.springframework.statemachine.gradle.OptionalDependenciesPlugin"
+		modulePlugin {
+			id = "org.springframework.statemachine.module"
+			implementationClass = "org.springframework.statemachine.gradle.ModulePlugin"
+		}
+		starterPlugin {
+			id = "org.springframework.statemachine.starter"
+			implementationClass = "org.springframework.statemachine.gradle.StarterPlugin"
+		}
+		bomPlugin {
+			id = "org.springframework.statemachine.bom"
+			implementationClass = "org.springframework.statemachine.gradle.BomPlugin"
+		}
+		docsPlugin {
+			id = "org.springframework.statemachine.docs"
+			implementationClass = "org.springframework.statemachine.gradle.DocsPlugin"
+		}
+		distPlugin {
+			id = "org.springframework.statemachine.root"
+			implementationClass = "org.springframework.statemachine.gradle.RootPlugin"
+		}
+		samplePlugin {
+			id = "org.springframework.statemachine.sample"
+			implementationClass = "org.springframework.statemachine.gradle.SamplePlugin"
 		}
 	}
 }

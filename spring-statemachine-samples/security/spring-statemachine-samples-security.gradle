@@ -1,0 +1,17 @@
+plugins {
+	id 'org.springframework.statemachine.sample'
+}
+
+description = 'Spring State Machine Web Security Sample'
+
+dependencies {
+	management platform(project(":spring-statemachine-platform"))
+	implementation project(':spring-statemachine-samples-common')
+	implementation project(':spring-statemachine-core')
+	implementation 'org.springframework:spring-messaging'
+	implementation('org.springframework.boot:spring-boot-starter-web')
+	implementation('org.springframework.boot:spring-boot-starter-thymeleaf')
+	implementation('org.springframework.boot:spring-boot-starter-security')
+	implementation('org.springframework.security:spring-security-config')
+	implementation('org.springframework.security:spring-security-web')
+}

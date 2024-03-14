@@ -1,0 +1,26 @@
+plugins {
+	id 'org.springframework.statemachine.sample'
+}
+
+description = 'Spring State Machine Data Jpa Multi Persist Sample'
+
+dependencies {
+	management platform(project(":spring-statemachine-platform"))
+	implementation project(':spring-statemachine-samples-common')
+	implementation project(':spring-statemachine-autoconfigure')
+	implementation project(':spring-statemachine-data-common:spring-statemachine-data-jpa')
+	implementation('org.springframework.boot:spring-boot-starter-web')
+	implementation('org.springframework.boot:spring-boot-starter-thymeleaf')
+	implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+	implementation('org.springframework.boot:spring-boot-devtools')
+	implementation('com.h2database:h2')
+	testImplementation(testFixtures(project(':spring-statemachine-core')))
+	testImplementation 'org.hamcrest:hamcrest-core'
+	testImplementation 'org.hamcrest:hamcrest-library'
+	testImplementation 'org.springframework.boot:spring-boot-test'
+	testImplementation 'org.springframework:spring-test'
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.assertj:assertj-core'
+	testImplementation 'org.junit.jupiter:junit-jupiter-api'
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+}
