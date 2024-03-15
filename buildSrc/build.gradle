@@ -13,11 +13,16 @@ repositories {
 }
 
 ext {
-	def propertiesFile = new File(new File("$projectDir").parentFile, "gradle.properties")
-	propertiesFile.withInputStream {
-		def properties = new Properties()
-		properties.load(it)
-		set("springBootVersion", properties["springBootVersion"])
+	if (project.hasProperty('springBootVersion')) {
+		set("springBootVersion", springBootVersion)
+	}
+	else {
+		def propertiesFile = new File(new File("$projectDir").parentFile, "gradle.properties")
+		propertiesFile.withInputStream {
+			def properties = new Properties()
+			properties.load(it)
+			set("springBootVersion", properties["springBootVersion"])
+		}
 	}
 }
 
