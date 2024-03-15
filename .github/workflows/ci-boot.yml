@@ -12,16 +12,17 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         java: [ 17 ]
-        boot: [ 3.1.6, 3.2.0 ]
+        boot: [ 3.1.9, 3.2.3 ]
       fail-fast: false
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Setup JDK
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         distribution: adopt
         java-version: ${{ matrix.java }}
+        cache: gradle
     - name: Build boot ${{ matrix.boot }} java ${{ matrix.java }}
       run: ./gradlew clean build -PspringBootVersion=${{ matrix.boot }}
       env:
@@ -40,7 +41,7 @@ jobs:
           */*/build/reports
     - name: Upload Build Logs
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: buildlogs-${{ matrix.boot }}-${{ matrix.java }}
         path: build/buildlogs.tar.gz
