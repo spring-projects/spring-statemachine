@@ -19,9 +19,9 @@ jobs:
     - uses: actions/checkout@v2
 
     # Setup jfrog cli
-    - uses: jfrog/setup-jfrog-cli@v3
+    - uses: jfrog/setup-jfrog-cli@v4
       with:
-        version: 2.39.1
+        version: 2.52.10
       env:
         JF_ENV_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
 

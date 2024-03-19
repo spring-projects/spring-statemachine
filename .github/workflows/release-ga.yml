@@ -22,9 +22,9 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: 17
-    - uses: jfrog/setup-jfrog-cli@v3
+    - uses: jfrog/setup-jfrog-cli@v4
       with:
-        version: 2.39.1
+        version: 2.52.10
       env:
         JF_ENV_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
     # prepare env for cli to get a staging build working
@@ -83,9 +83,9 @@ jobs:
     steps:
     # need repo to push release branch and a tag
     - uses: actions/checkout@v2
-    - uses: jfrog/setup-jfrog-cli@v3
+    - uses: jfrog/setup-jfrog-cli@v4
       with:
-        version: 2.39.1
+        version: 2.52.10
       env:
         JF_ENV_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
     # prepare env for cli to promote
@@ -178,9 +178,9 @@ jobs:
     steps:
     # need repo for spec file
     - uses: actions/checkout@v2
-    - uses: jfrog/setup-jfrog-cli@v3
+    - uses: jfrog/setup-jfrog-cli@v4
       with:
-        version: 2.39.1
+        version: 2.52.10
       env:
         JF_ENV_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
     # prepare env for cli do download released files
