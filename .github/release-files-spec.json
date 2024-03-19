@@ -7,17 +7,7 @@
             {
               "@build.name": "${buildname}",
               "@build.number": "${buildnumber}",
-              "path": {"$match": "org*"}
-            },
-            {
-              "$or": [
-                {
-                  "name": {"$match": "*.pom"}
-                },
-                {
-                  "name": {"$match": "*.jar"}
-                }
-              ]
+              "path": { "$match": "org/springframework/statemachine/spring-statemachine-*" }
             }
           ]
         }
