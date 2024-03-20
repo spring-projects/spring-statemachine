@@ -241,17 +241,17 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	@Override
 	public Flux<StateMachineEventResult<S, E>> sendEvents(Flux<Message<E>> events) {
-		return events.flatMap(e -> handleEvent(e));
+		return events.flatMap(this::handleEvent);
 	}
 
 	@Override
 	public Flux<StateMachineEventResult<S, E>> sendEvent(Mono<Message<E>> event) {
-		return event.flatMapMany(e -> handleEvent(e));
+		return event.flatMapMany(this::handleEvent);
 	}
 
 	@Override
 	public Mono<List<StateMachineEventResult<S, E>>> sendEventCollect(Mono<Message<E>> event) {
-		return event.flatMapMany(e -> handleEvent(e)).collectList();
+		return event.flatMapMany(this::handleEvent).collectList();
 	}
 
 	@Override
@@ -319,7 +319,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 			@Override
 			public Mono<Void> transit(Transition<S, E> t, StateContext<S, E> ctx, Message<E> message) {
-				return Mono.fromSupplier(() -> System.currentTimeMillis())
+				return Mono.fromSupplier(System::currentTimeMillis)
 					.doOnNext(now -> {
 						notifyTransitionStart(buildStateContext(Stage.TRANSITION_START, message, t, getRelayStateMachine()));
 					})
