@@ -13,7 +13,7 @@ On a high level, in this state machine:
 
 * We always try to get into the `READY` state so that we can use the
   RUN event to execute tasks.
-* Tkhe `TASKS` state, which is composed of three independent regions, has been
+* The `TASKS` state, which is composed of three independent regions, has been
   put in the middle of `FORK` and `JOIN` states, which will cause the regions to
   go into their initial states and to be joined by their end states.
 * From the `JOIN` state, we automatically go into a `CHOICE` state, which checks
