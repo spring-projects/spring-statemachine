@@ -45,7 +45,7 @@ public class ExitPseudoState<S, E> implements PseudoState<S, E> {
 	}
 
 	@Override
-	final public PseudoStateKind getKind() {
+	public final PseudoStateKind getKind() {
 		return PseudoStateKind.EXIT;
 	}
 
