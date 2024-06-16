@@ -1,0 +1,21 @@
+plugins {
+	id 'org.springframework.statemachine.module'
+}
+
+description = 'Spring State Machine Data Common'
+
+dependencies {
+	management platform(project(":spring-statemachine-platform"))
+	api project(':spring-statemachine-core')
+	api project(':spring-statemachine-kryo')
+	api 'org.springframework.data:spring-data-commons'
+	api 'com.fasterxml.jackson.core:jackson-core'
+	api 'com.fasterxml.jackson.core:jackson-databind'
+	testImplementation (project(':spring-statemachine-test'))
+	testFixturesImplementation (project(':spring-statemachine-test'))
+	testImplementation(testFixtures(project(':spring-statemachine-core')))
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testFixturesImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.springframework.boot:spring-boot-starter-web'
+}

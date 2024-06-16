@@ -1,0 +1,5 @@
+plugins {
+	id 'org.springframework.statemachine.bom'
+}
+
+description = 'Spring Statemachine (Bill of Materials)'

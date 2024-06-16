@@ -1,0 +1,23 @@
+plugins {
+	id 'org.springframework.statemachine.sample'
+}
+
+description = 'Spring State Machine Order Shipping Sample'
+
+dependencies {
+	management platform(project(":spring-statemachine-platform"))
+	implementation project(':spring-statemachine-samples-common')
+	implementation project(':spring-statemachine-uml')
+	implementation('org.springframework.boot:spring-boot-starter-web')
+	implementation('org.springframework.boot:spring-boot-starter-thymeleaf')
+	testImplementation(testFixtures(project(':spring-statemachine-core')))
+	testImplementation (project(':spring-statemachine-test'))
+	testImplementation 'org.hamcrest:hamcrest-core'
+	testImplementation 'org.hamcrest:hamcrest-library'
+	testImplementation 'org.springframework.boot:spring-boot-test'
+	testImplementation 'org.springframework:spring-test'
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.assertj:assertj-core'
+	testImplementation 'org.junit.jupiter:junit-jupiter-api'
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+}

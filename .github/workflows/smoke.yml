@@ -22,13 +22,15 @@ jobs:
       fail-fast: false
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Setup JDK
-      uses: actions/setup-java@v1
+      uses: actions/setup-java@v4
       with:
+        distribution: adopt
         java-version: ${{ matrix.java }}
+        cache: gradle
     - name: Build with Gradle
-      run: ./gradlew clean build -x docsZip -x distZip -PstatemachineIncludeTags=smoke -PstatemachineTestResults=true
+      run: ./gradlew clean build -PstatemachineIncludeTags=smoke
     - name: Tar Build Logs
       if: ${{ failure() }}
       run: |
@@ -36,7 +38,7 @@ jobs:
         tar -zc --ignore-failed-read --file build/buildlogs.tar.gz */build/reports */*/build/reports
     - name: Upload Build Logs
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: buildlogs
         path: build/buildlogs.tar.gz

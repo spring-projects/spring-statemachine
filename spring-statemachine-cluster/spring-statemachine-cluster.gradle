@@ -1,0 +1,15 @@
+plugins {
+	id 'org.springframework.statemachine.module'
+}
+
+description = 'Spring State Machine Cluster'
+
+dependencies {
+	management platform(project(":spring-statemachine-platform"))
+	api project(':spring-statemachine-zookeeper')
+	api 'org.springframework.integration:spring-integration-zookeeper'
+	testImplementation 'org.apache.curator:curator-test'
+	testImplementation 'org.assertj:assertj-core'
+	testImplementation 'org.junit.jupiter:junit-jupiter-api'
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+}

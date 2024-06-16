@@ -1,0 +1,29 @@
+plugins {
+	id 'java-platform'
+}
+
+javaPlatform {
+	allowDependencies()
+}
+
+description = 'Spring Statemachine BOM'
+
+dependencies {
+	api platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
+	constraints {
+		api "com.google.code.findbugs:jsr305:$findbugsVersion"
+		api "com.esotericsoftware:kryo-shaded:$kryoVersion"
+		api "org.springframework.shell:spring-shell:$springShellVersion"
+		api "jakarta.persistence:jakarta.persistence-api:$jakartaPersistenceVersion"
+		api "org.eclipse.uml2:uml:$eclipseUml2UmlVersion"
+		api "org.eclipse.uml2:types:$eclipseUml2TypesVersion"
+		api "org.eclipse.uml2:common:$eclipseUml2CommonVersion"
+		api "org.eclipse.emf:org.eclipse.emf.ecore.xmi:$eclipseEmfXmiVersion"
+		api "org.eclipse.emf:org.eclipse.emf.ecore:$eclipseEmfEcoreVersion"
+		api "org.eclipse.emf:org.eclipse.emf.common:$eclipseEmfCommonVersion"
+		api "org.apache.curator:curator-recipes:$curatorVersion"
+		api "org.apache.curator:curator-test:$curatorVersion"
+		api "io.projectreactor.tools:blockhound:$reactorBlockHoundVersion"
+		api "io.projectreactor.tools:blockhound-junit-platform:$reactorBlockHoundVersion"
+	}
+}

@@ -1,0 +1,11 @@
+plugins {
+	id 'org.springframework.statemachine.starter'
+}
+
+description = 'Spring Statemachine Starter'
+
+dependencies {
+	management platform(project(":spring-statemachine-platform"))
+	api(project(":spring-statemachine-autoconfigure"))
+	api 'org.springframework.boot:spring-boot-starter'
+}

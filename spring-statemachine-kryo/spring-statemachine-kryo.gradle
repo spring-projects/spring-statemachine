@@ -1,0 +1,14 @@
+plugins {
+	id 'org.springframework.statemachine.module'
+}
+
+description = 'Spring State Machine Kryo'
+
+dependencies {
+	management platform(project(":spring-statemachine-platform"))
+	api project(':spring-statemachine-core')
+	api 'com.esotericsoftware:kryo-shaded'
+	testImplementation 'org.assertj:assertj-core'
+	testImplementation 'org.junit.jupiter:junit-jupiter-api'
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+}

@@ -1,0 +1,27 @@
+plugins {
+	id 'org.springframework.statemachine.module'
+}
+
+description = 'Spring Statemachine Core'
+
+dependencies {
+	management platform(project(":spring-statemachine-platform"))
+	api('org.springframework:spring-tx')
+	api('org.springframework:spring-messaging')
+	api('org.springframework:spring-context')
+	api('io.projectreactor:reactor-core')
+	optional 'org.springframework.security:spring-security-core'
+	compileOnly 'com.google.code.findbugs:jsr305'
+	testImplementation 'org.springframework:spring-web'
+	testImplementation 'org.springframework:spring-webmvc'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.awaitility:awaitility'
+	testImplementation 'org.springframework.security:spring-security-config'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'io.projectreactor.tools:blockhound'
+	testImplementation 'jakarta.servlet:jakarta.servlet-api'
+	testImplementation 'org.assertj:assertj-core'
+	testFixturesImplementation 'org.assertj:assertj-core'
+	testFixturesImplementation 'io.projectreactor:reactor-test'
+}

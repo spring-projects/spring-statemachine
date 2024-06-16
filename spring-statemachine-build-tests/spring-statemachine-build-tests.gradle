@@ -1,0 +1,27 @@
+plugins {
+	id 'org.springframework.statemachine.module'
+}
+
+description = 'Spring State Machine Build Tests'
+
+dependencies {
+	management platform(project(":spring-statemachine-platform"))
+	testImplementation project(':spring-statemachine-uml')
+	testImplementation project(':spring-statemachine-test')
+	testImplementation project(':spring-statemachine-data-common:spring-statemachine-data-jpa')
+	testImplementation project(':spring-statemachine-data-common:spring-statemachine-data-redis')
+	testImplementation project(':spring-statemachine-data-common:spring-statemachine-data-mongodb')
+	testImplementation(testFixtures(project(":spring-statemachine-core")))
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.apache.commons:commons-pool2'
+	testRuntimeOnly 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	testRuntimeOnly 'org.springframework.boot:spring-boot-starter-data-redis'
+	testRuntimeOnly 'redis.clients:jedis'
+	testImplementation 'org.junit.jupiter:junit-jupiter-api'
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	testImplementation 'com.h2database:h2'
+	testImplementation 'org.springframework.boot:spring-boot-starter'
+	testImplementation 'org.springframework:spring-test'
+	testImplementation 'io.projectreactor.tools:blockhound'
+}

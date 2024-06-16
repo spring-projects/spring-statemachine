@@ -1,0 +1,37 @@
+plugins {
+	id 'org.springframework.statemachine.module'
+}
+
+description = 'Spring State Machine Uml'
+
+dependencies {
+	management platform(project(":spring-statemachine-platform"))
+	api project(':spring-statemachine-core')
+	api ("org.eclipse.uml2:uml:$eclipseUml2UmlVersion") {
+		exclude group: 'org.eclipse.core', module: 'runtime'
+		exclude group: 'org.eclipse.emf', module: 'ecore'
+		exclude group: 'org.eclipse.emf.ecore', module: 'xmi'
+		exclude group: 'org.eclipse.emf.mapping', module: 'ecore2xml'
+		exclude group: 'org.eclipse.uml2', module: 'common'
+		exclude group: 'org.eclipse.uml2', module: 'types'
+	}
+	api ('org.eclipse.uml2:types') {
+		exclude group: 'org.eclipse.core', module: 'runtime'
+		exclude group: 'org.eclipse.emf', module: 'ecore'
+		exclude group: 'org.eclipse.uml2', module: 'common'
+	}
+	api ('org.eclipse.uml2:common') {
+		exclude group: 'org.eclipse.core', module: 'runtime'
+		exclude group: 'org.eclipse.emf', module: 'ecore'
+	}
+	api 'org.eclipse.emf:org.eclipse.emf.ecore.xmi'
+	api 'org.eclipse.emf:org.eclipse.emf.ecore'
+	api 'org.eclipse.emf:org.eclipse.emf.common'
+	testImplementation(testFixtures(project(":spring-statemachine-core")))
+	testImplementation 'org.assertj:assertj-core'
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.springframework:spring-test'
+	testImplementation 'org.junit.jupiter:junit-jupiter-api'
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+	testImplementation 'org.awaitility:awaitility'
+}

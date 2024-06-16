@@ -1,5 +1,6 @@
 pluginManagement {
 	repositories {
+		mavenCentral()
 		gradlePluginPortal()
 		maven { url 'https://repo.spring.io/release' }
 		if (version.contains('-')) {
@@ -9,14 +10,33 @@ pluginManagement {
 			maven { url 'https://repo.spring.io/snapshot' }
 		}
 	}
+	plugins {
+		id 'org.springframework.boot' version "$springBootVersion"
+		id 'com.gradle.enterprise' version "$gradleEnterpriseVersion"
+		id 'io.spring.ge.conventions' version "$springGeConventionsVersion"
+	}
 }
 
 plugins {
-	id 'com.gradle.enterprise' version '3.14.1'
-	id 'io.spring.ge.conventions' version '0.0.14'
+	id "com.gradle.enterprise"
+	id "io.spring.ge.conventions"
 }
 
 rootProject.name = 'spring-statemachine'
+
+settings.gradle.projectsLoaded {
+	gradleEnterprise {
+		buildScan {
+			def buildDir = settings.gradle.rootProject.getBuildDir()
+			buildDir.mkdirs()
+			new File(buildDir, "build-scan-uri.txt").text = "build scan not generated"
+			buildScanPublished { scan ->
+				buildDir.mkdirs()
+				new File(buildDir, "build-scan-uri.txt").text = "<${scan.buildScanUri}|build scan>\n"
+			}
+		}
+	}
+}
 
 include 'spring-statemachine-platform'
 include 'spring-statemachine-core'
@@ -56,21 +76,27 @@ include 'spring-statemachine-data:jpa'
 include 'spring-statemachine-data:redis'
 include 'spring-statemachine-data:mongodb'
 
-rootProject.children.find {
-	if (it.name == 'spring-statemachine-recipes') {
-		it.name = 'spring-statemachine-recipes-common'
-	}
-	if (it.name == 'spring-statemachine-samples') {
-		it.name = 'spring-statemachine-samples-common'
-		it.children.each {
-			it.name = 'spring-statemachine-samples-' + it.name
+include 'docs'
+
+rootProject.children.each { project ->
+	if (project.name == 'spring-statemachine-data') {
+        project.name = 'spring-statemachine-data-common'
+        project.buildFileName = 'spring-statemachine-data.gradle'
+		project.children.each { subproject ->
+		    subproject.buildFileName = "spring-statemachine-data-${subproject.name}.gradle"
+            subproject.name = 'spring-statemachine-data-' + subproject.name
 		}
-	}
-	if (it.name == 'spring-statemachine-data') {
-		it.name = 'spring-statemachine-data-common'
-		it.children.each {
-			it.name = 'spring-statemachine-data-' + it.name
+	} else if (project.name == 'spring-statemachine-recipes') {
+        project.name = 'spring-statemachine-recipes-common'
+        project.buildFileName = 'spring-statemachine-recipes.gradle'
+	} else if (project.name == 'spring-statemachine-samples') {
+        project.name = 'spring-statemachine-samples-common'
+        project.buildFileName = 'spring-statemachine-samples.gradle'
+		project.children.each { subproject ->
+		    subproject.buildFileName = "spring-statemachine-samples-${subproject.name}.gradle"
+            subproject.name = 'spring-statemachine-samples-' + subproject.name
 		}
+	} else {
+		project.buildFileName = "${project.name}.gradle"
 	}
 }
-
