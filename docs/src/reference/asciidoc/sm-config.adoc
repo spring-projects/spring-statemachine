@@ -50,7 +50,7 @@ include::samples/DocsConfigurationSampleTests.java[tags=snippetAA]
 
 You can also use strings instead of enumerations as states and
 events by using `StateMachineConfigurerAdapter`, as shown in the next example. Most
-of the configuration examples ues enumerations, but, generally speaking,
+of the configuration examples use enumerations, but, generally speaking,
 you can interchange strings and enumerations.
 
 ====
