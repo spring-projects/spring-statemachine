@@ -620,12 +620,12 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	private Flux<StateMachineEventResult<S, E>> handleEvent(Message<E> message) {
 		if (hasStateMachineError()) {
-			return Flux.just(StateMachineEventResult.<S, E>from(this, message, ResultType.DENIED));
+			return Flux.just(StateMachineEventResult.<S, E>from(this, message, ResultType.DENIED, currentError.getCause()));
 		}
 		return Mono.just(message)
 			.map(m -> getStateMachineInterceptors().preEvent(m, this))
 			.flatMapMany(m -> acceptEvent(m))
-			.onErrorResume(error -> Flux.just(StateMachineEventResult.<S, E>from(this, message, ResultType.DENIED)))
+			.onErrorResume(error -> Flux.just(StateMachineEventResult.<S, E>from(this, message, ResultType.DENIED, error.getCause())))
 			.doOnNext(notifyOnDenied());
 	}
 
@@ -668,7 +668,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 													}))
 													.onErrorResume(t -> {
 														return Mono.defer(() -> {
-															return Mono.just(StateMachineEventResult.<S, E>from(this, message, ResultType.DENIED));
+															return Mono.just(StateMachineEventResult.<S, E>from(this, message, ResultType.DENIED, t.getCause()));
 														});
 													});
 											} else {
