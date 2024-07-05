@@ -1,0 +1,29 @@
+@startuml
+'https://plantuml.com/state-diagram
+
+'hide description area for state without description
+hide empty description
+
+state S1
+state S2  {
+  state S21
+  state S22
+
+
+  [*] -[#000000]-> S21
+  state ENTRY <<entryPoint>>
+  state EXIT <<exitPoint>>
+}
+state S3
+state S4
+
+
+[*] -[#000000]-> S1
+ENTRY -down[#000000]-> S22
+S22 -down[#000000]-> EXIT : E4
+S1 -down[#000000]-> ENTRY : E3
+EXIT -down[#000000]-> S4
+S1 -down[#000000]-> S2 : E1
+S2 -down[#000000]-> S3 : E2
+
+@enduml

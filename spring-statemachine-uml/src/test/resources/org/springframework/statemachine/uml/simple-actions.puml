@@ -1,0 +1,17 @@
+@startuml
+'https://plantuml.com/state-diagram
+
+'hide description area for state without description
+hide empty description
+
+state S1
+S1 : /exit s1Exit
+state S2
+S2 : /entry s2Entry
+S2 : /do extendedState.variables.put('hellos2do','hellos2dovalue')
+
+
+[*] -[#000000]-> S1
+S1 -down[#000000]-> S2 : E1\n/ e1Action
+
+@enduml

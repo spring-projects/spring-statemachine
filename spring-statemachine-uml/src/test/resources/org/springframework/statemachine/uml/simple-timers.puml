@@ -1,0 +1,22 @@
+@startuml
+'https://plantuml.com/state-diagram
+
+'hide description area for state without description
+hide empty description
+
+state S1
+state S2
+state S3
+S3 : /entry s3Entry
+state S4
+state S5
+S5 : /entry s5Entry
+
+
+[*] -[#000000]-> S1
+S1 -down[#000000]-> S4 : E2
+S1 -down[#000000]-> S2 : E1
+S2 -down[#000000]-> S3 : every 1 second
+S4 -down[#000000]-> S5 : after 1 second
+
+@enduml

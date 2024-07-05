@@ -1,0 +1,30 @@
+@startuml
+note "!!! NOT WORKING !!!\n!!! Missing 'EXIT -down[#000000]-> S4' transition !!!\n It seems ConnectionPointRef is not supported by Spring Statemachine" as NOT_WORKING
+'https://plantuml.com/state-diagram
+
+'hide description area for state without description
+hide empty description
+
+state S1
+state S2  {
+  state S21
+  state S22
+
+
+  [*] -[#000000]-> S21
+  state ENTRY <<entryPoint>>
+  state EXIT <<exitPoint>>
+}
+state S3
+state S4
+
+
+[*] -[#000000]-> S1
+S1 -down[#000000]-> S2 : E1
+ENTRY -down[#000000]-> S22
+S22 -down[#000000]-> EXIT : E4
+S1 -down[#000000]-> ENTRY : E3
+S2 -down[#000000]-> S3 : E2
+EXIT -down[#000000]-> S4
+
+@enduml
