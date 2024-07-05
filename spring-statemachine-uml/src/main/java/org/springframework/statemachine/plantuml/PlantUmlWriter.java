@@ -181,6 +181,8 @@ public class PlantUmlWriter<S, E> {
             );
         }
 
+        sb.append(plantUmlWriterParameters.getHiddenTransitions());
+
         sb.append("\n@enduml");
 
         log.debug("toPlantUml:" + sb);

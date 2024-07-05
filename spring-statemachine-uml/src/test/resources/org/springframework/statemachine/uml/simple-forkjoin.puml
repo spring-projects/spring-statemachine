@@ -40,4 +40,6 @@ S31 -down[#000000]-> S3
 S21 -down[#000000]-> S3
 S3 -down[#000000]-> SF
 
-@enduml
+S1 -right[hidden]-> S2
+
+@enduml"
