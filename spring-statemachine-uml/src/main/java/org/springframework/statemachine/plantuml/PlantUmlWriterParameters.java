@@ -1,7 +1,9 @@
 package org.springframework.statemachine.plantuml;
 
-import lombok.*;
-import lombok.extern.slf4j.Slf4j;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Value;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.lang.Nullable;
@@ -68,8 +70,8 @@ public class PlantUmlWriterParameters<S> {
         Connection<S> sourceOnly = new Connection<>(source, null);
         Connection<S> targetOnly = new Connection<>(null, target);
         if (arrows.containsKey(sourceOnly)
-            && arrows.containsKey(targetOnly)
-            && !arrows.get(sourceOnly).equals(arrows.get(targetOnly))
+                && arrows.containsKey(targetOnly)
+                && !arrows.get(sourceOnly).equals(arrows.get(targetOnly))
         ) {
             log.warn(
                     String.format("Two 'unary' 'arrowDirection' rules found for (%s, %s) with DIFFERENT values! Using 'target' rule!", source, target));
@@ -99,14 +101,18 @@ public class PlantUmlWriterParameters<S> {
     }
 
     public String getHiddenTransitions() {
-        return hiddenTransitions.entrySet().stream()
+        String hiddenTransitionsText = hiddenTransitions.entrySet().stream()
                 .map(hiddenTransition -> "%s -%s[hidden]-> %s"
                         .formatted(
                                 hiddenTransition.getKey().getSource(),
-                                hiddenTransition.getValue().name(),
+                                hiddenTransition.getValue().name().toLowerCase(),
                                 hiddenTransition.getKey().getTarget()
                         ))
                 .collect(Collectors.joining("\n"));
+
+        return hiddenTransitionsText.isEmpty()
+                ? ""
+                : "\n" + hiddenTransitionsText + "\n";
     }
 
     @Builder
@@ -153,8 +159,8 @@ public class PlantUmlWriterParameters<S> {
         Connection<S> sourceOnly = new Connection<>(source, null);
         Connection<S> targetOnly = new Connection<>(null, target);
         if (arrowLabelDecorator.containsKey(sourceOnly)
-            && arrowLabelDecorator.containsKey(targetOnly)
-            && !arrowLabelDecorator.get(sourceOnly).equals(arrowLabelDecorator.get(targetOnly))
+                && arrowLabelDecorator.containsKey(targetOnly)
+                && !arrowLabelDecorator.get(sourceOnly).equals(arrowLabelDecorator.get(targetOnly))
         ) {
             log.warn(
                     String.format("Two 'unary' 'arrowLabelDecorator' rules found for (%s, %s) with DIFFERENT values! Using 'target' rule!", source, target));

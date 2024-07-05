@@ -25,6 +25,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.statemachine.plantuml.PlantUmlWriterParameters.Direction.RIGHT;
 import static org.springframework.statemachine.plantuml.PlantUmlWriterParameters.Direction.UP;
 
 class PlantUmlWriterTest {
@@ -67,7 +68,11 @@ class PlantUmlWriterTest {
                 Arguments.of("org/springframework/statemachine/uml/simple-flat-multiple-to-end-viachoices", null),
                 Arguments.of("org/springframework/statemachine/uml/simple-flat-multiple-to-end", null),
                 Arguments.of("org/springframework/statemachine/uml/simple-flat", null),
-                Arguments.of("org/springframework/statemachine/uml/simple-forkjoin", null),
+                Arguments.of("org/springframework/statemachine/uml/simple-forkjoin",
+                        // add hidden transition to make diagram more readable
+                        new PlantUmlWriterParameters<String>()
+                                .hiddenTransition("S1", RIGHT, "S2")
+                ),
                 Arguments.of("org/springframework/statemachine/uml/simple-guards", null),
                 Arguments.of("org/springframework/statemachine/uml/simple-history-deep", null),
                 Arguments.of("org/springframework/statemachine/uml/simple-history-default", null),
