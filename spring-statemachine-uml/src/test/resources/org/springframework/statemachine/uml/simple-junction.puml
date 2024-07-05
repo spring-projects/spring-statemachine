@@ -1,0 +1,30 @@
+@startuml
+'https://plantuml.com/state-diagram
+
+'hide description area for state without description
+hide empty description
+
+'JUNCTION <<JUNCTION>>
+state JUNCTION <<start>>
+note left of JUNCTION : JUNCTION
+state S1
+state S2
+state S3
+state S4
+state S5
+state S6
+state S7
+
+
+[*] -[#000000]-> S1
+S2 -down[#000000]-> JUNCTION : E4
+S3 -down[#000000]-> JUNCTION : E4
+S4 -down[#000000]-> JUNCTION : E4
+S1 -down[#000000]-> S4 : E3
+S1 -down[#000000]-> S3 : E2
+S1 -down[#000000]-> S2 : E1
+JUNCTION -down[#000000]-> S7
+JUNCTION -down[#000000]-> S6 : [s6Guard]
+JUNCTION -down[#000000]-> S5 : [s5Guard]
+
+@enduml

@@ -1,0 +1,50 @@
+plugins {
+	id 'org.springframework.statemachine.module'
+}
+
+description = 'Spring State Machine Uml'
+
+dependencies {
+	management platform(project(":spring-statemachine-platform"))
+	api project(':spring-statemachine-core')
+	api ("org.eclipse.uml2:uml:$eclipseUml2UmlVersion") {
+		exclude group: 'org.eclipse.core', module: 'runtime'
+		exclude group: 'org.eclipse.emf', module: 'ecore'
+		exclude group: 'org.eclipse.emf.ecore', module: 'xmi'
+		exclude group: 'org.eclipse.emf.mapping', module: 'ecore2xml'
+		exclude group: 'org.eclipse.uml2', module: 'common'
+		exclude group: 'org.eclipse.uml2', module: 'types'
+	}
+	api ('org.eclipse.uml2:types') {
+		exclude group: 'org.eclipse.core', module: 'runtime'
+		exclude group: 'org.eclipse.emf', module: 'ecore'
+		exclude group: 'org.eclipse.uml2', module: 'common'
+	}
+	api ('org.eclipse.uml2:common') {
+		exclude group: 'org.eclipse.core', module: 'runtime'
+		exclude group: 'org.eclipse.emf', module: 'ecore'
+	}
+	api 'org.eclipse.emf:org.eclipse.emf.ecore.xmi'
+	api 'org.eclipse.emf:org.eclipse.emf.ecore'
+	api 'org.eclipse.emf:org.eclipse.emf.common'
+
+	implementation 'org.apache.commons:commons-lang3:3.12.0'
+	implementation'net.sourceforge.plantuml:plantuml-lgpl:1.2023.13'
+	implementation 'jakarta.validation:jakarta.validation-api:3.1.0'
+
+	testImplementation(testFixtures(project(":spring-statemachine-core")))
+	testImplementation 'org.assertj:assertj-core'
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.springframework:spring-test'
+	testImplementation 'org.junit.jupiter:junit-jupiter-api'
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+	testImplementation 'org.junit.jupiter:junit-jupiter-params'
+	testImplementation 'org.awaitility:awaitility'
+
+	// lombok
+	implementation 'org.projectlombok:lombok:1.18.32'
+	compileOnly 'org.projectlombok:lombok:1.18.32'
+	annotationProcessor 'org.projectlombok:lombok:1.18.32'
+	testImplementation 'org.projectlombok:lombok:1.18.32'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
+}

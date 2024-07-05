@@ -1,0 +1,45 @@
+@startuml
+'https://plantuml.com/state-diagram
+
+'hide description area for state without description
+hide empty description
+
+'S1 <<FORK>>
+state S1 <<fork>>
+note left of S1 : S1
+state S2  {
+  state S20
+  state S21
+
+
+  [*] -[#000000]-> S20
+  state S30
+  state S31
+
+
+  [*] -[#000000]-> S30
+}
+'S3 <<JOIN>>
+state S3 <<join>>
+note left of S3 : S3
+state S4
+'SF <<END>>
+state SF <<end>>
+note left of SF : SF
+state SI
+
+
+S1 -down[#000000]-> S20
+
+S1 -down[#000000]-> S30
+
+[*] -[#000000]-> SI
+S20 -down[#000000]-> S21 : E2
+S30 -down[#000000]-> S31 : E3
+SI -down[#000000]-> S1 : E1
+S31 -down[#000000]-> S3
+S21 -down[#000000]-> S3
+S3 -down[#000000]-> S4 : [extendedState.variables.isEmpty()]
+S3 -down[#000000]-> SF : [!extendedState.variables.isEmpty()]
+
+@enduml
