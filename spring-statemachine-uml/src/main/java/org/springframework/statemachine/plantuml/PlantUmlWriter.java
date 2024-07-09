@@ -1,7 +1,6 @@
 package org.springframework.statemachine.plantuml;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.extern.slf4j.Slf4j;
 import net.sourceforge.plantuml.SourceStringReader;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
@@ -246,7 +245,7 @@ public class PlantUmlWriter<S, E> {
             return Boolean.FALSE;
         }
         return PseudoStateKind.ENTRY.equals(state.getPseudoState().getKind())
-               || PseudoStateKind.EXIT.equals(state.getPseudoState().getKind());
+                || PseudoStateKind.EXIT.equals(state.getPseudoState().getKind());
     }
 
     // TODO create processState() with optional '{' and '}' to allow text on stereotype states?
@@ -662,10 +661,10 @@ public class PlantUmlWriter<S, E> {
                         plantUmlWriterParameters.getDirection(source, target),
                         plantUmlWriterParameters.getArrowColor(
                                 currentContextTransition != null
-                                && (
+                                        && (
                                         currentContextTransition.getSource() == source
-                                        // && currentContextTransition.event == transition.getTrigger().getEvent()
-                                        && currentContextTransition.getTarget() == target
+                                                // && currentContextTransition.event == transition.getTrigger().getEvent()
+                                                && currentContextTransition.getTarget() == target
                                 )
                         ),
                         historyIdGetter == null ? targetState.getId() : historyIdGetter.getId(targetState),
@@ -719,10 +718,11 @@ public class PlantUmlWriter<S, E> {
                     case EXTERNAL, INTERNAL, LOCAL -> {
                         String arrowColor = plantUmlWriterParameters.getArrowColor(
                                 currentContextTransition != null
-                                && (
-                                        currentContextTransition.getSource() == source
-                                        && currentContextTransition.getEvent() == transition.getTrigger().getEvent()
-                                        && currentContextTransition.getTarget() == target
+                                    && transition.getTrigger() != null
+                                    && (
+                                    currentContextTransition.getSource() == source
+                                            && currentContextTransition.getEvent() == transition.getTrigger().getEvent()
+                                            && currentContextTransition.getTarget() == target
                                 )
                         );
                         addTransition(sb, indent, source.toString(), source, target, plantUmlWriterParameters, arrowColor, transition);
@@ -782,7 +782,7 @@ public class PlantUmlWriter<S, E> {
             return Boolean.FALSE;
         }
         return PseudoStateKind.HISTORY_SHALLOW.equals(state.getPseudoState().getKind())
-               || PseudoStateKind.HISTORY_DEEP.equals(state.getPseudoState().getKind());
+                || PseudoStateKind.HISTORY_DEEP.equals(state.getPseudoState().getKind());
     }
 
 }
