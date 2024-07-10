@@ -15,7 +15,9 @@ public class ContextTransition<S, E> {
     public static <S, E> ContextTransition<S, E> of(@Nullable StateContext<S, E> stateContext) {
         if (stateContext != null) {
             return new ContextTransition<>(
-                    stateContext.getSource().getId(),
+                    stateContext.getSource() != null
+                            ? stateContext.getSource().getId()
+                            : null,
                     stateContext.getEvent(),
                     stateContext.getTarget() != null
                             ? stateContext.getTarget().getId()
