@@ -13,8 +13,8 @@ note left of FINAL2 : FINAL2
 state S1
 
 
-[*] -[#000000]-> S1
-S1 -down[#000000]-> FINAL1
-S1 -down[#000000]-> FINAL2
+[*] --> S1
+S1 -down-> FINAL1
+S1 -down-> FINAL2
 
 @enduml

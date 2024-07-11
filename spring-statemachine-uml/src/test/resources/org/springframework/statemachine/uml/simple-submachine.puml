@@ -9,13 +9,13 @@ state S1  {
   state S12
 
 
-  [*] -[#000000]-> S11
+  [*] --> S11
 }
 state S2
 
 
-[*] -[#000000]-> S1
-S11 -down[#000000]-> S12 : E1
-S1 -down[#000000]-> S2 : E2
+[*] --> S1
+S11 -down-> S12 : E1
+S1 -down-> S2 : E2
 
 @enduml

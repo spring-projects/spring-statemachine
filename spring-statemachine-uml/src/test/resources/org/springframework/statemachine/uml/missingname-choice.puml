@@ -13,10 +13,10 @@ state choice1 <<choice>>
 note left of choice1 : choice1
 
 
-[*] -[#000000]-> S1
-S1 -down[#000000]-> choice1 : E1
-choice1 -down[#000000]-> S2 : [s2Guard]
-choice1 -down[#000000]-> S3 : [s3Guard]
-choice1 -down[#000000]-> S4
+[*] --> S1
+S1 -down-> choice1 : E1
+choice1 -down-> S2 : [s2Guard]
+choice1 -down-> S3 : [s3Guard]
+choice1 -down-> S4
 
 @enduml

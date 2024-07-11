@@ -9,7 +9,7 @@ state S2
 S2 : /entry action1
 
 
-[*] -[#000000]-> S1
-S1 -down[#000000]-> S2 : E1
+[*] --> S1
+S1 -down-> S2 : E1
 
 @enduml

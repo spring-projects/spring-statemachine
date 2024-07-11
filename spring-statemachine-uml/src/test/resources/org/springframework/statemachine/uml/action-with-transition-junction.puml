@@ -18,13 +18,13 @@ state S5
 state S6
 
 
-[*] -[#000000]-> S1
-S1 -down[#000000]-> JUNCTION1 : E1\n/ s1ToChoice
-JUNCTION1 -down[#000000]-> JUNCTION2 : [choice2Guard]\n/ choice1ToChoice2
-JUNCTION2 -down[#000000]-> S6 : / choiceToS6
-JUNCTION2 -down[#000000]-> S5 : [s5Guard]\n/ choiceToS5
-JUNCTION1 -down[#000000]-> S4 : / choiceToS4
-JUNCTION1 -down[#000000]-> S3 : [s3Guard]
-JUNCTION1 -down[#000000]-> S2 : [s2Guard]\n/ choiceToS2
+[*] --> S1
+JUNCTION1 -down-> JUNCTION2 : [choice2Guard]\n/ choice1ToChoice2
+JUNCTION1 -down-> S2 : [s2Guard]\n/ choiceToS2
+JUNCTION1 -down-> S3 : [s3Guard]
+JUNCTION1 -down-> S4 : / choiceToS4
+JUNCTION2 -down-> S5 : [s5Guard]\n/ choiceToS5
+JUNCTION2 -down-> S6 : / choiceToS6
+S1 -down-> JUNCTION1 : E1\n/ s1ToChoice
 
 @enduml
