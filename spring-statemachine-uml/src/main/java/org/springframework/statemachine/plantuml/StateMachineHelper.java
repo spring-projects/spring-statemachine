@@ -43,6 +43,7 @@ public class StateMachineHelper {
         if (region.getState() != null) {
             currentStateAccumulator.add(region.getState().getId());
         }
+
         region.getStates().forEach(state -> {
             if (state.isSubmachineState()) {
                 if (state instanceof AbstractState<S, E> abstractState) {
@@ -93,8 +94,8 @@ public class StateMachineHelper {
     ) {
         if (state.getPseudoState() != null
             && (
-                    state.getPseudoState().getKind() == PseudoStateKind.HISTORY_DEEP
-                    || state.getPseudoState().getKind() == PseudoStateKind.HISTORY_SHALLOW
+                state.getPseudoState().getKind() == PseudoStateKind.HISTORY_DEEP
+                || state.getPseudoState().getKind() == PseudoStateKind.HISTORY_SHALLOW
             )
         ) {
             historyStatesToHistoryId.put(state, historyId(parentState, state.getPseudoState().getKind()));
