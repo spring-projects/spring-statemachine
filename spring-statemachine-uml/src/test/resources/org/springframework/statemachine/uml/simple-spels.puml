@@ -10,7 +10,7 @@ state S2
 S2 : /entry extendedState.variables.put('myvar1','myvalue1')
 
 
-[*] -[#000000]-> S1
-S1 -down[#000000]-> S2 : E1\n[messageHeaders.get('foo')=='bar']
+[*] --> S1
+S1 -down-> S2 : E1\n[messageHeaders.get('foo')=='bar']
 
 @enduml

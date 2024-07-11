@@ -153,15 +153,10 @@ public class PlantUmlWriter<S, E> {
         historyStatesToHistoryId = StateMachineHelper.collectHistoryStates(stateMachine);
         historyTransitions = new ArrayList<>();
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("""
-                @startuml
-                'https://plantuml.com/state-diagram
-                                
-                'hide description area for state without description
-                hide empty description
-                                
-                """);
+        StringBuilder sb = new StringBuilder("@startuml\n")
+                .append(PlantUmlWriterParameters.getStateDiagramSettings(plantUmlWriterParameters))
+                .append("\n");
+
 
         // 2nd pass: processing statemachine AND collecting history transitions in 'historyTransitions
         processRegion(stateMachine, stateContext, plantUmlWriterParameters, sb, "", null);
@@ -651,7 +646,7 @@ public class PlantUmlWriter<S, E> {
         S target = targetState.getId();
         sb.append("""
                 %s%s
-                %s%s -%s[%s]-> %s %s
+                %s%s -%s%s-> %s %s
                 """
                 .formatted(
                         indent,
@@ -746,7 +741,7 @@ public class PlantUmlWriter<S, E> {
             Transition<S, E> transition
     ) {
         sb.append("""
-                %s%s -%s[%s]-> %s %s
+                %s%s -%s%s-> %s %s
                 """
                 .formatted(
                         indent,

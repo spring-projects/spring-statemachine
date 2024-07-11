@@ -13,10 +13,10 @@ state S5
 S5 : /entry s5Entry
 
 
-[*] -[#000000]-> S1
-S1 -down[#000000]-> S4 : E2
-S1 -down[#000000]-> S2 : E1
-S2 -down[#000000]-> S3 : every 1 second
-S4 -down[#000000]-> S5 : after 1 second
+[*] --> S1
+S1 -down-> S2 : E1
+S1 -down-> S4 : E2
+S2 -down-> S3 : every 1 second
+S4 -down-> S5 : after 1 second
 
 @enduml

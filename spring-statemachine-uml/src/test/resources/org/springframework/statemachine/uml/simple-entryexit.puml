@@ -10,7 +10,7 @@ state S2  {
   state S22
 
 
-  [*] -[#000000]-> S21
+  [*] --> S21
   state ENTRY <<entryPoint>>
   state EXIT <<exitPoint>>
 }
@@ -18,12 +18,12 @@ state S3
 state S4
 
 
-[*] -[#000000]-> S1
-ENTRY -down[#000000]-> S22
-S22 -down[#000000]-> EXIT : E4
-S1 -down[#000000]-> ENTRY : E3
-EXIT -down[#000000]-> S4
-S1 -down[#000000]-> S2 : E1
-S2 -down[#000000]-> S3 : E2
+[*] --> S1
+ENTRY -down-> S22
+EXIT -down-> S4
+S1 -down-> ENTRY : E3
+S1 -down-> S2 : E1
+S22 -down-> EXIT : E4
+S2 -down-> S3 : E2
 
 @enduml

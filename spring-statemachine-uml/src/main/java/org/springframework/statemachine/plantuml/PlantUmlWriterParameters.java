@@ -1,9 +1,6 @@
 package org.springframework.statemachine.plantuml;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Value;
+import lombok.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.lang.Nullable;
@@ -21,7 +18,48 @@ public class PlantUmlWriterParameters<S> {
 
     private static final Log log = LogFactory.getLog(PlantUmlWriterParameters.class);
 
-    // TODO add hidden arrows  'S1 -[hidden]-> S2'
+    public static final String DEFAULT_STATE_DIAGRAM_SETTINGS = """
+            'https://plantuml.com/state-diagram
+                        
+            'hide description area for state without description
+            hide empty description
+                        
+            'https://plantuml.com/fr/skinparam
+            'https://plantuml-documentation.readthedocs.io/en/latest/formatting/all-skin-params.html
+            'https://plantuml.com/fr/color
+            skinparam BackgroundColor white
+            skinparam DefaultFontColor black
+            'skinparam DefaultFontName Impact
+            skinparam DefaultFontSize 14
+            skinparam DefaultFontStyle Normal
+            skinparam NoteBackgroundColor #FEFFDD
+            skinparam NoteBorderColor black
+                        
+            skinparam state {
+              ArrowColor black
+              BackgroundColor #F1F1F1
+              BorderColor #181818
+              FontColor black
+            '  FontName Impact
+              FontSize 14
+              FontStyle Normal
+            }
+            """;
+
+    @Setter
+    private String stateDiagramSettings = DEFAULT_STATE_DIAGRAM_SETTINGS;
+
+    public static String getStateDiagramSettings(@Nullable PlantUmlWriterParameters<?> plantUmlWriterParameters) {
+        return plantUmlWriterParameters == null
+                ? DEFAULT_STATE_DIAGRAM_SETTINGS
+                : plantUmlWriterParameters.getStateDiagramSettings();
+    }
+
+    private String getStateDiagramSettings() {
+        return stateDiagramSettings == null
+                ? ""
+                : stateDiagramSettings;
+    }
 
     /**
      * Direction of an arrow connecting 2 States
@@ -206,7 +244,7 @@ public class PlantUmlWriterParameters<S> {
     }
 
     public String getArrowColor(boolean isCurrentTransaction) {
-        return isCurrentTransaction ? "#FF0000" : "#000000";
+        return isCurrentTransaction ? "[#FF0000]" : "";
     }
 
 }

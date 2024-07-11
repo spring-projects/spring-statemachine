@@ -12,12 +12,12 @@ state S1  {
   state S12
 
 
-  [*] -[#000000]-> S11
+  [*] --> S11
 }
 
 
-[*] -[#000000]-> S1
-S11 -down[#000000]-> CHOICE
-CHOICE -down[#000000]-> S12
+[*] --> S1
+CHOICE -down-> S12
+S11 -down-> CHOICE
 
 @enduml

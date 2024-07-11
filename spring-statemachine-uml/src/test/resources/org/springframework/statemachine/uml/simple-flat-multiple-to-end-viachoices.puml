@@ -16,10 +16,10 @@ note left of FINAL : FINAL
 state S1
 
 
-[*] -[#000000]-> S1
-S1 -down[#000000]-> CHOICE1
-CHOICE2 -down[#000000]-> FINAL
-CHOICE1 -down[#000000]-> FINAL
-S1 -down[#000000]-> CHOICE2
+[*] --> S1
+CHOICE1 -down-> FINAL
+CHOICE2 -down-> FINAL
+S1 -down-> CHOICE1
+S1 -down-> CHOICE2
 
 @enduml

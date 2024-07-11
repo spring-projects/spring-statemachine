@@ -12,12 +12,12 @@ state S2  {
   state S21
 
 
-  [*] -[#000000]-> S20
+  [*] --> S20
   state S30
   state S31
 
 
-  [*] -[#000000]-> S30
+  [*] --> S30
 }
 'S3 <<JOIN>>
 state S3 <<join>>
@@ -29,17 +29,17 @@ note left of SF : SF
 state SI
 
 
-S1 -down[#000000]-> S20
+S1 -down-> S20
 
-S1 -down[#000000]-> S30
+S1 -down-> S30
 
-[*] -[#000000]-> SI
-S20 -down[#000000]-> S21 : E2
-S30 -down[#000000]-> S31 : E3
-SI -down[#000000]-> S1 : E1
-S31 -down[#000000]-> S3
-S21 -down[#000000]-> S3
-S3 -down[#000000]-> S4 : [extendedState.variables.isEmpty()]
-S3 -down[#000000]-> SF : [!extendedState.variables.isEmpty()]
+[*] --> SI
+S20 -down-> S21 : E2
+S21 -down-> S3
+S30 -down-> S31 : E3
+S31 -down-> S3
+S3 -down-> S4 : [extendedState.variables.isEmpty()]
+S3 -down-> SF : [!extendedState.variables.isEmpty()]
+SI -down-> S1 : E1
 
 @enduml

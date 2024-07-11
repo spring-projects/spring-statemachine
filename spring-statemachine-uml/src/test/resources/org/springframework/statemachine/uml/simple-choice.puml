@@ -13,10 +13,10 @@ state S3
 state S4
 
 
-[*] -[#000000]-> S1
-S1 -down[#000000]-> CHOICE : E1
-CHOICE -down[#000000]-> S4
-CHOICE -down[#000000]-> S3 : [s3Guard]
-CHOICE -down[#000000]-> S2 : [s2Guard]
+[*] --> S1
+CHOICE -down-> S2 : [s2Guard]
+CHOICE -down-> S3 : [s3Guard]
+CHOICE -down-> S4
+S1 -down-> CHOICE : E1
 
 @enduml

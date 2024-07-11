@@ -11,8 +11,8 @@ state S3 <<end>>
 note left of S3 : S3
 
 
-[*] -[#000000]-> S1
-S1 -down[#000000]-> S2 : E1
-S2 -down[#000000]-> S3 : E2
+[*] --> S1
+S1 -down-> S2 : E1
+S2 -down-> S3 : E2
 
 @enduml

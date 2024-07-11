@@ -10,15 +10,15 @@ state S2  {
   state S21
 
 
-  [*] -[#000000]-> S20
+  [*] --> S20
 }
 
 
-[*] -[#000000]-> S1
-S1 -down[#000000]-> S2 : E1
-S20 -down[#000000]-> S21 : E2
-S2 -down[#000000]-> S1 : E3
+[*] --> S1
+S1 -down-> S2 : E1
+S20 -down-> S21 : E2
+S2 -down-> S1 : E3
 'S1 -> SH
-S1 -down[#000000]-> S2[H] : E4
+S1 -down-> S2[H] : E4
 
 @enduml

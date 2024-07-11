@@ -11,7 +11,7 @@ S2 : /entry s2Entry
 S2 : /do extendedState.variables.put('hellos2do','hellos2dovalue')
 
 
-[*] -[#000000]-> S1
-S1 -down[#000000]-> S2 : E1\n/ e1Action
+[*] --> S1
+S1 -down-> S2 : E1\n/ e1Action
 
 @enduml

@@ -110,6 +110,15 @@ class PlantUmlWriterTest {
         // make umlStateMachineModelFactory aware of beans available in BeansForUmlFiles.class
         umlStateMachineModelFactory.setBeanFactory(context);
 
+        if (plantUmlWriterParameters == null) {
+            plantUmlWriterParameters = new PlantUmlWriterParameters<>();
+        }// setting some PlantUml parameters
+        plantUmlWriterParameters.setStateDiagramSettings("""
+                'https://plantuml.com/state-diagram
+                
+                'hide description area for state without description
+                hide empty description
+                """);
         // Dumping statemachine to PlantUml diagram
         String stateMachineAsPlantUML = new PlantUmlWriter<String, String>()
                 .toPlantUml(

@@ -10,9 +10,9 @@ state S3
 state S4
 
 
-[*] -[#000000]-> S1
-S1 -down[#000000]-> S3 : E2
-S1 -down[#000000]-> S2 : E1\n[denyGuard]
-S3 -down[#000000]-> S4 : [denyGuard]
+[*] --> S1
+S1 -down-> S2 : E1\n[denyGuard]
+S1 -down-> S3 : E2
+S3 -down-> S4 : [denyGuard]
 
 @enduml

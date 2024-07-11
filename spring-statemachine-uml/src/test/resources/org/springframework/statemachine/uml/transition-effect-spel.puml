@@ -8,7 +8,7 @@ state S1
 state S2
 
 
-[*] -[#000000]-> S1
-S1 -down[#000000]-> S2 : E1\n/ extendedState.variables.put('key','value')
+[*] --> S1
+S1 -down-> S2 : E1\n/ extendedState.variables.put('key','value')
 
 @enduml
