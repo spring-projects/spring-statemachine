@@ -24,9 +24,9 @@ import org.springframework.statemachine.StateContext;
 @AllArgsConstructor
 @Getter
 public class ContextTransition<S, E> {
-	final S source;
-	final E event;
-	final S target;
+	private final S source;
+	private final E event;
+	private final S target;
 
 	public static <S, E> ContextTransition<S, E> of(@Nullable StateContext<S, E> stateContext) {
 		if (stateContext != null) {
