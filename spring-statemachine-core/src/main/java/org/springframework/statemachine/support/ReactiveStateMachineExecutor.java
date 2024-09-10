@@ -125,7 +125,7 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 			Mono<Void> mono = startTriggers();
 
 			if (triggerDisposable == null) {
-				triggerDisposable = triggerFlux.subscribe();
+				triggerDisposable = triggerFlux.contextCapture().subscribe();
 			}
 
 			if (!initialHandled.getAndSet(true)) {
