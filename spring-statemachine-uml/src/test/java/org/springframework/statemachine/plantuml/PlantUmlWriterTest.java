@@ -70,8 +70,7 @@ class PlantUmlWriterTest {
                 Arguments.of("org/springframework/statemachine/uml/simple-flat", null),
                 Arguments.of("org/springframework/statemachine/uml/simple-forkjoin",
                         // add hidden transition to make diagram more readable
-                        new PlantUmlWriterParameters<String>()
-                                .hiddenTransition("S1", RIGHT, "S2")
+                        new PlantUmlWriterParameters<String>().addAdditionalHiddenTransition("S1", RIGHT, "S2")
                 ),
                 Arguments.of("org/springframework/statemachine/uml/simple-guards", null),
                 Arguments.of("org/springframework/statemachine/uml/simple-history-deep", null),
