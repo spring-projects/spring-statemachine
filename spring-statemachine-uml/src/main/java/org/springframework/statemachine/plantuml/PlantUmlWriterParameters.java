@@ -23,6 +23,7 @@ import org.springframework.lang.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 /**
@@ -35,32 +36,32 @@ public class PlantUmlWriterParameters<S> {
 	private static final Log log = LogFactory.getLog(PlantUmlWriterParameters.class);
 
 	public static final String DEFAULT_STATE_DIAGRAM_SETTINGS = """
-			'https://plantuml.com/state-diagram
-						
-			'hide description area for state without description
-			hide empty description
-						
-			'https://plantuml.com/fr/skinparam
-			'https://plantuml-documentation.readthedocs.io/en/latest/formatting/all-skin-params.html
-			'https://plantuml.com/fr/color
-			skinparam BackgroundColor white
-			skinparam DefaultFontColor black
-			'skinparam DefaultFontName Impact
-			skinparam DefaultFontSize 14
-			skinparam DefaultFontStyle Normal
-			skinparam NoteBackgroundColor #FEFFDD
-			skinparam NoteBorderColor black
-						
-			skinparam state {
-			  ArrowColor black
-			  BackgroundColor #F1F1F1
-			  BorderColor #181818
-			  FontColor black
-			'  FontName Impact
-			  FontSize 14
-			  FontStyle Normal
-			}
-			""";
+            'https://plantuml.com/state-diagram
+            
+            'hide description area for state without description
+            hide empty description
+            
+            'https://plantuml.com/fr/skinparam
+            'https://plantuml-documentation.readthedocs.io/en/latest/formatting/all-skin-params.html
+            'https://plantuml.com/fr/color
+            skinparam BackgroundColor white
+            skinparam DefaultFontColor black
+            'skinparam DefaultFontName Impact
+            skinparam DefaultFontSize 14
+            skinparam DefaultFontStyle Normal
+            skinparam NoteBackgroundColor #FEFFDD
+            skinparam NoteBorderColor black
+            
+            skinparam state {
+              ArrowColor black
+              BackgroundColor #F1F1F1
+              BorderColor #181818
+              FontColor black
+            '  FontName Impact
+              FontSize 14
+              FontStyle Normal
+            }
+            """;
 
 	@Setter
 	private String stateDiagramSettings = DEFAULT_STATE_DIAGRAM_SETTINGS;
@@ -90,9 +91,17 @@ public class PlantUmlWriterParameters<S> {
 
 	@Value
 	@EqualsAndHashCode
-	private static class Connection<S> {
+	private static class Connection<S> implements Comparable<Connection<S>> {
 		S source;
 		S target;
+
+		@Override
+		public int compareTo(Connection<S> o) {
+			int sourceComparisonResult = source.toString().compareTo(o.source.toString());
+			return sourceComparisonResult == 0
+					? target.toString().compareTo(o.target.toString())
+					: sourceComparisonResult;
+		}
 	}
 
 	/**
@@ -127,8 +136,10 @@ public class PlantUmlWriterParameters<S> {
 				&& arrows.containsKey(targetOnly)
 				&& !arrows.get(sourceOnly).equals(arrows.get(targetOnly))
 		) {
-			log.warn(
-					String.format("Two 'unary' 'arrowDirection' rules found for (%s, %s) with DIFFERENT values! Using 'target' rule!", source, target));
+			log.warn(String.format(
+					"Two 'unary' 'arrowDirection' rules found for (%s, %s) with DIFFERENT values! Using 'target' rule!",
+					source, target
+			));
 			return arrows.get(targetOnly).name().toLowerCase();
 		} else if (arrows.containsKey(sourceOnly)) {
 			return arrows.get(sourceOnly).name().toLowerCase();
@@ -147,15 +158,19 @@ public class PlantUmlWriterParameters<S> {
 	 * exemple:
 	 * S1 -left[hidden]-> S2
 	 */
-	private final Map<Connection<S>, Direction> hiddenTransitions = new HashMap<>();
+	private final Map<Connection<S>, Direction> additionalHiddenTransitions = new HashMap<>();
 
-	public PlantUmlWriterParameters<S> hiddenTransition(S source, Direction direction, S target) {
-		hiddenTransitions.put(new Connection<>(source, target), direction);
+	/**
+	 * Add EXTRA HIDDEN transitions to align states WIHTOUT connecting them.<BR/>
+	 * These transitions are NOT part of the state machine!
+	 */
+	public PlantUmlWriterParameters<S> addAdditionalHiddenTransition(S source, Direction direction, S target) {
+		additionalHiddenTransitions.put(new Connection<>(source, target), direction);
 		return this;
 	}
 
-	public String getHiddenTransitions() {
-		String hiddenTransitionsText = hiddenTransitions.entrySet().stream()
+	public String getAdditionalHiddenTransitions() {
+		String hiddenTransitionsText = additionalHiddenTransitions.entrySet().stream()
 				.map(hiddenTransition -> "%s -%s[hidden]-> %s"
 						.formatted(
 								hiddenTransition.getKey().getSource(),
@@ -169,12 +184,35 @@ public class PlantUmlWriterParameters<S> {
 				: "\n" + hiddenTransitionsText + "\n";
 	}
 
+	// ----------
+
+	/**
+	 * Array of Connection(sourceSate, targetState) used to IGNORE EXISTING transitions.<BR/>
+	 * The goal is to give the ability to IGNORE some transitions on big state machine diagram to make it clearer.
+	 * ( So, this is DIFFERENT from 'additionalHiddenTransitions', which is used to add extra 'hidden' / 'fake' transitions )<BR/>
+	 */
+	private final TreeSet<Connection<S>> ignoredTransitions = new TreeSet<Connection<S>>();
+
+	/**
+	 * IGNORE a transition<BR/>
+	 * Transition (source -> destination) will NOT be present in PlantUML diagram
+	 */
+	public PlantUmlWriterParameters<S> ignoreTransition(S source, S target) {
+		ignoredTransitions.add(new Connection<>(source, target));
+		return this;
+	}
+
+	public boolean isTransitionIgnored(S source, S target) {
+		// if source is null, we always show the transition (initial state ?)
+		return source != null && ignoredTransitions.contains(new Connection<>(source, target));
+	}
+
 	@Builder
 	@Getter
 	@EqualsAndHashCode
 	static class LabelDecorator {
-		String prefix = "";
-		String suffix = "";
+		private String prefix = "";
+		private String suffix = "";
 
 		String decorate(String label) {
 			return prefix + label + suffix;
@@ -216,8 +254,10 @@ public class PlantUmlWriterParameters<S> {
 				&& arrowLabelDecorator.containsKey(targetOnly)
 				&& !arrowLabelDecorator.get(sourceOnly).equals(arrowLabelDecorator.get(targetOnly))
 		) {
-			log.warn(
-					String.format("Two 'unary' 'arrowLabelDecorator' rules found for (%s, %s) with DIFFERENT values! Using 'target' rule!", source, target));
+			log.warn(String.format(
+					"Two 'unary' 'arrowLabelDecorator' rules found for (%s, %s) with DIFFERENT values! Using 'target' rule!",
+					source, target
+			));
 			return arrowLabelDecorator.get(targetOnly).decorate(transitionLabel);
 		} else if (arrowLabelDecorator.containsKey(sourceOnly)) {
 			return arrowLabelDecorator.get(sourceOnly).decorate(transitionLabel);
@@ -259,6 +299,7 @@ public class PlantUmlWriterParameters<S> {
 		return state.equals(currentState) ? currentStateColor : defaultStateColor;
 	}
 
+	// FIXME [#FF0000] should not be hardcoded here!
 	public String getArrowColor(boolean isCurrentTransaction) {
 		return isCurrentTransaction ? "[#FF0000]" : "";
 	}

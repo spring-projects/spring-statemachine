@@ -191,7 +191,7 @@ public class PlantUmlWriter<S, E> {
 			);
 		}
 
-		sb.append(plantUmlWriterParameters.getHiddenTransitions());
+		sb.append(plantUmlWriterParameters.getAdditionalHiddenTransitions());
 
 		sb.append("\n@enduml");
 
@@ -362,8 +362,8 @@ public class PlantUmlWriter<S, E> {
 			Map<State<S, E>, List<S>> exitToSourceStates
 	) {
 		sb.append("""
-				%s {
-				"""
+                %s {
+                """
 				.formatted(stateToString(indent, regionState.getId(), currentState, plantUmlWriterParameters))
 				.stripIndent());
 
@@ -386,15 +386,15 @@ public class PlantUmlWriter<S, E> {
 			processExits(currentState, subRegion.getStates(), exitToSourceStates, plantUmlWriterParameters, sb, regionIndent);
 			// using "--" caused problem ... how to solve this..?
 /*
-			if (i != nRegions - 1) {
-				// Separating regions. see "États concurrents [--, ||]" https://plantuml.com/fr/state-diagram#73b918d90b24a6c6
-				sb.append(regionIndent).append("--\n");
-			}
+            if (i != nRegions - 1) {
+                // Separating regions. see "Etats concurrents [--, ||]" https://plantuml.com/fr/state-diagram#73b918d90b24a6c6
+                sb.append(regionIndent).append("--\n");
+            }
 */
 		}
 		sb.append("""
-				%s}
-				""".formatted(indent));
+                %s}
+                """.formatted(indent));
 	}
 
 	private void processSubmachine(
@@ -408,8 +408,8 @@ public class PlantUmlWriter<S, E> {
 			Map<State<S, E>, List<S>> exitToSourceStates
 	) {
 		sb.append("""
-				%s {
-				"""
+                %s {
+                """
 				.formatted(stateToString(indent, abstractState.getId(), currentState, plantUmlWriterParameters))
 				.stripIndent());
 		final String regionIndent = indent + INDENT_INCREMENT;
@@ -417,8 +417,8 @@ public class PlantUmlWriter<S, E> {
 		processEntries(currentState, abstractState.getSubmachine().getStates(), entryToTargetStates, plantUmlWriterParameters, sb, regionIndent);
 		processExits(currentState, abstractState.getSubmachine().getStates(), exitToSourceStates, plantUmlWriterParameters, sb, regionIndent);
 		sb.append("""
-				%s}
-				""".formatted(indent));
+                %s}
+                """.formatted(indent));
 	}
 
 	private void processSimpleState(
@@ -434,8 +434,8 @@ public class PlantUmlWriter<S, E> {
 //            TODO allow plantUmlWriterParameters to add links in description ??
 //             eg: state "CarWithWheel [[http://plantuml.com/state-diagram]]" as CarWithWheel
 			sb.append("""
-					%s
-					"""
+                    %s
+                    """
 					.formatted(stateToString(indent, state.getId(), currentState, plantUmlWriterParameters))
 					.stripIndent());
 		}
@@ -483,8 +483,8 @@ public class PlantUmlWriter<S, E> {
 			case INITIAL -> {
 				if (StateMachineUtils.isPseudoState(state, PseudoStateKind.INITIAL)) {
 					sb.append("""
-							%s
-							"""
+                            %s
+                            """
 							.formatted(stateToString(indent, state.getId(), currentState, plantUmlWriterParameters))
 							.stripIndent());
 				}
@@ -496,18 +496,18 @@ public class PlantUmlWriter<S, E> {
 				// see historyStatesToHistoryId and historyTransitions
 			}
 			case ENTRY, EXIT -> sb.append("""
-					%sstate %s <<%s>>
-					"""
+                    %sstate %s <<%s>>
+                    """
 					.formatted(
 							indent,
 							state.getId(),
 							getPseudoStatePlantUmlStereotype(pseudoStateKind)
 					).stripIndent());
 			case END, CHOICE, FORK, JOIN, JUNCTION -> sb.append("""
-					%s'%s <<%s>>
-					%sstate %s <<%s>>
-					%snote left of %s %s: %s
-					"""
+                    %s'%s <<%s>>
+                    %sstate %s <<%s>>
+                    %snote left of %s %s: %s
+                    """
 					.formatted(
 							indent,
 							state.getId(),
@@ -525,7 +525,7 @@ public class PlantUmlWriter<S, E> {
 
 	/**
 	 * Return a PlantUML stereotype for a given PseudoStateKind<BR/>
-	 * we use <<start>> stereotype for JUNCTION<BR/>
+	 * we use <code>&lt;&lt;start&gt;&gt;</code> stereotype to represent {@link PseudoStateKind#JUNCTION} in PlantUML diagram<BR/>
 	 * see <a href="https://sparxsystems.com/resources/tutorials/uml2/state-diagram.html">UML 2 - State Machine Diagram</a>
 	 *
 	 * @param pseudoStateKind pseudoStateKind
@@ -559,8 +559,8 @@ public class PlantUmlWriter<S, E> {
 	) {
 		for (E deferredEvent : state.getDeferredEvents()) {
 			sb.append("""
-					%s%s : %s /defer
-					"""
+                    %s%s : %s /defer
+                    """
 					.formatted(
 							indent,
 							state.getId(),
@@ -571,8 +571,8 @@ public class PlantUmlWriter<S, E> {
 		}
 		for (Function<StateContext<S, E>, Mono<Void>> entryAction : state.getEntryActions()) {
 			sb.append("""
-					%s%s : /entry %s
-					"""
+                    %s%s : /entry %s
+                    """
 					.formatted(
 							indent,
 							state.getId(),
@@ -583,8 +583,8 @@ public class PlantUmlWriter<S, E> {
 		}
 		for (Function<StateContext<S, E>, Mono<Void>> stateAction : state.getStateActions()) {
 			sb.append("""
-					%s%s : /do %s
-					"""
+                    %s%s : /do %s
+                    """
 					.formatted(
 							indent,
 							state.getId(),
@@ -595,8 +595,8 @@ public class PlantUmlWriter<S, E> {
 		}
 		for (Function<StateContext<S, E>, Mono<Void>> exitAction : state.getExitActions()) {
 			sb.append("""
-					%s%s : /exit %s
-					"""
+                    %s%s : /exit %s
+                    """
 					.formatted(
 							indent,
 							state.getId(),
@@ -660,10 +660,13 @@ public class PlantUmlWriter<S, E> {
 	) {
 		S source = sourceState.getId();
 		S target = targetState.getId();
+		if (plantUmlWriterParameters.isTransitionIgnored(source, target)) {
+			return;
+		}
 		sb.append("""
-				%s%s
-				%s%s -%s%s-> %s %s
-				"""
+                %s%s
+                %s%s -%s%s-> %s %s
+                """
 				.formatted(
 						indent,
 						historyIdGetter == null ? "" : "'" + source + " -> " + target, // if history transition, add a comment with 'real' state names
@@ -729,11 +732,11 @@ public class PlantUmlWriter<S, E> {
 					case EXTERNAL, INTERNAL, LOCAL -> {
 						String arrowColor = plantUmlWriterParameters.getArrowColor(
 								currentContextTransition != null
-									&& transition.getTrigger() != null
-									&& (
-									currentContextTransition.getSource() == source
-											&& currentContextTransition.getEvent() == transition.getTrigger().getEvent()
-											&& currentContextTransition.getTarget() == target
+										&& transition.getTrigger() != null
+										&& (
+										currentContextTransition.getSource() == source
+												&& currentContextTransition.getEvent() == transition.getTrigger().getEvent()
+												&& currentContextTransition.getTarget() == target
 								)
 						);
 						addTransition(sb, indent, source.toString(), source, target, plantUmlWriterParameters, arrowColor, transition);
@@ -756,31 +759,33 @@ public class PlantUmlWriter<S, E> {
 			String arrowColor,
 			Transition<S, E> transition
 	) {
-		sb.append("""
-				%s%s -%s%s-> %s %s
-				"""
-				.formatted(
-						indent,
-						sourceLabel,
-						source == null ? "" : plantUmlWriterParameters.getDirection(source, target),
-						arrowColor,
-						target,
-						TransactionHelper.getTransitionDescription(transition, plantUmlWriterParameters)
-				)
-				.stripIndent()
-		);
-		if (StringUtils.isNotBlank(transition.getName())) {
+		if (!plantUmlWriterParameters.isTransitionIgnored(source, target)) {
 			sb.append("""
-					%snote on link
-					%s    %s
-					%send note
-					"""
+                    %s%s -%s%s-> %s %s
+                    """
 					.formatted(
 							indent,
-							indent,
-							transition.getName(),
-							indent
-					));
+							sourceLabel,
+							source == null ? "" : plantUmlWriterParameters.getDirection(source, target),
+							arrowColor,
+							target,
+							TransactionHelper.getTransitionDescription(transition, plantUmlWriterParameters)
+					)
+					.stripIndent()
+			);
+			if (StringUtils.isNotBlank(transition.getName())) {
+				sb.append("""
+                        %snote on link
+                        %s    %s
+                        %send note
+                        """
+						.formatted(
+								indent,
+								indent,
+								transition.getName(),
+								indent
+						));
+			}
 		}
 	}
 
