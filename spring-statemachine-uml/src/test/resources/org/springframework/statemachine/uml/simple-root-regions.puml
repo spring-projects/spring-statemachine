@@ -1,0 +1,26 @@
+@startuml
+note "!!! NOT WORKING !!!\n!!! duplicated transition: 'S3 -down-> S4 : E2' !!!\n??? Error in Spring Statemachine UML parser ???\n see [[https://github.com/spring-projects/spring-statemachine/issues/1141]] " as NOT_WORKING
+'https://plantuml.com/state-diagram
+
+'hide description area for state without description
+hide empty description
+
+state null  {
+  state S1
+  state S2
+
+
+  [*] --> S1
+  S1 -down-> S2 : E1
+  state S3
+  state S4
+
+
+  [*] --> S3
+  S3 -down-> S4 : E2
+}
+
+
+[*] --> null
+
+@enduml
