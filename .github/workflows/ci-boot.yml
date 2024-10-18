@@ -43,7 +43,7 @@ jobs:
           */*/build/reports
     - name: Upload Build Logs
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4.4.3
       with:
         name: buildlogs-${{ matrix.boot }}-${{ matrix.java }}
         path: build/buildlogs.tar.gz
