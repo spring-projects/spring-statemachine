@@ -665,7 +665,7 @@ public class PlantUmlWriter<S, E> {
 		}
 		sb.append("""
                 %s%s
-                %s%s -%s%s-> %s %s
+                %s%s -%s%s%s> %s %s
                 """
 				.formatted(
 						indent,
@@ -681,6 +681,7 @@ public class PlantUmlWriter<S, E> {
 												&& currentContextTransition.getTarget() == target
 								)
 						),
+						plantUmlWriterParameters.getArrowLength(source, target),
 						historyIdGetter == null ? targetState.getId() : historyIdGetter.getId(targetState),
 						TransactionHelper.getTransitionDescription(transition, plantUmlWriterParameters)
 				)
@@ -761,13 +762,14 @@ public class PlantUmlWriter<S, E> {
 	) {
 		if (!plantUmlWriterParameters.isTransitionIgnored(source, target)) {
 			sb.append("""
-                    %s%s -%s%s-> %s %s
+                    %s%s -%s%s%s> %s %s
                     """
 					.formatted(
 							indent,
 							sourceLabel,
 							source == null ? "" : plantUmlWriterParameters.getDirection(source, target),
 							arrowColor,
+							plantUmlWriterParameters.getArrowLength(source, target),
 							target,
 							TransactionHelper.getTransitionDescription(transition, plantUmlWriterParameters)
 					)

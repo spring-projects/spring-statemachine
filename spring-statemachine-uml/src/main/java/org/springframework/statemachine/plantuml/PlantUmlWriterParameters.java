@@ -78,6 +78,34 @@ public class PlantUmlWriterParameters<S> {
 				: stateDiagramSettings;
 	}
 
+	@Value
+	static class Arrow {
+
+		/**
+		 * The 'default' arrow:
+		 * <UL>
+		 *     <LI>Direction is {@link Direction#DOWN}</LI>
+		 *     <LI>Lenght is 1</LI>
+		 * </UL>
+		 */
+		static final Arrow DEFAULT = Arrow.of(Direction.DOWN);
+
+		Direction direction;
+		int length;
+
+		public static Arrow of(Direction direction) {
+			return new Arrow(direction, 1);
+		}
+
+		public static Arrow of(Direction direction, int length) {
+			return new Arrow(direction, length);
+		}
+
+		public String getLengthAsString() {
+			return "-".repeat(length);
+		}
+	}
+
 	/**
 	 * Direction of an arrow connecting 2 States
 	 */
@@ -107,10 +135,15 @@ public class PlantUmlWriterParameters<S> {
 	/**
 	 * Map of ( (sourceSate, targetState) -> Direction )
 	 */
-	private final Map<Connection<S>, Direction> arrows = new HashMap<>();
+	private final Map<Connection<S>, Arrow> arrows = new HashMap<>();
 
-	public PlantUmlWriterParameters<S> arrowDirection(S source, Direction direction, S target) {
-		arrows.put(new Connection<>(source, target), direction);
+	public PlantUmlWriterParameters<S> arrow(S source, Direction direction, S target) {
+		arrows.put(new Connection<>(source, target), Arrow.of(direction));
+		return this;
+	}
+
+	public PlantUmlWriterParameters<S> arrow(S source, Direction direction, S target, int length) {
+		arrows.put(new Connection<>(source, target), Arrow.of(direction, length));
 		return this;
 	}
 
@@ -122,13 +155,13 @@ public class PlantUmlWriterParameters<S> {
 	 * @param target target State
 	 * @return Direction.name()
 	 */
-	String getDirection(S source, S target) {
+	private Arrow getArrow(S source, S target) {
 		if (source == null && target == null) {
 			throw new IllegalArgumentException("source and target state cannot both be null!");
 		}
 		Connection<S> sourceAndTarget = new Connection<>(source, target);
 		if (arrows.containsKey(sourceAndTarget)) {
-			return arrows.get(sourceAndTarget).name().toLowerCase();
+			return arrows.get(sourceAndTarget);
 		}
 		Connection<S> sourceOnly = new Connection<>(source, null);
 		Connection<S> targetOnly = new Connection<>(null, target);
@@ -140,14 +173,25 @@ public class PlantUmlWriterParameters<S> {
 					"Two 'unary' 'arrowDirection' rules found for (%s, %s) with DIFFERENT values! Using 'target' rule!",
 					source, target
 			));
-			return arrows.get(targetOnly).name().toLowerCase();
+			return arrows.get(targetOnly);
 		} else if (arrows.containsKey(sourceOnly)) {
-			return arrows.get(sourceOnly).name().toLowerCase();
+			return arrows.get(sourceOnly);
 		} else if (arrows.containsKey(targetOnly)) {
-			return arrows.get(targetOnly).name().toLowerCase();
+			return arrows.get(targetOnly);
 		} else {
-			return Direction.DOWN.name().toLowerCase();
+			return Arrow.DEFAULT;
 		}
+	}
+
+	String getDirection(S source, S target) {
+		return getArrow(source, target).getDirection().name().toLowerCase();
+	}
+
+	String getArrowLength(S source, S target) {
+		if(source == null) {
+			return Arrow.DEFAULT.getLengthAsString();
+		}
+		return getArrow(source, target).getLengthAsString();
 	}
 
 	/**
@@ -211,7 +255,9 @@ public class PlantUmlWriterParameters<S> {
 	@Getter
 	@EqualsAndHashCode
 	static class LabelDecorator {
+		@Builder.Default
 		private String prefix = "";
+		@Builder.Default
 		private String suffix = "";
 
 		String decorate(String label) {

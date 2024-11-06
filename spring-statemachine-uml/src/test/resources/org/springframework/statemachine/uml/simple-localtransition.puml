@@ -16,10 +16,10 @@ state S2  {
 
 [*] --> S1
 S1 -down-> S2 : E1
-S21 -up-> S2 : E22
-S21 -up-> S2 : E32
-S22 -up-> S2 : E23
-S22 -up-> S2 : E33
+S21 -up--> S2 : E22
+S21 -up--> S2 : E32
+S22 -up--> S2 : E23
+S22 -up--> S2 : E33
 S2 -down-> S21 : E20
 S2 -down-> S21 : E30
 S2 -down-> S22 : E21
