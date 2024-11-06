@@ -78,12 +78,10 @@ class PlantUmlWriterTest {
                 Arguments.of("org/springframework/statemachine/uml/simple-history-shallow", null),
                 Arguments.of("org/springframework/statemachine/uml/simple-junction", null),
                 Arguments.of("org/springframework/statemachine/uml/simple-localtransition",
-                        // add some parameters to make diagram more readable
+                        // add some parameters to make the diagram more readable
                         new PlantUmlWriterParameters<String>()
-                                .arrowDirection("S22", UP, "S2")
-                                .arrowDirection("S21", UP, "S2")
-                                .arrowDirection("S22", UP, "S2")
-                                .arrowDirection("S21", UP, "S2")
+                                .arrow("S22", UP, "S2", 2)
+                                .arrow("S21", UP, "S2", 2)
                 ),
                 // It seems Spring statemachine UML parser creates duplicated transitions!
                 // Arguments.of("org/springframework/statemachine/uml/simple-root-regions", null),
