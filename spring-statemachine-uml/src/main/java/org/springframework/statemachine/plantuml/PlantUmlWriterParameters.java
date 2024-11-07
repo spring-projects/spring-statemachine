@@ -23,6 +23,7 @@ import org.springframework.lang.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -188,21 +189,18 @@ public class PlantUmlWriterParameters<S> {
 	}
 
 	String getArrowLength(S source, S target) {
-		if(source == null) {
-			return Arrow.DEFAULT.getLengthAsString();
-		}
 		return getArrow(source, target).getLengthAsString();
 	}
 
 	/**
-	 * Map of ( Connection(sourceSate, targetState) -> Direction )
+	 * Map of <code>Connection(sourceSate, targetState) -> Direction</code>
 	 * Used to add EXTRA HIDDEN arrows, which are just helping with diagram layout.<BR/>
-	 * This is typically useful to 'force' the position of a state comparing to another, EVEN IF THESE TWO STATES AR NOT CONNECTED in the statemachine :-)<BR/>
+	 * This is typically useful to position a State relative to another, EVEN IF THESE TWO STATES AR NOT CONNECTED in the statemachine :-)<BR/>
 	 * <p>
 	 * exemple:
 	 * S1 -left[hidden]-> S2
 	 */
-	private final Map<Connection<S>, Direction> additionalHiddenTransitions = new HashMap<>();
+	private final Map<Connection<S>, Direction> additionalHiddenTransitions = new TreeMap<>();
 
 	/**
 	 * Add EXTRA HIDDEN transitions to align states WIHTOUT connecting them.<BR/>
