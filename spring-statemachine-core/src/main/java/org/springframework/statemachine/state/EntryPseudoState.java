@@ -43,7 +43,7 @@ public class EntryPseudoState<S, E> implements PseudoState<S, E> {
 	}
 
 	@Override
-	final public PseudoStateKind getKind() {
+	public final PseudoStateKind getKind() {
 		return PseudoStateKind.ENTRY;
 	}
 
