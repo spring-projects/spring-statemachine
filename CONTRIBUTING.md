@@ -40,8 +40,8 @@ When you've completed the web form, that's it and your ready for pull request.
 
 When issuing a new pull reques, our bot also verifies that you have signed a CLA. Bot will ask you to sign it if it doesn't exist.
 
-# Create your branch from master
-Create your topic branch to be submitted as a pull request from master. The Spring team will consider your pull request for backporting on a case-by-case basis; you don't need to worry about submitting anything for backporting.
+# Create your branch from main
+Create your topic branch to be submitted as a pull request from main. The Spring team will consider your pull request for backporting on a case-by-case basis; you don't need to worry about submitting anything for backporting.
 
 # Use short branch names
 Branches used when submitting pull requests should preferably be named according to JIRA issues, e.g. 'SEC-1234'. Otherwise, use succinct, lower-case, dash (-) delimited names, such as 'fix-warnings', 'fix-typo', etc. This is important, because branch names show up in the merge commits that result from accepting pull requests, and should be as expressive and concise as possible.
