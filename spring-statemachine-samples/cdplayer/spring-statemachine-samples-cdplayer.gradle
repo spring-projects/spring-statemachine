@@ -8,7 +8,7 @@ dependencies {
 	management platform(project(":spring-statemachine-platform"))
 	implementation project(':spring-statemachine-samples-common')
 	implementation project(':spring-statemachine-core')
-	implementation 'org.springframework.shell:spring-shell'
+	implementation 'org.springframework.shell:spring-shell-core'
 	testImplementation(testFixtures(project(':spring-statemachine-core')))
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.assertj:assertj-core'
