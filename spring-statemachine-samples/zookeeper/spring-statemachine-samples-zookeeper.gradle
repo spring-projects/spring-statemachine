@@ -9,5 +9,5 @@ dependencies {
 	implementation project(':spring-statemachine-zookeeper')
 	implementation project(':spring-statemachine-samples-common')
 	implementation project(':spring-statemachine-core')
-	implementation 'org.springframework.shell:spring-shell'
+	implementation 'org.springframework.shell:spring-shell-core'
 }
