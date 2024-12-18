@@ -13,7 +13,7 @@ dependencies {
 	constraints {
 		api "com.google.code.findbugs:jsr305:$findbugsVersion"
 		api "com.esotericsoftware:kryo-shaded:$kryoVersion"
-		api "org.springframework.shell:spring-shell:$springShellVersion"
+		api "org.springframework.shell:spring-shell-core:$springShellVersion"
 		api "jakarta.persistence:jakarta.persistence-api:$jakartaPersistenceVersion"
 		api "org.eclipse.uml2:uml:$eclipseUml2UmlVersion"
 		api "org.eclipse.uml2:types:$eclipseUml2TypesVersion"
