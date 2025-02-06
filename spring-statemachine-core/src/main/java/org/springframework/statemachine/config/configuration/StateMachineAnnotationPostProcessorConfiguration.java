@@ -33,7 +33,7 @@ public class StateMachineAnnotationPostProcessorConfiguration {
 	private final static String POST_PROCESSOR_BEAN_ID = "org.springframework.statemachine.processor.stateMachineAnnotationPostProcessor";
 
 	@Bean(name = POST_PROCESSOR_BEAN_ID)
-	public StateMachineAnnotationPostProcessor springStateMachineAnnotationPostProcessor() {
+	public static StateMachineAnnotationPostProcessor springStateMachineAnnotationPostProcessor() {
 		return new StateMachineAnnotationPostProcessor();
 	}
 
