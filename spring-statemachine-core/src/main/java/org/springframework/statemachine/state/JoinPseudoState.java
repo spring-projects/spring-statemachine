@@ -41,7 +41,7 @@ import reactor.core.publisher.Mono;
  */
 public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 
-	private final static Log log = LogFactory.getLog(JoinPseudoState.class);
+	private static final Log log = LogFactory.getLog(JoinPseudoState.class);
 	private final List<List<State<S, E>>> joins;
 	private final JoinTracker tracker;
 	private final List<JoinStateData<S, E>> joinTargets;
@@ -68,15 +68,13 @@ public class JoinPseudoState<S, E> extends AbstractPseudoState<S, E> {
 			return Flux.fromIterable(joinTargets)
 				.filterWhen(jst -> evaluateInternal(jst.guard, context))
 				.next()
-				.map(jst -> jst.getState());
+				.map(JoinStateData::getState);
 		});
 	}
 
 	@Override
 	public Mono<Void> exit(StateContext<S, E> context) {
-		return Mono.fromRunnable(() -> {
-			tracker.reset();
-		});
+		return Mono.fromRunnable(tracker::reset);
 	}
 
 	/**
