@@ -183,6 +183,9 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	@Override
 	public State<S,E> getState() {
+		if (isRunning()) {
+			return currentState;
+		}
 		// if we're complete assume we're stopped
 		// and state was stashed into lastState
 		State<S, E> s = lastState;
