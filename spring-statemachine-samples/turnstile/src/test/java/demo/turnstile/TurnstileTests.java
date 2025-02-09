@@ -137,7 +137,7 @@ public class TurnstileTests {
 	@BeforeEach
 	public void setup() {
 		context = new AnnotationConfigApplicationContext();
-		context.register(CommonConfiguration.class, Application.class, Config.class, StateMachineCommands.class);
+		context.register(CommonConfiguration.class, Application.class, Config.class);
 		context.refresh();
 		machine = context.getBean(StateMachineSystemConstants.DEFAULT_ID_STATEMACHINE, ObjectStateMachine.class);
 		listener = context.getBean(TestListener.class);
