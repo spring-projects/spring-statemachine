@@ -19,6 +19,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.PluginManager;
+import org.springframework.boot.gradle.plugin.SpringBootPlugin;
 
 /**
  * @author Janne Valkealahti
@@ -30,6 +31,7 @@ class SamplePlugin implements Plugin<Project> {
 		PluginManager pluginManager = project.getPluginManager();
 		pluginManager.apply(JavaPlugin.class);
 		pluginManager.apply(ManagementConfigurationPlugin.class);
+		pluginManager.apply(SpringBootPlugin.class);
 		new JavaConventions().apply(project);
 		new EclipseConventions().apply(project);
 	}

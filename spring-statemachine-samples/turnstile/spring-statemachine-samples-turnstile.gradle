@@ -8,7 +8,7 @@ dependencies {
 	management platform(project(":spring-statemachine-platform"))
 	implementation project(':spring-statemachine-samples-common')
 	implementation project(':spring-statemachine-core')
-	implementation 'org.springframework.shell:spring-shell-core'
+	implementation 'org.springframework.shell:spring-shell-starter'
 	testImplementation(testFixtures(project(':spring-statemachine-core')))
 	testImplementation (project(':spring-statemachine-test'))
 	testImplementation 'org.hamcrest:hamcrest-core'

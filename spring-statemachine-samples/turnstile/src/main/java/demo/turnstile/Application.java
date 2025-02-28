@@ -18,13 +18,16 @@ package demo.turnstile;
 import java.util.EnumSet;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.shell.command.annotation.CommandScan;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
-@Configuration
+@CommandScan
+@SpringBootApplication(scanBasePackages = "demo")
 public class Application  {
 
 //tag::snippetA[]
