@@ -25,4 +25,6 @@ S2 -down-> S21 : E30
 S2 -down-> S22 : E21
 S2 -down-> S22 : E31
 
+note left of S1: This is the\nS1 State
+note left of S2: This is the\nS2 State
 @enduml

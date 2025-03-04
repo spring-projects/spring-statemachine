@@ -6,7 +6,6 @@ hide empty description
 
 'CHOICE <<CHOICE>>
 state CHOICE <<choice>>
-note left of CHOICE : CHOICE
 state S1
 state S2
 state S3
@@ -19,4 +18,5 @@ CHOICE -down-> S3 : [s3Guard]
 CHOICE -down-> S4
 S1 -down-> CHOICE : E1
 
+note left of CHOICE : CHOICE
 @enduml

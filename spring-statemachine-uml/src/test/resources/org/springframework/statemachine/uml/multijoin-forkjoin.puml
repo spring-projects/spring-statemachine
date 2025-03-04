@@ -6,7 +6,6 @@ hide empty description
 
 'S1 <<FORK>>
 state S1 <<fork>>
-note left of S1 : S1
 state S2  {
   state S20
   state S21
@@ -21,11 +20,9 @@ state S2  {
 }
 'S3 <<JOIN>>
 state S3 <<join>>
-note left of S3 : S3
 state S4
 'SF <<END>>
 state SF <<end>>
-note left of SF : SF
 state SI
 
 
@@ -42,4 +39,7 @@ S3 -down-> S4 : [extendedState.variables.isEmpty()]
 S3 -down-> SF : [!extendedState.variables.isEmpty()]
 SI -down-> S1 : E1
 
+note left of S1 : S1
+note left of S3 : S3
+note left of SF : SF
 @enduml

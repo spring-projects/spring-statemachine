@@ -6,10 +6,8 @@ hide empty description
 
 'CHOICE1 <<CHOICE>>
 state CHOICE1 <<choice>>
-note left of CHOICE1 : CHOICE1
 'CHOICE2 <<CHOICE>>
 state CHOICE2 <<choice>>
-note left of CHOICE2 : CHOICE2
 state S1
 state S2
 state S3
@@ -27,4 +25,6 @@ CHOICE2 -down-> S5 : [s5Guard]\n/ choiceToS5
 CHOICE2 -down-> S6 : / choiceToS6
 S1 -down-> CHOICE1 : E1\n/ s1ToChoice
 
+note left of CHOICE1 : CHOICE1
+note left of CHOICE2 : CHOICE2
 @enduml

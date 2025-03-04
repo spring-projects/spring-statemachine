@@ -6,13 +6,10 @@ hide empty description
 
 'CHOICE1 <<CHOICE>>
 state CHOICE1 <<choice>>
-note left of CHOICE1 : CHOICE1
 'CHOICE2 <<CHOICE>>
 state CHOICE2 <<choice>>
-note left of CHOICE2 : CHOICE2
 'FINAL <<END>>
 state FINAL <<end>>
-note left of FINAL : FINAL
 state S1
 
 
@@ -22,4 +19,7 @@ CHOICE2 -down-> FINAL
 S1 -down-> CHOICE1
 S1 -down-> CHOICE2
 
+note left of CHOICE1 : CHOICE1
+note left of CHOICE2 : CHOICE2
+note left of FINAL : FINAL
 @enduml

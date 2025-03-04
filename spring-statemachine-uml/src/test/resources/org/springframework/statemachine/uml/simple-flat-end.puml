@@ -8,11 +8,11 @@ state S1
 state S2
 'S3 <<END>>
 state S3 <<end>>
-note left of S3 : S3
 
 
 [*] --> S1
 S1 -down-> S2 : E1
 S2 -down-> S3 : E2
 
+note left of S3 : S3
 @enduml

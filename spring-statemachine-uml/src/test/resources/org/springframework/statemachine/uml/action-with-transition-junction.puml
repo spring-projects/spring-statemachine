@@ -6,10 +6,8 @@ hide empty description
 
 'JUNCTION1 <<JUNCTION>>
 state JUNCTION1 <<start>>
-note left of JUNCTION1 : JUNCTION1
 'JUNCTION2 <<JUNCTION>>
 state JUNCTION2 <<start>>
-note left of JUNCTION2 : JUNCTION2
 state S1
 state S2
 state S3
@@ -27,4 +25,6 @@ JUNCTION2 -down-> S5 : [s5Guard]\n/ choiceToS5
 JUNCTION2 -down-> S6 : / choiceToS6
 S1 -down-> JUNCTION1 : E1\n/ s1ToChoice
 
+note left of JUNCTION1 : JUNCTION1
+note left of JUNCTION2 : JUNCTION2
 @enduml

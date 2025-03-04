@@ -6,7 +6,6 @@ hide empty description
 
 'JUNCTION <<JUNCTION>>
 state JUNCTION <<start>>
-note left of JUNCTION : JUNCTION
 state S1
 state S2
 state S3
@@ -27,4 +26,5 @@ S2 -down-> JUNCTION : E4
 S3 -down-> JUNCTION : E4
 S4 -down-> JUNCTION : E4
 
+note left of JUNCTION : JUNCTION
 @enduml

@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.statemachine.plantuml;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.lang.Nullable;
+import org.springframework.statemachine.plantuml.transition.Arrow;
+import org.springframework.statemachine.plantuml.transition.TransitionParameters;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 /**
  * This class allows to tweak / fine-tune PlantUml StateDiagram visualisation
@@ -35,6 +34,8 @@ import java.util.stream.Collectors;
 public class PlantUmlWriterParameters<S> {
 
 	private static final Log log = LogFactory.getLog(PlantUmlWriterParameters.class);
+
+	// State Diagram Settings
 
 	public static final String DEFAULT_STATE_DIAGRAM_SETTINGS = """
             'https://plantuml.com/state-diagram
@@ -79,200 +80,74 @@ public class PlantUmlWriterParameters<S> {
 				: stateDiagramSettings;
 	}
 
-	@Value
-	static class Arrow {
+	// States Notes
 
-		/**
-		 * The 'default' arrow:
-		 * <UL>
-		 *     <LI>Direction is {@link Direction#DOWN}</LI>
-		 *     <LI>Lenght is 1</LI>
-		 * </UL>
-		 */
-		static final Arrow DEFAULT = Arrow.of(Direction.DOWN);
+	private final Map<S, String> stateNotes = new TreeMap();
 
-		Direction direction;
-		int length;
-
-		public static Arrow of(Direction direction) {
-			return new Arrow(direction, 1);
-		}
-
-		public static Arrow of(Direction direction, int length) {
-			return new Arrow(direction, length);
-		}
-
-		public String getLengthAsString() {
-			return "-".repeat(length);
-		}
-	}
-
-	/**
-	 * Direction of an arrow connecting 2 States
-	 */
-	public enum Direction {
-		UP,
-		DOWN,
-		LEFT,
-		RIGHT
-	}
-
-
-	@Value
-	@EqualsAndHashCode
-	private static class Connection<S> implements Comparable<Connection<S>> {
-		S source;
-		S target;
-
-		@Override
-		public int compareTo(Connection<S> o) {
-			int sourceComparisonResult = source.toString().compareTo(o.source.toString());
-			return sourceComparisonResult == 0
-					? target.toString().compareTo(o.target.toString())
-					: sourceComparisonResult;
-		}
-	}
-
-	/**
-	 * Map of ( (sourceSate, targetState) -> Direction )
-	 */
-	private final Map<Connection<S>, Arrow> arrows = new HashMap<>();
-
-	public PlantUmlWriterParameters<S> arrow(S source, Direction direction, S target) {
-		arrows.put(new Connection<>(source, target), Arrow.of(direction));
+	public PlantUmlWriterParameters<S> note(S state, String note) {
+		// escape line return in note as it must fit in one single line
+		note = note
+				.replace("\n", "\\n")
+				.replace("\r", "\\r")
+		;
+		stateNotes.put(state, note);
 		return this;
 	}
 
-	public PlantUmlWriterParameters<S> arrow(S source, Direction direction, S target, int length) {
-		arrows.put(new Connection<>(source, target), Arrow.of(direction, length));
+	public String getNote(S state) {
+		return stateNotes.get(state);
+	}
+
+	// TransitionParameters
+
+	private final TransitionParameters<S> transitionParameters = new TransitionParameters<>();
+
+	public PlantUmlWriterParameters<S> arrow(S source, Arrow.Direction direction, S target) {
+		transitionParameters.arrow(source, direction, target);
 		return this;
 	}
 
-	/**
-	 * At least one of source and target must be non-null<BR/>
-	 * See implementation for 'arrow direction rule priority'
-	 *
-	 * @param source source State
-	 * @param target target State
-	 * @return Direction.name()
-	 */
-	private Arrow getArrow(S source, S target) {
-		if (source == null && target == null) {
-			throw new IllegalArgumentException("source and target state cannot both be null!");
-		}
-		Connection<S> sourceAndTarget = new Connection<>(source, target);
-		if (arrows.containsKey(sourceAndTarget)) {
-			return arrows.get(sourceAndTarget);
-		}
-		Connection<S> sourceOnly = new Connection<>(source, null);
-		Connection<S> targetOnly = new Connection<>(null, target);
-		if (arrows.containsKey(sourceOnly)
-				&& arrows.containsKey(targetOnly)
-				&& !arrows.get(sourceOnly).equals(arrows.get(targetOnly))
-		) {
-			log.warn(String.format(
-					"Two 'unary' 'arrowDirection' rules found for (%s, %s) with DIFFERENT values! Using 'target' rule!",
-					source, target
-			));
-			return arrows.get(targetOnly);
-		} else if (arrows.containsKey(sourceOnly)) {
-			return arrows.get(sourceOnly);
-		} else if (arrows.containsKey(targetOnly)) {
-			return arrows.get(targetOnly);
-		} else {
-			return Arrow.DEFAULT;
-		}
+	public PlantUmlWriterParameters<S> arrow(S source, Arrow.Direction direction, S target, int length) {
+		transitionParameters.arrow(source, direction, target, length);
+		return this;
 	}
 
 	String getDirection(S source, S target) {
-		return getArrow(source, target).getDirection().name().toLowerCase();
+		return transitionParameters.getDirection(source, target);
 	}
 
 	String getArrowLength(S source, S target) {
-		return getArrow(source, target).getLengthAsString();
+		return transitionParameters.getArrowLength(source, target);
 	}
 
 	/**
-	 * Map of <code>Connection(sourceSate, targetState) -> Direction</code>
-	 * Used to add EXTRA HIDDEN arrows, which are just helping with diagram layout.<BR/>
-	 * This is typically useful to position a State relative to another, EVEN IF THESE TWO STATES AR NOT CONNECTED in the statemachine :-)<BR/>
-	 * <p>
-	 * exemple:
-	 * S1 -left[hidden]-> S2
-	 */
-	private final Map<Connection<S>, Direction> additionalHiddenTransitions = new TreeMap<>();
-
-	/**
-	 * Add EXTRA HIDDEN transitions to align states WIHTOUT connecting them.<BR/>
+	 * Add EXTRA HIDDEN transitions to align states WITHOUT connecting them.<BR/>
 	 * These transitions are NOT part of the state machine!
 	 */
-	public PlantUmlWriterParameters<S> addAdditionalHiddenTransition(S source, Direction direction, S target) {
-		additionalHiddenTransitions.put(new Connection<>(source, target), direction);
+	public PlantUmlWriterParameters<S> addAdditionalHiddenTransition(S source, Arrow.Direction direction, S target) {
+		transitionParameters.addAdditionalHiddenTransition(source, direction, target);
 		return this;
 	}
 
 	public String getAdditionalHiddenTransitions() {
-		String hiddenTransitionsText = additionalHiddenTransitions.entrySet().stream()
-				.map(hiddenTransition -> "%s -%s[hidden]-> %s"
-						.formatted(
-								hiddenTransition.getKey().getSource(),
-								hiddenTransition.getValue().name().toLowerCase(),
-								hiddenTransition.getKey().getTarget()
-						))
-				.collect(Collectors.joining("\n"));
-
-		return hiddenTransitionsText.isEmpty()
-				? ""
-				: "\n" + hiddenTransitionsText + "\n";
+		return transitionParameters.getAdditionalHiddenTransitions();
 	}
-
-	// ----------
-
-	/**
-	 * Array of Connection(sourceSate, targetState) used to IGNORE EXISTING transitions.<BR/>
-	 * The goal is to give the ability to IGNORE some transitions on big state machine diagram to make it clearer.
-	 * ( So, this is DIFFERENT from 'additionalHiddenTransitions', which is used to add extra 'hidden' / 'fake' transitions )<BR/>
-	 */
-	private final TreeSet<Connection<S>> ignoredTransitions = new TreeSet<Connection<S>>();
 
 	/**
 	 * IGNORE a transition<BR/>
 	 * Transition (source -> destination) will NOT be present in PlantUML diagram
 	 */
 	public PlantUmlWriterParameters<S> ignoreTransition(S source, S target) {
-		ignoredTransitions.add(new Connection<>(source, target));
+		transitionParameters.ignoreTransition(source, target);
 		return this;
 	}
 
 	public boolean isTransitionIgnored(S source, S target) {
-		// if source is null, we always show the transition (initial state ?)
-		return source != null && ignoredTransitions.contains(new Connection<>(source, target));
+		return transitionParameters.isTransitionIgnored(source, target);
 	}
-
-	@Builder
-	@Getter
-	@EqualsAndHashCode
-	static class LabelDecorator {
-		@Builder.Default
-		private String prefix = "";
-		@Builder.Default
-		private String suffix = "";
-
-		String decorate(String label) {
-			return prefix + label + suffix;
-		}
-	}
-
-	/**
-	 * Map of ( Connection(sourceSate, targetState) -> LabelDecorator(labelPrefix, labelSuffix) )
-	 */
-	private final Map<Connection<S>, LabelDecorator> arrowLabelDecorator = new HashMap<>();
 
 	public PlantUmlWriterParameters<S> arrowLabelDecorator(S source, S target, String prefix, String suffix) {
-		arrowLabelDecorator.put(
-				new Connection<>(source, target),
-				LabelDecorator.builder().prefix(prefix).suffix(suffix).build()
-		);
+		transitionParameters.arrowLabelDecorator(source, target, prefix, suffix);
 		return this;
 	}
 
@@ -281,35 +156,7 @@ public class PlantUmlWriterParameters<S> {
 			@Nullable S target,
 			@Nullable String transitionLabel
 	) {
-		if (transitionLabel == null) {
-			return null;
-		}
-
-		if (source == null && target == null) {
-			throw new IllegalArgumentException("source and target state cannot both be null!");
-		}
-		Connection<S> sourceAndTarget = new Connection<>(source, target);
-		if (arrowLabelDecorator.containsKey(sourceAndTarget)) {
-			return arrowLabelDecorator.get(sourceAndTarget).decorate(transitionLabel);
-		}
-		Connection<S> sourceOnly = new Connection<>(source, null);
-		Connection<S> targetOnly = new Connection<>(null, target);
-		if (arrowLabelDecorator.containsKey(sourceOnly)
-				&& arrowLabelDecorator.containsKey(targetOnly)
-				&& !arrowLabelDecorator.get(sourceOnly).equals(arrowLabelDecorator.get(targetOnly))
-		) {
-			log.warn(String.format(
-					"Two 'unary' 'arrowLabelDecorator' rules found for (%s, %s) with DIFFERENT values! Using 'target' rule!",
-					source, target
-			));
-			return arrowLabelDecorator.get(targetOnly).decorate(transitionLabel);
-		} else if (arrowLabelDecorator.containsKey(sourceOnly)) {
-			return arrowLabelDecorator.get(sourceOnly).decorate(transitionLabel);
-		} else if (arrowLabelDecorator.containsKey(targetOnly)) {
-			return arrowLabelDecorator.get(targetOnly).decorate(transitionLabel);
-		} else {
-			return transitionLabel;
-		}
+		return transitionParameters.decorateLabel(source, target, transitionLabel);
 	}
 
 	// Colors
