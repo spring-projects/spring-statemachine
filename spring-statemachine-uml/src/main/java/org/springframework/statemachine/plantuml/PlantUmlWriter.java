@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.statemachine.plantuml;
 
 import jakarta.validation.constraints.NotNull;
@@ -52,14 +51,7 @@ import static java.util.stream.Collectors.toMap;
  * To display *.puml diagram, install PlantUml plugin<BR/>
  * <a href="https://plugins.jetbrains.com/plugin/7017-plantuml-integration">https://plugins.jetbrains.com/plugin/7017-plantuml-integration</a><BR/>
  * <BR/>
- * For PNG support, install GraphViz<BR/>
- * <a href="https://graphviz.org/download/#windows">https://graphviz.org/download/#windows</a><BR/>
- * <BR/>
- * Install then define GRAPHVIZ_DOT environment variable: <BR/>
- * <BR/>
- * GRAPHVIZ_DOT=C:\Program Files\Graphviz\bin\dot.exe <BR/>
- * <BR/>
- * To obtain better results, {@link Action} s and {@link Guard} s should:
+ * To get better results, {@link Action} s and {@link Guard} s should:
  * <UL>
  * <LI>be {@link org.springframework.context.annotation.Bean} s</LI>
  * <LI>implement {@link BeanNameAware}</LI>
@@ -92,7 +84,9 @@ public class PlantUmlWriter<S, E> {
 	private Map<State<S, E>, String> historyStatesToHistoryId;
 	private List<Transition<S, E>> historyTransitions;
 
-	// Comparators. Used to keep order of region, states and transitions stable in generated puml
+	private Map<State<S, E>, String> stateToStateNotes;
+
+	// Comparators. Used to maintain order of regions, states and transitions stable in generated puml
 
 	private final StateComparator<S, E> stateComparator = new StateComparator<>();
 
@@ -168,6 +162,7 @@ public class PlantUmlWriter<S, E> {
 		// 1st pass: Collecting history states
 		historyStatesToHistoryId = StateMachineHelper.collectHistoryStates(stateMachine);
 		historyTransitions = new ArrayList<>();
+		stateToStateNotes = new HashMap<>();
 
 		StringBuilder sb = new StringBuilder("@startuml\n")
 				.append(PlantUmlWriterParameters.getStateDiagramSettings(plantUmlWriterParameters))
@@ -192,6 +187,23 @@ public class PlantUmlWriter<S, E> {
 		}
 
 		sb.append(plantUmlWriterParameters.getAdditionalHiddenTransitions());
+
+		// Let's not forget the notes
+		PlantUmlWriterParameters<S> finalPlantUmlWriterParameters = plantUmlWriterParameters;
+		StateMachineHelper
+				.getAllStates(stateMachine)
+				.forEach(seState -> {
+					if (!stateToStateNotes.containsKey(seState)) {
+						String note = finalPlantUmlWriterParameters.getNote(seState.getId());
+						if (StringUtils.isNotBlank(note)) {
+							stateToStateNotes.put(seState,
+									"note left of %s: %s".formatted(seState.getId(), note).stripIndent()
+							);
+						}
+					}
+				});
+		stateToStateNotes.values().stream().sorted()
+				.forEach(noteLine -> sb.append("%n%s".formatted(noteLine)));
 
 		sb.append("\n@enduml");
 
@@ -436,8 +448,10 @@ public class PlantUmlWriter<S, E> {
 			sb.append("""
                     %s
                     """
-					.formatted(stateToString(indent, state.getId(), currentState, plantUmlWriterParameters))
-					.stripIndent());
+					.formatted(
+							stateToString(indent, state.getId(), currentState, plantUmlWriterParameters)
+					).stripIndent()
+			);
 		}
 	}
 
@@ -503,23 +517,20 @@ public class PlantUmlWriter<S, E> {
 							state.getId(),
 							getPseudoStatePlantUmlStereotype(pseudoStateKind)
 					).stripIndent());
-			case END, CHOICE, FORK, JOIN, JUNCTION -> sb.append("""
-                    %s'%s <<%s>>
-                    %sstate %s <<%s>>
-                    %snote left of %s %s: %s
-                    """
-					.formatted(
-							indent,
-							state.getId(),
-							pseudoStateKind.name(),
-							indent,
-							state.getId(),
-							getPseudoStatePlantUmlStereotype(pseudoStateKind),
-							indent,
-							state.getId(),
-							plantUmlWriterParameters.getStateColor(state.getId(), currentState),
-							state.getId()
-					).stripIndent());
+			case END, CHOICE, FORK, JOIN, JUNCTION -> {
+				sb.append("""
+                        %s'%s <<%s>>
+                        %sstate %s <<%s>>
+                        """
+						.formatted(
+								indent, state.getId(), pseudoStateKind.name(),
+								indent, state.getId(), getPseudoStatePlantUmlStereotype(pseudoStateKind)
+						).stripIndent());
+				stateToStateNotes.put(
+						state,
+						"note left of %s %s: %s".formatted(state.getId(), plantUmlWriterParameters.getStateColor(state.getId(), currentState), state.getId())
+				);
+			}
 		}
 	}
 

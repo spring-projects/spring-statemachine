@@ -7,7 +7,6 @@ hide empty description
 state S1  {
   'CHOICE <<CHOICE>>
   state CHOICE <<choice>>
-  note left of CHOICE : CHOICE
   state S11
   state S12
 
@@ -20,4 +19,5 @@ state S1  {
 CHOICE -down-> S12
 S11 -down-> CHOICE
 
+note left of CHOICE : CHOICE
 @enduml

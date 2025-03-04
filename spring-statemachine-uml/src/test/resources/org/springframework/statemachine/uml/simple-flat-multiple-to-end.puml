@@ -6,10 +6,8 @@ hide empty description
 
 'FINAL1 <<END>>
 state FINAL1 <<end>>
-note left of FINAL1 : FINAL1
 'FINAL2 <<END>>
 state FINAL2 <<end>>
-note left of FINAL2 : FINAL2
 state S1
 
 
@@ -17,4 +15,6 @@ state S1
 S1 -down-> FINAL1
 S1 -down-> FINAL2
 
+note left of FINAL1 : FINAL1
+note left of FINAL2 : FINAL2
 @enduml

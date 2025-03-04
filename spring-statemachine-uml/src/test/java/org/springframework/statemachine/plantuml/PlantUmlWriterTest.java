@@ -25,8 +25,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.statemachine.plantuml.PlantUmlWriterParameters.Direction.RIGHT;
-import static org.springframework.statemachine.plantuml.PlantUmlWriterParameters.Direction.UP;
+import static org.springframework.statemachine.plantuml.transition.Arrow.Direction.RIGHT;
+import static org.springframework.statemachine.plantuml.transition.Arrow.Direction.UP;
 
 class PlantUmlWriterTest {
 
@@ -82,6 +82,8 @@ class PlantUmlWriterTest {
                         new PlantUmlWriterParameters<String>()
                                 .arrow("S22", UP, "S2", 2)
                                 .arrow("S21", UP, "S2", 2)
+                                .note("S1", "This is the\nS1 State")
+                                .note("S2", "This is the\nS2 State")
                 ),
                 // It seems Spring statemachine UML parser creates duplicated transitions!
                 // Arguments.of("org/springframework/statemachine/uml/simple-root-regions", null),

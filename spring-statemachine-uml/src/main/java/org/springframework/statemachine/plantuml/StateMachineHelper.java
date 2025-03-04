@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StateMachineHelper {
@@ -55,20 +56,46 @@ public class StateMachineHelper {
 			Region<S, E> region,
 			ArrayList<S> currentStateAccumulator
 	) {
-		if (region.getState() != null) {
-			currentStateAccumulator.add(region.getState().getId());
-		}
+		visiteRegion(region, seRegion -> {
+			if (region.getState() != null) {
+				currentStateAccumulator.add(region.getState().getId());
+			}
+		});
+	}
+
+	public static <S, E> List<State<S, E>> getAllStates(StateMachine<S, E> stateMachine) {
+		ArrayList<State<S, E>> allStates = new ArrayList<>();
+		collectAllStates(stateMachine, allStates);
+		return allStates;
+	}
+
+	private static <S, E> void collectAllStates(
+			Region<S, E> region,
+			ArrayList<State<S, E>> allStatesAccumulator
+	) {
+		visiteRegion(region, seRegion -> {
+			if (region.getStates() != null) {
+				allStatesAccumulator.addAll(region.getStates());
+			}
+		});
+	}
+
+	private static <S, E> void visiteRegion(
+			Region<S, E> region,
+			Consumer<Region<S, E>> stateCollector
+	) {
+		stateCollector.accept(region);
 
 		region.getStates().forEach(state -> {
 			if (state.isSubmachineState()) {
 				if (state instanceof AbstractState<S, E> abstractState) {
-					collectCurrentStates(abstractState.getSubmachine(), currentStateAccumulator);
+					visiteRegion(abstractState.getSubmachine(), stateCollector);
 				}
 			} else if (state.isOrthogonal() || state.isComposite()) {
 				if (state instanceof RegionState<S, E> regionState) {
 					regionState.getRegions().stream()
 							.toList()
-							.forEach(subRegion -> collectCurrentStates(subRegion, currentStateAccumulator));
+							.forEach(subRegion -> visiteRegion(subRegion, stateCollector));
 				}
 			}
 		});
@@ -108,10 +135,10 @@ public class StateMachineHelper {
 			Map<State<S, E>, String> historyStatesToHistoryId
 	) {
 		if (state.getPseudoState() != null
-			&& (
+				&& (
 				state.getPseudoState().getKind() == PseudoStateKind.HISTORY_DEEP
-				|| state.getPseudoState().getKind() == PseudoStateKind.HISTORY_SHALLOW
-			)
+						|| state.getPseudoState().getKind() == PseudoStateKind.HISTORY_SHALLOW
+		)
 		) {
 			historyStatesToHistoryId.put(state, historyId(parentState, state.getPseudoState().getKind()));
 		}
@@ -127,5 +154,23 @@ public class StateMachineHelper {
 			case HISTORY_SHALLOW -> prefix + "[H]";
 			default -> throw new IllegalArgumentException("pseudoStateKind must be an 'history'");
 		};
+	}
+
+	public static String toString(State<?, ?> state) {
+		if (state == null) {
+			return "null";
+		} else if (state.getId() != null) {
+			return state.getId().toString();
+		} else {
+			return state.toString();
+		}
+	}
+
+	@Nullable
+	public static <S, E> State<S, E> findStateInStateMachine(S stateToFind, StateMachine<S, E> stateMachine) {
+		return getAllStates(stateMachine).stream()
+				.filter(state -> state.getId().equals(stateToFind))
+				.findFirst()
+				.orElse(null);
 	}
 }
