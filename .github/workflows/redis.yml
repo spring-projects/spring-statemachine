@@ -44,7 +44,7 @@ jobs:
         tar -zc --ignore-failed-read --file build/buildlogs.tar.gz */build/reports */*/build/reports
     - name: Upload Build Logs
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4.4.3
       with:
         name: buildlogs
         path: build/buildlogs.tar.gz

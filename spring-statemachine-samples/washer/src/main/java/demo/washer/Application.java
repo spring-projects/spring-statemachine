@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package demo.washer;
 
+import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.shell.Bootstrap;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
@@ -94,8 +94,8 @@ public class Application  {
 	}
 //end::snippetC[]
 
-	public static void main(String[] args) throws Exception {
-		Bootstrap.main(args);
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class, args);
 	}
 
 }
