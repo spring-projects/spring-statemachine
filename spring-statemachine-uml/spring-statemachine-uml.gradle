@@ -29,7 +29,7 @@ dependencies {
 	api 'org.eclipse.emf:org.eclipse.emf.common'
 
 	implementation 'org.apache.commons:commons-lang3:3.12.0'
-	implementation'net.sourceforge.plantuml:plantuml-lgpl:1.2023.13'
+	implementation'net.sourceforge.plantuml:plantuml-asl:1.2025.2'
 	implementation 'jakarta.validation:jakarta.validation-api:3.1.0'
 
 	testImplementation(testFixtures(project(":spring-statemachine-core")))
