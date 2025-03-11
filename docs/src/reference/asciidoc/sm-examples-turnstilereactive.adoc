@@ -1,7 +1,7 @@
 [[statemachine-examples-turnstilereactive]]
 == Turnstile Reactive
 
-Turnstile reactive is an enhacement to <<statemachine-examples-turnstile>> sample using
+Turnstile reactive is an enhancement to <<statemachine-examples-turnstile>> sample using
 same _StateMachine_ concept and adding a reactive web layer communicating reactively with
 a _StateMachine_ reactive interfaces.
 
