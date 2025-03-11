@@ -40,8 +40,8 @@ All commits must include a Signed-off-by trailer at the end of each commit messa
 
 For additional details, please refer to the blog post [Hello DCO, Goodbye CLA: Simplifying Contributions to Spring](https://spring.io/blog/2025/01/06/hello-dco-goodbye-cla-simplifying-contributions-to-spring).
 
-# Create your branch from master
-Create your topic branch to be submitted as a pull request from master. The Spring team will consider your pull request for backporting on a case-by-case basis; you don't need to worry about submitting anything for backporting.
+# Create your branch from main
+Create your topic branch to be submitted as a pull request from main. The Spring team will consider your pull request for backporting on a case-by-case basis; you don't need to worry about submitting anything for backporting.
 
 # Use short branch names
 Branches used when submitting pull requests should preferably be named according to JIRA issues, e.g. 'SEC-1234'. Otherwise, use succinct, lower-case, dash (-) delimited names, such as 'fix-warnings', 'fix-typo', etc. This is important, because branch names show up in the merge commits that result from accepting pull requests, and should be as expressive and concise as possible.
