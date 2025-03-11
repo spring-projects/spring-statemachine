@@ -74,8 +74,8 @@ public class StateMachineHelper {
 			ArrayList<State<S, E>> allStatesAccumulator
 	) {
 		visiteRegion(region, seRegion -> {
-			if (region.getStates() != null) {
-				allStatesAccumulator.addAll(region.getStates());
+			if (seRegion.getStates() != null) {
+				allStatesAccumulator.addAll(seRegion.getStates());
 			}
 		});
 	}
