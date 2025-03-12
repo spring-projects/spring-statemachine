@@ -18,14 +18,13 @@ package demo.showcase;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.shell.command.annotation.Command;
 import org.springframework.shell.command.annotation.Option;
-import org.springframework.stereotype.Component;
 
 import demo.AbstractStateMachineCommands;
 import demo.showcase.Application.Events;
 import demo.showcase.Application.States;
 import reactor.core.publisher.Mono;
 
-@Component
+@Command
 public class StateMachineCommands extends AbstractStateMachineCommands<States, Events> {
 
 	@Command(command = "sm event", description = "Sends an event to a state machine")

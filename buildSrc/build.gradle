@@ -34,6 +34,7 @@ dependencies {
 	implementation("org.springframework:spring-core")
 	implementation 'org.asciidoctor:asciidoctor-gradle-jvm:3.3.2'
 	implementation 'org.jfrog.buildinfo:build-info-extractor-gradle:4.29.0'
+	implementation "org.springframework.boot:org.springframework.boot.gradle.plugin:${springBootVersion}"
 }
 
 gradlePlugin {
