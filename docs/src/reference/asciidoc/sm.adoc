@@ -44,7 +44,7 @@ It includes the following topics:
 
 * <<sm-boot>> describes the Spring Boot support.
 
-* <<sm-monitoring>> describes the monitoring and trancing support.
+* <<sm-monitoring>> describes the monitoring and tracing support.
 
 * <<sm-distributed>> describes the distributed state machine support.
 

@@ -1,0 +1,12 @@
+plugins {
+	id 'org.springframework.statemachine.sample'
+}
+
+description = 'Spring State Machine Samples Common'
+
+dependencies {
+	management platform(project(":spring-statemachine-platform"))
+	implementation project(':spring-statemachine-core')
+	implementation 'org.springframework.shell:spring-shell-core'
+	implementation 'org.springframework.boot:spring-boot-starter'
+}

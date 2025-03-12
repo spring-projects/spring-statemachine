@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.shell.core.CommandMarker;
-import org.springframework.shell.core.annotation.CliCommand;
-import org.springframework.shell.core.annotation.CliOption;
-import org.springframework.stereotype.Component;
+import org.springframework.shell.command.annotation.Command;
+import org.springframework.shell.command.annotation.Option;
 
-@Component
-public class CdPlayerCommands implements CommandMarker {
+@Command
+public class CdPlayerCommands {
 
 	@Autowired
 	private CdPlayer cdPlayer;
@@ -33,12 +31,12 @@ public class CdPlayerCommands implements CommandMarker {
 	@Autowired
 	private Library library;
 
-	@CliCommand(value = "cd lcd", help = "Prints CD player lcd info")
+	@Command(command = "cd lcd", description = "Prints CD player lcd info")
 	public String lcd() {
 		return cdPlayer.getLdcStatus();
 	}
 
-	@CliCommand(value = "cd library", help = "List user CD library")
+	@Command(command = "cd library", description = "List user CD library")
 	public String library() {
 		SimpleDateFormat format = new SimpleDateFormat("mm:ss");
 		StringBuilder buf = new StringBuilder();
@@ -53,8 +51,8 @@ public class CdPlayerCommands implements CommandMarker {
 		return buf.toString();
 	}
 
-	@CliCommand(value = "cd load", help = "Load CD into player")
-	public String load(@CliOption(key = {"", "index"}) int index) {
+	@Command(command = "cd load", description = "Load CD into player")
+	public String load(@Option(longNames = {"", "index"}) int index) {
 		StringBuilder buf = new StringBuilder();
 		try {
 			Cd cd = library.getCollection().get(index);
@@ -66,32 +64,32 @@ public class CdPlayerCommands implements CommandMarker {
 		return buf.toString();
 	}
 
-	@CliCommand(value = "cd play", help = "Press player play button")
+	@Command(command = "cd play", description = "Press player play button")
 	public void play() {
 		cdPlayer.play();
 	}
 
-	@CliCommand(value = "cd stop", help = "Press player stop button")
+	@Command(command = "cd stop", description = "Press player stop button")
 	public void stop() {
 		cdPlayer.stop();
 	}
 
-	@CliCommand(value = "cd pause", help = "Press player pause button")
+	@Command(command = "cd pause", description = "Press player pause button")
 	public void pause() {
 		cdPlayer.pause();
 	}
 
-	@CliCommand(value = "cd eject", help = "Press player eject button")
+	@Command(command = "cd eject", description = "Press player eject button")
 	public void eject() {
 		cdPlayer.eject();
 	}
 
-	@CliCommand(value = "cd forward", help = "Press player forward button")
+	@Command(command = "cd forward", description = "Press player forward button")
 	public void forward() {
 		cdPlayer.forward();
 	}
 
-	@CliCommand(value = "cd back", help = "Press player back button")
+	@Command(command = "cd back", description = "Press player back button")
 	public void back() {
 		cdPlayer.back();
 	}

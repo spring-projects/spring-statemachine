@@ -1,0 +1,17 @@
+plugins {
+	id 'org.springframework.statemachine.module'
+}
+
+description = 'Spring State Machine Zookeeper'
+
+dependencies {
+	management platform(project(":spring-statemachine-platform"))
+	api project(':spring-statemachine-core')
+	api project(':spring-statemachine-kryo')
+	api 'org.apache.curator:curator-recipes'
+	testImplementation (project(':spring-statemachine-test'))
+	testImplementation 'org.apache.curator:curator-test'
+	testImplementation 'org.assertj:assertj-core'
+	testImplementation 'org.junit.jupiter:junit-jupiter-api'
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+}

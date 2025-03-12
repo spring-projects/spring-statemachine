@@ -1,0 +1,13 @@
+plugins {
+	id 'org.springframework.statemachine.sample'
+}
+
+description = 'Spring State Machine Distributed Sample'
+
+dependencies {
+	management platform(project(":spring-statemachine-platform"))
+	implementation project(':spring-statemachine-zookeeper')
+	implementation project(':spring-statemachine-samples-common')
+	implementation project(':spring-statemachine-core')
+	implementation 'org.springframework.shell:spring-shell-core'
+}

@@ -22,9 +22,9 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: 17
-    - uses: jfrog/setup-jfrog-cli@v3
+    - uses: jfrog/setup-jfrog-cli@v4
       with:
-        version: 2.39.1
+        version: 2.52.10
       env:
         JF_ENV_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
     # prepare env for cli to get a staging build working
@@ -83,9 +83,9 @@ jobs:
     steps:
     # need repo to push release branch and a tag
     - uses: actions/checkout@v2
-    - uses: jfrog/setup-jfrog-cli@v3
+    - uses: jfrog/setup-jfrog-cli@v4
       with:
-        version: 2.39.1
+        version: 2.52.10
       env:
         JF_ENV_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
     # prepare env for cli to promote
@@ -178,9 +178,9 @@ jobs:
     steps:
     # need repo for spec file
     - uses: actions/checkout@v2
-    - uses: jfrog/setup-jfrog-cli@v3
+    - uses: jfrog/setup-jfrog-cli@v4
       with:
-        version: 2.39.1
+        version: 2.52.10
       env:
         JF_ENV_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
     # prepare env for cli do download released files
@@ -198,9 +198,8 @@ jobs:
           --spec .github/release-files-spec.json \
           --spec-vars "buildname=$JFROG_CLI_BUILD_NAME;buildnumber=$JFROG_CLI_BUILD_NUMBER"
     # last step, sync to central.
-    - uses: jvalkeal/nexus-sync@v0
+    - uses: spring-io/nexus-sync-action@main
       with:
-        url: ${{ secrets.OSSRH_URL }}
         username: ${{ secrets.OSSRH_S01_TOKEN_USERNAME }}
         password: ${{ secrets.OSSRH_S01_TOKEN_PASSWORD }}
         staging-profile-name: ${{ secrets.OSSRH_STAGING_PROFILE_NAME }}
@@ -209,6 +208,3 @@ jobs:
         close: true
         release: true
         generate-checksums: true
-        pgp-sign: true
-        pgp-sign-passphrase: ${{ secrets.GPG_PASSPHRASE }}
-        pgp-sign-private-key: ${{ secrets.GPG_PRIVATE_KEY }}

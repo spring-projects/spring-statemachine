@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,13 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.shell.core.CommandMarker;
-import org.springframework.shell.core.annotation.CliCommand;
+import org.springframework.shell.command.annotation.Command;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.state.State;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-@Component
-public class AbstractStateMachineCommands<S, E> implements CommandMarker {
+@Command
+public class AbstractStateMachineCommands<S, E> {
 
 	@Autowired
 	private StateMachine<S, E> stateMachine;
@@ -42,7 +40,7 @@ public class AbstractStateMachineCommands<S, E> implements CommandMarker {
 	@Qualifier("stateChartModel")
 	private String stateChartModel;
 
-	@CliCommand(value = "sm state", help = "Prints current state")
+	@Command(command = "sm state", description = "Prints current state")
 	public String state() {
 		State<S, E> state = stateMachine.getState();
 		if (state != null) {
@@ -52,24 +50,24 @@ public class AbstractStateMachineCommands<S, E> implements CommandMarker {
 		}
 	}
 
-	@CliCommand(value = "sm start", help = "Start a state machine")
+	@Command(command = "sm start", description = "Start a state machine")
 	public String start() {
 		stateMachine.startReactively().subscribe();
 		return "State machine started";
 	}
 
-	@CliCommand(value = "sm stop", help = "Stop a state machine")
+	@Command(command = "sm stop", description = "Stop a state machine")
 	public String stop() {
 		stateMachine.stopReactively().subscribe();
 		return "State machine stopped";
 	}
 
-	@CliCommand(value = "sm print", help = "Print state machine")
+	@Command(command = "sm print", description = "Print state machine")
 	public String print() {
 		return stateChartModel;
 	}
 
-	@CliCommand(value = "sm variables", help = "Prints extended state variables")
+	@Command(command = "sm variables", description = "Prints extended state variables")
 	public String variables() {
 		StringBuilder buf = new StringBuilder();
 		Set<Entry<Object, Object>> entrySet = stateMachine.getExtendedState().getVariables().entrySet();

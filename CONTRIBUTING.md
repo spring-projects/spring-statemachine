@@ -34,11 +34,11 @@ Is there already an issue that addresses your concern? Do a bit of searching in 
 # Discuss non-trivial contribution ideas with committers
 If you are considering anything more than correcting a typo or fixing a minor bug , please discuss it on the GitHub issues. We are happy to provide guidance but please spend an hour or two researching the subject on your own including searching the forums for prior discussions.
 
-# Sign the Contributor License Agreement
-If you have not previously done so, please fill out and submit the [Pivotal CLA form](https://cla.pivotal.io).
-When you've completed the web form, that's it and your ready for pull request.
+# Sign-off commits according to the Developer Certificate of Origin
 
-When issuing a new pull reques, our bot also verifies that you have signed a CLA. Bot will ask you to sign it if it doesn't exist.
+All commits must include a Signed-off-by trailer at the end of each commit message to indicate that the contributor agrees to the [Developer Certificate of Origin](https://developercertificate.org).
+
+For additional details, please refer to the blog post [Hello DCO, Goodbye CLA: Simplifying Contributions to Spring](https://spring.io/blog/2025/01/06/hello-dco-goodbye-cla-simplifying-contributions-to-spring).
 
 # Create your branch from master
 Create your topic branch to be submitted as a pull request from master. The Spring team will consider your pull request for backporting on a case-by-case basis; you don't need to worry about submitting anything for backporting.

@@ -1,0 +1,23 @@
+plugins {
+	id 'org.springframework.statemachine.module'
+}
+
+description = 'Spring Statemachine Autoconfigure'
+
+dependencies {
+	management platform(project(":spring-statemachine-platform"))
+	api project(':spring-statemachine-core')
+	optional project(':spring-statemachine-data-common:spring-statemachine-data-jpa')
+	optional project(':spring-statemachine-data-common:spring-statemachine-data-redis')
+	optional project(':spring-statemachine-data-common:spring-statemachine-data-mongodb')
+	api 'org.springframework.boot:spring-boot-autoconfigure'
+	api 'org.springframework.boot:spring-boot-actuator-autoconfigure'
+	api 'org.springframework.boot:spring-boot-actuator'
+	optional 'io.micrometer:micrometer-core'
+	optional 'org.springframework.boot:spring-boot-starter-data-jpa'
+	optional 'org.springframework.boot:spring-boot-starter-data-redis'
+	optional 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	testImplementation 'org.springframework.boot:spring-boot-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'com.h2database:h2'
+}

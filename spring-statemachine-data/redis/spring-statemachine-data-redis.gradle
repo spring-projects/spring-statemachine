@@ -1,0 +1,21 @@
+plugins {
+	id 'org.springframework.statemachine.module'
+}
+
+description = 'Spring State Machine Data Redis'
+
+dependencies {
+	management platform(project(":spring-statemachine-platform"))
+	api project(':spring-statemachine-data-common')
+	api 'org.springframework.data:spring-data-redis'
+	testImplementation project(':spring-statemachine-test')
+	testImplementation(testFixtures(project(':spring-statemachine-data-common')))
+	testImplementation(testFixtures(project(':spring-statemachine-core')))
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.apache.commons:commons-pool2'
+	testRuntimeOnly 'redis.clients:jedis'
+	testRuntimeOnly 'org.springframework.boot:spring-boot-starter-data-redis'
+	testRuntimeOnly 'org.springframework.boot:spring-boot-starter-web'
+	testImplementation 'io.projectreactor.tools:blockhound'
+}

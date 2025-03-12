@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,34 +16,32 @@
 package demo.tasks;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.shell.core.CommandMarker;
-import org.springframework.shell.core.annotation.CliCommand;
-import org.springframework.shell.core.annotation.CliOption;
-import org.springframework.stereotype.Component;
+import org.springframework.shell.command.annotation.Command;
+import org.springframework.shell.command.annotation.Option;
 
-@Component
-public class TasksCommands implements CommandMarker {
+@Command
+public class TasksCommands {
 
 	@Autowired
 	private Tasks tasks;
 
-	@CliCommand(value = "tasks run", help = "Run tasks")
+	@Command(command = "tasks run", description = "Run tasks")
 	public void run() {
 		tasks.run();
 	}
 
-	@CliCommand(value = "tasks list", help = "List tasks")
+	@Command(command = "tasks list", description = "List tasks")
 	public String list() {
 		return tasks.toString();
 	}
 
-	@CliCommand(value = "tasks fix", help = "Fix tasks")
+	@Command(command = "tasks fix", description = "Fix tasks")
 	public void fix() {
 		tasks.fix();
 	}
 
-	@CliCommand(value = "tasks fail", help = "Fail task")
-	public void fail(@CliOption(key = {"", "task"}, help = "Task id") String task) {
+	@Command(command = "tasks fail", description = "Fail task")
+	public void fail(@Option(longNames = {"", "task"}, description = "Task id") String task) {
 		tasks.fail(task);
 	}
 

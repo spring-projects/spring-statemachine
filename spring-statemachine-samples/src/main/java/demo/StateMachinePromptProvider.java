@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,19 @@
  */
 package demo;
 
+import org.jline.utils.AttributedString;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.shell.plugin.support.DefaultPromptProvider;
+import org.springframework.shell.jline.PromptProvider;
 import org.springframework.stereotype.Component;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class StateMachinePromptProvider extends DefaultPromptProvider {
+public class StateMachinePromptProvider implements PromptProvider {
 
 	@Override
-	public String getPrompt() {
-		return "sm>";
-	}
-
-
-	@Override
-	public String getProviderName() {
-		return "State machine prompt provider";
+	public AttributedString getPrompt() {
+		return AttributedString.fromAnsi("sm>");
 	}
 
 }

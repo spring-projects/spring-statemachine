@@ -1,0 +1,9 @@
+plugins {
+	id 'org.springframework.statemachine.docs'
+}
+
+description = 'Spring Statemachine Documentation'
+
+asciidoctorj {
+	version = '2.5.4'
+}

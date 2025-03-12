@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,34 +16,32 @@
 package demo.persist;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.shell.core.CommandMarker;
-import org.springframework.shell.core.annotation.CliCommand;
-import org.springframework.shell.core.annotation.CliOption;
-import org.springframework.stereotype.Component;
+import org.springframework.shell.command.annotation.Command;
+import org.springframework.shell.command.annotation.Option;
 
-@Component
-public class PersistCommands implements CommandMarker {
+@Command
+public class PersistCommands {
 
 	@Autowired
 	private Persist persist;
 
-	@CliCommand(value = "persist db", help = "List entries from db")
+	@Command(command = "persist db", description = "List entries from db")
 	public String listDbEntries() {
 		return persist.listDbEntries();
 	}
 
-	@CliCommand(value = "persist process", help = "Process order")
-	public void process(@CliOption(key = {"", "id"}, help = "Order id") int order) {
+	@Command(command = "persist process", description = "Process order")
+	public void process(@Option(longNames = {"", "id"}, description = "Order id") int order) {
 		persist.change(order, "PROCESS");
 	}
 
-	@CliCommand(value = "persist send", help = "Send order")
-	public void send(@CliOption(key = {"", "id"}, help = "Order id") int order) {
+	@Command(command = "persist send", description = "Send order")
+	public void send(@Option(longNames = {"", "id"}, description = "Order id") int order) {
 		persist.change(order, "SEND");
 	}
 
-	@CliCommand(value = "persist deliver", help = "Deliver order")
-	public void deliver(@CliOption(key = {"", "id"}, help = "Order id") int order) {
+	@Command(command = "persist deliver", description = "Deliver order")
+	public void deliver(@Option(longNames = {"", "id"}, description = "Order id") int order) {
 		persist.change(order, "DELIVER");
 	}
 

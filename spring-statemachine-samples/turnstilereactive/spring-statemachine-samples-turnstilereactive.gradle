@@ -1,0 +1,26 @@
+plugins {
+	id 'org.springframework.statemachine.sample'
+}
+
+description = 'Spring State Machine Turnstile Reactive Sample'
+
+dependencies {
+	management platform(project(":spring-statemachine-platform"))
+	implementation project(':spring-statemachine-samples-common')
+	implementation project(':spring-statemachine-core')
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.springframework:spring-messaging'
+	testImplementation(testFixtures(project(':spring-statemachine-core')))
+	testImplementation (project(':spring-statemachine-test'))
+	testImplementation('com.jayway.jsonpath:json-path')
+	testImplementation('com.jayway.jsonpath:json-path-assert')
+	testImplementation 'org.hamcrest:hamcrest-core'
+	testImplementation 'org.hamcrest:hamcrest-library'
+	testImplementation 'org.springframework.boot:spring-boot-test'
+	testImplementation 'org.springframework:spring-test'
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.assertj:assertj-core'
+	testImplementation 'org.junit.jupiter:junit-jupiter-api'
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+	testImplementation 'io.projectreactor.tools:blockhound'
+}

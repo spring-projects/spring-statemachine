@@ -12,21 +12,18 @@ jobs:
 
   # build and test, then upload logs if failure
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        java: [ 17 ]
-      fail-fast: false
+    runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4.2.2
     - name: Setup JDK
-      uses: actions/setup-java@v1
+      uses: actions/setup-java@v4.7.0
       with:
-        java-version: ${{ matrix.java }}
+        distribution: adopt
+        java-version: 17
+        cache: gradle
     - name: Build with Gradle
-      run: ./gradlew clean build
+      run: ./gradlew build
       env:
         GRADLE_ENTERPRISE_CACHE_USERNAME: ${{ secrets.GRADLE_ENTERPRISE_CACHE_USER }}
         GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
@@ -43,7 +40,7 @@ jobs:
           */*/build/reports
     - name: Upload Build Logs
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4.6.0
       with:
         name: buildlogs
         path: build/buildlogs.tar.gz
@@ -53,13 +50,15 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-java@v1
+    - uses: actions/checkout@v4.2.2
+    - uses: actions/setup-java@v4.7.0
       with:
+        distribution: adopt
         java-version: 17
-    - uses: jfrog/setup-jfrog-cli@v3
+        cache: gradle
+    - uses: jfrog/setup-jfrog-cli@v4.5.6
       with:
-        version: 2.39.1
+        version: 2.73.2
       env:
         JF_ENV_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
 
@@ -68,9 +67,12 @@ jobs:
     # modify default build name and number as we don't like how those
     # gets used from action defaults.
     - name: Configure JFrog Cli
+      env:
+        JFROG_CLI_SERVER_ID: "repo.spring.io"
       run: |
         jf gradlec \
           --use-wrapper \
+          --uses-plugin \
           --deploy-ivy-desc=false \
           --server-id-resolve=repo.spring.io \
           --server-id-deploy=repo.spring.io \
@@ -84,6 +86,8 @@ jobs:
       run: |
         jf gradle clean build -x test artifactoryPublish
       env:
+        ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_PRIVATE_KEY }}
+        ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PASSPHRASE }}
         GRADLE_ENTERPRISE_CACHE_USERNAME: ${{ secrets.GRADLE_ENTERPRISE_CACHE_USER }}
         GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
         GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
