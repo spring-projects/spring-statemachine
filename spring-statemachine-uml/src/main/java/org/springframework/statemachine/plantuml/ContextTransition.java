@@ -16,17 +16,10 @@
 
 package org.springframework.statemachine.plantuml;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.springframework.lang.Nullable;
 import org.springframework.statemachine.StateContext;
 
-@AllArgsConstructor
-@Getter
-public class ContextTransition<S, E> {
-	private final S source;
-	private final E event;
-	private final S target;
+public record ContextTransition<S, E>(S source, E event, S target) {
 
 	public static <S, E> ContextTransition<S, E> of(@Nullable StateContext<S, E> stateContext) {
 		if (stateContext != null) {

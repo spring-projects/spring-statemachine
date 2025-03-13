@@ -16,8 +16,6 @@
 
 package org.springframework.statemachine.plantuml;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineBuilder;
@@ -34,8 +32,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StateMachineHelper {
+
+	private StateMachineHelper(){
+	}
 
 	public static <S, E> StateMachine<S, E> buildStateMachine(
 			StateMachineModelFactory<S, E> stateMachineModelFactory

@@ -16,7 +16,6 @@
 
 package org.springframework.statemachine.plantuml.helper;
 
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.statemachine.region.Region;
@@ -26,12 +25,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
 
-@RequiredArgsConstructor
 public class RegionComparator<S, E> implements Comparator<Region<S, E>> {
 
 	private static final Log log = LogFactory.getLog(RegionComparator.class);
 
 	private final StateComparator<S,E> stateComparator;
+
+	public RegionComparator(StateComparator<S, E> stateComparator) {
+		this.stateComparator = stateComparator;
+	}
 
 	@Override
 	public int compare(Region<S, E> region1, Region<S, E> region2) {

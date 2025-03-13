@@ -687,9 +687,9 @@ public class PlantUmlWriter<S, E> {
 						plantUmlWriterParameters.getArrowColor(
 								currentContextTransition != null
 										&& (
-										currentContextTransition.getSource() == source
+										currentContextTransition.source() == source
 												// && currentContextTransition.event == transition.getTrigger().getEvent()
-												&& currentContextTransition.getTarget() == target
+												&& currentContextTransition.target() == target
 								)
 						),
 						plantUmlWriterParameters.getArrowLength(source, target),
@@ -746,9 +746,9 @@ public class PlantUmlWriter<S, E> {
 								currentContextTransition != null
 										&& transition.getTrigger() != null
 										&& (
-										currentContextTransition.getSource() == source
-												&& currentContextTransition.getEvent() == transition.getTrigger().getEvent()
-												&& currentContextTransition.getTarget() == target
+										currentContextTransition.source() == source
+												&& currentContextTransition.event() == transition.getTrigger().getEvent()
+												&& currentContextTransition.target() == target
 								)
 						);
 						addTransition(sb, indent, source.toString(), source, target, plantUmlWriterParameters, arrowColor, transition);

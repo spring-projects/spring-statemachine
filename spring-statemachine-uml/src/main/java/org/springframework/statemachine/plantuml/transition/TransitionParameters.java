@@ -105,9 +105,9 @@ public class TransitionParameters<S> {
         String hiddenTransitionsText = additionalHiddenTransitions.entrySet().stream()
                 .map(hiddenTransition -> "%s -%s[hidden]-> %s"
                         .formatted(
-                                hiddenTransition.getKey().getSource(),
+                                hiddenTransition.getKey().source(),
                                 hiddenTransition.getValue().name().toLowerCase(),
-                                hiddenTransition.getKey().getTarget()
+                                hiddenTransition.getKey().target()
                         ))
                 .collect(Collectors.joining("\n"));
 
@@ -132,7 +132,7 @@ public class TransitionParameters<S> {
     public void arrowLabelDecorator(S source, S target, String prefix, String suffix) {
         arrowLabelDecorator.put(
                 new Connection<>(source, target),
-                StringDecorator.builder().prefix(prefix).suffix(suffix).build()
+                new StringDecorator(prefix, suffix)
         );
     }
 

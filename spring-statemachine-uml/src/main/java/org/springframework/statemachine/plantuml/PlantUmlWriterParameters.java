@@ -15,8 +15,6 @@
  */
 package org.springframework.statemachine.plantuml;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.lang.Nullable;
@@ -65,8 +63,11 @@ public class PlantUmlWriterParameters<S> {
             }
             """;
 
-	@Setter
 	private String stateDiagramSettings = DEFAULT_STATE_DIAGRAM_SETTINGS;
+
+	public void setStateDiagramSettings(String stateDiagramSettings) {
+		this.stateDiagramSettings = stateDiagramSettings;
+	}
 
 	public static String getStateDiagramSettings(@Nullable PlantUmlWriterParameters<?> plantUmlWriterParameters) {
 		return plantUmlWriterParameters == null
@@ -164,8 +165,11 @@ public class PlantUmlWriterParameters<S> {
 	private String defaultStateColor = "";
 	private String currentStateColor = "#FFFF77";
 
-	@Getter
 	private String transitionLabelSeparator = "\\n";
+
+	public String getTransitionLabelSeparator() {
+		return transitionLabelSeparator;
+	}
 
 	public PlantUmlWriterParameters<S> setTransitionLabelSeparator(String transitionLabelSeparator) {
 		this.transitionLabelSeparator = transitionLabelSeparator;

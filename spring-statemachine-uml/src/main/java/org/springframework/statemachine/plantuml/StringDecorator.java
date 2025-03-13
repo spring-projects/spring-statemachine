@@ -1,17 +1,14 @@
 package org.springframework.statemachine.plantuml;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-
-@Builder
-@Getter
-@EqualsAndHashCode
 public class StringDecorator {
-    @Builder.Default
-    private String prefix = "";
-    @Builder.Default
-    private String suffix = "";
+
+    private final String prefix;
+    private final String suffix;
+
+    public StringDecorator(String prefix, String suffix) {
+        this.prefix = prefix;
+        this.suffix = suffix;
+    }
 
     public String decorate(String label) {
         return prefix + label + suffix;

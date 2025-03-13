@@ -1,7 +1,5 @@
 package org.springframework.statemachine.plantuml;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.BeforeAll;
@@ -257,13 +255,21 @@ class PlantUmlWriterTest {
     // Actions
     // --------------------------------------------------------------------------------
 
-    @Setter
-    @Getter
     public static class LatchAction implements Action<String, String>, BeanNameAware {
 
+        /**
+         * This field is declared for {@link BeanNameAware} and used by {@link org.springframework.statemachine.plantuml.helper.NameGetter#getBeanName(java.lang.Object)}
+         */
+        // Disabling "Private field 'beanName' is assigned but never accessed ." warning
+        @SuppressWarnings("squid:S1068")
         private String beanName;
 
-        CountDownLatch latch = new CountDownLatch(1);
+        @Override
+        public void setBeanName(String beanName) {
+            this.beanName = beanName;
+        }
+
+        private CountDownLatch latch = new CountDownLatch(1);
 
         @Override
         public void execute(StateContext<String, String> context) {
@@ -276,10 +282,13 @@ class PlantUmlWriterTest {
     // Guards
     // --------------------------------------------------------------------------------
 
-    @Setter
-    @Getter
     public static class ChoiceGuard implements Guard<String, String>, BeanNameAware {
 
+        /**
+         * This field is declared for {@link BeanNameAware} and used by {@link org.springframework.statemachine.plantuml.helper.NameGetter#getBeanName(java.lang.Object)}
+         */
+        // Disabling "Private field 'beanName' is assigned but never accessed ." warning
+        @SuppressWarnings("squid:S1068")
         private String beanName;
 
         private final String match;
@@ -289,15 +298,23 @@ class PlantUmlWriterTest {
         }
 
         @Override
+        public void setBeanName(String beanName) {
+            this.beanName = beanName;
+        }
+
+        @Override
         public boolean evaluate(StateContext<String, String> context) {
             return ObjectUtils.nullSafeEquals(match, context.getMessageHeaders().get("choice", String.class));
         }
     }
 
-    @Setter
-    @Getter
     public static class SimpleGuard implements Guard<String, String>, BeanNameAware {
 
+        /**
+         * This field is declared for {@link BeanNameAware} and used by {@link org.springframework.statemachine.plantuml.helper.NameGetter#getBeanName(java.lang.Object)}
+         */
+        // Disabling "Private field 'beanName' is assigned but never accessed ." warning
+        @SuppressWarnings("squid:S1068")
         private String beanName;
 
         private final boolean deny;
@@ -307,21 +324,34 @@ class PlantUmlWriterTest {
         }
 
         @Override
+        public void setBeanName(String beanName) {
+            this.beanName = beanName;
+        }
+
+        @Override
         public boolean evaluate(StateContext<String, String> context) {
             return deny;
         }
     }
 
-    @Setter
-    @Getter
     public static class JunctionGuard implements Guard<String, String>, BeanNameAware {
 
+        /**
+         * This field is declared for {@link BeanNameAware} and used by {@link org.springframework.statemachine.plantuml.helper.NameGetter#getBeanName(java.lang.Object)}
+         */
+        // Disabling "Private field 'beanName' is assigned but never accessed ." warning
+        @SuppressWarnings("squid:S1068")
         private String beanName;
 
         private final String match;
 
         public JunctionGuard(String match) {
             this.match = match;
+        }
+
+        @Override
+        public void setBeanName( String beanName) {
+            this.beanName = beanName;
         }
 
         @Override

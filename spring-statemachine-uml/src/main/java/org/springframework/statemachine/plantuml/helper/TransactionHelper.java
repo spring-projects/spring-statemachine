@@ -16,8 +16,6 @@
 
 package org.springframework.statemachine.plantuml.helper;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,10 +33,12 @@ import java.util.stream.Collectors;
 import static org.apache.commons.lang3.time.DurationFormatUtils.formatDurationWords;
 
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TransactionHelper {
 
 	private static final Log log = LogFactory.getLog(TransactionHelper.class);
+
+	private TransactionHelper(){
+	}
 
 	public static <S, E> String getTransitionDescription(
 			@Nullable Transition<S, E> transition,

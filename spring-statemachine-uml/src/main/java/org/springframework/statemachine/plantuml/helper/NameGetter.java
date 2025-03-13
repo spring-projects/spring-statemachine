@@ -16,8 +16,6 @@
 
 package org.springframework.statemachine.plantuml.helper;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -36,10 +34,12 @@ import org.springframework.statemachine.guard.SpelExpressionGuard;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class NameGetter {
 
 	private static final Log log = LogFactory.getLog(NameGetter.class);
+
+	private NameGetter() {
+	}
 
 	/**
 	 * Implement a 'name strategy' based on this sequence:
@@ -48,7 +48,7 @@ public class NameGetter {
 	 * <LI>{@link BeanNameAware}</LI>
 	 * <LI>Lambda's unique "arg$1" parameter</LI>
 	 * </UL>
-	 * If all these strategy are failing, fallback to "class name" of the object
+	 * If all these strategies are failing, fallback to "class name" of the object
 	 *
 	 * @param object object to get "name" from
 	 * @return name of the object
@@ -184,7 +184,7 @@ public class NameGetter {
 			}
 		}
 
-		// second try using getBeanName method
+		// Second try using getBeanName method
 		try {
 			return (String) MethodUtils.invokeMethod(object, true, "getBeanName");
 		} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {

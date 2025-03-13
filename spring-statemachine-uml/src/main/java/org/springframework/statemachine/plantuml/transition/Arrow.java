@@ -1,8 +1,5 @@
 package org.springframework.statemachine.plantuml.transition;
 
-import lombok.Value;
-
-@Value
 public class Arrow {
 
     /**
@@ -24,8 +21,13 @@ public class Arrow {
      */
     static final Arrow DEFAULT = Arrow.of(Direction.DOWN);
 
-    Direction direction;
-    int length;
+    private final Direction direction;
+    private final int length;
+
+    public Arrow(Direction direction, int length) {
+        this.direction = direction;
+        this.length = length;
+    }
 
     public static Arrow of(Direction direction) {
         return new Arrow(direction, 1);
@@ -33,6 +35,10 @@ public class Arrow {
 
     public static Arrow of(Direction direction, int length) {
         return new Arrow(direction, length);
+    }
+
+    public Direction getDirection() {
+        return direction;
     }
 
     public String getLengthAsString() {
