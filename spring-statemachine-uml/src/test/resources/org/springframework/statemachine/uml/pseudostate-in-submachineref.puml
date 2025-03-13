@@ -1,0 +1,23 @@
+@startuml
+'https://plantuml.com/state-diagram
+
+'hide description area for state without description
+hide empty description
+
+state S1  {
+  'CHOICE <<CHOICE>>
+  state CHOICE <<choice>>
+  state S11
+  state S12
+
+
+  [*] --> S11
+}
+
+
+[*] --> S1
+CHOICE -down-> S12
+S11 -down-> CHOICE
+
+note left of CHOICE : CHOICE
+@enduml

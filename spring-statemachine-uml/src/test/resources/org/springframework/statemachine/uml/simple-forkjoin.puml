@@ -1,0 +1,45 @@
+@startuml
+'https://plantuml.com/state-diagram
+
+'hide description area for state without description
+hide empty description
+
+'S1 <<FORK>>
+state S1 <<fork>>
+state S2  {
+  state S20
+  state S21
+
+
+  [*] --> S20
+  state S30
+  state S31
+
+
+  [*] --> S30
+}
+'S3 <<JOIN>>
+state S3 <<join>>
+'SF <<END>>
+state SF <<end>>
+state SI
+
+
+S1 -down-> S20
+
+S1 -down-> S30
+
+[*] --> SI
+S20 -down-> S21 : E2
+S21 -down-> S3
+S30 -down-> S31 : E3
+S31 -down-> S3
+S3 -down-> SF
+SI -down-> S1 : E1
+
+S1 -right[hidden]-> S2
+
+note left of S1 : S1
+note left of S3 : S3
+note left of SF : SF
+@enduml
