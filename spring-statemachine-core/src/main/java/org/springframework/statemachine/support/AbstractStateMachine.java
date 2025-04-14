@@ -128,6 +128,8 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 
 	private StateMachine<S, E> parentMachine;
 
+	private boolean executeActionsInSyncEnabled;
+
 	/**
 	 * Instantiates a new abstract state machine.
 	 *
@@ -310,7 +312,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		}
 
 		ReactiveStateMachineExecutor<S, E> executor = new ReactiveStateMachineExecutor<S, E>(this, getRelayStateMachine(), transitions,
-				triggerToTransitionMap, triggerlessTransitions, initialTransition, initialEvent, transitionConflictPolicy);
+				triggerToTransitionMap, triggerlessTransitions, initialTransition, initialEvent, transitionConflictPolicy, executeActionsInSyncEnabled);
 		if (getBeanFactory() != null) {
 			executor.setBeanFactory(getBeanFactory());
 		}
@@ -614,7 +616,7 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 	 *
 	 * @param transitionConflictPolicy the new transition conflict policy
 	 */
-	public void setTransitionConflightPolicy(TransitionConflictPolicy transitionConflictPolicy) {
+	public void setTransitionConflictPolicy(TransitionConflictPolicy transitionConflictPolicy) {
 		this.transitionConflictPolicy = transitionConflictPolicy;
 	}
 
@@ -1483,5 +1485,15 @@ public abstract class AbstractStateMachine<S, E> extends StateMachineObjectSuppo
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * Sets execute actions in sync flag.
+	 * if enabled statemachine will execute all actions reactive non-reactive in sync while accepting an event,
+	 * If any action results in error statemachine will error out
+	 * @param executeActionsInSyncEnabled
+	 */
+	public void setExecuteActionsInSync(boolean executeActionsInSyncEnabled) {
+		this.executeActionsInSyncEnabled = executeActionsInSyncEnabled;
 	}
 }

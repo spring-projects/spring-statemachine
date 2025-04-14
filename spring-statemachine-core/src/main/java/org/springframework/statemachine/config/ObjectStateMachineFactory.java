@@ -79,7 +79,7 @@ public class ObjectStateMachineFactory<S, E> extends AbstractStateMachineFactory
 				extendedState, uuid);
 		machine.setId(machineId);
 		machine.setHistoryState(historyState);
-		machine.setTransitionConflightPolicy(stateMachineModel.getConfigurationData().getTransitionConflictPolicy());
+		machine.setTransitionConflictPolicy(stateMachineModel.getConfigurationData().getTransitionConflictPolicy());
 		if (contextEventsEnabled != null) {
 			machine.setContextEventsEnabled(contextEventsEnabled);
 		}

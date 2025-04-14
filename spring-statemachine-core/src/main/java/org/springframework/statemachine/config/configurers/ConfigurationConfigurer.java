@@ -105,4 +105,15 @@ public interface ConfigurationConfigurer<S, E> extends
 	 * @return the configuration configurer
 	 */
 	ConfigurationConfigurer<S, E> regionExecutionPolicy(RegionExecutionPolicy regionExecutionPolicy);
+
+
+	/**
+	 * Specify if state machine should execute all transition actions, and state entry, exit actions
+	 * in sync while accepting event.
+	 * any action execution failure can prevent acceptance of the event
+	 *
+	 * @param executeActionsInSyncEnabled the autoStartup flag
+	 * @return configurer for chaining
+	 */
+	ConfigurationConfigurer<S, E> executeActionsInSyncEnabled(boolean executeActionsInSyncEnabled);
 }
