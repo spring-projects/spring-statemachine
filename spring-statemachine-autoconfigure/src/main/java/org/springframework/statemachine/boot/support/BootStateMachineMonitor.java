@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 the original author or authors.
+ * Copyright 2016-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.springframework.statemachine.boot.support;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -74,7 +75,7 @@ public class BootStateMachineMonitor<S, E> extends AbstractStateMachineMonitor<S
 
 	@Override
 	public void action(StateMachine<S, E> stateMachine, Function<StateContext<S, E>, Mono<Void>> action, long duration) {
-		String actionName = actionFunctionToName(action);
+		String actionName = actionToName(action);
 		getActionCounterBuilder(action).register(meterRegistry).increment();
 		getActionTimerBuilder(action).register(meterRegistry).record(duration, TimeUnit.MILLISECONDS);
 		Map<String, Object> traceInfo = new HashMap<>();
@@ -135,11 +136,14 @@ public class BootStateMachineMonitor<S, E> extends AbstractStateMachineMonitor<S
 	}
 
 	private static <S, E> String actionToName(Function<StateContext<S, E>, Mono<Void>> action) {
-		return ObjectUtils.getDisplayString(action);
-	}
-
-	private static <S, E> String actionFunctionToName(Function<StateContext<S, E>, Mono<Void>> action) {
-		return ObjectUtils.getDisplayString(action);
+		try {
+			Field[] fields = action.getClass().getDeclaredFields();
+			Field actionField = fields[0];
+			actionField.setAccessible(true);
+			return actionField.get(action).getClass().getSimpleName();
+		} catch (IllegalAccessException ex) {
+			return ObjectUtils.getDisplayString(action);
+		}
 	}
 
 	private static <S, E> String nullStateId(State<S, E> state) {
