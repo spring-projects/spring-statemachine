@@ -1,0 +1,21 @@
+@startuml
+'https://plantuml.com/state-diagram
+
+'hide description area for state without description
+hide empty description
+
+state S1  {
+  state S11
+  state S12
+
+
+  [*] --> S11
+}
+state S2
+
+
+[*] --> S1
+S11 -down-> S12 : E1
+S1 -down-> S2 : E2
+
+@enduml

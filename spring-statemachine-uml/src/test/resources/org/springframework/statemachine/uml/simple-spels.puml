@@ -1,0 +1,16 @@
+@startuml
+'https://plantuml.com/state-diagram
+
+'hide description area for state without description
+hide empty description
+
+state S1
+S1 : /exit extendedState.variables.put('myvar2','myvalue2')
+state S2
+S2 : /entry extendedState.variables.put('myvar1','myvalue1')
+
+
+[*] --> S1
+S1 -down-> S2 : E1\n[messageHeaders.get('foo')=='bar']
+
+@enduml

@@ -1,0 +1,20 @@
+@startuml
+'https://plantuml.com/state-diagram
+
+'hide description area for state without description
+hide empty description
+
+'FINAL1 <<END>>
+state FINAL1 <<end>>
+'FINAL2 <<END>>
+state FINAL2 <<end>>
+state S1
+
+
+[*] --> S1
+S1 -down-> FINAL1
+S1 -down-> FINAL2
+
+note left of FINAL1 : FINAL1
+note left of FINAL2 : FINAL2
+@enduml

@@ -1,0 +1,30 @@
+@startuml
+'https://plantuml.com/state-diagram
+
+'hide description area for state without description
+hide empty description
+
+'CHOICE1 <<CHOICE>>
+state CHOICE1 <<choice>>
+'CHOICE2 <<CHOICE>>
+state CHOICE2 <<choice>>
+state S1
+state S2
+state S3
+state S4
+state S5
+state S6
+
+
+[*] --> S1
+CHOICE1 -down-> CHOICE2 : [choice2Guard]\n/ choice1ToChoice2
+CHOICE1 -down-> S2 : [s2Guard]\n/ choiceToS2
+CHOICE1 -down-> S3 : [s3Guard]
+CHOICE1 -down-> S4 : / choiceToS4
+CHOICE2 -down-> S5 : [s5Guard]\n/ choiceToS5
+CHOICE2 -down-> S6 : / choiceToS6
+S1 -down-> CHOICE1 : E1\n/ s1ToChoice
+
+note left of CHOICE1 : CHOICE1
+note left of CHOICE2 : CHOICE2
+@enduml

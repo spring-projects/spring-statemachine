@@ -27,11 +27,17 @@ dependencies {
 	api 'org.eclipse.emf:org.eclipse.emf.ecore.xmi'
 	api 'org.eclipse.emf:org.eclipse.emf.ecore'
 	api 'org.eclipse.emf:org.eclipse.emf.common'
+
+	implementation 'org.apache.commons:commons-lang3:3.12.0'
+	implementation'net.sourceforge.plantuml:plantuml-asl:1.2025.2'
+	implementation 'jakarta.validation:jakarta.validation-api:3.1.0'
+
 	testImplementation(testFixtures(project(":spring-statemachine-core")))
 	testImplementation 'org.assertj:assertj-core'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.springframework:spring-test'
 	testImplementation 'org.junit.jupiter:junit-jupiter-api'
 	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+	testImplementation 'org.junit.jupiter:junit-jupiter-params'
 	testImplementation 'org.awaitility:awaitility'
 }
