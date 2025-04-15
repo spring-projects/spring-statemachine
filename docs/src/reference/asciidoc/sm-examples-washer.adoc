@@ -57,28 +57,28 @@ The following example shows how this state machine actually works:
 ====
 [source,text]
 ----
-sm>sm start
+sm>start
 Entry state RUNNING
 Entry state WASHING
 State machine started
 
-sm>sm event RINSE
+sm>event RINSE
 Exit state WASHING
 Entry state RINSING
 Event RINSE send
 
-sm>sm event DRY
+sm>event DRY
 Exit state RINSING
 Entry state DRYING
 Event DRY send
 
-sm>sm event CUTPOWER
+sm>event CUTPOWER
 Exit state DRYING
 Exit state RUNNING
 Entry state POWEROFF
 Event CUTPOWER send
 
-sm>sm event RESTOREPOWER
+sm>event RESTOREPOWER
 Exit state POWEROFF
 Entry state RUNNING
 Entry state WASHING

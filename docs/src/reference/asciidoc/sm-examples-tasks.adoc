@@ -102,11 +102,11 @@ The following example shows how this state machine actually works:
 ====
 [source,text]
 ----
-sm>sm start
+sm>start
 State machine started
 Entry state READY
 
-sm>tasks run
+sm>run
 Exit state READY
 Entry state TASKS
 run task on T2

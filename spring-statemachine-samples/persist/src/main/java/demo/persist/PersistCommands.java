@@ -15,34 +15,62 @@
  */
 package demo.persist;
 
+import demo.BasicCommand;
+import demo.Command;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.shell.command.annotation.Command;
-import org.springframework.shell.command.annotation.Option;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@Command
+@Configuration
 public class PersistCommands {
 
 	@Autowired
 	private Persist persist;
 
-	@Command(command = "persist db", description = "List entries from db")
-	public String listDbEntries() {
-		return persist.listDbEntries();
+	@Bean
+	public Command list() {
+		return new BasicCommand("list", "List entries from db") {
+			@Override
+			public String execute(String[] args) {
+				return persist.listDbEntries();
+			}
+		};
 	}
 
-	@Command(command = "persist process", description = "Process order")
-	public void process(@Option(longNames = {"", "id"}, description = "Order id") int order) {
-		persist.change(order, "PROCESS");
+	@Bean
+	public Command process() {
+		return new BasicCommand("process [orderId]", "Process order with [orderId]") {
+			@Override
+			public String execute(String[] args) {
+				int order = Integer.parseInt(args[0]);
+				persist.change(order, "PROCESS");
+				return "Order " + order + " processed";
+			}
+		};
 	}
 
-	@Command(command = "persist send", description = "Send order")
-	public void send(@Option(longNames = {"", "id"}, description = "Order id") int order) {
-		persist.change(order, "SEND");
+	@Bean
+	public Command send() {
+		return new BasicCommand("send [orderId]", "Send order with [orderId]") {
+			@Override
+			public String execute(String[] args) {
+				int order = Integer.parseInt(args[0]);
+				persist.change(order, "SEND");
+				return "Order " + order + " sent";
+			}
+		};
 	}
 
-	@Command(command = "persist deliver", description = "Deliver order")
-	public void deliver(@Option(longNames = {"", "id"}, description = "Order id") int order) {
-		persist.change(order, "DELIVER");
+	@Bean
+	public Command deliver() {
+		return new BasicCommand("deliver [orderId]", "Deliver order with [orderId]") {
+			@Override
+			public String execute(String[] args) {
+				int order = Integer.parseInt(args[0]);
+				persist.change(order, "DELIVER");
+				return "Order " + order + " delivered";
+			}
+		};
 	}
 
 }

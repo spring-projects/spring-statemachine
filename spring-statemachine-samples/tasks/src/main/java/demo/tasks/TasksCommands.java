@@ -15,34 +15,60 @@
  */
 package demo.tasks;
 
+import demo.BasicCommand;
+import demo.Command;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.shell.command.annotation.Command;
-import org.springframework.shell.command.annotation.Option;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@Command
+@Configuration
 public class TasksCommands {
 
 	@Autowired
 	private Tasks tasks;
 
-	@Command(command = "tasks run", description = "Run tasks")
-	public void run() {
-		tasks.run();
+	@Bean
+	public Command run() {
+		return new BasicCommand("run", "Run tasks") {
+			@Override
+			public String execute(String[] args) {
+				tasks.run();
+				return "Tasks started";
+			}
+		};
 	}
 
-	@Command(command = "tasks list", description = "List tasks")
-	public String list() {
-		return tasks.toString();
+	@Bean
+	public Command list() {
+		return new BasicCommand("list", "List tasks") {
+			@Override
+			public String execute(String[] args) {
+				return tasks.toString();
+			}
+		};
 	}
 
-	@Command(command = "tasks fix", description = "Fix tasks")
-	public void fix() {
-		tasks.fix();
+	@Bean
+	public Command fix() {
+		return new BasicCommand("fix", "Fix tasks") {
+			@Override
+			public String execute(String[] args) {
+				tasks.fix();
+				return "Tasks fixed";
+			}
+		};
 	}
 
-	@Command(command = "tasks fail", description = "Fail task")
-	public void fail(@Option(longNames = {"", "task"}, description = "Task id") String task) {
-		tasks.fail(task);
+	@Bean
+	public Command fail() {
+		return new BasicCommand("fail [taskId]", "Fail task with [taskId]") {
+			@Override
+			public String execute(String[] args) {
+				String taskId = args[0];
+				tasks.fail(taskId);
+				return "Task " + taskId + " failed";
+			}
+		};
 	}
 
 }

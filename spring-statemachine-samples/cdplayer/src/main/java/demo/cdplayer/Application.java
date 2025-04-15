@@ -22,6 +22,7 @@ import java.lang.annotation.Target;
 import java.util.Map;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.support.MessageBuilder;
@@ -37,7 +38,7 @@ import org.springframework.statemachine.guard.Guard;
 
 import reactor.core.publisher.Mono;
 
-@Configuration
+@SpringBootApplication(scanBasePackages = "demo")
 public class Application  {
 
 	@Configuration

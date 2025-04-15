@@ -15,19 +15,31 @@
  */
 package demo;
 
-import org.jline.utils.AttributedString;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.shell.jline.PromptProvider;
-import org.springframework.stereotype.Component;
+/**
+ * Simple interface for command line commands.
+ *
+ * @author Mahmoud Ben Hassine
+ */
+public interface Command {
 
-@Component
-@Order(Ordered.HIGHEST_PRECEDENCE)
-public class StateMachinePromptProvider implements PromptProvider {
+    /**
+     * The command name.
+     * @return the command name
+     */
+    String getName();
 
-	@Override
-	public AttributedString getPrompt() {
-		return AttributedString.fromAnsi("sm>");
-	}
+    /**
+     * The command description.
+     * @return the command description
+     */
+    String getDescription();
+
+    /**
+     * Execute the command.
+     * @param args the command arguments
+     * @return the message to be printed to the console
+     * @throws Exception in case of error
+     */
+    String execute(String[] args) throws Exception;
 
 }

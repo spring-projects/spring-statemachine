@@ -15,18 +15,21 @@
  */
 package demo;
 
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.shell.command.annotation.Command;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.state.State;
 import org.springframework.util.StringUtils;
 
-@Command
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.Scanner;
+import java.util.Set;
+
+@Configuration
 public class AbstractStateMachineCommands<S, E> {
 
 	@Autowired
@@ -36,54 +39,74 @@ public class AbstractStateMachineCommands<S, E> {
 		return stateMachine;
 	}
 
-	@Autowired
-	@Qualifier("stateChartModel")
-	private String stateChartModel;
-
-	@Command(command = "sm state", description = "Prints current state")
-	public String state() {
-		State<S, E> state = stateMachine.getState();
-		if (state != null) {
-			return StringUtils.collectionToCommaDelimitedString(state.getIds());
-		} else {
-			return "No state";
-		}
-	}
-
-	@Command(command = "sm start", description = "Start a state machine")
-	public String start() {
-		stateMachine.startReactively().subscribe();
-		return "State machine started";
-	}
-
-	@Command(command = "sm stop", description = "Stop a state machine")
-	public String stop() {
-		stateMachine.stopReactively().subscribe();
-		return "State machine stopped";
-	}
-
-	@Command(command = "sm print", description = "Print state machine")
-	public String print() {
-		return stateChartModel;
-	}
-
-	@Command(command = "sm variables", description = "Prints extended state variables")
-	public String variables() {
-		StringBuilder buf = new StringBuilder();
-		Set<Entry<Object, Object>> entrySet = stateMachine.getExtendedState().getVariables().entrySet();
-		Iterator<Entry<Object, Object>> iterator = entrySet.iterator();
-		if (entrySet.size() > 0) {
-			while (iterator.hasNext()) {
-				Entry<Object, Object> e = iterator.next();
-				buf.append(e.getKey() + "=" + e.getValue());
-				if (iterator.hasNext()) {
-					buf.append("\n");
+	@Bean
+	public Command state() {
+		return new BasicCommand("state", "Prints current state") {
+			public String execute(String[] args) {
+				State<S, E> state = stateMachine.getState();
+				if (state != null) {
+					return StringUtils.collectionToCommaDelimitedString(state.getIds());
+				} else {
+					return "No state";
 				}
 			}
-		} else {
-			buf.append("No variables");
-		}
-		return buf.toString();
+		};
 	}
 
+	@Bean
+	public Command start() {
+		return new BasicCommand("start", "Start a state machine") {
+			public String execute(String[] args) {
+				stateMachine.startReactively().subscribe();
+				return "State machine started";
+			}
+		};
+	}
+
+	@Bean
+	public Command stop() {
+		return new BasicCommand("stop", "Stop a state machine") {
+			public String execute(String[] args) {
+				stateMachine.stopReactively().subscribe();
+				return "State machine stopped";
+			}
+		};
+	}
+
+	@Bean
+	public Command print() {
+		return new BasicCommand("print", "Print state machine") {
+			public String execute(String[] args) throws Exception {
+				ClassPathResource model = new ClassPathResource("statechartmodel.txt");
+				InputStream inputStream = model.getInputStream();
+				Scanner scanner = new Scanner(inputStream);
+				String content = scanner.useDelimiter("\\Z").next();
+				scanner.close();
+				return content;
+			}
+		};
+	}
+
+	@Bean
+	public Command variables() {
+		return new BasicCommand("variables", "Prints extended state variables") {
+			public String execute(String[] args) {
+				StringBuilder buf = new StringBuilder();
+				Set<Entry<Object, Object>> entrySet = stateMachine.getExtendedState().getVariables().entrySet();
+				Iterator<Entry<Object, Object>> iterator = entrySet.iterator();
+				if (entrySet.size() > 0) {
+					while (iterator.hasNext()) {
+						Entry<Object, Object> e = iterator.next();
+						buf.append(e.getKey() + "=" + e.getValue());
+						if (iterator.hasNext()) {
+							buf.append("\n");
+						}
+					}
+				} else {
+					buf.append("No variables");
+				}
+				return buf.toString();
+			}
+		};
+	}
 }

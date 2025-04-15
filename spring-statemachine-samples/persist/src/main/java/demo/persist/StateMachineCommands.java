@@ -15,22 +15,30 @@
  */
 package demo.persist;
 
+import demo.BasicCommand;
+import demo.Command;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.shell.command.annotation.Command;
-import org.springframework.shell.command.annotation.Option;
 
 import demo.AbstractStateMachineCommands;
 import reactor.core.publisher.Mono;
 
-@Command
+@Configuration
 public class StateMachineCommands extends AbstractStateMachineCommands<String, String> {
 
-	@Command(command = "sm event", description = "Sends an event to a state machine")
-	public String event(@Option(longNames = { "", "event" }, required = true, description = "The event") final String event) {
-		getStateMachine()
-			.sendEvent(Mono.just(MessageBuilder
-				.withPayload(event).build()))
-			.subscribe();
-		return "Event " + event + " send";
+	@Bean
+	public Command event() {
+		return new BasicCommand("event", "Sends an event to a state machine") {
+			@Override
+			public String execute(String[] args) {
+				String event = args[0];
+				getStateMachine()
+						.sendEvent(Mono.just(MessageBuilder
+								.withPayload(event).build()))
+						.subscribe();
+				return "Event " + event + " sent";
+			}
+		};
 	}
 }

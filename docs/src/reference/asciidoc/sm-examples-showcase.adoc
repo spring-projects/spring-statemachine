@@ -83,14 +83,14 @@ various events are sent to it:
 ====
 [source,text]
 ----
-sm>sm start
+sm>start
 Init foo to 0
 Entry state S0
 Entry state S1
 Entry state S11
 State machine started
 
-sm>sm event A
+sm>event A
 Event A send
 
 sm>sm event C
@@ -101,12 +101,12 @@ Entry state S21
 Entry state S211
 Event C send
 
-sm>sm event H
+sm>event H
 Switch foo to 1
 Internal transition source=S0
 Event H send
 
-sm>sm event C
+sm>event C
 Exit state S211
 Exit state S21
 Exit state S2
@@ -114,7 +114,7 @@ Entry state S1
 Entry state S11
 Event C send
 
-sm>sm event A
+sm>event A
 Exit state S11
 Exit state S1
 Entry state S1
@@ -144,27 +144,27 @@ handling works:
 ====
 [source,text]
 ----
-sm>sm variables
+sm>variables
 No variables
 
-sm>sm start
+sm>start
 Init foo to 0
 Entry state S0
 Entry state S1
 Entry state S11
 State machine started
 
-sm>sm variables
+sm>variables
 foo=0
 
-sm>sm event H
+sm>event H
 Internal transition source=S1
 Event H send
 
-sm>sm variables
+sm>variables
 foo=0
 
-sm>sm event C
+sm>event C
 Exit state S11
 Exit state S1
 Entry state S2
@@ -172,23 +172,23 @@ Entry state S21
 Entry state S211
 Event C send
 
-sm>sm variables
+sm>variables
 foo=0
 
-sm>sm event H
+sm>event H
 Switch foo to 1
 Internal transition source=S0
 Event H send
 
-sm>sm variables
+sm>variables
 foo=1
 
-sm>sm event H
+sm>event H
 Switch foo to 0
 Internal transition source=S2
 Event H send
 
-sm>sm variables
+sm>variables
 foo=0
 ----
 ====

@@ -27,7 +27,7 @@ import org.springframework.statemachine.config.builders.StateMachineStateConfigu
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.recipes.persist.PersistStateMachineHandler;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "demo")
 public class Application  {
 
 //tag::snippetA[]

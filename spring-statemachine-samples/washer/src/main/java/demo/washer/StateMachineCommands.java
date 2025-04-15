@@ -15,25 +15,32 @@
  */
 package demo.washer;
 
+import demo.BasicCommand;
+import demo.Command;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.shell.command.annotation.Command;
-import org.springframework.shell.command.annotation.Option;
 
 import demo.AbstractStateMachineCommands;
 import demo.washer.Application.Events;
 import demo.washer.Application.States;
 import reactor.core.publisher.Mono;
 
-@Command
+@Configuration
 public class StateMachineCommands extends AbstractStateMachineCommands<States, Events> {
 
-	@Command(command = "sm event", description = "Sends an event to a state machine")
-	public String event(@Option(longNames = { "", "event" }, required = true, description = "The event") final Events event) {
-		getStateMachine()
-			.sendEvent(Mono.just(MessageBuilder
-				.withPayload(event).build()))
-			.subscribe();
-		return "Event " + event + " send";
+	@Bean
+	public Command event() {
+		return new BasicCommand("event", "Sends an event to a state machine") {
+			@Override
+			public String execute(String[] args) {
+				Events event = Events.valueOf(args[0]);
+				getStateMachine()
+						.sendEvent(Mono.just(MessageBuilder
+								.withPayload(event).build()))
+						.subscribe();
+				return "Event " + event + " sent";
+			}
+		};
 	}
-
 }
