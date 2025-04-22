@@ -18,6 +18,8 @@ dependencies {
 	optional 'org.springframework.boot:spring-boot-starter-data-redis'
 	optional 'org.springframework.boot:spring-boot-starter-data-mongodb'
 	testImplementation 'org.springframework.boot:spring-boot-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+    testImplementation 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.assertj:assertj-core'
 	testRuntimeOnly 'com.h2database:h2'
 }

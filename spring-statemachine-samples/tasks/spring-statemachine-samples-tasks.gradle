@@ -17,7 +17,7 @@ dependencies {
 	testImplementation 'org.springframework:spring-test'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.assertj:assertj-core'
-	testImplementation 'org.junit.jupiter:junit-jupiter-api'
 	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+	testImplementation 'org.junit.platform:junit-platform-launcher'
 	testImplementation 'io.projectreactor.tools:blockhound'
 }

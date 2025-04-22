@@ -12,7 +12,10 @@ dependencies {
 	testImplementation(testFixtures(project(':spring-statemachine-data-common')))
 	testImplementation(testFixtures(project(':spring-statemachine-core')))
 	testImplementation 'io.projectreactor:reactor-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.boot:spring-boot-test'
+	testImplementation 'org.springframework.boot:spring-boot-test-autoconfigure'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+    testImplementation 'org.junit.platform:junit-platform-launcher'
 	testRuntimeOnly 'org.apache.commons:commons-pool2'
 	testRuntimeOnly 'redis.clients:jedis'
 	testRuntimeOnly 'org.springframework.boot:spring-boot-starter-data-redis'

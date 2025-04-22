@@ -12,6 +12,6 @@ dependencies {
 	testImplementation (project(':spring-statemachine-test'))
 	testImplementation 'org.apache.curator:curator-test'
 	testImplementation 'org.assertj:assertj-core'
-	testImplementation 'org.junit.jupiter:junit-jupiter-api'
 	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+	testImplementation 'org.junit.platform:junit-platform-launcher'
 }
