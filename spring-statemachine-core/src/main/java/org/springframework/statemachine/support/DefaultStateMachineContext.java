@@ -43,6 +43,20 @@ public class DefaultStateMachineContext<S, E> implements StateMachineContext<S, 
 	private final ExtendedState extendedState;
 
 	/**
+ 	* Instantiates a new default state machine context.
+ 	*/
+	public DefaultStateMachineContext() {
+		this.id = null;
+		this.childs = null;
+		this.childRefs = null;
+		this.state = null;
+		this.historyStates = null;
+		this.event = null;
+		this.eventHeaders = null;
+		this.extendedState = null;
+	}
+
+	/**
 	 * Instantiates a new default state machine context.
 	 *
 	 * @param state the state
