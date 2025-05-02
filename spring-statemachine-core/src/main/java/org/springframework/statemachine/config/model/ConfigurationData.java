@@ -60,6 +60,7 @@ public class ConfigurationData<S, E> {
 	private final StateMachineMonitor<S, E> stateMachineMonitor;
 	private final List<StateMachineInterceptor<S, E>> interceptors;
 	private final RegionExecutionPolicy regionExecutionPolicy;
+	private final boolean executeActionsInSyncEnabled;
 
 	/**
 	 * Instantiates a new state machine configuration config data.
@@ -96,7 +97,7 @@ public class ConfigurationData<S, E> {
 			List<StateMachineInterceptor<S, E>> interceptors) {
 		this(beanFactory, autoStart, ensemble, listeners, securityEnabled, transitionSecurityAccessDecisionManager,
 				eventSecurityAccessDecisionManager, eventSecurityRule, transitionSecurityRule, verifierEnabled,
-				verifier, machineId, stateMachineMonitor, interceptors, null, null, null, null);
+				verifier, machineId, stateMachineMonitor, interceptors, null, null, null, null, false);
 	}
 
 	/**
@@ -120,6 +121,7 @@ public class ConfigurationData<S, E> {
 	 * @param stateDoActionPolicy the state do action policy
 	 * @param stateDoActionPolicyTimeout the state do action policy timeout
 	 * @param regionExecutionPolicy the region execution policy
+	 * @param executeActionsInSyncEnabled the execute actions in sync enabled flag
 	 */
 	public ConfigurationData(BeanFactory beanFactory, boolean autoStart, StateMachineEnsemble<S, E> ensemble,
 			List<StateMachineListener<S, E>> listeners, boolean securityEnabled,
@@ -129,7 +131,7 @@ public class ConfigurationData<S, E> {
 			String machineId, StateMachineMonitor<S, E> stateMachineMonitor,
 			List<StateMachineInterceptor<S, E>> interceptors, TransitionConflictPolicy transitionConflightPolicy,
 			StateDoActionPolicy stateDoActionPolicy, Long stateDoActionPolicyTimeout,
-			RegionExecutionPolicy regionExecutionPolicy) {
+			RegionExecutionPolicy regionExecutionPolicy,boolean executeActionsInSyncEnabled) {
 		this.beanFactory = beanFactory;
 		this.autoStart = autoStart;
 		this.ensemble = ensemble;
@@ -148,6 +150,7 @@ public class ConfigurationData<S, E> {
 		this.stateDoActionPolicy = stateDoActionPolicy;
 		this.stateDoActionPolicyTimeout = stateDoActionPolicyTimeout;
 		this.regionExecutionPolicy = regionExecutionPolicy;
+		this.executeActionsInSyncEnabled = executeActionsInSyncEnabled;
 	}
 
 	public String getMachineId() {
@@ -305,5 +308,15 @@ public class ConfigurationData<S, E> {
 	 */
 	public RegionExecutionPolicy getRegionExecutionPolicy() {
 		return regionExecutionPolicy;
+	}
+
+
+	/**
+	 * Checks if execute actions in sync is enabled.
+	 *
+	 * @return true, if execute actions in sync is enabled
+	 */
+	public boolean isExecuteActionsInSyncEnabled() {
+		return executeActionsInSyncEnabled;
 	}
 }
