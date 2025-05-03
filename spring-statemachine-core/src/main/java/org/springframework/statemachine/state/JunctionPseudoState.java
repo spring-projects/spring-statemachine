@@ -38,7 +38,7 @@ import reactor.core.publisher.Mono;
  */
 public class JunctionPseudoState<S, E> implements PseudoState<S, E> {
 
-	private final static Log log = LogFactory.getLog(JunctionPseudoState.class);
+	private static final Log log = LogFactory.getLog(JunctionPseudoState.class);
 	private final List<JunctionStateData<S, E>> junctions;
 
 	/**
