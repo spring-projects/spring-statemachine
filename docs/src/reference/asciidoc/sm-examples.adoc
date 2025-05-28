@@ -58,8 +58,7 @@ The following listing shows how to build the samples:
 ====
 
 Every sample is located in its own directory under
-`spring-statemachine-samples`. The samples are based on Spring Boot and
-Spring Shell, and you can find the usual Boot fat jars under every sample
+`spring-statemachine-samples`. The samples are based on Spring Boot and you can find the usual Boot fat jars under every sample
 project's `build/libs` directory.
 
 NOTE: The filenames for the jars to which we refer in this section are populated during a

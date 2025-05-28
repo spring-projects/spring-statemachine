@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,36 +15,62 @@
  */
 package demo.persist;
 
+import demo.BasicCommand;
+import demo.Command;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.shell.core.CommandMarker;
-import org.springframework.shell.core.annotation.CliCommand;
-import org.springframework.shell.core.annotation.CliOption;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@Component
-public class PersistCommands implements CommandMarker {
+@Configuration
+public class PersistCommands {
 
 	@Autowired
 	private Persist persist;
 
-	@CliCommand(value = "persist db", help = "List entries from db")
-	public String listDbEntries() {
-		return persist.listDbEntries();
+	@Bean
+	public Command list() {
+		return new BasicCommand("list", "List entries from db") {
+			@Override
+			public String execute(String[] args) {
+				return persist.listDbEntries();
+			}
+		};
 	}
 
-	@CliCommand(value = "persist process", help = "Process order")
-	public void process(@CliOption(key = {"", "id"}, help = "Order id") int order) {
-		persist.change(order, "PROCESS");
+	@Bean
+	public Command process() {
+		return new BasicCommand("process [orderId]", "Process order with [orderId]") {
+			@Override
+			public String execute(String[] args) {
+				int order = Integer.parseInt(args[0]);
+				persist.change(order, "PROCESS");
+				return "Order " + order + " processed";
+			}
+		};
 	}
 
-	@CliCommand(value = "persist send", help = "Send order")
-	public void send(@CliOption(key = {"", "id"}, help = "Order id") int order) {
-		persist.change(order, "SEND");
+	@Bean
+	public Command send() {
+		return new BasicCommand("send [orderId]", "Send order with [orderId]") {
+			@Override
+			public String execute(String[] args) {
+				int order = Integer.parseInt(args[0]);
+				persist.change(order, "SEND");
+				return "Order " + order + " sent";
+			}
+		};
 	}
 
-	@CliCommand(value = "persist deliver", help = "Deliver order")
-	public void deliver(@CliOption(key = {"", "id"}, help = "Order id") int order) {
-		persist.change(order, "DELIVER");
+	@Bean
+	public Command deliver() {
+		return new BasicCommand("deliver [orderId]", "Deliver order with [orderId]") {
+			@Override
+			public String execute(String[] args) {
+				int order = Integer.parseInt(args[0]);
+				persist.change(order, "DELIVER");
+				return "Order " + order + " delivered";
+			}
+		};
 	}
 
 }

@@ -231,15 +231,15 @@ The following example shows how this state machine actually works.
 ====
 [source,text]
 ----
-sm>sm start
+sm>start
 Entry state IDLE
 Entry state CLOSED
 State machine started
 
-sm>cd lcd
+sm>lcd
 No CD
 
-sm>cd library
+sm>list
 0: Greatest Hits
   0: Bohemian Rhapsody  05:56
   1: Another One Bites the Dust  03:36
@@ -247,14 +247,14 @@ sm>cd library
   0: A Kind of Magic  04:22
   1: Under Pressure  04:08
 
-sm>cd eject
+sm>eject
 Exit state CLOSED
 Entry state OPEN
 
-sm>cd load 0
+sm>load 0
 Loading cd Greatest Hits
 
-sm>cd play
+sm>play
 Exit state OPEN
 Entry state CLOSED
 Exit state CLOSED
@@ -262,21 +262,21 @@ Exit state IDLE
 Entry state BUSY
 Entry state PLAYING
 
-sm>cd lcd
+sm>lcd
 Greatest Hits Bohemian Rhapsody 00:03
 
-sm>cd forward
+sm>forward
 
-sm>cd lcd
+sm>lcd
 Greatest Hits Another One Bites the Dust 00:04
 
-sm>cd stop
+sm>stop
 Exit state PLAYING
 Exit state BUSY
 Entry state IDLE
 Entry state CLOSED
 
-sm>cd lcd
+sm>lcd
 Greatest Hits
 ----
 ====

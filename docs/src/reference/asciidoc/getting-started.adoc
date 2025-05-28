@@ -17,7 +17,7 @@ dependencies outside of Spring Framework within its core system.
 
 Other optional parts (such as <<sm-distributed>>) have dependencies on
 Zookeeper, while <<statemachine-examples>> has dependencies
-on `spring-shell` and `spring-boot`, which pull other dependencies
+on `spring-boot`, which pull other dependencies
 beyond the framework itself. Also, the optional security and data access features have
 dependencies to on Spring Security and Spring Data modules.
 

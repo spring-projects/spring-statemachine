@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,10 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.shell.Bootstrap;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -30,7 +31,7 @@ import org.springframework.statemachine.config.builders.StateMachineStateConfigu
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.guard.Guard;
 
-@Configuration
+@SpringBootApplication(scanBasePackages = "demo")
 public class Application  {
 
 	private final static Log log = LogFactory.getLog(Application.class);
@@ -214,8 +215,8 @@ public class Application  {
 	}
 // end::snippetE[]
 
-	public static void main(String[] args) throws Exception {
-		Bootstrap.main(args);
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class, args);
 	}
 
 }

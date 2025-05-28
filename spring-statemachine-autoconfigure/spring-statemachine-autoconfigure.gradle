@@ -16,8 +16,13 @@ dependencies {
 	optional 'io.micrometer:micrometer-core'
 	optional 'org.springframework.boot:spring-boot-starter-data-jpa'
 	optional 'org.springframework.boot:spring-boot-starter-data-redis'
-	optional 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	optional('org.springframework.boot:spring-boot-starter-data-mongodb') {
+		exclude group: 'org.mongodb', module: 'mongodb-driver-sync'
+	}
 	testImplementation 'org.springframework.boot:spring-boot-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+    testImplementation 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.assertj:assertj-core'
 	testRuntimeOnly 'com.h2database:h2'
+	testRuntimeOnly 'org.mongodb:mongodb-driver-sync'
 }

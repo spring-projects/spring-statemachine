@@ -15,7 +15,10 @@ dependencies {
 	implementation('org.springframework.boot:spring-boot-starter-thymeleaf')
 	implementation('org.springframework.boot:spring-boot-starter-data-jpa')
 	implementation('org.springframework.boot:spring-boot-starter-data-redis')
-	implementation('org.springframework.boot:spring-boot-starter-data-mongodb')
+	implementation('org.springframework.boot:spring-boot-starter-data-mongodb') {
+		exclude group: 'org.mongodb', module: 'mongodb-driver-sync'
+	}
+	testRuntimeOnly 'org.mongodb:mongodb-driver-sync'
 	implementation('org.springframework.boot:spring-boot-devtools')
 	implementation('com.h2database:h2')
 	testImplementation(testFixtures(project(':spring-statemachine-core')))
@@ -25,6 +28,6 @@ dependencies {
 	testImplementation 'org.springframework:spring-test'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.assertj:assertj-core'
-	testImplementation 'org.junit.jupiter:junit-jupiter-api'
 	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+	testImplementation 'org.junit.platform:junit-platform-launcher'
 }

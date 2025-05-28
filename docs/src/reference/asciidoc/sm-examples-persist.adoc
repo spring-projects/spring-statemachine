@@ -44,27 +44,27 @@ The following example shows the state machine's output:
 ====
 [source,text]
 ----
-sm>persist db
+sm>list
 Order [id=1, state=PLACED]
 Order [id=2, state=PROCESSING]
 Order [id=3, state=SENT]
 Order [id=4, state=DELIVERED]
 
-sm>persist process 1
+sm>process 1
 Exit state PLACED
 Entry state PROCESSING
 
-sm>persist db
+sm>list
 Order [id=2, state=PROCESSING]
 Order [id=3, state=SENT]
 Order [id=4, state=DELIVERED]
 Order [id=1, state=PROCESSING]
 
-sm>persist deliver 3
+sm>deliver 3
 Exit state SENT
 Entry state DELIVERED
 
-sm>persist db
+sm>list
 Order [id=2, state=PROCESSING]
 Order [id=4, state=DELIVERED]
 Order [id=1, state=PROCESSING]

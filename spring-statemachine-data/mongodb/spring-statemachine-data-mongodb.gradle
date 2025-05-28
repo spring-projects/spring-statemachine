@@ -12,7 +12,13 @@ dependencies {
 	testImplementation(testFixtures(project(':spring-statemachine-data-common')))
 	testImplementation(testFixtures(project(':spring-statemachine-core')))
 	testImplementation 'io.projectreactor:reactor-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	testImplementation 'org.springframework.boot:spring-boot-test'
+	testImplementation 'org.springframework.boot:spring-boot-test-autoconfigure'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+    testImplementation 'org.junit.platform:junit-platform-launcher'
+	testRuntimeOnly('org.springframework.boot:spring-boot-starter-data-mongodb') {
+		exclude group: 'org.mongodb', module: 'mongodb-driver-sync'
+	}
+	testRuntimeOnly 'org.mongodb:mongodb-driver-sync'
 	testRuntimeOnly 'org.springframework.boot:spring-boot-starter-web'
 }

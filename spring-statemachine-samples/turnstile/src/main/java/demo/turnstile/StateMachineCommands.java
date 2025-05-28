@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,30 @@
  */
 package demo.turnstile;
 
+import demo.BasicCommand;
+import demo.Command;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.shell.core.annotation.CliCommand;
-import org.springframework.shell.core.annotation.CliOption;
-import org.springframework.stereotype.Component;
 
 import demo.AbstractStateMachineCommands;
-import demo.turnstile.Application.Events;
-import demo.turnstile.Application.States;
 import reactor.core.publisher.Mono;
 
-@Component
+@Configuration
 public class StateMachineCommands extends AbstractStateMachineCommands<States, Events> {
 
-	@CliCommand(value = "sm event", help = "Sends an event to a state machine")
-	public String event(@CliOption(key = { "", "event" }, mandatory = true, help = "The event") final Events event) {
-		getStateMachine()
-			.sendEvent(Mono.just(MessageBuilder
-				.withPayload(event).build()))
-			.subscribe();
-		return "Event " + event + " send";
+	@Bean
+	public Command event() {
+		return new BasicCommand("event", "Sends an event to a state machine") {
+			@Override
+			public String execute(String[] args) {
+				Events event = Events.valueOf(args[0]);
+				getStateMachine()
+						.sendEvent(Mono.just(MessageBuilder
+								.withPayload(event).build()))
+						.subscribe();
+				return "Event " + event + " sent";
+			}
+		};
 	}
 }

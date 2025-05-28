@@ -60,8 +60,8 @@ public class StateMachineConfig {
 
 		@Bean
 		public StateMachineRuntimePersister<States, Events, String> stateMachineRuntimePersister(
-				MongoDbStateMachineRepository jpaStateMachineRepository) {
-			return new MongoDbPersistingStateMachineInterceptor<>(jpaStateMachineRepository);
+				MongoDbStateMachineRepository mongoDbStateMachineRepository) {
+			return new MongoDbPersistingStateMachineInterceptor<>(mongoDbStateMachineRepository);
 		}
 	}
 //end::snippetB[]
@@ -73,8 +73,8 @@ public class StateMachineConfig {
 
 		@Bean
 		public StateMachineRuntimePersister<States, Events, String> stateMachineRuntimePersister(
-				RedisStateMachineRepository jpaStateMachineRepository) {
-			return new RedisPersistingStateMachineInterceptor<>(jpaStateMachineRepository);
+				RedisStateMachineRepository redisStateMachineRepository) {
+			return new RedisPersistingStateMachineInterceptor<>(redisStateMachineRepository);
 		}
 	}
 //end::snippetC[]

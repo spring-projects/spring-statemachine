@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,36 +15,60 @@
  */
 package demo.tasks;
 
+import demo.BasicCommand;
+import demo.Command;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.shell.core.CommandMarker;
-import org.springframework.shell.core.annotation.CliCommand;
-import org.springframework.shell.core.annotation.CliOption;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@Component
-public class TasksCommands implements CommandMarker {
+@Configuration
+public class TasksCommands {
 
 	@Autowired
 	private Tasks tasks;
 
-	@CliCommand(value = "tasks run", help = "Run tasks")
-	public void run() {
-		tasks.run();
+	@Bean
+	public Command run() {
+		return new BasicCommand("run", "Run tasks") {
+			@Override
+			public String execute(String[] args) {
+				tasks.run();
+				return "Tasks started";
+			}
+		};
 	}
 
-	@CliCommand(value = "tasks list", help = "List tasks")
-	public String list() {
-		return tasks.toString();
+	@Bean
+	public Command list() {
+		return new BasicCommand("list", "List tasks") {
+			@Override
+			public String execute(String[] args) {
+				return tasks.toString();
+			}
+		};
 	}
 
-	@CliCommand(value = "tasks fix", help = "Fix tasks")
-	public void fix() {
-		tasks.fix();
+	@Bean
+	public Command fix() {
+		return new BasicCommand("fix", "Fix tasks") {
+			@Override
+			public String execute(String[] args) {
+				tasks.fix();
+				return "Tasks fixed";
+			}
+		};
 	}
 
-	@CliCommand(value = "tasks fail", help = "Fail task")
-	public void fail(@CliOption(key = {"", "task"}, help = "Task id") String task) {
-		tasks.fail(task);
+	@Bean
+	public Command fail() {
+		return new BasicCommand("fail [taskId]", "Fail task with [taskId]") {
+			@Override
+			public String execute(String[] args) {
+				String taskId = args[0];
+				tasks.fail(taskId);
+				return "Task " + taskId + " failed";
+			}
+		};
 	}
 
 }

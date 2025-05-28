@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,15 @@ package demo.cdplayer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import demo.AbstractStateMachineCommands;
+import demo.BasicCommand;
+import demo.Command;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.shell.core.CommandMarker;
-import org.springframework.shell.core.annotation.CliCommand;
-import org.springframework.shell.core.annotation.CliOption;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@Component
-public class CdPlayerCommands implements CommandMarker {
+@Configuration
+public class CdPlayerCommands extends AbstractStateMachineCommands<Application.States, Application.Events> {
 
 	@Autowired
 	private CdPlayer cdPlayer;
@@ -33,67 +34,119 @@ public class CdPlayerCommands implements CommandMarker {
 	@Autowired
 	private Library library;
 
-	@CliCommand(value = "cd lcd", help = "Prints CD player lcd info")
-	public String lcd() {
-		return cdPlayer.getLdcStatus();
-	}
-
-	@CliCommand(value = "cd library", help = "List user CD library")
-	public String library() {
-		SimpleDateFormat format = new SimpleDateFormat("mm:ss");
-		StringBuilder buf = new StringBuilder();
-		int i1 = 0;
-		for (Cd cd : library.getCollection()) {
-			buf.append(i1++ + ": " + cd.getName() + "\n");
-			int i2 = 0;
-			for (Track track : cd.getTracks()) {
-				buf.append("  " + i2++ + ": " + track.getName() + "  " + format.format(new Date(track.getLength()*1000)) + "\n");
+	@Bean
+	public Command lcd() {
+		return new BasicCommand("lcd", "Prints CD player lcd info") {
+			@Override
+			public String execute(String[] args) {
+				return cdPlayer.getLcdStatus();
 			}
-		}
-		return buf.toString();
+		};
 	}
 
-	@CliCommand(value = "cd load", help = "Load CD into player")
-	public String load(@CliOption(key = {"", "index"}) int index) {
-		StringBuilder buf = new StringBuilder();
-		try {
-			Cd cd = library.getCollection().get(index);
-			cdPlayer.load(cd);
-			buf.append("Loading cd " + cd);
-		} catch (Exception e) {
-			buf.append("Cd with index " + index + " not found, check library");
-		}
-		return buf.toString();
+	@Bean
+	public Command list() {
+		return new BasicCommand("list", "List user CD library") {
+			@Override
+			public String execute(String[] args) {
+				SimpleDateFormat format = new SimpleDateFormat("mm:ss");
+				StringBuilder buf = new StringBuilder();
+				int i1 = 0;
+				for (Cd cd : library.getCollection()) {
+					buf.append(i1++ + ": " + cd.getName() + "\n");
+					int i2 = 0;
+					for (Track track : cd.getTracks()) {
+						buf.append("  " + i2++ + ": " + track.getName() + "  " + format.format(new Date(track.getLength()*1000)) + "\n");
+					}
+				}
+				return buf.toString();
+			}
+		};
 	}
 
-	@CliCommand(value = "cd play", help = "Press player play button")
-	public void play() {
-		cdPlayer.play();
+	@Bean
+	public Command load() {
+		return new BasicCommand("load [index]", "Load CD [index] into player") {
+			@Override
+			public String execute(String[] args) {
+				StringBuilder buf = new StringBuilder();
+				int index = Integer.parseInt(args[0]);
+				try {
+					Cd cd = library.getCollection().get(index);
+					cdPlayer.load(cd);
+					buf.append("Loading cd " + cd);
+				} catch (Exception e) {
+					buf.append("Cd with index " + index + " not found, check library");
+				}
+				return buf.toString();
+			}
+		};
 	}
 
-	@CliCommand(value = "cd stop", help = "Press player stop button")
-	public void stop() {
-		cdPlayer.stop();
+	@Bean
+	public Command play() {
+		return new BasicCommand("play", "Press player play button") {
+			@Override
+			public String execute(String[] args) {
+				cdPlayer.play();
+				return "";
+			}
+		};
 	}
 
-	@CliCommand(value = "cd pause", help = "Press player pause button")
-	public void pause() {
-		cdPlayer.pause();
+	@Bean
+	public Command stop() {
+		return new BasicCommand("stop", "Press player stop button") {
+			@Override
+			public String execute(String[] args) {
+				cdPlayer.stop();
+				return "";
+			}
+		};
 	}
 
-	@CliCommand(value = "cd eject", help = "Press player eject button")
-	public void eject() {
-		cdPlayer.eject();
+	@Bean
+	public Command pause() {
+		return new BasicCommand("pause", "Press player pause button") {
+			@Override
+			public String execute(String[] args) {
+				cdPlayer.pause();
+				return "";
+			}
+		};
 	}
 
-	@CliCommand(value = "cd forward", help = "Press player forward button")
-	public void forward() {
-		cdPlayer.forward();
+	@Bean
+	public Command eject() {
+		return new BasicCommand("eject", "Press player eject button") {
+			@Override
+			public String execute(String[] args) {
+				cdPlayer.eject();
+				return "";
+			}
+		};
 	}
 
-	@CliCommand(value = "cd back", help = "Press player back button")
-	public void back() {
-		cdPlayer.back();
+	@Bean
+	public Command forward() {
+		return new BasicCommand("forward", "Press player forward button") {
+			@Override
+			public String execute(String[] args) {
+				cdPlayer.forward();
+				return "";
+			}
+		};
+	}
+
+	@Bean
+	public Command back() {
+		return new BasicCommand("back", "Press player back button") {
+			@Override
+			public String execute(String[] args) {
+				cdPlayer.back();
+				return "";
+			}
+		};
 	}
 
 }

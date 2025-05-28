@@ -92,7 +92,7 @@ public class CdPlayer {
 			.subscribe();
 	}
 
-	public String getLdcStatus() {
+	public String getLcdStatus() {
 		return cdStatus + " " + trackStatus;
 	}
 

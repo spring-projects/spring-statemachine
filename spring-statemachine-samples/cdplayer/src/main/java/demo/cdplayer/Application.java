@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Map;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.shell.Bootstrap;
 import org.springframework.statemachine.ExtendedState;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
@@ -37,7 +38,7 @@ import org.springframework.statemachine.guard.Guard;
 
 import reactor.core.publisher.Mono;
 
-@Configuration
+@SpringBootApplication(scanBasePackages = "demo")
 public class Application  {
 
 	@Configuration
@@ -308,8 +309,8 @@ public class Application  {
 	}
 //end::snippetL[]
 
-	public static void main(String[] args) throws Exception {
-		Bootstrap.main(args);
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class, args);
 	}
 
 }

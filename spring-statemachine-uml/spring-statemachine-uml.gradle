@@ -31,7 +31,7 @@ dependencies {
 	testImplementation 'org.assertj:assertj-core'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.springframework:spring-test'
-	testImplementation 'org.junit.jupiter:junit-jupiter-api'
 	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+    testImplementation 'org.junit.platform:junit-platform-launcher'
 	testImplementation 'org.awaitility:awaitility'
 }

@@ -9,6 +9,6 @@ dependencies {
 	api project(':spring-statemachine-core')
 	api 'com.esotericsoftware:kryo-shaded'
 	testImplementation 'org.assertj:assertj-core'
-	testImplementation 'org.junit.jupiter:junit-jupiter-api'
 	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+    testImplementation 'org.junit.platform:junit-platform-launcher'
 }

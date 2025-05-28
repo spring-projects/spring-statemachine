@@ -48,16 +48,16 @@ The following example shows what happens:
 .Shell1
 [source,text]
 ----
-sm>sm start
+sm>start
 Entry state LOCKED
 State machine started
 
-sm>sm event COIN
+sm>event COIN
 Exit state LOCKED
 Entry state UNLOCKED
 Event COIN send
 
-sm>sm state
+sm>state
 UNLOCKED
 ----
 ====
@@ -73,10 +73,10 @@ The following example shows the state machine and its output:
 .Shell2
 [source,text]
 ----
-sm>sm start
+sm>start
 State machine started
 
-sm>sm state
+sm>state
 UNLOCKED
 ----
 ====
@@ -89,7 +89,7 @@ The following example shows the state machine command and its output:
 .Shell2
 [source,text]
 ----
-sm>sm event PUSH
+sm>event PUSH
 Exit state UNLOCKED
 Entry state LOCKED
 Event PUSH send

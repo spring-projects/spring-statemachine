@@ -12,7 +12,6 @@ dependencies {
 		api "log4j:log4j:$log4jVersion"
         api "jakarta.persistence:jakarta.persistence-api:$jakartaPersistenceVersion"
 		api "com.esotericsoftware:kryo-shaded:$kryoVersion"
-		api "org.springframework.shell:spring-shell:$springShellVersion"
 		api "org.eclipse.uml2:uml:$eclipseUml2UmlVersion"
 		api "org.eclipse.uml2:types:$eclipseUml2TypesVersion"
 		api "org.eclipse.uml2:common:$eclipseUml2CommonVersion"
@@ -24,5 +23,6 @@ dependencies {
 		api "org.awaitility:awaitility:$awaitilityVersion"
 		api "io.projectreactor.tools:blockhound:$reactorBlockHoundVersion"
 		api "io.projectreactor.tools:blockhound-junit-platform:$reactorBlockHoundVersion"
+		api "org.mongodb:mongodb-driver-sync:$mongoDriverSyncVersion"
 	}
 }
