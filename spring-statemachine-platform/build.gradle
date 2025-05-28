@@ -23,5 +23,6 @@ dependencies {
 		api "org.awaitility:awaitility:$awaitilityVersion"
 		api "io.projectreactor.tools:blockhound:$reactorBlockHoundVersion"
 		api "io.projectreactor.tools:blockhound-junit-platform:$reactorBlockHoundVersion"
+		api "org.mongodb:mongodb-driver-sync:$mongoDriverSyncVersion"
 	}
 }

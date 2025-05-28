@@ -16,6 +16,9 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-test-autoconfigure'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine'
     testImplementation 'org.junit.platform:junit-platform-launcher'
-	testRuntimeOnly 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	testRuntimeOnly('org.springframework.boot:spring-boot-starter-data-mongodb') {
+		exclude group: 'org.mongodb', module: 'mongodb-driver-sync'
+	}
+	testRuntimeOnly 'org.mongodb:mongodb-driver-sync'
 	testRuntimeOnly 'org.springframework.boot:spring-boot-starter-web'
 }
