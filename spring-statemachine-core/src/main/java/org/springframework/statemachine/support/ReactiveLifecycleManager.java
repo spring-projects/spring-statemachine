@@ -114,7 +114,7 @@ public class ReactiveLifecycleManager implements StateMachineReactiveLifecycle {
 	}
 
 	public boolean isRunning() {
-		return state.get() == LifecycleState.STARTED;
+		return state.get() == LifecycleState.STARTED || state.get() == LifecycleState.STARTING;
 	}
 
 	@Override
