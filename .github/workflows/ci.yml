@@ -16,18 +16,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4.2.2
-    - name: Setup JDK
-      uses: actions/setup-java@v4.7.1
+    - name: Spring Gradle Build Action
+      uses: spring-io/spring-gradle-build-action@v2
       with:
-        distribution: adopt
-        java-version: 17
-        cache: gradle
+        java-version: '17'
+        distribution: 'temurin'
     - name: Build with Gradle
       run: ./gradlew build
-      env:
-        GRADLE_ENTERPRISE_CACHE_USERNAME: ${{ secrets.GRADLE_ENTERPRISE_CACHE_USER }}
-        GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
-        GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
     - name: Tar Build Logs
       if: ${{ failure() }}
       run: |
@@ -51,47 +46,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4.2.2
-    - uses: actions/setup-java@v4.7.1
+    - name: Spring Gradle Build Action
+      uses: spring-io/spring-gradle-build-action@v2
       with:
-        distribution: adopt
-        java-version: 17
-        cache: gradle
-    - uses: jfrog/setup-jfrog-cli@v4.5.11
+        java-version: '17'
+        distribution: 'temurin'
+    - name: Build with Gradle
+      run: ./gradlew clean build -x test
+
+    - name: Deploy
+      uses: spring-io/artifactory-deploy-action@v0.0.2
       with:
-        version: 2.77.0
-      env:
-        JF_ENV_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
-
-    # setup non persistent config for jfrog gradle to use server defined in
-    # secret which points via virtual repo into spring local repo.
-    # modify default build name and number as we don't like how those
-    # gets used from action defaults.
-    - name: Configure JFrog Cli
-      env:
-        JFROG_CLI_SERVER_ID: "https://repo.spring.io"
-      run: |
-        jf gradlec \
-          --use-wrapper \
-          --uses-plugin \
-          --deploy-ivy-desc=false \
-          --server-id-resolve=https://repo.spring.io \
-          --server-id-deploy=https://repo.spring.io \
-          --repo-resolve=snapshot \
-          --repo-deploy=snapshot
-        echo JFROG_CLI_BUILD_NAME=spring-statemachine-main >> $GITHUB_ENV
-        echo JFROG_CLI_BUILD_NUMBER=$GITHUB_RUN_NUMBER >> $GITHUB_ENV
-
-    # as we already tested just build and publish
-    - name: Build and Publish Snapshot
-      run: |
-        jf gradle clean build -x test artifactoryPublish
-      env:
-        ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_PRIVATE_KEY }}
-        ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PASSPHRASE }}
-        GRADLE_ENTERPRISE_CACHE_USERNAME: ${{ secrets.GRADLE_ENTERPRISE_CACHE_USER }}
-        GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
-        GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
-    # publish build info so that we can see it in artifactory "builds"
-    - name: Publish Build Info
-      run: |
-        jf rt build-publish
+        uri: 'https://repo.spring.io'
+        username: ${{ secrets.ARTIFACTORY_USERNAME }}
+        password: ${{ secrets.ARTIFACTORY_PASSWORD }}
+        build-name: 'spring-statemachine-main'
+        repository: 'libs-snapshot-local'
+        folder: 'deployment-repository'
+        signing-key: ${{ secrets.GPG_PRIVATE_KEY }}
+        signing-passphrase: ${{ secrets.GPG_PASSPHRASE }}
