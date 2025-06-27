@@ -52,7 +52,7 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
     - name: Build with Gradle
-      run: ./gradlew clean build -x test
+      run: ./gradlew -Dmaven.repo.local=$(pwd)/deployment-repository -x test clean build publishToMavenLocal
 
     - name: Deploy
       uses: spring-io/artifactory-deploy-action@v0.0.2

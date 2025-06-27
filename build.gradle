@@ -1,6 +1,7 @@
 plugins {
 	id "base"
 	id 'org.springframework.statemachine.root'
+	id 'maven-publish'
 }
 
 description = 'Spring Statemachine'
