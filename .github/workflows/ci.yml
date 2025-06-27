@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4.2.2
     - name: Setup JDK
-      uses: actions/setup-java@v4.7.0
+      uses: actions/setup-java@v4.7.1
       with:
         distribution: adopt
         java-version: 17
@@ -40,7 +40,7 @@ jobs:
           */*/build/reports
     - name: Upload Build Logs
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4.6.0
+      uses: actions/upload-artifact@v4.6.2
       with:
         name: buildlogs
         path: build/buildlogs.tar.gz
@@ -51,14 +51,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4.2.2
-    - uses: actions/setup-java@v4.7.0
+    - uses: actions/setup-java@v4.7.1
       with:
         distribution: adopt
         java-version: 17
         cache: gradle
-    - uses: jfrog/setup-jfrog-cli@v4.5.6
+    - uses: jfrog/setup-jfrog-cli@v4.5.11
       with:
-        version: 2.73.2
+        version: 2.77.0
       env:
         JF_ENV_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
 
@@ -68,14 +68,14 @@ jobs:
     # gets used from action defaults.
     - name: Configure JFrog Cli
       env:
-        JFROG_CLI_SERVER_ID: "repo.spring.io"
+        JFROG_CLI_SERVER_ID: "https://repo.spring.io"
       run: |
         jf gradlec \
           --use-wrapper \
           --uses-plugin \
           --deploy-ivy-desc=false \
-          --server-id-resolve=repo.spring.io \
-          --server-id-deploy=repo.spring.io \
+          --server-id-resolve=https://repo.spring.io \
+          --server-id-deploy=https://repo.spring.io \
           --repo-resolve=snapshot \
           --repo-deploy=snapshot
         echo JFROG_CLI_BUILD_NAME=spring-statemachine-main >> $GITHUB_ENV
