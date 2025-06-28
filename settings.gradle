@@ -76,8 +76,6 @@ include 'spring-statemachine-data:jpa'
 include 'spring-statemachine-data:redis'
 include 'spring-statemachine-data:mongodb'
 
-include 'docs'
-
 rootProject.children.each { project ->
 	if (project.name == 'spring-statemachine-data') {
         project.name = 'spring-statemachine-data-common'
