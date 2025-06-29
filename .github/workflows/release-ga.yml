@@ -28,3 +28,4 @@ jobs:
         with:
           token: ${{ secrets.CENTRAL_TOKEN_PASSWORD }}
           token-name: ${{ secrets.CENTRAL_TOKEN_USERNAME }}
+          timeout: 60m
