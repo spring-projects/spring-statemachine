@@ -1,0 +1,37 @@
+name: Stage Release in Artifactory
+
+on:
+  workflow_dispatch:
+    inputs:
+      releaseVersion:
+        description: "Version to stage, e.g. 4.0.1"
+        required: true
+
+jobs:
+
+  stage-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4.2.2
+
+      - name: Spring Gradle Build Action
+        uses: spring-io/spring-gradle-build-action@v2
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build with Gradle
+        run: ./gradlew -Pversion=${{ github.event.inputs.releaseVersion }} -Dmaven.repo.local=$(pwd)/deployment-repository -x test build publishToMavenLocal
+
+      - name: Deploy to Artifactory
+        uses: spring-io/artifactory-deploy-action@v0.0.2
+        with:
+          uri: 'https://repo.spring.io'
+          username: ${{ secrets.ARTIFACTORY_USERNAME }}
+          password: ${{ secrets.ARTIFACTORY_PASSWORD }}
+          build-name: 'spring-statemachine-${{ github.event.inputs.releaseVersion }}'
+          repository: 'libs-staging-local'
+          folder: 'deployment-repository'
+          signing-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          signing-passphrase: ${{ secrets.GPG_PASSPHRASE }}
