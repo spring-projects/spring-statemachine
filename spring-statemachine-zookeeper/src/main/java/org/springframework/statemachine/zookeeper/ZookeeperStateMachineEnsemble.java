@@ -58,13 +58,13 @@ import reactor.core.publisher.Mono;
  */
 public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObjectSupport<S, E> {
 
-	private final static Log log = LogFactory.getLog(ZookeeperStateMachineEnsemble.class);
+	private static final Log log = LogFactory.getLog(ZookeeperStateMachineEnsemble.class);
 	private final String uuid = UUID.randomUUID().toString();
-	private final static int DEFAULT_LOGSIZE = 32;
-	private final static String PATH_CURRENT = "current";
-	private final static String PATH_LOG = "log";
-	private final static String PATH_MEMBERS = "members";
-	private final static String PATH_MUTEX = "mutex";
+	private static final int DEFAULT_LOGSIZE = 32;
+	private static final String PATH_CURRENT = "current";
+	private static final String PATH_LOG = "log";
+	private static final String PATH_MEMBERS = "members";
+	private static final String PATH_MUTEX = "mutex";
 	private final CuratorFramework curatorClient;
 	private final String baseDataPath;
 	private final String statePath;
@@ -121,7 +121,7 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 
 	@Override
 	protected Mono<Void> doPreStartReactively() {
-		return Mono.fromRunnable(() -> doStart());
+		return Mono.fromRunnable(this::doStart);
 	}
 
 	protected void doStart() {
@@ -149,7 +149,7 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 
 	@Override
 	protected Mono<Void> doPreStopReactively() {
-		return Mono.fromRunnable(() -> doStop());
+		return Mono.fromRunnable(this::doStop);
 	}
 
 	protected void doStop() {

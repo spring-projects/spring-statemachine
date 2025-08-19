@@ -42,7 +42,7 @@ import org.springframework.util.Assert;
  */
 public class DefaultStateMachineService<S, E> implements StateMachineService<S, E>, DisposableBean {
 
-	private final static Log log = LogFactory.getLog(DefaultStateMachineService.class);
+	private static final Log log = LogFactory.getLog(DefaultStateMachineService.class);
 	private final StateMachineFactory<S, E> stateMachineFactory;
 	private final Map<String, StateMachine<S, E>> machines = new HashMap<String, StateMachine<S, E>>();
 	private StateMachinePersist<S, E, String> stateMachinePersist;

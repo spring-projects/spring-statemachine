@@ -46,7 +46,7 @@ import org.springframework.util.Assert;
 public abstract class AbstractConfiguredAnnotationBuilder<O,I,B extends AnnotationBuilder<O>>
 		extends AbstractAnnotationBuilder<O> {
 
-	private final static Log log = LogFactory.getLog(AbstractConfiguredAnnotationBuilder.class);
+	private static final  Log log = LogFactory.getLog(AbstractConfiguredAnnotationBuilder.class);
 
 	/** Configurers which are added to this builder before the configure step */
 	private final LinkedHashMap<Class<? extends AnnotationConfigurer<O, B>>, List<AnnotationConfigurer<O, B>>> mainConfigurers =

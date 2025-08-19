@@ -236,9 +236,7 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 			}
 			return Mono.empty();
 		})
-		.then(Mono.<Void>fromRunnable(() -> {
-			completionListeners.clear();
-		}))
+		.then(Mono.<Void>fromRunnable(completionListeners::clear))
 		.then(cancelStateActions())
 		.then(Mono.<Void>fromRunnable(() -> {
 			stateListener.onExit(context);
@@ -360,12 +358,12 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 
 	@Override
 	protected Mono<Void> doPreStartReactively() {
-		return Mono.fromRunnable(() -> armTriggers());
+		return Mono.fromRunnable(this::armTriggers);
 	}
 
 	@Override
 	protected Mono<Void> doPreStopReactively() {
-		return Mono.fromRunnable(() -> disarmTriggers());
+		return Mono.fromRunnable(this::disarmTriggers);
 	}
 
 	/**
@@ -525,9 +523,7 @@ public abstract class AbstractState<S, E> extends LifecycleObjectSupport impleme
 				}
 			})
 			// we're done, clear state scheduled state actions
-			.thenEmpty(Mono.fromRunnable(() -> {
-				scheduledActions.clear();
-			}));
+			.thenEmpty(Mono.fromRunnable(scheduledActions::clear));
 	}
 
 	/**
