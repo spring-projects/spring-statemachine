@@ -93,11 +93,12 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 	private Many<TriggerQueueItem> triggerSink;
 	private Flux<Void> triggerFlux;
 	private Disposable triggerDisposable;
+	private final boolean executeActionsInSyncEnabled;
 
 	public ReactiveStateMachineExecutor(StateMachine<S, E> stateMachine, StateMachine<S, E> relayStateMachine,
 			Collection<Transition<S, E>> transitions, Map<Trigger<S, E>, Transition<S, E>> triggerToTransitionMap,
 			List<Transition<S, E>> triggerlessTransitions, Transition<S, E> initialTransition, Message<E> initialEvent,
-			TransitionConflictPolicy transitionConflictPolicy) {
+			TransitionConflictPolicy transitionConflictPolicy, boolean executeActionsInSyncEnabled) {
 		this.stateMachine = stateMachine;
 		this.relayStateMachine = relayStateMachine;
 		this.triggerToTransitionMap = triggerToTransitionMap;
@@ -109,6 +110,7 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 		this.transitionConflictPolicy = transitionConflictPolicy;
 		// anonymous transitions are fixed, sort those now
 		this.triggerlessTransitions.sort(transitionComparator);
+		this.executeActionsInSyncEnabled = executeActionsInSyncEnabled;
 		registerTriggerListener();
 	}
 
@@ -203,11 +205,12 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 
 		return messages
 			.flatMap(m -> handleEvent(m, callback, triggerCallback))
-			.flatMap(tqi -> Mono.fromRunnable(() -> {
-					triggerSink.emitNext(tqi, EmitFailureHandler.FAIL_FAST);
-				})
-				.retryWhen(Retry.fixedDelay(10, Duration.ofMillis(10))))
-			.then()
+				.flatMap(tqi -> executeActionsInSyncEnabled ? handleTrigger(tqi) : Mono.fromRunnable(() -> {
+									triggerSink.emitNext(tqi, EmitFailureHandler.FAIL_FAST);
+								})
+								.retryWhen(Retry.fixedDelay(10, Duration.ofMillis(10)))
+				)
+				.then()
 			.and(triggerCallbackSink);
 	}
 
@@ -457,12 +460,12 @@ public class ReactiveStateMachineExecutor<S, E> extends LifecycleObjectSupport i
 							log.debug("TimedTrigger triggered " + trigger);
 						}
 						Mono.just(new TriggerQueueItem(trigger, null, null, null))
-							.flatMap(tqi -> Mono.fromCallable(() -> {
-									triggerSink.emitNext(tqi, EmitFailureHandler.FAIL_FAST);
-									return null;
-								})
-								.retryWhen(Retry.fixedDelay(10, Duration.ofNanos(10))))
-							.subscribe();
+								.flatMap(tqi -> executeActionsInSyncEnabled ? handleTrigger(tqi) : Mono.fromRunnable(() -> {
+													triggerSink.emitNext(tqi, EmitFailureHandler.FAIL_FAST);
+												})
+												.retryWhen(Retry.fixedDelay(10, Duration.ofMillis(10)))
+								)
+								.subscribe();
 					}
 				});
 			}
