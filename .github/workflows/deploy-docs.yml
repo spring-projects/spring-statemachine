@@ -25,42 +25,23 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew -Pversion=$PROJECT_VERSION distZip
 
-    - name: Setup SSH key
+    - name: Deploy documentation
       if: ${{ github.repository == 'spring-projects/spring-statemachine' && github.ref_name == 'main' }}
       env:
         DOCS_SSH_KEY: ${{ secrets.DOCS_SSH_KEY }}
         DOCS_SSH_HOST_KEY: ${{ secrets.DOCS_SSH_HOST_KEY }}
+        DOCS_HOST: ${{ secrets.DOCS_HOST }}
+        DOCS_USERNAME: ${{ secrets.DOCS_USERNAME }}
+        DOCS_PATH: ${{ secrets.DOCS_PATH }}
       run: |
         mkdir "$HOME/.ssh"
         echo "$DOCS_SSH_KEY" > "$HOME/.ssh/key"
         chmod 600 "$HOME/.ssh/key"
         echo "$DOCS_SSH_HOST_KEY" > "$HOME/.ssh/known_hosts"
-
-    - name: Prepare release directory
-      if: ${{ github.repository == 'spring-projects/spring-statemachine' && github.ref_name == 'main' }}
-      env:
-        DOCS_HOST: ${{ secrets.DOCS_HOST }}
-        DOCS_USERNAME: ${{ secrets.DOCS_USERNAME }}
-      run: |
-        DOCS_PATH="/opt/www/domains/spring.io/docs/htdocs/spring-statemachine/docs"
         ssh -i $HOME/.ssh/key $DOCS_USERNAME@$DOCS_HOST "cd $DOCS_PATH && mkdir -p $PROJECT_VERSION"
-
-    - name: Deploy Java docs
-      if: ${{ github.repository == 'spring-projects/spring-statemachine' && github.ref_name == 'main' }}
-      env:
-        DOCS_HOST: ${{ secrets.DOCS_HOST }}
-        DOCS_USERNAME: ${{ secrets.DOCS_USERNAME }}
-      working-directory: build
-      run: |
-        DOCS_PATH="/opt/www/domains/spring.io/docs/htdocs/spring-statemachine/docs"
+        pushd build
         scp -i $HOME/.ssh/key -r api $DOCS_USERNAME@$DOCS_HOST:$DOCS_PATH/$PROJECT_VERSION
-
-    - name: Deploy reference docs
-      if: ${{ github.repository == 'spring-projects/spring-statemachine' && github.ref_name == 'main' }}
-      env:
-        DOCS_HOST: ${{ secrets.DOCS_HOST }}
-        DOCS_USERNAME: ${{ secrets.DOCS_USERNAME }}
-      working-directory: docs/build/docs
-      run: |
-        DOCS_PATH="/opt/www/domains/spring.io/docs/htdocs/spring-statemachine/docs"
+        popd
+        pushd docs/build/docs
         scp -i $HOME/.ssh/key -r asciidoc $DOCS_USERNAME@$DOCS_HOST:$DOCS_PATH/$PROJECT_VERSION/reference
+        popd

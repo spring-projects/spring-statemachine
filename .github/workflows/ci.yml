@@ -10,10 +10,8 @@ on:
 
 jobs:
 
-  # build and test, then upload logs if failure
   build:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4.2.2
     - name: Spring Gradle Build Action
@@ -22,39 +20,10 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
     - name: Build with Gradle
-      run: ./gradlew build
-    - name: Tar Build Logs
-      if: ${{ failure() }}
-      run: |
-        mkdir -p build
-        tar \
-          -zc \
-          --ignore-failed-read \
-          --file build/buildlogs.tar.gz \
-          */build/reports \
-          */*/build/reports
-    - name: Upload Build Logs
-      if: ${{ failure() }}
-      uses: actions/upload-artifact@v4.6.2
-      with:
-        name: buildlogs
-        path: build/buildlogs.tar.gz
+      run: ./gradlew -Dmaven.repo.local=$(pwd)/deployment-repository clean build distZip publishToMavenLocal
 
-  # if build job succeed, build without tests and publish
-  publish:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4.2.2
-    - name: Spring Gradle Build Action
-      uses: spring-io/spring-gradle-build-action@v2
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-    - name: Build with Gradle
-      run: ./gradlew -Dmaven.repo.local=$(pwd)/deployment-repository -x test clean build publishToMavenLocal
-
-    - name: Deploy
+    - name: Deploy artefacts
+      if: ${{ github.repository == 'spring-projects/spring-statemachine' && github.ref_name == 'main' }}
       uses: spring-io/artifactory-deploy-action@v0.0.2
       with:
         uri: 'https://repo.spring.io'
@@ -63,3 +32,27 @@ jobs:
         build-name: 'spring-statemachine-main'
         repository: 'libs-snapshot-local'
         folder: 'deployment-repository'
+
+    - name: Deploy documentation
+      if: ${{ github.repository == 'spring-projects/spring-statemachine' && github.ref_name == 'main' }}
+      env:
+        DOCS_SSH_KEY: ${{ secrets.DOCS_SSH_KEY }}
+        DOCS_SSH_HOST_KEY: ${{ secrets.DOCS_SSH_HOST_KEY }}
+        DOCS_HOST: ${{ secrets.DOCS_HOST }}
+        DOCS_USERNAME: ${{ secrets.DOCS_USERNAME }}
+        DOCS_PATH: ${{ secrets.DOCS_PATH }}
+      run: |
+        mkdir "$HOME/.ssh"
+        echo "$DOCS_SSH_KEY" > "$HOME/.ssh/key"
+        chmod 600 "$HOME/.ssh/key"
+        echo "$DOCS_SSH_HOST_KEY" > "$HOME/.ssh/known_hosts"
+        
+        PROJECT_VERSION=$(cat gradle.properties | grep "version=" | cut -d '=' -f 2)
+        ssh -i $HOME/.ssh/key $DOCS_USERNAME@$DOCS_HOST "cd $DOCS_PATH && mkdir -p $PROJECT_VERSION"
+        
+        pushd build
+        scp -i $HOME/.ssh/key -r api $DOCS_USERNAME@$DOCS_HOST:$DOCS_PATH/$PROJECT_VERSION
+        popd
+        pushd docs/build/docs
+        scp -i $HOME/.ssh/key -r asciidoc $DOCS_USERNAME@$DOCS_HOST:$DOCS_PATH/$PROJECT_VERSION/reference
+        popd
