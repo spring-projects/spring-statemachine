@@ -1,3 +1,9 @@
+= Project status: maintenance mode
+
+This project is not actively maintained anymore. Please refer to the https://spring.io/blog/2025/04/21/spring-cloud-data-flow-commercial[announcement].
+
+Spring Statemachine 4.0.x will be maintained with patch releases until it is out of OSS support, please check the https://spring.io/projects/spring-statemachine#support[support page] for more details about supported versions.
+
 = Spring Statemachine
 
 image:https://github.com/spring-projects/spring-statemachine/workflows/CI/badge.svg[link="https://github.com/spring-projects/spring-statemachine/actions"] (GitHub default) image:https://img.shields.io/badge/Revved%20up%20by-Develocity-06A0CE?logo=Gradle&labelColor=02303A["Revved up by Develocity", link="https://ge.spring.io/scans?&search.rootProjectNames=spring-statemachine"]
