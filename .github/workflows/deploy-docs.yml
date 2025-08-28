@@ -23,7 +23,7 @@ jobs:
       run: echo PROJECT_VERSION=${{ github.event.inputs.releaseVersion }} >> $GITHUB_ENV
 
     - name: Build with Gradle
-      run: ./gradlew -Pversion=$PROJECT_VERSION -x test build
+      run: ./gradlew -Pversion=$PROJECT_VERSION distZip
 
     - name: Setup SSH key
       if: ${{ github.repository == 'spring-projects/spring-statemachine' && github.ref_name == 'main' }}
