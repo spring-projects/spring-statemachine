@@ -1,0 +1,66 @@
+name: Deploy Docs
+
+on:
+  workflow_dispatch:
+    inputs:
+      releaseVersion:
+        description: "Release version (4.0.x)"
+        required: true
+
+jobs:
+
+  publish-docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4.2.2
+    - name: Spring Gradle Build Action
+      uses: spring-io/spring-gradle-build-action@v2
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Capture project version
+      run: echo PROJECT_VERSION=${{ github.event.inputs.releaseVersion }} >> $GITHUB_ENV
+
+    - name: Build with Gradle
+      run: ./gradlew -Pversion=$PROJECT_VERSION -x test build
+
+    - name: Setup SSH key
+      if: ${{ github.repository == 'spring-projects/spring-statemachine' && github.ref_name == 'main' }}
+      env:
+        DOCS_SSH_KEY: ${{ secrets.DOCS_SSH_KEY }}
+        DOCS_SSH_HOST_KEY: ${{ secrets.DOCS_SSH_HOST_KEY }}
+      run: |
+        mkdir "$HOME/.ssh"
+        echo "$DOCS_SSH_KEY" > "$HOME/.ssh/key"
+        chmod 600 "$HOME/.ssh/key"
+        echo "$DOCS_SSH_HOST_KEY" > "$HOME/.ssh/known_hosts"
+
+    - name: Prepare release directory
+      if: ${{ github.repository == 'spring-projects/spring-statemachine' && github.ref_name == 'main' }}
+      env:
+        DOCS_HOST: ${{ secrets.DOCS_HOST }}
+        DOCS_USERNAME: ${{ secrets.DOCS_USERNAME }}
+      run: |
+        DOCS_PATH="/opt/www/domains/spring.io/docs/htdocs/spring-statemachine/docs"
+        ssh -i $HOME/.ssh/key $DOCS_USERNAME@$DOCS_HOST "cd $DOCS_PATH && mkdir -p $PROJECT_VERSION"
+
+    - name: Deploy Java docs
+      if: ${{ github.repository == 'spring-projects/spring-statemachine' && github.ref_name == 'main' }}
+      env:
+        DOCS_HOST: ${{ secrets.DOCS_HOST }}
+        DOCS_USERNAME: ${{ secrets.DOCS_USERNAME }}
+      working-directory: build
+      run: |
+        DOCS_PATH="/opt/www/domains/spring.io/docs/htdocs/spring-statemachine/docs"
+        scp -i $HOME/.ssh/key -r api $DOCS_USERNAME@$DOCS_HOST:$DOCS_PATH/$PROJECT_VERSION
+
+    - name: Deploy reference docs
+      if: ${{ github.repository == 'spring-projects/spring-statemachine' && github.ref_name == 'main' }}
+      env:
+        DOCS_HOST: ${{ secrets.DOCS_HOST }}
+        DOCS_USERNAME: ${{ secrets.DOCS_USERNAME }}
+      working-directory: docs/build/docs
+      run: |
+        DOCS_PATH="/opt/www/domains/spring.io/docs/htdocs/spring-statemachine/docs"
+        scp -i $HOME/.ssh/key -r asciidoc $DOCS_USERNAME@$DOCS_HOST:$DOCS_PATH/$PROJECT_VERSION/reference

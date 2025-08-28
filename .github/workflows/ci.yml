@@ -63,5 +63,3 @@ jobs:
         build-name: 'spring-statemachine-main'
         repository: 'libs-snapshot-local'
         folder: 'deployment-repository'
-        signing-key: ${{ secrets.GPG_PRIVATE_KEY }}
-        signing-passphrase: ${{ secrets.GPG_PASSPHRASE }}

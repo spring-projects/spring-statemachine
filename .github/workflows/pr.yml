@@ -9,21 +9,17 @@ jobs:
 
   # build and test, then upload logs if failure
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        java: [ 17 ]
-      fail-fast: false
+    runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup JDK
-      uses: actions/setup-java@v1
+    - uses: actions/checkout@v4.2.2
+    - name: Spring Gradle Build Action
+      uses: spring-io/spring-gradle-build-action@v2
       with:
-        java-version: ${{ matrix.java }}
+        java-version: '17'
+        distribution: 'temurin'
     - name: Build with Gradle
-      run: ./gradlew clean build
+      run: ./gradlew build
     - name: Tar Build Logs
       if: ${{ failure() }}
       run: |
@@ -36,7 +32,7 @@ jobs:
           */*/build/reports
     - name: Upload Build Logs
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4.4.3
+      uses: actions/upload-artifact@v4.6.2
       with:
         name: buildlogs
         path: build/buildlogs.tar.gz
