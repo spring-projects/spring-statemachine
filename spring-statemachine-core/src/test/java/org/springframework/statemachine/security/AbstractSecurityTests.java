@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2020 the original author or authors.
+ * Copyright 2015-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,12 @@ package org.springframework.statemachine.security;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeAll;
 import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeResultAsDenied;
+import static org.springframework.statemachine.TestUtils.doSendEventAndConsumeResultAsDeniedWithAccessDeniedException;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.statemachine.AbstractStateMachineTests;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineBuilder;
@@ -53,7 +55,7 @@ public abstract class AbstractSecurityTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds()).containsOnly(States.S0);
 
 		listener.reset(1);
-		doSendEventAndConsumeAll(machine, Events.A);
+		doSendEventAndConsumeResultAsDeniedWithAccessDeniedException(machine, Events.A);
 		assertThat(listener.stateChangedLatch.await(2, TimeUnit.SECONDS)).isFalse();
 		assertThat(listener.stateChangedCount).isZero();
 		assertThat(machine.getState().getIds()).containsOnly(States.S0);
