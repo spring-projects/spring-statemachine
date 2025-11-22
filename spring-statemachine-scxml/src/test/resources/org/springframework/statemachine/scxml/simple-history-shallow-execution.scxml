@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="S1">
+  <state id="S1">
+    <transition event="E1" target="S2"/>
+    <transition event="E4" target="S2"/>
+  </state>
+  <state id="S2">
+    <initial>
+      <transition target="S21"/>
+    </initial>
+    <history id="History" type="shallow">
+      <transition target="S21"/>
+    </history>
+    <state id="S21">
+      <transition event="E2" target="S22"/>
+    </state>
+    <state id="S22"/>
+    <transition event="E3" target="S1"/>
+  </state>
+</scxml>
+

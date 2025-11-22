@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="SI">
+  <state id="SI">
+    <transition event="E1" target="ParallelState"/>
+  </state>
+  <parallel id="ParallelState">
+    <state id="S2">
+      <initial>
+        <transition target="S20"/>
+      </initial>
+      <state id="S20">
+        <transition event="E2" target="S21"/>
+      </state>
+      <state id="S21"/>
+    </state>
+    <state id="S3">
+      <initial>
+        <transition target="S30"/>
+      </initial>
+      <state id="S30">
+        <transition event="E3" target="SF"/>
+      </state>
+    </state>
+  </parallel>
+  <final id="SF"/>
+</scxml>
+

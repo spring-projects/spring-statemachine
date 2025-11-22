@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="S1">
+  <state id="S1">
+    <transition event="E1" target="choice1"/>
+  </state>
+  <state id="choice1">
+    <transition cond="bean:s2Guard" target="S2"/>
+    <transition cond="bean:s3Guard" target="S3"/>
+    <transition target="S4"/>
+  </state>
+  <state id="S2"/>
+  <state id="S3"/>
+  <state id="S4"/>
+</scxml>
+

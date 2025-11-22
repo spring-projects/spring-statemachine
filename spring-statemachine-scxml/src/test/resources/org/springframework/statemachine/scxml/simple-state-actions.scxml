@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="S1">
+  <state id="S1">
+    <invoke bean="stateAction"/>
+    <transition event="E1" target="S2"/>
+  </state>
+  <state id="S2"/>
+</scxml>
+
