@@ -38,7 +38,7 @@ import reactor.core.publisher.Mono;
  */
 public class ChoicePseudoState<S, E> implements PseudoState<S, E> {
 
-	private final static Log log = LogFactory.getLog(ChoicePseudoState.class);
+	private static final Log log = LogFactory.getLog(ChoicePseudoState.class);
 	private final List<ChoiceStateData<S, E>> choices;
 
 	/**

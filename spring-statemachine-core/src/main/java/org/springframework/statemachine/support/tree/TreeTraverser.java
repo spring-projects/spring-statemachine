@@ -32,12 +32,7 @@ public abstract class TreeTraverser<T> {
 
 	public final Iterable<T> postOrderTraversal(final T root) {
 		Assert.notNull(root, "root cannot be null");
-		return new Iterable<T>() {
-			@Override
-			public Iterator<T> iterator() {
-				return postOrderIterator(root);
-			}
-		};
+		return () -> postOrderIterator(root);
 	}
 
 	Iterator<T> postOrderIterator(T root) {
