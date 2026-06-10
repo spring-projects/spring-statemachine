@@ -343,6 +343,22 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 		assertThat(machine.getState().getIds()).containsOnly(SuperState.INITIAL);
 	}
 
+	@Test
+	public void testResetAndStartFromCustomState() {
+		context.register(Config8.class);
+		context.refresh();
+
+		StateMachine<MyState, MyEvent> machine = resolveMachine(context);
+
+		DefaultStateMachineContext<MyState, MyEvent> stateMachineContext = new DefaultStateMachineContext<MyState, MyEvent>(
+				States8.S8_2, null, null, null);
+
+		machine.getStateMachineAccessor().doWithAllRegions(function -> function.resetStateMachineReactively(stateMachineContext).block());
+
+		doStartAndAssert(machine);
+		assertThat(machine.getState().getIds()).containsOnly(States8.S8_5);
+	}
+
 	@Configuration
 	@EnableStateMachine
 	static class Config1 extends EnumStateMachineConfigurerAdapter<States, Events> {
@@ -825,4 +841,43 @@ public class StateMachineResetTests extends AbstractStateMachineTests {
 		}
 
 	}
+
+	@Configuration
+	@EnableStateMachine
+	static class Config8 extends EnumStateMachineConfigurerAdapter<States8, MyEvent> {
+		@Override
+		public void configure(StateMachineStateConfigurer<States8, MyEvent> states)
+				throws Exception {
+			states
+					.withStates()
+					.initial(States8.S8_1)
+					.state(States8.S8_2)
+					.state(States8.S8_3)
+					.state(States8.S8_4)
+					.end(States8.S8_5)
+			;
+		}
+
+		@Override
+		public void configure(final StateMachineTransitionConfigurer<States8, MyEvent> transitions) throws Exception {
+			transitions
+					.withExternal()
+					.source(States8.S8_1).target(States8.S8_2)
+					.and()
+					.withExternal()
+					.source(States8.S8_2).target(States8.S8_3)
+					.and()
+					.withExternal()
+					.source(States8.S8_3).target(States8.S8_4)
+					.and()
+					.withExternal()
+					.source(States8.S8_4).target(States8.S8_5)
+			;
+		}
+	}
+
+	public enum States8 implements MyState {
+		S8_1, S8_2, S8_3, S8_4, S8_5
+	}
+
 }
