@@ -64,7 +64,7 @@ class RootPlugin implements Plugin<Project> {
 			p.getPlugins().withType(AsciidoctorJPlugin.class, a -> {
 				p.getTasksByName("asciidoctor", false).forEach(t -> {
 					zipTask.dependsOn(t);
-				});;
+				});
 			});
 		});
 
