@@ -78,3 +78,11 @@ through a process of migrating into `3.x` for cases we're not handling internall
 
 At this point most of a documentation has been changed to showcase reactive interfaces
 while we still keep some notes around to users still using old blocking methods.
+
+== In 4.0
+
+Spring Statemachine 4.0.x requires Java 17+ and focuses on the support of Spring Boot 3.5.x.
+
+This release includes several dependencies and documentation updates, as well as some bug fixes.
+
+The samples have been updated, and the dependency to Spring Shell has been removed from the project.
