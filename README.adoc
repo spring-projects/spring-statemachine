@@ -47,12 +47,11 @@ invoked from the root of the source tree and serves as
 a cross-platform, self-contained bootstrap mechanism for the build.
 
 === Prerequisites
-https://help.github.com/set-up-git-redirect[Git] and the
-https://www.oracle.com/technetwork/java/javase/downloads[JDK8 build].
+https://help.github.com/set-up-git-redirect[Git] and https://www.oracle.com/technetwork/java/javase/downloads[JDK17+].
 
 Be sure that your `JAVA_HOME` environment variable points to the
-`jdk` folder extracted from the JDK download. While build requires
-`JDK8`, created artifacts are `JDK7` compatible.
+`jdk` folder extracted from the JDK download. The build requires
+`JDK17+`.
 
 === Check out sources
 [indent=0]
