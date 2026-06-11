@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 the original author or authors.
+ * Copyright 2017-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package org.springframework.statemachine.data.redis;
 
+import java.util.function.Consumer;
+
+import com.esotericsoftware.kryo.Kryo;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.data.RepositoryStateMachinePersist;
 import org.springframework.statemachine.data.StateMachineRepository;
@@ -39,6 +42,21 @@ public class RedisRepositoryStateMachinePersist<S, E> extends RepositoryStateMac
 	 */
 	public RedisRepositoryStateMachinePersist(RedisStateMachineRepository redisStateMachineRepository) {
 		super();
+		this.redisStateMachineRepository = redisStateMachineRepository;
+	}
+
+	/**
+	 * Instantiates a new redis repository state machine persist with a Kryo
+	 * customizer for registering application-specific types.
+	 *
+	 * @param redisStateMachineRepository the redis state machine repository
+	 * @param kryoCustomizer callback applied to each new Kryo instance after
+	 *        the framework defaults; use it to register state/event enums
+	 * @since 4.0.2
+	 */
+	public RedisRepositoryStateMachinePersist(RedisStateMachineRepository redisStateMachineRepository,
+			Consumer<Kryo> kryoCustomizer) {
+		super(kryoCustomizer);
 		this.redisStateMachineRepository = redisStateMachineRepository;
 	}
 

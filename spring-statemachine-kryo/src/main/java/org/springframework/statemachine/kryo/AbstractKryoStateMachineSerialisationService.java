@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 the original author or authors.
+ * Copyright 2017-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,7 @@ public abstract class AbstractKryoStateMachineSerialisationService<S, E> impleme
 				// doesn't match. for now just use below trick before we try
 				// to go fully on beans and get a bean class loader.
 				kryo.setClassLoader(ClassUtils.getDefaultClassLoader());
+				KryoStateMachineSerialisationDefaults.registerDefaults(kryo);
 				configureKryoInstance(kryo);
 				return kryo;
 			}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 the original author or authors.
+ * Copyright 2017-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.springframework.statemachine.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,6 +27,8 @@ import org.springframework.statemachine.kryo.KryoStateMachineSerialisationServic
 import org.springframework.statemachine.service.StateMachineSerialisationService;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.util.Assert;
+
+import com.esotericsoftware.kryo.Kryo;
 
 /**
  * Base implementation of a {@link StateMachinePersist} using Spring Data Repositories.
@@ -42,10 +45,33 @@ public abstract class RepositoryStateMachinePersist<M extends RepositoryStateMac
 	private final StateMachineSerialisationService<S, E> serialisationService;
 
 	/**
-	 * Instantiates a new repository state machine persist.
+	 * Instantiates a new repository state machine persist using the default
+	 * {@link KryoStateMachineSerialisationService} with no extra registrations.
 	 */
 	protected RepositoryStateMachinePersist() {
 		this.serialisationService = new KryoStateMachineSerialisationService<S, E>();
+	}
+
+	/**
+	 * Instantiates a new repository state machine persist using a
+	 * {@link KryoStateMachineSerialisationService} pre-configured with the
+	 * supplied {@code kryoCustomizer}.
+	 * <p>
+	 * Use this constructor to register application-specific state and event
+	 * types (typically enums) with Kryo's registration-required allowlist:
+	 * <pre>{@code
+	 * new JpaRepositoryStateMachinePersist<>(repo, kryo -> {
+	 *     kryo.register(MyStates.class);
+	 *     kryo.register(MyEvents.class);
+	 * })
+	 * }</pre>
+	 *
+	 * @param kryoCustomizer callback applied to each new Kryo instance;
+	 *        may be {@code null}
+	 * @since 4.0.2
+	 */
+	protected RepositoryStateMachinePersist(Consumer<Kryo> kryoCustomizer) {
+		this.serialisationService = new KryoStateMachineSerialisationService<S, E>(kryoCustomizer);
 	}
 
 	/**

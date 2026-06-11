@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,17 @@ package org.springframework.statemachine.zookeeper;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Collection;
-import java.util.UUID;
+import java.util.function.Consumer;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.transaction.CuratorTransaction;
 import org.apache.curator.framework.api.transaction.CuratorTransactionFinal;
 import org.apache.curator.framework.api.transaction.CuratorTransactionResult;
 import org.apache.zookeeper.data.Stat;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.StateMachineException;
 import org.springframework.statemachine.StateMachinePersist;
-import org.springframework.statemachine.kryo.MessageHeadersSerializer;
-import org.springframework.statemachine.kryo.StateMachineContextSerializer;
-import org.springframework.statemachine.kryo.UUIDSerializer;
+import org.springframework.statemachine.kryo.KryoStateMachineSerialisationDefaults;
 import org.springframework.util.Assert;
 
 import com.esotericsoftware.kryo.Kryo;
@@ -41,6 +38,14 @@ import com.esotericsoftware.kryo.io.Output;
 /**
  * {@link StateMachinePersist} using zookeeper as a storage and
  *  kroy libraries as a backing serialization technique.
+ * <p>
+ * Persisted bytes are deserialised through Kryo with the
+ * {@linkplain KryoStateMachineSerialisationDefaults safe-by-default class
+ * allowlist} applied. Applications that use custom state or event types
+ * (typically enums) must register those types via the
+ * {@link #ZookeeperStateMachinePersist(CuratorFramework, String, String, int, Consumer)}
+ * constructor's {@code kryoCustomizer} parameter; otherwise Kryo will reject
+ * them with {@code IllegalArgumentException} ("Class is not registered").
  *
  * @author Janne Valkealahti
  *
@@ -51,18 +56,7 @@ public class ZookeeperStateMachinePersist<S, E> implements StateMachinePersist<S
 
 	// kryo is not a thread safe so using thread local, also
 	// adding custom serializer for state machine context.
-	private static final ThreadLocal<Kryo> kryoThreadLocal = new ThreadLocal<Kryo>() {
-
-		@SuppressWarnings("rawtypes")
-		@Override
-		protected Kryo initialValue() {
-			Kryo kryo = new Kryo();
-			kryo.addDefaultSerializer(StateMachineContext.class, new StateMachineContextSerializer());
-			kryo.addDefaultSerializer(MessageHeaders.class, new MessageHeadersSerializer());
-			kryo.addDefaultSerializer(UUID.class, new UUIDSerializer());
-			return kryo;
-		}
-	};
+	private final ThreadLocal<Kryo> kryoThreadLocal;
 
 	private final CuratorFramework curatorClient;
 	private final String path;
@@ -76,7 +70,7 @@ public class ZookeeperStateMachinePersist<S, E> implements StateMachinePersist<S
 	 * @param path the path for persistent state
 	 */
 	public ZookeeperStateMachinePersist(CuratorFramework curatorClient, String path) {
-		this(curatorClient, path, null, 0);
+		this(curatorClient, path, null, 0, null);
 	}
 
 	/**
@@ -88,6 +82,25 @@ public class ZookeeperStateMachinePersist<S, E> implements StateMachinePersist<S
 	 * @param logSize the log size
 	 */
 	public ZookeeperStateMachinePersist(CuratorFramework curatorClient, String path, String logPath, int logSize) {
+		this(curatorClient, path, logPath, logSize, null);
+	}
+
+	/**
+	 * Instantiates a new zookeeper state machine persist with a custom Kryo
+	 * configurer for application-specific allowlist registrations.
+	 *
+	 * @param curatorClient the curator client
+	 * @param path the path
+	 * @param logPath the log path (may be {@code null})
+	 * @param logSize the log size (must be a positive power of two when {@code logPath} is set)
+	 * @param kryoCustomizer optional callback invoked once per Kryo instance after the
+	 *        framework's default registrations are applied. Use this to register
+	 *        application-specific state and event types (typically enums) so that they
+	 *        are accepted by the allowlist. May be {@code null}.
+	 * @since 4.0.2
+	 */
+	public ZookeeperStateMachinePersist(CuratorFramework curatorClient, String path, String logPath, int logSize,
+			Consumer<Kryo> kryoCustomizer) {
 		if (logPath != null) {
 			Assert.state(logSize > 0 && ((logSize & -logSize) == logSize), "Log size must be positive and power of two");
 		}
@@ -95,6 +108,14 @@ public class ZookeeperStateMachinePersist<S, E> implements StateMachinePersist<S
 		this.path = path;
 		this.logPath = logPath;
 		this.logSize = logSize;
+		this.kryoThreadLocal = ThreadLocal.withInitial(() -> {
+			Kryo kryo = new Kryo();
+			KryoStateMachineSerialisationDefaults.registerDefaults(kryo);
+			if (kryoCustomizer != null) {
+				kryoCustomizer.accept(kryo);
+			}
+			return kryo;
+		});
 	}
 
 	@Override

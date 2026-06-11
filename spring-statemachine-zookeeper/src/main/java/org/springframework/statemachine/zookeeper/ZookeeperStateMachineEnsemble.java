@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,9 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
+import com.esotericsoftware.kryo.Kryo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.curator.framework.CuratorFramework;
@@ -102,6 +104,25 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 	 * @param logSize the log size
 	 */
 	public ZookeeperStateMachineEnsemble(CuratorFramework curatorClient, String basePath, boolean cleanState, int logSize) {
+		this(curatorClient, basePath, cleanState, logSize, null);
+	}
+
+	/**
+	 * Instantiates a new zookeeper state machine ensemble with a custom Kryo
+	 * configurer for application-specific allowlist registrations.
+	 *
+	 * @param curatorClient the curator client
+	 * @param basePath the base zookeeper path
+	 * @param cleanState if true clean existing state
+	 * @param logSize the log size
+	 * @param kryoCustomizer optional callback invoked once per Kryo instance after the
+	 *        framework's default registrations are applied. Use this to register
+	 *        application-specific state and event types (typically enums) so that they
+	 *        are accepted by the allowlist. May be {@code null}.
+	 * @since 4.0.2
+	 */
+	public ZookeeperStateMachineEnsemble(CuratorFramework curatorClient, String basePath, boolean cleanState, int logSize,
+			Consumer<Kryo> kryoCustomizer) {
 		this.curatorClient = curatorClient;
 		this.cleanState = cleanState;
 		this.logSize = logSize;
@@ -110,7 +131,7 @@ public class ZookeeperStateMachineEnsemble<S, E> extends StateMachineEnsembleObj
 		this.logPath = baseDataPath + "/" + PATH_LOG;
 		this.memberPath = basePath + "/" + PATH_MEMBERS;
 		this.mutexPath = basePath + "/" + PATH_MUTEX;
-		this.persist = new ZookeeperStateMachinePersist<S, E>(curatorClient, statePath, logPath, logSize);
+		this.persist = new ZookeeperStateMachinePersist<S, E>(curatorClient, statePath, logPath, logSize, kryoCustomizer);
 		setAutoStartup(true);
 	}
 

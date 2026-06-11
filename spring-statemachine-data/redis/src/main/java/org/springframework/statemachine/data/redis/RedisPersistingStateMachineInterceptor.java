@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 the original author or authors.
+ * Copyright 2017-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package org.springframework.statemachine.data.redis;
 
+import java.util.function.Consumer;
+
+import com.esotericsoftware.kryo.Kryo;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.persist.AbstractPersistingStateMachineInterceptor;
 import org.springframework.statemachine.persist.StateMachineRuntimePersister;
@@ -43,6 +46,21 @@ public class RedisPersistingStateMachineInterceptor<S, E, T> extends AbstractPer
 	public RedisPersistingStateMachineInterceptor(RedisStateMachineRepository redisStateMachineRepository) {
 		Assert.notNull(redisStateMachineRepository, "'redisStateMachineRepository' must be set");
 		this.persist = new RedisRepositoryStateMachinePersist<S, E>(redisStateMachineRepository);
+	}
+
+	/**
+	 * Instantiates a new redis persisting state machine interceptor with a
+	 * Kryo customizer for registering application-specific state and event types.
+	 *
+	 * @param redisStateMachineRepository the redis state machine repository
+	 * @param kryoCustomizer callback applied to each new Kryo instance after
+	 *        the framework defaults; use it to register state/event enums
+	 * @since 4.0.2
+	 */
+	public RedisPersistingStateMachineInterceptor(RedisStateMachineRepository redisStateMachineRepository,
+			Consumer<Kryo> kryoCustomizer) {
+		Assert.notNull(redisStateMachineRepository, "'redisStateMachineRepository' must be set");
+		this.persist = new RedisRepositoryStateMachinePersist<S, E>(redisStateMachineRepository, kryoCustomizer);
 	}
 
 	/**

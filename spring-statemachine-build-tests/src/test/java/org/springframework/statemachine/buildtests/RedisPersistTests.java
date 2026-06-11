@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 the original author or authors.
+ * Copyright 2017-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,7 +110,12 @@ public class RedisPersistTests extends AbstractBuildTests {
 		@Bean
 		public StateMachinePersist<TestStates, TestEvents, String> stateMachinePersist(RedisConnectionFactory connectionFactory) {
 			RedisStateMachineContextRepository<TestStates, TestEvents> repository =
-					new RedisStateMachineContextRepository<TestStates, TestEvents>(connectionFactory);
+					new RedisStateMachineContextRepository<TestStates, TestEvents>(connectionFactory,
+							RedisStateMachineContextRepository.DEFAULT_KEY_NAMESPACE,
+							kryo -> {
+								kryo.register(TestStates.class);
+								kryo.register(TestEvents.class);
+							});
 			return new RepositoryStateMachinePersist<TestStates, TestEvents>(repository);
 		}
 

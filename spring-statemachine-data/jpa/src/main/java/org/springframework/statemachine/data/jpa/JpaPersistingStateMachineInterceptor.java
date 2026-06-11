@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package org.springframework.statemachine.data.jpa;
 
+import java.util.function.Consumer;
+
+import com.esotericsoftware.kryo.Kryo;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.persist.AbstractPersistingStateMachineInterceptor;
 import org.springframework.statemachine.persist.StateMachineRuntimePersister;
@@ -43,6 +46,21 @@ public class JpaPersistingStateMachineInterceptor<S, E, T> extends AbstractPersi
 	public JpaPersistingStateMachineInterceptor(JpaStateMachineRepository jpaStateMachineRepository) {
 		Assert.notNull(jpaStateMachineRepository, "'jpaStateMachineRepository' must be set");
 		this.persist = new JpaRepositoryStateMachinePersist<S, E>(jpaStateMachineRepository);
+	}
+
+	/**
+	 * Instantiates a new jpa persisting state machine interceptor with a Kryo
+	 * customizer for registering application-specific state and event types.
+	 *
+	 * @param jpaStateMachineRepository the jpa state machine repository
+	 * @param kryoCustomizer callback applied to each new Kryo instance after
+	 *        the framework defaults; use it to register state/event enums
+	 * @since 4.0.2
+	 */
+	public JpaPersistingStateMachineInterceptor(JpaStateMachineRepository jpaStateMachineRepository,
+			Consumer<Kryo> kryoCustomizer) {
+		Assert.notNull(jpaStateMachineRepository, "'jpaStateMachineRepository' must be set");
+		this.persist = new JpaRepositoryStateMachinePersist<S, E>(jpaStateMachineRepository, kryoCustomizer);
 	}
 
 	/**

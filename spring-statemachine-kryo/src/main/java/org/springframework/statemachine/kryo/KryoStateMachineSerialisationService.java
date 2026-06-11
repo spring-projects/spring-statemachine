@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,8 @@
  */
 package org.springframework.statemachine.kryo;
 
-import java.util.UUID;
+import java.util.function.Consumer;
 
-import org.springframework.messaging.MessageHeaders;
-import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.service.StateMachineSerialisationService;
 
 import com.esotericsoftware.kryo.Kryo;
@@ -35,6 +33,41 @@ import com.esotericsoftware.kryo.io.Output;
  */
 public class KryoStateMachineSerialisationService<S, E> extends AbstractKryoStateMachineSerialisationService<S, E> {
 
+	private final Consumer<Kryo> kryoCustomizer;
+
+	/**
+	 * Instantiates a new kryo state machine serialisation service with no
+	 * extra class registrations beyond the framework defaults.
+	 */
+	public KryoStateMachineSerialisationService() {
+		this.kryoCustomizer = null;
+	}
+
+	/**
+	 * Instantiates a new kryo state machine serialisation service with an
+	 * application-supplied Kryo customizer.
+	 * <p>
+	 * The customizer is invoked once per Kryo instance <em>after</em> the
+	 * framework's safe-by-default registrations have been applied (via
+	 * {@link KryoStateMachineSerialisationDefaults#registerDefaults(Kryo)}).
+	 * Use it to register application-specific types — typically the {@code S}
+	 * and {@code E} enums used by the state machine — so they are accepted by
+	 * the registration-required allowlist:
+	 * <pre>{@code
+	 * new KryoStateMachineSerialisationService<>(kryo -> {
+	 *     kryo.register(MyStates.class);
+	 *     kryo.register(MyEvents.class);
+	 * })
+	 * }</pre>
+	 *
+	 * @param kryoCustomizer callback applied to each new Kryo instance;
+	 *        may be {@code null}
+	 * @since 4.0.2
+	 */
+	public KryoStateMachineSerialisationService(Consumer<Kryo> kryoCustomizer) {
+		this.kryoCustomizer = kryoCustomizer;
+	}
+
 	@Override
 	protected void doEncode(Kryo kryo, Object object, Output output) {
 		kryo.writeObject(output, object);
@@ -45,10 +78,15 @@ public class KryoStateMachineSerialisationService<S, E> extends AbstractKryoStat
 		return kryo.readObject(input, type);
 	}
 
+	/**
+	 * Applies the optional {@link #kryoCustomizer} supplied at construction
+	 * time. Subclasses may override this to register additional types on top
+	 * of the framework defaults and the customizer.
+	 */
 	@Override
 	protected void configureKryoInstance(Kryo kryo) {
-		kryo.addDefaultSerializer(StateMachineContext.class, new StateMachineContextSerializer<S, E>());
-		kryo.addDefaultSerializer(MessageHeaders.class, new MessageHeadersSerializer());
-		kryo.addDefaultSerializer(UUID.class, new UUIDSerializer());
+		if (kryoCustomizer != null) {
+			kryoCustomizer.accept(kryo);
+		}
 	}
 }
