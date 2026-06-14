@@ -49,6 +49,7 @@ public class DefaultConfigurationConfigurer<S, E>
 	private Long stateDoActionPolicyTimeout;
 	private RegionExecutionPolicy regionExecutionPolicy;
 	private final List<StateMachineListener<S, E>> listeners = new ArrayList<StateMachineListener<S, E>>();
+	private boolean executeActionsInSyncEnabled = false;
 
 	@Override
 	public void configure(StateMachineConfigurationBuilder<S, E> builder) throws Exception {
@@ -59,6 +60,7 @@ public class DefaultConfigurationConfigurer<S, E>
 		builder.setTransitionConflictPolicy(transitionConflightPolicy);
 		builder.setStateDoActionPolicy(stateDoActionPolicy, stateDoActionPolicyTimeout);
 		builder.setRegionExecutionPolicy(regionExecutionPolicy);
+		builder.setExecuteActionsInSyncEnabled(executeActionsInSyncEnabled);
 	}
 
 	@Override
@@ -106,6 +108,13 @@ public class DefaultConfigurationConfigurer<S, E>
 	@Override
 	public ConfigurationConfigurer<S, E> regionExecutionPolicy(RegionExecutionPolicy regionExecutionPolicy) {
 		this.regionExecutionPolicy = regionExecutionPolicy;
+		return this;
+	}
+
+
+	@Override
+	public ConfigurationConfigurer<S, E> executeActionsInSyncEnabled(boolean executeActionsInSync) {
+		this.executeActionsInSyncEnabled = executeActionsInSync;
 		return this;
 	}
 }

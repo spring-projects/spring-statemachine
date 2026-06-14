@@ -79,6 +79,7 @@ public class StateMachineConfigurationBuilder<S, E>
 	private StateMachineMonitor<S, E> stateMachineMonitor;
 	private final List<StateMachineInterceptor<S, E>> interceptors = new ArrayList<StateMachineInterceptor<S, E>>();
 	private StateMachineRuntimePersister<S, E, ?> persister;
+	private boolean executeActionsInSyncEnabled;
 
 	/**
 	 * Instantiates a new state machine configuration builder.
@@ -149,7 +150,9 @@ public class StateMachineConfigurationBuilder<S, E>
 		return new ConfigurationData<S, E>(beanFactory, autoStart, ensemble, listeners, securityEnabled,
 				transitionSecurityAccessDecisionManager, eventSecurityAccessDecisionManager, eventSecurityRule,
 				transitionSecurityRule, verifierEnabled, verifier, machineId, stateMachineMonitor, interceptorsCopy,
-				transitionConflictPolicy, stateDoActionPolicy, stateDoActionPolicyTimeout, regionExecutionPolicy);
+				transitionConflictPolicy, stateDoActionPolicy, stateDoActionPolicyTimeout, regionExecutionPolicy,
+				executeActionsInSyncEnabled);
+
 	}
 
 	/**
@@ -306,5 +309,13 @@ public class StateMachineConfigurationBuilder<S, E>
 	 */
 	public void setRegionExecutionPolicy(RegionExecutionPolicy regionExecutionPolicy) {
 		this.regionExecutionPolicy = regionExecutionPolicy;
+	}
+
+	/**
+	 * sets execute actions in sync flag
+	 * @param executeActionsInSyncEnabled
+	 */
+	public void setExecuteActionsInSyncEnabled(boolean executeActionsInSyncEnabled) {
+		this.executeActionsInSyncEnabled = executeActionsInSyncEnabled;
 	}
 }
