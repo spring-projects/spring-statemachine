@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.statemachine.StateMachineEventResult.ResultType;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.StateMachineFactory;
@@ -121,6 +122,15 @@ public class TestUtils {
 		StepVerifier.create(stateMachine.sendEvent(eventAsMono(event)))
 			.consumeNextWith(result -> {
 				assertThat(result.getResultType()).isEqualTo(ResultType.DENIED);
+			})
+			.verifyComplete();
+	}
+
+	public static <S, E> void doSendEventAndConsumeResultAsDeniedWithAccessDeniedException(StateMachine<S, E> stateMachine, E event) {
+		StepVerifier.create(stateMachine.sendEvent(eventAsMono(event)))
+			.consumeNextWith(result -> {
+				assertThat(result.getResultType()).isEqualTo(ResultType.DENIED);
+				assertThat(result.getDenialCause().map(t -> t instanceof AccessDeniedException).orElse(false)).isTrue();
 			})
 			.verifyComplete();
 	}
