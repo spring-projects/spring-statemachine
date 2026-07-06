@@ -59,7 +59,7 @@ import reactor.core.publisher.Mono;
  */
 public class DistributedStateMachine<S, E> extends LifecycleObjectSupport implements StateMachine<S, E> {
 
-	private final static Log log = LogFactory.getLog(DistributedStateMachine.class);
+	private static final Log log = LogFactory.getLog(DistributedStateMachine.class);
 	private final StateMachineEnsemble<S, E> ensemble;
 	private final StateMachine<S, E> delegate;
 	private final LocalEnsembleListener listener = new LocalEnsembleListener();

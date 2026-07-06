@@ -34,7 +34,7 @@ import org.springframework.statemachine.config.common.annotation.ObjectPostProce
 @Configuration
 public class ObjectPostProcessorConfiguration {
 
-	private final static String POST_PROCESSOR_BEAN_ID = "org.springframework.statemachine.config.common.annotation.configuration.objectPostProcessor";
+	private static final String POST_PROCESSOR_BEAN_ID = "org.springframework.statemachine.config.common.annotation.configuration.objectPostProcessor";
 
 	@Bean(name = POST_PROCESSOR_BEAN_ID)
 	public ObjectPostProcessor<Object> objectPostProcessor(AutowireCapableBeanFactory beanFactory) {

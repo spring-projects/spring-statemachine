@@ -41,7 +41,7 @@ import reactor.core.publisher.Mono;
  */
 public abstract class AbstractTransition<S, E> implements Transition<S, E> {
 
-	private final static Log log = LogFactory.getLog(AbstractTransition.class);
+	private static final Log log = LogFactory.getLog(AbstractTransition.class);
 	protected final State<S, E> target;
 	protected final Collection<Function<StateContext<S, E>, Mono<Void>>> actions;
 	private final State<S, E> source;
